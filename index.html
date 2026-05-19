@@ -304,6 +304,65 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .img-preview-mini[src=""]{display:none;}
 .img-preview-banner[src=""]{display:none;}
 
+/* ══ ACTIVITIES (Work / Train / Quest / Daily) ══ */
+.activities-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;margin-bottom:28px;}
+.activity-card{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:20px;position:relative;overflow:hidden;transition:all 0.25s;}
+.activity-card:hover{border-color:rgba(255,157,199,0.4);transform:translateY(-2px);}
+.activity-card::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at top left,var(--ac-glow,rgba(255,157,199,0.06)),transparent 70%);pointer-events:none;}
+.activity-icon{font-size:2.4em;margin-bottom:10px;display:block;}
+.activity-name{font-family:'Cinzel Decorative',serif;font-size:1em;color:var(--pink-pale);margin-bottom:6px;}
+.activity-desc{font-size:0.83em;color:var(--text-dim);line-height:1.55;margin-bottom:14px;}
+.activity-reward{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
+.reward-tag{background:rgba(241,196,15,0.1);border:1px solid rgba(241,196,15,0.3);border-radius:12px;padding:3px 10px;font-family:'JetBrains Mono',monospace;font-size:0.75em;color:#f1c40f;}
+.reward-tag.xp{background:rgba(52,152,219,0.1);border-color:rgba(52,152,219,0.3);color:#5dade2;}
+.activity-cooldown{font-family:'JetBrains Mono',monospace;font-size:0.72em;color:var(--text-dim);margin-bottom:10px;min-height:18px;}
+.activity-btn{width:100%;padding:10px;border-radius:14px;background:linear-gradient(135deg,var(--pink-deep),var(--purple));border:none;color:#fff;font-family:'Cinzel Decorative',serif;font-size:0.78em;cursor:pointer;transition:all 0.2s;letter-spacing:0.04em;}
+.activity-btn:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 6px 20px var(--pink-glow);}
+.activity-btn:disabled{opacity:0.4;cursor:not-allowed;background:rgba(100,80,110,0.4);}
+
+/* ══ ACTIVITY MODAL ══ */
+.act-modal{position:fixed;inset:0;z-index:250;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.88);backdrop-filter:blur(8px);padding:20px;}
+.act-modal.active{display:flex;}
+.act-modal-box{background:linear-gradient(135deg,var(--bg2),var(--bg3));border:1px solid var(--border);border-radius:24px;max-width:520px;width:100%;max-height:90vh;overflow-y:auto;padding:28px;animation:modalIn 0.3s cubic-bezier(0.34,1.56,0.64,1);}
+.act-modal-title{font-family:'Cinzel Decorative',serif;font-size:1.2em;color:var(--pink-pale);margin-bottom:6px;}
+.act-modal-sub{color:var(--text-dim);font-style:italic;font-size:0.9em;margin-bottom:20px;}
+.act-scene{background:rgba(255,157,199,0.05);border:1px solid var(--border);border-radius:14px;padding:18px;margin-bottom:18px;min-height:80px;font-size:0.95em;line-height:1.7;color:var(--text);}
+.act-choices{display:flex;flex-direction:column;gap:8px;margin-bottom:18px;}
+.act-choice{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 16px;cursor:pointer;font-size:0.88em;color:var(--text);transition:all 0.2s;text-align:left;}
+.act-choice:hover{border-color:var(--pink);background:rgba(255,157,199,0.1);color:var(--pink);}
+.act-progress-wrap{margin-bottom:16px;}
+.act-progress-label{display:flex;justify-content:space-between;font-size:0.8em;margin-bottom:6px;color:var(--text-dim);}
+.act-progress-track{height:8px;background:rgba(255,255,255,0.06);border-radius:4px;overflow:hidden;}
+.act-progress-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--pink-deep),var(--purple));transition:width 0.5s ease;}
+.act-result{text-align:center;padding:10px 0;}
+.act-result-big{font-size:2em;margin-bottom:10px;}
+.act-result-text{font-family:'Cinzel Decorative',serif;font-size:1em;color:var(--pink-pale);margin-bottom:6px;}
+.act-result-rewards{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:12px 0;}
+.act-close-btn{width:100%;padding:12px;border-radius:14px;background:linear-gradient(135deg,var(--pink-deep),var(--purple));border:none;color:#fff;font-family:'Cinzel Decorative',serif;font-size:0.82em;cursor:pointer;margin-top:6px;letter-spacing:0.04em;}
+
+/* ══ DAILY LOGIN ══ */
+.daily-streak-banner{background:linear-gradient(135deg,rgba(241,196,15,0.12),rgba(255,157,199,0.08));border:1px solid rgba(241,196,15,0.3);border-radius:18px;padding:20px 24px;margin-bottom:24px;display:flex;align-items:center;gap:18px;flex-wrap:wrap;}
+.daily-flame{font-size:3em;animation:orbPulse 2s ease-in-out infinite;}
+.daily-streak-info h3{font-family:'Cinzel Decorative',serif;font-size:1.1em;color:#f1c40f;margin-bottom:4px;}
+.daily-streak-info p{color:var(--text-dim);font-size:0.85em;}
+.daily-calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-bottom:24px;}
+.day-box{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:10px 6px;text-align:center;position:relative;}
+.day-box.claimed{border-color:rgba(241,196,15,0.5);background:rgba(241,196,15,0.08);}
+.day-box.today{border-color:var(--pink);box-shadow:0 0 12px var(--pink-glow);animation:orbPulse 2s ease-in-out infinite;}
+.day-box.future{opacity:0.45;}
+.day-num{font-family:'JetBrains Mono',monospace;font-size:0.65em;color:var(--text-dim);margin-bottom:4px;}
+.day-reward{font-size:1.1em;}
+.day-reward-amt{font-family:'JetBrains Mono',monospace;font-size:0.6em;color:#f1c40f;}
+.day-check{position:absolute;top:4px;right:4px;font-size:0.6em;}
+.daily-claim-btn{width:100%;padding:14px;border-radius:16px;background:linear-gradient(135deg,#f1c40f,#ff9dc7);border:none;color:#000;font-family:'Cinzel Decorative',serif;font-size:0.9em;font-weight:700;cursor:pointer;letter-spacing:0.05em;transition:all 0.25s;box-shadow:0 4px 20px rgba(241,196,15,0.3);}
+.daily-claim-btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 8px 28px rgba(241,196,15,0.4);}
+.daily-claim-btn:disabled{opacity:0.4;cursor:not-allowed;background:rgba(100,80,110,0.4);}
+
+@media(max-width:700px){
+  .daily-calendar{grid-template-columns:repeat(4,1fr);}
+  .activities-grid{grid-template-columns:1fr;}
+}
+
 /* ── ADMIN ── */
 .admin-badge{background:linear-gradient(135deg,#f1c40f,#ff6b9d);color:#000;font-size:0.65em;font-family:'JetBrains Mono',monospace;font-weight:700;padding:2px 7px;border-radius:10px;letter-spacing:0.05em;vertical-align:middle;margin-left:6px;}
 #adminPage{display:none;}
@@ -539,6 +598,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
       <button class="nav-btn" onclick="goTo('collection',this)">🃏 Cards</button>
       <button class="nav-btn" onclick="goTo('shop',this)">🛍️ Shop</button>
       <button class="nav-btn" onclick="goTo('profile',this)">👤 Profile</button>
+      <button class="nav-btn" onclick="goTo('activities',this)">⚔️ Activities</button>
       <button class="nav-btn" id="adminNavBtn" style="display:none" onclick="goTo('admin',this)">⚙️ Admin</button>
     </div>
     <div style="display:flex;align-items:center;gap:10px;" class="nav-signout-wrap">
@@ -556,6 +616,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
       <button class="mobile-nav-btn" id="mnav-collection" onclick="goTo('collection',null);setMobileNav('collection')"><span class="mob-icon">🃏</span>Cards</button>
       <button class="mobile-nav-btn" id="mnav-shop" onclick="goTo('shop',null);setMobileNav('shop')"><span class="mob-icon">🛍️</span>Shop</button>
       <button class="mobile-nav-btn" id="mnav-profile" onclick="goTo('profile',null);setMobileNav('profile')"><span class="mob-icon">👤</span>Profile</button>
+      <button class="mobile-nav-btn" id="mnav-activities" onclick="goTo('activities',null);setMobileNav('activities')"><span class="mob-icon">⚔️</span>Activities</button>
       <button class="mobile-nav-btn" id="mnav-admin" style="display:none" onclick="goTo('admin',null);setMobileNav('admin')"><span class="mob-icon">⚙️</span>Admin</button>
     </div>
   </div>
@@ -707,6 +768,76 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
           </div>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- ACTIVITIES PAGE -->
+  <div class="page" id="page-activities">
+    <div class="section-title">Daily Login</div>
+    <div class="daily-streak-banner">
+      <div class="daily-flame">🔥</div>
+      <div class="daily-streak-info">
+        <h3>🔥 <span id="streakCount">0</span>-Day Streak</h3>
+        <p id="streakSub">Log in every day to keep your streak and earn bonus coins!</p>
+      </div>
+    </div>
+    <div class="daily-calendar" id="dailyCalendar"><!-- filled by JS --></div>
+    <button class="daily-claim-btn" id="dailyClaimBtn" onclick="claimDailyReward()">✦ Claim Today's Reward</button>
+
+    <div class="section-title" style="margin-top:32px;">Activities</div>
+    <div class="activities-grid">
+      <!-- WORK -->
+      <div class="activity-card" style="--ac-glow:rgba(241,196,15,0.1)">
+        <span class="activity-icon">💼</span>
+        <div class="activity-name">Work</div>
+        <div class="activity-desc">Take on jobs in the city. Navigate tricky situations to maximize your pay. Highest coin earner!</div>
+        <div class="activity-reward">
+          <span class="reward-tag">💰 80–200 🪙</span>
+          <span class="reward-tag xp">⭐ 10–30 XP</span>
+        </div>
+        <div class="activity-cooldown" id="workCooldown">Ready!</div>
+        <button class="activity-btn" id="workBtn" onclick="openActivity('work')">💼 Go to Work</button>
+      </div>
+      <!-- TRAIN -->
+      <div class="activity-card" style="--ac-glow:rgba(52,152,219,0.1)">
+        <span class="activity-icon">🏋️</span>
+        <div class="activity-name">Train</div>
+        <div class="activity-desc">Push your cards to the limit. Complete training challenges to earn massive XP for your equipped card.</div>
+        <div class="activity-reward">
+          <span class="reward-tag">💰 20–50 🪙</span>
+          <span class="reward-tag xp">⭐ 80–200 XP</span>
+        </div>
+        <div class="activity-cooldown" id="trainCooldown">Ready!</div>
+        <button class="activity-btn" id="trainBtn" onclick="openActivity('train')">🏋️ Start Training</button>
+      </div>
+      <!-- QUEST -->
+      <div class="activity-card" style="--ac-glow:rgba(155,89,182,0.1)">
+        <span class="activity-icon">🗺️</span>
+        <div class="activity-name">Quest</div>
+        <div class="activity-desc">Embark on short adventures. Make choices that determine your loot. Balanced coins and XP!</div>
+        <div class="activity-reward">
+          <span class="reward-tag">💰 40–120 🪙</span>
+          <span class="reward-tag xp">⭐ 40–100 XP</span>
+        </div>
+        <div class="activity-cooldown" id="questCooldown">Ready!</div>
+        <button class="activity-btn" id="questBtn" onclick="openActivity('quest')">🗺️ Go on Quest</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ACTIVITY MODAL -->
+  <div class="act-modal" id="actModal">
+    <div class="act-modal-box">
+      <div class="act-modal-title" id="actModalTitle">Activity</div>
+      <div class="act-modal-sub" id="actModalSub"></div>
+      <div class="act-progress-wrap" id="actProgressWrap">
+        <div class="act-progress-label"><span id="actProgressLabel">Progress</span><span id="actProgressVal">0 / 3</span></div>
+        <div class="act-progress-track"><div class="act-progress-fill" id="actProgressFill" style="width:0%"></div></div>
+      </div>
+      <div class="act-scene" id="actScene"></div>
+      <div class="act-choices" id="actChoices"></div>
+      <div class="act-result" id="actResult" style="display:none"></div>
+      <button class="act-close-btn" id="actCloseBtn" onclick="closeActivity()" style="display:none">✦ Collect Rewards</button>
     </div>
   </div>
 
@@ -1647,8 +1778,364 @@ function adminClearCollection(){
 }
 
 // ══════════════════════════════════════════════
-// MOBILE NAV
+// DAILY LOGIN SYSTEM
 // ══════════════════════════════════════════════
+const DAILY_REWARDS = [
+  {coins:50,  label:'50🪙'},
+  {coins:75,  label:'75🪙'},
+  {coins:100, label:'100🪙'},
+  {coins:150, label:'150🪙'},
+  {coins:100, label:'100🪙'},
+  {coins:200, label:'200🪙'},
+  {coins:300, label:'300🪙'},
+];
+
+function getDailyKey(){ return state.discordId ? 'mg_daily_'+state.discordId : 'mg_daily_guest'; }
+function getStreakKey(){ return state.discordId ? 'mg_streak_'+state.discordId : 'mg_streak_guest'; }
+
+function loadDailyState(){
+  const raw = localStorage.getItem(getDailyKey());
+  try{ return raw ? JSON.parse(raw) : {lastClaim:null, streak:0, history:[]}; }catch(e){ return {lastClaim:null,streak:0,history:[]}; }
+}
+function saveDailyState(d){ localStorage.setItem(getDailyKey(), JSON.stringify(d)); }
+
+function isSameDay(a,b){
+  const da=new Date(a), db=new Date(b);
+  return da.getFullYear()===db.getFullYear()&&da.getMonth()===db.getMonth()&&da.getDate()===db.getDate();
+}
+function isYesterday(ts){
+  const y=new Date(); y.setDate(y.getDate()-1);
+  return isSameDay(ts,y);
+}
+
+function renderDailyCalendar(){
+  const d = loadDailyState();
+  const today = new Date();
+  const cal = document.getElementById('dailyCalendar');
+  if(!cal) return;
+  let html='';
+  for(let i=0;i<7;i++){
+    const reward = DAILY_REWARDS[i];
+    const dayNum = i+1;
+    const isClaimed = d.streak > i || (d.history && d.history.includes(i));
+    const isToday = (d.streak % 7) === i && !d.lastClaim;
+    const alreadyClaimedToday = d.lastClaim && isSameDay(d.lastClaim, today) && (d.streak-1)%7 === i;
+    const claimedActual = d.streak > i || alreadyClaimedToday;
+    const todaySlot = d.lastClaim && isSameDay(d.lastClaim, today) ? (d.streak-1)%7 : d.streak%7;
+    const cls = i<todaySlot ? 'claimed' : (i===todaySlot && d.lastClaim && isSameDay(d.lastClaim,today)) ? 'claimed today' : (i===todaySlot) ? 'today' : 'future';
+    html+=`<div class="day-box ${cls}">
+      <div class="day-num">Day ${dayNum}</div>
+      <div class="day-reward">🪙</div>
+      <div class="day-reward-amt">${reward.label}</div>
+      ${cls.includes('claimed')?'<div class="day-check">✅</div>':''}
+    </div>`;
+  }
+  cal.innerHTML = html;
+  // streak count
+  document.getElementById('streakCount').textContent = d.streak;
+  document.getElementById('streakSub').textContent = d.streak>=7 ? `🎉 Full week! Bonus streak active!` : `Log in every day to keep your streak going!`;
+  // claim button
+  const btn = document.getElementById('dailyClaimBtn');
+  const alreadyClaimed = d.lastClaim && isSameDay(d.lastClaim, today);
+  btn.disabled = alreadyClaimed;
+  btn.textContent = alreadyClaimed ? '✅ Already Claimed Today' : '✦ Claim Today\'s Reward';
+}
+
+async function claimDailyReward(){
+  const d = loadDailyState();
+  const today = new Date();
+  if(d.lastClaim && isSameDay(d.lastClaim, today)){ showToast('Already claimed today! Come back tomorrow ʚɞ'); return; }
+  // Check streak continuity
+  if(d.lastClaim && !isYesterday(d.lastClaim) && !isSameDay(d.lastClaim,today)){
+    d.streak = 0; // streak broken
+  }
+  const slot = d.streak % 7;
+  const reward = DAILY_REWARDS[slot];
+  d.streak++;
+  d.lastClaim = today.toISOString();
+  saveDailyState(d);
+  state.coins += reward.coins;
+  updateCoins();
+  if(state.discordId&&!state.isGuest) await savePlayer();
+  if(state.isGuest) saveGuestState();
+  showToast(`🎉 Day ${d.streak} reward! +${reward.coins} 🪙`);
+  spawnParticles(3,'#f1c40f');
+  renderDailyCalendar();
+}
+
+// ══════════════════════════════════════════════
+// ACTIVITY SYSTEM (Work / Train / Quest)
+// ══════════════════════════════════════════════
+const COOLDOWNS = { work: 30*60*1000, train: 20*60*1000, quest: 45*60*1000 };
+
+function getActKey(type){ return state.discordId ? `mg_act_${type}_${state.discordId}` : `mg_act_${type}_guest`; }
+function getLastAct(type){ const v=localStorage.getItem(getActKey(type)); return v?parseInt(v):0; }
+function setLastAct(type){ localStorage.setItem(getActKey(type), Date.now().toString()); }
+function getCooldownLeft(type){ const cd=COOLDOWNS[type]; const last=getLastAct(type); const left=cd-(Date.now()-last); return left>0?left:0; }
+
+function fmtTime(ms){
+  const m=Math.floor(ms/60000), s=Math.floor((ms%60000)/1000);
+  return `${m}m ${s}s`;
+}
+
+function updateActivityCooldowns(){
+  ['work','train','quest'].forEach(type=>{
+    const left=getCooldownLeft(type);
+    const cd=document.getElementById(type+'Cooldown');
+    const btn=document.getElementById(type+'Btn');
+    if(left>0){ if(cd)cd.textContent=`⏳ ${fmtTime(left)}`; if(btn)btn.disabled=true; }
+    else { if(cd)cd.textContent='✅ Ready!'; if(btn)btn.disabled=false; }
+  });
+}
+
+setInterval(updateActivityCooldowns, 1000);
+
+// ── SCENARIO DATA ──
+const WORK_SCENARIOS = [
+  {
+    scene: "You arrive at the Akihabara Electronics Bazaar for your shift. Your manager greets you with urgent news: a huge order just came in and the warehouse needs organizing FAST. How do you handle your workday?",
+    steps:[
+      { text:"A customer approaches, confused about two similar products.", choices:[
+        {label:"📖 Explain both products in detail", score:2, flavor:"They buy the premium one. Excellent upsell!"},
+        {label:"🤷 Point them to the display and move on", score:0, flavor:"They leave without buying anything."},
+        {label:"💡 Suggest the one with better value", score:1, flavor:"They appreciate the honest advice."},
+      ]},
+      { text:"The warehouse scanner breaks mid-shift. You're behind schedule.", choices:[
+        {label:"🔧 Try to fix it yourself", score:2, flavor:"You manage a workaround. Impressive!"},
+        {label:"📢 Alert the supervisor immediately", score:1, flavor:"They call IT. Some delay, but handled properly."},
+        {label:"📝 Count manually by hand", score:1, flavor:"Tedious but thorough. No items missed."},
+      ]},
+      { text:"A coworker asks you to cover for them — they want to leave early.", choices:[
+        {label:"✅ Cover for them, no problem", score:2, flavor:"They return the favour next payday!"},
+        {label:"❌ Decline, you're too busy", score:0, flavor:"They manage, but things feel awkward."},
+        {label:"🤝 Agree but ask the manager first", score:1, flavor:"By-the-book. Manager appreciates it."},
+      ]},
+    ],
+    coinBase:80, coinPerScore:20, xpBase:10, xpPerScore:7,
+  },
+  {
+    scene: "You've landed a freelance gig coding a website for a local ramen shop. The deadline is tight, and the client keeps changing requirements!",
+    steps:[
+      { text:"The client wants animated noodles on the homepage.", choices:[
+        {label:"✨ Sure! CSS animations incoming", score:2, flavor:"The animation looks incredible. Client is thrilled!"},
+        {label:"💬 Discuss scope creep and timeline", score:1, flavor:"Client understands. Reasonable compromise reached."},
+        {label:"🚫 That wasn't in the contract", score:0, flavor:"Client is grumpy but backs down."},
+      ]},
+      { text:"You discover a critical bug an hour before launch.", choices:[
+        {label:"🔥 All-nighter — fix it no matter what", score:2, flavor:"Fixed with 10 minutes to spare. Legend status!"},
+        {label:"📧 Notify the client and delay 1 day", score:1, flavor:"They appreciate the honesty. Small delay accepted."},
+        {label:"🤞 Ship it and hope nobody notices", score:0, flavor:"Someone notices. Urgent hotfix requested."},
+      ]},
+      { text:"The client offers a bonus if you add an online ordering system.",choices:[
+        {label:"⚡ Yes! You've built one before", score:2, flavor:"Done in record time. Big bonus earned!"},
+        {label:"⏱️ Ask for two extra days", score:1, flavor:"Extra time well-used. Feature is solid."},
+        {label:"😅 Politely decline — out of scope", score:0, flavor:"Fair call. Base fee only."},
+      ]},
+    ],
+    coinBase:90, coinPerScore:22, xpBase:12, xpPerScore:6,
+  },
+];
+
+const TRAIN_SCENARIOS = [
+  {
+    scene: "Your equipped card enters the Celestial Training Grounds — a mystical dojo where only the strongest grow. Three trials await!",
+    steps:[
+      { text:"Trial 1: The Endurance Wall. An endless staircase stretches into the sky.", choices:[
+        {label:"🏃 Sprint up at full speed", score:2, flavor:"You blaze past the checkpoint. Incredible stamina!"},
+        {label:"🐢 Steady pace, conserve energy", score:1, flavor:"Consistent rhythm. You reach the top unfazed."},
+        {label:"😴 Take breaks every few floors", score:0, flavor:"You make it... eventually."},
+      ]},
+      { text:"Trial 2: The Focus Mirror. You must strike the exact centre of a moving target.", choices:[
+        {label:"🎯 Study the pattern first, then strike", score:2, flavor:"Perfect hit. The mirror shatters dramatically!"},
+        {label:"⚡ Instinct — just go for it", score:1, flavor:"Close! A near-perfect shot."},
+        {label:"😰 Hesitate too long", score:0, flavor:"The window closes. Partial credit only."},
+      ]},
+      { text:"Trial 3: The Willpower Flame. You must hold your hand over a flame without flinching.", choices:[
+        {label:"🧘 Meditate and stay calm", score:2, flavor:"Ice cold. The flame bows to your will!"},
+        {label:"😤 Grit your teeth and push through", score:1, flavor:"Intense but successful. Respect earned."},
+        {label:"😬 Pull back at the last second", score:0, flavor:"The master sighs. Still a passing grade."},
+      ]},
+    ],
+    coinBase:20, coinPerScore:10, xpBase:80, xpPerScore:40,
+  },
+  {
+    scene: "A rival summoner challenges your equipped card to a sparring match in the Crystal Coliseum. The crowd is watching!",
+    steps:[
+      { text:"Round 1: Your opponent opens with a powerful combo.", choices:[
+        {label:"🛡️ Block and wait for a counter", score:2, flavor:"Perfect parry! The crowd gasps."},
+        {label:"⚔️ Meet force with force", score:1, flavor:"Clash of titans! You hold your ground."},
+        {label:"🏃 Dodge and create distance", score:0, flavor:"Safe, but you lose momentum."},
+      ]},
+      { text:"Round 2: You sense a gap in their defense.", choices:[
+        {label:"⚡ Unleash your strongest move NOW", score:2, flavor:"Critical hit! The arena erupts!"},
+        {label:"🎭 Feint then strike", score:1, flavor:"Clever! They fall for it. Solid damage."},
+        {label:"💬 Taunt them to throw off focus", score:0, flavor:"It backfires. They get angry and hit harder."},
+      ]},
+      { text:"Final Round: Both of you are exhausted. One last exchange.", choices:[
+        {label:"✨ Burn your remaining energy on a finishing blow", score:2, flavor:"Spectacular finish! Victory is yours!"},
+        {label:"🧠 Outsmart them with a technique", score:1, flavor:"Elegant win. The master nods with approval."},
+        {label:"🤝 Call it a draw honorably", score:1, flavor:"Mutual respect. Both of you grow from the experience."},
+      ]},
+    ],
+    coinBase:25, coinPerScore:8, xpBase:90, xpPerScore:38,
+  },
+];
+
+const QUEST_SCENARIOS = [
+  {
+    scene: "A mysterious letter arrives at dawn, sealed with a wax emblem of a crescent moon. It reads: 'The Shrine of Lost Stars needs a guardian. Come alone.'",
+    steps:[
+      { text:"You reach a fork in the forest path. Left leads into dense fog. Right looks clear but suspiciously so.", choices:[
+        {label:"🌫️ Enter the fog — mystery awaits", score:2, flavor:"Inside you find a hidden shrine and ancient coins!"},
+        {label:"☀️ Take the clear path, stay safe", score:1, flavor:"Uneventful but you arrive quickly."},
+        {label:"🗺️ Pull out your map to study the area", score:1, flavor:"You find a shortcut. Smart!"},
+      ]},
+      { text:"A spirit fox blocks your path, staring intently.", choices:[
+        {label:"🍙 Offer it food from your bag", score:2, flavor:"It becomes your companion and guides you to treasure!"},
+        {label:"🙏 Bow respectfully and wait", score:1, flavor:"It moves aside with a mysterious smile."},
+        {label:"😤 Try to walk past it", score:0, flavor:"It nips at your ankles. Ouch."},
+      ]},
+      { text:"You discover the shrine. A puzzle blocks the inner chamber.", choices:[
+        {label:"🧩 Study the symbols carefully", score:2, flavor:"Solved! The chamber opens revealing rare rewards!"},
+        {label:"💪 Force the door open", score:0, flavor:"It budges… barely. You squeeze through bruised."},
+        {label:"🔍 Look for clues around the shrine", score:1, flavor:"You find a hint etched on a stone. Door opens smoothly."},
+      ]},
+    ],
+    coinBase:40, coinPerScore:25, xpBase:40, xpPerScore:20,
+  },
+  {
+    scene: "The seaside town of Umizuki is reporting strange lights beneath the waves at night. The fishermen are scared — and they're offering a reward.",
+    steps:[
+      { text:"You arrive at the dock at sunset. An old fisherman shares rumors of a sea creature.", choices:[
+        {label:"🎣 Stay and listen to all the stories", score:2, flavor:"You learn the creature's weakness — valuable intel!"},
+        {label:"🏊 Dive in immediately to investigate", score:1, flavor:"Bold! You startle the creature but survive."},
+        {label:"🌙 Wait until midnight for the lights", score:1, flavor:"Patience pays off — you spot the pattern."},
+      ]},
+      { text:"Beneath the surface, you discover a glowing underwater cave.", choices:[
+        {label:"🔦 Carefully map the cave", score:2, flavor:"You chart the whole cave and find a sunken chest!"},
+        {label:"💎 Grab whatever's glowing and leave", score:1, flavor:"You snag a glowing gem worth decent coin."},
+        {label:"📸 Document everything before touching", score:2, flavor:"Your thorough notes land you a scholar's bonus!"},
+      ]},
+      { text:"The 'creature' turns out to be a lonely bioluminescent whale calf, separated from its pod.", choices:[
+        {label:"🐋 Help guide it back to open water", score:2, flavor:"The grateful whale splashes you with golden blessings!"},
+        {label:"📣 Alert the townspeople immediately", score:1, flavor:"A rescue team forms. The town throws a celebration!"},
+        {label:"🤐 Quietly leave and say nothing", score:0, flavor:"You collect payment but feel… uncertain."},
+      ]},
+    ],
+    coinBase:45, coinPerScore:23, xpBase:45, xpPerScore:18,
+  },
+];
+
+// ── ACTIVITY STATE ──
+let actState = { type:null, scenario:null, step:0, score:0 };
+
+function openActivity(type){
+  const left = getCooldownLeft(type);
+  if(left>0){ showToast(`⏳ On cooldown! Ready in ${fmtTime(left)}`); return; }
+  const scenarios = type==='work'?WORK_SCENARIOS:type==='train'?TRAIN_SCENARIOS:QUEST_SCENARIOS;
+  const scenario = scenarios[Math.floor(Math.random()*scenarios.length)];
+  actState = { type, scenario, step:0, score:0 };
+  const titles = {work:'💼 Work Shift', train:'🏋️ Training', quest:'🗺️ Quest'};
+  const subs = {work:'Make smart choices to earn max coins!', train:'Push your card\'s limits for maximum XP!', quest:'Adventure awaits — choose wisely!'};
+  document.getElementById('actModalTitle').textContent = titles[type];
+  document.getElementById('actModalSub').textContent = subs[type];
+  document.getElementById('actResult').style.display='none';
+  document.getElementById('actCloseBtn').style.display='none';
+  document.getElementById('actChoices').style.display='flex';
+  document.getElementById('actProgressWrap').style.display='block';
+  renderActivityStep();
+  document.getElementById('actModal').classList.add('active');
+}
+
+function renderActivityStep(){
+  const {scenario, step, score} = actState;
+  const total = scenario.steps.length;
+  const s = scenario.steps[step];
+  document.getElementById('actProgressLabel').textContent = `Step ${step+1} of ${total}`;
+  document.getElementById('actProgressVal').textContent = `${step+1} / ${total}`;
+  document.getElementById('actProgressFill').style.width = `${((step)/total)*100}%`;
+  const sceneEl = document.getElementById('actScene');
+  sceneEl.textContent = step===0 ? scenario.scene + '\n\n' + s.text : s.text;
+  const choicesEl = document.getElementById('actChoices');
+  choicesEl.innerHTML = s.choices.map((c,i)=>
+    `<button class="act-choice" onclick="pickChoice(${i})">${c.label}</button>`
+  ).join('');
+}
+
+async function pickChoice(idx){
+  const {scenario, step} = actState;
+  const choice = scenario.steps[step].choices[idx];
+  actState.score += choice.score;
+  // Show flavor text briefly
+  const sceneEl = document.getElementById('actScene');
+  sceneEl.textContent = '✨ ' + choice.flavor;
+  document.getElementById('actChoices').innerHTML = '';
+  actState.step++;
+  if(actState.step >= scenario.steps.length){
+    setTimeout(finishActivity, 900);
+  } else {
+    setTimeout(renderActivityStep, 900);
+  }
+}
+
+async function finishActivity(){
+  const {type, scenario, score} = actState;
+  const maxScore = scenario.steps.reduce((s,st)=>s+Math.max(...st.choices.map(c=>c.score)),0);
+  const ratio = maxScore>0 ? score/maxScore : 0;
+  const coins = Math.round(scenario.coinBase + scenario.coinPerScore * score);
+  const xp = Math.round(scenario.xpBase + scenario.xpPerScore * score);
+  // Apply rewards
+  state.coins += coins;
+  updateCoins();
+  // Apply XP to equipped card
+  if(state.equippedId){
+    state.xpMap[state.equippedId] = (state.xpMap[state.equippedId]||0) + xp;
+    if(state.discordId&&!state.isGuest) await saveXp(state.discordId, state.equippedId, state.xpMap[state.equippedId]);
+  }
+  if(state.discordId&&!state.isGuest) await savePlayer();
+  if(state.isGuest) saveGuestState();
+  setLastAct(type);
+  updateActivityCooldowns();
+  // Show result
+  const grade = ratio>=0.9?'S':ratio>=0.7?'A':ratio>=0.5?'B':'C';
+  const gradeEmoji = {S:'🌟',A:'⭐',B:'👍',C:'😅'}[grade];
+  const msgs = {
+    S:'Perfect performance! You crushed it!',
+    A:'Excellent work! Great choices all around.',
+    B:'Solid effort. You did well!',
+    C:'Room to improve, but every bit counts.',
+  };
+  document.getElementById('actProgressWrap').style.display='none';
+  document.getElementById('actChoices').style.display='none';
+  document.getElementById('actScene').style.display='none';
+  const resultEl = document.getElementById('actResult');
+  resultEl.style.display='block';
+  resultEl.innerHTML=`
+    <div class="act-result-big">${gradeEmoji}</div>
+    <div class="act-result-text">Grade ${grade} — ${msgs[grade]}</div>
+    <div class="act-result-rewards">
+      <span class="reward-tag">+${coins} 🪙</span>
+      ${state.equippedId?`<span class="reward-tag xp">+${xp} XP</span>`:''}
+    </div>
+    <div style="font-size:0.8em;color:var(--text-dim);font-style:italic;">${state.equippedId?'XP added to your equipped card':'Equip a card to earn XP!'}</div>
+  `;
+  document.getElementById('actCloseBtn').style.display='block';
+  spawnParticles(ratio>=0.7?4:2,'#f1c40f');
+}
+
+function closeActivity(){
+  document.getElementById('actModal').classList.remove('active');
+  document.getElementById('actScene').style.display='block';
+  updateProfile();
+  renderCollection();
+}
+
+function initActivitiesPage(){
+  renderDailyCalendar();
+  updateActivityCooldowns();
+}
+
+
 function setMobileNav(page){
   document.querySelectorAll('.mobile-nav-btn').forEach(b=>b.classList.remove('active'));
   const el=document.getElementById('mnav-'+page);
