@@ -899,27 +899,109 @@ function showToast(msg){
 }
 
 // ══════════════════════════════════════════════
-// LOGIN
+// LOGIN — Discord OAuth
 // ══════════════════════════════════════════════
+const DISCORD_CLIENT_ID = '1506142424484024441';
+const DISCORD_REDIRECT   = 'https://meogacha.vercel.app/callback';
+const DISCORD_SCOPE      = 'identify';
+
 function loginDiscord(){
-  showToast('Discord OAuth ready when deployed! Try Demo Mode for now ʚɞ');
+  const state_param = Math.random().toString(36).slice(2);
+  sessionStorage.setItem('oauth_state', state_param);
+  const url = `https://discord.com/oauth2/authorize`
+    + `?client_id=${DISCORD_CLIENT_ID}`
+    + `&redirect_uri=${encodeURIComponent(DISCORD_REDIRECT)}`
+    + `&response_type=code`
+    + `&scope=${DISCORD_SCOPE}`
+    + `&state=${state_param}`;
+  window.location.href = url;
 }
+
 async function demoLogin(){
   const demoId='demo_'+btoa(navigator.userAgent).slice(0,12).replace(/[^a-z0-9]/gi,'');
   state.discordId=demoId;state.loggedIn=true;
   state.username='Demo Summoner';state.avatar='';
-  const overlay=document.getElementById('loginOverlay');
-  overlay.style.transition='opacity 0.4s';overlay.style.opacity='0';overlay.style.pointerEvents='none';
-  setTimeout(()=>overlay.style.display='none',400);
+  hideLoginOverlay();
   showToast('✨ Loading your data... ʚɞ');
   await loadAll(demoId);
   showToast('✨ Welcome to MeoGacha! ʚɞ');
+}
+
+function hideLoginOverlay(){
+  const overlay=document.getElementById('loginOverlay');
+  overlay.style.transition='opacity 0.4s';
+  overlay.style.opacity='0';
+  overlay.style.pointerEvents='none';
+  setTimeout(()=>overlay.style.display='none',400);
+}
+
+// Called after Discord redirects back with ?token= from our serverless function
+async function handleDiscordCallback(){
+  const params = new URLSearchParams(window.location.search);
+  const token  = params.get('token');
+  const dId    = params.get('discord_id');
+  const uname  = params.get('username');
+  const avatar = params.get('avatar');
+  const err    = params.get('error');
+
+  if(err){ showToast('Login failed: '+err+' — try Demo Mode'); return; }
+  if(!token || !dId) return;
+
+  // Clean URL
+  window.history.replaceState({}, document.title, '/');
+
+  // Store session
+  localStorage.setItem('mg_discord_id', dId);
+  localStorage.setItem('mg_username',   uname||'Summoner');
+  localStorage.setItem('mg_avatar',     avatar||'');
+  localStorage.setItem('mg_token',      token);
+
+  state.discordId = dId;
+  state.username  = uname||'Summoner';
+  state.avatar    = avatar||'';
+  state.loggedIn  = true;
+
+  hideLoginOverlay();
+  showToast('✨ Welcome back, '+state.username+'! ʚɞ');
+  await loadAll(dId);
+}
+
+// Auto-login from saved session
+async function tryAutoLogin(){
+  // Check if returning from Discord OAuth
+  const params = new URLSearchParams(window.location.search);
+  if(params.get('token') || params.get('error')){
+    hideLoginOverlay();
+    await handleDiscordCallback();
+    return;
+  }
+
+  // Check saved session
+  const savedId = localStorage.getItem('mg_discord_id');
+  if(savedId){
+    state.discordId = savedId;
+    state.username  = localStorage.getItem('mg_username')||'Summoner';
+    state.avatar    = localStorage.getItem('mg_avatar')||'';
+    state.loggedIn  = true;
+    hideLoginOverlay();
+    showToast('✨ Welcome back, '+state.username+'! ʚɞ');
+    await loadAll(savedId);
+  }
+}
+
+function logout(){
+  localStorage.removeItem('mg_discord_id');
+  localStorage.removeItem('mg_username');
+  localStorage.removeItem('mg_avatar');
+  localStorage.removeItem('mg_token');
+  window.location.reload();
 }
 
 // ══════════════════════════════════════════════
 // INIT
 // ══════════════════════════════════════════════
 renderShop();
+tryAutoLogin();
 </script>
 </body>
 </html>
