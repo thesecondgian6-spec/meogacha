@@ -131,8 +131,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .profile-card{background:linear-gradient(135deg,var(--bg2),var(--bg3));border:1px solid var(--border);border-radius:24px;overflow:hidden;max-width:600px;margin:0 auto;}
 .profile-banner{height:160px;background:linear-gradient(135deg,var(--pink-deep),var(--purple));position:relative;overflow:hidden;}
 .profile-banner img{width:100%;height:100%;object-fit:cover;opacity:0.7;}
-.profile-avatar{width:80px;height:80px;border-radius:50%;border:3px solid var(--pink);position:absolute;bottom:-40px;left:28px;background:var(--bg2);overflow:hidden;}
-.profile-avatar img{width:100%;height:100%;object-fit:cover;}
+/* legacy .profile-avatar removed — using .profile-avatar-outer now */
 .profile-body{padding:52px 28px 28px;}
 .profile-name{font-family:'Cinzel Decorative',serif;font-size:1.3em;margin-bottom:4px;}
 .profile-title{font-style:italic;color:var(--pink);font-size:0.9em;margin-bottom:6px;}
@@ -193,36 +192,50 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 @media(max-width:700px){
   nav .nav-links,.nav-signout-wrap{display:none!important;}
   .mobile-nav{display:block;}
-  .page{padding:16px 14px 80px;}
-  .hero{padding:32px 16px 24px;}
+  .page{padding:16px 14px 88px;}
+  .hero{padding:28px 16px 20px;}
   .hero-title{font-size:clamp(1.6em,10vw,3em);}
-  .hero-sub{font-size:1em;}
-  .banner-card{grid-template-columns:1fr!important;padding:20px;}
+  .hero-sub{font-size:0.95em;}
+  .banner-card{grid-template-columns:1fr!important;padding:18px 16px;}
   .banner-art{display:none;}
   .pull-btn-group{grid-template-columns:1fr 1fr;gap:10px;max-width:100%;}
   .pull-big-btn{padding:14px 10px;font-size:0.78em;}
   .cards-grid{grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;}
-  .profile-card{border-radius:16px;}
-  .profile-stats{grid-template-columns:repeat(3,1fr);gap:8px;}
-  .stat-box{padding:10px 6px;}
-  .stat-val{font-size:1em;}
+  /* Profile mobile fixes */
+  .profile-banner-area{height:120px;}
+  .profile-avatar-row{margin-top:-36px;padding:0 16px;}
+  .profile-avatar-outer{width:72px;height:72px;}
+  .profile-body{padding:10px 16px 20px;}
+  .profile-name{font-size:1.05em;}
+  .profile-stats{grid-template-columns:repeat(3,1fr);gap:7px;}
+  .stat-box{padding:9px 5px;}
+  .stat-val{font-size:0.95em;}
   .multi-card-img{width:90px;height:128px;}
   .multi-cards-row{gap:8px;padding:0 10px;}
-  nav{padding:10px 16px;}
-  .nav-logo{font-size:0.95em;}
+  nav{padding:10px 14px;}
+  .nav-logo{font-size:0.92em;}
   .modal-box{max-height:95vh;border-radius:16px;}
-  .profile-edit-box{max-height:95vh;border-radius:16px;}
+  .profile-edit-box{max-height:95vh;border-radius:16px;padding:20px 16px;}
   .admin-grid{grid-template-columns:1fr 1fr;}
   .rates-grid{grid-template-columns:repeat(4,1fr);}
   .shop-grid{grid-template-columns:1fr 1fr;}
   .coll-filter{gap:5px;}
-  .filter-btn{padding:3px 9px;font-size:0.72em;}
+  .filter-btn{padding:3px 8px;font-size:0.72em;}
+  .pool-grid{grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:8px;}
+  .pool-modal-box{padding:16px;}
+  .featured-card-visual{width:95px;}
+  .featured-card-visual img{height:132px;}
+  .pull-card-art{width:190px;height:270px;}
+  .pull-name{font-size:1.3em;}
 }
 @media(max-width:380px){
   .pull-btn-group{grid-template-columns:1fr;}
   .cards-grid{grid-template-columns:repeat(2,1fr);}
   .shop-grid{grid-template-columns:1fr;}
   .admin-grid{grid-template-columns:1fr;}
+  .rates-grid{grid-template-columns:repeat(3,1fr);}
+  .profile-stats{gap:5px;}
+  .stat-val{font-size:0.88em;}
 }
 
 /* ══ BANNER CARD SHOWCASE ══ */
@@ -258,25 +271,36 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .profile-card{background:linear-gradient(135deg,var(--bg2),var(--bg3));border:1px solid var(--border);border-radius:24px;overflow:visible;position:relative;}
 .profile-banner-area{height:160px;border-radius:24px 24px 0 0;position:relative;overflow:hidden;}
 .profile-banner-area img.banner-img{width:100%;height:100%;object-fit:cover;opacity:0.75;}
-.profile-avatar-wrap{position:absolute;left:24px;bottom:-44px;z-index:10;}
-.profile-avatar-img{width:88px;height:88px;border-radius:50%;border:4px solid var(--bg2);object-fit:cover;background:var(--bg3);display:block;box-shadow:0 0 0 2px var(--pink);}
+/* Avatar row sits BELOW the banner — negative margin pulls it up to overlap */
+.profile-avatar-row{display:flex;align-items:flex-end;gap:12px;padding:0 20px;margin-top:-44px;position:relative;z-index:10;}
+.profile-avatar-outer{width:88px;height:88px;border-radius:50%;border:4px solid var(--bg2);box-shadow:0 0 0 2.5px var(--pink);overflow:hidden;background:var(--bg3);flex-shrink:0;cursor:pointer;transition:box-shadow .2s;}
+.profile-avatar-outer:hover{box-shadow:0 0 0 2.5px var(--pink-pale),0 0 14px var(--pink-glow);}
+.profile-avatar-img{width:100%;height:100%;object-fit:cover;display:block;}
+.profile-avatar-row .admin-badge-inline{margin-bottom:6px;}
 .profile-edit-fab{position:absolute;top:12px;right:12px;background:rgba(0,0,0,0.55);border:1px solid rgba(255,255,255,0.2);color:#fff;padding:5px 14px;border-radius:20px;font-family:'Cormorant Garamond',serif;font-size:0.82em;cursor:pointer;backdrop-filter:blur(4px);transition:all 0.2s;}
 .profile-edit-fab:hover{border-color:var(--pink);color:var(--pink);}
-.profile-body{padding:56px 24px 24px;}
-.profile-name-row{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:4px;flex-wrap:wrap;}
+/* Reduced top padding because avatar row handles the gap now */
+.profile-body{padding:14px 24px 24px;}
+.profile-name-row{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:4px;flex-wrap:wrap;margin-top:8px;}
 .profile-name{font-family:'Cinzel Decorative',serif;font-size:1.25em;}
 .profile-title{font-style:italic;color:var(--pink);font-size:0.88em;margin-bottom:8px;}
-.profile-bio{color:var(--text-dim);font-size:0.9em;margin-bottom:20px;line-height:1.5;}
+.profile-bio{color:var(--text-dim);font-size:0.9em;margin-bottom:20px;line-height:1.5;cursor:pointer;}
+.profile-bio:hover{color:var(--text);}
+
+/* ══ PROFILE AVATAR CLICK HINT ══ */
+.avatar-hint{font-size:.65em;color:var(--text-dim);font-style:italic;margin-top:2px;text-align:center;}
 
 /* ══ PROFILE EDIT MODAL EXTRA ══ */
 .img-url-wrap{display:flex;gap:8px;align-items:center;}
 .img-url-wrap .edit-input{flex:1;}
-.img-url-wrap button{flex-shrink:0;padding:10px 14px;border-radius:10px;background:rgba(255,157,199,0.12);border:1px solid var(--border);color:var(--pink);cursor:pointer;font-size:0.82em;transition:all 0.2s;}
+.img-url-wrap button{flex-shrink:0;padding:8px 12px;border-radius:10px;background:rgba(255,157,199,0.12);border:1px solid var(--border);color:var(--pink);cursor:pointer;font-size:0.82em;transition:all 0.2s;}
 .img-url-wrap button:hover{background:rgba(255,157,199,0.2);}
-.img-preview-mini{width:60px;height:60px;border-radius:50%;object-fit:cover;border:2px solid var(--border);margin-top:6px;display:none;}
-.img-preview-banner{width:100%;height:60px;border-radius:8px;object-fit:cover;border:1px solid var(--border);margin-top:6px;display:none;}
+.img-preview-mini{width:60px;height:60px;border-radius:50%;object-fit:cover;border:2px solid var(--border);margin-top:6px;}
+.img-preview-banner{width:100%;height:60px;border-radius:8px;object-fit:cover;border:1px solid var(--border);margin-top:6px;}
 .name-edit-wrap{position:relative;}
 .name-char-count{position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:0.7em;color:var(--text-dim);font-family:'JetBrains Mono',monospace;pointer-events:none;}
+.img-preview-mini[src=""]{display:none;}
+.img-preview-banner[src=""]{display:none;}
 
 /* ── ADMIN ── */
 .admin-badge{background:linear-gradient(135deg,#f1c40f,#ff6b9d);color:#000;font-size:0.65em;font-family:'JetBrains Mono',monospace;font-weight:700;padding:2px 7px;border-radius:10px;letter-spacing:0.05em;vertical-align:middle;margin-left:6px;}
@@ -398,19 +422,51 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 <div class="profile-edit-modal" id="profileEditModal" onclick="closeProfileEdit(event)">
   <div class="profile-edit-box" id="profileEditBox">
     <h3>✦ Customize Profile</h3>
+
     <div class="edit-field">
-      <label class="edit-label">Banner Color</label>
+      <label class="edit-label">Display Name <span style="color:var(--text-dim);font-size:.85em">(max 24 chars)</span></label>
+      <div class="name-edit-wrap">
+        <input class="edit-input" id="editDisplayName" type="text" maxlength="24" placeholder="Your display name..."/>
+        <span class="name-char-count" id="nameCharCount">0/24</span>
+      </div>
+    </div>
+
+    <div class="edit-field">
+      <label class="edit-label">Profile Picture URL <span style="color:var(--text-dim);font-size:.85em">(paste an image link)</span></label>
+      <div class="img-url-wrap">
+        <input class="edit-input" id="editAvatarUrl" type="url" placeholder="https://i.imgur.com/... or Discord CDN URL"/>
+        <button onclick="previewAvatar()">Preview</button>
+      </div>
+      <img class="img-preview-mini" id="avatarPreview" src="" alt="avatar preview" onerror="this.src=''"/>
+      <p style="font-size:.75em;color:var(--text-dim);margin-top:4px;">Leave blank to use your Discord avatar</p>
+    </div>
+
+    <div class="edit-field">
+      <label class="edit-label">Banner Image URL <span style="color:var(--text-dim);font-size:.85em">(paste an image link)</span></label>
+      <div class="img-url-wrap">
+        <input class="edit-input" id="editBannerUrl" type="url" placeholder="https://i.imgur.com/... wide image works best"/>
+        <button onclick="previewBannerImg()">Preview</button>
+      </div>
+      <img class="img-preview-banner" id="bannerImgPreview" src="" alt="banner preview" onerror="this.src=''"/>
+      <p style="font-size:.75em;color:var(--text-dim);margin-top:4px;">Leave blank to use gradient color below</p>
+    </div>
+
+    <div class="edit-field">
+      <label class="edit-label">Banner Color <span style="color:var(--text-dim);font-size:.85em">(used when no image is set)</span></label>
       <div id="bannerPreview" class="profile-banner-preview"></div>
       <div class="banner-color-picker" id="bannerColorPicker"></div>
     </div>
+
     <div class="edit-field">
       <label class="edit-label">Title</label>
       <div class="title-picker" id="titlePicker"></div>
     </div>
+
     <div class="edit-field">
-      <label class="edit-label">Bio</label>
+      <label class="edit-label">Bio <span style="color:var(--text-dim);font-size:.85em">(max 120 chars)</span></label>
       <textarea class="edit-textarea" id="editBio" maxlength="120" placeholder="your local card hoarder 🌸"></textarea>
     </div>
+
     <div class="profile-edit-actions">
       <button class="profile-edit-btn" onclick="saveProfileCustom()">✦ Save Changes</button>
       <button class="edit-btn-small" onclick="closeProfileEdit()">Cancel</button>
@@ -584,15 +640,20 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   <div class="page" id="page-profile">
     <div class="profile-wrap">
       <div class="profile-card">
-        <!-- BANNER -->
+        <!-- BANNER (overflow:hidden clips only the banner image) -->
         <div class="profile-banner-area" id="profileBannerEl">
           <img class="banner-img" id="profileBannerImg" src="" alt="" style="display:none;"/>
-          <!-- edit button -->
           <button class="profile-edit-fab" onclick="openProfileEdit()">✏️ Edit Profile</button>
-          <!-- avatar sits at bottom-left of banner, overflowing down -->
-          <div class="profile-avatar-wrap">
-            <img class="profile-avatar-img" id="profileAvatar" src="https://cdn.discordapp.com/embed/avatars/0.png" alt="avatar"/>
+        </div>
+        <!-- AVATAR ROW — sits outside overflow:hidden so it shows fully -->
+        <div class="profile-avatar-row">
+          <div>
+            <div class="profile-avatar-outer" onclick="openProfileEdit()" title="Click to change avatar">
+              <img class="profile-avatar-img" id="profileAvatar" src="https://cdn.discordapp.com/embed/avatars/0.png" alt="avatar"/>
+            </div>
+            <div class="avatar-hint">click to edit</div>
           </div>
+          <div id="adminProfileBadge" style="display:none;margin-bottom:10px;"><span class="admin-badge">👑 ADMIN</span></div>
         </div>
         <!-- BODY -->
         <div class="profile-body">
@@ -601,9 +662,8 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
               <div class="profile-name" id="profileName">Summoner</div>
               <div class="profile-title" id="profileTitle">✦ Founding Member ✦</div>
             </div>
-            <div id="adminProfileBadge" style="display:none;"><span class="admin-badge">👑 ADMIN</span></div>
           </div>
-          <div class="profile-bio" id="profileBio">your local card hoarder 🌸</div>
+          <div class="profile-bio" id="profileBio" onclick="openProfileEdit()" title="Click to edit bio">your local card hoarder 🌸</div>
           <div class="profile-stats">
             <div class="stat-box"><div class="stat-val" id="statCoins">1000</div><div class="stat-lbl">🪙 Coins</div></div>
             <div class="stat-box"><div class="stat-val" id="statPulls">0</div><div class="stat-lbl">🎴 Pulls</div></div>
@@ -743,8 +803,11 @@ let state = {
   isGuest:      false,
   isAdmin:      false,
   discordId:    null,
-  username:     'Summoner',
-  avatar:       '',
+  username:     'Summoner',   // from Discord, never overwritten
+  displayName:  '',           // user-set display name (empty = use username)
+  avatar:       '',           // Discord avatar URL
+  customAvatar: '',           // user-set custom avatar URL
+  bannerImage:  '',           // user-set banner image URL
   coins:        1000,
   collection:   [],
   xpMap:        {},
@@ -851,9 +914,15 @@ async function loadPlayer(discordId){
     state.bio=p.bio??state.bio;
     state.title=p.title??state.title;
     state.bannerColor=p.banner_color??state.bannerColor;
+    state.displayName=p.display_name??'';
+    state.customAvatar=p.custom_avatar??'';
+    state.bannerImage=p.banner_image??'';
   } else {
-    await sb.upsert('players',{discord_id:discordId,username:state.username,avatar:state.avatar||'',coins:1000,total_pulls:0,pity_sr:0,pity_ur:0,bio:state.bio,title:state.title,banner_color:state.bannerColor});
+    await sb.upsert('players',{discord_id:discordId,username:state.username,avatar:state.avatar||'',coins:1000,total_pulls:0,pity_sr:0,pity_ur:0,bio:state.bio,title:state.title,banner_color:state.bannerColor,display_name:'',custom_avatar:'',banner_image:''});
   }
+  // Coin safety net: if localStorage has more coins than DB (saves from coin-reset bug), trust local
+  const lc=localStorage.getItem('mg_coins_'+discordId);
+  if(lc&&parseInt(lc)>state.coins) state.coins=parseInt(lc);
 }
 async function loadCollection(discordId){
   const rows=await sb.get('collection',{discord_id:discordId});
@@ -866,7 +935,9 @@ async function loadXpMap(discordId){
 }
 async function savePlayer(){
   if(!state.discordId||state.isGuest)return;
-  await sb.upsert('players',{discord_id:state.discordId,coins:state.coins,pity_sr:state.pitySR,pity_ur:state.pityUR,total_pulls:state.totalPulls,equipped_card:state.equippedId,bio:state.bio,title:state.title,banner_color:state.bannerColor});
+  // Always cache coins locally to prevent reset-on-reload bug
+  localStorage.setItem('mg_coins_'+state.discordId, state.coins);
+  await sb.upsert('players',{discord_id:state.discordId,coins:state.coins,pity_sr:state.pitySR,pity_ur:state.pityUR,total_pulls:state.totalPulls,equipped_card:state.equippedId,bio:state.bio,title:state.title,banner_color:state.bannerColor,display_name:state.displayName,custom_avatar:state.customAvatar,banner_image:state.bannerImage});
 }
 async function saveCardToCollection(discordId,cardId){
   await sb.insert('collection',{discord_id:discordId,card_id:cardId});
@@ -879,6 +950,7 @@ async function loadAll(discordId){
   await Promise.all([loadPlayer(discordId),loadCollection(discordId),loadXpMap(discordId)]);
   showLoadingOverlay(false);
   updateCoins();updatePity();updateProfile();renderCollection();renderShop();
+  renderFeaturedShowcase();
 }
 
 // ══════════════════════════════════════════════
@@ -1119,27 +1191,45 @@ function updatePity(){
   });
 }
 function updateCoins(){
-  document.getElementById('coinDisplay').textContent=state.coins.toLocaleString();
-  document.getElementById('statCoins').textContent=state.coins.toLocaleString();
+  const v=state.coins.toLocaleString();
+  document.getElementById('coinDisplay').textContent=v;
+  document.getElementById('statCoins').textContent=v;
+  const mob=document.getElementById('coinDisplayMobile');
+  if(mob)mob.textContent=v;
+  // Always keep local cache in sync
+  if(state.discordId&&!state.isGuest) localStorage.setItem('mg_coins_'+state.discordId,state.coins);
 }
 function updateProfile(){
   const owned=[...new Set(state.collection)];
   document.getElementById('statPulls').textContent=state.totalPulls;
   document.getElementById('statUnique').textContent=owned.length;
   document.getElementById('statCoins').textContent=state.coins.toLocaleString();
-  document.getElementById('profileName').textContent=state.username+(state.isGuest?' (Guest)':'');
+  // Display name: use custom if set, else Discord username
+  const shownName=(state.displayName||state.username)+(state.isGuest?' (Guest)':'');
+  document.getElementById('profileName').textContent=shownName;
   document.getElementById('profileTitle').textContent=state.title;
   document.getElementById('profileBio').textContent=state.bio;
-  if(state.avatar)document.getElementById('profileAvatar').src=state.avatar;
-  // banner color
+  // Avatar: custom > Discord avatar > placeholder
+  const avatarSrc=state.customAvatar||state.avatar||'https://cdn.discordapp.com/embed/avatars/0.png';
+  document.getElementById('profileAvatar').src=avatarSrc;
+  // Banner: image overrides gradient color
   const bannerEl=document.getElementById('profileBannerEl');
-  if(bannerEl)bannerEl.style.background=state.bannerColor;
+  const bannerImgEl=document.getElementById('profileBannerImg');
+  if(state.bannerImage){
+    bannerEl.style.background='none';
+    bannerImgEl.src=state.bannerImage;bannerImgEl.style.display='block';
+  } else {
+    bannerEl.style.background=state.bannerColor;
+    bannerImgEl.style.display='none';
+  }
   // admin badge
   const ab=document.getElementById('adminProfileBadge');
-  if(ab)ab.style.display=state.isAdmin?'block':'none';
+  if(ab)ab.style.display=state.isAdmin?'flex':'none';
   // admin nav button
   const anb=document.getElementById('adminNavBtn');
   if(anb)anb.style.display=state.isAdmin?'':'none';
+  const mAdminNav=document.getElementById('mnav-admin');
+  if(mAdminNav)mAdminNav.style.display=state.isAdmin?'flex':'none';
   const ep=document.getElementById('equippedPreview');
   if(state.equippedId){
     const c=DEMO_CARDS.find(x=>x.id===state.equippedId);
@@ -1221,7 +1311,7 @@ function loginDiscord(){
 }
 
 async function guestLogin(){
-  state.discordId=null;state.loggedIn=true;state.isGuest=true;
+  state.discordId='guest_local';state.loggedIn=true;state.isGuest=true;
   state.username='Guest Summoner';state.avatar='';
   // load guest state from localStorage
   const saved=localStorage.getItem('mg_guest_state');
@@ -1233,10 +1323,13 @@ async function guestLogin(){
       state.collection=g.collection??[];state.xpMap=g.xpMap??{};
       state.bio=g.bio??state.bio;state.title=g.title??state.title;
       state.bannerColor=g.bannerColor??state.bannerColor;
+      state.displayName=g.displayName??'';state.customAvatar=g.customAvatar??'';
+      state.bannerImage=g.bannerImage??'';
     }catch(e){}
   }
   hideLoginOverlay();
   updateCoins();updatePity();updateProfile();renderCollection();renderShop();
+  renderFeaturedShowcase();
   showToast('👤 Playing as Guest — progress saves locally ʚɞ');
 }
 
@@ -1246,7 +1339,8 @@ function saveGuestState(){
     coins:state.coins,pitySR:state.pitySR,pityUR:state.pityUR,
     totalPulls:state.totalPulls,equippedId:state.equippedId,
     collection:state.collection,xpMap:state.xpMap,
-    bio:state.bio,title:state.title,bannerColor:state.bannerColor
+    bio:state.bio,title:state.title,bannerColor:state.bannerColor,
+    displayName:state.displayName,customAvatar:state.customAvatar,bannerImage:state.bannerImage
   }));
 }
 
@@ -1349,7 +1443,23 @@ let editTitle = null;
 function openProfileEdit(){
   editBannerColor = state.bannerColor;
   editTitle = state.title;
-  // populate banner preview
+  // Populate fields
+  const nameEl=document.getElementById('editDisplayName');
+  if(nameEl){
+    nameEl.value=state.displayName||'';
+    updateNameCount();
+    nameEl.addEventListener('input',updateNameCount);
+  }
+  const avatarEl=document.getElementById('editAvatarUrl');
+  if(avatarEl) avatarEl.value=state.customAvatar||'';
+  const avatarPrev=document.getElementById('avatarPreview');
+  if(avatarPrev) avatarPrev.src=state.customAvatar||'';
+
+  const bannerUrlEl=document.getElementById('editBannerUrl');
+  if(bannerUrlEl) bannerUrlEl.value=state.bannerImage||'';
+  const bannerImgPrev=document.getElementById('bannerImgPreview');
+  if(bannerImgPrev) bannerImgPrev.src=state.bannerImage||'';
+
   document.getElementById('bannerPreview').style.background=state.bannerColor;
   document.getElementById('editBio').value=state.bio;
   // banner colors
@@ -1364,6 +1474,24 @@ function openProfileEdit(){
     <div class="title-opt${t===state.title?' selected':''}" onclick="selectTitle('${t.replace(/'/g,"\\'")}',this)">${t}</div>
   `).join('');
   document.getElementById('profileEditModal').classList.add('active');
+}
+
+function updateNameCount(){
+  const el=document.getElementById('editDisplayName');
+  const cnt=document.getElementById('nameCharCount');
+  if(el&&cnt) cnt.textContent=`${el.value.length}/24`;
+}
+
+function previewAvatar(){
+  const url=document.getElementById('editAvatarUrl').value.trim();
+  const prev=document.getElementById('avatarPreview');
+  if(url){prev.src=url;prev.style.display='block';}
+}
+
+function previewBannerImg(){
+  const url=document.getElementById('editBannerUrl').value.trim();
+  const prev=document.getElementById('bannerImgPreview');
+  if(url){prev.src=url;prev.style.display='block';}
 }
 function selectBannerColor(v,el){
   editBannerColor=v;
@@ -1380,6 +1508,16 @@ async function saveProfileCustom(){
   state.bannerColor=editBannerColor||state.bannerColor;
   state.title=editTitle||state.title;
   state.bio=document.getElementById('editBio').value||state.bio;
+  // Display name
+  const newName=(document.getElementById('editDisplayName')?.value||'').trim();
+  state.displayName=newName; // empty = use Discord username
+  // Custom avatar
+  const newAvatar=(document.getElementById('editAvatarUrl')?.value||'').trim();
+  state.customAvatar=newAvatar;
+  // Banner image
+  const newBannerImg=(document.getElementById('editBannerUrl')?.value||'').trim();
+  state.bannerImage=newBannerImg;
+
   updateProfile();
   if(state.discordId&&!state.isGuest)await savePlayer();
   if(state.isGuest)saveGuestState();
@@ -1432,9 +1570,72 @@ function adminClearCollection(){
 }
 
 // ══════════════════════════════════════════════
+// MOBILE NAV
+// ══════════════════════════════════════════════
+function setMobileNav(page){
+  document.querySelectorAll('.mobile-nav-btn').forEach(b=>b.classList.remove('active'));
+  const el=document.getElementById('mnav-'+page);
+  if(el)el.classList.add('active');
+}
+
+// ══════════════════════════════════════════════
+// POOL VIEW (all cards in banner)
+// ══════════════════════════════════════════════
+function openPoolView(){
+  const grid=document.getElementById('poolGrid');
+  const RATE_UP_IDS=['deku','yuta']; // featured rate-up cards
+  grid.innerHTML=DEMO_CARDS.map(c=>{
+    const color=RARITY_COLORS[c.rarity]||'#bdc3c7';
+    const isRateUp=RATE_UP_IDS.includes(c.id);
+    return`<div class="pool-card" onclick="closePoolView();setTimeout(()=>openCard('${c.id}'),220)">
+      <img src="${c.image}" alt="${c.name}" onerror="this.style.background='#1c0f26'"/>
+      ${isRateUp?'<div class="pool-card-rate-badge">RATE UP ↑</div>':''}
+      <div class="pool-card-label">
+        <span class="pool-card-name" style="color:${color}">${c.name}</span>
+        <div class="pool-card-rarity" style="color:${color}">${c.rarityName} ${c.rarityStars}</div>
+      </div>
+    </div>`;
+  }).join('');
+  document.getElementById('poolModal').classList.add('active');
+}
+function closePoolView(e){
+  if(!e||e.target===document.getElementById('poolModal'))
+    document.getElementById('poolModal').classList.remove('active');
+}
+
+// ══════════════════════════════════════════════
+// FEATURED BANNER SHOWCASE (home page)
+// ══════════════════════════════════════════════
+function renderFeaturedShowcase(){
+  const el=document.getElementById('featuredShowcase');
+  if(!el)return;
+  const RATE_UP_IDS=['deku','yuta','asta1'];
+  // Show rate-up cards first, then the rest ordered by rarity
+  const sorted=[...DEMO_CARDS].sort((a,b)=>{
+    const aRU=RATE_UP_IDS.includes(a.id)?1:0,bRU=RATE_UP_IDS.includes(b.id)?1:0;
+    if(bRU!==aRU) return bRU-aRU;
+    return b.rarity-a.rarity;
+  });
+  el.innerHTML=sorted.map(c=>{
+    const color=RARITY_COLORS[c.rarity]||'#bdc3c7';
+    const isRateUp=RATE_UP_IDS.includes(c.id);
+    return`<div class="featured-card-visual" onclick="openCard('${c.id}')" style="border-color:${isRateUp?color:'var(--border)'};">
+      <img src="${c.image}" alt="${c.name}" onerror="this.style.background='#1c0f26'"/>
+      <div class="fcv-badge" style="color:${color}">${c.rarityName}</div>
+      ${isRateUp?'<div class="fcv-rateup">RATE UP</div>':''}
+      <div class="fcv-label">
+        <span class="fcv-name">${c.name}</span>
+        <span class="fcv-stars" style="color:${color}">${c.rarityStars}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════════════
 // INIT
 // ══════════════════════════════════════════════
 renderShop();
+renderFeaturedShowcase();
 tryAutoLogin();
 </script>
 </body>
