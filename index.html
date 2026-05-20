@@ -978,6 +978,593 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   .battle-vs-badge { font-size: 1.4em; }
 }
 
+
+/* ══ CUTSCENE ENGINE ══ */
+@keyframes lineShot {
+  0%{opacity:0;transform:rotate(var(--a,0deg)) scaleX(0);}
+  30%{opacity:0.8;}
+  100%{opacity:0;transform:rotate(var(--a,0deg)) scaleX(1.5);}
+}
+@keyframes impactSlam {
+  0%{transform:translateX(-50%) scale(3);opacity:0;}
+  60%{transform:translateX(-50%) scale(0.9);opacity:1;}
+  100%{transform:translateX(-50%) scale(1);opacity:1;}
+}
+@keyframes cutsceneShake {
+  0%,100%{transform:none;}
+  20%{transform:translate(-12px,4px) rotate(-1deg);}
+  40%{transform:translate(10px,-6px) rotate(1deg);}
+  60%{transform:translate(-8px,3px) rotate(-0.5deg);}
+  80%{transform:translate(6px,-2px) rotate(0.5deg);}
+}
+
+/* ══════════════════════════════════════════════
+   BATTLE VISUAL EFFECTS ENGINE
+══════════════════════════════════════════════ */
+
+/* ── VFX overlay canvas ── */
+#battleVFXLayer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 50;
+  overflow: hidden;
+  border-radius: 24px;
+}
+
+/* ── Card action states ── */
+.battle-card-img {
+  transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1), filter 0.25s, box-shadow 0.3s;
+  will-change: transform, filter;
+}
+.card-lunge-right  { animation: lungeRight 0.45s cubic-bezier(0.34,1.2,0.64,1) !important; }
+.card-lunge-left   { animation: lungeLeft  0.45s cubic-bezier(0.34,1.2,0.64,1) !important; }
+.card-hurt         { animation: cardHurt   0.4s ease !important; }
+.card-guard-pose   { animation: guardPose  0.35s ease forwards !important; }
+.card-heal-pulse   { animation: healPulse  0.6s ease !important; }
+.card-charge       { animation: chargeUp   0.55s ease !important; }
+.card-ultimate     { animation: ultimatePose 0.7s cubic-bezier(0.34,1.56,0.64,1) !important; }
+
+@keyframes lungeRight {
+  0%   { transform: translateX(0)   scale(1); }
+  40%  { transform: translateX(55px) scale(1.12) rotate(5deg); filter: brightness(1.4); }
+  70%  { transform: translateX(15px) scale(1.05); }
+  100% { transform: translateX(0)   scale(1); }
+}
+@keyframes lungeLeft {
+  0%   { transform: translateX(0)   scale(1); }
+  40%  { transform: translateX(-55px) scale(1.12) rotate(-5deg); filter: brightness(1.3); }
+  70%  { transform: translateX(-15px) scale(1.05); }
+  100% { transform: translateX(0)   scale(1); }
+}
+@keyframes cardHurt {
+  0%,100% { transform: translateX(0) scale(1); filter: brightness(1); }
+  20%  { transform: translateX(-14px) scale(0.96); filter: brightness(2) saturate(0); }
+  40%  { transform: translateX(10px)  scale(1.02); filter: brightness(1.6); }
+  60%  { transform: translateX(-8px)  scale(0.98); }
+  80%  { transform: translateX(5px); }
+}
+@keyframes guardPose {
+  0%   { transform: scale(1) rotate(0); }
+  30%  { transform: scale(1.08) rotate(-4deg); filter: brightness(1.3) hue-rotate(200deg); }
+  60%  { transform: scale(1.04) rotate(-2deg); }
+  100% { transform: scale(1) rotate(0); }
+}
+@keyframes healPulse {
+  0%   { filter: brightness(1); box-shadow: none; }
+  40%  { filter: brightness(1.5) saturate(1.5); box-shadow: 0 0 30px #2ecc71, 0 0 60px #2ecc7166; }
+  100% { filter: brightness(1); box-shadow: none; }
+}
+@keyframes chargeUp {
+  0%   { transform: scale(1); filter: brightness(1); }
+  30%  { transform: scale(0.92) rotate(-3deg); filter: brightness(0.8) saturate(2); }
+  70%  { transform: scale(1.1) rotate(2deg); filter: brightness(1.6) saturate(2); }
+  100% { transform: scale(1); filter: brightness(1); }
+}
+@keyframes ultimatePose {
+  0%   { transform: scale(1) rotate(0); filter: brightness(1); }
+  25%  { transform: scale(0.85) rotate(-6deg); filter: brightness(0.6); }
+  60%  { transform: scale(1.25) rotate(4deg); filter: brightness(2.5) saturate(3); }
+  80%  { transform: scale(1.1) rotate(-1deg); filter: brightness(1.8); }
+  100% { transform: scale(1) rotate(0); filter: brightness(1); }
+}
+
+/* ── Hit number floaters ── */
+.dmg-number {
+  position: absolute;
+  font-family: 'Cinzel Decorative', serif;
+  font-weight: 900;
+  pointer-events: none;
+  z-index: 100;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.8);
+  animation: dmgFloat 1.1s cubic-bezier(0.2,0.8,0.4,1) forwards;
+  white-space: nowrap;
+  line-height: 1;
+}
+.dmg-number.crit {
+  animation: dmgFloatCrit 1.2s cubic-bezier(0.2,0.8,0.4,1) forwards;
+}
+@keyframes dmgFloat {
+  0%   { opacity: 0; transform: translateY(0) scale(0.4); }
+  15%  { opacity: 1; transform: translateY(-10px) scale(1.1); }
+  60%  { opacity: 1; transform: translateY(-38px) scale(1); }
+  100% { opacity: 0; transform: translateY(-60px) scale(0.8); }
+}
+@keyframes dmgFloatCrit {
+  0%   { opacity: 0; transform: translateY(0) scale(0); }
+  10%  { opacity: 1; transform: translateY(-5px)  scale(1.5) rotate(-8deg); }
+  25%  { transform: translateY(-15px) scale(1.2) rotate(4deg); }
+  60%  { opacity: 1; transform: translateY(-45px) scale(1.1); }
+  100% { opacity: 0; transform: translateY(-70px) scale(0.9); }
+}
+
+/* ── Impact ring ── */
+.impact-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 3px solid;
+  pointer-events: none;
+  z-index: 60;
+  animation: ringExpand 0.5s ease forwards;
+}
+@keyframes ringExpand {
+  0%   { transform: translate(-50%,-50%) scale(0); opacity: 1; }
+  100% { transform: translate(-50%,-50%) scale(3.5); opacity: 0; }
+}
+
+/* ── Slash effect ── */
+.slash-vfx {
+  position: absolute;
+  pointer-events: none;
+  z-index: 70;
+  transform-origin: left center;
+  animation: slashDraw 0.35s ease forwards;
+}
+@keyframes slashDraw {
+  0%   { clip-path: inset(0 100% 0 0); opacity: 1; }
+  50%  { clip-path: inset(0 0% 0 0);   opacity: 1; }
+  100% { clip-path: inset(0 0% 0 0);   opacity: 0; }
+}
+
+/* ── Magic circle ── */
+.magic-circle {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 65;
+  animation: magicAppear 0.8s ease forwards;
+  border: 2px solid;
+}
+.magic-circle::before {
+  content: '';
+  position: absolute;
+  inset: 8px;
+  border-radius: 50%;
+  border: 1px solid inherit;
+  animation: magicSpin 0.8s linear forwards;
+}
+@keyframes magicAppear {
+  0%   { transform: translate(-50%,-50%) scale(0) rotate(0deg); opacity: 0.9; }
+  50%  { transform: translate(-50%,-50%) scale(1.2) rotate(180deg); opacity: 0.8; }
+  100% { transform: translate(-50%,-50%) scale(1.8) rotate(360deg); opacity: 0; }
+}
+@keyframes magicSpin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(-720deg); }
+}
+
+/* ── Shield bubble ── */
+.shield-bubble {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 68;
+  animation: shieldForm 0.7s cubic-bezier(0.34,1.56,0.64,1) forwards;
+}
+@keyframes shieldForm {
+  0%   { transform: translate(-50%,-50%) scale(0); opacity: 0; }
+  50%  { transform: translate(-50%,-50%) scale(1.1); opacity: 0.8; }
+  75%  { transform: translate(-50%,-50%) scale(0.95); opacity: 0.6; }
+  100% { transform: translate(-50%,-50%) scale(1.3); opacity: 0; }
+}
+
+/* ── Heal cross ── */
+.heal-cross {
+  position: absolute;
+  pointer-events: none;
+  z-index: 68;
+  color: #2ecc71;
+  font-size: 2.5em;
+  animation: healRise 0.9s ease forwards;
+  text-shadow: 0 0 20px #2ecc71;
+}
+@keyframes healRise {
+  0%   { opacity: 0; transform: translate(-50%,-50%) scale(0.3) rotate(-20deg); }
+  30%  { opacity: 1; transform: translate(-50%,-60%) scale(1.2) rotate(10deg); }
+  60%  { opacity: 1; transform: translate(-50%,-80%) scale(1); }
+  100% { opacity: 0; transform: translate(-50%,-110%) scale(0.8); }
+}
+
+/* ── Charge orbs ── */
+.charge-orb {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 66;
+  animation: orbSpiral 0.6s ease forwards;
+}
+@keyframes orbSpiral {
+  0%   { transform: translate(-50%,-50%) scale(0); opacity: 1; }
+  50%  { opacity: 0.9; }
+  100% { transform: translate(-50%,-50%) translate(var(--ox),var(--oy)) scale(1.5); opacity: 0; }
+}
+
+/* ── Screen tint ── */
+.battle-tint {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: 24px;
+  z-index: 55;
+  opacity: 0;
+  animation: tintFlash 0.45s ease forwards;
+}
+@keyframes tintFlash {
+  0%   { opacity: 0; }
+  20%  { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* ── Ultimate shockwave rings ── */
+.shockwave-ring {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 62;
+  border: 4px solid;
+  animation: shockExpand 0.7s ease forwards;
+}
+@keyframes shockExpand {
+  0%   { transform: translate(-50%,-50%) scale(0); opacity: 0.9; }
+  100% { transform: translate(-50%,-50%) scale(5); opacity: 0; }
+}
+
+/* ── Turn transition banner ── */
+.turn-banner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%,-50%) scaleX(0);
+  z-index: 90;
+  background: rgba(0,0,0,0.85);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 28px;
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 1em;
+  letter-spacing: 0.15em;
+  pointer-events: none;
+  white-space: nowrap;
+  backdrop-filter: blur(8px);
+  animation: bannerSlide 1.1s cubic-bezier(0.34,1.2,0.64,1) forwards;
+}
+@keyframes bannerSlide {
+  0%   { transform: translate(-50%,-50%) scaleX(0); opacity: 0; }
+  25%  { transform: translate(-50%,-50%) scaleX(1.05); opacity: 1; }
+  60%  { transform: translate(-50%,-50%) scaleX(1); opacity: 1; }
+  100% { transform: translate(-50%,-50%) scaleX(1); opacity: 0; }
+}
+
+/* ── Floating emoji hits ── */
+.battle-emoji-pop {
+  position: absolute;
+  pointer-events: none;
+  z-index: 95;
+  font-size: 1.8em;
+  animation: emojiPop 0.9s cubic-bezier(0.2,0.8,0.4,1) forwards;
+}
+@keyframes emojiPop {
+  0%   { opacity: 0; transform: translate(-50%,-50%) scale(0); }
+  20%  { opacity: 1; transform: translate(-50%,-50%) scale(1.3); }
+  70%  { opacity: 1; transform: translate(-50%,-120%) scale(1); }
+  100% { opacity: 0; transform: translate(-50%,-160%) scale(0.7); }
+}
+
+/* ── HP bar flash on damage ── */
+.hp-track-flash {
+  animation: hpFlash 0.35s ease !important;
+}
+@keyframes hpFlash {
+  0%,100% { background: rgba(255,255,255,0.06); }
+  40%     { background: rgba(255,80,80,0.3); }
+}
+
+
+/* ═══════════════════════════════════════════
+   BATTLE VFX — Attack, Block, Abilities
+═══════════════════════════════════════════ */
+
+/* ── Floating damage numbers ── */
+.dmg-number {
+  position: fixed;
+  font-family: 'Cinzel Decorative', serif;
+  font-weight: 900;
+  pointer-events: none;
+  z-index: 500;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.8);
+  animation: dmgFloat 1.1s cubic-bezier(0.2,0.8,0.3,1) forwards;
+  white-space: nowrap;
+}
+.dmg-normal  { font-size: 1.6em; color: #fff; }
+.dmg-crit    { font-size: 2.4em; color: #ff4444; text-shadow: 0 0 20px #ff4444, 0 2px 8px rgba(0,0,0,0.8); }
+.dmg-heal    { font-size: 1.5em; color: #2ecc71; }
+.dmg-enemy   { font-size: 1.4em; color: #c39bd3; }
+.dmg-burn    { font-size: 1.2em; color: #e67e22; }
+@keyframes dmgFloat {
+  0%   { opacity:0; transform: translateY(0) scale(0.5); }
+  15%  { opacity:1; transform: translateY(-8px) scale(1.1); }
+  70%  { opacity:1; transform: translateY(-50px) scale(1); }
+  100% { opacity:0; transform: translateY(-80px) scale(0.8); }
+}
+
+/* ── Slash effect ── */
+.slash-vfx {
+  position: fixed;
+  pointer-events: none;
+  z-index: 490;
+  animation: slashAnim 0.35s ease forwards;
+}
+.slash-line {
+  width: 180px; height: 4px;
+  border-radius: 2px;
+  transform-origin: left center;
+}
+.slash-line-2 {
+  width: 140px; height: 3px;
+  border-radius: 2px;
+  margin-top: 12px;
+  transform-origin: left center;
+}
+@keyframes slashAnim {
+  0%   { opacity:0; transform: scaleX(0) rotate(var(--angle,-25deg)); }
+  25%  { opacity:1; transform: scaleX(1.1) rotate(var(--angle,-25deg)); }
+  60%  { opacity:0.8; transform: scaleX(1) rotate(var(--angle,-25deg)); }
+  100% { opacity:0; transform: scaleX(1.4) rotate(var(--angle,-25deg)); }
+}
+
+/* ── Impact burst rings ── */
+.impact-ring {
+  position: fixed;
+  border-radius: 50%;
+  border: 3px solid;
+  pointer-events: none;
+  z-index: 488;
+  animation: ringExpand 0.5s ease forwards;
+  transform: translate(-50%, -50%);
+}
+@keyframes ringExpand {
+  0%   { opacity: 0.9; width: 10px; height: 10px; }
+  100% { opacity: 0; width: 200px; height: 200px; }
+}
+
+/* ── Shield bubble ── */
+.shield-vfx {
+  position: absolute;
+  inset: -14px;
+  border-radius: 50%;
+  border: 3px solid rgba(93,173,226,0.8);
+  box-shadow: 0 0 20px rgba(93,173,226,0.5), inset 0 0 20px rgba(93,173,226,0.2);
+  animation: shieldPop 0.7s cubic-bezier(0.34,1.56,0.64,1) forwards;
+  pointer-events: none;
+  z-index: 10;
+}
+@keyframes shieldPop {
+  0%   { opacity:0; transform: scale(0.3); }
+  50%  { opacity:1; transform: scale(1.1); }
+  70%  { transform: scale(0.95); }
+  85%  { transform: scale(1.05); opacity:1; }
+  100% { transform: scale(1); opacity:0.7; }
+}
+
+/* ── Heal pulse ── */
+.heal-vfx {
+  position: absolute;
+  inset: -8px;
+  border-radius: 18px;
+  background: radial-gradient(ellipse, rgba(46,204,113,0.4), transparent 70%);
+  animation: healPulse 0.8s ease forwards;
+  pointer-events: none;
+  z-index: 10;
+}
+@keyframes healPulse {
+  0%   { opacity:0; transform: scale(0.6); }
+  40%  { opacity:1; transform: scale(1.08); }
+  100% { opacity:0; transform: scale(1.3); }
+}
+
+/* ── Burn aura ── */
+.burn-vfx {
+  position: absolute;
+  inset: -6px;
+  border-radius: 16px;
+  background: radial-gradient(ellipse, rgba(231,76,60,0.5), transparent 70%);
+  animation: burnAura 0.6s ease forwards;
+  pointer-events: none;
+  z-index: 10;
+}
+@keyframes burnAura {
+  0%   { opacity:0; }
+  20%  { opacity:1; }
+  100% { opacity:0; transform: scale(1.2); }
+}
+
+/* ── Focus charge glow ── */
+.focus-vfx {
+  position: absolute;
+  inset: -12px;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, #f1c40f44, #ff9dc744, #f1c40f44);
+  animation: focusSpin 0.8s linear forwards;
+  pointer-events: none;
+  z-index: 10;
+}
+@keyframes focusSpin {
+  0%   { opacity:0; transform: scale(0.5) rotate(0deg); }
+  40%  { opacity:1; transform: scale(1.1) rotate(180deg); }
+  100% { opacity:0.6; transform: scale(1) rotate(360deg); }
+}
+
+/* ── Ultimate shockwave ── */
+.ult-shockwave {
+  position: fixed;
+  border-radius: 50%;
+  border: 6px solid;
+  pointer-events: none;
+  z-index: 495;
+  animation: shockExpand 0.7s ease-out forwards;
+  transform: translate(-50%, -50%);
+}
+@keyframes shockExpand {
+  0%   { opacity:1; width: 20px; height: 20px; }
+  60%  { opacity:0.6; }
+  100% { opacity:0; width: 500px; height: 500px; }
+}
+
+/* ── Card lunge forward ── */
+.card-lunge-right {
+  animation: lungeRight 0.35s cubic-bezier(0.4,0,0.2,1);
+}
+.card-lunge-left {
+  animation: lungeLeft 0.35s cubic-bezier(0.4,0,0.2,1);
+}
+@keyframes lungeRight {
+  0%   { transform: translateX(0) scale(1); }
+  40%  { transform: translateX(40px) scale(1.06); }
+  100% { transform: translateX(0) scale(1); }
+}
+@keyframes lungeLeft {
+  0%   { transform: translateX(0) scale(1); }
+  40%  { transform: translateX(-40px) scale(1.06); }
+  100% { transform: translateX(0) scale(1); }
+}
+
+/* ── Hit recoil ── */
+.card-recoil-right {
+  animation: recoilRight 0.3s ease;
+}
+.card-recoil-left {
+  animation: recoilLeft 0.3s ease;
+}
+@keyframes recoilRight {
+  0%   { transform: translateX(0); }
+  30%  { transform: translateX(22px) rotate(4deg); filter: brightness(1.8) saturate(0.3); }
+  100% { transform: translateX(0) rotate(0); filter: none; }
+}
+@keyframes recoilLeft {
+  0%   { transform: translateX(0); }
+  30%  { transform: translateX(-22px) rotate(-4deg); filter: brightness(1.8) saturate(0.3); }
+  100% { transform: translateX(0) rotate(0); filter: none; }
+}
+
+/* ── Critical hit flash ── */
+.crit-flash-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(255,60,60,0.18);
+  pointer-events: none;
+  z-index: 497;
+  animation: critFlash 0.35s ease forwards;
+}
+@keyframes critFlash {
+  0%,50% { opacity:1; }
+  100%    { opacity:0; }
+}
+
+/* ── Screen crack overlay (for massive hits) ── */
+.screen-crack {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 496;
+  opacity: 0;
+  animation: crackReveal 0.8s ease forwards;
+  background-image:
+    linear-gradient(135deg, transparent 49.5%, rgba(255,255,255,0.15) 50%, transparent 50.5%),
+    linear-gradient(45deg,  transparent 48%, rgba(255,255,255,0.1)  49%, transparent 51%),
+    linear-gradient(170deg, transparent 45%, rgba(255,255,255,0.08) 46%, transparent 47%);
+}
+@keyframes crackReveal {
+  0%  { opacity:0; }
+  20% { opacity:1; }
+  80% { opacity:0.8; }
+  100%{ opacity:0; }
+}
+
+/* ── Magic circle ── */
+.magic-circle {
+  position: fixed;
+  width: 160px; height: 160px;
+  border-radius: 50%;
+  border: 2px solid;
+  pointer-events: none;
+  z-index: 492;
+  transform: translate(-50%,-50%) rotate(0deg) scale(0);
+  animation: magicCircleAnim 0.8s cubic-bezier(0.34,1.56,0.64,1) forwards;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.magic-circle::before {
+  content: '';
+  position: absolute;
+  inset: 10px;
+  border-radius: 50%;
+  border: 1px solid currentColor;
+  opacity: 0.5;
+}
+.magic-circle::after {
+  content: '✦';
+  font-size: 1.8em;
+  opacity: 0.7;
+}
+@keyframes magicCircleAnim {
+  0%   { opacity:0; transform: translate(-50%,-50%) rotate(-90deg) scale(0); }
+  50%  { opacity:1; transform: translate(-50%,-50%) rotate(20deg) scale(1.05); }
+  75%  { transform: translate(-50%,-50%) rotate(-5deg) scale(0.98); }
+  100% { opacity:0; transform: translate(-50%,-50%) rotate(0deg) scale(1); }
+}
+
+/* ── Emoji projectile ── */
+.emoji-projectile {
+  position: fixed;
+  font-size: 1.8em;
+  pointer-events: none;
+  z-index: 493;
+  animation: projectileFly var(--dur,0.4s) cubic-bezier(0.4,0,0.2,1) forwards;
+}
+@keyframes projectileFly {
+  0%   { opacity:1; transform: translate(0,0) scale(1) rotate(0deg); }
+  80%  { opacity:1; }
+  100% { opacity:0; transform: translate(var(--tx,100px), var(--ty,0px)) scale(0.3) rotate(var(--rot,360deg)); }
+}
+
+/* ── Battle arena card glow on attack ── */
+.player-img.attacking {
+  filter: brightness(1.3) drop-shadow(0 0 20px var(--pink)) !important;
+  transition: filter 0.1s;
+}
+.enemy-img.attacking {
+  filter: brightness(1.3) drop-shadow(0 0 20px #9b59b6) !important;
+  transition: filter 0.1s;
+}
+.player-img.hit-flash {
+  filter: brightness(2.5) saturate(0) !important;
+  transition: filter 0.05s;
+}
+.enemy-img.hit-flash {
+  filter: brightness(2.5) saturate(0) !important;
+  transition: filter 0.05s;
+}
 </style>
 </head>
 <body>
@@ -1373,7 +1960,8 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 
     <!-- SETUP PHASE -->
     <div class="battle-setup-section active" id="battleSetup">
-      <div class="battle-arena-bg">
+      <div class="battle-arena-bg" style="position:relative;">
+        <div id="battleVFXLayer"></div>
         <div style="text-align:center;margin-bottom:20px;">
           <div style="font-family:'Cinzel Decorative',serif;font-size:1.1em;color:var(--pink-pale);margin-bottom:6px;">⚔️ Choose Your Fighter</div>
           <div style="color:var(--text-dim);font-size:0.85em;font-style:italic;">Select a card from your collection to battle with</div>
@@ -1400,7 +1988,8 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 
     <!-- FIGHT PHASE -->
     <div class="battle-fight-section" id="battleFight">
-      <div class="battle-arena-bg">
+      <div class="battle-arena-bg" style="position:relative;">
+        <div id="battleVFXLayer"></div>
         <!-- VS Header -->
         <div class="battle-vs-header">
           <div class="battle-player-side">
@@ -1650,7 +2239,7 @@ function renderAbilities(cardId, rarity) {
   const chips = abilities.map(ab => {
     const tierClass = 'ability-' + ab.tier;
     const typeLabel = ab.tier === 'secret' ? '??? SECRET' : ab.tier.toUpperCase();
-    return `<div class="ability-chip ${tierClass}" title="${ab.desc}">
+    return `<div class="ability-chip ${tierClass}" title="Click to preview!" style="cursor:pointer;" onclick="playAbilityCutscene('${cardId}',${rarity},'${ab.id}')">
       <span class="ability-icon">${ab.icon}</span>
       <div class="ability-info">
         <div class="ability-name">${ab.name}</div>
@@ -1761,34 +2350,478 @@ let openCardId = null;
 // ══════════════════════════════════════════════
 // AUDIO
 // ══════════════════════════════════════════════
+// ══════════════════════════════════════════════
+// AUDIO ENGINE — Full Web Audio API Sound System
+// ══════════════════════════════════════════════
 let audioCtx;
-function getAudio(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();return audioCtx;}
+function getAudio(){
+  if(!audioCtx) audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+  if(audioCtx.state==='suspended') audioCtx.resume();
+  return audioCtx;
+}
+
+// ── Core helpers ──
+function makeOsc(ctx, type, freq, startGain, endGain, dur, startTime=0){
+  const o=ctx.createOscillator(), g=ctx.createGain();
+  o.connect(g); g.connect(ctx.destination);
+  o.type=type; o.frequency.setValueAtTime(freq, ctx.currentTime+startTime);
+  g.gain.setValueAtTime(startGain, ctx.currentTime+startTime);
+  g.gain.exponentialRampToValueAtTime(Math.max(endGain,0.0001), ctx.currentTime+startTime+dur);
+  o.start(ctx.currentTime+startTime); o.stop(ctx.currentTime+startTime+dur);
+  return {o,g};
+}
+function makeNoise(ctx, gain, dur, startTime=0){
+  const buf=ctx.createBuffer(1,ctx.sampleRate*dur,ctx.sampleRate);
+  const d=buf.getChannelData(0);
+  for(let i=0;i<d.length;i++) d[i]=Math.random()*2-1;
+  const src=ctx.createBufferSource(), g=ctx.createGain();
+  const filt=ctx.createBiquadFilter(); filt.type='bandpass'; filt.frequency.value=300; filt.Q.value=0.5;
+  src.buffer=buf; src.connect(filt); filt.connect(g); g.connect(ctx.destination);
+  g.gain.setValueAtTime(gain, ctx.currentTime+startTime);
+  g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime+startTime+dur);
+  src.start(ctx.currentTime+startTime); src.stop(ctx.currentTime+startTime+dur);
+}
+function addReverb(ctx, node, mix=0.3){
+  try {
+    const conv=ctx.createConvolver();
+    const len=ctx.sampleRate*1.5, buf=ctx.createBuffer(2,len,ctx.sampleRate);
+    for(let c=0;c<2;c++){const d=buf.getChannelData(c);for(let i=0;i<len;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/len,2);}
+    conv.buffer=buf;
+    const wet=ctx.createGain(), dry=ctx.createGain();
+    wet.gain.value=mix; dry.gain.value=1-mix;
+    node.connect(dry); node.connect(conv); conv.connect(wet);
+    dry.connect(ctx.destination); wet.connect(ctx.destination);
+  } catch(e){}
+}
+
+// ── NAV TAB CLICK ──
+function playNavSound(){
+  try{
+    const ctx=getAudio();
+    makeOsc(ctx,'sine',880,0.12,0.001,0.12);
+    makeOsc(ctx,'sine',1320,0.06,0.001,0.08,0.04);
+  }catch(e){}
+}
+
+// ── BUTTON CLICK (generic soft) ──
+function playClickSound(){
+  try{
+    const ctx=getAudio();
+    makeOsc(ctx,'sine',600,0.1,0.001,0.09);
+  }catch(e){}
+}
+
+// ── PULL SOUND (rarity-scaled) ──
 function playPullSound(rarity){
   try{
     const ctx=getAudio();
     const freqs={1:440,2:523,3:587,4:659,5:784,6:880,7:1047};
     const freq=freqs[rarity]||440;
-    const o=ctx.createOscillator(),g=ctx.createGain();
-    o.connect(g);g.connect(ctx.destination);
-    o.frequency.setValueAtTime(freq,ctx.currentTime);
-    o.frequency.exponentialRampToValueAtTime(freq*1.5,ctx.currentTime+0.3);
-    g.gain.setValueAtTime(0.3,ctx.currentTime);
-    g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.8);
-    o.type=rarity>=5?'sine':'triangle';
-    o.start();o.stop(ctx.currentTime+0.8);
-    if(rarity>=5){setTimeout(()=>{const o2=ctx.createOscillator(),g2=ctx.createGain();o2.connect(g2);g2.connect(ctx.destination);o2.frequency.setValueAtTime(freq*2,ctx.currentTime);g2.gain.setValueAtTime(0.2,ctx.currentTime);g2.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.5);o2.type='sine';o2.start();o2.stop(ctx.currentTime+0.5);},300);}
+    makeOsc(ctx,'triangle',freq,0.3,0.001,0.8);
+    if(rarity>=4) makeOsc(ctx,'sine',freq*1.5,0.15,0.001,0.5,0.3);
+    if(rarity>=5){
+      makeOsc(ctx,'sine',freq*2,0.2,0.001,0.5,0.3);
+      makeOsc(ctx,'sine',freq*3,0.08,0.001,0.4,0.5);
+    }
+    if(rarity>=6){
+      // LR: chord sweep
+      [1,1.26,1.5,2].forEach((m,i)=>makeOsc(ctx,'sine',freq*m,0.18,0.001,0.7,i*0.08));
+      makeNoise(ctx,0.04,0.3);
+    }
+    if(rarity===7){
+      // ??? Secret: alien shimmer
+      for(let i=0;i<8;i++) makeOsc(ctx,'sine',200+Math.random()*1800,0.06,0.001,0.6,i*0.05);
+    }
   }catch(e){}
 }
+
+// ── COIN SOUND ──
 function playCoinSound(){
   try{
-    const ctx=getAudio();const o=ctx.createOscillator(),g=ctx.createGain();
-    o.connect(g);g.connect(ctx.destination);
-    o.frequency.setValueAtTime(1200,ctx.currentTime);
-    o.frequency.exponentialRampToValueAtTime(800,ctx.currentTime+0.1);
-    g.gain.setValueAtTime(0.15,ctx.currentTime);
-    g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.1);
-    o.type='sine';o.start();o.stop(ctx.currentTime+0.1);
+    const ctx=getAudio();
+    makeOsc(ctx,'sine',1200,0.15,0.001,0.12);
+    makeOsc(ctx,'sine',1600,0.08,0.001,0.08,0.05);
   }catch(e){}
+}
+
+// ── DAILY CLAIM ──
+function playClaimSound(){
+  try{
+    const ctx=getAudio();
+    const melody=[523,659,784,1047];
+    melody.forEach((f,i)=>makeOsc(ctx,'sine',f,0.2,0.001,0.25,i*0.12));
+    makeOsc(ctx,'triangle',261,0.15,0.001,0.5,0);
+    makeNoise(ctx,0.03,0.3,0.1);
+  }catch(e){}
+}
+
+// ── ACTIVITY START ──
+function playActivitySound(type){
+  try{
+    const ctx=getAudio();
+    if(type==='quest'){
+      // Adventure horn
+      makeOsc(ctx,'sawtooth',220,0.2,0.001,0.6);
+      makeOsc(ctx,'sawtooth',330,0.15,0.001,0.5,0.1);
+      makeOsc(ctx,'sine',440,0.12,0.001,0.4,0.25);
+    } else if(type==='train'){
+      // Power-up charge
+      const o=ctx.createOscillator(), g=ctx.createGain();
+      o.connect(g); g.connect(ctx.destination);
+      o.type='sawtooth';
+      o.frequency.setValueAtTime(200,ctx.currentTime);
+      o.frequency.exponentialRampToValueAtTime(800,ctx.currentTime+0.5);
+      g.gain.setValueAtTime(0.25,ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.5);
+      o.start(); o.stop(ctx.currentTime+0.5);
+      makeNoise(ctx,0.05,0.3,0.2);
+    } else {
+      // Work: city beep
+      makeOsc(ctx,'square',440,0.15,0.001,0.1);
+      makeOsc(ctx,'square',880,0.1,0.001,0.1,0.15);
+    }
+  }catch(e){}
+}
+
+// ── ACTIVITY CHOICE PICK ──
+function playChoiceSound(score){
+  try{
+    const ctx=getAudio();
+    if(score===2){
+      makeOsc(ctx,'sine',523,0.15,0.001,0.15);
+      makeOsc(ctx,'sine',784,0.12,0.001,0.15,0.1);
+    } else if(score===1){
+      makeOsc(ctx,'sine',440,0.12,0.001,0.15);
+    } else {
+      makeOsc(ctx,'triangle',220,0.1,0.001,0.25);
+      makeOsc(ctx,'triangle',196,0.08,0.001,0.2,0.1);
+    }
+  }catch(e){}
+}
+
+// ── ACTIVITY RESULT GRADE ──
+function playGradeSound(grade){
+  try{
+    const ctx=getAudio();
+    const sequences={
+      S:[[523,0],[659,0.1],[784,0.2],[1047,0.3],[1319,0.4]],
+      A:[[523,0],[659,0.12],[784,0.24]],
+      B:[[440,0],[523,0.12]],
+      C:[[330,0],[294,0.15]],
+    };
+    (sequences[grade]||sequences.B).forEach(([f,t])=>makeOsc(ctx,'sine',f,0.2,0.001,0.2,t));
+    if(grade==='S') makeNoise(ctx,0.04,0.4,0.1);
+  }catch(e){}
+}
+
+// ── BATTLE SOUNDS ──
+function playBattleStartSound(){
+  try{
+    const ctx=getAudio();
+    // Dramatic boom
+    makeNoise(ctx,0.2,0.4);
+    makeOsc(ctx,'sawtooth',80,0.3,0.001,0.5);
+    makeOsc(ctx,'sawtooth',120,0.2,0.001,0.4,0.1);
+    // Rising string
+    setTimeout(()=>{
+      makeOsc(ctx,'sine',440,0.15,0.001,0.3);
+      makeOsc(ctx,'sine',550,0.12,0.001,0.3,0.1);
+      makeOsc(ctx,'sine',660,0.1,0.001,0.3,0.2);
+    },400);
+  }catch(e){}
+}
+
+function playAttackSound(type){
+  try{
+    const ctx=getAudio();
+    if(type==='ult'){
+      // Ultimate — big shockwave
+      makeNoise(ctx,0.3,0.5);
+      makeOsc(ctx,'sawtooth',60,0.4,0.001,0.6);
+      makeOsc(ctx,'sawtooth',120,0.25,0.001,0.5,0.05);
+      makeOsc(ctx,'sine',880,0.2,0.001,0.4,0.2);
+      makeOsc(ctx,'sine',1760,0.1,0.001,0.3,0.3);
+    } else if(type==='spc'){
+      // Special — magical shimmer
+      [440,554,659,880].forEach((f,i)=>makeOsc(ctx,'sine',f,0.15,0.001,0.3,i*0.06));
+      makeNoise(ctx,0.05,0.2,0.1);
+    } else if(type==='def'){
+      // Defense/heal — soft chime
+      makeOsc(ctx,'sine',660,0.15,0.001,0.3);
+      makeOsc(ctx,'sine',990,0.1,0.001,0.25,0.08);
+    } else {
+      // Normal attack — slash
+      makeNoise(ctx,0.15,0.15);
+      makeOsc(ctx,'sawtooth',200,0.2,0.001,0.25);
+      makeOsc(ctx,'sawtooth',400,0.1,0.001,0.15,0.05);
+    }
+  }catch(e){}
+}
+
+function playHitSound(isCrit){
+  try{
+    const ctx=getAudio();
+    if(isCrit){
+      makeNoise(ctx,0.25,0.2);
+      makeOsc(ctx,'sawtooth',150,0.3,0.001,0.3);
+      makeOsc(ctx,'sine',300,0.2,0.001,0.2,0.05);
+      makeOsc(ctx,'sine',600,0.15,0.001,0.15,0.1);
+    } else {
+      makeNoise(ctx,0.12,0.12);
+      makeOsc(ctx,'triangle',180,0.18,0.001,0.2);
+    }
+  }catch(e){}
+}
+
+function playDefendSound(){
+  try{
+    const ctx=getAudio();
+    makeOsc(ctx,'sine',440,0.2,0.001,0.15);
+    makeOsc(ctx,'sine',330,0.15,0.001,0.2,0.08);
+    makeNoise(ctx,0.08,0.15);
+  }catch(e){}
+}
+
+function playVictorySound(){
+  try{
+    const ctx=getAudio();
+    const melody=[[523,0],[659,0.1],[784,0.2],[659,0.35],[784,0.45],[1047,0.55],[880,0.7],[1047,0.85]];
+    melody.forEach(([f,t])=>makeOsc(ctx,'sine',f,0.22,0.001,0.25,t));
+    makeOsc(ctx,'triangle',261,0.15,0.001,1.1,0);
+    makeNoise(ctx,0.04,0.5,0.1);
+  }catch(e){}
+}
+
+function playDefeatSound(){
+  try{
+    const ctx=getAudio();
+    makeOsc(ctx,'sawtooth',330,0.2,0.001,0.4);
+    makeOsc(ctx,'sawtooth',220,0.18,0.001,0.5,0.2);
+    makeOsc(ctx,'sawtooth',147,0.15,0.001,0.6,0.4);
+    makeNoise(ctx,0.06,0.4);
+  }catch(e){}
+}
+
+function playEnemyHitSound(){
+  try{
+    const ctx=getAudio();
+    makeNoise(ctx,0.1,0.1);
+    makeOsc(ctx,'sawtooth',250,0.15,0.001,0.18);
+  }catch(e){}
+}
+
+// ── MODAL OPEN ──
+function playModalSound(){
+  try{
+    const ctx=getAudio();
+    makeOsc(ctx,'sine',440,0.1,0.001,0.12);
+    makeOsc(ctx,'sine',660,0.07,0.001,0.1,0.07);
+  }catch(e){}
+}
+
+// ── EQUIP CARD ──
+function playEquipSound(){
+  try{
+    const ctx=getAudio();
+    makeOsc(ctx,'sine',330,0.15,0.001,0.12);
+    makeOsc(ctx,'sine',495,0.12,0.001,0.12,0.08);
+    makeOsc(ctx,'sine',660,0.1,0.001,0.15,0.16);
+    makeNoise(ctx,0.04,0.15,0.1);
+  }catch(e){}
+}
+
+// ── SHOP BUY ──
+function playShopSound(){
+  try{
+    const ctx=getAudio();
+    makeOsc(ctx,'sine',880,0.15,0.001,0.1);
+    makeOsc(ctx,'sine',1100,0.12,0.001,0.1,0.08);
+    makeOsc(ctx,'sine',1320,0.1,0.001,0.15,0.16);
+  }catch(e){}
+}
+
+// ── ERROR / COOLDOWN ──
+function playErrorSound(){
+  try{
+    const ctx=getAudio();
+    makeOsc(ctx,'square',200,0.12,0.001,0.15);
+    makeOsc(ctx,'square',180,0.1,0.001,0.12,0.12);
+  }catch(e){}
+}
+
+// ══════════════════════════════════════════════
+// ABILITY CUTSCENE ENGINE
+// ══════════════════════════════════════════════
+function playAbilityCutsceneSound(tier){
+  try{
+    const ctx=getAudio();
+    if(tier==='ultimate'){
+      // Epic orchestral hit
+      makeNoise(ctx,0.35,0.6);
+      makeOsc(ctx,'sawtooth',55,0.4,0.001,0.8);
+      makeOsc(ctx,'sawtooth',110,0.3,0.001,0.7,0.05);
+      makeOsc(ctx,'sawtooth',220,0.2,0.001,0.6,0.1);
+      // Rising sweep
+      const o=ctx.createOscillator(),g=ctx.createGain();
+      o.connect(g);g.connect(ctx.destination);
+      o.type='sine';
+      o.frequency.setValueAtTime(220,ctx.currentTime+0.2);
+      o.frequency.exponentialRampToValueAtTime(1760,ctx.currentTime+0.9);
+      g.gain.setValueAtTime(0.25,ctx.currentTime+0.2);
+      g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+1.0);
+      o.start(ctx.currentTime+0.2); o.stop(ctx.currentTime+1.0);
+      // Bell overtones
+      setTimeout(()=>[880,1100,1320,1760].forEach((f,i)=>makeOsc(ctx,'sine',f,0.15,0.001,0.4,i*0.05)),700);
+    } else if(tier==='secret'){
+      // Ethereal alien shimmer
+      for(let i=0;i<10;i++) setTimeout(()=>{
+        makeOsc(ctx,'sine',200+Math.random()*2000,0.08,0.001,0.3);
+      },i*60);
+      makeNoise(ctx,0.1,0.8);
+      makeOsc(ctx,'sine',55,0.2,0.001,1.0);
+    } else if(tier==='active'){
+      // Sharp power burst
+      makeNoise(ctx,0.2,0.3);
+      makeOsc(ctx,'sawtooth',120,0.25,0.001,0.4);
+      makeOsc(ctx,'sine',440,0.18,0.001,0.35,0.1);
+      makeOsc(ctx,'sine',660,0.12,0.001,0.25,0.2);
+    } else {
+      // Passive: soft shimmer
+      [330,440,550,660].forEach((f,i)=>makeOsc(ctx,'sine',f,0.12,0.001,0.3,i*0.07));
+    }
+  }catch(e){}
+}
+
+function spawnCutsceneLines(color){
+  const container=document.getElementById('cutsceneLines');
+  container.innerHTML='';
+  for(let i=0;i<20;i++){
+    const line=document.createElement('div');
+    const angle=Math.random()*360;
+    const len=100+Math.random()*400;
+    const x=Math.random()*100, y=Math.random()*100;
+    line.style.cssText=`position:absolute;left:${x}%;top:${y}%;width:${len}px;height:2px;background:${color};transform:rotate(${angle}deg);transform-origin:left center;opacity:0;animation:lineShot ${0.3+Math.random()*0.4}s ease forwards ${Math.random()*0.3}s;`;
+    container.appendChild(line);
+  }
+}
+
+async function playAbilityCutscene(cardId, rarity, abilityId){
+  const abilities = getCardAbilities(cardId, rarity);
+  const ability = abilities.find(a=>a.id===abilityId) || abilities[0];
+  if(!ability) return;
+  const card = DEMO_CARDS.find(c=>c.id===cardId);
+  if(!card) return;
+
+  const tierColors = {
+    passive:'#5dade2', active:'#ff9dc7', ultimate:'#f1c40f', secret:'#c39bd3'
+  };
+  const color = tierColors[ability.tier] || '#fff';
+  const rarityColor = RARITY_COLORS[rarity] || '#fff';
+  const duration = ability.tier==='ultimate'?2800 : ability.tier==='secret'?3200 : 2000;
+
+  // Show overlay
+  const overlay=document.getElementById('abilityCutscene');
+  overlay.style.display='flex';
+  overlay.style.background='#000';
+
+  // Play sound
+  playAbilityCutsceneSound(ability.tier);
+
+  // Glow bg
+  const glow=document.getElementById('cutsceneGlow');
+  glow.style.background=`radial-gradient(ellipse at 50% 50%, ${color}33, transparent 70%)`;
+  glow.style.opacity='1';
+
+  // Spawn speed lines
+  spawnCutsceneLines(color);
+
+  // Card image
+  const img=document.getElementById('cutsceneCardImg');
+  img.src=card.image;
+  img.style.borderColor=rarityColor;
+  img.style.boxShadow=`0 0 60px ${rarityColor}88`;
+  void img.offsetWidth;
+  setTimeout(()=>{
+    img.style.transform='scale(1)';
+    img.style.opacity='1';
+  },80);
+
+  // Card glow
+  const cg=document.getElementById('cutsceneCardGlow');
+  cg.style.background=rarityColor;
+  setTimeout(()=>cg.style.opacity='0.5',100);
+
+  // Ability name
+  const nameEl=document.getElementById('cutsceneAbilityName');
+  nameEl.textContent=ability.icon+' '+ability.name;
+  nameEl.style.color=color;
+  nameEl.style.textShadow=`0 0 40px ${color}`;
+  setTimeout(()=>{
+    nameEl.style.transform='scaleX(1)';
+    nameEl.style.opacity='1';
+  },350);
+
+  // Desc
+  const descEl=document.getElementById('cutsceneAbilityDesc');
+  descEl.textContent=ability.desc;
+  setTimeout(()=>{
+    descEl.style.opacity='1';
+    descEl.style.transform='translateY(0)';
+  },600);
+
+  // Impact flash for ultimate/secret
+  if(ability.tier==='ultimate'||ability.tier==='secret'){
+    setTimeout(()=>{
+      const imp=document.getElementById('cutsceneImpactText');
+      imp.textContent=ability.tier==='ultimate'?'ULTIMATE!':'???';
+      imp.style.color=color;
+      imp.style.fontSize=ability.tier==='secret'?'clamp(2em,10vw,6em)':'clamp(2em,8vw,5em)';
+      imp.style.top='20%'; imp.style.left='50%'; imp.style.transform='translateX(-50%)';
+      imp.style.opacity='1';
+      imp.style.animation='impactSlam 0.5s cubic-bezier(0.34,1.56,0.64,1)';
+      setTimeout(()=>{ imp.style.opacity='0'; imp.style.animation=''; },600);
+    },700);
+    // Screen shake
+    setTimeout(()=>{
+      overlay.style.animation='cutsceneShake 0.4s cubic-bezier(.36,.07,.19,.97)';
+      setTimeout(()=>overlay.style.animation='',400);
+    },750);
+    // Particle burst
+    setTimeout(()=>spawnParticles(rarity, color), 700);
+  }
+
+  // Extra shimmer for secret
+  if(ability.tier==='secret'){
+    setTimeout(()=>{
+      for(let i=0;i<6;i++){
+        setTimeout(()=>spawnCutsceneLines(['#ff9dc7','#c39bd3','#f1c40f','#5dade2'][i%4]),i*120);
+      }
+    },800);
+  }
+
+  // Close cutscene
+  return new Promise(resolve=>{
+    setTimeout(()=>{
+      // Fade out
+      overlay.style.transition='opacity 0.5s';
+      overlay.style.opacity='0';
+      // Reset card img
+      img.style.transform='scale(0.6)';
+      img.style.opacity='0';
+      nameEl.style.transform='scaleX(2)';
+      nameEl.style.opacity='0';
+      descEl.style.opacity='0';
+      descEl.style.transform='translateY(10px)';
+      cg.style.opacity='0';
+      glow.style.opacity='0';
+      setTimeout(()=>{
+        overlay.style.display='none';
+        overlay.style.opacity='1';
+        overlay.style.transition='';
+        resolve();
+      },500);
+    }, duration);
+  });
 }
 
 // ══════════════════════════════════════════════
@@ -2086,6 +3119,7 @@ function filterCards(f,btn){
 // ══════════════════════════════════════════════
 function openCard(id){
   const c=DEMO_CARDS.find(x=>x.id===id);if(!c)return;
+  playModalSound();
   openCardId=id;
   const color=RARITY_COLORS[c.rarity]||'#bdc3c7';
   const xp=state.xpMap[id]||0;
@@ -2121,7 +3155,7 @@ function closeModal(e){
 async function equipCard(){
   if(openCardId){
     state.equippedId=openCardId;
-    showToast(`⚔️ ${DEMO_CARDS.find(x=>x.id===openCardId)?.name} equipped!`);
+    showToast(`⚔️ ${DEMO_CARDS.find(x=>x.id===openCardId)?.name} equipped!`); playEquipSound();
     document.getElementById('cardModal').classList.remove('active');
     updateProfile();renderCollection();
     if(state.discordId&&!state.isGuest)await savePlayer();
@@ -2222,7 +3256,7 @@ function renderShop(){
 async function buyItem(id,name,price){
   if(state.coins<price){showToast('Not enough coins! 🪙');return;}
   state.coins-=price;updateCoins();
-  showToast(`✨ ${name} purchased!`);playCoinSound();
+  showToast(`✨ ${name} purchased!`); playShopSound(); playCoinSound();
   if(state.discordId&&!state.isGuest)await savePlayer();
   if(state.isGuest)saveGuestState();
 }
@@ -2230,7 +3264,7 @@ async function buyItem(id,name,price){
 // ══════════════════════════════════════════════
 // NAV
 // ══════════════════════════════════════════════
-function goTo(page,btn){
+function goTo(page,btn){ playNavSound();
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
   const pageEl=document.getElementById('page-'+page);
@@ -2596,7 +3630,7 @@ function renderDailyCalendar(){
 async function claimDailyReward(){
   const d = loadDailyState();
   const today = new Date();
-  if(d.lastClaim && isSameDay(d.lastClaim, today)){ showToast('Already claimed today! Come back tomorrow ʚɞ'); return; }
+  if(d.lastClaim && isSameDay(d.lastClaim, today)){ showToast('Already claimed today! Come back tomorrow ʚɞ'); playErrorSound(); return; }
   // Check streak continuity
   if(d.lastClaim && !isYesterday(d.lastClaim) && !isSameDay(d.lastClaim,today)){
     d.streak = 0; // streak broken
@@ -2610,7 +3644,7 @@ async function claimDailyReward(){
   updateCoins();
   if(state.discordId&&!state.isGuest) await savePlayer();
   if(state.isGuest) saveGuestState();
-  showToast(`🎉 Day ${d.streak} reward! +${reward.coins} 🪙`);
+  showToast(`🎉 Day ${d.streak} reward! +${reward.coins} 🪙`); playClaimSound();
   spawnParticles(3,'#f1c40f');
   renderDailyCalendar();
 }
@@ -2831,7 +3865,8 @@ let actState = { type:null, scenario:null, step:0, score:0 };
 
 function openActivity(type){
   const left = getCooldownLeft(type);
-  if(left>0){ showToast(`⏳ On cooldown! Ready in ${fmtTime(left)}`); return; }
+  if(left>0){ showToast(`⏳ On cooldown! Ready in ${fmtTime(left)}`); playErrorSound(); return; }
+  playActivitySound(type);
   const scenarios = type==='work'?WORK_SCENARIOS:type==='train'?TRAIN_SCENARIOS:QUEST_SCENARIOS;
   const scenario = scenarios[Math.floor(Math.random()*scenarios.length)];
   actState = { type, scenario, step:0, score:0 };
@@ -2866,7 +3901,7 @@ function renderActivityStep(){
   ).join('');
 }
 
-async function pickChoice(idx){
+async function pickChoice(idx){ playChoiceSound(actState.scenario.steps[actState.step].choices[idx].score);
   const {scenario, step} = actState;
   const choice = scenario.steps[step].choices[idx];
   actState.score += choice.score;
@@ -2924,7 +3959,7 @@ async function finishActivity(){
     <div style="font-size:0.8em;color:var(--text-dim);font-style:italic;">${state.equippedId?'XP added to your equipped card':'Equip a card to earn XP!'}</div>
   `;
   document.getElementById('actCloseBtn').style.display='block';
-  spawnParticles(ratio>=0.7?4:2,'#f1c40f');
+  spawnParticles(ratio>=0.7?4:2,'#f1c40f'); playGradeSound(grade);
 }
 
 function closeActivity(){
@@ -3150,6 +4185,7 @@ function startBattle() {
   updateBattleHPBars();
   renderBattleMoves();
   battleLog(`⚡ ${playerCard.name} VS ${enemyCard.name}! The battle begins!`, 'system');
+  playBattleStartSound();
   battleLog(`🎯 Difficulty: ${BATTLE_DIFFICULTIES[battleState.difficulty].label}`, 'system');
   // Check firstcrit ability
   if(battleState.firstCrit) battleLog(`📖 ${playerCard.name}'s analysis is complete. First strike will be critical!`, 'player');
@@ -3212,6 +4248,283 @@ function shakeCard(who) {
   setTimeout(()=>img.classList.remove('shake'), 500);
 }
 
+
+// ══════════════════════════════════════════════
+// BATTLE VFX ENGINE
+// ══════════════════════════════════════════════
+
+function getCardRect(who) {
+  const id = who === 'player' ? 'battlePlayerImg' : 'battleEnemyImg';
+  return document.getElementById(id)?.getBoundingClientRect() || {left:200,top:300,width:120,height:170};
+}
+
+function spawnDmgNumber(amount, who, type='normal') {
+  const rect = getCardRect(who);
+  const el = document.createElement('div');
+  el.className = `dmg-number dmg-${type}`;
+  const prefix = type==='heal' ? '+' : type==='burn' ? '🔥' : type==='enemy' ? '' : '-';
+  el.textContent = prefix + amount;
+  const x = rect.left + rect.width/2 + (Math.random()*30-15);
+  const y = rect.top + rect.height/2 - 20;
+  el.style.cssText += `left:${x}px;top:${y}px;position:fixed;`;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 1200);
+}
+
+function spawnSlash(who, color='#fff', count=2) {
+  const rect = getCardRect(who);
+  const cx = rect.left + rect.width/2;
+  const cy = rect.top + rect.height/2;
+  for(let i=0;i<count;i++){
+    const wrap = document.createElement('div');
+    wrap.className = 'slash-vfx';
+    const angle = -35 + i*20 + (Math.random()*16-8);
+    const ox = (Math.random()*60-30);
+    const oy = (Math.random()*40-20);
+    wrap.style.cssText = `left:${cx-80+ox}px;top:${cy-8+oy}px;--angle:${angle}deg;animation-delay:${i*0.07}s`;
+    const line = document.createElement('div');
+    line.className = i===0 ? 'slash-line' : 'slash-line-2';
+    line.style.background = `linear-gradient(90deg, transparent, ${color}, transparent)`;
+    line.style.transform = `rotate(${angle}deg)`;
+    wrap.appendChild(line);
+    document.body.appendChild(wrap);
+    setTimeout(()=>wrap.remove(), 500+i*80);
+  }
+}
+
+function spawnImpactRings(who, color='#fff', count=3) {
+  const rect = getCardRect(who);
+  const cx = rect.left + rect.width/2;
+  const cy = rect.top + rect.height/2;
+  for(let i=0;i<count;i++){
+    const ring = document.createElement('div');
+    ring.className = 'impact-ring';
+    ring.style.cssText = `left:${cx}px;top:${cy}px;border-color:${color};animation-delay:${i*0.1}s;opacity:${0.9-i*0.2};`;
+    document.body.appendChild(ring);
+    setTimeout(()=>ring.remove(), 600+i*100);
+  }
+}
+
+function spawnShieldBubble(who) {
+  const imgId = who==='player'?'battlePlayerImg':'battleEnemyImg';
+  const wrap = document.getElementById(imgId)?.parentElement;
+  if(!wrap) return;
+  const el = document.createElement('div');
+  el.className = 'shield-vfx';
+  wrap.style.position='relative';
+  wrap.appendChild(el);
+  setTimeout(()=>el.remove(), 900);
+}
+
+function spawnHealEffect(who) {
+  const imgId = who==='player'?'battlePlayerImg':'battleEnemyImg';
+  const wrap = document.getElementById(imgId)?.parentElement;
+  if(!wrap) return;
+  const el = document.createElement('div');
+  el.className = 'heal-vfx';
+  wrap.style.position='relative';
+  wrap.appendChild(el);
+  // rising + signs
+  const rect = getCardRect(who);
+  for(let i=0;i<5;i++){
+    const p = document.createElement('div');
+    p.className = 'dmg-number dmg-heal';
+    p.textContent = '✦';
+    p.style.cssText = `left:${rect.left+20+Math.random()*80}px;top:${rect.top+rect.height-20}px;font-size:1em;animation-delay:${i*0.1}s;`;
+    document.body.appendChild(p);
+    setTimeout(()=>p.remove(),1200);
+  }
+  setTimeout(()=>el.remove(), 900);
+}
+
+function spawnBurnEffect(who) {
+  const imgId = who==='player'?'battlePlayerImg':'battleEnemyImg';
+  const wrap = document.getElementById(imgId)?.parentElement;
+  if(!wrap) return;
+  const el = document.createElement('div');
+  el.className = 'burn-vfx';
+  wrap.style.position='relative';
+  wrap.appendChild(el);
+  // ember particles
+  const rect = getCardRect(who);
+  for(let i=0;i<8;i++){
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.style.cssText = `width:4px;height:4px;background:#e74c3c;left:${rect.left+20+Math.random()*80}px;top:${rect.top+rect.height-10}px;--tx:${(Math.random()*60-30)}px;--ty:${-40-Math.random()*60}px;--dur:${0.5+Math.random()*0.4}s;animation-delay:${i*0.06}s;`;
+    document.body.appendChild(p);
+    setTimeout(()=>p.remove(),1000);
+  }
+  setTimeout(()=>el.remove(), 700);
+}
+
+function spawnFocusEffect(who) {
+  const imgId = who==='player'?'battlePlayerImg':'battleEnemyImg';
+  const wrap = document.getElementById(imgId)?.parentElement;
+  if(!wrap) return;
+  const el = document.createElement('div');
+  el.className = 'focus-vfx';
+  wrap.style.position='relative';
+  wrap.appendChild(el);
+  setTimeout(()=>el.remove(), 900);
+  // golden sparks
+  const rect = getCardRect(who);
+  for(let i=0;i<12;i++){
+    const angle = (i/12)*Math.PI*2;
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.style.cssText = `width:5px;height:5px;background:#f1c40f;left:${rect.left+rect.width/2}px;top:${rect.top+rect.height/2}px;--tx:${Math.cos(angle)*70}px;--ty:${Math.sin(angle)*70}px;--dur:0.5s;animation-delay:${i*0.04}s;border-radius:50%;`;
+    document.body.appendChild(p);
+    setTimeout(()=>p.remove(),700);
+  }
+}
+
+function spawnUltShockwave(who, color='#f1c40f') {
+  const rect = getCardRect(who);
+  const cx = rect.left + rect.width/2;
+  const cy = rect.top + rect.height/2;
+  for(let i=0;i<3;i++){
+    const sw = document.createElement('div');
+    sw.className = 'ult-shockwave';
+    sw.style.cssText = `left:${cx}px;top:${cy}px;border-color:${color};animation-delay:${i*0.15}s;`;
+    document.body.appendChild(sw);
+    setTimeout(()=>sw.remove(), 900+i*150);
+  }
+}
+
+function spawnMagicCircle(who, color='#ff9dc7') {
+  const rect = getCardRect(who);
+  const cx = rect.left + rect.width/2;
+  const cy = rect.top + rect.height/2;
+  const mc = document.createElement('div');
+  mc.className = 'magic-circle';
+  mc.style.cssText = `left:${cx}px;top:${cy}px;border-color:${color};color:${color};`;
+  document.body.appendChild(mc);
+  setTimeout(()=>mc.remove(), 900);
+}
+
+function spawnEmojiProjectile(who, emoji, dx, dy) {
+  const rect = getCardRect(who==='player'?'player':'enemy');
+  const tx = who==='player' ? 200 : -200;
+  const el = document.createElement('div');
+  el.className = 'emoji-projectile';
+  el.textContent = emoji;
+  el.style.cssText = `left:${rect.left+rect.width/2}px;top:${rect.top+rect.height/2}px;--tx:${tx}px;--ty:${dy||0}px;--dur:0.4s;--rot:${who==='player'?180:-180}deg;`;
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(), 500);
+}
+
+function critScreenEffect() {
+  const el = document.createElement('div');
+  el.className = 'crit-flash-overlay';
+  document.body.appendChild(el);
+  // crack
+  const crack = document.createElement('div');
+  crack.className = 'screen-crack';
+  document.body.appendChild(crack);
+  setTimeout(()=>{ el.remove(); crack.remove(); }, 900);
+}
+
+function cardLunge(who) {
+  const img = document.getElementById(who==='player'?'battlePlayerImg':'battleEnemyImg');
+  if(!img) return;
+  img.classList.add(who==='player'?'card-lunge-right':'card-lunge-left');
+  img.classList.add('attacking');
+  setTimeout(()=>{ img.classList.remove('card-lunge-right','card-lunge-left','attacking'); }, 380);
+}
+
+function cardHitFlash(who) {
+  const img = document.getElementById(who==='player'?'battlePlayerImg':'battleEnemyImg');
+  if(!img) return;
+  img.classList.add('hit-flash');
+  setTimeout(()=>img.classList.remove('hit-flash'), 120);
+  // recoil
+  setTimeout(()=>{
+    img.classList.add(who==='player'?'card-recoil-left':'card-recoil-right');
+    setTimeout(()=>img.classList.remove('card-recoil-left','card-recoil-right'), 320);
+  }, 60);
+}
+
+// ── Master VFX dispatcher ──
+async function playMoveVFX(move, isCrit, dmg, who='enemy') {
+  const hitWho = who; // who takes the hit
+  const attacker = who==='enemy' ? 'player' : 'enemy';
+  const atkColor = attacker==='player' ? '#ff9dc7' : '#c39bd3';
+
+  // 1. Attacker lunges
+  cardLunge(attacker);
+  await sleep(120);
+
+  if(move.type==='def' && move.id==='defend') {
+    spawnShieldBubble(attacker);
+    spawnImpactRings(attacker,'#5dade2',2);
+    return;
+  }
+  if(move.type==='def' && move.id==='heal') {
+    spawnHealEffect(attacker);
+    spawnDmgNumber(move.power, attacker, 'heal');
+    return;
+  }
+  if(move.type==='spc' && move.id==='focus') {
+    spawnFocusEffect(attacker);
+    return;
+  }
+
+  // 2. Move-type visuals
+  if(move.type==='ult') {
+    // Ultimate: magic circle + shockwave + particles
+    spawnMagicCircle(attacker, '#f1c40f');
+    await sleep(300);
+    spawnUltShockwave(attacker, '#f1c40f');
+    spawnParticles(5, '#f1c40f');
+    spawnParticles(3, atkColor);
+    await sleep(200);
+    spawnSlash(hitWho, '#f1c40f', 4);
+    spawnImpactRings(hitWho, '#f1c40f', 4);
+    cardHitFlash(hitWho);
+    spawnDmgNumber(dmg, hitWho, isCrit?'crit':'normal');
+    if(isCrit) critScreenEffect();
+    spawnParticles(4, '#f1c40f');
+    return;
+  }
+  if(move.type==='spc') {
+    spawnMagicCircle(attacker, atkColor);
+    spawnEmojiProjectile(attacker, '✨', 0, 0);
+    await sleep(250);
+    spawnSlash(hitWho, atkColor, 2);
+    spawnImpactRings(hitWho, atkColor, 2);
+    cardHitFlash(hitWho);
+    spawnDmgNumber(dmg, hitWho, isCrit?'crit':'normal');
+    return;
+  }
+  // Normal / Power attack
+  spawnSlash(hitWho, atkColor, isCrit?3:2);
+  spawnEmojiProjectile(attacker, move.type==='atk'?'⚔️':'💥', 0, 0);
+  await sleep(150);
+  cardHitFlash(hitWho);
+  spawnImpactRings(hitWho, atkColor, isCrit?3:2);
+  spawnDmgNumber(dmg, hitWho, isCrit?'crit':'normal');
+  if(isCrit) {
+    critScreenEffect();
+    spawnParticles(3, '#ff4444');
+  }
+}
+
+async function playEnemyMoveVFX(moveName, isCrit, dmg) {
+  const atkColor = '#c39bd3';
+  cardLunge('enemy');
+  await sleep(120);
+  spawnSlash('player', atkColor, isCrit?3:2);
+  spawnEmojiProjectile('enemy', '🌑', 0, 0);
+  await sleep(150);
+  cardHitFlash('player');
+  spawnImpactRings('player', atkColor, isCrit?3:2);
+  spawnDmgNumber(dmg, 'player', isCrit?'crit':'enemy');
+  if(isCrit) {
+    critScreenEffect();
+    spawnParticles(3,'#9b59b6');
+  }
+}
+
 async function playerMove(moveId) {
   if(battleState.battleEnded || battleState.movesCooldown) return;
   battleState.movesCooldown = true;
@@ -3227,20 +4540,34 @@ async function playerMove(moveId) {
   if(move.type==='def') {
     if(moveId==='defend'){
       battleState.playerGuarding = true;
+      playDefendSound();
+      await playMoveVFX('def','player','enemy',0,false, RARITY_COLORS[battleState.playerCard.rarity]);
       battleLog(`🛡️ ${battleState.playerCard.name} takes a defensive stance!`, 'player');
     } else if(moveId==='heal'){
       const healAmt = move.power * (battleState.doubleRegen?2:1);
       battleState.playerHP = Math.min(battleState.playerMaxHP, battleState.playerHP + healAmt);
+      await playMoveVFX('heal-action','player','player',healAmt,false, RARITY_COLORS[battleState.playerCard.rarity]);
       battleLog(`💊 ${battleState.playerCard.name} restores ${healAmt} HP!`, 'player');
-      flashBattle('player');
+      spawnHealEffect('player'); spawnDmgNumber(healAmt, 'player', 'heal');
     }
   } else if(move.type==='spc' && moveId==='focus'){
     battleState.playerAtkBoost = 30;
     battleState.playerAtkBoostTurns = 2;
+    await playMoveVFX('spc','player','enemy',0,false, RARITY_COLORS[battleState.playerCard.rarity]);
+    spawnFocusEffect('player');
     battleLog(`✨ ${battleState.playerCard.name} focuses energy! Attack +30% for 2 turns!`, 'player');
     battleState.statusEffects.push({type:'boost',icon:'⬆️',label:'ATK+30%',turns:2});
   } else {
     // Attack
+    // Trigger cutscene for ultimate/active ability moves
+    if(move.type==='ult' || move.type==='spc'){
+      const moveAbilId = move.id.replace('ultimate_','');
+      const abils = getCardAbilities(battleState.playerCard.id, battleState.playerCard.rarity);
+      const matchAbil = abils.find(a=>a.id===moveAbilId || a.tier==='ultimate'||a.tier==='active');
+      if(matchAbil && (move.type==='ult'|| matchAbil.tier==='active'||matchAbil.tier==='ultimate')){
+        await playAbilityCutscene(battleState.playerCard.id, battleState.playerCard.rarity, matchAbil.id);
+      }
+    }
     let baseDmg = move.power + (battleState.playerCard.rarity * 2);
     // Apply boosts
     if(battleState.playerAtkBoostTurns>0){ baseDmg = Math.round(baseDmg*(1+battleState.playerAtkBoost/100)); }
@@ -3266,7 +4593,8 @@ async function playerMove(moveId) {
     // Enemy guarding?
     if(battleState.enemyGuarding){ baseDmg = Math.round(baseDmg*0.55); battleState.enemyGuarding=false; }
     battleState.enemyHP -= baseDmg;
-    flashBattle('enemy'); shakeCard('enemy');
+    await playMoveVFX(move, isCrit, baseDmg, 'enemy');
+    playAttackSound(move.type); playHitSound(isCrit);
     const critStr = isCrit ? ' 💥 CRITICAL!' : '';
     battleLog(`${move.icon} ${battleState.playerCard.name} uses ${move.name}! ${baseDmg} damage${critStr}`, 'player');
     if(recoil>0){ battleState.playerHP-=recoil; battleLog(`💢 Recoil! ${battleState.playerCard.name} takes ${recoil} damage!`,'player'); }
@@ -3288,6 +4616,8 @@ async function playerMove(moveId) {
 function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
 
 async function enemyTurn() {
+  showTurnBanner('ENEMY TURN', '#c39bd3');
+  await sleep(700);
   const diff = BATTLE_DIFFICULTIES[battleState.difficulty];
   const ec = battleState.enemyCard;
   const atkBase = (ec.rarity*3 + 10) * diff.atkMult;
@@ -3306,6 +4636,7 @@ async function enemyTurn() {
   if(isBurned){
     const burnDmg = 8;
     battleState.enemyHP -= burnDmg;
+    spawnBurnEffect('enemy'); spawnDmgNumber(burnDmg,'enemy','burn');
     battleLog(`🔥 Burn deals ${burnDmg} damage to ${ec.name}!`, 'system');
     battleState.statusEffects = battleState.statusEffects.map(s=>s.type==='burn'?{...s,turns:s.turns-1}:s).filter(s=>s.turns>0);
     if(battleState.enemyHP<=0){ updateBattleHPBars(); await endBattle(true); return; }
@@ -3314,10 +4645,13 @@ async function enemyTurn() {
   if(action==='heal' && ec.rarity>=3){
     const healAmt = Math.round(atkBase * 0.8);
     battleState.enemyHP = Math.min(battleState.enemyMaxHP, battleState.enemyHP + healAmt);
+    await playMoveVFX('heal-action','enemy','enemy',healAmt,false, RARITY_COLORS[ec.rarity]);
+    spawnHealEffect('enemy'); spawnDmgNumber(healAmt,'enemy','heal');
     battleLog(`💊 ${ec.name} uses Recovery! +${healAmt} HP!`, 'enemy');
-    flashBattle('enemy');
+
   } else if(action==='guard'){
     battleState.enemyGuarding = true;
+    await playMoveVFX('def','enemy','player',0,false, RARITY_COLORS[ec.rarity]);
     battleLog(`🛡️ ${ec.name} raises their guard!`, 'enemy');
   } else {
     let dmg = Math.round(atkBase + (Math.random()*8-4));
@@ -3326,6 +4660,9 @@ async function enemyTurn() {
     // Player guarding?
     if(battleState.playerGuarding){ dmg = Math.round(dmg*0.45); battleState.playerGuarding=false; }
     battleState.playerHP -= dmg;
+    playEnemyHitSound();
+    const enemyRarColor = RARITY_COLORS[ec.rarity]||'#c39bd3';
+    await playMoveVFX('atk','enemy','player',dmg,isCrit,enemyRarColor);
     flashBattle('player'); shakeCard('player');
     const critStr = isCrit ? ' 💥 CRITICAL!' : '';
     const enemyMoves = ['Storm Slash','Shadow Strike','Curse Bolt','Dark Wave','Soul Drain','Hellfire'];
@@ -3338,7 +4675,7 @@ async function enemyTurn() {
   if(regenAbils.length){
     const regenAmt = regenAbils.reduce((s,a)=>s+a.value,0) * (battleState.doubleRegen?2:1);
     battleState.playerHP = Math.min(battleState.playerMaxHP, battleState.playerHP+regenAmt);
-    if(regenAmt>0) battleLog(`💖 ${battleState.playerCard.name} regenerates ${regenAmt} HP!`, 'player');
+    if(regenAmt>0){ spawnHealEffect('player'); spawnDmgNumber(regenAmt,'player','heal'); battleLog(`💖 ${battleState.playerCard.name} regenerates ${regenAmt} HP!`, 'player'); }
   }
 
   battleState.turn++;
@@ -3346,6 +4683,9 @@ async function enemyTurn() {
   if(battleState.playerMP < 3) battleState.playerMP++;
   updateBattleHPBars();
   if(battleState.playerHP<=0){ await endBattle(false); return; }
+  await sleep(200);
+  showTurnBanner('YOUR TURN', 'var(--pink)');
+  await sleep(600);
   battleState.movesCooldown=false;
   renderBattleMoves();
 }
@@ -3368,7 +4708,7 @@ async function endBattle(playerWon) {
     if(state.discordId&&!state.isGuest) await savePlayer();
     if(state.isGuest) saveGuestState();
     battleLog(`🏆 VICTORY! Earned +${coins}🪙 +${xp}XP`, 'system');
-    spawnParticles(5,'#f1c40f');
+    spawnParticles(5,'#f1c40f'); playVictorySound();
     document.getElementById('battleOutcomeTitle').innerHTML = '<span class="battle-outcome-victory">⚡ VICTORY! ⚡</span>';
     document.getElementById('battleOutcomeMsg').textContent = `${battleState.playerCard.name} triumphs after ${battleState.turn} turns!`;
     document.getElementById('battleOutcomeRewards').innerHTML = `<span class="reward-tag">+${coins} 🪙</span>${state.equippedId?`<span class="reward-tag xp">+${xp} XP</span>`:''}`;
@@ -3383,7 +4723,7 @@ async function endBattle(playerWon) {
     }
     if(state.discordId&&!state.isGuest) await savePlayer();
     if(state.isGuest) saveGuestState();
-    battleLog(`💀 Defeated... But you gained +${consolationCoins}🪙 from trying.`, 'enemy');
+    battleLog(`💀 Defeated... But you gained +${consolationCoins}🪙 from trying.`, 'enemy'); playDefeatSound();
     document.getElementById('battleOutcomeTitle').innerHTML = '<span class="battle-outcome-defeat">💀 DEFEATED 💀</span>';
     document.getElementById('battleOutcomeMsg').textContent = `${battleState.enemyCard.name} was too powerful this time.`;
     document.getElementById('battleOutcomeRewards').innerHTML = `<span class="reward-tag">+${consolationCoins} 🪙</span><span style="color:var(--text-dim);font-size:0.85em;padding:4px 8px;">consolation</span>`;
@@ -3407,9 +4747,291 @@ function initBattlePage(){
   renderBattleCardSelect();
 }
 
+
+// ══════════════════════════════════════════════
+// BATTLE VFX ENGINE
+// ══════════════════════════════════════════════
+
+function getVFXLayer(){ return document.getElementById('battleVFXLayer'); }
+
+// ── Animate card ──
+function animateCard(who, animClass){
+  const el = document.getElementById(who==='player'?'battlePlayerImg':'battleEnemyImg');
+  if(!el) return;
+  el.classList.remove('card-lunge-right','card-lunge-left','card-hurt','card-guard-pose',
+    'card-heal-pulse','card-charge','card-ultimate');
+  void el.offsetWidth; // reflow
+  el.classList.add(animClass);
+  el.addEventListener('animationend', ()=>el.classList.remove(animClass), {once:true});
+}
+
+// ── Get card center position relative to VFX layer ──
+function getCardCenter(who){
+  const layer = getVFXLayer();
+  const img   = document.getElementById(who==='player'?'battlePlayerImg':'battleEnemyImg');
+  if(!layer||!img) return {x:150,y:100};
+  const lr = layer.getBoundingClientRect();
+  const ir = img.getBoundingClientRect();
+  return {
+    x: ir.left - lr.left + ir.width/2,
+    y: ir.top  - lr.top  + ir.height/2,
+  };
+}
+
+// ── Floating damage number ──
+function spawnDmgNumber(who, amount, isCrit, isHeal=false){
+  const layer = getVFXLayer(); if(!layer) return;
+  const pos = getCardCenter(who);
+  const el = document.createElement('div');
+  el.className = 'dmg-number' + (isCrit?' crit':'');
+  const jitter = (Math.random()-0.5)*40;
+  el.style.cssText = `left:${pos.x+jitter}px;top:${pos.y - 30}px;
+    font-size:${isCrit?'1.8em':isHeal?'1.4em':'1.5em'};
+    color:${isHeal?'#2ecc71':isCrit?'#ff4444':'#fff'};`;
+  el.textContent = (isHeal?'+':isCrit?'💥 -':'-') + amount + (isCrit?' CRIT!':'');
+  layer.appendChild(el);
+  setTimeout(()=>el.remove(), 1200);
+}
+
+// ── HP bar flash ──
+function flashHPTrack(who){
+  const bar = document.querySelector(who==='player'?'.player-hp':'.enemy-hp');
+  const track = bar?.parentElement;
+  if(!track) return;
+  track.classList.add('hp-track-flash');
+  track.addEventListener('animationend',()=>track.classList.remove('hp-track-flash'),{once:true});
+}
+
+// ── Slash lines VFX ──
+function spawnSlash(who, color='#fff', count=3){
+  const layer = getVFXLayer(); if(!layer) return;
+  const pos = getCardCenter(who);
+  for(let i=0;i<count;i++){
+    const el = document.createElement('div');
+    el.className = 'slash-vfx';
+    const angle = -30 + i*25 + (Math.random()*10-5);
+    const len   = 80 + Math.random()*60;
+    const ox = (Math.random()-0.5)*50;
+    const oy = (Math.random()-0.5)*40;
+    el.style.cssText = `
+      left:${pos.x - len/2 + ox}px; top:${pos.y + oy}px;
+      width:${len}px; height:${2+Math.random()*2}px;
+      background:linear-gradient(90deg,transparent,${color},transparent);
+      transform:rotate(${angle}deg);
+      animation-delay:${i*55}ms;
+      border-radius:2px;
+      box-shadow:0 0 8px ${color};`;
+    layer.appendChild(el);
+    setTimeout(()=>el.remove(), 600 + i*55);
+  }
+}
+
+// ── Impact ring ──
+function spawnImpactRing(who, color='#ff9dc7'){
+  const layer = getVFXLayer(); if(!layer) return;
+  const pos = getCardCenter(who);
+  const el = document.createElement('div');
+  el.className = 'impact-ring';
+  el.style.cssText = `left:${pos.x}px;top:${pos.y}px;
+    width:60px;height:60px;border-color:${color};
+    box-shadow:0 0 12px ${color};margin-left:-30px;margin-top:-30px;`;
+  layer.appendChild(el);
+  setTimeout(()=>el.remove(), 600);
+}
+
+// ── Screen tint ──
+function spawnTint(color){
+  const layer = getVFXLayer(); if(!layer) return;
+  const el = document.createElement('div');
+  el.className = 'battle-tint';
+  el.style.background = color;
+  layer.appendChild(el);
+  setTimeout(()=>el.remove(), 500);
+}
+
+// ── Magic circle ──
+function spawnMagicCircle(who, color='#c39bd3'){
+  const layer = getVFXLayer(); if(!layer) return;
+  const pos = getCardCenter(who);
+  for(let i=0;i<2;i++){
+    const el = document.createElement('div');
+    el.className = 'magic-circle';
+    const size = 80 + i*40;
+    el.style.cssText = `left:${pos.x}px;top:${pos.y}px;
+      width:${size}px;height:${size}px;border-color:${color};
+      box-shadow:0 0 15px ${color}66;
+      margin-left:-${size/2}px;margin-top:-${size/2}px;
+      animation-delay:${i*80}ms;`;
+    layer.appendChild(el);
+    setTimeout(()=>el.remove(), 900 + i*80);
+  }
+}
+
+// ── Shield bubble ──
+function spawnShield(who){
+  const layer = getVFXLayer(); if(!layer) return;
+  const pos = getCardCenter(who);
+  const el = document.createElement('div');
+  el.className = 'shield-bubble';
+  el.style.cssText = `left:${pos.x}px;top:${pos.y}px;
+    width:140px;height:180px;
+    background:radial-gradient(ellipse at 50% 50%, rgba(93,173,226,0.25), transparent 70%);
+    border:2px solid rgba(93,173,226,0.6);
+    box-shadow:0 0 30px rgba(93,173,226,0.4),inset 0 0 20px rgba(93,173,226,0.2);
+    margin-left:-70px;margin-top:-90px;`;
+  layer.appendChild(el);
+  setTimeout(()=>el.remove(), 800);
+}
+
+// ── Heal particles ──
+function spawnHealEffect(who){
+  const layer = getVFXLayer(); if(!layer) return;
+  const pos = getCardCenter(who);
+  // Plus signs
+  ['➕','✚','💚'].forEach((em,i)=>{
+    const el = document.createElement('div');
+    el.className = 'heal-cross';
+    el.textContent = em;
+    el.style.cssText = `left:${pos.x + (i-1)*30}px;top:${pos.y}px;animation-delay:${i*80}ms;font-size:${1.5+i*0.3}em;`;
+    layer.appendChild(el);
+    setTimeout(()=>el.remove(), 1000 + i*80);
+  });
+}
+
+// ── Charge orbs ──
+function spawnChargeOrbs(who, color='#f1c40f'){
+  const layer = getVFXLayer(); if(!layer) return;
+  const pos = getCardCenter(who);
+  for(let i=0;i<8;i++){
+    const el = document.createElement('div');
+    el.className = 'charge-orb';
+    const angle = (i/8)*Math.PI*2;
+    const dist = 50 + Math.random()*30;
+    const ox = Math.cos(angle)*dist+'px';
+    const oy = Math.sin(angle)*dist+'px';
+    const size = 8+Math.random()*8;
+    el.style.cssText = `left:${pos.x}px;top:${pos.y}px;
+      width:${size}px;height:${size}px;
+      background:radial-gradient(circle,${color},${color}44);
+      box-shadow:0 0 8px ${color};
+      --ox:${ox};--oy:${oy};
+      animation-delay:${i*30}ms;`;
+    layer.appendChild(el);
+    setTimeout(()=>el.remove(), 700 + i*30);
+  }
+}
+
+// ── Shockwave rings (ultimate) ──
+function spawnShockwave(who, color='#f1c40f'){
+  const layer = getVFXLayer(); if(!layer) return;
+  const pos = getCardCenter(who);
+  for(let i=0;i<3;i++){
+    const el = document.createElement('div');
+    el.className = 'shockwave-ring';
+    const size = 60;
+    el.style.cssText = `left:${pos.x}px;top:${pos.y}px;
+      width:${size}px;height:${size}px;border-color:${color};
+      box-shadow:0 0 20px ${color};
+      margin-left:-${size/2}px;margin-top:-${size/2}px;
+      animation-delay:${i*120}ms;`;
+    layer.appendChild(el);
+    setTimeout(()=>el.remove(), 900 + i*120);
+  }
+}
+
+// ── Emoji pop (hit reaction) ──
+function spawnEmojiPop(who, emoji){
+  const layer = getVFXLayer(); if(!layer) return;
+  const pos = getCardCenter(who);
+  const el = document.createElement('div');
+  el.className = 'battle-emoji-pop';
+  el.textContent = emoji;
+  el.style.cssText = `left:${pos.x}px;top:${pos.y}px;`;
+  layer.appendChild(el);
+  setTimeout(()=>el.remove(), 1000);
+}
+
+// ── Turn banner ──
+function showTurnBanner(text, color='#fff'){
+  const layer = getVFXLayer(); if(!layer) return;
+  const old = layer.querySelector('.turn-banner');
+  if(old) old.remove();
+  const el = document.createElement('div');
+  el.className = 'turn-banner';
+  el.style.color = color;
+  el.style.borderColor = color+'44';
+  el.style.boxShadow = `0 0 20px ${color}33`;
+  el.textContent = text;
+  layer.appendChild(el);
+  setTimeout(()=>el.remove(), 1200);
+}
+
+// ── Master attack VFX dispatcher ──
+async function playMoveVFX(moveType, whoAttacks, targetWho, dmg, isCrit, color){
+  const rarityColor = color || '#ff9dc7';
+
+  if(moveType==='def'){
+    // Guard or heal
+    animateCard(whoAttacks, 'card-guard-pose');
+    spawnShield(whoAttacks);
+    spawnEmojiPop(whoAttacks, '🛡️');
+  } else if(moveType==='heal-action'){
+    animateCard(whoAttacks, 'card-heal-pulse');
+    spawnHealEffect(whoAttacks);
+    spawnMagicCircle(whoAttacks, '#2ecc71');
+    if(dmg) spawnDmgNumber(whoAttacks, dmg, false, true);
+  } else if(moveType==='spc'){
+    // Focus / special
+    animateCard(whoAttacks, 'card-charge');
+    spawnChargeOrbs(whoAttacks, '#f1c40f');
+    spawnMagicCircle(whoAttacks, '#f1c40f');
+    spawnEmojiPop(whoAttacks, '✨');
+    spawnTint('rgba(241,196,15,0.08)');
+  } else if(moveType==='ult'){
+    // ULTIMATE
+    animateCard(whoAttacks, 'card-ultimate');
+    await sleep(200);
+    spawnShockwave(whoAttacks, rarityColor);
+    spawnTint(`${rarityColor}22`);
+    await sleep(300);
+    spawnSlash(targetWho, rarityColor, 5);
+    spawnImpactRing(targetWho, rarityColor);
+    spawnShockwave(targetWho, rarityColor);
+    if(dmg){ spawnDmgNumber(targetWho, dmg, isCrit); flashHPTrack(targetWho); }
+    animateCard(targetWho, 'card-hurt');
+    spawnEmojiPop(targetWho, isCrit?'💥':'⚡');
+    spawnTint(`${rarityColor}18`);
+  } else {
+    // Normal attack
+    animateCard(whoAttacks, whoAttacks==='player'?'card-lunge-right':'card-lunge-left');
+    await sleep(200);
+    spawnSlash(targetWho, rarityColor, isCrit?4:2);
+    spawnImpactRing(targetWho, isCrit?'#ff4444':rarityColor);
+    if(dmg){ spawnDmgNumber(targetWho, dmg, isCrit); flashHPTrack(targetWho); }
+    animateCard(targetWho, 'card-hurt');
+    spawnEmojiPop(targetWho, isCrit?'💥':'⚔️');
+    if(isCrit) spawnTint('rgba(255,60,60,0.12)');
+  }
+}
+
 renderShop();
 renderFeaturedShowcase();
 tryAutoLogin();
 </script>
+
+<!-- ABILITY CUTSCENE OVERLAY -->
+<div id="abilityCutscene" style="display:none;position:fixed;inset:0;z-index:999;background:#000;overflow:hidden;align-items:center;justify-content:center;flex-direction:column;">
+  <div id="cutsceneRipple" style="position:absolute;inset:0;pointer-events:none;"></div>
+  <div id="cutsceneLines" style="position:absolute;inset:0;pointer-events:none;overflow:hidden;"></div>
+  <div id="cutsceneScanlines" style="position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.15) 2px,rgba(0,0,0,0.15) 4px);"></div>
+  <div id="cutsceneGlow" style="position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity 0.3s;"></div>
+  <div id="cutsceneCardWrap" style="position:relative;z-index:2;margin-bottom:32px;">
+    <img id="cutsceneCardImg" src="" style="width:180px;height:256px;object-fit:cover;border-radius:18px;border:3px solid #fff;box-shadow:0 0 60px rgba(255,255,255,0.3);transform:scale(0.6);opacity:0;transition:all 0.5s cubic-bezier(0.34,1.56,0.64,1);" alt=""/>
+    <div id="cutsceneCardGlow" style="position:absolute;inset:-20px;border-radius:28px;filter:blur(30px);opacity:0;transition:opacity 0.4s;"></div>
+  </div>
+  <div id="cutsceneAbilityName" style="position:relative;z-index:2;font-family:'Cinzel Decorative',serif;font-size:clamp(1.4em,5vw,2.8em);color:#fff;text-align:center;padding:0 20px;text-shadow:0 0 30px currentColor;transform:scaleX(2);opacity:0;transition:all 0.4s cubic-bezier(0.34,1.56,0.64,1);letter-spacing:0.08em;"></div>
+  <div id="cutsceneAbilityDesc" style="position:relative;z-index:2;font-family:'Cormorant Garamond',serif;font-size:1.1em;color:rgba(255,255,255,0.7);font-style:italic;margin-top:12px;text-align:center;padding:0 30px;opacity:0;transform:translateY(10px);transition:all 0.4s ease 0.3s;max-width:480px;line-height:1.6;"></div>
+  <div id="cutsceneImpactText" style="position:absolute;z-index:3;font-family:'Cinzel Decorative',serif;font-size:clamp(2em,8vw,5em);font-weight:900;opacity:0;pointer-events:none;text-align:center;text-shadow:0 0 40px currentColor;"></div>
+</div>
 </body>
 </html>
