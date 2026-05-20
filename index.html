@@ -1565,6 +1565,260 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   filter: brightness(2.5) saturate(0) !important;
   transition: filter 0.05s;
 }
+
+/* ═══════════════════════════════════════════════════════════
+   ENHANCED PULL SYSTEM — rarity-scaled animations
+═══════════════════════════════════════════════════════════ */
+
+/* ── Pull screen base ── */
+#pullScreen {
+  position: fixed; inset: 0; z-index: 300;
+  display: flex; align-items: center; justify-content: center;
+  background: #000;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.3s;
+}
+#pullScreen.active { opacity: 1; pointer-events: all; }
+
+/* ── Layered pull backgrounds ── */
+.pull-bg-layer {
+  position: absolute; inset: 0; pointer-events: none;
+  transition: opacity 0.5s;
+}
+#pullBgBase   { background: #000; z-index: 0; }
+#pullBgBeams  { z-index: 1; opacity: 0; }
+#pullBgAura   { z-index: 2; opacity: 0; }
+#pullBgStars  { z-index: 3; overflow: hidden; opacity: 0; }
+
+/* ── Cinematic container ── */
+.pull-cinematic {
+  position: relative; z-index: 10;
+  display: flex; flex-direction: column; align-items: center;
+  padding: 32px 24px; width: 100%; max-width: 480px;
+  max-height: 100vh; overflow-y: auto;
+}
+.pull-cinematic::-webkit-scrollbar { display: none; }
+
+/* ── Card reveal ── */
+.pull-card-art {
+  width: 220px; height: 312px;
+  border-radius: 18px; object-fit: cover;
+  margin: 0 auto 20px; display: block;
+  border: 3px solid var(--pink);
+  box-shadow: 0 0 60px var(--pink-glow);
+  position: relative; z-index: 2;
+}
+/* N/R — simple flip */
+.reveal-n .pull-card-art  { animation: cardFlipSimple 0.5s cubic-bezier(0.34,1.3,0.64,1); }
+/* SR — flip + scale bounce */
+.reveal-sr .pull-card-art { animation: cardFlipBounce 0.7s cubic-bezier(0.34,1.56,0.64,1); }
+/* SSR — dramatic rise */
+.reveal-ssr .pull-card-art{ animation: cardRiseDrama 0.9s cubic-bezier(0.22,1,0.36,1); }
+/* UR — shatter in */
+.reveal-ur .pull-card-art { animation: cardShatter 1s cubic-bezier(0.22,1,0.36,1); }
+/* LR — god descent */
+.reveal-lr .pull-card-art { animation: cardGodDescend 1.2s cubic-bezier(0.22,1,0.36,1); }
+/* ??? — glitch warp */
+.reveal-secret .pull-card-art { animation: cardGlitch 1.1s ease; }
+
+@keyframes cardFlipSimple {
+  0%  { transform: rotateY(90deg) scale(0.85); opacity:0; }
+  100%{ transform: rotateY(0) scale(1); opacity:1; }
+}
+@keyframes cardFlipBounce {
+  0%  { transform: rotateY(90deg) scale(0.7); opacity:0; }
+  60% { transform: rotateY(-8deg) scale(1.05); opacity:1; }
+  80% { transform: rotateY(4deg) scale(0.98); }
+  100%{ transform: rotateY(0) scale(1); opacity:1; }
+}
+@keyframes cardRiseDrama {
+  0%  { transform: translateY(80px) scale(0.7) rotateX(20deg); opacity:0; filter:blur(8px); }
+  50% { opacity:1; filter:blur(0); }
+  75% { transform: translateY(-10px) scale(1.04) rotateX(-3deg); }
+  100%{ transform: translateY(0) scale(1) rotateX(0); opacity:1; }
+}
+@keyframes cardShatter {
+  0%  { transform: scale(0.3) rotate(-15deg); opacity:0; filter:blur(12px) brightness(3); }
+  30% { filter:blur(0) brightness(2); }
+  60% { transform: scale(1.08) rotate(2deg); }
+  80% { transform: scale(0.97) rotate(-1deg); }
+  100%{ transform: scale(1) rotate(0); opacity:1; filter:brightness(1); }
+}
+@keyframes cardGodDescend {
+  0%  { transform: translateY(-120px) scale(0.5); opacity:0; filter:blur(20px) brightness(5); }
+  20% { opacity:1; }
+  40% { filter:blur(0) brightness(1.5); }
+  65% { transform: translateY(12px) scale(1.06); }
+  82% { transform: translateY(-5px) scale(0.98); }
+  100%{ transform: translateY(0) scale(1); filter:brightness(1); }
+}
+@keyframes cardGlitch {
+  0%  { transform:scale(0.8); opacity:0; filter:hue-rotate(0deg) brightness(3); }
+  15% { transform:translate(-8px,4px) scale(1.05); filter:hue-rotate(90deg); }
+  30% { transform:translate(6px,-3px) scale(0.98); filter:hue-rotate(180deg); }
+  50% { transform:translate(-3px,2px) scale(1.02); filter:hue-rotate(270deg); }
+  70% { transform:translate(2px,-1px); filter:hue-rotate(360deg); }
+  100%{ transform:none; opacity:1; filter:none; }
+}
+
+/* ── Rarity label animations ── */
+.pull-rarity-label {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 1em; margin-bottom: 6px;
+  letter-spacing: 0.12em;
+  animation: labelSlide 0.5s ease both;
+}
+@keyframes labelSlide {
+  from{ transform:translateY(12px); opacity:0; }
+  to  { transform:none; opacity:1; }
+}
+
+/* ── Pull name dramatic reveal ── */
+.pull-name {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 1.6em; color: #fff; margin-bottom: 4px;
+  animation: nameReveal 0.6s cubic-bezier(0.34,1.3,0.64,1) 0.3s both;
+}
+@keyframes nameReveal {
+  from{ transform:scaleX(1.4); opacity:0; letter-spacing:0.5em; }
+  to  { transform:none; opacity:1; }
+}
+
+/* ── UR+ name glows ── */
+.name-ur  { text-shadow: 0 0 20px #f1c40f, 0 0 40px #f1c40f88; color: #f1c40f !important; }
+.name-lr  { background: linear-gradient(135deg,#f1c40f,#ff9dc7,#9b59b6,#f1c40f); background-size:300%; -webkit-background-clip:text; -webkit-text-fill-color:transparent; animation: nameReveal 0.6s cubic-bezier(0.34,1.3,0.64,1) 0.3s both, shimmer 3s linear infinite 1s; }
+.name-secret { background: linear-gradient(135deg,#1abc9c,#9b59b6,#ff9dc7,#1abc9c); background-size:300%; -webkit-background-clip:text; -webkit-text-fill-color:transparent; animation: nameReveal 0.6s cubic-bezier(0.34,1.3,0.64,1) 0.3s both, shimmer 2s linear infinite 1s; }
+
+/* ── Rotating halo behind card ── */
+.pull-halo {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 1;
+}
+.pull-halo-outer {
+  width: 320px; height: 320px;
+  border: 2px solid;
+  top: 50%; left: 50%;
+  transform: translate(-50%,-64px);
+  animation: haloSpin 8s linear infinite;
+  opacity: 0;
+}
+.pull-halo-inner {
+  width: 250px; height: 250px;
+  border: 1px solid;
+  top: 50%; left: 50%;
+  transform: translate(-50%,-64px);
+  animation: haloSpin 5s linear infinite reverse;
+  opacity: 0;
+}
+@keyframes haloSpin { to{ transform: translate(-50%,-64px) rotate(360deg); } }
+
+/* ── Speed lines canvas ── */
+#pullSpeedCanvas {
+  position: absolute; inset: 0; pointer-events: none; z-index: 1; opacity: 0;
+}
+
+/* ── Dialogue box ── */
+.pull-dialogue {
+  position: relative;
+  background: rgba(0,0,0,0.75);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 14px;
+  padding: 14px 18px;
+  margin: 8px 0 16px;
+  font-size: 0.88em;
+  line-height: 1.7;
+  max-width: 400px;
+  width: 100%;
+  animation: dialogueFade 0.5s ease 0.8s both;
+  backdrop-filter: blur(8px);
+}
+.pull-dialogue::before {
+  content: '▶';
+  position: absolute;
+  right: 12px; bottom: 10px;
+  font-size: 0.6em;
+  color: rgba(255,255,255,0.4);
+  animation: blinkCursor 1s ease-in-out infinite;
+}
+@keyframes blinkCursor { 0%,100%{opacity:1;} 50%{opacity:0.2;} }
+@keyframes dialogueFade {
+  from{ opacity:0; transform:translateY(8px); }
+  to  { opacity:1; transform:none; }
+}
+.pull-dialogue-speaker {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 0.8em;
+  margin-bottom: 5px;
+  display: block;
+}
+.pull-dialogue-text { color: rgba(255,255,255,0.88); }
+
+/* ── Flavour text ── */
+.pull-flavour-text {
+  font-style: italic;
+  color: var(--text-dim);
+  font-size: 0.9em;
+  margin-bottom: 20px;
+  min-height: 28px;
+  animation: labelSlide 0.4s ease both;
+}
+
+/* ── Stars animated ── */
+.pull-stars {
+  font-size: 1.2em; letter-spacing: 3px; margin-bottom: 12px;
+}
+.pull-star-item {
+  display: inline-block;
+  animation: starPop 0.3s cubic-bezier(0.34,1.8,0.64,1) both;
+}
+@keyframes starPop {
+  from{ transform:scale(0) rotate(-30deg); opacity:0; }
+  to  { transform:scale(1) rotate(0); opacity:1; }
+}
+
+/* ── Series tag ── */
+.pull-series {
+  color: var(--text-dim); font-style: italic; margin-bottom: 10px;
+  animation: labelSlide 0.5s ease 0.4s both;
+}
+.pull-quote {
+  font-style: italic; color: var(--pink-pale); font-size: 0.9em;
+  line-height: 1.6; margin-bottom: 16px; padding: 0 16px;
+  animation: labelSlide 0.5s ease 0.5s both;
+}
+.pull-dupe {
+  background: rgba(255,157,199,0.1); border: 1px solid var(--border);
+  border-radius: 20px; padding: 5px 16px; display: inline-block;
+  font-size: 0.82em; color: var(--pink); margin-bottom: 16px;
+}
+.pull-actions { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
+
+/* ── Beam animation ── */
+@keyframes beamSweep {
+  0%  { transform: rotate(0deg) scaleY(1); opacity: 0.6; }
+  100%{ transform: rotate(360deg) scaleY(1); opacity: 0.6; }
+}
+
+/* ── LR crown ── */
+.pull-crown {
+  font-size: 2.5em;
+  animation: crownDrop 0.8s cubic-bezier(0.34,1.56,0.64,1) 0.6s both;
+  filter: drop-shadow(0 0 12px #f1c40f);
+  display: block; text-align: center; margin-bottom: 8px;
+}
+@keyframes crownDrop {
+  from{ transform:translateY(-40px) scale(0.5); opacity:0; }
+  to  { transform:none; opacity:1; }
+}
+
+/* ── ??? glitch ── */
+.glitch-overlay {
+  position: absolute; inset: 0; z-index: 20; pointer-events: none;
+  mix-blend-mode: screen;
+}
+
 </style>
 </head>
 <body>
@@ -1599,17 +1853,36 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   </div>
 </div>
 <div id="pullScreen">
+  <!-- layered bg -->
+  <div class="pull-bg-layer" id="pullBgBase"></div>
+  <div class="pull-bg-layer" id="pullBgBeams"></div>
+  <div class="pull-bg-layer" id="pullBgAura"></div>
+  <div class="pull-bg-layer" id="pullBgStars"></div>
+  <canvas id="pullSpeedCanvas"></canvas>
   <div class="pull-rarity-flash" id="rarityFlash"></div>
+
   <div class="pull-cinematic" id="pullCinematic">
-    <div id="pullFlavour" style="font-style:italic;color:var(--text-dim);font-size:1.1em;margin-bottom:24px;min-height:32px;"></div>
-    <img id="pullCardArt" class="pull-card-art" src="" alt="card"/>
+    <div id="pullFlavour" class="pull-flavour-text"></div>
+
+    <!-- card + halo wrapper -->
+    <div style="position:relative;display:inline-block;margin-bottom:20px;">
+      <div class="pull-halo pull-halo-outer" id="pullHaloOuter"></div>
+      <div class="pull-halo pull-halo-inner" id="pullHaloInner"></div>
+      <img id="pullCardArt" class="pull-card-art" src="" alt="card"/>
+    </div>
+
+    <div id="pullCrown" style="display:none;"></div>
     <div id="pullStars" class="pull-stars"></div>
     <div id="pullRarityLabel" class="pull-rarity-label"></div>
     <div id="pullCardName" class="pull-name"></div>
     <div id="pullCardSeries" class="pull-series"></div>
+    <div id="pullDialogue" class="pull-dialogue" style="display:none;">
+      <span class="pull-dialogue-speaker" id="pullDialogueSpeaker"></span>
+      <span class="pull-dialogue-text" id="pullDialogueText"></span>
+    </div>
     <div id="pullCardQuote" class="pull-quote"></div>
     <div id="pullDupe" class="pull-dupe" style="display:none">♻️ Duplicate! XP added</div>
-    <div class="pull-actions">
+    <div class="pull-actions" style="margin-top:8px;">
       <button class="btn-primary" onclick="closePull()">✦ Collect</button>
       <button class="btn-secondary" onclick="pullAgain()">Pull Again</button>
     </div>
@@ -2276,13 +2549,7 @@ const SHOP_ITEMS = [
   {id:'title_founding',emoji:'🎀',name:'Founding Member',desc:'Exclusive first-release title. Show your legacy.',price:800,type:'title'},
 ];
 
-const FLAVOURS = [
-  "A card stirs from the silence...",
-  "Something stirs just beyond the veil...",
-  "A quiet presence drifts forward. You feel it before you see it.",
-  "The atmosphere grows heavy. A formidable existence steps forward.",
-  "The air goes still. Your hands tremble. Something is coming.",
-];
+const FLAVOURS = ['A card stirs...','Something stirs...','A quiet presence...','A formidable existence...','The air goes still...']; // legacy
 
 const RARITY_COLORS = {1:'#bdc3c7',2:'#2ecc71',3:'#3498db',4:'#9b59b6',5:'#f1c40f',6:'#ff6b9d',7:'#1abc9c'};
 
@@ -2824,6 +3091,276 @@ async function playAbilityCutscene(cardId, rarity, abilityId){
   });
 }
 
+
+// ══════════════════════════════════════════════
+// CARD PULL DIALOGUES — anime scene quotes
+// ══════════════════════════════════════════════
+const CARD_DIALOGUES = {
+  // SSR+
+  asta1: {
+    speaker: 'Asta',
+    lines: [
+      "I can't use magic — but that never stopped me. And it never will!",
+      "Everyone kept telling me to give up. But giving up... is the one thing I'll never do!"
+    ],
+    color: '#9b59b6'
+  },
+  levi: {
+    speaker: 'Captain Levi',
+    lines: [
+      "The only thing we're allowed to do is believe that we won't regret the choice we made.",
+      "...Don't misunderstand me. I just want to see you die a better death, that's all."
+    ],
+    color: '#bdc3c7'
+  },
+  megumin: {
+    speaker: 'Megumin',
+    lines: [
+      "EXPLOSION!! ...I shall now require someone to carry me home.",
+      "My name is Megumin, the greatest mage of the Crimson Demon Clan!"
+    ],
+    color: '#e74c3c'
+  },
+  zero2: {
+    speaker: 'Zero Two',
+    lines: [
+      "Darling~ You'll be my partner forever, won't you?",
+      "I'm a monster. But with you... I think I could become something more."
+    ],
+    color: '#ff6b9d'
+  },
+  // UR
+  yuta: {
+    speaker: 'Yuta Okkotsu',
+    lines: [
+      "I want to become strong enough... to protect the people I love.",
+      "Rika... lend me your power one more time."
+    ],
+    color: '#3498db'
+  },
+  frieren: {
+    speaker: 'Frieren',
+    lines: [
+      "I have been traveling for over a thousand years. And yet... I still don't understand humans.",
+      "Himmel would have enjoyed this view. I wish I had paid more attention back then."
+    ],
+    color: '#2ecc71'
+  },
+  // LR
+  deku: {
+    speaker: 'Deku',
+    lines: [
+      "...I am not just your tool, All Might. I will become the next Symbol of Peace!",
+      "Everyone has something they can't give up on. For me... it's this dream!"
+    ],
+    color: '#2ecc71'
+  },
+};
+
+// Rarity-specific flavour texts
+const PULL_FLAVOURS = {
+  1: "A faint presence drifts forward...",
+  2: "Something stirs just beyond the veil...",
+  3: "The atmosphere shifts. A notable power awakens.",
+  4: "The air grows heavy. A formidable existence steps forward.",
+  5: "Time slows. An overwhelming presence fills the space around you.",
+  6: "The world goes silent. A legendary being descends.",
+  7: "Reality fractures. Something beyond classification emerges from the void...",
+};
+
+// ══════════════════════════════════════════════
+// ENHANCED PULL SCREEN
+// ══════════════════════════════════════════════
+let pullSpeedAnim = null;
+
+function startSpeedLines(canvas, color, speed=1) {
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  const cx = canvas.width/2, cy = canvas.height/2;
+  const lines = Array.from({length:80},()=>({
+    angle: Math.random()*Math.PI*2,
+    len: 40+Math.random()*200,
+    speed: (1+Math.random()*3)*speed,
+    dist: Math.random()*Math.max(cx,cy),
+    alpha: 0.3+Math.random()*0.5,
+    width: 0.5+Math.random()*1.5,
+  }));
+  let frame;
+  function draw(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    lines.forEach(l=>{
+      l.dist += l.speed*2;
+      if(l.dist > Math.max(cx,cy)*1.6) l.dist = 10;
+      const x1 = cx + Math.cos(l.angle)*l.dist;
+      const y1 = cy + Math.sin(l.angle)*l.dist;
+      const x2 = cx + Math.cos(l.angle)*(l.dist+l.len);
+      const y2 = cy + Math.sin(l.angle)*(l.dist+l.len);
+      ctx.beginPath();
+      ctx.moveTo(x1,y1);
+      ctx.lineTo(x2,y2);
+      ctx.strokeStyle = color + Math.floor(l.alpha*255).toString(16).padStart(2,'0');
+      ctx.lineWidth = l.width;
+      ctx.stroke();
+    });
+    frame = requestAnimationFrame(draw);
+  }
+  draw();
+  return () => cancelAnimationFrame(frame);
+}
+
+function spawnPullStarfield(container, color) {
+  container.innerHTML = '';
+  for(let i=0;i<120;i++){
+    const s = document.createElement('div');
+    const size = 1+Math.random()*3;
+    s.style.cssText = `position:absolute;width:${size}px;height:${size}px;border-radius:50%;background:${color};left:${Math.random()*100}%;top:${Math.random()*100}%;opacity:${0.2+Math.random()*0.7};animation:particleBurst ${0.8+Math.random()*1.2}s ease-out ${Math.random()*0.5}s both;--tx:${(Math.random()-0.5)*400}px;--ty:${(Math.random()-0.5)*400}px;`;
+    container.appendChild(s);
+  }
+}
+
+function buildStarHTML(count, color) {
+  return Array.from({length:count},(_,i)=>`<span class="pull-star-item" style="color:${color};animation-delay:${0.4+i*0.08}s">★</span>`).join('');
+}
+
+function showPullScreen(card) {
+  const isDupe = state.collection.filter(x=>x===card.id).length > 1;
+  const color = RARITY_COLORS[card.rarity] || '#ff9dc7';
+  const rarity = card.rarity;
+  const cinematic = document.getElementById('pullCinematic');
+
+  // ── Clear previous state ──
+  if(pullSpeedAnim){ pullSpeedAnim(); pullSpeedAnim=null; }
+  const canvas = document.getElementById('pullSpeedCanvas');
+  canvas.style.opacity = '0';
+  document.getElementById('pullBgBeams').style.opacity = '0';
+  document.getElementById('pullBgAura').style.opacity = '0';
+  document.getElementById('pullBgStars').style.opacity = '0';
+  document.getElementById('pullHaloOuter').style.opacity = '0';
+  document.getElementById('pullHaloInner').style.opacity = '0';
+  document.getElementById('pullCrown').style.display = 'none';
+  document.getElementById('pullDialogue').style.display = 'none';
+
+  // ── Set base class for card animation ──
+  cinematic.className = 'pull-cinematic';
+  const revealClass = rarity<=2?'reveal-n':rarity===3?'reveal-sr':rarity===4?'reveal-ssr':rarity===5?'reveal-ur':rarity===6?'reveal-lr':'reveal-secret';
+
+  // ── Rarity flash ──
+  const flash = document.getElementById('rarityFlash');
+  flash.style.background = `radial-gradient(circle at center, ${color}66, transparent 60%)`;
+  flash.classList.remove('visible'); void flash.offsetWidth; flash.classList.add('visible');
+
+  // ── Flavour text ──
+  document.getElementById('pullFlavour').textContent = PULL_FLAVOURS[rarity] || PULL_FLAVOURS[1];
+
+  // ── Rarity-specific BG setup ──
+  if(rarity >= 4) {
+    // SR+: aura radial
+    document.getElementById('pullBgAura').style.background = `radial-gradient(ellipse at 50% 60%, ${color}22, transparent 65%)`;
+    document.getElementById('pullBgAura').style.opacity = '1';
+  }
+  if(rarity >= 5) {
+    // UR+: speed lines
+    pullSpeedAnim = startSpeedLines(canvas, color, rarity===7?2.5:rarity===6?2:1.4);
+    canvas.style.opacity = rarity===7?'0.5':rarity===6?'0.35':'0.22';
+    // halos
+    document.getElementById('pullHaloOuter').style.borderColor = color;
+    document.getElementById('pullHaloOuter').style.opacity = '0.4';
+    document.getElementById('pullHaloInner').style.borderColor = color;
+    document.getElementById('pullHaloInner').style.opacity = '0.25';
+  }
+  if(rarity >= 6) {
+    // LR+: beams
+    document.getElementById('pullBgBeams').style.background = `conic-gradient(from 0deg, transparent 0%, ${color}18 5%, transparent 10%, transparent 45%, ${color}12 50%, transparent 55%)`;
+    document.getElementById('pullBgBeams').style.animation = 'beamSweep 4s linear infinite';
+    document.getElementById('pullBgBeams').style.opacity = '1';
+    // starfield
+    spawnPullStarfield(document.getElementById('pullBgStars'), color);
+    document.getElementById('pullBgStars').style.opacity = '1';
+    // crown
+    const crown = document.getElementById('pullCrown');
+    crown.textContent = rarity===7 ? '👁️' : '👑';
+    crown.style.display = 'block';
+    crown.className = 'pull-crown';
+    crown.style.filter = `drop-shadow(0 0 14px ${color})`;
+  }
+
+  // ── Card image ──
+  const artEl = document.getElementById('pullCardArt');
+  artEl.src = card.image;
+  artEl.style.borderColor = color;
+  artEl.style.boxShadow = `0 0 ${rarity*12}px ${color}99, 0 0 ${rarity*24}px ${color}44`;
+  // force reflow so animation replays
+  void artEl.offsetWidth;
+  cinematic.classList.add(revealClass);
+
+  // ── Stars ──
+  document.getElementById('pullStars').innerHTML = buildStarHTML(rarity, color);
+
+  // ── Rarity label ──
+  const rarLabel = document.getElementById('pullRarityLabel');
+  rarLabel.textContent = card.rarityName;
+  rarLabel.style.color = color;
+
+  // ── Name with rarity styling ──
+  const nameEl = document.getElementById('pullCardName');
+  nameEl.textContent = card.name;
+  nameEl.className = 'pull-name' + (rarity>=7?' name-secret':rarity>=6?' name-lr':rarity>=5?' name-ur':'');
+  if(rarity<5) nameEl.style.color = '#fff';
+
+  // ── Series ──
+  document.getElementById('pullCardSeries').textContent = card.series;
+
+  // ── Dialogue (SSR+) ──
+  const dlgData = CARD_DIALOGUES[card.id];
+  if(rarity >= 4 && dlgData) {
+    const line = dlgData.lines[Math.floor(Math.random()*dlgData.lines.length)];
+    document.getElementById('pullDialogueSpeaker').textContent = dlgData.speaker;
+    document.getElementById('pullDialogueSpeaker').style.color = dlgData.color;
+    document.getElementById('pullDialogueText').textContent = '"' + line + '"';
+    document.getElementById('pullDialogue').style.display = 'block';
+    // hide old quote if dialogue shown
+    document.getElementById('pullCardQuote').style.display = 'none';
+  } else {
+    document.getElementById('pullCardQuote').style.display = 'block';
+    document.getElementById('pullCardQuote').textContent = `"${card.quote}"`;
+  }
+
+  // ── Dupe ──
+  document.getElementById('pullDupe').style.display = isDupe ? 'inline-block' : 'none';
+
+  // ── Show screen ──
+  document.getElementById('pullScreen').classList.add('active');
+
+  // ── Sounds & particles ──
+  playPullSound(rarity);
+  playCoinSound();
+  spawnParticles(rarity, color);
+  // Extra burst for UR+
+  if(rarity >= 5) {
+    setTimeout(()=>spawnParticles(rarity, color), 400);
+    spawnPullStarBurst(color, rarity);
+  }
+  if(rarity >= 6) {
+    setTimeout(()=>{ spawnParticles(rarity, color); spawnPullStarBurst(color, rarity); }, 700);
+  }
+}
+
+function spawnPullStarBurst(color, rarity) {
+  const count = rarity * 8;
+  for(let i=0;i<count;i++){
+    const el = document.createElement('div');
+    const angle = (i/count)*Math.PI*2 + Math.random()*0.5;
+    const dist = 80+Math.random()*300;
+    const size = 3+Math.random()*8;
+    el.style.cssText = `position:fixed;width:${size}px;height:${size}px;border-radius:50%;background:${color};left:50%;top:50%;z-index:302;pointer-events:none;--tx:${Math.cos(angle)*dist}px;--ty:${Math.sin(angle)*dist-60}px;--dur:${0.7+Math.random()*0.6}s;animation:particleBurst var(--dur) ease-out ${Math.random()*0.25}s both;`;
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(),1400);
+  }
+}
+
+// closePull replaced
+
 // ══════════════════════════════════════════════
 // GACHA LOGIC
 // ══════════════════════════════════════════════
@@ -2979,30 +3516,7 @@ async function handlePullResult(cards){
   updatePity();updateProfile();
 }
 
-function showPullScreen(card){
-  const isDupe=state.collection.filter(x=>x===card.id).length>1;
-  document.getElementById('pullDupe').style.display=isDupe?'inline-block':'none';
-  const color=RARITY_COLORS[card.rarity]||'#ff9dc7';
-  const flash=document.getElementById('rarityFlash');
-  flash.style.background=`radial-gradient(circle at center, ${color}55, transparent 60%)`;
-  flash.classList.remove('visible');void flash.offsetWidth;flash.classList.add('visible');
-  const flavIdx=Math.min(card.rarity-1,FLAVOURS.length-1);
-  document.getElementById('pullFlavour').textContent=FLAVOURS[flavIdx];
-  document.getElementById('pullCardArt').src=card.image;
-  document.getElementById('pullCardArt').style.borderColor=color;
-  document.getElementById('pullCardArt').style.boxShadow=`0 0 60px ${color}66`;
-  document.getElementById('pullStars').textContent=card.rarityStars;
-  document.getElementById('pullStars').style.color=color;
-  document.getElementById('pullRarityLabel').textContent=card.rarityName;
-  document.getElementById('pullRarityLabel').style.color=color;
-  document.getElementById('pullCardName').textContent=card.name;
-  document.getElementById('pullCardSeries').textContent=card.series;
-  document.getElementById('pullCardQuote').textContent=`"${card.quote}"`;
-  document.getElementById('pullScreen').classList.add('active');
-  spawnParticles(card.rarity,color);
-  playPullSound(card.rarity);
-  playCoinSound();
-}
+// showPullScreen replaced by enhanced version above
 
 function closePull(){
   document.getElementById('pullScreen').classList.remove('active');
