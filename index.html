@@ -2368,147 +2368,6 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 }
 
 /* ═══════════════════════════════════════════
-   CARD CUTSCENE OVERLAY (UR+ pull cinematic)
-═══════════════════════════════════════════ */
-#cardCutsceneOverlay {
-  position: fixed; inset: 0; z-index: 400;
-  background: #000;
-  display: none; flex-direction: column;
-  align-items: center; justify-content: center;
-  cursor: pointer;
-}
-#cardCutsceneOverlay.active { display: flex; }
-
-/* Cinematic letterbox bars */
-.cs-pull-bar {
-  position: absolute; left: 0; right: 0; height: 80px;
-  background: #000; z-index: 2; transition: transform 0.6s cubic-bezier(0.22,1,0.36,1);
-}
-.cs-pull-bar-top    { top: 0;    transform: translateY(-100%); }
-.cs-pull-bar-bottom { bottom: 0; transform: translateY(100%); }
-#cardCutsceneOverlay.bars-in .cs-pull-bar-top    { transform: translateY(0); }
-#cardCutsceneOverlay.bars-in .cs-pull-bar-bottom { transform: translateY(0); }
-
-/* Background image/GIF */
-#csPullBgImg {
-  position: absolute; inset: 0; width: 100%; height: 100%;
-  object-fit: cover; opacity: 0;
-  filter: brightness(0.35) saturate(1.2);
-  transition: opacity 1.2s ease;
-  z-index: 0;
-}
-#csPullBgImg.visible { opacity: 1; }
-
-/* Vignette overlay */
-.cs-pull-vignette {
-  position: absolute; inset: 0; z-index: 1;
-  background: radial-gradient(ellipse at center, transparent 30%, rgba(0,0,0,0.85) 100%);
-  pointer-events: none;
-}
-
-/* Colour-tinted glow behind text */
-#csPullGlow {
-  position: absolute; inset: 0; z-index: 1;
-  opacity: 0; pointer-events: none;
-  transition: opacity 0.8s ease;
-}
-
-/* Dialogue stage */
-.cs-pull-stage {
-  position: relative; z-index: 3;
-  width: 100%; max-width: 640px;
-  padding: 100px 40px;
-  display: flex; flex-direction: column; align-items: flex-start; gap: 0;
-}
-
-/* Each line of dialogue */
-.cs-pull-line {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: clamp(1.4em, 4vw, 2.2em);
-  font-style: italic;
-  color: #fff;
-  line-height: 1.5;
-  opacity: 0;
-  transform: translateY(16px);
-  transition: opacity 0.5s ease, transform 0.5s ease;
-  text-shadow: 0 0 30px rgba(0,0,0,0.9), 0 2px 8px rgba(0,0,0,0.7);
-  margin-bottom: 6px;
-  letter-spacing: 0.02em;
-}
-.cs-pull-line.BOLD {
-  font-size: clamp(2em, 7vw, 4em);
-  font-style: normal;
-  font-weight: 900;
-  font-family: 'Cinzel Decorative', serif;
-  letter-spacing: 0.12em;
-}
-.cs-pull-line.SHOUT {
-  font-size: clamp(2.5em, 10vw, 5.5em);
-  font-style: normal; font-weight: 900;
-  font-family: 'Cinzel Decorative', serif;
-  letter-spacing: 0.2em;
-  filter: drop-shadow(0 0 20px var(--cs-pull-color, #f1c40f));
-  animation: shoutPulse 0.4s cubic-bezier(0.34,1.56,0.64,1) both;
-}
-@keyframes shoutPulse {
-  0%   { transform: scale(0.6) translateY(20px); }
-  60%  { transform: scale(1.12) translateY(-4px); }
-  100% { transform: scale(1) translateY(0); }
-}
-.cs-pull-line.visible {
-  opacity: 1; transform: translateY(0);
-}
-
-/* Skip hint */
-.cs-pull-skip {
-  position: absolute; bottom: 96px; right: 32px; z-index: 3;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.72em; color: rgba(255,255,255,0.35);
-  letter-spacing: 0.1em;
-  animation: skipBlink 2s ease-in-out infinite 2s;
-}
-@keyframes skipBlink { 0%,100%{opacity:0.35;} 50%{opacity:0.7;} }
-
-/* Speaker label (optional) */
-.cs-pull-speaker {
-  font-family: 'Cinzel Decorative', serif;
-  font-size: 0.72em; letter-spacing: 0.15em;
-  color: var(--cs-pull-color, #f1c40f);
-  text-transform: uppercase;
-  margin-bottom: 18px;
-  opacity: 0; transition: opacity 0.5s ease;
-}
-.cs-pull-speaker.visible { opacity: 1; }
-
-/* Scan-line flicker for dramatic effect */
-.cs-pull-scanlines {
-  position: absolute; inset: 0; z-index: 2; pointer-events: none;
-  background: repeating-linear-gradient(
-    0deg,
-    transparent,
-    transparent 3px,
-    rgba(0,0,0,0.06) 3px,
-    rgba(0,0,0,0.06) 4px
-  );
-}
-
-/* "View Cutscene" button in card modal */
-.btn-cutscene {
-  background: linear-gradient(135deg, rgba(241,196,15,0.15), rgba(255,107,157,0.15));
-  border: 1px solid rgba(241,196,15,0.4);
-  color: #f1c40f;
-  padding: 8px 20px; border-radius: 20px;
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 0.9em; cursor: pointer;
-  transition: all 0.2s; display: none;
-}
-.btn-cutscene:hover {
-  background: linear-gradient(135deg, rgba(241,196,15,0.25), rgba(255,107,157,0.25));
-  box-shadow: 0 4px 16px rgba(241,196,15,0.2);
-}
-.btn-cutscene.visible { display: inline-block; }
-
-/* ═══════════════════════════════════════════
    ADMIN CARD MANAGER STYLES
 ═══════════════════════════════════════════ */
 
@@ -2590,21 +2449,6 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
     <div id="poolGrid"></div>
   </div>
 </div>
-<!-- CARD PULL CUTSCENE OVERLAY (UR+ cinematic) -->
-<div id="cardCutsceneOverlay" onclick="skipCardCutscene()">
-  <div class="cs-pull-bar cs-pull-bar-top"></div>
-  <div class="cs-pull-bar cs-pull-bar-bottom"></div>
-  <img id="csPullBgImg" src="" alt="" aria-hidden="true"/>
-  <div class="cs-pull-vignette"></div>
-  <div class="cs-pull-scanlines"></div>
-  <div id="csPullGlow"></div>
-  <div class="cs-pull-stage" id="csPullStage">
-    <div class="cs-pull-speaker" id="csPullSpeaker"></div>
-    <!-- dialogue lines injected here by JS -->
-  </div>
-  <div class="cs-pull-skip">tap to skip ▶</div>
-</div>
-
 <div id="pullScreen">
   <!-- layered bg -->
   <div class="pull-bg-layer" id="pullBgBase"></div>
@@ -2726,7 +2570,6 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
         <div class="modal-actions">
           <button class="btn-primary" onclick="closeModal()">Close</button>
           <button class="btn-secondary" id="modalEquipBtn" onclick="equipCard()">⚔️ Equip</button>
-          <button class="btn-cutscene" id="modalCutsceneBtn" onclick="viewCardCutscene()">🎬 Cutscene</button>
         </div>
       </div>
     </div>
@@ -3258,30 +3101,6 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
             <div id="limitedForWrap" style="display:none;margin-bottom:10px;">
               <label class="admin-label">Owner Discord ID</label>
               <input class="admin-input" id="cardForm_limitedFor" placeholder="Discord ID of the card owner"/>
-            </div>
-
-            <!-- CUTSCENE (UR+) -->
-            <div class="admin-section-label" style="margin-top:18px;">
-              🎬 Pull Cutscene <span class="admin-hint">(shown on UR / LR / ??? pulls — and viewable from card info)</span>
-            </div>
-            <div style="margin-bottom:10px;">
-              <label class="admin-label">Dialogue Lines <span class="admin-hint">(one per line — prefix with BOLD: or SHOUT: for emphasis)</span></label>
-              <textarea class="admin-input" id="cardForm_cutsceneLines" rows="5" placeholder="Behold... my almighty power.&#10;I...&#10;Am...&#10;SHOUT:ATOMIC." style="resize:vertical;font-family:'JetBrains Mono',monospace;font-size:0.82em;"></textarea>
-            </div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
-              <div>
-                <label class="admin-label">Scene Image / GIF URL <span class="admin-hint">(background visual)</span></label>
-                <div style="display:flex;gap:6px;">
-                  <input class="admin-input" id="cardForm_cutsceneImg" placeholder="https://..." style="flex:1;font-size:0.82em;"/>
-                  <label class="upload-btn" title="Upload image/GIF">
-                    📁<input type="file" accept="image/*,.gif" style="display:none" onchange="uploadCardFile(this,'cardForm_cutsceneImg','image')"/>
-                  </label>
-                </div>
-              </div>
-              <div>
-                <label class="admin-label">Speaker Name <span class="admin-hint">(shown above lines)</span></label>
-                <input class="admin-input" id="cardForm_cutsceneSpeaker" placeholder="e.g. Cid Kagenou" style="font-size:0.82em;"/>
-              </div>
             </div>
 
             <!-- ABILITIES INLINE -->
@@ -4240,15 +4059,6 @@ async function playAbilityCutscene(cardId, rarity, abilityId){
 // ══════════════════════════════════════════════
 // CARD PULL DIALOGUES — anime scene quotes
 // ══════════════════════════════════════════════
-// Each entry can have:
-//   speaker: string          — shown above lines
-//   lines: string[]          — random pick for quick dialogue box
-//   color: hex               — accent colour
-//   cutscene: {              — full cinematic (UR+ only)
-//     lines: string[]        — shown one-by-one; prefix BOLD: or SHOUT: for style
-//     img: url|''            — background image/gif
-//     speaker: string        — optional override
-//   }
 const CARD_DIALOGUES = {
   // SSR+
   asta1: {
@@ -4307,38 +4117,7 @@ const CARD_DIALOGUES = {
       "...I am not just your tool, All Might. I will become the next Symbol of Peace!",
       "Everyone has something they can't give up on. For me... it's this dream!"
     ],
-    color: '#2ecc71',
-    cutscene: {
-      speaker: 'Izuku Midoriya',
-      lines: [
-        "All Might... everyone...",
-        "I've been afraid my whole life.",
-        "Afraid I wasn't enough.",
-        "BOLD:But I won't run anymore.",
-        "SHOUT:DETROIT SMASH!!!"
-      ],
-      img: ''
-    }
-  },
-  // Cid Kagenou — The Eminence in Shadow
-  cid: {
-    speaker: 'Cid Kagenou',
-    lines: [
-      "How magnificent... just as I imagined.",
-      "Shadow Garden. Everything is proceeding according to my delusions."
-    ],
-    color: '#9b59b6',
-    cutscene: {
-      speaker: 'Shadow',
-      lines: [
-        "Behold...",
-        "...my almighty power.",
-        "I...",
-        "Am...",
-        "SHOUT:ATOMIC."
-      ],
-      img: ''
-    }
+    color: '#2ecc71'
   },
 };
 
@@ -4354,171 +4133,9 @@ const PULL_FLAVOURS = {
 };
 
 // ══════════════════════════════════════════════
-// CARD PULL CUTSCENE ENGINE
+// ENHANCED PULL SCREEN
 // ══════════════════════════════════════════════
-let _cutsceneResolve = null;
-let _cutsceneTimeout = null;
-let _cutsceneSkipped = false;
-
-function skipCardCutscene() {
-  _cutsceneSkipped = true;
-  if (_cutsceneTimeout) { clearTimeout(_cutsceneTimeout); _cutsceneTimeout = null; }
-  if (_cutsceneResolve) {
-    _dismissCutsceneOverlay();
-    const res = _cutsceneResolve;
-    _cutsceneResolve = null;
-    setTimeout(res, 500);
-  }
-}
-
-function _dismissCutsceneOverlay() {
-  const ov = document.getElementById('cardCutsceneOverlay');
-  ov.style.transition = 'opacity 0.5s ease';
-  ov.style.opacity = '0';
-  setTimeout(() => {
-    ov.classList.remove('active', 'bars-in');
-    ov.style.opacity = '';
-    ov.style.transition = '';
-    document.getElementById('csPullBgImg').classList.remove('visible');
-    document.getElementById('csPullBgImg').src = '';
-    document.getElementById('csPullGlow').style.opacity = '0';
-    document.getElementById('csPullStage').innerHTML = '<div class="cs-pull-speaker" id="csPullSpeaker"></div>';
-  }, 510);
-}
-
-/**
- * Play a card pull cutscene.
- * @param {object} cutsceneData  — { lines, img, speaker }
- * @param {string} color         — rarity accent hex
- * @returns Promise that resolves when the cutscene ends
- */
-function playCardCutscene(cutsceneData, color) {
-  return new Promise(resolve => {
-    _cutsceneSkipped = false;
-    _cutsceneResolve = resolve;
-
-    const ov     = document.getElementById('cardCutsceneOverlay');
-    const glow   = document.getElementById('csPullGlow');
-    const bgImg  = document.getElementById('csPullBgImg');
-    const stage  = document.getElementById('csPullStage');
-
-    // Reset
-    stage.innerHTML = '<div class="cs-pull-speaker" id="csPullSpeaker"></div>';
-    bgImg.src = '';
-    bgImg.classList.remove('visible');
-    glow.style.opacity = '0';
-    ov.style.opacity = '1';
-    ov.style.setProperty('--cs-pull-color', color || '#f1c40f');
-
-    // Glow overlay (rarity colour)
-    glow.style.background = `radial-gradient(ellipse at center, ${color || '#f1c40f'}22, transparent 65%)`;
-
-    // Show overlay
-    ov.classList.add('active');
-
-    // Animate bars in
-    requestAnimationFrame(() => {
-      setTimeout(() => ov.classList.add('bars-in'), 30);
-    });
-
-    // Background image
-    if (cutsceneData.img && cutsceneData.img.trim()) {
-      bgImg.src = cutsceneData.img.trim();
-      bgImg.onload = () => { if (!_cutsceneSkipped) bgImg.classList.add('visible'); };
-    }
-
-    // Speaker
-    const speakerEl = document.getElementById('csPullSpeaker');
-    if (speakerEl && cutsceneData.speaker) {
-      speakerEl.textContent = '— ' + cutsceneData.speaker + ' —';
-    }
-
-    // Build and reveal lines sequentially
-    const lines = cutsceneData.lines || [];
-    let totalDelay = 600; // initial pause after bars
-
-    // Speaker fade in
-    if (cutsceneData.speaker) {
-      setTimeout(() => {
-        if (!_cutsceneSkipped && speakerEl) speakerEl.classList.add('visible');
-      }, 400);
-      totalDelay += 300;
-    }
-
-    lines.forEach((rawLine, i) => {
-      let style = '';
-      let text = rawLine;
-
-      if (rawLine.startsWith('BOLD:'))  { style = 'BOLD';  text = rawLine.slice(5); }
-      if (rawLine.startsWith('SHOUT:')) { style = 'SHOUT'; text = rawLine.slice(6); }
-
-      // Gap between lines
-      const gap = style === 'SHOUT' ? 900 : style === 'BOLD' ? 700 : 600;
-      totalDelay += (i === 0 ? 200 : gap);
-
-      const delay = totalDelay;
-      setTimeout(() => {
-        if (_cutsceneSkipped) return;
-        glow.style.opacity = '1';
-        const el = document.createElement('div');
-        el.className = 'cs-pull-line' + (style ? ' ' + style : '');
-        el.textContent = text;
-        if (style === 'SHOUT') el.style.color = color || '#f1c40f';
-        stage.appendChild(el);
-        requestAnimationFrame(() => setTimeout(() => el.classList.add('visible'), 20));
-
-        // Screen shake on SHOUT
-        if (style === 'SHOUT') {
-          ov.style.animation = 'cutsceneShake 0.4s cubic-bezier(.36,.07,.19,.97)';
-          setTimeout(() => ov.style.animation = '', 400);
-        }
-      }, delay);
-    });
-
-    // Hold then resolve
-    const holdMs = 1200;
-    const totalMs = totalDelay + holdMs;
-
-    _cutsceneTimeout = setTimeout(() => {
-      if (_cutsceneSkipped) return;
-      _dismissCutsceneOverlay();
-      _cutsceneResolve = null;
-      setTimeout(resolve, 520);
-    }, totalMs);
-  });
-}
-
-/**
- * Get cutscene data for a card: checks card's own cutscene_data field,
- * then falls back to CARD_DIALOGUES, returns null if none.
- */
-function getCardCutscene(card) {
-  // Check runtime card data (from DB via admin panel)
-  if (card.cutscene_lines && card.cutscene_lines.trim()) {
-    return {
-      lines:   card.cutscene_lines.split('\n').map(l => l.trim()).filter(Boolean),
-      img:     card.cutscene_img || '',
-      speaker: card.cutscene_speaker || card.name || '',
-    };
-  }
-  // Fall back to hardcoded CARD_DIALOGUES cutscene
-  const dlg = CARD_DIALOGUES[card.id];
-  if (dlg && dlg.cutscene) return { ...dlg.cutscene, speaker: dlg.cutscene.speaker || dlg.speaker || '' };
-  return null;
-}
-
-// ── Viewable from card modal ──
-function viewCardCutscene() {
-  const card = (window.DEMO_CARDS || DEMO_CARDS).find(c => c.id === openCardId);
-  if (!card) return;
-  const cs = getCardCutscene(card);
-  if (!cs) { showToast('No cutscene for this card yet ʚɞ'); return; }
-  const color = RARITY_COLORS[card.rarity] || '#f1c40f';
-  document.getElementById('cardModal').classList.remove('active');
-  playCardCutscene(cs, color);
-}
-
-
+let pullSpeedAnim = null;
 
 function startSpeedLines(canvas, color, speed=1) {
   const ctx = canvas.getContext('2d');
@@ -4804,9 +4421,6 @@ async function loadCards(){
       enabled:     r.enabled,
       limited:     r.limited,
       limitedFor:  r.limited_for,
-      cutscene_lines:   r.cutscene_lines   || '',
-      cutscene_img:     r.cutscene_img     || '',
-      cutscene_speaker: r.cutscene_speaker || '',
     }));
     console.log(`Loaded ${window.DEMO_CARDS.length} cards from DB`);
   }
@@ -4870,14 +4484,6 @@ async function doPull(count){
   if(count===1){
     const card=weightedPick(buildPool());
     await handlePullResult([card]);
-    // ── Play cutscene for UR+ cards that have one ──
-    if(card.rarity>=5){
-      const cs=getCardCutscene(card);
-      if(cs){
-        const color=RARITY_COLORS[card.rarity]||'#f1c40f';
-        await playCardCutscene(cs,color);
-      }
-    }
     showPullScreen(card);
   } else {
     const results=[];
@@ -5081,12 +4687,6 @@ function openCard(id){
   const isOwned=state.collection.includes(id);
   const equipBtn=document.getElementById('modalEquipBtn');
   if(equipBtn)equipBtn.style.display=isOwned?'':'none';
-  // Show cutscene button for UR+ cards that have one
-  const cutsceneBtn=document.getElementById('modalCutsceneBtn');
-  if(cutsceneBtn){
-    const hasCutscene=c.rarity>=5&&!!getCardCutscene(c);
-    cutsceneBtn.className='btn-cutscene'+(hasCutscene?' visible':'');
-  }
   document.getElementById('cardModal').classList.add('active');
 }
 function closeModal(e){
@@ -7203,9 +6803,6 @@ async function submitCardForm(){
     enabled:    document.getElementById('cardForm_enabled').checked,
     limited:    document.getElementById('cardForm_limited').checked,
     limited_for:document.getElementById('cardForm_limitedFor').value.trim(),
-    cutscene_lines:  (document.getElementById('cardForm_cutsceneLines')?.value||'').trim(),
-    cutscene_img:    (document.getElementById('cardForm_cutsceneImg')?.value||'').trim(),
-    cutscene_speaker:(document.getElementById('cardForm_cutsceneSpeaker')?.value||'').trim(),
   };
 
   const btn=document.getElementById('cardFormSubmitBtn');
@@ -7251,10 +6848,6 @@ function cancelCardEdit(){
   document.getElementById('cardForm_enabled').checked=true;
   document.getElementById('cardForm_limited').checked=false;
   document.getElementById('limitedForWrap').style.display='none';
-  // Clear cutscene fields
-  ['cutsceneLines','cutsceneImg','cutsceneSpeaker'].forEach(f=>{
-    const el=document.getElementById('cardForm_'+f);if(el)el.value='';
-  });
   // Clear ability slots
   document.getElementById('abilitySlots').innerHTML='';
   abilitySlotCount=0;
@@ -7322,13 +6915,6 @@ async function editCard(cardId){
   document.getElementById('cardForm_limited').checked=c.limited;
   document.getElementById('cardForm_limitedFor').value=c.limited_for||'';
   document.getElementById('limitedForWrap').style.display=c.limited?'':'none';
-  // Cutscene fields
-  if(document.getElementById('cardForm_cutsceneLines'))
-    document.getElementById('cardForm_cutsceneLines').value=c.cutscene_lines||'';
-  if(document.getElementById('cardForm_cutsceneImg'))
-    document.getElementById('cardForm_cutsceneImg').value=c.cutscene_img||'';
-  if(document.getElementById('cardForm_cutsceneSpeaker'))
-    document.getElementById('cardForm_cutsceneSpeaker').value=c.cutscene_speaker||'';
 
   // Load existing abilities
   document.getElementById('abilitySlots').innerHTML='';
