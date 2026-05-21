@@ -3475,34 +3475,22 @@ function playErrorSound(){
 // ══════════════════════════════════════════════
 
 // ── Play an external MP3 / audio file URL ──
+// Uses plain HTMLAudioElement — no AudioContext routing needed,
+// which avoids CORS issues and the one-source-per-element restriction.
 let _activeMp3 = null;
 function playMp3Sound(url){
+  stopMp3Sound();
   try {
-    // Stop any previous mp3
-    if(_activeMp3){
-      try { _activeMp3.pause(); _activeMp3.currentTime = 0; } catch(e){}
-      _activeMp3 = null;
-    }
-    // Resume AudioContext first (satisfies browser autoplay policy)
-    const ctx = getAudio();
     const a = new Audio(url);
-    a.volume = 0.75;
-    // Connect through AudioContext so it respects the same context
-    const src = ctx.createMediaElementSource(a);
-    src.connect(ctx.destination);
-    a.play().catch(()=>{});
+    a.volume = 0.8;
+    const p = a.play();
+    if(p && typeof p.catch === 'function'){
+      p.catch(err => console.warn('[MeoGacha] audio blocked:', err));
+    }
     _activeMp3 = a;
     return a;
   } catch(e){
-    // Fallback: plain Audio element without AudioContext routing
-    try {
-      if(_activeMp3){ try{_activeMp3.pause();}catch(e2){} _activeMp3=null; }
-      const a = new Audio(url);
-      a.volume = 0.75;
-      a.play().catch(()=>{});
-      _activeMp3 = a;
-      return a;
-    } catch(e2){}
+    console.warn('[MeoGacha] audio error:', e);
   }
 }
 function stopMp3Sound(){
