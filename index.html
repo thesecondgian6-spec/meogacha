@@ -979,330 +979,342 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 }
 
 
-/* ══ CUTSCENE ENGINE — MANGA PANEL ══ */
-
-/* ── Keyframes ── */
+/* ══ CUTSCENE ENGINE ══ */
 @keyframes lineShot {
   0%  { opacity:0; transform:rotate(var(--a,0deg)) scaleX(0); }
-  30% { opacity:0.8; }
-  100%{ opacity:0; transform:rotate(var(--a,0deg)) scaleX(1.8); }
+  30% { opacity:0.7; }
+  100%{ opacity:0; transform:rotate(var(--a,0deg)) scaleX(1.6); }
+}
+@keyframes impactSlam {
+  0%  { transform:translateX(-50%) scale(3.5); opacity:0; filter:blur(8px); }
+  55% { transform:translateX(-50%) scale(0.88); opacity:1; filter:blur(0); }
+  75% { transform:translateX(-50%) scale(1.05); }
+  100%{ transform:translateX(-50%) scale(1); opacity:1; }
 }
 @keyframes cutsceneShake {
   0%,100%{ transform:none; }
-  15%{ transform:translate(-10px,5px) rotate(-1.2deg); }
-  30%{ transform:translate(9px,-7px) rotate(1.2deg); }
-  45%{ transform:translate(-7px,4px) rotate(-0.8deg); }
-  60%{ transform:translate(6px,-3px) rotate(0.6deg); }
-}
-@keyframes panelSliceIn {
-  0%  { clip-path:inset(0 100% 0 0); opacity:0; }
-  100%{ clip-path:inset(0 0% 0 0);   opacity:1; }
-}
-@keyframes infoSlideUp {
-  0%  { opacity:0; transform:translateY(24px); }
-  100%{ opacity:1; transform:translateY(0); }
-}
-@keyframes csImpact {
-  0%  { opacity:0; transform:translate(-50%,-50%) scale(4) skewX(-8deg); filter:blur(12px); }
-  50% { opacity:1; transform:translate(-50%,-50%) scale(0.9) skewX(0deg); filter:blur(0); }
-  70% { transform:translate(-50%,-50%) scale(1.06); }
-  100%{ opacity:1; transform:translate(-50%,-50%) scale(1); }
-}
-@keyframes cornerPop {
-  0%  { opacity:0; transform:scale(0) rotate(-20deg); }
-  70% { transform:scale(1.1) rotate(4deg); }
-  100%{ opacity:1; transform:scale(1) rotate(0deg); }
-}
-@keyframes scanMove {
-  0%  { transform:translateY(-100%); }
-  100%{ transform:translateY(100vh); }
-}
-@keyframes sheenSlide {
-  0%  { background-position:200% 200%; }
-  100%{ background-position:-100% -100%; }
+  15%{ transform:translate(-10px, 5px) rotate(-1.2deg); }
+  30%{ transform:translate( 9px,-7px) rotate( 1.2deg); }
+  45%{ transform:translate(-7px, 4px) rotate(-0.8deg); }
+  60%{ transform:translate( 6px,-3px) rotate( 0.6deg); }
+  75%{ transform:translate(-4px, 2px) rotate(-0.3deg); }
 }
 
-/* ── Overlay backdrop ── */
+/* ── Cutscene modal ── */
 #abilityCutscene {
   display: none;
   position: fixed;
   inset: 0;
   z-index: 999;
-  background: #000;
-  overflow: hidden;
   align-items: center;
   justify-content: center;
+  background: rgba(0,0,0,0.96);
+  overflow: hidden;
 }
 
-/* ── Ambient layers ── */
-#cutsceneGlow {
-  position: absolute; inset: 0;
-  pointer-events: none; z-index: 2;
-  opacity: 0; transition: opacity 0.5s;
-  mix-blend-mode: screen;
+/* Blurred full-screen GIF background */
+#cutsceneBgGif {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  filter: blur(28px) brightness(0.22) saturate(1.4);
+  z-index: 1;
+  pointer-events: none;
+  transform: scale(1.08); /* hide blur edges */
 }
-#cutsceneLines {
-  position: absolute; inset: 0;
-  pointer-events: none; overflow: hidden; z-index: 3;
+
+/* Stage: GIF on top, info below — always column */
+.cs-stage {
+  position: relative;
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  padding: clamp(58px,10vh,84px) clamp(20px,5vw,56px);
+  gap: clamp(14px,2.4vh,26px);
 }
+
+/* Framing bars — anime letterbox */
+.cs-bar-top, .cs-bar-bot {
+  position: absolute;
+  left: 0; right: 0;
+  height: clamp(36px, 7vh, 64px);
+  background: #000;
+  z-index: 6;
+  transition: transform 0.4s cubic-bezier(0.77,0,0.18,1);
+}
+.cs-bar-top { top: 0; transform: translateY(-100%); }
+.cs-bar-bot { bottom: 0; transform: translateY(100%); }
+#abilityCutscene.cs-open .cs-bar-top { transform: translateY(0); }
+#abilityCutscene.cs-open .cs-bar-bot { transform: translateY(0); }
+
+/* GIF container — landscape cinema frame */
+.cs-card-wrap {
+  position: relative;
+  z-index: 4;
+  flex-shrink: 0;
+  width: 100%;
+  max-width: clamp(300px, 75vw, 860px);
+  transform: scale(0.88) translateY(24px);
+  opacity: 0;
+  transition: transform 0.55s cubic-bezier(0.34,1.46,0.64,1),
+              opacity   0.4s ease;
+}
+#abilityCutscene.cs-open .cs-card-wrap {
+  transform: scale(1) translateY(0);
+  opacity: 1;
+}
+
+/* GIF image — landscape 16:9 */
+.cs-card {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  height: auto;
+  object-fit: cover;
+  object-position: center;
+  border-radius: 12px;
+  display: block;
+  border: 2px solid rgba(255,255,255,0.18);
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.07),
+    0 12px 55px rgba(0,0,0,0.85),
+    0 0 90px var(--cs-color, rgba(255,157,199,0.35));
+}
+
+/* Holographic shimmer overlay */
+.cs-card-sheen {
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+  background: linear-gradient(
+    115deg,
+    transparent 25%,
+    rgba(255,255,255,0.06) 50%,
+    transparent 75%
+  );
+  background-size: 300% 300%;
+  animation: sheenSlide 2.4s linear infinite;
+  pointer-events: none;
+}
+@keyframes sheenSlide {
+  0%   { background-position: 200% 200%; }
+  100% { background-position: -100% -100%; }
+}
+
+/* Outer glow halo */
+.cs-card-halo {
+  position: absolute;
+  inset: -20px;
+  border-radius: 24px;
+  filter: blur(26px);
+  background: var(--cs-color, rgba(255,157,199,0.5));
+  opacity: 0;
+  z-index: -1;
+  transition: opacity 0.5s ease 0.15s;
+}
+#abilityCutscene.cs-open .cs-card-halo { opacity: 0.65; }
+
+/* ── Info panel: two-column row below the GIF ── */
+.cs-info {
+  position: relative;
+  z-index: 4;
+  width: 100%;
+  max-width: clamp(300px, 75vw, 860px);
+  margin-left: 0;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-rows: auto auto auto;
+  grid-template-areas:
+    "name   stats"
+    "divider divider"
+    "desc   desc";
+  align-items: center;
+  column-gap: clamp(12px, 2vw, 24px);
+  row-gap: 6px;
+}
+
+/* Tier badge sits above the grid, left-aligned */
+.cs-tier-badge {
+  grid-area: unset;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: clamp(0.58em, 1.2vw, 0.74em);
+  letter-spacing: 0.14em;
+  padding: 3px 12px;
+  border-radius: 20px;
+  border: 1px solid var(--cs-color, rgba(255,157,199,0.5));
+  color: var(--cs-color, #ff9dc7);
+  background: rgba(0,0,0,0.5);
+  width: fit-content;
+  margin-bottom: 4px;
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: opacity 0.35s ease 0.28s, transform 0.35s ease 0.28s;
+  /* sit above the grid */
+  position: relative;
+  z-index: 1;
+  align-self: end;
+  grid-column: 1;
+  grid-row: 1;
+}
+/* Override grid placement — badge is its own row above */
+.cs-info {
+  grid-template-areas:
+    "badge  stats"
+    "name   stats"
+    "divider divider"
+    "desc   desc";
+  grid-template-rows: auto auto auto auto;
+}
+.cs-tier-badge { grid-area: badge; align-self: end; }
+
+#abilityCutscene.cs-open .cs-tier-badge {
+  opacity: 1;
+  transform: translateY(0);
+}
+.cs-name {
+  grid-area: name;
+  font-family: 'Cinzel Decorative', serif;
+  font-size: clamp(1.1em, 2.8vw, 2em);
+  font-weight: 900;
+  line-height: 1.15;
+  color: #fff;
+  text-shadow: 0 0 30px var(--cs-color, rgba(255,157,199,0.8));
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.4s ease 0.38s, transform 0.4s cubic-bezier(0.34,1.3,0.64,1) 0.38s;
+}
+#abilityCutscene.cs-open .cs-name {
+  opacity: 1;
+  transform: translateY(0);
+}
+.cs-divider {
+  grid-area: divider;
+  width: 0;
+  height: 2px;
+  border-radius: 1px;
+  background: linear-gradient(90deg, var(--cs-color, #ff9dc7), transparent);
+  transition: width 0.5s ease 0.52s;
+  margin: 4px 0;
+}
+#abilityCutscene.cs-open .cs-divider { width: 100%; }
+
+.cs-desc {
+  grid-area: desc;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(0.88em, 1.8vw, 1.1em);
+  font-style: italic;
+  color: rgba(255,255,255,0.78);
+  line-height: 1.65;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.4s ease 0.62s, transform 0.4s ease 0.62s;
+}
+#abilityCutscene.cs-open .cs-desc {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Stat pills — right column, spans badge+name rows */
+.cs-stats {
+  grid-area: stats;
+  align-self: center;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  opacity: 0;
+  transform: translateX(12px);
+  transition: opacity 0.35s ease 0.48s, transform 0.35s ease 0.48s;
+}
+#abilityCutscene.cs-open .cs-stats { opacity: 1; transform: translateX(0); }
+.cs-stat-pill {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.62em;
+  padding: 3px 10px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: rgba(255,255,255,0.6);
+  white-space: nowrap;
+  text-align: center;
+}
+.cs-stat-pill.highlight {
+  background: rgba(var(--cs-rgb,255,157,199), 0.14);
+  border-color: var(--cs-color, rgba(255,157,199,0.4));
+  color: var(--cs-color, #ff9dc7);
+}
+
+/* ULTIMATE / SECRET banner stamp */
+.cs-impact {
+  position: absolute;
+  z-index: 7;
+  font-family: 'Cinzel Decorative', serif;
+  font-size: clamp(2em, 8vw, 4.5em);
+  font-weight: 900;
+  color: #fff;
+  text-shadow: 0 0 40px var(--cs-color, #f1c40f),
+               0 0 80px var(--cs-color, #f1c40f);
+  top: 50%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-50%);
+  pointer-events: none;
+  opacity: 0;
+  white-space: nowrap;
+  letter-spacing: 0.1em;
+}
+@keyframes csImpact {
+  0%  { opacity:0; transform:translateX(-50%) translateY(-50%) scale(3.2); filter:blur(10px); }
+  45% { opacity:1; transform:translateX(-50%) translateY(-50%) scale(0.92); filter:blur(0); }
+  70% { transform:translateX(-50%) translateY(-50%) scale(1.04); }
+  100%{ opacity:1; transform:translateX(-50%) translateY(-50%) scale(1); }
+}
+
+/* Speed lines */
+#cutsceneLines { position:absolute; inset:0; pointer-events:none; overflow:hidden; z-index:3; }
+/* Ambient glow wash */
+#cutsceneGlow  { position:absolute; inset:0; pointer-events:none; opacity:0; transition:opacity 0.4s; z-index:2; mix-blend-mode:screen; }
+/* Scanlines */
 #cutsceneScanlines {
-  position: absolute; inset: 0;
-  pointer-events: none; z-index: 10;
-  background: repeating-linear-gradient(
+  position:absolute; inset:0; pointer-events:none; z-index:5;
+  background:repeating-linear-gradient(
     0deg, transparent, transparent 3px,
     rgba(0,0,0,0.07) 3px, rgba(0,0,0,0.07) 4px
   );
 }
-/* Animated scan sweep for drama */
-.cs-scan-sweep {
-  position: absolute; left: 0; right: 0;
-  height: 60px;
-  background: linear-gradient(180deg,
-    transparent 0%,
-    rgba(255,255,255,0.04) 50%,
-    transparent 100%);
-  z-index: 11; pointer-events: none;
-  animation: scanMove 1.2s ease-out forwards;
-}
 
-/* ── Manga panel grid ── */
-.cs-stage {
-  position: relative;
-  z-index: 5;
-  width: min(900px, 96vw);
-  /* On desktop: two-column manga panels */
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-template-rows: auto auto;
-  gap: 5px;
-  padding: 0;
-  /* Panel border like manga page */
-  outline: 3px solid rgba(255,255,255,0.15);
-  box-shadow:
-    0 0 0 1px rgba(0,0,0,0.8),
-    0 0 80px var(--cs-color, rgba(255,157,199,0.3)),
-    0 30px 80px rgba(0,0,0,0.8);
-}
-
-/* Big GIF panel — left column, spans both rows */
-.cs-panel-gif {
-  grid-column: 1;
-  grid-row: 1 / 3;
-  position: relative;
-  overflow: hidden;
-  background: #050505;
-  /* Manga-style skewed inner border */
-  outline: 3px solid rgba(255,255,255,0.12);
-  /* Entry animation — wipe from left */
-  animation: none;
-  opacity: 0;
-  clip-path: inset(0 100% 0 0);
-}
-#abilityCutscene.cs-open .cs-panel-gif {
-  animation: panelSliceIn 0.45s cubic-bezier(0.77,0,0.18,1) 0.05s forwards;
-}
-/* Landscape GIF fills the panel, no cropping on width */
-.cs-gif {
-  width: 100%;
-  height: 100%;
-  min-height: clamp(220px, 35vw, 380px);
-  object-fit: cover;
-  object-position: center center;
-  display: block;
-}
-/* Holographic foil sheen */
-.cs-gif-sheen {
-  position: absolute; inset: 0;
-  background: linear-gradient(135deg,
-    transparent 20%, rgba(255,255,255,0.06) 50%, transparent 80%);
-  background-size: 300% 300%;
-  animation: sheenSlide 2.5s linear infinite;
-  pointer-events: none;
-}
-/* Color halo bleed under the GIF panel */
-.cs-gif-halo {
-  position: absolute; inset: -20px;
-  filter: blur(30px);
-  background: var(--cs-color, rgba(255,157,199,0.5));
-  opacity: 0; z-index: -1;
-  transition: opacity 0.5s ease 0.3s;
-}
-#abilityCutscene.cs-open .cs-gif-halo { opacity: 0.55; }
-
-/* Manga-style halftone dot overlay on gif panel */
-.cs-halftone {
-  position: absolute; inset: 0; pointer-events: none;
-  background-image: radial-gradient(circle, rgba(255,255,255,0.04) 1px, transparent 1px);
-  background-size: 8px 8px;
-  mix-blend-mode: overlay;
-}
-
-/* Top-right panel: card name + tier */
-.cs-panel-name {
-  grid-column: 2;
-  grid-row: 1;
-  position: relative;
-  overflow: hidden;
-  background: #0a0a0a;
-  outline: 3px solid rgba(255,255,255,0.12);
-  padding: clamp(16px,2.5vw,28px);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 10px;
-  opacity: 0;
-}
-#abilityCutscene.cs-open .cs-panel-name {
-  animation: infoSlideUp 0.4s ease 0.35s forwards;
-}
-/* Diagonal accent stripe behind name */
-.cs-panel-name::before {
-  content: '';
-  position: absolute;
-  top: -30px; right: -30px;
-  width: 120px; height: 120px;
-  background: var(--cs-color, #ff9dc7);
-  opacity: 0.07;
-  transform: rotate(45deg);
-  pointer-events: none;
-}
-
-/* Bottom-right panel: desc + stats */
-.cs-panel-desc {
-  grid-column: 2;
-  grid-row: 2;
-  position: relative;
-  overflow: hidden;
-  background: #060606;
-  outline: 3px solid rgba(255,255,255,0.12);
-  padding: clamp(14px,2vw,24px);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 12px;
-  opacity: 0;
-}
-#abilityCutscene.cs-open .cs-panel-desc {
-  animation: infoSlideUp 0.4s ease 0.52s forwards;
-}
-
-/* ── Text elements ── */
-.cs-tier-badge {
-  display: inline-flex; align-items: center; gap: 6px;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: clamp(0.55em,1.2vw,0.72em);
-  letter-spacing: 0.18em;
-  padding: 4px 12px;
-  border-radius: 3px;
-  border-left: 3px solid var(--cs-color, #ff9dc7);
-  color: var(--cs-color, #ff9dc7);
-  background: rgba(0,0,0,0.5);
-  width: fit-content;
-  text-transform: uppercase;
-}
-.cs-name {
-  font-family: 'Cinzel Decorative', serif;
-  font-size: clamp(1.1em,2.8vw,2em);
-  font-weight: 900;
-  line-height: 1.1;
-  color: #fff;
-  text-shadow: 0 0 20px var(--cs-color,rgba(255,157,199,0.8)),
-               0 2px 0 rgba(0,0,0,0.9);
-}
-.cs-divider {
-  width: 100%;
-  height: 2px;
-  background: linear-gradient(90deg,
-    var(--cs-color, #ff9dc7) 0%,
-    rgba(255,255,255,0.15) 60%,
-    transparent 100%);
-}
-.cs-desc {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: clamp(0.85em,1.8vw,1.08em);
-  font-style: italic;
-  color: rgba(255,255,255,0.72);
-  line-height: 1.6;
-}
-.cs-stats {
-  display: flex; gap: 6px; flex-wrap: wrap;
-}
-.cs-stat-pill {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.6em;
-  padding: 3px 9px;
-  border-radius: 3px;
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.1);
-  color: rgba(255,255,255,0.55);
-}
-.cs-stat-pill.highlight {
-  background: rgba(0,0,0,0.4);
-  border-color: var(--cs-color,rgba(255,157,199,0.5));
-  color: var(--cs-color,#ff9dc7);
-}
-
-/* ── Corner stamp (icon + rarity) ── */
-.cs-corner-stamp {
-  position: absolute;
-  bottom: 12px; right: 12px;
-  width: clamp(44px,6vw,64px);
-  height: clamp(44px,6vw,64px);
-  border-radius: 50%;
-  border: 2px solid var(--cs-color, #ff9dc7);
-  background: rgba(0,0,0,0.75);
-  display: flex; align-items: center; justify-content: center;
-  font-size: clamp(1.2em,2.5vw,1.9em);
-  box-shadow: 0 0 20px var(--cs-color,rgba(255,157,199,0.4));
-  z-index: 4;
-  opacity: 0;
-}
-#abilityCutscene.cs-open .cs-corner-stamp {
-  animation: cornerPop 0.5s cubic-bezier(0.34,1.56,0.64,1) 0.65s forwards;
-}
-
-/* ── ULTIMATE / SECRET impact stamp ── */
-.cs-impact {
-  position: absolute;
-  z-index: 20;
-  font-family: 'Cinzel Decorative', serif;
-  font-size: clamp(2em,7vw,4.2em);
-  font-weight: 900;
-  color: #fff;
-  text-shadow:
-    0 0 30px var(--cs-color, #f1c40f),
-    0 0 60px var(--cs-color, #f1c40f),
-    4px 4px 0 rgba(0,0,0,0.8);
-  top: 50%; left: 50%;
-  transform: translate(-50%,-50%);
-  pointer-events: none;
-  opacity: 0;
-  white-space: nowrap;
-  letter-spacing: 0.08em;
-  /* Manga-style double outline */
-  -webkit-text-stroke: 2px rgba(0,0,0,0.6);
-}
-
-/* ── MOBILE: single column stack ── */
-@media (max-width: 600px) {
+/* ── MOBILE tweaks ── */
+@media (max-width: 640px) {
   .cs-stage {
+    padding: clamp(48px,8vh,64px) 16px clamp(48px,8vh,64px);
+    gap: 12px;
+  }
+  .cs-card-wrap { max-width: 100%; }
+  /* On mobile, stack stats below desc */
+  .cs-info {
     grid-template-columns: 1fr;
-    grid-template-rows: auto auto auto;
-    width: 100vw;
-    outline: none;
-    gap: 3px;
-    max-height: 100dvh;
-    overflow-y: auto;
+    grid-template-areas:
+      "badge"
+      "name"
+      "divider"
+      "desc"
+      "stats";
   }
-  .cs-panel-gif  { grid-column:1; grid-row:1; }
-  .cs-panel-name { grid-column:1; grid-row:2; }
-  .cs-panel-desc { grid-column:1; grid-row:3; }
-  .cs-gif {
-    min-height: clamp(180px, 52vw, 280px);
-    max-height: 48vw;
+  .cs-stats {
+    flex-direction: row;
+    flex-wrap: wrap;
+    transform: translateY(8px);
   }
+  #abilityCutscene.cs-open .cs-stats { transform: translateY(0); }
   .cs-name { font-size: clamp(1em, 5vw, 1.5em); }
-  .cs-corner-stamp { width:40px; height:40px; font-size:1.1em; }
+  .cs-bar-top, .cs-bar-bot { height: clamp(28px, 5vh, 44px); }
 }
 
 /* ══════════════════════════════════════════════
@@ -3461,194 +3473,83 @@ function playErrorSound(){
 // ══════════════════════════════════════════════
 // ABILITY CUTSCENE ENGINE
 // ══════════════════════════════════════════════
-// ── Play ability audio: use uploaded MP3 first, fall back to synthesised tones ──
-let _csAudioEl = null; // reuse one Audio element to avoid overlaps
-function playAbilityCutsceneSound(tier, audioUrl){
-  // Stop any previous cutscene audio
-  if(_csAudioEl){ try{ _csAudioEl.pause(); _csAudioEl.currentTime=0; }catch(e){} }
 
-  if(audioUrl && audioUrl.trim()){
-    // User uploaded an MP3 — play it directly
-    _csAudioEl = new Audio(audioUrl.trim());
-    _csAudioEl.volume = 0.85;
-    _csAudioEl.play().catch(()=>_synthCutsceneSound(tier)); // browser may block; fall back
-    return;
+// ── Play an external MP3 / audio file URL ──
+let _activeMp3 = null;
+function playMp3Sound(url){
+  try {
+    // Stop any previous mp3
+    if(_activeMp3){
+      try { _activeMp3.pause(); _activeMp3.currentTime = 0; } catch(e){}
+      _activeMp3 = null;
+    }
+    // Resume AudioContext first (satisfies browser autoplay policy)
+    const ctx = getAudio();
+    const a = new Audio(url);
+    a.volume = 0.75;
+    // Connect through AudioContext so it respects the same context
+    const src = ctx.createMediaElementSource(a);
+    src.connect(ctx.destination);
+    a.play().catch(()=>{});
+    _activeMp3 = a;
+    return a;
+  } catch(e){
+    // Fallback: plain Audio element without AudioContext routing
+    try {
+      if(_activeMp3){ try{_activeMp3.pause();}catch(e2){} _activeMp3=null; }
+      const a = new Audio(url);
+      a.volume = 0.75;
+      a.play().catch(()=>{});
+      _activeMp3 = a;
+      return a;
+    } catch(e2){}
   }
-  _synthCutsceneSound(tier);
+}
+function stopMp3Sound(){
+  if(_activeMp3){
+    try { _activeMp3.pause(); _activeMp3.currentTime = 0; } catch(e){}
+    _activeMp3 = null;
+  }
 }
 
-function _synthCutsceneSound(tier){
+function playAbilityCutsceneSound(tier){
   try{
-    const ctx = getAudio();
+    const ctx=getAudio();
     if(tier==='ultimate'){
+      // Epic orchestral hit
       makeNoise(ctx,0.35,0.6);
       makeOsc(ctx,'sawtooth',55,0.4,0.001,0.8);
       makeOsc(ctx,'sawtooth',110,0.3,0.001,0.7,0.05);
       makeOsc(ctx,'sawtooth',220,0.2,0.001,0.6,0.1);
+      // Rising sweep
       const o=ctx.createOscillator(),g=ctx.createGain();
-      o.connect(g); g.connect(ctx.destination);
+      o.connect(g);g.connect(ctx.destination);
       o.type='sine';
       o.frequency.setValueAtTime(220,ctx.currentTime+0.2);
       o.frequency.exponentialRampToValueAtTime(1760,ctx.currentTime+0.9);
       g.gain.setValueAtTime(0.25,ctx.currentTime+0.2);
       g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+1.0);
       o.start(ctx.currentTime+0.2); o.stop(ctx.currentTime+1.0);
+      // Bell overtones
       setTimeout(()=>[880,1100,1320,1760].forEach((f,i)=>makeOsc(ctx,'sine',f,0.15,0.001,0.4,i*0.05)),700);
     } else if(tier==='secret'){
+      // Ethereal alien shimmer
       for(let i=0;i<10;i++) setTimeout(()=>{
         makeOsc(ctx,'sine',200+Math.random()*2000,0.08,0.001,0.3);
       },i*60);
       makeNoise(ctx,0.1,0.8);
       makeOsc(ctx,'sine',55,0.2,0.001,1.0);
     } else if(tier==='active'){
+      // Sharp power burst
       makeNoise(ctx,0.2,0.3);
       makeOsc(ctx,'sawtooth',120,0.25,0.001,0.4);
       makeOsc(ctx,'sine',440,0.18,0.001,0.35,0.1);
       makeOsc(ctx,'sine',660,0.12,0.001,0.25,0.2);
     } else {
+      // Passive: soft shimmer
       [330,440,550,660].forEach((f,i)=>makeOsc(ctx,'sine',f,0.12,0.001,0.3,i*0.07));
     }
   }catch(e){}
-}
-
-async function playAbilityCutscene(cardId, rarity, abilityId){
-  const abilities = getCardAbilities(cardId, rarity);
-  const ability   = abilities.find(a=>a.id===abilityId) || abilities[0];
-  if(!ability) return;
-  const card = (window.DEMO_CARDS||DEMO_CARDS).find(c=>c.id===cardId);
-  if(!card) return;
-
-  const tierColors  = { passive:'#5dade2', active:'#ff9dc7', ultimate:'#f1c40f', secret:'#c39bd3' };
-  const tierLabels  = { passive:'◈ PASSIVE', active:'◆ ACTIVE', ultimate:'✦ ULTIMATE', secret:'⁇ SECRET' };
-  const color       = tierColors[ability.tier] || '#fff';
-  const rarityColor = RARITY_COLORS[rarity]    || '#fff';
-  const tierLabel   = tierLabels[ability.tier]  || ability.tier.toUpperCase();
-  const tierDuration= ability.tier==='ultimate'?3200 : ability.tier==='secret'?3800 : 2400;
-
-  const gifSrc  = (ability.gifUrl  && ability.gifUrl.trim())  ? ability.gifUrl.trim()  : card.image;
-  const audioSrc= (ability.audioUrl && ability.audioUrl.trim()) ? ability.audioUrl.trim() : '';
-
-  // Kick off GIF detection in parallel
-  const gifDurationPromise = detectGifDuration(gifSrc);
-
-  // ── Grab DOM ──
-  const overlay    = document.getElementById('abilityCutscene');
-  const img        = document.getElementById('cutsceneCardImg');
-  const halo       = document.getElementById('cutsceneCardGlow');
-  const glow       = document.getElementById('cutsceneGlow');
-  const nameEl     = document.getElementById('cutsceneAbilityName');
-  const descEl     = document.getElementById('cutsceneAbilityDesc');
-  const tierEl     = document.getElementById('cutsceneTierBadge');
-  const statsEl    = document.getElementById('cutsceneStats');
-  const impactEl   = document.getElementById('cutsceneImpactText');
-  const stampEl    = document.getElementById('cutsceneCornerStamp');
-
-  // ── Theme ──
-  overlay.style.setProperty('--cs-color', color);
-  overlay.style.setProperty('--cs-rgb',   hexToRgb(color));
-
-  // ── Populate (before display) ──
-  img.src = gifSrc;
-  halo.style.background = `radial-gradient(ellipse at 50% 50%, ${color}88, transparent 70%)`;
-  halo.style.opacity    = '0';
-  glow.style.background = `radial-gradient(ellipse at 50% 50%, ${color}44, transparent 70%)`;
-  glow.style.opacity    = '0';
-
-  tierEl.textContent   = tierLabel;
-  nameEl.textContent   = ability.icon + ' ' + ability.name;
-  nameEl.style.color   = color;
-  nameEl.style.textShadow = `0 0 25px ${color}cc, 0 0 50px ${color}55`;
-  descEl.textContent   = ability.desc || '';
-  stampEl.textContent  = ability.icon || '✦';
-  stampEl.style.borderColor = color;
-  stampEl.style.boxShadow   = `0 0 20px ${color}66`;
-
-  const rarityName = card.rarityName || '';
-  statsEl.innerHTML = [
-    rarityName ? `<span class="cs-stat-pill">${rarityName} ${card.rarityStars||''}</span>` : '',
-    card.series ? `<span class="cs-stat-pill">${card.series}</span>`                        : '',
-    ability.value ? `<span class="cs-stat-pill highlight">PWR ${ability.value}</span>`      : '',
-  ].filter(Boolean).join('');
-
-  impactEl.style.opacity  = '0';
-  impactEl.style.animation= '';
-
-  // ── Show overlay ──
-  overlay.style.opacity   = '0';
-  overlay.style.display   = 'flex';
-  overlay.style.transition= 'opacity 0.28s ease';
-
-  // Fire audio immediately (before requestAnimationFrame so mobile gesture still counts)
-  playAbilityCutsceneSound(ability.tier, audioSrc);
-  spawnCutsceneLines(color);
-
-  // Add scan sweep
-  const sweep = document.createElement('div');
-  sweep.className = 'cs-scan-sweep';
-  overlay.appendChild(sweep);
-  setTimeout(()=>sweep.remove(), 1300);
-
-  requestAnimationFrame(()=>{
-    overlay.style.opacity = '1';
-    setTimeout(()=>{
-      overlay.classList.add('cs-open');
-      halo.style.opacity = '0.6';
-      glow.style.opacity = '1';
-    }, 30);
-  });
-
-  // ── ULTIMATE / SECRET extras ──
-  if(ability.tier==='ultimate' || ability.tier==='secret'){
-    setTimeout(()=>{
-      impactEl.textContent    = ability.tier==='ultimate' ? 'ULTIMATE!' : '— ??? —';
-      impactEl.style.color    = color;
-      impactEl.style.opacity  = '1';
-      impactEl.style.animation= 'csImpact 0.6s cubic-bezier(0.34,1.3,0.64,1) forwards';
-      setTimeout(()=>{
-        impactEl.style.transition = 'opacity 0.45s ease';
-        impactEl.style.opacity    = '0';
-        setTimeout(()=>{ impactEl.style.transition=''; impactEl.style.animation=''; }, 460);
-      }, 950);
-    }, 650);
-
-    setTimeout(()=>{
-      overlay.style.animation = 'cutsceneShake 0.45s cubic-bezier(.36,.07,.19,.97)';
-      setTimeout(()=>overlay.style.animation='', 450);
-    }, 720);
-
-    setTimeout(()=>spawnParticles(rarity, color), 700);
-  }
-
-  if(ability.tier==='secret'){
-    setTimeout(()=>{
-      for(let i=0;i<5;i++)
-        setTimeout(()=>spawnCutsceneLines(['#ff9dc7','#c39bd3','#f1c40f','#5dade2'][i%4]), i*140);
-    }, 900);
-  }
-
-  // ── Resolve duration ──
-  const detectedMs = await gifDurationPromise;
-  const duration   = detectedMs > 500 ? detectedMs + 700 : tierDuration;
-
-  return new Promise(resolve=>{
-    setTimeout(()=>{
-      // Stop audio
-      if(_csAudioEl){ try{ _csAudioEl.pause(); }catch(e){} }
-
-      overlay.classList.remove('cs-open');
-      overlay.style.transition = 'opacity 0.45s ease';
-      overlay.style.opacity    = '0';
-      halo.style.opacity       = '0';
-      glow.style.opacity       = '0';
-      setTimeout(()=>{
-        overlay.style.display   = 'none';
-        overlay.style.opacity   = '1';
-        overlay.style.transition= '';
-        img.src = '';
-        resolve();
-      }, 460);
-    }, duration);
-  });
 }
 
 function spawnCutsceneLines(color){
@@ -3745,6 +3646,7 @@ async function playAbilityCutscene(cardId, rarity, abilityId){
   // ── Grab elements ──
   const overlay  = document.getElementById('abilityCutscene');
   const img      = document.getElementById('cutsceneCardImg');
+  const bgGif    = document.getElementById('cutsceneBgGif');
   const halo     = document.getElementById('cutsceneCardGlow');
   const glow     = document.getElementById('cutsceneGlow');
   const nameEl   = document.getElementById('cutsceneAbilityName');
@@ -3759,6 +3661,7 @@ async function playAbilityCutscene(cardId, rarity, abilityId){
 
   // ── Populate content (before showing) ──
   img.src = gifSrc;
+  if(bgGif) bgGif.src = gifSrc;  // blurred background matches foreground GIF
   img.style.boxShadow = `0 0 0 1px rgba(255,255,255,0.08), 0 8px 40px rgba(0,0,0,0.7), 0 0 60px ${color}66`;
   img.style.borderColor = rarityColor + '88';
 
@@ -3791,7 +3694,14 @@ async function playAbilityCutscene(cardId, rarity, abilityId){
   overlay.style.opacity = '0';
   overlay.style.display = 'flex';
   overlay.style.transition = 'opacity 0.3s ease';
-  playAbilityCutsceneSound(ability.tier);
+
+  // ── Audio: prefer MP3 url, fall back to synthesized ──
+  const audioUrl = (ability.audioUrl && ability.audioUrl.trim()) ? ability.audioUrl.trim() : '';
+  if(audioUrl){
+    playMp3Sound(audioUrl);
+  } else {
+    playAbilityCutsceneSound(ability.tier);
+  }
   spawnCutsceneLines(color);
 
   requestAnimationFrame(()=>{
@@ -3845,11 +3755,13 @@ async function playAbilityCutscene(cardId, rarity, abilityId){
       overlay.style.opacity    = '0';
       halo.style.opacity = '0';
       glow.style.opacity = '0';
+      stopMp3Sound();   // stop any playing MP3
       setTimeout(()=>{
         overlay.style.display     = 'none';
         overlay.style.opacity     = '1';
         overlay.style.transition  = '';
         img.src = '';
+        if(bgGif) bgGif.src = '';
         resolve();
       }, 460);
     }, duration);
@@ -6731,31 +6643,26 @@ tryAutoLogin();
 
 <!-- ABILITY CUTSCENE OVERLAY -->
 <div id="abilityCutscene">
+  <div class="cs-bar-top"></div>
+  <div class="cs-bar-bot"></div>
+  <img id="cutsceneBgGif" src="" alt="" aria-hidden="true"/>
   <div id="cutsceneGlow"></div>
   <div id="cutsceneLines"></div>
   <div id="cutsceneScanlines"></div>
   <div class="cs-stage">
-    <!-- Left panel: landscape GIF -->
-    <div class="cs-panel-gif">
-      <img id="cutsceneCardImg" class="cs-gif" src="" alt=""/>
-      <div class="cs-gif-sheen"></div>
-      <div class="cs-halftone"></div>
-      <div class="cs-gif-halo" id="cutsceneCardGlow"></div>
-      <div class="cs-corner-stamp" id="cutsceneCornerStamp"></div>
+    <div class="cs-card-wrap">
+      <img id="cutsceneCardImg" class="cs-card" src="" alt=""/>
+      <div class="cs-card-sheen"></div>
+      <div class="cs-card-halo" id="cutsceneCardGlow"></div>
     </div>
-    <!-- Top-right panel: tier + name -->
-    <div class="cs-panel-name">
+    <div class="cs-info">
       <div class="cs-tier-badge" id="cutsceneTierBadge"></div>
       <div class="cs-name"       id="cutsceneAbilityName"></div>
-      <div class="cs-divider"></div>
-    </div>
-    <!-- Bottom-right panel: desc + stats -->
-    <div class="cs-panel-desc">
-      <div class="cs-desc"  id="cutsceneAbilityDesc"></div>
-      <div class="cs-stats" id="cutsceneStats"></div>
+      <div class="cs-divider"    id="cutsceneDivider"></div>
+      <div class="cs-desc"       id="cutsceneAbilityDesc"></div>
+      <div class="cs-stats"      id="cutsceneStats"></div>
     </div>
   </div>
-  <!-- Impact stamp overlaid on everything -->
   <div class="cs-impact" id="cutsceneImpactText"></div>
 </div>
 </body>
