@@ -1801,6 +1801,27 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   100%{ transform: rotate(360deg) scaleY(1); opacity: 0.6; }
 }
 
+/* ═══════════════════════════════════════════
+   ADMIN CARD MANAGER STYLES
+═══════════════════════════════════════════ */
+.admin-label{display:block;font-size:0.78em;color:var(--text-dim);font-family:'JetBrains Mono',monospace;margin-bottom:5px;letter-spacing:0.05em;}
+.admin-input{width:100%;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-family:'Cormorant Garamond',serif;font-size:0.92em;outline:none;transition:border-color 0.2s;box-sizing:border-box;}
+.admin-input:focus{border-color:var(--pink);}
+.admin-input option{background:var(--bg2);color:var(--text);}
+.admin-card-row{display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:10px 14px;transition:border-color 0.2s;}
+.admin-card-row:hover{border-color:rgba(255,157,199,0.35);}
+.admin-card-thumb{width:48px;height:68px;object-fit:cover;border-radius:8px;flex-shrink:0;border:2px solid var(--border);}
+.admin-card-info{flex:1;min-width:0;}
+.admin-card-name{font-weight:600;font-size:0.9em;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.admin-card-meta{font-size:0.75em;color:var(--text-dim);font-family:'JetBrains Mono',monospace;}
+.admin-card-actions{display:flex;gap:6px;flex-shrink:0;}
+.admin-action-btn{padding:5px 12px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text-dim);cursor:pointer;font-size:0.78em;transition:all 0.2s;font-family:'Cormorant Garamond',serif;}
+.admin-action-btn:hover{border-color:var(--pink);color:var(--pink);}
+.admin-action-btn.danger:hover{border-color:#e74c3c;color:#e74c3c;}
+.admin-toggle-btn{padding:4px 10px;border-radius:20px;border:1px solid;cursor:pointer;font-size:0.72em;font-family:'JetBrains Mono',monospace;transition:all 0.2s;}
+.admin-ab-row{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:8px 12px;}
+.admin-ab-tier{font-size:0.7em;font-family:'JetBrains Mono',monospace;padding:2px 8px;border-radius:20px;border:1px solid;flex-shrink:0;}
+
 /* ── LR crown ── */
 .pull-crown {
   font-size: 2.5em;
@@ -1819,265 +1840,6 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   mix-blend-mode: screen;
 }
 
-/* ══════════════════════════════════════════════
-   CARD MANAGER ADMIN PANEL
-══════════════════════════════════════════════ */
-.cm-section { margin-bottom: 28px; }
-.cm-section-title {
-  font-family: 'Cinzel Decorative', serif;
-  font-size: 0.85em;
-  color: var(--pink-pale);
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  margin-bottom: 14px;
-  display: flex; align-items: center; gap: 10px;
-}
-.cm-section-title::before { content:''; flex:1; height:1px; background:linear-gradient(90deg,transparent,var(--border)); }
-.cm-section-title::after  { content:''; flex:1; height:1px; background:linear-gradient(90deg,var(--border),transparent); }
-
-.cm-card-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-  gap: 10px;
-  margin-bottom: 16px;
-}
-.cm-card-item {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  overflow: hidden;
-  cursor: pointer;
-  transition: all 0.2s;
-  position: relative;
-}
-.cm-card-item:hover { border-color: rgba(255,157,199,0.5); transform: translateY(-2px); }
-.cm-card-item.selected { border-color: var(--pink); box-shadow: 0 0 12px rgba(255,157,199,0.25); }
-.cm-card-item img { width:100%; aspect-ratio:3/4; object-fit:cover; display:block; }
-.cm-card-item-label { padding: 6px 8px; font-size: 0.72em; }
-.cm-card-item-name { color: var(--text); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.cm-card-item-rarity { font-family: 'JetBrains Mono', monospace; font-size: 0.9em; margin-top: 1px; }
-.cm-card-item-del {
-  position: absolute; top: 5px; right: 5px;
-  background: rgba(231,76,60,0.85); color:#fff;
-  border: none; border-radius: 6px; padding: 2px 6px;
-  font-size: 0.65em; cursor: pointer; line-height: 1.4;
-  display: none;
-}
-.cm-card-item:hover .cm-card-item-del { display: block; }
-.cm-card-item-edit {
-  position: absolute; top: 5px; left: 5px;
-  background: rgba(52,152,219,0.85); color:#fff;
-  border: none; border-radius: 6px; padding: 2px 6px;
-  font-size: 0.65em; cursor: pointer; line-height: 1.4;
-  display: none;
-}
-.cm-card-item:hover .cm-card-item-edit { display: block; }
-
-/* Form */
-.cm-form {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 18px;
-  padding: 24px;
-}
-.cm-form-title {
-  font-family: 'Cinzel Decorative', serif;
-  font-size: 0.9em;
-  color: var(--pink-pale);
-  margin-bottom: 18px;
-}
-.cm-field { margin-bottom: 14px; }
-.cm-label {
-  display: block;
-  font-size: 0.78em;
-  color: var(--text-dim);
-  margin-bottom: 5px;
-  font-family: 'JetBrains Mono', monospace;
-  letter-spacing: 0.04em;
-}
-.cm-input, .cm-textarea, .cm-select {
-  width: 100%;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  color: var(--text);
-  padding: 9px 13px;
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 0.95em;
-  transition: border-color 0.2s;
-  outline: none;
-}
-.cm-input:focus, .cm-textarea:focus, .cm-select:focus { border-color: var(--pink); }
-.cm-textarea { min-height: 70px; resize: vertical; }
-.cm-select { cursor: pointer; }
-.cm-select option { background: var(--bg2); }
-.cm-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.cm-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
-.cm-img-preview {
-  width: 100%;
-  max-height: 160px;
-  object-fit: cover;
-  border-radius: 10px;
-  border: 1px solid var(--border);
-  margin-top: 6px;
-  display: none;
-}
-
-/* Ability editor */
-.cm-ability-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
-.cm-ability-row {
-  background: rgba(255,255,255,0.03);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 10px 12px;
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  position: relative;
-}
-.cm-ability-row-icon { font-size: 1.5em; line-height: 1; padding-top: 2px; min-width: 28px; text-align: center; }
-.cm-ability-row-info { flex: 1; font-size: 0.82em; }
-.cm-ability-row-name { font-weight: 600; color: var(--text); }
-.cm-ability-row-desc { color: var(--text-dim); margin-top: 2px; }
-.cm-ability-row-tier {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.65em;
-  padding: 1px 6px;
-  border-radius: 4px;
-  margin-top: 3px;
-  display: inline-block;
-}
-.cm-ability-del {
-  background: none; border: none; color: var(--text-dim);
-  cursor: pointer; font-size: 1.1em; line-height: 1;
-  padding: 0 4px; transition: color 0.2s;
-}
-.cm-ability-del:hover { color: #e74c3c; }
-
-/* Dialogue / Cutscene editor */
-.cm-line-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; }
-.cm-line-row {
-  background: rgba(255,255,255,0.03);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 8px 12px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.82em;
-}
-.cm-line-row .cm-line-text { flex: 1; color: var(--text); font-style: italic; }
-.cm-line-del { background: none; border: none; color: var(--text-dim); cursor: pointer; font-size: 1em; }
-.cm-line-del:hover { color: #e74c3c; }
-
-/* Cutscene step */
-.cm-step-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
-.cm-step-row {
-  background: rgba(255,255,255,0.03);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 10px 12px;
-  display: flex;
-  gap: 10px;
-  align-items: flex-start;
-}
-.cm-step-gif { width: 60px; height: 60px; object-fit: cover; border-radius: 6px; border: 1px solid var(--border); flex-shrink: 0; }
-.cm-step-info { flex: 1; font-size: 0.8em; }
-.cm-step-text { color: var(--text); margin-bottom: 3px; }
-.cm-step-url { color: var(--text-dim); font-family: 'JetBrains Mono', monospace; font-size: 0.85em; word-break: break-all; }
-.cm-step-del { background: none; border: none; color: var(--text-dim); cursor: pointer; font-size: 1em; }
-.cm-step-del:hover { color: #e74c3c; }
-
-/* Tabs */
-.cm-tabs { display: flex; gap: 6px; margin-bottom: 18px; flex-wrap: wrap; }
-.cm-tab {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 20px;
-  padding: 5px 14px;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.76em;
-  cursor: pointer;
-  color: var(--text-dim);
-  transition: all 0.2s;
-}
-.cm-tab:hover, .cm-tab.active { border-color: var(--pink); color: var(--pink); }
-.cm-tab-pane { display: none; }
-.cm-tab-pane.active { display: block; animation: fadeIn 0.3s ease; }
-
-/* Status bar */
-.cm-status {
-  background: rgba(255,157,199,0.08);
-  border: 1px solid rgba(255,157,199,0.2);
-  border-radius: 10px;
-  padding: 8px 14px;
-  font-size: 0.82em;
-  color: var(--pink-pale);
-  margin-bottom: 16px;
-  font-family: 'JetBrains Mono', monospace;
-  display: none;
-}
-.cm-status.show { display: block; }
-.cm-status.error { background: rgba(231,76,60,0.1); border-color: rgba(231,76,60,0.3); color: #e74c3c; }
-.cm-status.success { background: rgba(46,204,113,0.1); border-color: rgba(46,204,113,0.3); color: #2ecc71; }
-
-/* Color swatch picker */
-.cm-color-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
-.cm-color-swatch {
-  width: 24px; height: 24px; border-radius: 50%; cursor: pointer;
-  border: 2px solid transparent;
-  transition: transform 0.15s, border-color 0.15s;
-}
-.cm-color-swatch:hover { transform: scale(1.2); }
-.cm-color-swatch.selected { border-color: #fff; transform: scale(1.15); }
-
-/* Save/Cancel bar */
-.cm-action-bar {
-  display: flex; gap: 10px; margin-top: 18px; flex-wrap: wrap;
-}
-.cm-btn {
-  background: linear-gradient(135deg, var(--pink-deep), var(--purple));
-  border: none; color: #fff;
-  padding: 9px 22px; border-radius: 20px;
-  font-family: 'Cinzel Decorative', serif;
-  font-size: 0.75em; cursor: pointer;
-  transition: all 0.2s;
-  letter-spacing: 0.04em;
-}
-.cm-btn:hover { opacity: 0.85; transform: translateY(-1px); }
-.cm-btn.secondary {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  color: var(--text-dim);
-}
-.cm-btn.secondary:hover { border-color: var(--pink); color: var(--pink); }
-.cm-btn.danger { background: linear-gradient(135deg, #c0392b, #e74c3c); }
-
-.cm-add-btn {
-  background: rgba(255,157,199,0.08);
-  border: 1px dashed rgba(255,157,199,0.35);
-  border-radius: 10px;
-  padding: 8px 14px;
-  color: var(--pink);
-  font-size: 0.8em;
-  cursor: pointer;
-  width: 100%;
-  transition: all 0.2s;
-  font-family: 'Cormorant Garamond', serif;
-}
-.cm-add-btn:hover { background: rgba(255,157,199,0.14); }
-
-/* Card manager loading spinner */
-.cm-loading {
-  text-align: center; padding: 30px;
-  color: var(--text-dim); font-style: italic; font-size: 0.9em;
-}
-
-@media(max-width:700px){
-  .cm-row { grid-template-columns: 1fr; }
-  .cm-row-3 { grid-template-columns: 1fr 1fr; }
-  .cm-card-list { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); }
-}
 </style>
 </head>
 <body>
@@ -2601,29 +2363,221 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 
   <!-- ADMIN PAGE -->
   <div class="page" id="page-admin">
-    <div class="section-title">Admin Panel</div>
-    <div class="admin-panel">
-      <h3>💰 Coin Management</h3>
-      <input class="admin-input" id="adminCoinAmt" type="number" placeholder="Amount (e.g. 5000)" value="1000"/>
-      <div class="admin-grid">
-        <button class="admin-btn" onclick="adminAddCoins()">➕ Add Coins to Self</button>
-        <button class="admin-btn" onclick="adminSetCoins()">💾 Set Coins to Amount</button>
+    <div class="section-title">⚙️ Admin Panel</div>
+
+    <!-- TABS -->
+    <div style="display:flex;gap:8px;margin-bottom:24px;flex-wrap:wrap;">
+      <button class="filter-btn active" id="atab-cards" onclick="switchAdminTab('cards',this)">🎴 Card Manager</button>
+      <button class="filter-btn" id="atab-abilities" onclick="switchAdminTab('abilities',this)">⚔️ Abilities</button>
+      <button class="filter-btn" id="atab-tools" onclick="switchAdminTab('tools',this)">🔧 Tools</button>
+    </div>
+
+    <!-- CARD MANAGER TAB -->
+    <div id="adminTab-cards">
+      <!-- Add / Edit Card Form -->
+      <div class="admin-panel" id="cardFormPanel">
+        <h3 id="cardFormTitle">➕ Add New Card</h3>
+        <input type="hidden" id="editCardId_orig"/>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+          <div>
+            <label class="admin-label">Card ID * <span style="font-size:0.75em;color:var(--text-dim)">(unique, no spaces)</span></label>
+            <input class="admin-input" id="cardForm_id" placeholder="e.g. asta2, mikasa01"/>
+          </div>
+          <div>
+            <label class="admin-label">Name *</label>
+            <input class="admin-input" id="cardForm_name" placeholder="Character name"/>
+          </div>
+          <div>
+            <label class="admin-label">Series *</label>
+            <input class="admin-input" id="cardForm_series" placeholder="e.g. Attack on Titan"/>
+          </div>
+          <div>
+            <label class="admin-label">Rarity</label>
+            <select class="admin-input" id="cardForm_rarity" onchange="updateRarityFields()">
+              <option value="1">[N] Normal</option>
+              <option value="2">[R] Rare</option>
+              <option value="3">[SR] Super Rare</option>
+              <option value="4" selected>[SSR] Super Super Rare</option>
+              <option value="5">[UR] Ultra Rare</option>
+              <option value="6">[LR] Legendary Rare</option>
+              <option value="7">[???] Secret</option>
+            </select>
+          </div>
+          <div>
+            <label class="admin-label">Weight <span style="font-size:0.75em;color:var(--text-dim)">(higher = more common)</span></label>
+            <input class="admin-input" id="cardForm_weight" type="number" value="15" min="1"/>
+          </div>
+          <div>
+            <label class="admin-label">Embed Color (hex)</label>
+            <div style="display:flex;gap:8px;align-items:center;">
+              <input type="color" id="cardForm_colorpicker" value="#9b59b6" oninput="document.getElementById('cardForm_color').value=this.value" style="width:40px;height:36px;border:none;border-radius:6px;cursor:pointer;padding:2px;background:transparent;flex-shrink:0;"/>
+              <input class="admin-input" id="cardForm_color" placeholder="#9b59b6" value="#9b59b6" oninput="document.getElementById('cardForm_colorpicker').value=this.value.trim()||'#9b59b6'"/>
+            </div>
+          </div>
+        </div>
+        <div style="margin-bottom:12px;">
+          <label class="admin-label">Image / GIF URL * <span style="font-size:0.75em;color:var(--text-dim)">(main card art)</span></label>
+          <div style="display:flex;gap:8px;">
+            <input class="admin-input" id="cardForm_image" placeholder="https://media1.tenor.com/..." style="flex:1"/>
+            <button onclick="previewCardImage()" style="padding:6px 14px;background:var(--surface);border:1px solid var(--border);color:var(--pink);border-radius:8px;cursor:pointer;font-size:0.85em;flex-shrink:0;">Preview</button>
+          </div>
+          <img id="cardForm_imgPreview" src="" alt="" style="display:none;width:100px;height:140px;object-fit:cover;border-radius:10px;margin-top:8px;border:2px solid var(--border);" onerror="this.style.display='none'"/>
+        </div>
+        <div style="margin-bottom:12px;">
+          <label class="admin-label">Thumbnail URL <span style="font-size:0.75em;color:var(--text-dim)">(optional small image)</span></label>
+          <input class="admin-input" id="cardForm_thumbnail" placeholder="https://... (leave blank to use main image)"/>
+        </div>
+        <div style="margin-bottom:12px;">
+          <label class="admin-label">Quote</label>
+          <textarea class="admin-input" id="cardForm_quote" rows="2" placeholder="A memorable quote from this character..." style="resize:vertical;"></textarea>
+        </div>
+        <div style="margin-bottom:16px;">
+          <label class="admin-label">Description</label>
+          <textarea class="admin-input" id="cardForm_desc" rows="3" placeholder="Describe this character and what makes them special..." style="resize:vertical;"></textarea>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+          <label style="display:flex;align-items:center;gap:6px;color:var(--text-dim);font-size:0.85em;cursor:pointer;">
+            <input type="checkbox" id="cardForm_limited" onchange="toggleLimitedFor()"/> Limited card
+          </label>
+          <input class="admin-input" id="cardForm_limitedFor" placeholder="Discord ID of owner" style="display:none;flex:1;max-width:200px;"/>
+          <label style="display:flex;align-items:center;gap:6px;color:var(--text-dim);font-size:0.85em;cursor:pointer;">
+            <input type="checkbox" id="cardForm_enabled" checked/> Enabled in pool
+          </label>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;">
+          <button class="admin-btn" id="cardFormSubmitBtn" onclick="submitCardForm()" style="background:linear-gradient(135deg,var(--pink-deep),var(--purple));color:#fff;">➕ Add Card</button>
+          <button class="admin-btn" id="cardFormCancelBtn" onclick="cancelCardEdit()" style="display:none;">✕ Cancel Edit</button>
+        </div>
+      </div>
+
+      <!-- Card List -->
+      <div class="admin-panel" style="margin-top:20px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
+          <h3 style="margin:0;">🃏 All Cards <span id="adminCardCount" style="font-size:0.8em;color:var(--text-dim);font-family:'JetBrains Mono',monospace;"></span></h3>
+          <div style="display:flex;gap:8px;">
+            <input class="admin-input" id="cardSearchInput" placeholder="Search cards..." style="width:160px;padding:6px 10px;font-size:0.85em;" oninput="renderAdminCardList()"/>
+            <button class="admin-btn" onclick="loadAdminCardList()" style="padding:6px 12px;font-size:0.82em;">🔄 Refresh</button>
+          </div>
+        </div>
+        <div id="adminCardList" style="display:flex;flex-direction:column;gap:8px;">
+          <div style="color:var(--text-dim);font-style:italic;font-size:0.85em;text-align:center;padding:20px;">Click Refresh to load cards ʚɞ</div>
+        </div>
       </div>
     </div>
-    <div class="admin-panel">
-      <h3>🃏 Card Management</h3>
-      <div class="admin-grid">
-        <button class="admin-btn" onclick="adminUnlockAll()">✨ Unlock All Cards</button>
-        <button class="admin-btn" onclick="adminResetPity()">🔄 Reset Pity</button>
-        <button class="admin-btn" onclick="adminMaxXp()">⚡ Max XP All Cards</button>
-        <button class="admin-btn danger" onclick="adminClearCollection()">🗑️ Clear Collection</button>
+
+    <!-- ABILITIES TAB -->
+    <div id="adminTab-abilities" style="display:none;">
+      <div class="admin-panel">
+        <h3>⚔️ Add Ability to Card</h3>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+          <div>
+            <label class="admin-label">Card ID *</label>
+            <input class="admin-input" id="ab_cardId" placeholder="e.g. deku, asta1"/>
+          </div>
+          <div>
+            <label class="admin-label">Ability ID * <span style="font-size:0.75em;color:var(--text-dim)">(unique per card)</span></label>
+            <input class="admin-input" id="ab_abilityId" placeholder="e.g. ofa, explosion"/>
+          </div>
+          <div>
+            <label class="admin-label">Name *</label>
+            <input class="admin-input" id="ab_name" placeholder="One For All: 100%"/>
+          </div>
+          <div>
+            <label class="admin-label">Icon (emoji)</label>
+            <input class="admin-input" id="ab_icon" placeholder="💥" maxlength="4" value="⚡"/>
+          </div>
+          <div>
+            <label class="admin-label">Tier</label>
+            <select class="admin-input" id="ab_tier">
+              <option value="passive">passive</option>
+              <option value="active" selected>active</option>
+              <option value="ultimate">ultimate</option>
+              <option value="secret">secret</option>
+            </select>
+          </div>
+          <div>
+            <label class="admin-label">Battle Effect</label>
+            <select class="admin-input" id="ab_effect">
+              <option value="burst">burst — big damage</option>
+              <option value="regen">regen — heal per turn</option>
+              <option value="doubleatk">doubleatk — attack ×2</option>
+              <option value="multihit">multihit — hits twice</option>
+              <option value="antimagic">antimagic — ignore shields</option>
+              <option value="hpboost">hpboost — max HP +</option>
+              <option value="defboost">defboost — defense +%</option>
+              <option value="atkboost">atkboost — attack +%</option>
+              <option value="smash">smash — fixed damage</option>
+              <option value="curse">curse — curse damage</option>
+              <option value="pierce">pierce — ignore resist</option>
+              <option value="frenzy">frenzy — multi-slash</option>
+              <option value="demonform">demonform — all stats ×1.5</option>
+              <option value="ofa100">ofa100 — risk/reward</option>
+              <option value="lifeswap">lifeswap — heal+damage</option>
+              <option value="copy">copy — copy last move</option>
+              <option value="dodge">dodge — dodge chance</option>
+              <option value="firstcrit">firstcrit — first hit crits</option>
+              <option value="spellboost">spellboost — spell dmg +%</option>
+              <option value="doubleregen">doubleregen — double healing</option>
+              <option value="voidsteal">voidsteal — stun + steal</option>
+              <option value="curseburst">curseburst — curse + burn</option>
+              <option value="finallegacy">finallegacy — final ×2</option>
+            </select>
+          </div>
+          <div>
+            <label class="admin-label">Value <span style="font-size:0.75em;color:var(--text-dim)">(damage/HP/% amount)</span></label>
+            <input class="admin-input" id="ab_value" type="number" value="30" min="0"/>
+          </div>
+          <div>
+            <label class="admin-label">Sort Order <span style="font-size:0.75em;color:var(--text-dim)">(0 = first)</span></label>
+            <input class="admin-input" id="ab_sort" type="number" value="0" min="0"/>
+          </div>
+        </div>
+        <div style="margin-bottom:16px;">
+          <label class="admin-label">Description *</label>
+          <textarea class="admin-input" id="ab_desc" rows="2" placeholder="What does this ability do? E.g. 'Massive single hit. Deals 40 damage.'" style="resize:vertical;"></textarea>
+        </div>
+        <button class="admin-btn" onclick="submitAbility()" style="background:linear-gradient(135deg,var(--pink-deep),var(--purple));color:#fff;">⚔️ Add Ability</button>
+      </div>
+
+      <!-- Ability List -->
+      <div class="admin-panel" style="margin-top:16px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;gap:8px;flex-wrap:wrap;">
+          <h3 style="margin:0;">All Abilities</h3>
+          <div style="display:flex;gap:8px;">
+            <input class="admin-input" id="abCardFilter" placeholder="Filter by card ID..." style="width:160px;padding:6px 10px;font-size:0.85em;" oninput="renderAdminAbilityList()"/>
+            <button class="admin-btn" onclick="loadAdminAbilityList()" style="padding:6px 12px;font-size:0.82em;">🔄 Refresh</button>
+          </div>
+        </div>
+        <div id="adminAbilityList" style="display:flex;flex-direction:column;gap:6px;">
+          <div style="color:var(--text-dim);font-style:italic;font-size:0.85em;text-align:center;padding:16px;">Click Refresh to load abilities ʚɞ</div>
+        </div>
       </div>
     </div>
-    <div class="admin-panel">
-      <h3>⚙️ System</h3>
-      <div class="admin-grid">
-        <button class="admin-btn" onclick="adminAddCoins500()">💫 Add 500 Coins (quick)</button>
-        <button class="admin-btn danger" onclick="logout()">🚪 Logout</button>
+
+    <!-- TOOLS TAB -->
+    <div id="adminTab-tools" style="display:none;">
+      <div class="admin-panel">
+        <h3>💰 Coins</h3>
+        <input class="admin-input" id="adminCoinAmt" type="number" placeholder="Amount" value="1000"/>
+        <div class="admin-grid" style="margin-top:10px;">
+          <button class="admin-btn" onclick="adminAddCoins()">➕ Add Coins to Self</button>
+          <button class="admin-btn" onclick="adminSetCoins()">💾 Set Coins to Amount</button>
+        </div>
+      </div>
+      <div class="admin-panel" style="margin-top:16px;">
+        <h3>🃏 Player Tools</h3>
+        <div class="admin-grid">
+          <button class="admin-btn" onclick="adminUnlockAll()">✨ Unlock All Cards</button>
+          <button class="admin-btn" onclick="adminResetPity()">🔄 Reset Pity</button>
+          <button class="admin-btn" onclick="adminMaxXp()">⚡ Max XP All Cards</button>
+          <button class="admin-btn danger" onclick="adminClearCollection()">🗑️ Clear Collection</button>
+        </div>
+      </div>
+      <div class="admin-panel" style="margin-top:16px;">
+        <h3>👤 Give Coins to Player</h3>
+        <input class="admin-input" id="adminGiveTargetId" placeholder="Discord ID of player" style="margin-bottom:8px;"/>
+        <input class="admin-input" id="adminGiveAmt" type="number" placeholder="Amount" value="500" style="margin-bottom:8px;"/>
+        <button class="admin-btn" onclick="adminGiveCoinsToPlayer()">💸 Give Coins</button>
       </div>
     </div>
   </div>
@@ -2670,6 +2624,22 @@ const sb = {
       body:JSON.stringify(data)
     });
     return res.ok;
+  },
+  async delete(table, filters={}) {
+    const params = new URLSearchParams();
+    Object.entries(filters).forEach(([k,v])=>params.set(k,'eq.'+v));
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${params}`,{
+      method:'DELETE',
+      headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY},
+    });
+    return res.ok;
+  },
+  async getAll(table) {
+    // Fetch all rows (no filter) — used for abilities
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?limit=1000`,{
+      headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Prefer':'count=none'}
+    });
+    return res.ok ? res.json() : [];
   }
 };
 
@@ -2760,6 +2730,9 @@ const CARD_ABILITIES = {
 const ABILITY_COUNTS = { 1:1, 2:1, 3:2, 4:3, 5:4, 6:5, 7:5 };
 
 function getCardAbilities(cardId, rarity) {
+  // Prefer DB abilities, fall back to hardcoded
+  const dbAbs = (window.DB_ABILITIES && window.DB_ABILITIES[cardId]) || [];
+  if(dbAbs.length) return dbAbs;
   const all = CARD_ABILITIES[cardId] || [];
   const count = ABILITY_COUNTS[rarity] || 1;
   return all.slice(0, count);
@@ -3630,10 +3603,11 @@ function weightedPick(pool){
   return pool[pool.length-1];
 }
 function buildPool(){
-  let pool=[...DEMO_CARDS];
+  const source = (window.DEMO_CARDS||DEMO_CARDS).filter(c=>!c.limited);
+  let pool=[...source];
   if(state.pityUR>=80) pool=pool.filter(c=>c.rarity>=5);
   else if(state.pitySR>=40) pool=pool.filter(c=>c.rarity>=4);
-  if(!pool.length) pool=[...DEMO_CARDS];
+  if(!pool.length) pool=[...source];
   return pool;
 }
 
@@ -3656,9 +3630,9 @@ async function loadPlayer(discordId){
   } else {
     await sb.upsert('players',{discord_id:discordId,username:state.username,avatar:state.avatar||'',coins:1000,total_pulls:0,pity_sr:0,pity_ur:0,bio:state.bio,title:state.title,banner_color:state.bannerColor,display_name:'',custom_avatar:'',banner_image:''});
   }
-  // Coin safety net: if localStorage has more coins than DB (saves from coin-reset bug), trust local
-  const lc=localStorage.getItem('mg_coins_'+discordId);
-  if(lc&&parseInt(lc)>state.coins) state.coins=parseInt(lc);
+  // Sync localStorage with DB (DB is authoritative now that upsert includes username/avatar)
+  localStorage.setItem('mg_coins_'+discordId, state.coins);
+  state.isAdmin = ADMIN_IDS.includes(discordId);
 }
 async function loadCollection(discordId){
   const rows=await sb.get('collection',{discord_id:discordId});
@@ -3671,9 +3645,23 @@ async function loadXpMap(discordId){
 }
 async function savePlayer(){
   if(!state.discordId||state.isGuest)return;
-  // Always cache coins locally to prevent reset-on-reload bug
   localStorage.setItem('mg_coins_'+state.discordId, state.coins);
-  await sb.upsert('players',{discord_id:state.discordId,coins:state.coins,pity_sr:state.pitySR,pity_ur:state.pityUR,total_pulls:state.totalPulls,equipped_card:state.equippedId,bio:state.bio,title:state.title,banner_color:state.bannerColor,display_name:state.displayName,custom_avatar:state.customAvatar,banner_image:state.bannerImage});
+  await sb.upsert('players',{
+    discord_id:state.discordId,
+    username:state.username,
+    avatar:state.avatar||'',
+    coins:state.coins,
+    pity_sr:state.pitySR,
+    pity_ur:state.pityUR,
+    total_pulls:state.totalPulls,
+    equipped_card:state.equippedId,
+    bio:state.bio,
+    title:state.title,
+    banner_color:state.bannerColor,
+    display_name:state.displayName,
+    custom_avatar:state.customAvatar,
+    banner_image:state.bannerImage,
+  });
 }
 async function saveCardToCollection(discordId,cardId){
   await sb.insert('collection',{discord_id:discordId,card_id:cardId});
@@ -3681,12 +3669,58 @@ async function saveCardToCollection(discordId,cardId){
 async function saveXp(discordId,cardId,xp){
   await sb.upsert('card_xp',{discord_id:discordId,card_id:cardId,xp});
 }
+async function loadCards(){
+  const rows = await sb.get('cards', {enabled:'true'});
+  if(rows && rows.length > 0){
+    // Map DB columns to the DEMO_CARDS format the rest of the game expects
+    window.DEMO_CARDS = rows.map(r=>({
+      id:          r.id,
+      name:        r.name,
+      rarity:      r.rarity,
+      rarityName:  r.rarity_name,
+      rarityStars: r.rarity_stars,
+      series:      r.series,
+      quote:       r.quote,
+      desc:        r.description,
+      image:       r.image,
+      thumbnail:   r.thumbnail || r.image,
+      color:       r.color,
+      weight:      r.weight,
+      enabled:     r.enabled,
+      limited:     r.limited,
+      limitedFor:  r.limited_for,
+    }));
+    console.log(`Loaded ${window.DEMO_CARDS.length} cards from DB`);
+  }
+  // Load abilities for all cards
+  const abRows = await sb.getAll('card_abilities');
+  if(abRows && abRows.length > 0){
+    window.DB_ABILITIES = {};
+    abRows.forEach(ab=>{
+      if(!window.DB_ABILITIES[ab.card_id]) window.DB_ABILITIES[ab.card_id]=[];
+      window.DB_ABILITIES[ab.card_id].push({
+        id:           ab.ability_id,
+        name:         ab.name,
+        icon:         ab.icon,
+        tier:         ab.tier,
+        type:         ab.tier,
+        desc:         ab.description,
+        battleEffect: ab.battle_effect,
+        value:        ab.value,
+      });
+      // Sort by sort_order
+      window.DB_ABILITIES[ab.card_id].sort((a,b)=>(a.sort_order||0)-(b.sort_order||0));
+    });
+  }
+}
+
 async function loadAll(discordId){
   showLoadingOverlay(true);
-  await Promise.all([loadPlayer(discordId),loadCollection(discordId),loadXpMap(discordId)]);
+  await Promise.all([loadCards(), loadPlayer(discordId), loadCollection(discordId), loadXpMap(discordId)]);
   showLoadingOverlay(false);
   updateCoins();updatePity();updateProfile();renderCollection();renderShop();
   renderFeaturedShowcase();
+  if(state.isAdmin) showAdminNav();
 }
 
 // ══════════════════════════════════════════════
@@ -3820,7 +3854,7 @@ function renderCollection(){
   if(currentFilter!=='all'){
     const rMap={N:1,R:2,SR:3,SSR:4,UR:5,LR:6,S:7};
     const r=rMap[currentFilter];
-    filtered=owned.filter(id=>{const c=DEMO_CARDS.find(x=>x.id===id);return c&&c.rarity===r;});
+    filtered=owned.filter(id=>{const c=(window.DEMO_CARDS||DEMO_CARDS).find(x=>x.id===id);return c&&c.rarity===r;});
   }
   document.getElementById('collTotal').textContent=`${state.collection.length} pulls`;
   document.getElementById('collUniq').textContent=`${owned.length} unique`;
@@ -3832,7 +3866,7 @@ function renderCollection(){
     let html='';
     const sections=[];
     RARITY_ORDER.forEach(({r,label,rainbow})=>{
-      const group=filtered.filter(id=>{const c=DEMO_CARDS.find(x=>x.id===id);return c&&c.rarity===r;});
+      const group=filtered.filter(id=>{const c=(window.DEMO_CARDS||DEMO_CARDS).find(x=>x.id===id);return c&&c.rarity===r;});
       if(!group.length)return;
       sections.push({r,label,rainbow,group});
     });
@@ -3855,7 +3889,7 @@ function renderCollection(){
   }
 }
 function renderCardThumb(id,counts){
-  const c=DEMO_CARDS.find(x=>x.id===id);if(!c)return'';
+  const c=(window.DEMO_CARDS||DEMO_CARDS).find(x=>x.id===id);if(!c)return'';
   const color=RARITY_COLORS[c.rarity]||'#bdc3c7';
   const isEquipped=state.equippedId===id;
   const cnt=counts[id]||1;
@@ -3891,7 +3925,7 @@ function filterCards(f,btn){
 // CARD MODAL
 // ══════════════════════════════════════════════
 function openCard(id){
-  const c=DEMO_CARDS.find(x=>x.id===id);if(!c)return;
+  const c=(window.DEMO_CARDS||DEMO_CARDS).find(x=>x.id===id);if(!c)return;
   playModalSound();
   openCardId=id;
   const color=RARITY_COLORS[c.rarity]||'#bdc3c7';
@@ -5785,6 +5819,289 @@ async function playMoveVFX(moveType, whoAttacks, targetWho, dmg, isCrit, color){
     spawnEmojiPop(targetWho, isCrit?'💥':'⚔️');
     if(isCrit) spawnTint('rgba(255,60,60,0.12)');
   }
+}
+
+// ══════════════════════════════════════════════
+// ADMIN CARD MANAGER
+// ══════════════════════════════════════════════
+
+function showAdminNav(){
+  const btn=document.getElementById('adminNavBtn');
+  const mbtn=document.getElementById('mnav-admin');
+  if(btn) btn.style.display='';
+  if(mbtn) mbtn.style.display='';
+}
+
+function switchAdminTab(tab, btn){
+  ['cards','abilities','tools'].forEach(t=>{
+    const el=document.getElementById('adminTab-'+t);
+    const b=document.getElementById('atab-'+t);
+    if(el) el.style.display= t===tab?'block':'none';
+    if(b){ b.classList.toggle('active', t===tab); }
+  });
+}
+
+function updateRarityFields(){
+  const r=parseInt(document.getElementById('cardForm_rarity').value);
+  const wMap={1:100,2:70,3:40,4:15,5:5,6:2,7:1};
+  document.getElementById('cardForm_weight').value=wMap[r]||15;
+}
+
+function previewCardImage(){
+  const url=document.getElementById('cardForm_image').value.trim();
+  const img=document.getElementById('cardForm_imgPreview');
+  if(url){img.src=url;img.style.display='';}
+  else img.style.display='none';
+}
+
+function toggleLimitedFor(){
+  const cb=document.getElementById('cardForm_limited');
+  const inp=document.getElementById('cardForm_limitedFor');
+  inp.style.display=cb.checked?'':'none';
+}
+
+function cancelCardEdit(){
+  document.getElementById('cardFormTitle').textContent='➕ Add New Card';
+  document.getElementById('cardFormSubmitBtn').textContent='➕ Add Card';
+  document.getElementById('cardFormCancelBtn').style.display='none';
+  document.getElementById('editCardId_orig').value='';
+  // Clear form
+  ['id','name','series','quote','desc','image','thumbnail','limitedFor'].forEach(f=>{
+    const el=document.getElementById('cardForm_'+f);
+    if(el) el.value='';
+  });
+  document.getElementById('cardForm_rarity').value='4';
+  document.getElementById('cardForm_weight').value='15';
+  document.getElementById('cardForm_color').value='#9b59b6';
+  document.getElementById('cardForm_colorpicker').value='#9b59b6';
+  document.getElementById('cardForm_enabled').checked=true;
+  document.getElementById('cardForm_limited').checked=false;
+  document.getElementById('cardForm_limitedFor').style.display='none';
+  document.getElementById('cardForm_imgPreview').style.display='none';
+}
+
+async function submitCardForm(){
+  if(!state.isAdmin){showToast('Admin only');return;}
+  const id = document.getElementById('cardForm_id').value.trim().toLowerCase().replace(/\s+/g,'_');
+  const name = document.getElementById('cardForm_name').value.trim();
+  const series = document.getElementById('cardForm_series').value.trim();
+  const image = document.getElementById('cardForm_image').value.trim();
+  if(!id||!name||!series||!image){showToast('Card ID, Name, Series, and Image are required!');return;}
+  const rarity = parseInt(document.getElementById('cardForm_rarity').value);
+  const rarityMap = {1:['[N]','★'],2:['[R]','★★'],3:['[SR]','★★★'],4:['[SSR]','★★★★'],5:['[UR]','★★★★★'],6:['[LR]','★★★★★★'],7:['[???]','???']};
+  const [rarityName, rarityStars] = rarityMap[rarity];
+  const isEdit = !!document.getElementById('editCardId_orig').value;
+  const origId = document.getElementById('editCardId_orig').value || id;
+
+  const cardData = {
+    id,
+    name,
+    rarity,
+    rarity_name:  rarityName,
+    rarity_stars: rarityStars,
+    series,
+    quote:       document.getElementById('cardForm_quote').value.trim(),
+    description: document.getElementById('cardForm_desc').value.trim(),
+    image,
+    thumbnail:   document.getElementById('cardForm_thumbnail').value.trim() || image,
+    color:       document.getElementById('cardForm_color').value.trim() || '#bdc3c7',
+    weight:      parseInt(document.getElementById('cardForm_weight').value)||15,
+    enabled:     document.getElementById('cardForm_enabled').checked,
+    limited:     document.getElementById('cardForm_limited').checked,
+    limited_for: document.getElementById('cardForm_limitedFor').value.trim(),
+  };
+
+  const btn=document.getElementById('cardFormSubmitBtn');
+  btn.textContent='Saving...';btn.disabled=true;
+  try{
+    const ok = await sb.upsert('cards', cardData);
+    if(ok){
+      showToast(isEdit?`✅ Card "${name}" updated!`:`✅ Card "${name}" added!`);
+      await loadCards();
+      renderCollection();renderFeaturedShowcase();
+      cancelCardEdit();
+      loadAdminCardList();
+    } else {
+      showToast('❌ Failed to save card. Check console.');
+    }
+  }catch(e){showToast('❌ Error: '+e.message);}
+  btn.textContent=isEdit?'💾 Save Changes':'➕ Add Card';
+  btn.disabled=false;
+}
+
+let _adminCardCache = [];
+async function loadAdminCardList(){
+  const el=document.getElementById('adminCardList');
+  el.innerHTML='<div style="color:var(--text-dim);font-style:italic;text-align:center;padding:16px;">Loading...</div>';
+  const rows = await sb.getAll('cards');
+  _adminCardCache = rows||[];
+  document.getElementById('adminCardCount').textContent='('+_adminCardCache.length+')';
+  renderAdminCardList();
+}
+
+function renderAdminCardList(){
+  const el=document.getElementById('adminCardList');
+  const q=(document.getElementById('cardSearchInput')?.value||'').toLowerCase();
+  let list = _adminCardCache;
+  if(q) list = list.filter(c=>c.name.toLowerCase().includes(q)||c.id.toLowerCase().includes(q)||c.series.toLowerCase().includes(q));
+  // Sort by rarity desc then name
+  list = [...list].sort((a,b)=>b.rarity-a.rarity||a.name.localeCompare(b.name));
+  if(!list.length){el.innerHTML='<div style="color:var(--text-dim);font-style:italic;text-align:center;padding:16px;">No cards found</div>';return;}
+  const RARITY_COLORS_LOCAL={1:'#bdc3c7',2:'#2ecc71',3:'#3498db',4:'#9b59b6',5:'#f1c40f',6:'#ff6b9d',7:'#1abc9c'};
+  el.innerHTML=list.map(c=>{
+    const color=RARITY_COLORS_LOCAL[c.rarity]||'#bdc3c7';
+    const enabledStyle=c.enabled
+      ?'background:rgba(46,204,113,0.1);border-color:rgba(46,204,113,0.4);color:#2ecc71;'
+      :'background:rgba(231,76,60,0.08);border-color:rgba(231,76,60,0.3);color:#e74c3c;';
+    return `<div class="admin-card-row">
+      <img class="admin-card-thumb" src="${c.image}" alt="${c.name}" onerror="this.style.background='#1c0f26'" style="border-color:${color}55;"/>
+      <div class="admin-card-info">
+        <div class="admin-card-name">${c.name}</div>
+        <div class="admin-card-meta"><span style="color:${color}">${c.rarity_name}</span> · ${c.series} · ID: ${c.id}</div>
+        <div class="admin-card-meta">Weight: ${c.weight} ${c.limited?'· 💎 Limited':''}${c.limited_for?' for '+c.limited_for:''}</div>
+      </div>
+      <div class="admin-card-actions">
+        <button class="admin-toggle-btn" style="${enabledStyle}" onclick="adminToggleCard('${c.id}',${!c.enabled})">${c.enabled?'✅ On':'❌ Off'}</button>
+        <button class="admin-action-btn" onclick="editCard('${c.id}')">✏️ Edit</button>
+        <button class="admin-action-btn danger" onclick="deleteCard('${c.id}','${c.name.replace(/'/g,"\'")}')">🗑️</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function editCard(cardId){
+  const c = _adminCardCache.find(x=>x.id===cardId);
+  if(!c)return;
+  switchAdminTab('cards', document.getElementById('atab-cards'));
+  document.getElementById('cardFormTitle').textContent='✏️ Edit Card — '+c.name;
+  document.getElementById('cardFormSubmitBtn').textContent='💾 Save Changes';
+  document.getElementById('cardFormCancelBtn').style.display='';
+  document.getElementById('editCardId_orig').value=c.id;
+  document.getElementById('cardForm_id').value=c.id;
+  document.getElementById('cardForm_name').value=c.name;
+  document.getElementById('cardForm_series').value=c.series;
+  document.getElementById('cardForm_rarity').value=c.rarity;
+  document.getElementById('cardForm_weight').value=c.weight;
+  document.getElementById('cardForm_color').value=c.color;
+  document.getElementById('cardForm_colorpicker').value=c.color;
+  document.getElementById('cardForm_image').value=c.image;
+  document.getElementById('cardForm_thumbnail').value=c.thumbnail||'';
+  document.getElementById('cardForm_quote').value=c.quote||'';
+  document.getElementById('cardForm_desc').value=c.description||'';
+  document.getElementById('cardForm_enabled').checked=c.enabled;
+  document.getElementById('cardForm_limited').checked=c.limited;
+  document.getElementById('cardForm_limitedFor').value=c.limited_for||'';
+  document.getElementById('cardForm_limitedFor').style.display=c.limited?'':'none';
+  const imgPrev=document.getElementById('cardForm_imgPreview');
+  imgPrev.src=c.image;imgPrev.style.display='';
+  // Scroll to form
+  document.getElementById('cardFormPanel').scrollIntoView({behavior:'smooth'});
+}
+
+async function deleteCard(cardId, cardName){
+  if(!state.isAdmin)return;
+  if(!confirm(`Delete "${cardName}" (${cardId})? This cannot be undone.`))return;
+  const ok = await sb.delete('cards',{id:cardId});
+  if(ok){
+    showToast(`🗑️ "${cardName}" deleted`);
+    await loadCards();renderCollection();renderFeaturedShowcase();
+    loadAdminCardList();
+  } else {
+    showToast('❌ Delete failed');
+  }
+}
+
+async function adminToggleCard(cardId, newEnabled){
+  if(!state.isAdmin)return;
+  const ok = await sb.update('cards',{enabled:newEnabled},{id:cardId});
+  if(ok){
+    showToast(newEnabled?'✅ Card enabled':'❌ Card disabled');
+    await loadCards();
+    const idx=_adminCardCache.findIndex(c=>c.id===cardId);
+    if(idx>=0)_adminCardCache[idx].enabled=newEnabled;
+    renderAdminCardList();
+  }
+}
+
+let _adminAbCache = [];
+async function loadAdminAbilityList(){
+  const el=document.getElementById('adminAbilityList');
+  el.innerHTML='<div style="color:var(--text-dim);font-style:italic;text-align:center;padding:12px;">Loading...</div>';
+  _adminAbCache = await sb.getAll('card_abilities') || [];
+  renderAdminAbilityList();
+}
+
+function renderAdminAbilityList(){
+  const el=document.getElementById('adminAbilityList');
+  const q=(document.getElementById('abCardFilter')?.value||'').toLowerCase();
+  let list = q ? _adminAbCache.filter(a=>a.card_id.includes(q)) : _adminAbCache;
+  list = [...list].sort((a,b)=>a.card_id.localeCompare(b.card_id)||(a.sort_order-b.sort_order));
+  if(!list.length){el.innerHTML='<div style="color:var(--text-dim);font-style:italic;text-align:center;padding:12px;">No abilities found</div>';return;}
+  const tierStyles={passive:'color:#5dade2;border-color:#5dade266;',active:'color:var(--pink);border-color:var(--pink-glow);',ultimate:'color:#f1c40f;border-color:rgba(241,196,15,0.4);',secret:'color:#c39bd3;border-color:rgba(195,155,211,0.4);'};
+  el.innerHTML=list.map(ab=>`
+    <div class="admin-ab-row">
+      <span style="font-size:1.2em;">${ab.icon}</span>
+      <div style="flex:1;min-width:0;">
+        <div style="font-weight:600;font-size:0.88em;">${ab.name} <span style="color:var(--text-dim);font-size:0.85em;">· ${ab.card_id}</span></div>
+        <div style="font-size:0.75em;color:var(--text-dim);margin-top:1px;">${ab.description||''}</div>
+      </div>
+      <span class="admin-ab-tier" style="${tierStyles[ab.tier]||''}">${ab.tier}</span>
+      <button class="admin-action-btn danger" onclick="deleteAbility('${ab.id}','${(ab.name||'').replace(/'/g,"\'")}')">🗑️</button>
+    </div>`).join('');
+}
+
+async function submitAbility(){
+  if(!state.isAdmin){showToast('Admin only');return;}
+  const cardId = document.getElementById('ab_cardId').value.trim().toLowerCase();
+  const abilityId = document.getElementById('ab_abilityId').value.trim().toLowerCase();
+  const name = document.getElementById('ab_name').value.trim();
+  const desc = document.getElementById('ab_desc').value.trim();
+  if(!cardId||!abilityId||!name||!desc){showToast('Card ID, Ability ID, Name, and Description are required!');return;}
+  const data={
+    card_id:cardId, ability_id:abilityId, name,
+    icon:document.getElementById('ab_icon').value.trim()||'⚡',
+    tier:document.getElementById('ab_tier').value,
+    description:desc,
+    battle_effect:document.getElementById('ab_effect').value,
+    value:parseInt(document.getElementById('ab_value').value)||0,
+    sort_order:parseInt(document.getElementById('ab_sort').value)||0,
+  };
+  const ok = await sb.upsert('card_abilities', data);
+  if(ok){
+    showToast(`✅ Ability "${name}" added to ${cardId}!`);
+    // Reload abilities
+    const abRows = await sb.getAll('card_abilities');
+    if(abRows){
+      window.DB_ABILITIES={};
+      abRows.forEach(ab=>{
+        if(!window.DB_ABILITIES[ab.card_id])window.DB_ABILITIES[ab.card_id]=[];
+        window.DB_ABILITIES[ab.card_id].push({id:ab.ability_id,name:ab.name,icon:ab.icon,tier:ab.tier,type:ab.tier,desc:ab.description,battleEffect:ab.battle_effect,value:ab.value});
+      });
+    }
+    loadAdminAbilityList();
+  } else {
+    showToast('❌ Failed to save ability');
+  }
+}
+
+async function deleteAbility(uuid, name){
+  if(!state.isAdmin)return;
+  if(!confirm(`Delete ability "${name}"?`))return;
+  const ok = await sb.delete('card_abilities',{id:uuid});
+  if(ok){showToast(`🗑️ Ability deleted`);loadAdminAbilityList();}
+  else showToast('❌ Delete failed');
+}
+
+async function adminGiveCoinsToPlayer(){
+  if(!state.isAdmin){showToast('Admin only');return;}
+  const tid=(document.getElementById('adminGiveTargetId')?.value||'').trim();
+  const amt=parseInt(document.getElementById('adminGiveAmt')?.value||'0');
+  if(!tid||!amt){showToast('Enter a Discord ID and amount');return;}
+  const rows=await sb.get('players',{discord_id:tid});
+  if(!rows||!rows.length){showToast('Player not found');return;}
+  const nc=(rows[0].coins||0)+amt;
+  await sb.update('players',{coins:nc},{discord_id:tid});
+  showToast(`✅ Gave ${amt} coins to ${rows[0].username||tid}`);
 }
 
 renderShop();
