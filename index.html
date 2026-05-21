@@ -979,288 +979,330 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 }
 
 
-/* ══ CUTSCENE ENGINE ══ */
+/* ══ CUTSCENE ENGINE — MANGA PANEL ══ */
+
+/* ── Keyframes ── */
 @keyframes lineShot {
   0%  { opacity:0; transform:rotate(var(--a,0deg)) scaleX(0); }
-  30% { opacity:0.7; }
-  100%{ opacity:0; transform:rotate(var(--a,0deg)) scaleX(1.6); }
-}
-@keyframes impactSlam {
-  0%  { transform:translateX(-50%) scale(3.5); opacity:0; filter:blur(8px); }
-  55% { transform:translateX(-50%) scale(0.88); opacity:1; filter:blur(0); }
-  75% { transform:translateX(-50%) scale(1.05); }
-  100%{ transform:translateX(-50%) scale(1); opacity:1; }
+  30% { opacity:0.8; }
+  100%{ opacity:0; transform:rotate(var(--a,0deg)) scaleX(1.8); }
 }
 @keyframes cutsceneShake {
   0%,100%{ transform:none; }
-  15%{ transform:translate(-10px, 5px) rotate(-1.2deg); }
-  30%{ transform:translate( 9px,-7px) rotate( 1.2deg); }
-  45%{ transform:translate(-7px, 4px) rotate(-0.8deg); }
-  60%{ transform:translate( 6px,-3px) rotate( 0.6deg); }
-  75%{ transform:translate(-4px, 2px) rotate(-0.3deg); }
+  15%{ transform:translate(-10px,5px) rotate(-1.2deg); }
+  30%{ transform:translate(9px,-7px) rotate(1.2deg); }
+  45%{ transform:translate(-7px,4px) rotate(-0.8deg); }
+  60%{ transform:translate(6px,-3px) rotate(0.6deg); }
+}
+@keyframes panelSliceIn {
+  0%  { clip-path:inset(0 100% 0 0); opacity:0; }
+  100%{ clip-path:inset(0 0% 0 0);   opacity:1; }
+}
+@keyframes infoSlideUp {
+  0%  { opacity:0; transform:translateY(24px); }
+  100%{ opacity:1; transform:translateY(0); }
+}
+@keyframes csImpact {
+  0%  { opacity:0; transform:translate(-50%,-50%) scale(4) skewX(-8deg); filter:blur(12px); }
+  50% { opacity:1; transform:translate(-50%,-50%) scale(0.9) skewX(0deg); filter:blur(0); }
+  70% { transform:translate(-50%,-50%) scale(1.06); }
+  100%{ opacity:1; transform:translate(-50%,-50%) scale(1); }
+}
+@keyframes cornerPop {
+  0%  { opacity:0; transform:scale(0) rotate(-20deg); }
+  70% { transform:scale(1.1) rotate(4deg); }
+  100%{ opacity:1; transform:scale(1) rotate(0deg); }
+}
+@keyframes scanMove {
+  0%  { transform:translateY(-100%); }
+  100%{ transform:translateY(100vh); }
+}
+@keyframes sheenSlide {
+  0%  { background-position:200% 200%; }
+  100%{ background-position:-100% -100%; }
 }
 
-/* ── Cutscene modal ── */
+/* ── Overlay backdrop ── */
 #abilityCutscene {
-  display: none; /* shown via JS: display:flex */
+  display: none;
   position: fixed;
   inset: 0;
   z-index: 999;
+  background: #000;
+  overflow: hidden;
   align-items: center;
   justify-content: center;
-  background: rgba(0,0,0,0.94);
-  backdrop-filter: blur(4px);
-  overflow: hidden;
 }
-/* Stage: centred card + side panels */
+
+/* ── Ambient layers ── */
+#cutsceneGlow {
+  position: absolute; inset: 0;
+  pointer-events: none; z-index: 2;
+  opacity: 0; transition: opacity 0.5s;
+  mix-blend-mode: screen;
+}
+#cutsceneLines {
+  position: absolute; inset: 0;
+  pointer-events: none; overflow: hidden; z-index: 3;
+}
+#cutsceneScanlines {
+  position: absolute; inset: 0;
+  pointer-events: none; z-index: 10;
+  background: repeating-linear-gradient(
+    0deg, transparent, transparent 3px,
+    rgba(0,0,0,0.07) 3px, rgba(0,0,0,0.07) 4px
+  );
+}
+/* Animated scan sweep for drama */
+.cs-scan-sweep {
+  position: absolute; left: 0; right: 0;
+  height: 60px;
+  background: linear-gradient(180deg,
+    transparent 0%,
+    rgba(255,255,255,0.04) 50%,
+    transparent 100%);
+  z-index: 11; pointer-events: none;
+  animation: scanMove 1.2s ease-out forwards;
+}
+
+/* ── Manga panel grid ── */
 .cs-stage {
   position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  z-index: 5;
+  width: min(900px, 96vw);
+  /* On desktop: two-column manga panels */
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto auto;
+  gap: 5px;
+  padding: 0;
+  /* Panel border like manga page */
+  outline: 3px solid rgba(255,255,255,0.15);
+  box-shadow:
+    0 0 0 1px rgba(0,0,0,0.8),
+    0 0 80px var(--cs-color, rgba(255,157,199,0.3)),
+    0 30px 80px rgba(0,0,0,0.8);
+}
+
+/* Big GIF panel — left column, spans both rows */
+.cs-panel-gif {
+  grid-column: 1;
+  grid-row: 1 / 3;
+  position: relative;
+  overflow: hidden;
+  background: #050505;
+  /* Manga-style skewed inner border */
+  outline: 3px solid rgba(255,255,255,0.12);
+  /* Entry animation — wipe from left */
+  animation: none;
+  opacity: 0;
+  clip-path: inset(0 100% 0 0);
+}
+#abilityCutscene.cs-open .cs-panel-gif {
+  animation: panelSliceIn 0.45s cubic-bezier(0.77,0,0.18,1) 0.05s forwards;
+}
+/* Landscape GIF fills the panel, no cropping on width */
+.cs-gif {
   width: 100%;
   height: 100%;
-  padding: 24px;
-}
-/* Framing bars — anime letterbox */
-.cs-bar-top, .cs-bar-bot {
-  position: absolute;
-  left: 0; right: 0;
-  height: clamp(40px, 8vh, 70px);
-  background: #000;
-  z-index: 6;
-  transition: transform 0.4s cubic-bezier(0.77,0,0.18,1);
-}
-.cs-bar-top { top: 0; transform: translateY(-100%); }
-.cs-bar-bot { bottom: 0; transform: translateY(100%); }
-#abilityCutscene.cs-open .cs-bar-top { transform: translateY(0); }
-#abilityCutscene.cs-open .cs-bar-bot { transform: translateY(0); }
-
-/* Card container */
-.cs-card-wrap {
-  position: relative;
-  z-index: 4;
-  flex-shrink: 0;
-  /* starts small and off-screen, animates in */
-  transform: scale(0.55) translateY(30px);
-  opacity: 0;
-  transition: transform 0.55s cubic-bezier(0.34,1.46,0.64,1),
-              opacity   0.4s ease;
-}
-#abilityCutscene.cs-open .cs-card-wrap {
-  transform: scale(1) translateY(0);
-  opacity: 1;
-}
-.cs-card {
-  width:  clamp(140px, 22vw, 220px);
-  height: clamp(200px, 31vw, 310px);
+  min-height: clamp(220px, 35vw, 380px);
   object-fit: cover;
-  border-radius: 18px;
+  object-position: center center;
   display: block;
-  border: 3px solid rgba(255,255,255,0.25);
-  box-shadow:
-    0 0 0 1px rgba(255,255,255,0.08),
-    0 8px 40px rgba(0,0,0,0.7),
-    0 0 60px var(--cs-color, rgba(255,157,199,0.4));
 }
-/* Holographic shimmer over the card */
-.cs-card-sheen {
-  position: absolute;
-  inset: 0;
-  border-radius: 18px;
-  background: linear-gradient(
-    135deg,
-    transparent 30%,
-    rgba(255,255,255,0.08) 50%,
-    transparent 70%
-  );
+/* Holographic foil sheen */
+.cs-gif-sheen {
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg,
+    transparent 20%, rgba(255,255,255,0.06) 50%, transparent 80%);
   background-size: 300% 300%;
-  animation: sheenSlide 2s linear infinite;
+  animation: sheenSlide 2.5s linear infinite;
   pointer-events: none;
 }
-@keyframes sheenSlide {
-  0%   { background-position: 200% 200%; }
-  100% { background-position: -100% -100%; }
-}
-/* Outer glow halo */
-.cs-card-halo {
-  position: absolute;
-  inset: -18px;
-  border-radius: 30px;
-  filter: blur(22px);
+/* Color halo bleed under the GIF panel */
+.cs-gif-halo {
+  position: absolute; inset: -20px;
+  filter: blur(30px);
   background: var(--cs-color, rgba(255,157,199,0.5));
-  opacity: 0;
-  z-index: -1;
-  transition: opacity 0.5s ease 0.15s;
+  opacity: 0; z-index: -1;
+  transition: opacity 0.5s ease 0.3s;
 }
-#abilityCutscene.cs-open .cs-card-halo { opacity: 0.7; }
+#abilityCutscene.cs-open .cs-gif-halo { opacity: 0.55; }
 
-/* Info panel — right of card */
-.cs-info {
+/* Manga-style halftone dot overlay on gif panel */
+.cs-halftone {
+  position: absolute; inset: 0; pointer-events: none;
+  background-image: radial-gradient(circle, rgba(255,255,255,0.04) 1px, transparent 1px);
+  background-size: 8px 8px;
+  mix-blend-mode: overlay;
+}
+
+/* Top-right panel: card name + tier */
+.cs-panel-name {
+  grid-column: 2;
+  grid-row: 1;
   position: relative;
-  z-index: 4;
-  max-width: clamp(180px, 36vw, 380px);
-  margin-left: clamp(20px, 4vw, 52px);
+  overflow: hidden;
+  background: #0a0a0a;
+  outline: 3px solid rgba(255,255,255,0.12);
+  padding: clamp(16px,2.5vw,28px);
   display: flex;
   flex-direction: column;
-  gap: 14px;
-}
-.cs-tier-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: clamp(0.6em, 1.4vw, 0.78em);
-  letter-spacing: 0.14em;
-  padding: 4px 14px;
-  border-radius: 20px;
-  border: 1px solid var(--cs-color, rgba(255,157,199,0.5));
-  color: var(--cs-color, #ff9dc7);
-  background: rgba(0,0,0,0.4);
-  width: fit-content;
+  justify-content: center;
+  gap: 10px;
   opacity: 0;
-  transform: translateX(-20px);
-  transition: opacity 0.35s ease 0.3s, transform 0.35s ease 0.3s;
 }
-#abilityCutscene.cs-open .cs-tier-badge {
-  opacity: 1;
-  transform: translateX(0);
+#abilityCutscene.cs-open .cs-panel-name {
+  animation: infoSlideUp 0.4s ease 0.35s forwards;
+}
+/* Diagonal accent stripe behind name */
+.cs-panel-name::before {
+  content: '';
+  position: absolute;
+  top: -30px; right: -30px;
+  width: 120px; height: 120px;
+  background: var(--cs-color, #ff9dc7);
+  opacity: 0.07;
+  transform: rotate(45deg);
+  pointer-events: none;
+}
+
+/* Bottom-right panel: desc + stats */
+.cs-panel-desc {
+  grid-column: 2;
+  grid-row: 2;
+  position: relative;
+  overflow: hidden;
+  background: #060606;
+  outline: 3px solid rgba(255,255,255,0.12);
+  padding: clamp(14px,2vw,24px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 12px;
+  opacity: 0;
+}
+#abilityCutscene.cs-open .cs-panel-desc {
+  animation: infoSlideUp 0.4s ease 0.52s forwards;
+}
+
+/* ── Text elements ── */
+.cs-tier-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: clamp(0.55em,1.2vw,0.72em);
+  letter-spacing: 0.18em;
+  padding: 4px 12px;
+  border-radius: 3px;
+  border-left: 3px solid var(--cs-color, #ff9dc7);
+  color: var(--cs-color, #ff9dc7);
+  background: rgba(0,0,0,0.5);
+  width: fit-content;
+  text-transform: uppercase;
 }
 .cs-name {
   font-family: 'Cinzel Decorative', serif;
-  font-size: clamp(1.3em, 3.5vw, 2.4em);
+  font-size: clamp(1.1em,2.8vw,2em);
   font-weight: 900;
-  line-height: 1.15;
+  line-height: 1.1;
   color: #fff;
-  text-shadow: 0 0 30px var(--cs-color, rgba(255,157,199,0.8));
-  opacity: 0;
-  transform: translateX(-28px);
-  transition: opacity 0.4s ease 0.42s, transform 0.4s cubic-bezier(0.34,1.3,0.64,1) 0.42s;
-}
-#abilityCutscene.cs-open .cs-name {
-  opacity: 1;
-  transform: translateX(0);
+  text-shadow: 0 0 20px var(--cs-color,rgba(255,157,199,0.8)),
+               0 2px 0 rgba(0,0,0,0.9);
 }
 .cs-divider {
-  width: 0;
+  width: 100%;
   height: 2px;
-  border-radius: 1px;
-  background: linear-gradient(90deg, var(--cs-color, #ff9dc7), transparent);
-  transition: width 0.5s ease 0.55s;
+  background: linear-gradient(90deg,
+    var(--cs-color, #ff9dc7) 0%,
+    rgba(255,255,255,0.15) 60%,
+    transparent 100%);
 }
-#abilityCutscene.cs-open .cs-divider { width: 100%; }
 .cs-desc {
   font-family: 'Cormorant Garamond', serif;
-  font-size: clamp(0.9em, 2vw, 1.15em);
+  font-size: clamp(0.85em,1.8vw,1.08em);
   font-style: italic;
-  color: rgba(255,255,255,0.75);
-  line-height: 1.65;
-  opacity: 0;
-  transform: translateY(12px);
-  transition: opacity 0.4s ease 0.65s, transform 0.4s ease 0.65s;
+  color: rgba(255,255,255,0.72);
+  line-height: 1.6;
 }
-#abilityCutscene.cs-open .cs-desc {
-  opacity: 1;
-  transform: translateY(0);
-}
-/* Stat pills row */
 .cs-stats {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  opacity: 0;
-  transform: translateY(10px);
-  transition: opacity 0.35s ease 0.8s, transform 0.35s ease 0.8s;
+  display: flex; gap: 6px; flex-wrap: wrap;
 }
-#abilityCutscene.cs-open .cs-stats { opacity: 1; transform: translateY(0); }
 .cs-stat-pill {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 0.65em;
-  padding: 3px 10px;
-  border-radius: 10px;
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.12);
-  color: rgba(255,255,255,0.6);
+  font-size: 0.6em;
+  padding: 3px 9px;
+  border-radius: 3px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.55);
 }
 .cs-stat-pill.highlight {
-  background: rgba(var(--cs-rgb,255,157,199), 0.12);
-  border-color: var(--cs-color, rgba(255,157,199,0.4));
-  color: var(--cs-color, #ff9dc7);
+  background: rgba(0,0,0,0.4);
+  border-color: var(--cs-color,rgba(255,157,199,0.5));
+  color: var(--cs-color,#ff9dc7);
 }
 
-/* ULTIMATE / SECRET banner stamp */
+/* ── Corner stamp (icon + rarity) ── */
+.cs-corner-stamp {
+  position: absolute;
+  bottom: 12px; right: 12px;
+  width: clamp(44px,6vw,64px);
+  height: clamp(44px,6vw,64px);
+  border-radius: 50%;
+  border: 2px solid var(--cs-color, #ff9dc7);
+  background: rgba(0,0,0,0.75);
+  display: flex; align-items: center; justify-content: center;
+  font-size: clamp(1.2em,2.5vw,1.9em);
+  box-shadow: 0 0 20px var(--cs-color,rgba(255,157,199,0.4));
+  z-index: 4;
+  opacity: 0;
+}
+#abilityCutscene.cs-open .cs-corner-stamp {
+  animation: cornerPop 0.5s cubic-bezier(0.34,1.56,0.64,1) 0.65s forwards;
+}
+
+/* ── ULTIMATE / SECRET impact stamp ── */
 .cs-impact {
   position: absolute;
-  z-index: 7;
+  z-index: 20;
   font-family: 'Cinzel Decorative', serif;
-  font-size: clamp(2em, 8vw, 4.5em);
+  font-size: clamp(2em,7vw,4.2em);
   font-weight: 900;
   color: #fff;
-  text-shadow: 0 0 40px var(--cs-color, #f1c40f),
-               0 0 80px var(--cs-color, #f1c40f);
-  top: 50%;
-  left: 50%;
-  transform: translateX(-50%) translateY(-50%);
+  text-shadow:
+    0 0 30px var(--cs-color, #f1c40f),
+    0 0 60px var(--cs-color, #f1c40f),
+    4px 4px 0 rgba(0,0,0,0.8);
+  top: 50%; left: 50%;
+  transform: translate(-50%,-50%);
   pointer-events: none;
   opacity: 0;
   white-space: nowrap;
-  letter-spacing: 0.1em;
-}
-@keyframes csImpact {
-  0%  { opacity:0; transform:translateX(-50%) translateY(-50%) scale(3.2); filter:blur(10px); }
-  45% { opacity:1; transform:translateX(-50%) translateY(-50%) scale(0.92); filter:blur(0); }
-  70% { transform:translateX(-50%) translateY(-50%) scale(1.04); }
-  100%{ opacity:1; transform:translateX(-50%) translateY(-50%) scale(1); }
+  letter-spacing: 0.08em;
+  /* Manga-style double outline */
+  -webkit-text-stroke: 2px rgba(0,0,0,0.6);
 }
 
-/* Speed lines (reused) */
-#cutsceneLines { position:absolute; inset:0; pointer-events:none; overflow:hidden; z-index:3; }
-/* Ambient glow wash */
-#cutsceneGlow  { position:absolute; inset:0; pointer-events:none; opacity:0; transition:opacity 0.4s; z-index:2; mix-blend-mode:screen; }
-/* Scanlines */
-#cutsceneScanlines {
-  position:absolute; inset:0; pointer-events:none; z-index:5;
-  background:repeating-linear-gradient(
-    0deg, transparent, transparent 3px,
-    rgba(0,0,0,0.08) 3px, rgba(0,0,0,0.08) 4px
-  );
-}
-
-/* ── MOBILE: stack vertically ── */
-@media (max-width: 640px) {
+/* ── MOBILE: single column stack ── */
+@media (max-width: 600px) {
   .cs-stage {
-    flex-direction: column;
-    justify-content: center;
-    gap: 20px;
-    padding: 16px 20px;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto;
+    width: 100vw;
+    outline: none;
+    gap: 3px;
+    max-height: 100dvh;
+    overflow-y: auto;
   }
-  .cs-card {
-    width:  clamp(110px, 44vw, 165px);
-    height: clamp(155px, 62vw, 232px);
+  .cs-panel-gif  { grid-column:1; grid-row:1; }
+  .cs-panel-name { grid-column:1; grid-row:2; }
+  .cs-panel-desc { grid-column:1; grid-row:3; }
+  .cs-gif {
+    min-height: clamp(180px, 52vw, 280px);
+    max-height: 48vw;
   }
-  .cs-info {
-    margin-left: 0;
-    max-width: 100%;
-    text-align: center;
-    align-items: center;
-  }
-  .cs-divider {
-    width: 0;
-    align-self: center;
-  }
-  #abilityCutscene.cs-open .cs-divider { width: 60%; }
-  .cs-name {
-    transform: translateY(-16px);
-    transition-property: opacity, transform;
-    font-size: clamp(1.15em, 5.5vw, 1.9em);
-  }
-  #abilityCutscene.cs-open .cs-name { transform: translateY(0); }
-  .cs-tier-badge {
-    transform: translateY(-12px);
-    transition-property: opacity, transform;
-  }
-  #abilityCutscene.cs-open .cs-tier-badge { transform: translateY(0); }
-  .cs-bar-top, .cs-bar-bot { height: clamp(28px, 5vh, 48px); }
+  .cs-name { font-size: clamp(1em, 5vw, 1.5em); }
+  .cs-corner-stamp { width:40px; height:40px; font-size:1.1em; }
 }
 
 /* ══════════════════════════════════════════════
