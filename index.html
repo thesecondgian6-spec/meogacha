@@ -1804,6 +1804,16 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 /* ═══════════════════════════════════════════
    ADMIN CARD MANAGER STYLES
 ═══════════════════════════════════════════ */
+
+/* ── Upload button ── */
+.upload-btn{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:8px;background:rgba(255,157,199,0.1);border:1px solid var(--border);cursor:pointer;font-size:1em;flex-shrink:0;transition:all 0.2s;}
+.upload-btn:hover{background:rgba(255,157,199,0.2);border-color:var(--pink);}
+/* ── Color swatches ── */
+.color-swatch{width:20px;height:20px;border-radius:50%;cursor:pointer;border:2px solid rgba(255,255,255,0.15);flex-shrink:0;transition:transform 0.15s;}
+.color-swatch:hover{transform:scale(1.3);}
+/* ── Admin section labels ── */
+.admin-section-label{font-size:0.72em;font-family:'JetBrains Mono',monospace;letter-spacing:0.12em;text-transform:uppercase;color:var(--pink);margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid rgba(255,157,199,0.15);}
+.admin-hint{font-size:0.85em;color:var(--text-dim);text-transform:none;letter-spacing:0;font-family:'Cormorant Garamond',serif;}
 .admin-label{display:block;font-size:0.78em;color:var(--text-dim);font-family:'JetBrains Mono',monospace;margin-bottom:5px;letter-spacing:0.05em;}
 .admin-input{width:100%;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-family:'Cormorant Garamond',serif;font-size:0.92em;outline:none;transition:border-color 0.2s;box-sizing:border-box;}
 .admin-input:focus{border-color:var(--pink);}
@@ -2364,192 +2374,185 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   <!-- ADMIN PAGE -->
   <div class="page" id="page-admin">
     <div class="section-title">⚙️ Admin Panel</div>
-
-    <!-- TABS -->
     <div style="display:flex;gap:8px;margin-bottom:24px;flex-wrap:wrap;">
       <button class="filter-btn active" id="atab-cards" onclick="switchAdminTab('cards',this)">🎴 Card Manager</button>
-      <button class="filter-btn" id="atab-abilities" onclick="switchAdminTab('abilities',this)">⚔️ Abilities</button>
       <button class="filter-btn" id="atab-tools" onclick="switchAdminTab('tools',this)">🔧 Tools</button>
     </div>
 
     <!-- CARD MANAGER TAB -->
     <div id="adminTab-cards">
-      <!-- Add / Edit Card Form -->
-      <div class="admin-panel" id="cardFormPanel">
-        <h3 id="cardFormTitle">➕ Add New Card</h3>
-        <input type="hidden" id="editCardId_orig"/>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
-          <div>
-            <label class="admin-label">Card ID * <span style="font-size:0.75em;color:var(--text-dim)">(unique, no spaces)</span></label>
-            <input class="admin-input" id="cardForm_id" placeholder="e.g. asta2, mikasa01"/>
+      <div style="display:grid;grid-template-columns:1fr 320px;gap:20px;align-items:start;">
+
+        <!-- FORM COLUMN -->
+        <div>
+          <div class="admin-panel" id="cardFormPanel">
+            <h3 id="cardFormTitle" style="margin-bottom:16px;">➕ Add New Card</h3>
+            <input type="hidden" id="editCardId_orig"/>
+
+            <div class="admin-section-label">Basic Info</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+              <div>
+                <label class="admin-label">Card ID * <span class="admin-hint">(unique, no spaces)</span></label>
+                <input class="admin-input" id="cardForm_id" placeholder="e.g. asta2" oninput="updateCardPreview()"/>
+              </div>
+              <div>
+                <label class="admin-label">Name *</label>
+                <input class="admin-input" id="cardForm_name" placeholder="Character name" oninput="updateCardPreview()"/>
+              </div>
+              <div>
+                <label class="admin-label">Series *</label>
+                <input class="admin-input" id="cardForm_series" placeholder="e.g. Attack on Titan" oninput="updateCardPreview()"/>
+              </div>
+              <div>
+                <label class="admin-label">Rarity</label>
+                <select class="admin-input" id="cardForm_rarity" onchange="updateRarityFields();updateCardPreview()">
+                  <option value="1">⚪ [N] Normal</option>
+                  <option value="2">🟢 [R] Rare</option>
+                  <option value="3">🔵 [SR] Super Rare</option>
+                  <option value="4" selected>🟣 [SSR] Super Super Rare</option>
+                  <option value="5">⭐ [UR] Ultra Rare</option>
+                  <option value="6">💎 [LR] Legendary Rare</option>
+                  <option value="7">❓ [???] Secret</option>
+                </select>
+              </div>
+            </div>
+
+            <div style="margin-bottom:12px;">
+              <label class="admin-label">Embed Color</label>
+              <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                <input type="color" id="cardForm_colorpicker" value="#9b59b6"
+                  oninput="document.getElementById('cardForm_color').value=this.value;updateCardPreview()"
+                  style="width:40px;height:36px;border:none;border-radius:8px;cursor:pointer;padding:2px;background:transparent;flex-shrink:0;"/>
+                <input class="admin-input" id="cardForm_color" placeholder="#9b59b6" value="#9b59b6"
+                  oninput="document.getElementById('cardForm_colorpicker').value=this.value.trim()||'#9b59b6';updateCardPreview()"
+                  style="flex:1;min-width:80px;"/>
+                <div style="display:flex;gap:4px;">
+                  <div onclick="setCardColor('#bdc3c7')" class="color-swatch" style="background:#bdc3c7;" title="N"></div>
+                  <div onclick="setCardColor('#2ecc71')" class="color-swatch" style="background:#2ecc71;" title="R"></div>
+                  <div onclick="setCardColor('#3498db')" class="color-swatch" style="background:#3498db;" title="SR"></div>
+                  <div onclick="setCardColor('#9b59b6')" class="color-swatch" style="background:#9b59b6;" title="SSR"></div>
+                  <div onclick="setCardColor('#f1c40f')" class="color-swatch" style="background:#f1c40f;" title="UR"></div>
+                  <div onclick="setCardColor('#ff6b9d')" class="color-swatch" style="background:#ff6b9d;" title="LR"></div>
+                  <div onclick="setCardColor('#1abc9c')" class="color-swatch" style="background:#1abc9c;" title="???"></div>
+                  <div onclick="setCardColor('#e74c3c')" class="color-swatch" style="background:#e74c3c;" title="red"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="admin-section-label" style="margin-top:14px;">Card Image</div>
+            <div style="margin-bottom:10px;">
+              <label class="admin-label">Main Art / GIF * <span class="admin-hint">(shown on pull screen)</span></label>
+              <div style="display:flex;gap:8px;">
+                <input class="admin-input" id="cardForm_image" placeholder="Paste URL or upload →" style="flex:1" oninput="updateCardPreview()"/>
+                <label class="upload-btn" title="Upload image/GIF from device">
+                  📁
+                  <input type="file" accept="image/*,.gif,video/mp4" style="display:none" onchange="uploadCardFile(this,'cardForm_image','image')"/>
+                </label>
+              </div>
+              <div id="imageUploadProgress" style="display:none;margin-top:4px;font-size:0.78em;color:var(--pink);font-family:'JetBrains Mono',monospace;">⬆️ Uploading...</div>
+            </div>
+            <div style="margin-bottom:14px;">
+              <label class="admin-label">Thumbnail <span class="admin-hint">(optional, smaller image for collection view)</span></label>
+              <div style="display:flex;gap:8px;">
+                <input class="admin-input" id="cardForm_thumbnail" placeholder="Leave blank to use main image" style="flex:1"/>
+                <label class="upload-btn" title="Upload thumbnail">
+                  📁
+                  <input type="file" accept="image/*" style="display:none" onchange="uploadCardFile(this,'cardForm_thumbnail','image')"/>
+                </label>
+              </div>
+            </div>
+
+            <div class="admin-section-label">Story</div>
+            <div style="margin-bottom:10px;">
+              <label class="admin-label">Quote</label>
+              <textarea class="admin-input" id="cardForm_quote" rows="2" placeholder="A memorable quote..." style="resize:vertical;" oninput="updateCardPreview()"></textarea>
+            </div>
+            <div style="margin-bottom:14px;">
+              <label class="admin-label">Description</label>
+              <textarea class="admin-input" id="cardForm_desc" rows="3" placeholder="Describe this character..." style="resize:vertical;"></textarea>
+            </div>
+
+            <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-bottom:6px;">
+              <label style="display:flex;align-items:center;gap:6px;font-size:0.85em;color:var(--text-dim);cursor:pointer;">
+                <input type="checkbox" id="cardForm_enabled" checked/> Enabled in pool
+              </label>
+              <label style="display:flex;align-items:center;gap:6px;font-size:0.85em;color:var(--text-dim);cursor:pointer;">
+                <input type="checkbox" id="cardForm_limited" onchange="toggleLimitedFor()"/> Limited card
+              </label>
+            </div>
+            <div id="limitedForWrap" style="display:none;margin-bottom:10px;">
+              <label class="admin-label">Owner Discord ID</label>
+              <input class="admin-input" id="cardForm_limitedFor" placeholder="Discord ID of the card owner"/>
+            </div>
+
+            <!-- ABILITIES INLINE -->
+            <div class="admin-section-label" style="margin-top:18px;">
+              Abilities <span class="admin-hint">(up to 5 — auto-saved with card)</span>
+            </div>
+            <div id="abilitySlots" style="display:flex;flex-direction:column;gap:10px;margin-bottom:10px;"></div>
+            <button onclick="addAbilitySlot()" id="addAbilitySlotBtn"
+              style="width:100%;padding:8px;border-radius:10px;border:1px dashed rgba(255,157,199,0.3);background:transparent;color:var(--text-dim);cursor:pointer;font-family:'Cormorant Garamond',serif;font-size:0.9em;transition:all 0.2s;"
+              onmouseenter="this.style.borderColor='var(--pink)';this.style.color='var(--pink)'"
+              onmouseleave="this.style.borderColor='rgba(255,157,199,0.3)';this.style.color='var(--text-dim)'">
+              ➕ Add Ability Slot
+            </button>
+
+            <div style="display:flex;gap:10px;margin-top:18px;flex-wrap:wrap;">
+              <button class="admin-btn" id="cardFormSubmitBtn" onclick="submitCardForm()"
+                style="background:linear-gradient(135deg,var(--pink-deep),var(--purple));color:#fff;flex:1;">➕ Add Card</button>
+              <button class="admin-btn" id="cardFormCancelBtn" onclick="cancelCardEdit()" style="display:none;">✕ Cancel</button>
+            </div>
           </div>
-          <div>
-            <label class="admin-label">Name *</label>
-            <input class="admin-input" id="cardForm_name" placeholder="Character name"/>
-          </div>
-          <div>
-            <label class="admin-label">Series *</label>
-            <input class="admin-input" id="cardForm_series" placeholder="e.g. Attack on Titan"/>
-          </div>
-          <div>
-            <label class="admin-label">Rarity</label>
-            <select class="admin-input" id="cardForm_rarity" onchange="updateRarityFields()">
-              <option value="1">[N] Normal</option>
-              <option value="2">[R] Rare</option>
-              <option value="3">[SR] Super Rare</option>
-              <option value="4" selected>[SSR] Super Super Rare</option>
-              <option value="5">[UR] Ultra Rare</option>
-              <option value="6">[LR] Legendary Rare</option>
-              <option value="7">[???] Secret</option>
-            </select>
-          </div>
-          <div>
-            <label class="admin-label">Weight <span style="font-size:0.75em;color:var(--text-dim)">(higher = more common)</span></label>
-            <input class="admin-input" id="cardForm_weight" type="number" value="15" min="1"/>
-          </div>
-          <div>
-            <label class="admin-label">Embed Color (hex)</label>
-            <div style="display:flex;gap:8px;align-items:center;">
-              <input type="color" id="cardForm_colorpicker" value="#9b59b6" oninput="document.getElementById('cardForm_color').value=this.value" style="width:40px;height:36px;border:none;border-radius:6px;cursor:pointer;padding:2px;background:transparent;flex-shrink:0;"/>
-              <input class="admin-input" id="cardForm_color" placeholder="#9b59b6" value="#9b59b6" oninput="document.getElementById('cardForm_colorpicker').value=this.value.trim()||'#9b59b6'"/>
+
+          <!-- CARD LIST -->
+          <div class="admin-panel" style="margin-top:16px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;gap:8px;flex-wrap:wrap;">
+              <h3 style="margin:0;">🃏 Cards <span id="adminCardCount" style="font-size:0.8em;color:var(--text-dim);font-family:'JetBrains Mono',monospace;"></span></h3>
+              <div style="display:flex;gap:6px;">
+                <input class="admin-input" id="cardSearchInput" placeholder="Search..." style="width:130px;padding:6px 10px;font-size:0.85em;" oninput="renderAdminCardList()"/>
+                <button class="admin-btn" onclick="loadAdminCardList()" style="padding:6px 12px;font-size:0.82em;">🔄</button>
+              </div>
+            </div>
+            <div id="adminCardList">
+              <div style="color:var(--text-dim);font-style:italic;font-size:0.85em;text-align:center;padding:20px;">Click 🔄 to load cards</div>
             </div>
           </div>
         </div>
-        <div style="margin-bottom:12px;">
-          <label class="admin-label">Image / GIF URL * <span style="font-size:0.75em;color:var(--text-dim)">(main card art)</span></label>
-          <div style="display:flex;gap:8px;">
-            <input class="admin-input" id="cardForm_image" placeholder="https://media1.tenor.com/..." style="flex:1"/>
-            <button onclick="previewCardImage()" style="padding:6px 14px;background:var(--surface);border:1px solid var(--border);color:var(--pink);border-radius:8px;cursor:pointer;font-size:0.85em;flex-shrink:0;">Preview</button>
-          </div>
-          <img id="cardForm_imgPreview" src="" alt="" style="display:none;width:100px;height:140px;object-fit:cover;border-radius:10px;margin-top:8px;border:2px solid var(--border);" onerror="this.style.display='none'"/>
-        </div>
-        <div style="margin-bottom:12px;">
-          <label class="admin-label">Thumbnail URL <span style="font-size:0.75em;color:var(--text-dim)">(optional small image)</span></label>
-          <input class="admin-input" id="cardForm_thumbnail" placeholder="https://... (leave blank to use main image)"/>
-        </div>
-        <div style="margin-bottom:12px;">
-          <label class="admin-label">Quote</label>
-          <textarea class="admin-input" id="cardForm_quote" rows="2" placeholder="A memorable quote from this character..." style="resize:vertical;"></textarea>
-        </div>
-        <div style="margin-bottom:16px;">
-          <label class="admin-label">Description</label>
-          <textarea class="admin-input" id="cardForm_desc" rows="3" placeholder="Describe this character and what makes them special..." style="resize:vertical;"></textarea>
-        </div>
-        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
-          <label style="display:flex;align-items:center;gap:6px;color:var(--text-dim);font-size:0.85em;cursor:pointer;">
-            <input type="checkbox" id="cardForm_limited" onchange="toggleLimitedFor()"/> Limited card
-          </label>
-          <input class="admin-input" id="cardForm_limitedFor" placeholder="Discord ID of owner" style="display:none;flex:1;max-width:200px;"/>
-          <label style="display:flex;align-items:center;gap:6px;color:var(--text-dim);font-size:0.85em;cursor:pointer;">
-            <input type="checkbox" id="cardForm_enabled" checked/> Enabled in pool
-          </label>
-        </div>
-        <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;">
-          <button class="admin-btn" id="cardFormSubmitBtn" onclick="submitCardForm()" style="background:linear-gradient(135deg,var(--pink-deep),var(--purple));color:#fff;">➕ Add Card</button>
-          <button class="admin-btn" id="cardFormCancelBtn" onclick="cancelCardEdit()" style="display:none;">✕ Cancel Edit</button>
-        </div>
-      </div>
 
-      <!-- Card List -->
-      <div class="admin-panel" style="margin-top:20px;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
-          <h3 style="margin:0;">🃏 All Cards <span id="adminCardCount" style="font-size:0.8em;color:var(--text-dim);font-family:'JetBrains Mono',monospace;"></span></h3>
-          <div style="display:flex;gap:8px;">
-            <input class="admin-input" id="cardSearchInput" placeholder="Search cards..." style="width:160px;padding:6px 10px;font-size:0.85em;" oninput="renderAdminCardList()"/>
-            <button class="admin-btn" onclick="loadAdminCardList()" style="padding:6px 12px;font-size:0.82em;">🔄 Refresh</button>
-          </div>
-        </div>
-        <div id="adminCardList" style="display:flex;flex-direction:column;gap:8px;">
-          <div style="color:var(--text-dim);font-style:italic;font-size:0.85em;text-align:center;padding:20px;">Click Refresh to load cards ʚɞ</div>
-        </div>
-      </div>
-    </div>
+        <!-- PREVIEW COLUMN -->
+        <div style="position:sticky;top:80px;">
+          <div class="admin-section-label" style="text-align:center;margin-bottom:10px;">Live Preview</div>
 
-    <!-- ABILITIES TAB -->
-    <div id="adminTab-abilities" style="display:none;">
-      <div class="admin-panel">
-        <h3>⚔️ Add Ability to Card</h3>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
-          <div>
-            <label class="admin-label">Card ID *</label>
-            <input class="admin-input" id="ab_cardId" placeholder="e.g. deku, asta1"/>
+          <!-- Pull card preview -->
+          <div id="cardPreviewBox" style="background:var(--bg2);border:2px solid var(--border);border-radius:18px;overflow:hidden;transition:border-color 0.3s;">
+            <div style="position:relative;background:#1a0a22;min-height:180px;display:flex;align-items:center;justify-content:center;overflow:hidden;">
+              <img id="previewImg" src="" alt="" style="width:100%;max-height:240px;object-fit:cover;display:none;" onerror="this.style.display='none'"/>
+              <div id="previewImgPlaceholder" style="color:var(--text-dim);font-style:italic;font-size:0.82em;text-align:center;padding:40px 20px;">🎴 Card image<br/>appears here</div>
+            </div>
+            <div id="previewBody" style="padding:14px;">
+              <div id="previewRarityBadge" style="font-family:'JetBrains Mono',monospace;font-size:0.78em;margin-bottom:4px;color:#9b59b6;">🟣 [SSR] ★★★★</div>
+              <div id="previewName" style="font-family:'Cinzel Decorative',serif;font-size:1em;color:#fff;margin-bottom:2px;">Character Name</div>
+              <div id="previewSeries" style="font-style:italic;color:var(--text-dim);font-size:0.82em;margin-bottom:8px;">Series</div>
+              <div id="previewQuote" style="font-style:italic;color:var(--pink-pale);font-size:0.78em;border-left:2px solid var(--pink);padding-left:8px;line-height:1.5;margin-bottom:8px;display:none;"></div>
+              <div id="previewAbilities" style="display:flex;flex-direction:column;gap:3px;"></div>
+            </div>
           </div>
-          <div>
-            <label class="admin-label">Ability ID * <span style="font-size:0.75em;color:var(--text-dim)">(unique per card)</span></label>
-            <input class="admin-input" id="ab_abilityId" placeholder="e.g. ofa, explosion"/>
-          </div>
-          <div>
-            <label class="admin-label">Name *</label>
-            <input class="admin-input" id="ab_name" placeholder="One For All: 100%"/>
-          </div>
-          <div>
-            <label class="admin-label">Icon (emoji)</label>
-            <input class="admin-input" id="ab_icon" placeholder="💥" maxlength="4" value="⚡"/>
-          </div>
-          <div>
-            <label class="admin-label">Tier</label>
-            <select class="admin-input" id="ab_tier">
-              <option value="passive">passive</option>
-              <option value="active" selected>active</option>
-              <option value="ultimate">ultimate</option>
-              <option value="secret">secret</option>
-            </select>
-          </div>
-          <div>
-            <label class="admin-label">Battle Effect</label>
-            <select class="admin-input" id="ab_effect">
-              <option value="burst">burst — big damage</option>
-              <option value="regen">regen — heal per turn</option>
-              <option value="doubleatk">doubleatk — attack ×2</option>
-              <option value="multihit">multihit — hits twice</option>
-              <option value="antimagic">antimagic — ignore shields</option>
-              <option value="hpboost">hpboost — max HP +</option>
-              <option value="defboost">defboost — defense +%</option>
-              <option value="atkboost">atkboost — attack +%</option>
-              <option value="smash">smash — fixed damage</option>
-              <option value="curse">curse — curse damage</option>
-              <option value="pierce">pierce — ignore resist</option>
-              <option value="frenzy">frenzy — multi-slash</option>
-              <option value="demonform">demonform — all stats ×1.5</option>
-              <option value="ofa100">ofa100 — risk/reward</option>
-              <option value="lifeswap">lifeswap — heal+damage</option>
-              <option value="copy">copy — copy last move</option>
-              <option value="dodge">dodge — dodge chance</option>
-              <option value="firstcrit">firstcrit — first hit crits</option>
-              <option value="spellboost">spellboost — spell dmg +%</option>
-              <option value="doubleregen">doubleregen — double healing</option>
-              <option value="voidsteal">voidsteal — stun + steal</option>
-              <option value="curseburst">curseburst — curse + burn</option>
-              <option value="finallegacy">finallegacy — final ×2</option>
-            </select>
-          </div>
-          <div>
-            <label class="admin-label">Value <span style="font-size:0.75em;color:var(--text-dim)">(damage/HP/% amount)</span></label>
-            <input class="admin-input" id="ab_value" type="number" value="30" min="0"/>
-          </div>
-          <div>
-            <label class="admin-label">Sort Order <span style="font-size:0.75em;color:var(--text-dim)">(0 = first)</span></label>
-            <input class="admin-input" id="ab_sort" type="number" value="0" min="0"/>
-          </div>
-        </div>
-        <div style="margin-bottom:16px;">
-          <label class="admin-label">Description *</label>
-          <textarea class="admin-input" id="ab_desc" rows="2" placeholder="What does this ability do? E.g. 'Massive single hit. Deals 40 damage.'" style="resize:vertical;"></textarea>
-        </div>
-        <button class="admin-btn" onclick="submitAbility()" style="background:linear-gradient(135deg,var(--pink-deep),var(--purple));color:#fff;">⚔️ Add Ability</button>
-      </div>
 
-      <!-- Ability List -->
-      <div class="admin-panel" style="margin-top:16px;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;gap:8px;flex-wrap:wrap;">
-          <h3 style="margin:0;">All Abilities</h3>
-          <div style="display:flex;gap:8px;">
-            <input class="admin-input" id="abCardFilter" placeholder="Filter by card ID..." style="width:160px;padding:6px 10px;font-size:0.85em;" oninput="renderAdminAbilityList()"/>
-            <button class="admin-btn" onclick="loadAdminAbilityList()" style="padding:6px 12px;font-size:0.82em;">🔄 Refresh</button>
+          <!-- Collection thumb -->
+          <div style="margin-top:14px;max-width:110px;margin-left:auto;margin-right:auto;">
+            <div class="admin-section-label" style="text-align:center;margin-bottom:6px;font-size:0.72em;">In Collection</div>
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;">
+              <div style="position:relative;aspect-ratio:3/4;background:#1c0f26;display:flex;align-items:center;justify-content:center;overflow:hidden;">
+                <img id="previewThumbImg" src="" alt="" style="width:100%;height:100%;object-fit:cover;display:none;" onerror="this.style.display='none'"/>
+                <span id="previewThumbPlaceholder" style="color:var(--text-dim);font-size:0.7em;">img</span>
+                <span id="previewThumbRarity" style="position:absolute;top:3px;right:3px;background:rgba(0,0,0,0.8);border-radius:3px;padding:1px 4px;font-size:0.58em;font-family:'JetBrains Mono',monospace;color:#9b59b6;">[SSR]</span>
+              </div>
+              <div style="padding:5px 7px;">
+                <div id="previewThumbName" style="font-size:0.68em;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text);">Name</div>
+                <div id="previewThumbStars" style="font-size:0.6em;color:#9b59b6;">★★★★</div>
+              </div>
+            </div>
           </div>
-        </div>
-        <div id="adminAbilityList" style="display:flex;flex-direction:column;gap:6px;">
-          <div style="color:var(--text-dim);font-style:italic;font-size:0.85em;text-align:center;padding:16px;">Click Refresh to load abilities ʚɞ</div>
         </div>
       </div>
     </div>
@@ -2557,27 +2560,27 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
     <!-- TOOLS TAB -->
     <div id="adminTab-tools" style="display:none;">
       <div class="admin-panel">
-        <h3>💰 Coins</h3>
-        <input class="admin-input" id="adminCoinAmt" type="number" placeholder="Amount" value="1000"/>
-        <div class="admin-grid" style="margin-top:10px;">
-          <button class="admin-btn" onclick="adminAddCoins()">➕ Add Coins to Self</button>
-          <button class="admin-btn" onclick="adminSetCoins()">💾 Set Coins to Amount</button>
+        <h3>🪙 My Coins</h3>
+        <input class="admin-input" id="adminCoinAmt" type="number" placeholder="Amount" value="1000" style="margin-bottom:10px;"/>
+        <div class="admin-grid">
+          <button class="admin-btn" onclick="adminAddCoins()">➕ Add to Self</button>
+          <button class="admin-btn" onclick="adminSetCoins()">💾 Set Amount</button>
         </div>
       </div>
-      <div class="admin-panel" style="margin-top:16px;">
+      <div class="admin-panel" style="margin-top:14px;">
+        <h3>👤 Give Coins to Player</h3>
+        <input class="admin-input" id="adminGiveTargetId" placeholder="Discord ID" style="margin-bottom:8px;"/>
+        <input class="admin-input" id="adminGiveAmt" type="number" placeholder="Amount" value="500" style="margin-bottom:8px;"/>
+        <button class="admin-btn" onclick="adminGiveCoinsToPlayer()">💸 Give Coins</button>
+      </div>
+      <div class="admin-panel" style="margin-top:14px;">
         <h3>🃏 Player Tools</h3>
         <div class="admin-grid">
           <button class="admin-btn" onclick="adminUnlockAll()">✨ Unlock All Cards</button>
-          <button class="admin-btn" onclick="adminResetPity()">🔄 Reset Pity</button>
+          <button class="admin-btn" onclick="adminResetPity()">🔄 Reset My Pity</button>
           <button class="admin-btn" onclick="adminMaxXp()">⚡ Max XP All Cards</button>
-          <button class="admin-btn danger" onclick="adminClearCollection()">🗑️ Clear Collection</button>
+          <button class="admin-btn danger" onclick="adminClearCollection()">🗑️ Clear My Collection</button>
         </div>
-      </div>
-      <div class="admin-panel" style="margin-top:16px;">
-        <h3>👤 Give Coins to Player</h3>
-        <input class="admin-input" id="adminGiveTargetId" placeholder="Discord ID of player" style="margin-bottom:8px;"/>
-        <input class="admin-input" id="adminGiveAmt" type="number" placeholder="Amount" value="500" style="margin-bottom:8px;"/>
-        <button class="admin-btn" onclick="adminGiveCoinsToPlayer()">💸 Give Coins</button>
       </div>
     </div>
   </div>
@@ -5824,40 +5827,358 @@ async function playMoveVFX(moveType, whoAttacks, targetWho, dmg, isCrit, color){
 // ══════════════════════════════════════════════
 // ADMIN CARD MANAGER
 // ══════════════════════════════════════════════
+const SUPABASE_STORAGE_URL = SUPABASE_URL + '/storage/v1/object/public/meogacha-assets/';
+const SUPABASE_UPLOAD_URL  = SUPABASE_URL + '/storage/v1/object/meogacha-assets/';
+
+const RARITY_MAP = {
+  1:{color:'#bdc3c7',name:'[N]',  stars:'★',       icon:'⚪'},
+  2:{color:'#2ecc71',name:'[R]',  stars:'★★',      icon:'🟢'},
+  3:{color:'#3498db',name:'[SR]', stars:'★★★',     icon:'🔵'},
+  4:{color:'#9b59b6',name:'[SSR]',stars:'★★★★',    icon:'🟣'},
+  5:{color:'#f1c40f',name:'[UR]', stars:'★★★★★',   icon:'⭐'},
+  6:{color:'#ff6b9d',name:'[LR]', stars:'★★★★★★',  icon:'💎'},
+  7:{color:'#1abc9c',name:'[???]',stars:'???',      icon:'❓'},
+};
+
+const DEFAULT_AB_MEDIA = {
+  burst:      {gif:'https://media1.tenor.com/m/xjNKHsZ7FWsAAAAC/explosion-anime.gif',audio:''},
+  regen:      {gif:'https://media1.tenor.com/m/2cJXL-kXrXEAAAAC/heal-anime.gif',audio:''},
+  doubleatk:  {gif:'https://media1.tenor.com/m/Fr32PkwNfLgAAAAC/demon-asta-asta-black-clover.gif',audio:''},
+  multihit:   {gif:'https://media1.tenor.com/m/x3tOr0N__jUAAAAC/levi-ackerman.gif',audio:''},
+  antimagic:  {gif:'https://media1.tenor.com/m/Fr32PkwNfLgAAAAC/demon-asta-asta-black-clover.gif',audio:''},
+  hpboost:    {gif:'https://media1.tenor.com/m/2cJXL-kXrXEAAAAC/heal-anime.gif',audio:''},
+  defboost:   {gif:'https://media1.tenor.com/m/2cJXL-kXrXEAAAAC/heal-anime.gif',audio:''},
+  atkboost:   {gif:'https://media1.tenor.com/m/xjNKHsZ7FWsAAAAC/explosion-anime.gif',audio:''},
+  smash:      {gif:'https://media1.tenor.com/m/MdB4tFX9gUr6IFBrYP/giphy.gif',audio:''},
+  curse:      {gif:'https://media1.tenor.com/m/kkFa99zQgggAAAAC/yuta-okkotsu-ring.gif',audio:''},
+  pierce:     {gif:'https://media1.tenor.com/m/2yOBBzaVF8cAAAAC/frieren-sousou-no-frieren.gif',audio:''},
+  frenzy:     {gif:'https://media1.tenor.com/m/x3tOr0N__jUAAAAC/levi-ackerman.gif',audio:''},
+  demonform:  {gif:'https://media1.tenor.com/m/Fr32PkwNfLgAAAAC/demon-asta-asta-black-clover.gif',audio:''},
+  ofa100:     {gif:'https://media1.tenor.com/m/MdB4tFX9gUr6IFBrYP/giphy.gif',audio:''},
+  lifeswap:   {gif:'https://media1.tenor.com/m/2yOBBzaVF8cAAAAC/frieren-sousou-no-frieren.gif',audio:''},
+  copy:       {gif:'https://media1.tenor.com/m/kkFa99zQgggAAAAC/yuta-okkotsu-ring.gif',audio:''},
+  dodge:      {gif:'https://media1.tenor.com/m/x3tOr0N__jUAAAAC/levi-ackerman.gif',audio:''},
+  firstcrit:  {gif:'https://media1.tenor.com/m/2yOBBzaVF8cAAAAC/frieren-sousou-no-frieren.gif',audio:''},
+  spellboost: {gif:'https://media1.tenor.com/m/gDAKQvW5AIkAAAAC/anime-megumin.gif',audio:''},
+  doubleregen:{gif:'https://media1.tenor.com/m/2cJXL-kXrXEAAAAC/heal-anime.gif',audio:''},
+  voidsteal:  {gif:'https://media1.tenor.com/m/kkFa99zQgggAAAAC/yuta-okkotsu-ring.gif',audio:''},
+  curseburst: {gif:'https://media1.tenor.com/m/kkFa99zQgggAAAAC/yuta-okkotsu-ring.gif',audio:''},
+  finallegacy:{gif:'https://media1.tenor.com/m/MdB4tFX9gUr6IFBrYP/giphy.gif',audio:''},
+};
 
 function showAdminNav(){
-  const btn=document.getElementById('adminNavBtn');
-  const mbtn=document.getElementById('mnav-admin');
-  if(btn) btn.style.display='';
-  if(mbtn) mbtn.style.display='';
+  ['adminNavBtn','mnav-admin'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='';});
 }
 
 function switchAdminTab(tab, btn){
-  ['cards','abilities','tools'].forEach(t=>{
+  ['cards','tools'].forEach(t=>{
     const el=document.getElementById('adminTab-'+t);
     const b=document.getElementById('atab-'+t);
-    if(el) el.style.display= t===tab?'block':'none';
-    if(b){ b.classList.toggle('active', t===tab); }
+    if(el)el.style.display=t===tab?'block':'none';
+    if(b)b.classList.toggle('active',t===tab);
   });
 }
 
-function updateRarityFields(){
-  const r=parseInt(document.getElementById('cardForm_rarity').value);
-  const wMap={1:100,2:70,3:40,4:15,5:5,6:2,7:1};
-  document.getElementById('cardForm_weight').value=wMap[r]||15;
+// ── Upload file to Supabase Storage ──
+async function uploadToStorage(file, folder){
+  const ext = file.name.split('.').pop();
+  const filename = `${folder}/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
+  const res = await fetch(SUPABASE_UPLOAD_URL + filename, {
+    method:'POST',
+    headers:{
+      'apikey':SUPABASE_KEY,
+      'Authorization':'Bearer '+SUPABASE_KEY,
+      'Content-Type':file.type,
+      'x-upsert':'true',
+    },
+    body:file,
+  });
+  if(!res.ok){const err=await res.text();throw new Error('Upload failed: '+err);}
+  return SUPABASE_STORAGE_URL + filename;
 }
 
-function previewCardImage(){
-  const url=document.getElementById('cardForm_image').value.trim();
-  const img=document.getElementById('cardForm_imgPreview');
-  if(url){img.src=url;img.style.display='';}
-  else img.style.display='none';
+async function uploadCardFile(input, targetFieldId, folder){
+  const file = input.files[0];
+  if(!file) return;
+  const prog = document.getElementById('imageUploadProgress');
+  if(prog) prog.style.display='';
+  try{
+    const url = await uploadToStorage(file, folder||'cards');
+    document.getElementById(targetFieldId).value = url;
+    updateCardPreview();
+    showToast('✅ Uploaded!');
+  }catch(e){
+    showToast('❌ Upload failed: '+e.message);
+  }finally{
+    if(prog) prog.style.display='none';
+    input.value=''; // reset so same file can be re-uploaded
+  }
+}
+
+async function uploadAbilityFile(input, targetId, folder){
+  const file = input.files[0];
+  if(!file) return;
+  const el = document.getElementById(targetId);
+  if(el) el.textContent='⬆️ Uploading...';
+  try{
+    const url = await uploadToStorage(file, folder||'abilities');
+    document.getElementById(targetId.replace('_progress','_url')).value = url;
+    if(el) el.textContent='✅ Done';
+    setTimeout(()=>{if(el)el.textContent='';},2000);
+    showToast('✅ Uploaded!');
+  }catch(e){
+    if(el) el.textContent='❌ Failed';
+    showToast('❌ Upload failed: '+e.message);
+  }finally{
+    input.value='';
+  }
+}
+
+// ── Rarity auto-fill ──
+function updateRarityFields(){
+  const r = parseInt(document.getElementById('cardForm_rarity').value);
+  // Auto-set color to match rarity default
+  const defaultColors={1:'#bdc3c7',2:'#2ecc71',3:'#3498db',4:'#9b59b6',5:'#f1c40f',6:'#ff6b9d',7:'#1abc9c'};
+  document.getElementById('cardForm_color').value=defaultColors[r];
+  document.getElementById('cardForm_colorpicker').value=defaultColors[r];
+}
+
+function setCardColor(hex){
+  document.getElementById('cardForm_color').value=hex;
+  document.getElementById('cardForm_colorpicker').value=hex;
+  updateCardPreview();
 }
 
 function toggleLimitedFor(){
   const cb=document.getElementById('cardForm_limited');
-  const inp=document.getElementById('cardForm_limitedFor');
-  inp.style.display=cb.checked?'':'none';
+  document.getElementById('limitedForWrap').style.display=cb.checked?'':'none';
+}
+
+// ── Live card preview ──
+function updateCardPreview(){
+  const name    = document.getElementById('cardForm_name').value||'Character Name';
+  const series  = document.getElementById('cardForm_series').value||'Series';
+  const quote   = document.getElementById('cardForm_quote').value;
+  const image   = document.getElementById('cardForm_image').value.trim();
+  const color   = document.getElementById('cardForm_color').value.trim()||'#9b59b6';
+  const rarity  = parseInt(document.getElementById('cardForm_rarity').value)||4;
+  const rd      = RARITY_MAP[rarity]||RARITY_MAP[4];
+
+  // Update preview box border
+  const box=document.getElementById('cardPreviewBox');
+  if(box)box.style.borderColor=color+'88';
+
+  // Image
+  const img=document.getElementById('previewImg');
+  const ph=document.getElementById('previewImgPlaceholder');
+  if(image){img.src=image;img.style.display='';if(ph)ph.style.display='none';}
+  else{img.style.display='none';if(ph)ph.style.display='';}
+
+  // Rarity badge
+  const badge=document.getElementById('previewRarityBadge');
+  if(badge){badge.textContent=`${rd.icon} ${rd.name} ${rd.stars}`;badge.style.color=color;}
+
+  // Text
+  const pn=document.getElementById('previewName');if(pn)pn.textContent=name;
+  const ps=document.getElementById('previewSeries');if(ps)ps.textContent=series;
+  const pq=document.getElementById('previewQuote');
+  if(pq){if(quote){pq.textContent=`"${quote}"`;pq.style.display='';}else pq.style.display='none';}
+
+  // Abilities preview
+  const pab=document.getElementById('previewAbilities');
+  if(pab){
+    const slots=document.querySelectorAll('.ab-slot');
+    pab.innerHTML=[...slots].map(s=>{
+      const name=s.querySelector('.ab-name-input')?.value;
+      const icon=s.querySelector('.ab-icon-input')?.value||'⚡';
+      const tier=s.querySelector('.ab-tier-select')?.value||'active';
+      if(!name)return'';
+      const tierColors={passive:'#5dade2',active:'var(--pink)',ultimate:'#f1c40f',secret:'#c39bd3'};
+      return `<div style="display:flex;align-items:center;gap:6px;font-size:0.75em;padding:3px 6px;background:rgba(255,255,255,0.05);border-radius:6px;border-left:2px solid ${tierColors[tier]||'var(--pink)'};">
+        <span>${icon}</span><span style="color:#fff;">${name}</span>
+        <span style="color:${tierColors[tier]};font-size:0.9em;margin-left:auto;font-family:'JetBrains Mono',monospace;">${tier}</span>
+      </div>`;
+    }).join('');
+  }
+
+  // Thumb preview
+  const ti=document.getElementById('previewThumbImg');
+  const tp=document.getElementById('previewThumbPlaceholder');
+  if(ti){if(image){ti.src=image;ti.style.display='';if(tp)tp.style.display='none';}else{ti.style.display='';if(tp)tp.style.display='';}}
+  const tn=document.getElementById('previewThumbName');if(tn)tn.textContent=name;
+  const ts=document.getElementById('previewThumbStars');if(ts){ts.textContent=rd.stars;ts.style.color=color;}
+  const tr=document.getElementById('previewThumbRarity');if(tr){tr.textContent=rd.name;tr.style.color=color;}
+}
+
+// ── Ability slots ──
+let abilitySlotCount=0;
+function addAbilitySlot(prefill){
+  if(abilitySlotCount>=5){showToast('Max 5 abilities per card');return;}
+  const idx=abilitySlotCount++;
+  const data=prefill||{};
+  const el=document.createElement('div');
+  el.className='ab-slot';
+  el.dataset.idx=idx;
+  el.style.cssText='background:rgba(255,157,199,0.04);border:1px solid rgba(255,157,199,0.15);border-radius:12px;padding:12px;position:relative;';
+  el.innerHTML=`
+    <button onclick="removeAbilitySlot(${idx})" title="Remove"
+      style="position:absolute;top:8px;right:8px;background:rgba(231,76,60,0.1);border:1px solid rgba(231,76,60,0.25);color:#e74c3c;width:22px;height:22px;border-radius:50%;cursor:pointer;font-size:0.8em;display:flex;align-items:center;justify-content:center;">✕</button>
+    <div style="display:grid;grid-template-columns:50px 1fr 1fr;gap:8px;margin-bottom:8px;">
+      <div>
+        <label class="admin-label">Icon</label>
+        <input class="admin-input ab-icon-input" value="${data.icon||'⚡'}" maxlength="4" style="text-align:center;font-size:1.2em;" oninput="updateCardPreview()"/>
+      </div>
+      <div>
+        <label class="admin-label">Ability Name *</label>
+        <input class="admin-input ab-name-input" placeholder="e.g. Detroit Smash" value="${data.name||''}" oninput="updateCardPreview()"/>
+      </div>
+      <div>
+        <label class="admin-label">Tier</label>
+        <select class="admin-input ab-tier-select" onchange="updateCardPreview()">
+          <option value="passive" ${(data.tier||'active')==='passive'?'selected':''}>passive</option>
+          <option value="active"  ${(data.tier||'active')==='active' ?'selected':''}>active</option>
+          <option value="ultimate"${(data.tier||'')==='ultimate'?'selected':''}>ultimate</option>
+          <option value="secret"  ${(data.tier||'')==='secret'  ?'selected':''}>secret</option>
+        </select>
+      </div>
+    </div>
+    <div style="margin-bottom:8px;">
+      <label class="admin-label">Description *</label>
+      <textarea class="admin-input ab-desc-input" rows="2" placeholder="What does this ability do?" style="resize:vertical;">${data.desc||data.description||''}</textarea>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 80px;gap:8px;margin-bottom:8px;">
+      <div>
+        <label class="admin-label">Battle Effect</label>
+        <select class="admin-input ab-effect-select" onchange="applyDefaultAbMedia(this,${idx})">
+          ${['burst','regen','doubleatk','multihit','antimagic','hpboost','defboost','atkboost','smash','curse','pierce','frenzy','demonform','ofa100','lifeswap','copy','dodge','firstcrit','spellboost','doubleregen','voidsteal','curseburst','finallegacy'].map(e=>`<option value="${e}" ${(data.battleEffect||data.battle_effect||'')==e?'selected':''}>${e}</option>`).join('')}
+        </select>
+      </div>
+      <div>
+        <label class="admin-label">Value</label>
+        <input class="admin-input ab-value-input" type="number" value="${data.value||30}" min="0" style="text-align:center;"/>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+      <div>
+        <label class="admin-label">Ability GIF <span class="admin-hint">(shown in battle)</span></label>
+        <div style="display:flex;gap:6px;">
+          <input class="admin-input ab-gif-url" id="ab_gif_url_${idx}" placeholder="URL or upload" style="flex:1;font-size:0.8em;" value="${data.gif_url||data.gifUrl||''}"/>
+          <label class="upload-btn" title="Upload GIF">
+            📁<input type="file" accept="image/gif,image/*" style="display:none" onchange="uploadAbilityFile(this,'ab_gif_progress_${idx}')"/>
+          </label>
+        </div>
+        <span id="ab_gif_progress_${idx}" style="font-size:0.72em;color:var(--pink);"></span>
+      </div>
+      <div>
+        <label class="admin-label">Sound Effect <span class="admin-hint">(plays on use)</span></label>
+        <div style="display:flex;gap:6px;">
+          <input class="admin-input ab-audio-url" id="ab_audio_url_${idx}" placeholder="URL or upload" style="flex:1;font-size:0.8em;" value="${data.audio_url||data.audioUrl||''}"/>
+          <label class="upload-btn" title="Upload audio">
+            📁<input type="file" accept="audio/*" style="display:none" onchange="uploadAbilityFile(this,'ab_audio_progress_${idx}')"/>
+          </label>
+        </div>
+        <span id="ab_audio_progress_${idx}" style="font-size:0.72em;color:var(--pink);"></span>
+      </div>
+    </div>
+    <input type="hidden" class="ab-id-input" value="${data.ability_id||data.id||''}"/>
+  `;
+  document.getElementById('abilitySlots').appendChild(el);
+  // Show/hide add button
+  document.getElementById('addAbilitySlotBtn').style.display=abilitySlotCount>=5?'none':'';
+  // Apply default media for selected effect
+  const effectSel=el.querySelector('.ab-effect-select');
+  if(effectSel&&!data.gif_url&&!data.gifUrl) applyDefaultAbMedia(effectSel,idx);
+}
+
+function removeAbilitySlot(idx){
+  const el=document.querySelector(`.ab-slot[data-idx="${idx}"]`);
+  if(el)el.remove();
+  abilitySlotCount=Math.max(0,abilitySlotCount-1);
+  document.getElementById('addAbilitySlotBtn').style.display='';
+  updateCardPreview();
+}
+
+function applyDefaultAbMedia(selectEl, idx){
+  const effect=selectEl.value;
+  const def=DEFAULT_AB_MEDIA[effect];
+  if(!def)return;
+  const gifInput=document.getElementById(`ab_gif_url_${idx}`);
+  const audioInput=document.getElementById(`ab_audio_url_${idx}`);
+  // Only fill if currently empty
+  if(gifInput&&!gifInput.value)gifInput.value=def.gif;
+  if(audioInput&&!audioInput.value&&def.audio)audioInput.value=def.audio;
+}
+
+function collectAbilitySlots(){
+  const slots=document.querySelectorAll('.ab-slot');
+  return [...slots].map((s,i)=>({
+    ability_id: s.querySelector('.ab-id-input')?.value || (s.querySelector('.ab-name-input')?.value||'').toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_]/g,'')||`ability_${i}`,
+    name:       s.querySelector('.ab-name-input')?.value?.trim()||'',
+    icon:       s.querySelector('.ab-icon-input')?.value?.trim()||'⚡',
+    tier:       s.querySelector('.ab-tier-select')?.value||'active',
+    description:s.querySelector('.ab-desc-input')?.value?.trim()||'',
+    battle_effect:s.querySelector('.ab-effect-select')?.value||'burst',
+    value:      parseInt(s.querySelector('.ab-value-input')?.value)||0,
+    gif_url:    s.querySelector('.ab-gif-url')?.value?.trim()||'',
+    audio_url:  s.querySelector('.ab-audio-url')?.value?.trim()||'',
+    sort_order: i,
+  })).filter(a=>a.name);
+}
+
+// ── Submit card ──
+async function submitCardForm(){
+  if(!state.isAdmin){showToast('Admin only');return;}
+  const id=(document.getElementById('cardForm_id').value||'').trim().toLowerCase().replace(/\s+/g,'_');
+  const name=(document.getElementById('cardForm_name').value||'').trim();
+  const series=(document.getElementById('cardForm_series').value||'').trim();
+  const image=(document.getElementById('cardForm_image').value||'').trim();
+  if(!id||!name||!series||!image){showToast('Card ID, Name, Series, and Image are required!');return;}
+
+  const rarity=parseInt(document.getElementById('cardForm_rarity').value)||4;
+  const rd=RARITY_MAP[rarity]||RARITY_MAP[4];
+  const isEdit=!!document.getElementById('editCardId_orig').value;
+
+  const cardData={
+    id, name, rarity,
+    rarity_name:rd.name, rarity_stars:rd.stars, series,
+    quote:      document.getElementById('cardForm_quote').value.trim(),
+    description:document.getElementById('cardForm_desc').value.trim(),
+    image,
+    thumbnail:  document.getElementById('cardForm_thumbnail').value.trim()||image,
+    color:      document.getElementById('cardForm_color').value.trim()||rd.color,
+    weight:     {1:100,2:70,3:40,4:15,5:5,6:2,7:1}[rarity]||15,
+    enabled:    document.getElementById('cardForm_enabled').checked,
+    limited:    document.getElementById('cardForm_limited').checked,
+    limited_for:document.getElementById('cardForm_limitedFor').value.trim(),
+  };
+
+  const btn=document.getElementById('cardFormSubmitBtn');
+  btn.textContent='Saving...';btn.disabled=true;
+  try{
+    const ok=await sb.upsert('cards',cardData);
+    if(!ok)throw new Error('Upsert failed');
+
+    // Save abilities
+    const abilities=collectAbilitySlots();
+    if(abilities.length){
+      // Delete old abilities for this card first
+      await sb.delete('card_abilities',{card_id:id});
+      for(const ab of abilities){
+        await sb.upsert('card_abilities',{...ab,card_id:id});
+      }
+    }
+
+    showToast(isEdit?`✅ "${name}" updated!`:`✅ "${name}" added!`);
+    await loadCards();
+    renderCollection();renderFeaturedShowcase();
+    cancelCardEdit();
+    loadAdminCardList();
+  }catch(e){
+    showToast('❌ Error: '+e.message);
+    console.error(e);
+  }
+  btn.textContent=isEdit?'💾 Save Changes':'➕ Add Card';
+  btn.disabled=false;
 }
 
 function cancelCardEdit(){
@@ -5865,76 +6186,28 @@ function cancelCardEdit(){
   document.getElementById('cardFormSubmitBtn').textContent='➕ Add Card';
   document.getElementById('cardFormCancelBtn').style.display='none';
   document.getElementById('editCardId_orig').value='';
-  // Clear form
   ['id','name','series','quote','desc','image','thumbnail','limitedFor'].forEach(f=>{
-    const el=document.getElementById('cardForm_'+f);
-    if(el) el.value='';
+    const el=document.getElementById('cardForm_'+f);if(el)el.value='';
   });
   document.getElementById('cardForm_rarity').value='4';
-  document.getElementById('cardForm_weight').value='15';
   document.getElementById('cardForm_color').value='#9b59b6';
   document.getElementById('cardForm_colorpicker').value='#9b59b6';
   document.getElementById('cardForm_enabled').checked=true;
   document.getElementById('cardForm_limited').checked=false;
-  document.getElementById('cardForm_limitedFor').style.display='none';
-  document.getElementById('cardForm_imgPreview').style.display='none';
+  document.getElementById('limitedForWrap').style.display='none';
+  // Clear ability slots
+  document.getElementById('abilitySlots').innerHTML='';
+  abilitySlotCount=0;
+  document.getElementById('addAbilitySlotBtn').style.display='';
+  updateCardPreview();
 }
 
-async function submitCardForm(){
-  if(!state.isAdmin){showToast('Admin only');return;}
-  const id = document.getElementById('cardForm_id').value.trim().toLowerCase().replace(/\s+/g,'_');
-  const name = document.getElementById('cardForm_name').value.trim();
-  const series = document.getElementById('cardForm_series').value.trim();
-  const image = document.getElementById('cardForm_image').value.trim();
-  if(!id||!name||!series||!image){showToast('Card ID, Name, Series, and Image are required!');return;}
-  const rarity = parseInt(document.getElementById('cardForm_rarity').value);
-  const rarityMap = {1:['[N]','★'],2:['[R]','★★'],3:['[SR]','★★★'],4:['[SSR]','★★★★'],5:['[UR]','★★★★★'],6:['[LR]','★★★★★★'],7:['[???]','???']};
-  const [rarityName, rarityStars] = rarityMap[rarity];
-  const isEdit = !!document.getElementById('editCardId_orig').value;
-  const origId = document.getElementById('editCardId_orig').value || id;
-
-  const cardData = {
-    id,
-    name,
-    rarity,
-    rarity_name:  rarityName,
-    rarity_stars: rarityStars,
-    series,
-    quote:       document.getElementById('cardForm_quote').value.trim(),
-    description: document.getElementById('cardForm_desc').value.trim(),
-    image,
-    thumbnail:   document.getElementById('cardForm_thumbnail').value.trim() || image,
-    color:       document.getElementById('cardForm_color').value.trim() || '#bdc3c7',
-    weight:      parseInt(document.getElementById('cardForm_weight').value)||15,
-    enabled:     document.getElementById('cardForm_enabled').checked,
-    limited:     document.getElementById('cardForm_limited').checked,
-    limited_for: document.getElementById('cardForm_limitedFor').value.trim(),
-  };
-
-  const btn=document.getElementById('cardFormSubmitBtn');
-  btn.textContent='Saving...';btn.disabled=true;
-  try{
-    const ok = await sb.upsert('cards', cardData);
-    if(ok){
-      showToast(isEdit?`✅ Card "${name}" updated!`:`✅ Card "${name}" added!`);
-      await loadCards();
-      renderCollection();renderFeaturedShowcase();
-      cancelCardEdit();
-      loadAdminCardList();
-    } else {
-      showToast('❌ Failed to save card. Check console.');
-    }
-  }catch(e){showToast('❌ Error: '+e.message);}
-  btn.textContent=isEdit?'💾 Save Changes':'➕ Add Card';
-  btn.disabled=false;
-}
-
-let _adminCardCache = [];
+// ── Card list ──
+let _adminCardCache=[];
 async function loadAdminCardList(){
   const el=document.getElementById('adminCardList');
   el.innerHTML='<div style="color:var(--text-dim);font-style:italic;text-align:center;padding:16px;">Loading...</div>';
-  const rows = await sb.getAll('cards');
-  _adminCardCache = rows||[];
+  _adminCardCache=await sb.getAll('cards')||[];
   document.getElementById('adminCardCount').textContent='('+_adminCardCache.length+')';
   renderAdminCardList();
 }
@@ -5942,14 +6215,12 @@ async function loadAdminCardList(){
 function renderAdminCardList(){
   const el=document.getElementById('adminCardList');
   const q=(document.getElementById('cardSearchInput')?.value||'').toLowerCase();
-  let list = _adminCardCache;
-  if(q) list = list.filter(c=>c.name.toLowerCase().includes(q)||c.id.toLowerCase().includes(q)||c.series.toLowerCase().includes(q));
-  // Sort by rarity desc then name
-  list = [...list].sort((a,b)=>b.rarity-a.rarity||a.name.localeCompare(b.name));
+  let list=_adminCardCache;
+  if(q)list=list.filter(c=>c.name.toLowerCase().includes(q)||c.id.toLowerCase().includes(q)||c.series.toLowerCase().includes(q));
+  list=[...list].sort((a,b)=>b.rarity-a.rarity||a.name.localeCompare(b.name));
   if(!list.length){el.innerHTML='<div style="color:var(--text-dim);font-style:italic;text-align:center;padding:16px;">No cards found</div>';return;}
-  const RARITY_COLORS_LOCAL={1:'#bdc3c7',2:'#2ecc71',3:'#3498db',4:'#9b59b6',5:'#f1c40f',6:'#ff6b9d',7:'#1abc9c'};
   el.innerHTML=list.map(c=>{
-    const color=RARITY_COLORS_LOCAL[c.rarity]||'#bdc3c7';
+    const color=RARITY_MAP[c.rarity]?.color||'#bdc3c7';
     const enabledStyle=c.enabled
       ?'background:rgba(46,204,113,0.1);border-color:rgba(46,204,113,0.4);color:#2ecc71;'
       :'background:rgba(231,76,60,0.08);border-color:rgba(231,76,60,0.3);color:#e74c3c;';
@@ -5957,23 +6228,23 @@ function renderAdminCardList(){
       <img class="admin-card-thumb" src="${c.image}" alt="${c.name}" onerror="this.style.background='#1c0f26'" style="border-color:${color}55;"/>
       <div class="admin-card-info">
         <div class="admin-card-name">${c.name}</div>
-        <div class="admin-card-meta"><span style="color:${color}">${c.rarity_name}</span> · ${c.series} · ID: ${c.id}</div>
-        <div class="admin-card-meta">Weight: ${c.weight} ${c.limited?'· 💎 Limited':''}${c.limited_for?' for '+c.limited_for:''}</div>
+        <div class="admin-card-meta"><span style="color:${color}">${c.rarity_name} ${c.rarity_stars}</span> · ${c.series}</div>
+        <div class="admin-card-meta" style="font-family:'JetBrains Mono',monospace;font-size:0.72em;">id: ${c.id}${c.limited?' · 💎 Limited':''}</div>
       </div>
       <div class="admin-card-actions">
-        <button class="admin-toggle-btn" style="${enabledStyle}" onclick="adminToggleCard('${c.id}',${!c.enabled})">${c.enabled?'✅ On':'❌ Off'}</button>
-        <button class="admin-action-btn" onclick="editCard('${c.id}')">✏️ Edit</button>
-        <button class="admin-action-btn danger" onclick="deleteCard('${c.id}','${c.name.replace(/'/g,"\'")}')">🗑️</button>
+        <button class="admin-toggle-btn" style="${enabledStyle}" onclick="adminToggleCard('${c.id}',${!c.enabled})">${c.enabled?'✅':'❌'}</button>
+        <button class="admin-action-btn" onclick="editCard('${c.id}')">✏️</button>
+        <button class="admin-action-btn danger" onclick="deleteCard('${c.id}','${c.name.replace(/'/g,"\\'")}')">🗑️</button>
       </div>
     </div>`;
   }).join('');
 }
 
-function editCard(cardId){
-  const c = _adminCardCache.find(x=>x.id===cardId);
+async function editCard(cardId){
+  const c=_adminCardCache.find(x=>x.id===cardId);
   if(!c)return;
-  switchAdminTab('cards', document.getElementById('atab-cards'));
-  document.getElementById('cardFormTitle').textContent='✏️ Edit Card — '+c.name;
+  switchAdminTab('cards',document.getElementById('atab-cards'));
+  document.getElementById('cardFormTitle').textContent='✏️ Edit — '+c.name;
   document.getElementById('cardFormSubmitBtn').textContent='💾 Save Changes';
   document.getElementById('cardFormCancelBtn').style.display='';
   document.getElementById('editCardId_orig').value=c.id;
@@ -5981,7 +6252,6 @@ function editCard(cardId){
   document.getElementById('cardForm_name').value=c.name;
   document.getElementById('cardForm_series').value=c.series;
   document.getElementById('cardForm_rarity').value=c.rarity;
-  document.getElementById('cardForm_weight').value=c.weight;
   document.getElementById('cardForm_color').value=c.color;
   document.getElementById('cardForm_colorpicker').value=c.color;
   document.getElementById('cardForm_image').value=c.image;
@@ -5991,29 +6261,33 @@ function editCard(cardId){
   document.getElementById('cardForm_enabled').checked=c.enabled;
   document.getElementById('cardForm_limited').checked=c.limited;
   document.getElementById('cardForm_limitedFor').value=c.limited_for||'';
-  document.getElementById('cardForm_limitedFor').style.display=c.limited?'':'none';
-  const imgPrev=document.getElementById('cardForm_imgPreview');
-  imgPrev.src=c.image;imgPrev.style.display='';
-  // Scroll to form
+  document.getElementById('limitedForWrap').style.display=c.limited?'':'none';
+
+  // Load existing abilities
+  document.getElementById('abilitySlots').innerHTML='';
+  abilitySlotCount=0;
+  document.getElementById('addAbilitySlotBtn').style.display='';
+  const abs=await sb.get('card_abilities',{card_id:cardId});
+  if(abs&&abs.length){
+    abs.sort((a,b)=>(a.sort_order||0)-(b.sort_order||0));
+    abs.forEach(ab=>addAbilitySlot(ab));
+  }
+  updateCardPreview();
   document.getElementById('cardFormPanel').scrollIntoView({behavior:'smooth'});
 }
 
-async function deleteCard(cardId, cardName){
+async function deleteCard(cardId,cardName){
   if(!state.isAdmin)return;
   if(!confirm(`Delete "${cardName}" (${cardId})? This cannot be undone.`))return;
-  const ok = await sb.delete('cards',{id:cardId});
-  if(ok){
-    showToast(`🗑️ "${cardName}" deleted`);
-    await loadCards();renderCollection();renderFeaturedShowcase();
-    loadAdminCardList();
-  } else {
-    showToast('❌ Delete failed');
-  }
+  await sb.delete('card_abilities',{card_id:cardId});
+  const ok=await sb.delete('cards',{id:cardId});
+  if(ok){showToast(`🗑️ "${cardName}" deleted`);await loadCards();renderCollection();renderFeaturedShowcase();loadAdminCardList();}
+  else showToast('❌ Delete failed');
 }
 
-async function adminToggleCard(cardId, newEnabled){
+async function adminToggleCard(cardId,newEnabled){
   if(!state.isAdmin)return;
-  const ok = await sb.update('cards',{enabled:newEnabled},{id:cardId});
+  const ok=await sb.update('cards',{enabled:newEnabled},{id:cardId});
   if(ok){
     showToast(newEnabled?'✅ Card enabled':'❌ Card disabled');
     await loadCards();
@@ -6023,75 +6297,7 @@ async function adminToggleCard(cardId, newEnabled){
   }
 }
 
-let _adminAbCache = [];
-async function loadAdminAbilityList(){
-  const el=document.getElementById('adminAbilityList');
-  el.innerHTML='<div style="color:var(--text-dim);font-style:italic;text-align:center;padding:12px;">Loading...</div>';
-  _adminAbCache = await sb.getAll('card_abilities') || [];
-  renderAdminAbilityList();
-}
-
-function renderAdminAbilityList(){
-  const el=document.getElementById('adminAbilityList');
-  const q=(document.getElementById('abCardFilter')?.value||'').toLowerCase();
-  let list = q ? _adminAbCache.filter(a=>a.card_id.includes(q)) : _adminAbCache;
-  list = [...list].sort((a,b)=>a.card_id.localeCompare(b.card_id)||(a.sort_order-b.sort_order));
-  if(!list.length){el.innerHTML='<div style="color:var(--text-dim);font-style:italic;text-align:center;padding:12px;">No abilities found</div>';return;}
-  const tierStyles={passive:'color:#5dade2;border-color:#5dade266;',active:'color:var(--pink);border-color:var(--pink-glow);',ultimate:'color:#f1c40f;border-color:rgba(241,196,15,0.4);',secret:'color:#c39bd3;border-color:rgba(195,155,211,0.4);'};
-  el.innerHTML=list.map(ab=>`
-    <div class="admin-ab-row">
-      <span style="font-size:1.2em;">${ab.icon}</span>
-      <div style="flex:1;min-width:0;">
-        <div style="font-weight:600;font-size:0.88em;">${ab.name} <span style="color:var(--text-dim);font-size:0.85em;">· ${ab.card_id}</span></div>
-        <div style="font-size:0.75em;color:var(--text-dim);margin-top:1px;">${ab.description||''}</div>
-      </div>
-      <span class="admin-ab-tier" style="${tierStyles[ab.tier]||''}">${ab.tier}</span>
-      <button class="admin-action-btn danger" onclick="deleteAbility('${ab.id}','${(ab.name||'').replace(/'/g,"\'")}')">🗑️</button>
-    </div>`).join('');
-}
-
-async function submitAbility(){
-  if(!state.isAdmin){showToast('Admin only');return;}
-  const cardId = document.getElementById('ab_cardId').value.trim().toLowerCase();
-  const abilityId = document.getElementById('ab_abilityId').value.trim().toLowerCase();
-  const name = document.getElementById('ab_name').value.trim();
-  const desc = document.getElementById('ab_desc').value.trim();
-  if(!cardId||!abilityId||!name||!desc){showToast('Card ID, Ability ID, Name, and Description are required!');return;}
-  const data={
-    card_id:cardId, ability_id:abilityId, name,
-    icon:document.getElementById('ab_icon').value.trim()||'⚡',
-    tier:document.getElementById('ab_tier').value,
-    description:desc,
-    battle_effect:document.getElementById('ab_effect').value,
-    value:parseInt(document.getElementById('ab_value').value)||0,
-    sort_order:parseInt(document.getElementById('ab_sort').value)||0,
-  };
-  const ok = await sb.upsert('card_abilities', data);
-  if(ok){
-    showToast(`✅ Ability "${name}" added to ${cardId}!`);
-    // Reload abilities
-    const abRows = await sb.getAll('card_abilities');
-    if(abRows){
-      window.DB_ABILITIES={};
-      abRows.forEach(ab=>{
-        if(!window.DB_ABILITIES[ab.card_id])window.DB_ABILITIES[ab.card_id]=[];
-        window.DB_ABILITIES[ab.card_id].push({id:ab.ability_id,name:ab.name,icon:ab.icon,tier:ab.tier,type:ab.tier,desc:ab.description,battleEffect:ab.battle_effect,value:ab.value});
-      });
-    }
-    loadAdminAbilityList();
-  } else {
-    showToast('❌ Failed to save ability');
-  }
-}
-
-async function deleteAbility(uuid, name){
-  if(!state.isAdmin)return;
-  if(!confirm(`Delete ability "${name}"?`))return;
-  const ok = await sb.delete('card_abilities',{id:uuid});
-  if(ok){showToast(`🗑️ Ability deleted`);loadAdminAbilityList();}
-  else showToast('❌ Delete failed');
-}
-
+// ── Tools ──
 async function adminGiveCoinsToPlayer(){
   if(!state.isAdmin){showToast('Admin only');return;}
   const tid=(document.getElementById('adminGiveTargetId')?.value||'').trim();
