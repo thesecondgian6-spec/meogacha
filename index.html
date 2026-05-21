@@ -981,21 +981,285 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 
 /* ══ CUTSCENE ENGINE ══ */
 @keyframes lineShot {
-  0%{opacity:0;transform:rotate(var(--a,0deg)) scaleX(0);}
-  30%{opacity:0.8;}
-  100%{opacity:0;transform:rotate(var(--a,0deg)) scaleX(1.5);}
+  0%  { opacity:0; transform:rotate(var(--a,0deg)) scaleX(0); }
+  30% { opacity:0.7; }
+  100%{ opacity:0; transform:rotate(var(--a,0deg)) scaleX(1.6); }
 }
 @keyframes impactSlam {
-  0%{transform:translateX(-50%) scale(3);opacity:0;}
-  60%{transform:translateX(-50%) scale(0.9);opacity:1;}
-  100%{transform:translateX(-50%) scale(1);opacity:1;}
+  0%  { transform:translateX(-50%) scale(3.5); opacity:0; filter:blur(8px); }
+  55% { transform:translateX(-50%) scale(0.88); opacity:1; filter:blur(0); }
+  75% { transform:translateX(-50%) scale(1.05); }
+  100%{ transform:translateX(-50%) scale(1); opacity:1; }
 }
 @keyframes cutsceneShake {
-  0%,100%{transform:none;}
-  20%{transform:translate(-12px,4px) rotate(-1deg);}
-  40%{transform:translate(10px,-6px) rotate(1deg);}
-  60%{transform:translate(-8px,3px) rotate(-0.5deg);}
-  80%{transform:translate(6px,-2px) rotate(0.5deg);}
+  0%,100%{ transform:none; }
+  15%{ transform:translate(-10px, 5px) rotate(-1.2deg); }
+  30%{ transform:translate( 9px,-7px) rotate( 1.2deg); }
+  45%{ transform:translate(-7px, 4px) rotate(-0.8deg); }
+  60%{ transform:translate( 6px,-3px) rotate( 0.6deg); }
+  75%{ transform:translate(-4px, 2px) rotate(-0.3deg); }
+}
+
+/* ── Cutscene modal ── */
+#abilityCutscene {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.94);
+  backdrop-filter: blur(4px);
+}
+/* Stage: centred card + side panels */
+.cs-stage {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  padding: 24px;
+}
+/* Framing bars — anime letterbox */
+.cs-bar-top, .cs-bar-bot {
+  position: absolute;
+  left: 0; right: 0;
+  height: clamp(40px, 8vh, 70px);
+  background: #000;
+  z-index: 6;
+  transition: transform 0.4s cubic-bezier(0.77,0,0.18,1);
+}
+.cs-bar-top { top: 0; transform: translateY(-100%); }
+.cs-bar-bot { bottom: 0; transform: translateY(100%); }
+#abilityCutscene.cs-open .cs-bar-top { transform: translateY(0); }
+#abilityCutscene.cs-open .cs-bar-bot { transform: translateY(0); }
+
+/* Card container */
+.cs-card-wrap {
+  position: relative;
+  z-index: 4;
+  flex-shrink: 0;
+  /* starts small and off-screen, animates in */
+  transform: scale(0.55) translateY(30px);
+  opacity: 0;
+  transition: transform 0.55s cubic-bezier(0.34,1.46,0.64,1),
+              opacity   0.4s ease;
+}
+#abilityCutscene.cs-open .cs-card-wrap {
+  transform: scale(1) translateY(0);
+  opacity: 1;
+}
+.cs-card {
+  width:  clamp(140px, 22vw, 220px);
+  height: clamp(200px, 31vw, 310px);
+  object-fit: cover;
+  border-radius: 18px;
+  display: block;
+  border: 3px solid rgba(255,255,255,0.25);
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.08),
+    0 8px 40px rgba(0,0,0,0.7),
+    0 0 60px var(--cs-color, rgba(255,157,199,0.4));
+}
+/* Holographic shimmer over the card */
+.cs-card-sheen {
+  position: absolute;
+  inset: 0;
+  border-radius: 18px;
+  background: linear-gradient(
+    135deg,
+    transparent 30%,
+    rgba(255,255,255,0.08) 50%,
+    transparent 70%
+  );
+  background-size: 300% 300%;
+  animation: sheenSlide 2s linear infinite;
+  pointer-events: none;
+}
+@keyframes sheenSlide {
+  0%   { background-position: 200% 200%; }
+  100% { background-position: -100% -100%; }
+}
+/* Outer glow halo */
+.cs-card-halo {
+  position: absolute;
+  inset: -18px;
+  border-radius: 30px;
+  filter: blur(22px);
+  background: var(--cs-color, rgba(255,157,199,0.5));
+  opacity: 0;
+  z-index: -1;
+  transition: opacity 0.5s ease 0.15s;
+}
+#abilityCutscene.cs-open .cs-card-halo { opacity: 0.7; }
+
+/* Info panel — right of card */
+.cs-info {
+  position: relative;
+  z-index: 4;
+  max-width: clamp(180px, 36vw, 380px);
+  margin-left: clamp(20px, 4vw, 52px);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.cs-tier-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: clamp(0.6em, 1.4vw, 0.78em);
+  letter-spacing: 0.14em;
+  padding: 4px 14px;
+  border-radius: 20px;
+  border: 1px solid var(--cs-color, rgba(255,157,199,0.5));
+  color: var(--cs-color, #ff9dc7);
+  background: rgba(0,0,0,0.4);
+  width: fit-content;
+  opacity: 0;
+  transform: translateX(-20px);
+  transition: opacity 0.35s ease 0.3s, transform 0.35s ease 0.3s;
+}
+#abilityCutscene.cs-open .cs-tier-badge {
+  opacity: 1;
+  transform: translateX(0);
+}
+.cs-name {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: clamp(1.3em, 3.5vw, 2.4em);
+  font-weight: 900;
+  line-height: 1.15;
+  color: #fff;
+  text-shadow: 0 0 30px var(--cs-color, rgba(255,157,199,0.8));
+  opacity: 0;
+  transform: translateX(-28px);
+  transition: opacity 0.4s ease 0.42s, transform 0.4s cubic-bezier(0.34,1.3,0.64,1) 0.42s;
+}
+#abilityCutscene.cs-open .cs-name {
+  opacity: 1;
+  transform: translateX(0);
+}
+.cs-divider {
+  width: 0;
+  height: 2px;
+  border-radius: 1px;
+  background: linear-gradient(90deg, var(--cs-color, #ff9dc7), transparent);
+  transition: width 0.5s ease 0.55s;
+}
+#abilityCutscene.cs-open .cs-divider { width: 100%; }
+.cs-desc {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(0.9em, 2vw, 1.15em);
+  font-style: italic;
+  color: rgba(255,255,255,0.75);
+  line-height: 1.65;
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.4s ease 0.65s, transform 0.4s ease 0.65s;
+}
+#abilityCutscene.cs-open .cs-desc {
+  opacity: 1;
+  transform: translateY(0);
+}
+/* Stat pills row */
+.cs-stats {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.35s ease 0.8s, transform 0.35s ease 0.8s;
+}
+#abilityCutscene.cs-open .cs-stats { opacity: 1; transform: translateY(0); }
+.cs-stat-pill {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65em;
+  padding: 3px 10px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: rgba(255,255,255,0.6);
+}
+.cs-stat-pill.highlight {
+  background: rgba(var(--cs-rgb,255,157,199), 0.12);
+  border-color: var(--cs-color, rgba(255,157,199,0.4));
+  color: var(--cs-color, #ff9dc7);
+}
+
+/* ULTIMATE / SECRET banner stamp */
+.cs-impact {
+  position: absolute;
+  z-index: 7;
+  font-family: 'Cinzel Decorative', serif;
+  font-size: clamp(2em, 8vw, 4.5em);
+  font-weight: 900;
+  color: #fff;
+  text-shadow: 0 0 40px var(--cs-color, #f1c40f),
+               0 0 80px var(--cs-color, #f1c40f);
+  top: 50%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-50%);
+  pointer-events: none;
+  opacity: 0;
+  white-space: nowrap;
+  letter-spacing: 0.1em;
+}
+@keyframes csImpact {
+  0%  { opacity:0; transform:translateX(-50%) translateY(-50%) scale(3.2); filter:blur(10px); }
+  45% { opacity:1; transform:translateX(-50%) translateY(-50%) scale(0.92); filter:blur(0); }
+  70% { transform:translateX(-50%) translateY(-50%) scale(1.04); }
+  100%{ opacity:1; transform:translateX(-50%) translateY(-50%) scale(1); }
+}
+
+/* Speed lines (reused) */
+#cutsceneLines { position:absolute; inset:0; pointer-events:none; overflow:hidden; z-index:3; }
+/* Ambient glow wash */
+#cutsceneGlow  { position:absolute; inset:0; pointer-events:none; opacity:0; transition:opacity 0.4s; z-index:2; mix-blend-mode:screen; }
+/* Scanlines */
+#cutsceneScanlines {
+  position:absolute; inset:0; pointer-events:none; z-index:5;
+  background:repeating-linear-gradient(
+    0deg, transparent, transparent 3px,
+    rgba(0,0,0,0.08) 3px, rgba(0,0,0,0.08) 4px
+  );
+}
+
+/* ── MOBILE: stack vertically ── */
+@media (max-width: 640px) {
+  .cs-stage {
+    flex-direction: column;
+    justify-content: center;
+    gap: 20px;
+    padding: 16px 20px;
+  }
+  .cs-card {
+    width:  clamp(110px, 44vw, 165px);
+    height: clamp(155px, 62vw, 232px);
+  }
+  .cs-info {
+    margin-left: 0;
+    max-width: 100%;
+    text-align: center;
+    align-items: center;
+  }
+  .cs-divider {
+    width: 0;
+    align-self: center;
+  }
+  #abilityCutscene.cs-open .cs-divider { width: 60%; }
+  .cs-name {
+    transform: translateY(-16px);
+    transition-property: opacity, transform;
+    font-size: clamp(1.15em, 5.5vw, 1.9em);
+  }
+  #abilityCutscene.cs-open .cs-name { transform: translateY(0); }
+  .cs-tier-badge {
+    transform: translateY(-12px);
+    transition-property: opacity, transform;
+  }
+  #abilityCutscene.cs-open .cs-tier-badge { transform: translateY(0); }
+  .cs-bar-top, .cs-bar-bot { height: clamp(28px, 5vh, 48px); }
 }
 
 /* ══════════════════════════════════════════════
@@ -3211,53 +3475,55 @@ function spawnCutsceneLines(color){
 function detectGifDuration(url){
   return new Promise(resolve=>{
     const timeout = setTimeout(()=>resolve(0), 4000);
-    fetch(url, {mode:'cors',cache:'force-cache'})
+    fetch(url, {mode:'cors', cache:'force-cache'})
       .then(r=>r.arrayBuffer())
       .then(buf=>{
         clearTimeout(timeout);
         const data = new Uint8Array(buf);
-        // Verify GIF signature
         if(data[0]!==0x47||data[1]!==0x49||data[2]!==0x46){ resolve(0); return; }
-        let totalDelay = 0; // centiseconds
+        let totalDelay = 0;
         const flags = data[10];
         const hasGct = (flags >> 7) & 1;
         const gctSize = flags & 0x07;
         let i = 13 + (hasGct ? 3 * Math.pow(2, gctSize + 1) : 0);
         while(i < data.length - 1){
-          if(data[i] === 0x3B) break; // GIF trailer
-          if(data[i] === 0x21){ // Extension introducer
+          if(data[i] === 0x3B) break;
+          if(data[i] === 0x21){
             i++;
             const label = data[i++];
-            if(label === 0xF9 && data[i] === 4){ // Graphic Control Extension
-              i++; // block size
-              i++; // packed fields
+            if(label === 0xF9 && data[i] === 4){
+              i++;
+              i++;
               const delay = data[i] | (data[i+1] << 8);
-              totalDelay += (delay === 0 ? 10 : delay); // 0-delay GIFs default ~10cs
-              i += 2;
-              i++; // transparent color index
-              i++; // block terminator (0x00)
+              totalDelay += (delay === 0 ? 10 : delay);
+              i += 2; i++; i++;
             } else {
-              // Skip unknown extension sub-blocks
               let sz = data[i++];
               while(sz > 0 && i < data.length){ i += sz; sz = data[i++]; }
             }
-          } else if(data[i] === 0x2C){ // Image descriptor
+          } else if(data[i] === 0x2C){
             i++;
             const localFlags = data[i + 8];
             const hasLct = (localFlags >> 7) & 1;
             const lctSize = localFlags & 0x07;
             i += 9 + (hasLct ? 3 * Math.pow(2, lctSize + 1) : 0);
-            i++; // LZW min code size
+            i++;
             let sz = data[i++];
             while(sz > 0 && i < data.length){ i += sz; sz = data[i++]; }
-          } else {
-            i++;
-          }
+          } else { i++; }
         }
-        resolve(totalDelay > 0 ? totalDelay * 10 : 0); // centiseconds → ms
+        resolve(totalDelay > 0 ? totalDelay * 10 : 0);
       })
       .catch(()=>{ clearTimeout(timeout); resolve(0); });
   });
+}
+
+// Helper: convert hex color to R,G,B for CSS custom property
+function hexToRgb(hex){
+  const r = parseInt(hex.slice(1,3),16);
+  const g = parseInt(hex.slice(3,5),16);
+  const b = parseInt(hex.slice(5,7),16);
+  return isNaN(r) ? '255,157,199' : `${r},${g},${b}`;
 }
 
 async function playAbilityCutscene(cardId, rarity, abilityId){
@@ -3270,112 +3536,129 @@ async function playAbilityCutscene(cardId, rarity, abilityId){
   const tierColors = {
     passive:'#5dade2', active:'#ff9dc7', ultimate:'#f1c40f', secret:'#c39bd3'
   };
-  const color = tierColors[ability.tier] || '#fff';
-  const rarityColor = RARITY_COLORS[rarity] || '#fff';
-  // Tier fallback durations (used if GIF detection fails or no custom GIF)
+  const tierLabels = {
+    passive:'◈ PASSIVE', active:'◆ ACTIVE', ultimate:'✦ ULTIMATE', secret:'??? SECRET'
+  };
+  const color      = tierColors[ability.tier] || '#fff';
+  const rarityColor= RARITY_COLORS[rarity] || '#fff';
+  const tierLabel  = tierLabels[ability.tier] || ability.tier.toUpperCase();
   const tierDuration = ability.tier==='ultimate'?3000 : ability.tier==='secret'?3500 : 2200;
 
   const gifSrc = (ability.gifUrl && ability.gifUrl.trim()) ? ability.gifUrl.trim() : card.image;
 
-  // Kick off GIF duration detection in parallel while we set up the overlay
+  // Start GIF duration detection in parallel
   const gifDurationPromise = detectGifDuration(gifSrc);
 
-  // Show overlay
-  const overlay=document.getElementById('abilityCutscene');
-  overlay.style.opacity='0';
-  overlay.style.display='block';
-  overlay.style.transition='opacity 0.35s ease';
+  // ── Grab elements ──
+  const overlay  = document.getElementById('abilityCutscene');
+  const img      = document.getElementById('cutsceneCardImg');
+  const halo     = document.getElementById('cutsceneCardGlow');
+  const glow     = document.getElementById('cutsceneGlow');
+  const nameEl   = document.getElementById('cutsceneAbilityName');
+  const descEl   = document.getElementById('cutsceneAbilityDesc');
+  const tierEl   = document.getElementById('cutsceneTierBadge');
+  const statsEl  = document.getElementById('cutsceneStats');
+  const impactEl = document.getElementById('cutsceneImpactText');
 
-  // Play sound
+  // ── Set CSS custom properties for the theme color ──
+  overlay.style.setProperty('--cs-color', color);
+  overlay.style.setProperty('--cs-rgb',   hexToRgb(color));
+
+  // ── Populate content (before showing) ──
+  img.src = gifSrc;
+  img.style.boxShadow = `0 0 0 1px rgba(255,255,255,0.08), 0 8px 40px rgba(0,0,0,0.7), 0 0 60px ${color}66`;
+  img.style.borderColor = rarityColor + '88';
+
+  halo.style.background = `radial-gradient(ellipse at 50% 50%, ${color}77, transparent 70%)`;
+  halo.style.opacity = '0';
+
+  glow.style.background = `radial-gradient(ellipse at 50% 50%, ${color}44, transparent 70%)`;
+  glow.style.opacity = '0';
+
+  tierEl.textContent = tierLabel;
+
+  nameEl.textContent = ability.icon + ' ' + ability.name;
+  nameEl.style.color = color;
+  nameEl.style.textShadow = `0 0 30px ${color}cc, 0 0 60px ${color}44`;
+
+  descEl.textContent = ability.desc || '';
+
+  // Build stat pills: rarity + tier
+  const rarityName = card.rarityName || '';
+  statsEl.innerHTML = `
+    <span class="cs-stat-pill">${rarityName} ${card.rarityStars||''}</span>
+    <span class="cs-stat-pill">${card.series||''}</span>
+    ${ability.value ? `<span class="cs-stat-pill highlight">PWR ${ability.value}</span>` : ''}
+  `.trim();
+
+  impactEl.style.opacity = '0';
+  impactEl.style.animation = '';
+
+  // ── Show overlay, then trigger CSS transition class ──
+  overlay.style.opacity = '0';
+  overlay.style.display = 'flex';
+  overlay.style.transition = 'opacity 0.3s ease';
   playAbilityCutsceneSound(ability.tier);
-
-  // Glow overlay
-  const glow=document.getElementById('cutsceneGlow');
-  glow.style.background=`radial-gradient(ellipse at 50% 50%, ${color}55, transparent 70%)`;
-  glow.style.opacity='0';
-
-  // Speed lines
   spawnCutsceneLines(color);
 
-  // Full-screen GIF — load and fade in
-  const img=document.getElementById('cutsceneCardImg');
-  img.src = gifSrc;
-  img.style.opacity='0';
-
   requestAnimationFrame(()=>{
-    overlay.style.opacity='1';
+    overlay.style.opacity = '1';
+    // A tiny delay lets the browser paint the initial state before the class is added
     setTimeout(()=>{
-      img.style.opacity='1';
-      glow.style.opacity='1';
-    }, 80);
+      overlay.classList.add('cs-open');
+      halo.style.opacity = '0.7';
+      glow.style.opacity = '1';
+    }, 40);
   });
 
-  // Ambient color wash
-  const cg=document.getElementById('cutsceneCardGlow');
-  cg.style.background=`radial-gradient(ellipse at 50% 50%, ${rarityColor}22, transparent 70%)`;
-  cg.style.opacity='0';
-  setTimeout(()=>cg.style.opacity='0.6', 100);
-
-  // Ability name slide-in
-  const nameEl=document.getElementById('cutsceneAbilityName');
-  nameEl.textContent=ability.icon+' '+ability.name;
-  nameEl.style.color=color;
-  nameEl.style.textShadow=`0 0 40px ${color}, 0 0 80px ${color}66`;
-  nameEl.style.transform='scaleX(2)';
-  nameEl.style.opacity='0';
-  setTimeout(()=>{ nameEl.style.transform='scaleX(1)'; nameEl.style.opacity='1'; }, 350);
-
-  // Description fade-in
-  const descEl=document.getElementById('cutsceneAbilityDesc');
-  descEl.textContent=ability.desc;
-  descEl.style.opacity='0';
-  descEl.style.transform='translateY(10px)';
-  setTimeout(()=>{ descEl.style.opacity='1'; descEl.style.transform='translateY(0)'; }, 600);
-
-  // Impact flash for ultimate / secret
-  if(ability.tier==='ultimate'||ability.tier==='secret'){
+  // ── ULTIMATE / SECRET: impact stamp ──
+  if(ability.tier === 'ultimate' || ability.tier === 'secret'){
     setTimeout(()=>{
-      const imp=document.getElementById('cutsceneImpactText');
-      imp.textContent=ability.tier==='ultimate'?'ULTIMATE!':'???';
-      imp.style.color=color;
-      imp.style.fontSize=ability.tier==='secret'?'clamp(2em,10vw,6em)':'clamp(2em,8vw,5em)';
-      imp.style.opacity='1';
-      imp.style.animation='impactSlam 0.5s cubic-bezier(0.34,1.56,0.64,1)';
-      setTimeout(()=>{ imp.style.opacity='0'; imp.style.animation=''; }, 600);
-    }, 700);
+      impactEl.textContent = ability.tier === 'ultimate' ? 'ULTIMATE!' : '— ??? —';
+      impactEl.style.color = color;
+      impactEl.style.opacity = '1';
+      impactEl.style.animation = 'csImpact 0.55s cubic-bezier(0.34,1.3,0.64,1) forwards';
+      setTimeout(()=>{
+        impactEl.style.transition = 'opacity 0.4s ease';
+        impactEl.style.opacity = '0';
+        setTimeout(()=>{ impactEl.style.transition=''; impactEl.style.animation=''; }, 420);
+      }, 900);
+    }, 680);
+
     setTimeout(()=>{
-      overlay.style.animation='cutsceneShake 0.4s cubic-bezier(.36,.07,.19,.97)';
-      setTimeout(()=>overlay.style.animation='', 400);
-    }, 750);
-    setTimeout(()=>spawnParticles(rarity, color), 700);
+      overlay.style.animation = 'cutsceneShake 0.45s cubic-bezier(.36,.07,.19,.97)';
+      setTimeout(()=>overlay.style.animation = '', 450);
+    }, 740);
+
+    setTimeout(()=>spawnParticles(rarity, color), 720);
   }
 
-  if(ability.tier==='secret'){
+  if(ability.tier === 'secret'){
     setTimeout(()=>{
-      for(let i=0;i<6;i++)
-        setTimeout(()=>spawnCutsceneLines(['#ff9dc7','#c39bd3','#f1c40f','#5dade2'][i%4]), i*120);
-    }, 800);
+      for(let i=0;i<5;i++)
+        setTimeout(()=>spawnCutsceneLines(['#ff9dc7','#c39bd3','#f1c40f','#5dade2'][i%4]), i*130);
+    }, 850);
   }
 
-  // Resolve final duration: use detected GIF length if meaningful, else tier default
+  // ── Wait for GIF duration, then close ──
   const detectedMs = await gifDurationPromise;
-  const duration = detectedMs > 500 ? detectedMs + 600 : tierDuration;
+  const duration   = detectedMs > 500 ? detectedMs + 600 : tierDuration;
 
   return new Promise(resolve=>{
     setTimeout(()=>{
-      overlay.style.transition='opacity 0.5s ease';
-      overlay.style.opacity='0';
-      nameEl.style.transform='scaleX(2)';  nameEl.style.opacity='0';
-      descEl.style.opacity='0';            descEl.style.transform='translateY(10px)';
-      cg.style.opacity='0';               glow.style.opacity='0';
+      // Fade out
+      overlay.classList.remove('cs-open');
+      overlay.style.transition = 'opacity 0.45s ease';
+      overlay.style.opacity    = '0';
+      halo.style.opacity = '0';
+      glow.style.opacity = '0';
       setTimeout(()=>{
-        overlay.style.display='none';
-        overlay.style.opacity='1';
-        overlay.style.transition='';
-        img.style.opacity='0';
-        img.src='';
+        overlay.style.display     = 'none';
+        overlay.style.opacity     = '1';
+        overlay.style.transition  = '';
+        img.src = '';
         resolve();
-      }, 520);
+      }, 460);
     }, duration);
   });
 }
@@ -6254,26 +6537,27 @@ tryAutoLogin();
 </script>
 
 <!-- ABILITY CUTSCENE OVERLAY -->
-<div id="abilityCutscene" style="display:none;position:fixed;inset:0;z-index:999;background:#000;overflow:hidden;">
-  <!-- Full-screen GIF layer -->
-  <img id="cutsceneCardImg" src="" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 0.45s ease;"/>
-  <!-- Dark vignette so text stays readable -->
-  <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 50% 50%,transparent 30%,rgba(0,0,0,0.55) 100%);pointer-events:none;"></div>
-  <!-- Bottom gradient for name/desc readability -->
-  <div style="position:absolute;bottom:0;left:0;right:0;height:55%;background:linear-gradient(to top,rgba(0,0,0,0.88) 0%,rgba(0,0,0,0.4) 60%,transparent 100%);pointer-events:none;"></div>
-  <!-- FX layers -->
-  <div id="cutsceneLines" style="position:absolute;inset:0;pointer-events:none;overflow:hidden;"></div>
-  <div id="cutsceneScanlines" style="position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.1) 2px,rgba(0,0,0,0.1) 4px);"></div>
-  <div id="cutsceneGlow" style="position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity 0.3s;mix-blend-mode:screen;"></div>
-  <!-- Text overlay — pinned to bottom -->
-  <div style="position:absolute;bottom:0;left:0;right:0;z-index:4;padding:0 24px 40px;text-align:center;">
-    <div id="cutsceneAbilityName" style="font-family:'Cinzel Decorative',serif;font-size:clamp(1.6em,5vw,3.2em);color:#fff;text-shadow:0 0 40px currentColor,0 2px 8px rgba(0,0,0,0.9);transform:scaleX(2);opacity:0;transition:all 0.4s cubic-bezier(0.34,1.56,0.64,1);letter-spacing:0.08em;margin-bottom:10px;"></div>
-    <div id="cutsceneAbilityDesc" style="font-family:'Cormorant Garamond',serif;font-size:clamp(0.95em,2.5vw,1.2em);color:rgba(255,255,255,0.85);font-style:italic;opacity:0;transform:translateY(10px);transition:all 0.4s ease 0.3s;max-width:600px;margin:0 auto;line-height:1.6;text-shadow:0 1px 6px rgba(0,0,0,0.9);"></div>
+<div id="abilityCutscene">
+  <div class="cs-bar-top"></div>
+  <div class="cs-bar-bot"></div>
+  <div id="cutsceneGlow"></div>
+  <div id="cutsceneLines"></div>
+  <div id="cutsceneScanlines"></div>
+  <div class="cs-stage">
+    <div class="cs-card-wrap">
+      <img id="cutsceneCardImg" class="cs-card" src="" alt=""/>
+      <div class="cs-card-sheen"></div>
+      <div class="cs-card-halo" id="cutsceneCardGlow"></div>
+    </div>
+    <div class="cs-info">
+      <div class="cs-tier-badge" id="cutsceneTierBadge"></div>
+      <div class="cs-name"       id="cutsceneAbilityName"></div>
+      <div class="cs-divider"    id="cutsceneDivider"></div>
+      <div class="cs-desc"       id="cutsceneAbilityDesc"></div>
+      <div class="cs-stats"      id="cutsceneStats"></div>
+    </div>
   </div>
-  <!-- Impact text (ULTIMATE! / ???) -->
-  <div id="cutsceneImpactText" style="position:absolute;z-index:5;font-family:'Cinzel Decorative',serif;font-size:clamp(2em,8vw,5em);font-weight:900;opacity:0;pointer-events:none;text-align:center;text-shadow:0 0 40px currentColor;width:100%;top:20%;"></div>
-  <!-- Glow halo behind the impact text -->
-  <div id="cutsceneCardGlow" style="position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity 0.4s;"></div>
+  <div class="cs-impact" id="cutsceneImpactText"></div>
 </div>
 </body>
 </html>
