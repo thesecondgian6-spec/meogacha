@@ -3207,11 +3207,64 @@ function spawnCutsceneLines(color){
   }
 }
 
+// ── Detect GIF playback duration by parsing raw GIF frame delays ──
+function detectGifDuration(url){
+  return new Promise(resolve=>{
+    const timeout = setTimeout(()=>resolve(0), 4000);
+    fetch(url, {mode:'cors',cache:'force-cache'})
+      .then(r=>r.arrayBuffer())
+      .then(buf=>{
+        clearTimeout(timeout);
+        const data = new Uint8Array(buf);
+        // Verify GIF signature
+        if(data[0]!==0x47||data[1]!==0x49||data[2]!==0x46){ resolve(0); return; }
+        let totalDelay = 0; // centiseconds
+        const flags = data[10];
+        const hasGct = (flags >> 7) & 1;
+        const gctSize = flags & 0x07;
+        let i = 13 + (hasGct ? 3 * Math.pow(2, gctSize + 1) : 0);
+        while(i < data.length - 1){
+          if(data[i] === 0x3B) break; // GIF trailer
+          if(data[i] === 0x21){ // Extension introducer
+            i++;
+            const label = data[i++];
+            if(label === 0xF9 && data[i] === 4){ // Graphic Control Extension
+              i++; // block size
+              i++; // packed fields
+              const delay = data[i] | (data[i+1] << 8);
+              totalDelay += (delay === 0 ? 10 : delay); // 0-delay GIFs default ~10cs
+              i += 2;
+              i++; // transparent color index
+              i++; // block terminator (0x00)
+            } else {
+              // Skip unknown extension sub-blocks
+              let sz = data[i++];
+              while(sz > 0 && i < data.length){ i += sz; sz = data[i++]; }
+            }
+          } else if(data[i] === 0x2C){ // Image descriptor
+            i++;
+            const localFlags = data[i + 8];
+            const hasLct = (localFlags >> 7) & 1;
+            const lctSize = localFlags & 0x07;
+            i += 9 + (hasLct ? 3 * Math.pow(2, lctSize + 1) : 0);
+            i++; // LZW min code size
+            let sz = data[i++];
+            while(sz > 0 && i < data.length){ i += sz; sz = data[i++]; }
+          } else {
+            i++;
+          }
+        }
+        resolve(totalDelay > 0 ? totalDelay * 10 : 0); // centiseconds → ms
+      })
+      .catch(()=>{ clearTimeout(timeout); resolve(0); });
+  });
+}
+
 async function playAbilityCutscene(cardId, rarity, abilityId){
   const abilities = getCardAbilities(cardId, rarity);
   const ability = abilities.find(a=>a.id===abilityId) || abilities[0];
   if(!ability) return;
-  const card = DEMO_CARDS.find(c=>c.id===cardId);
+  const card = (window.DEMO_CARDS||DEMO_CARDS).find(c=>c.id===cardId);
   if(!card) return;
 
   const tierColors = {
@@ -3219,109 +3272,110 @@ async function playAbilityCutscene(cardId, rarity, abilityId){
   };
   const color = tierColors[ability.tier] || '#fff';
   const rarityColor = RARITY_COLORS[rarity] || '#fff';
-  const duration = ability.tier==='ultimate'?2800 : ability.tier==='secret'?3200 : 2000;
+  // Tier fallback durations (used if GIF detection fails or no custom GIF)
+  const tierDuration = ability.tier==='ultimate'?3000 : ability.tier==='secret'?3500 : 2200;
+
+  const gifSrc = (ability.gifUrl && ability.gifUrl.trim()) ? ability.gifUrl.trim() : card.image;
+
+  // Kick off GIF duration detection in parallel while we set up the overlay
+  const gifDurationPromise = detectGifDuration(gifSrc);
 
   // Show overlay
   const overlay=document.getElementById('abilityCutscene');
-  overlay.style.display='flex';
-  overlay.style.background='#000';
+  overlay.style.opacity='0';
+  overlay.style.display='block';
+  overlay.style.transition='opacity 0.35s ease';
 
   // Play sound
   playAbilityCutsceneSound(ability.tier);
 
-  // Glow bg
+  // Glow overlay
   const glow=document.getElementById('cutsceneGlow');
-  glow.style.background=`radial-gradient(ellipse at 50% 50%, ${color}33, transparent 70%)`;
-  glow.style.opacity='1';
+  glow.style.background=`radial-gradient(ellipse at 50% 50%, ${color}55, transparent 70%)`;
+  glow.style.opacity='0';
 
-  // Spawn speed lines
+  // Speed lines
   spawnCutsceneLines(color);
 
-  // Card image — use ability's custom GIF if available, otherwise fall back to card art
+  // Full-screen GIF — load and fade in
   const img=document.getElementById('cutsceneCardImg');
-  img.src = (ability.gifUrl && ability.gifUrl.trim()) ? ability.gifUrl.trim() : card.image;
-  img.style.borderColor=rarityColor;
-  img.style.boxShadow=`0 0 60px ${rarityColor}88`;
-  void img.offsetWidth;
-  setTimeout(()=>{
-    img.style.transform='scale(1)';
-    img.style.opacity='1';
-  },80);
+  img.src = gifSrc;
+  img.style.opacity='0';
 
-  // Card glow
+  requestAnimationFrame(()=>{
+    overlay.style.opacity='1';
+    setTimeout(()=>{
+      img.style.opacity='1';
+      glow.style.opacity='1';
+    }, 80);
+  });
+
+  // Ambient color wash
   const cg=document.getElementById('cutsceneCardGlow');
-  cg.style.background=rarityColor;
-  setTimeout(()=>cg.style.opacity='0.5',100);
+  cg.style.background=`radial-gradient(ellipse at 50% 50%, ${rarityColor}22, transparent 70%)`;
+  cg.style.opacity='0';
+  setTimeout(()=>cg.style.opacity='0.6', 100);
 
-  // Ability name
+  // Ability name slide-in
   const nameEl=document.getElementById('cutsceneAbilityName');
   nameEl.textContent=ability.icon+' '+ability.name;
   nameEl.style.color=color;
-  nameEl.style.textShadow=`0 0 40px ${color}`;
-  setTimeout(()=>{
-    nameEl.style.transform='scaleX(1)';
-    nameEl.style.opacity='1';
-  },350);
+  nameEl.style.textShadow=`0 0 40px ${color}, 0 0 80px ${color}66`;
+  nameEl.style.transform='scaleX(2)';
+  nameEl.style.opacity='0';
+  setTimeout(()=>{ nameEl.style.transform='scaleX(1)'; nameEl.style.opacity='1'; }, 350);
 
-  // Desc
+  // Description fade-in
   const descEl=document.getElementById('cutsceneAbilityDesc');
   descEl.textContent=ability.desc;
-  setTimeout(()=>{
-    descEl.style.opacity='1';
-    descEl.style.transform='translateY(0)';
-  },600);
+  descEl.style.opacity='0';
+  descEl.style.transform='translateY(10px)';
+  setTimeout(()=>{ descEl.style.opacity='1'; descEl.style.transform='translateY(0)'; }, 600);
 
-  // Impact flash for ultimate/secret
+  // Impact flash for ultimate / secret
   if(ability.tier==='ultimate'||ability.tier==='secret'){
     setTimeout(()=>{
       const imp=document.getElementById('cutsceneImpactText');
       imp.textContent=ability.tier==='ultimate'?'ULTIMATE!':'???';
       imp.style.color=color;
       imp.style.fontSize=ability.tier==='secret'?'clamp(2em,10vw,6em)':'clamp(2em,8vw,5em)';
-      imp.style.top='20%'; imp.style.left='50%'; imp.style.transform='translateX(-50%)';
       imp.style.opacity='1';
       imp.style.animation='impactSlam 0.5s cubic-bezier(0.34,1.56,0.64,1)';
-      setTimeout(()=>{ imp.style.opacity='0'; imp.style.animation=''; },600);
-    },700);
-    // Screen shake
+      setTimeout(()=>{ imp.style.opacity='0'; imp.style.animation=''; }, 600);
+    }, 700);
     setTimeout(()=>{
       overlay.style.animation='cutsceneShake 0.4s cubic-bezier(.36,.07,.19,.97)';
-      setTimeout(()=>overlay.style.animation='',400);
-    },750);
-    // Particle burst
+      setTimeout(()=>overlay.style.animation='', 400);
+    }, 750);
     setTimeout(()=>spawnParticles(rarity, color), 700);
   }
 
-  // Extra shimmer for secret
   if(ability.tier==='secret'){
     setTimeout(()=>{
-      for(let i=0;i<6;i++){
-        setTimeout(()=>spawnCutsceneLines(['#ff9dc7','#c39bd3','#f1c40f','#5dade2'][i%4]),i*120);
-      }
-    },800);
+      for(let i=0;i<6;i++)
+        setTimeout(()=>spawnCutsceneLines(['#ff9dc7','#c39bd3','#f1c40f','#5dade2'][i%4]), i*120);
+    }, 800);
   }
 
-  // Close cutscene
+  // Resolve final duration: use detected GIF length if meaningful, else tier default
+  const detectedMs = await gifDurationPromise;
+  const duration = detectedMs > 500 ? detectedMs + 600 : tierDuration;
+
   return new Promise(resolve=>{
     setTimeout(()=>{
-      // Fade out
-      overlay.style.transition='opacity 0.5s';
+      overlay.style.transition='opacity 0.5s ease';
       overlay.style.opacity='0';
-      // Reset card img
-      img.style.transform='scale(0.6)';
-      img.style.opacity='0';
-      nameEl.style.transform='scaleX(2)';
-      nameEl.style.opacity='0';
-      descEl.style.opacity='0';
-      descEl.style.transform='translateY(10px)';
-      cg.style.opacity='0';
-      glow.style.opacity='0';
+      nameEl.style.transform='scaleX(2)';  nameEl.style.opacity='0';
+      descEl.style.opacity='0';            descEl.style.transform='translateY(10px)';
+      cg.style.opacity='0';               glow.style.opacity='0';
       setTimeout(()=>{
         overlay.style.display='none';
         overlay.style.opacity='1';
         overlay.style.transition='';
+        img.style.opacity='0';
+        img.src='';
         resolve();
-      },500);
+      }, 520);
     }, duration);
   });
 }
@@ -6200,18 +6254,26 @@ tryAutoLogin();
 </script>
 
 <!-- ABILITY CUTSCENE OVERLAY -->
-<div id="abilityCutscene" style="display:none;position:fixed;inset:0;z-index:999;background:#000;overflow:hidden;align-items:center;justify-content:center;flex-direction:column;">
-  <div id="cutsceneRipple" style="position:absolute;inset:0;pointer-events:none;"></div>
+<div id="abilityCutscene" style="display:none;position:fixed;inset:0;z-index:999;background:#000;overflow:hidden;">
+  <!-- Full-screen GIF layer -->
+  <img id="cutsceneCardImg" src="" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 0.45s ease;"/>
+  <!-- Dark vignette so text stays readable -->
+  <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 50% 50%,transparent 30%,rgba(0,0,0,0.55) 100%);pointer-events:none;"></div>
+  <!-- Bottom gradient for name/desc readability -->
+  <div style="position:absolute;bottom:0;left:0;right:0;height:55%;background:linear-gradient(to top,rgba(0,0,0,0.88) 0%,rgba(0,0,0,0.4) 60%,transparent 100%);pointer-events:none;"></div>
+  <!-- FX layers -->
   <div id="cutsceneLines" style="position:absolute;inset:0;pointer-events:none;overflow:hidden;"></div>
-  <div id="cutsceneScanlines" style="position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.15) 2px,rgba(0,0,0,0.15) 4px);"></div>
-  <div id="cutsceneGlow" style="position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity 0.3s;"></div>
-  <div id="cutsceneCardWrap" style="position:relative;z-index:2;margin-bottom:32px;">
-    <img id="cutsceneCardImg" src="" style="width:180px;height:256px;object-fit:cover;border-radius:18px;border:3px solid #fff;box-shadow:0 0 60px rgba(255,255,255,0.3);transform:scale(0.6);opacity:0;transition:all 0.5s cubic-bezier(0.34,1.56,0.64,1);" alt=""/>
-    <div id="cutsceneCardGlow" style="position:absolute;inset:-20px;border-radius:28px;filter:blur(30px);opacity:0;transition:opacity 0.4s;"></div>
+  <div id="cutsceneScanlines" style="position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.1) 2px,rgba(0,0,0,0.1) 4px);"></div>
+  <div id="cutsceneGlow" style="position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity 0.3s;mix-blend-mode:screen;"></div>
+  <!-- Text overlay — pinned to bottom -->
+  <div style="position:absolute;bottom:0;left:0;right:0;z-index:4;padding:0 24px 40px;text-align:center;">
+    <div id="cutsceneAbilityName" style="font-family:'Cinzel Decorative',serif;font-size:clamp(1.6em,5vw,3.2em);color:#fff;text-shadow:0 0 40px currentColor,0 2px 8px rgba(0,0,0,0.9);transform:scaleX(2);opacity:0;transition:all 0.4s cubic-bezier(0.34,1.56,0.64,1);letter-spacing:0.08em;margin-bottom:10px;"></div>
+    <div id="cutsceneAbilityDesc" style="font-family:'Cormorant Garamond',serif;font-size:clamp(0.95em,2.5vw,1.2em);color:rgba(255,255,255,0.85);font-style:italic;opacity:0;transform:translateY(10px);transition:all 0.4s ease 0.3s;max-width:600px;margin:0 auto;line-height:1.6;text-shadow:0 1px 6px rgba(0,0,0,0.9);"></div>
   </div>
-  <div id="cutsceneAbilityName" style="position:relative;z-index:2;font-family:'Cinzel Decorative',serif;font-size:clamp(1.4em,5vw,2.8em);color:#fff;text-align:center;padding:0 20px;text-shadow:0 0 30px currentColor;transform:scaleX(2);opacity:0;transition:all 0.4s cubic-bezier(0.34,1.56,0.64,1);letter-spacing:0.08em;"></div>
-  <div id="cutsceneAbilityDesc" style="position:relative;z-index:2;font-family:'Cormorant Garamond',serif;font-size:1.1em;color:rgba(255,255,255,0.7);font-style:italic;margin-top:12px;text-align:center;padding:0 30px;opacity:0;transform:translateY(10px);transition:all 0.4s ease 0.3s;max-width:480px;line-height:1.6;"></div>
-  <div id="cutsceneImpactText" style="position:absolute;z-index:3;font-family:'Cinzel Decorative',serif;font-size:clamp(2em,8vw,5em);font-weight:900;opacity:0;pointer-events:none;text-align:center;text-shadow:0 0 40px currentColor;"></div>
+  <!-- Impact text (ULTIMATE! / ???) -->
+  <div id="cutsceneImpactText" style="position:absolute;z-index:5;font-family:'Cinzel Decorative',serif;font-size:clamp(2em,8vw,5em);font-weight:900;opacity:0;pointer-events:none;text-align:center;text-shadow:0 0 40px currentColor;width:100%;top:20%;"></div>
+  <!-- Glow halo behind the impact text -->
+  <div id="cutsceneCardGlow" style="position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity 0.4s;"></div>
 </div>
 </body>
 </html>
