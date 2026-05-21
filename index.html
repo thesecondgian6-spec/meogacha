@@ -187,9 +187,174 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .mobile-nav-btn.active,.mobile-nav-btn:hover{color:var(--pink);}
 .mobile-nav-btn.active .mob-icon{filter:drop-shadow(0 0 6px var(--pink-glow));}
 
-/* ══ DESKTOP NAV SIGN OUT ══ */
-.nav-signout{background:none;border:1px solid var(--border);color:var(--text-dim);padding:5px 12px;border-radius:20px;font-size:0.78em;cursor:pointer;font-family:'Cormorant Garamond',serif;transition:all 0.2s;}
-.nav-signout:hover{border-color:var(--pink);color:var(--pink);}
+/* ══ NAV PROFILE AVATAR BUTTON ══ */
+.nav-profile-avatar-btn {
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid var(--border);
+  background: var(--surface);
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.25s;
+  flex-shrink: 0;
+  position: relative;
+}
+.nav-profile-avatar-btn:hover {
+  border-color: var(--pink);
+  box-shadow: 0 0 12px var(--pink-glow);
+  transform: scale(1.08);
+}
+.nav-profile-avatar-btn img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* ══ HOME PAGE — QUICK STATS ══ */
+.home-quick-stats {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin: 20px 0;
+}
+.home-stat-chip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 10px 18px;
+  min-width: 110px;
+  transition: all 0.2s;
+}
+.home-stat-chip:hover {
+  border-color: rgba(255,157,199,0.35);
+  background: rgba(255,157,199,0.07);
+}
+.hsc-icon { font-size: 1.4em; }
+.hsc-val {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.1em;
+  color: var(--pink);
+  font-weight: 700;
+  line-height: 1;
+}
+.hsc-lbl {
+  font-size: 0.72em;
+  color: var(--text-dim);
+  margin-top: 2px;
+}
+
+/* ══ HOME — DAILY TEASER ══ */
+.home-daily-teaser {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: linear-gradient(135deg, rgba(241,196,15,0.08), rgba(255,157,199,0.06));
+  border: 1px solid rgba(241,196,15,0.25);
+  border-radius: 16px;
+  padding: 14px 20px;
+  cursor: pointer;
+  transition: all 0.25s;
+  margin: 8px 0;
+}
+.home-daily-teaser:hover {
+  border-color: rgba(241,196,15,0.5);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(241,196,15,0.1);
+}
+.hdt-flame { font-size: 1.8em; animation: floatAct 2.5s ease-in-out infinite; }
+.hdt-text { flex: 1; }
+.hdt-title {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 0.85em;
+  color: #f1c40f;
+  margin-bottom: 2px;
+}
+.hdt-sub { font-size: 0.8em; color: var(--text-dim); font-style: italic; }
+.hdt-arrow {
+  font-size: 1.6em;
+  color: rgba(241,196,15,0.6);
+  font-family: 'Cinzel Decorative', serif;
+}
+
+/* ══ HOME — SPOTLIGHT ══ */
+.home-spotlight-wrap {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 20px;
+  text-align: center;
+}
+.home-spotlight-inner {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+  min-height: 60px;
+  align-items: center;
+}
+.home-spotlight-pull-btn { display: inline-block; }
+
+/* ══ HOME — QUICK ACTIONS GRID ══ */
+.home-action-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 12px;
+  margin-bottom: 8px;
+}
+.home-action-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 20px 16px;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.34,1.2,0.64,1);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.home-action-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 0%, var(--hac-color, var(--pink)), transparent 70%);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.home-action-card:hover {
+  border-color: var(--hac-color, var(--pink));
+  transform: translateY(-4px);
+  box-shadow: 0 10px 28px rgba(0,0,0,0.3);
+}
+.home-action-card:hover::before { opacity: 0.08; }
+.hac-icon { font-size: 2em; margin-bottom: 8px; display: block; }
+.hac-name {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 0.72em;
+  color: var(--text);
+  margin-bottom: 4px;
+  letter-spacing: 0.04em;
+}
+.hac-desc { font-size: 0.72em; color: var(--text-dim); line-height: 1.4; }
+
+@media(max-width:700px){
+  .home-quick-stats { gap: 8px; }
+  .home-stat-chip { min-width: 90px; padding: 8px 12px; }
+  .home-action-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .home-action-card { padding: 14px 8px; border-radius: 14px; }
+  .hac-icon { font-size: 1.5em; }
+  .hac-name { font-size: 0.62em; }
+  .hac-desc { display: none; }
+}
+@media(max-width:380px){
+  .home-action-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
 
 @media(max-width:700px){
   nav .nav-links,.nav-signout-wrap{display:none!important;}
@@ -2339,14 +2504,14 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
       <button class="nav-btn" onclick="goTo('pull',this)">🎴 Pull</button>
       <button class="nav-btn" onclick="goTo('collection',this)">🃏 Cards</button>
       <button class="nav-btn" onclick="goTo('shop',this)">🛍️ Shop</button>
-      <button class="nav-btn" onclick="goTo('profile',this)">👤 Profile</button>
       <button class="nav-btn" onclick="goTo('activities',this)">⚔️ Activities</button>
-      <button class="nav-btn" onclick="goTo('battle',this)">🥊 Battle</button>
       <button class="nav-btn" id="adminNavBtn" style="display:none" onclick="goTo('admin',this)">⚙️ Admin</button>
     </div>
     <div style="display:flex;align-items:center;gap:10px;" class="nav-signout-wrap">
       <div class="nav-coins">🪙 <span id="coinDisplay">1000</span></div>
-      <button onclick="logout()" class="nav-signout">Sign out</button>
+      <button class="nav-profile-avatar-btn" onclick="goTo('profile',null)" title="View Profile" id="navProfileBtn">
+        <img id="navProfileAvatar" src="https://cdn.discordapp.com/embed/avatars/0.png" alt="Profile"/>
+      </button>
     </div>
     <div class="nav-coins" style="display:none" id="mobileCoins">🪙 <span id="coinDisplayMobile">1000</span></div>
   </nav>
@@ -2358,9 +2523,8 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
       <button class="mobile-nav-btn" id="mnav-pull" onclick="goTo('pull',null);setMobileNav('pull')"><span class="mob-icon">🎴</span>Pull</button>
       <button class="mobile-nav-btn" id="mnav-collection" onclick="goTo('collection',null);setMobileNav('collection')"><span class="mob-icon">🃏</span>Cards</button>
       <button class="mobile-nav-btn" id="mnav-shop" onclick="goTo('shop',null);setMobileNav('shop')"><span class="mob-icon">🛍️</span>Shop</button>
-      <button class="mobile-nav-btn" id="mnav-profile" onclick="goTo('profile',null);setMobileNav('profile')"><span class="mob-icon">👤</span>Profile</button>
       <button class="mobile-nav-btn" id="mnav-activities" onclick="goTo('activities',null);setMobileNav('activities')"><span class="mob-icon">⚔️</span>Activities</button>
-      <button class="mobile-nav-btn" id="mnav-battle" onclick="goTo('battle',null);setMobileNav('battle')"><span class="mob-icon">🥊</span>Battle</button>
+      <button class="mobile-nav-btn" id="mnav-profile" onclick="goTo('profile',null);setMobileNav('profile')"><span class="mob-icon">👤</span>Profile</button>
       <button class="mobile-nav-btn" id="mnav-admin" style="display:none" onclick="goTo('admin',null);setMobileNav('admin')"><span class="mob-icon">⚙️</span>Admin</button>
     </div>
   </div>
@@ -2376,6 +2540,84 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
         <button class="btn-secondary" onclick="goTo('collection')">🃏 My Collection</button>
       </div>
     </div>
+
+    <!-- QUICK STATS PANEL -->
+    <div class="home-quick-stats" id="homeQuickStats">
+      <div class="home-stat-chip"><span class="hsc-icon">🪙</span><div><div class="hsc-val" id="homeStatCoins">1000</div><div class="hsc-lbl">Coins</div></div></div>
+      <div class="home-stat-chip"><span class="hsc-icon">🎴</span><div><div class="hsc-val" id="homeStatPulls">0</div><div class="hsc-lbl">Total Pulls</div></div></div>
+      <div class="home-stat-chip"><span class="hsc-icon">🃏</span><div><div class="hsc-val" id="homeStatUnique">0</div><div class="hsc-lbl">Cards Owned</div></div></div>
+      <div class="home-stat-chip"><span class="hsc-icon">⚔️</span><div><div class="hsc-val" id="homeStatWins">0</div><div class="hsc-lbl">Battle Wins</div></div></div>
+    </div>
+
+    <!-- DAILY LOGIN QUICK BANNER -->
+    <div class="home-daily-teaser" id="homeDailyTeaser" onclick="goTo('activities')">
+      <div class="hdt-flame">🔥</div>
+      <div class="hdt-text">
+        <div class="hdt-title">Daily Reward Available!</div>
+        <div class="hdt-sub">Visit Activities to claim your streak reward ✦</div>
+      </div>
+      <div class="hdt-arrow">›</div>
+    </div>
+
+    <!-- FEATURED CARD SPOTLIGHT -->
+    <div class="section-title" style="margin-top:28px;">✦ Summon Spotlight</div>
+    <div class="home-spotlight-wrap">
+      <div class="home-spotlight-inner" id="homeSpotlight">
+        <div style="color:var(--text-dim);font-style:italic;text-align:center;padding:20px;">Pull cards to see your best ones here! ʚɞ</div>
+      </div>
+      <button class="home-spotlight-pull-btn btn-primary" onclick="goTo('pull')">✦ Go Pull Now</button>
+    </div>
+
+    <!-- QUICK ACTIONS GRID -->
+    <div class="section-title" style="margin-top:28px;">Quick Actions</div>
+    <div class="home-action-grid">
+      <div class="home-action-card" onclick="goTo('pull')" style="--hac-color:var(--pink);">
+        <div class="hac-icon">🎴</div>
+        <div class="hac-name">Pull Cards</div>
+        <div class="hac-desc">Try your luck at the gacha banner</div>
+      </div>
+      <div class="home-action-card" onclick="goTo('activities')" style="--hac-color:#5dade2;">
+        <div class="hac-icon">⚡</div>
+        <div class="hac-name">Battle</div>
+        <div class="hac-desc">Fight AI opponents &amp; earn rewards</div>
+      </div>
+      <div class="home-action-card" onclick="goTo('activities')" style="--hac-color:#f1c40f;">
+        <div class="hac-icon">🌌</div>
+        <div class="hac-name">Activities</div>
+        <div class="hac-desc">Missions, quests &amp; daily rewards</div>
+      </div>
+      <div class="home-action-card" onclick="goTo('collection')" style="--hac-color:#9b59b6;">
+        <div class="hac-icon">🃏</div>
+        <div class="hac-name">Collection</div>
+        <div class="hac-desc">Browse &amp; manage your cards</div>
+      </div>
+      <div class="home-action-card" onclick="goTo('shop')" style="--hac-color:#2ecc71;">
+        <div class="hac-icon">🛍️</div>
+        <div class="hac-name">Shop</div>
+        <div class="hac-desc">Spend coins on upgrades &amp; items</div>
+      </div>
+      <div class="home-action-card" onclick="goTo('profile')" style="--hac-color:var(--purple);">
+        <div class="hac-icon">👤</div>
+        <div class="hac-name">Profile</div>
+        <div class="hac-desc">Customize your summoner profile</div>
+      </div>
+    </div>
+
+    <!-- DROP RATES TEASER -->
+    <div class="section-title" style="margin-top:28px;">Drop Rates</div>
+    <div class="rates-grid">
+      <div class="rate-item" style="background:rgba(189,195,199,0.08);border-color:rgba(189,195,199,0.3)"><div class="rate-tag rN">[N]</div><div class="rate-pct">42.6%</div></div>
+      <div class="rate-item" style="background:rgba(46,204,113,0.08);border-color:rgba(46,204,113,0.3)"><div class="rate-tag rR">[R]</div><div class="rate-pct">29.8%</div></div>
+      <div class="rate-item" style="background:rgba(52,152,219,0.08);border-color:rgba(52,152,219,0.3)"><div class="rate-tag rSR">[SR]</div><div class="rate-pct">17.0%</div></div>
+      <div class="rate-item" style="background:rgba(155,89,182,0.08);border-color:rgba(155,89,182,0.3)"><div class="rate-tag rSSR">[SSR]</div><div class="rate-pct">6.4%</div></div>
+      <div class="rate-item" style="background:rgba(241,196,15,0.08);border-color:rgba(241,196,15,0.3)"><div class="rate-tag rUR">[UR]</div><div class="rate-pct">2.1%</div></div>
+      <div class="rate-item" style="background:rgba(255,107,157,0.08);border-color:rgba(255,107,157,0.3)"><div class="rate-tag rLR">[LR]</div><div class="rate-pct">0.9%</div></div>
+      <div class="rate-item" style="background:rgba(26,188,156,0.08);border-color:rgba(255,100,200,0.4)"><div class="rate-tag rS" style="-webkit-text-fill-color:transparent;background:var(--rainbow);background-size:200%;-webkit-background-clip:text;animation:rainbowShift 2.5s linear infinite">[???]</div><div class="rate-pct">0.4%</div></div>
+    </div>
+  </div>
+
+  <!-- PULL PAGE -->
+  <div class="page" id="page-pull">
     <div class="section-title">Current Banner</div>
     <div class="banner-card">
       <div class="banner-info">
@@ -2391,32 +2633,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
         <button class="pool-view-btn" onclick="openPoolView()">🃏 View All Cards in Pool</button>
       </div>
     </div>
-    <div class="section-title">Your Pity</div>
-    <div class="pity-section">
-      <div class="pity-row">
-        <div class="pity-label"><span>🩷 SSR Soft Pity</span><span><span id="pitySRVal">0</span> / 40</span></div>
-        <div class="pity-track"><div class="pity-fill sr" id="pitySRBar" style="width:0%"></div></div>
-      </div>
-      <div class="pity-row" style="margin-top:12px">
-        <div class="pity-label"><span>💜 UR Hard Pity</span><span><span id="pityURVal">0</span> / 80</span></div>
-        <div class="pity-track"><div class="pity-fill ur" id="pityURBar" style="width:0%"></div></div>
-      </div>
-    </div>
-    <div class="section-title">Drop Rates</div>
-    <div class="rates-grid">
-      <div class="rate-item" style="background:rgba(189,195,199,0.08);border-color:rgba(189,195,199,0.3)"><div class="rate-tag rN">[N]</div><div class="rate-pct">42.6%</div></div>
-      <div class="rate-item" style="background:rgba(46,204,113,0.08);border-color:rgba(46,204,113,0.3)"><div class="rate-tag rR">[R]</div><div class="rate-pct">29.8%</div></div>
-      <div class="rate-item" style="background:rgba(52,152,219,0.08);border-color:rgba(52,152,219,0.3)"><div class="rate-tag rSR">[SR]</div><div class="rate-pct">17.0%</div></div>
-      <div class="rate-item" style="background:rgba(155,89,182,0.08);border-color:rgba(155,89,182,0.3)"><div class="rate-tag rSSR">[SSR]</div><div class="rate-pct">6.4%</div></div>
-      <div class="rate-item" style="background:rgba(241,196,15,0.08);border-color:rgba(241,196,15,0.3)"><div class="rate-tag rUR">[UR]</div><div class="rate-pct">2.1%</div></div>
-      <div class="rate-item" style="background:rgba(255,107,157,0.08);border-color:rgba(255,107,157,0.3)"><div class="rate-tag rLR">[LR]</div><div class="rate-pct">0.9%</div></div>
-      <div class="rate-item" style="background:rgba(26,188,156,0.08);border-color:rgba(255,100,200,0.4)"><div class="rate-tag rS" style="-webkit-text-fill-color:transparent;background:var(--rainbow);background-size:200%;-webkit-background-clip:text;animation:rainbowShift 2.5s linear infinite">[???]</div><div class="rate-pct">0.4%</div></div>
-    </div>
-  </div>
-
-  <!-- PULL PAGE -->
-  <div class="page" id="page-pull">
-    <div class="section-title">Gacha Pull</div>
+    <div class="section-title" style="margin-top:24px;">Gacha Pull</div>
     <div class="banner-card">
       <div style="width:100%;max-width:400px;">
         <h2 style="font-family:'Cinzel Decorative',serif;font-size:1.3em;color:var(--pink-pale);margin-bottom:8px;text-align:center;">✦ First Bloom Banner ✦</h2>
@@ -2431,12 +2648,12 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
     <div class="section-title" style="margin-top:24px;">Your Pity Progress</div>
     <div class="pity-section">
       <div class="pity-row">
-        <div class="pity-label"><span>🩷 SSR Soft Pity</span><span><span id="pitySRVal2">0</span> / 40</span></div>
-        <div class="pity-track"><div class="pity-fill sr" id="pitySRBar2" style="width:0%"></div></div>
+        <div class="pity-label"><span>🩷 SSR Soft Pity</span><span><span id="pitySRVal">0</span> / 40</span></div>
+        <div class="pity-track"><div class="pity-fill sr" id="pitySRBar" style="width:0%"></div></div>
       </div>
       <div class="pity-row" style="margin-top:12px">
-        <div class="pity-label"><span>💜 UR Hard Pity</span><span><span id="pityURVal2">0</span> / 80</span></div>
-        <div class="pity-track"><div class="pity-fill ur" id="pityURBar2" style="width:0%"></div></div>
+        <div class="pity-label"><span>💜 UR Hard Pity</span><span><span id="pityURVal">0</span> / 80</span></div>
+        <div class="pity-track"><div class="pity-fill ur" id="pityURBar" style="width:0%"></div></div>
       </div>
     </div>
   </div>
@@ -2573,12 +2790,9 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
         <button class="activity-btn btn-ripple" id="questBtn" onclick="openActivity('quest')">🌌 Begin Quest</button>
       </div>
     </div>
-  </div>
 
-
-  <!-- BATTLE PAGE -->
-  <div class="page" id="page-battle">
-    <div class="section-title">⚡ TCG Card Battle</div>
+    <!-- BATTLE SECTION EMBEDDED IN ACTIVITIES -->
+    <div class="section-title" style="margin-top:36px;">⚡ TCG Card Battle</div>
     <p style="text-align:center;color:var(--text-dim);font-style:italic;margin-bottom:24px;font-size:0.9em;">Challenge AI opponents using your collected cards. Win to earn coins &amp; XP!</p>
 
     <!-- SETUP PHASE -->
@@ -2612,7 +2826,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
     <!-- FIGHT PHASE -->
     <div class="battle-fight-section" id="battleFight">
       <div class="battle-arena-bg" style="position:relative;">
-        <div id="battleVFXLayer"></div>
+        <div id="battleVFXLayer2"></div>
         <!-- VS Header -->
         <div class="battle-vs-header">
           <div class="battle-player-side">
@@ -2673,6 +2887,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
       </div>
     </div>
   </div>
+
 
   <!-- ACTIVITY MODAL -->
   <div class="act-modal" id="actModal">
@@ -4447,6 +4662,20 @@ function updateProfile(){
   // Avatar: custom > Discord avatar > placeholder
   const avatarSrc=state.customAvatar||state.avatar||'https://cdn.discordapp.com/embed/avatars/0.png';
   document.getElementById('profileAvatar').src=avatarSrc;
+  // Sync nav profile avatar button
+  const navAvatar=document.getElementById('navProfileAvatar');
+  if(navAvatar)navAvatar.src=avatarSrc;
+  // Update home quick stats
+  const hsc=document.getElementById('homeStatCoins');
+  if(hsc)hsc.textContent=state.coins.toLocaleString();
+  const hsp=document.getElementById('homeStatPulls');
+  if(hsp)hsp.textContent=state.totalPulls;
+  const hsu=document.getElementById('homeStatUnique');
+  if(hsu)hsu.textContent=owned.length;
+  const hsw=document.getElementById('homeStatWins');
+  if(hsw)hsw.textContent=state.battleWins||0;
+  // Update home spotlight
+  updateHomeSpotlight();
   // Banner: image overrides gradient color
   const bannerEl=document.getElementById('profileBannerEl');
   const bannerImgEl=document.getElementById('profileBannerImg');
@@ -4481,6 +4710,30 @@ function updateProfile(){
   }
 }
 
+function updateHomeSpotlight(){
+  const el=document.getElementById('homeSpotlight');
+  if(!el)return;
+  const owned=[...new Set(state.collection)];
+  if(!owned.length){
+    el.innerHTML=`<div style="color:var(--text-dim);font-style:italic;text-align:center;padding:20px;">Pull cards to see your best ones here! ʚɞ</div>`;
+    return;
+  }
+  // Show top 3 highest rarity cards
+  const sorted=owned.map(id=>DEMO_CARDS.find(c=>c.id===id)).filter(Boolean)
+    .sort((a,b)=>b.rarity-a.rarity).slice(0,3);
+  el.innerHTML=sorted.map(c=>{
+    const color=RARITY_COLORS[c.rarity]||'#bdc3c7';
+    const xp=state.xpMap[c.id]||0;
+    return `<div style="text-align:center;cursor:pointer;" onclick="openCard('${c.id}')">
+      <img src="${c.thumbnail||c.image}" alt="${c.name}"
+        style="width:72px;height:100px;object-fit:cover;border-radius:10px;border:2px solid ${color};box-shadow:0 0 14px ${color}44;display:block;margin:0 auto 6px;"/>
+      <div style="font-size:0.7em;font-family:'Cinzel Decorative',serif;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:80px;">${c.name}</div>
+      <div style="font-size:0.65em;color:${color};margin-top:2px;">Lv.${calcLevel(xp)}</div>
+    </div>`;
+  }).join('');
+}
+
+
 // ══════════════════════════════════════════════
 // SHOP
 // ══════════════════════════════════════════════
@@ -4507,13 +4760,15 @@ async function buyItem(id,name,price){
 // NAV
 // ══════════════════════════════════════════════
 function goTo(page,btn){ playNavSound();
+  // battle is now embedded in activities
+  if(page==='battle')page='activities';
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
   const pageEl=document.getElementById('page-'+page);
   if(pageEl)pageEl.classList.add('active');
   if(btn)btn.classList.add('active');
   if(page==='collection')renderCollection();
-  if(page==='battle'){renderBattleCardSelect();}
+  if(page==='activities'){renderBattleCardSelect();}
   if(page==='shop')renderShop();
   if(page==='profile')updateProfile();
 }
