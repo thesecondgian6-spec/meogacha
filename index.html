@@ -192,6 +192,12 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .nav-signout:hover{border-color:var(--pink);color:var(--pink);}
 
 @media(max-width:700px){
+.cs-stage{flex-direction:column;justify-content:center;gap:20px;padding:20px;}
+.cs-info{margin-left:0;max-width:95%;text-align:center;align-items:center;}
+.cs-card-wrap{width:100%;}
+.cs-card{width:100%;max-width:100%;max-height:45vh;border-radius:18px;}
+.cs-name{font-size:clamp(1.2em, 6vw, 2em);}
+
   nav .nav-links,.nav-signout-wrap{display:none!important;}
   .mobile-nav{display:block;}
   .page{padding:16px 14px 88px;}
@@ -1052,16 +1058,36 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   opacity: 1;
 }
 .cs-card {
-  width:  clamp(140px, 22vw, 220px);
-  height: clamp(200px, 31vw, 310px);
+  width: min(92vw, 900px);
+  aspect-ratio: 16 / 9;
+  max-height: 72vh;
   object-fit: cover;
-  border-radius: 18px;
+  object-position: center;
+  border-radius: 22px;
   display: block;
-  border: 3px solid rgba(255,255,255,0.25);
+  border: 3px solid rgba(255,255,255,0.18);
   box-shadow:
     0 0 0 1px rgba(255,255,255,0.08),
-    0 8px 40px rgba(0,0,0,0.7),
-    0 0 60px var(--cs-color, rgba(255,157,199,0.4));
+    0 12px 60px rgba(0,0,0,0.75),
+    0 0 100px var(--cs-color, rgba(255,157,199,0.4));
+  transform: scale(1);
+  animation: cinematicFloat 4s ease-in-out infinite;
+}
+
+@keyframes cinematicFloat {
+  0%,100% { transform: translateY(0px) scale(1); }
+  50% { transform: translateY(-6px) scale(1.01); }
+}
+
+@keyframes cinematicZoom {
+  0% { transform: scale(1.08); }
+  100% { transform: scale(1); }
+}
+
+@keyframes cinematicFlash {
+  0% { opacity: 0; }
+  20% { opacity: 1; }
+  100% { opacity: 0; }
 }
 /* Holographic shimmer over the card */
 .cs-card-sheen {
@@ -6535,6 +6561,43 @@ async function adminGiveCoinsToPlayer(){
 renderShop();
 renderFeaturedShowcase();
 tryAutoLogin();
+
+// ===== Audio Unlock + Web Audio Helper =====
+window.hasInteracted = false;
+window.gameSounds = {};
+
+window.loadGameSound = function(name, url, volume = 1){
+  const audio = new Audio(url);
+  audio.preload = 'auto';
+  audio.volume = volume;
+  window.gameSounds[name] = audio;
+};
+
+window.playGameSound = function(name){
+  if(!window.hasInteracted) return;
+  const snd = window.gameSounds[name];
+  if(!snd) return;
+  const clone = snd.cloneNode();
+  clone.volume = snd.volume;
+  clone.play().catch(err => console.log('Audio blocked:', err));
+};
+
+document.addEventListener('click', async () => {
+  window.hasInteracted = true;
+
+  for(const audio of Object.values(window.gameSounds)){
+    try{
+      await audio.play();
+      audio.pause();
+      audio.currentTime = 0;
+    }catch(e){}
+  }
+}, { once:true });
+
+// Example:
+// loadGameSound('ultimate', 'YOUR_SUPABASE_AUDIO_URL.mp3', 0.8);
+// playGameSound('ultimate');
+
 </script>
 
 <!-- ABILITY CUTSCENE OVERLAY -->
