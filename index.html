@@ -3237,9 +3237,9 @@ async function playAbilityCutscene(cardId, rarity, abilityId){
   // Spawn speed lines
   spawnCutsceneLines(color);
 
-  // Card image
+  // Card image — use ability's custom GIF if available, otherwise fall back to card art
   const img=document.getElementById('cutsceneCardImg');
-  img.src=card.image;
+  img.src = (ability.gifUrl && ability.gifUrl.trim()) ? ability.gifUrl.trim() : card.image;
   img.style.borderColor=rarityColor;
   img.style.boxShadow=`0 0 60px ${rarityColor}88`;
   void img.offsetWidth;
@@ -3710,6 +3710,8 @@ async function loadCards(){
         desc:         ab.description,
         battleEffect: ab.battle_effect,
         value:        ab.value,
+        gifUrl:       ab.gif_url || '',
+        audioUrl:     ab.audio_url || '',
       });
       // Sort by sort_order
       window.DB_ABILITIES[ab.card_id].sort((a,b)=>(a.sort_order||0)-(b.sort_order||0));
@@ -5068,52 +5070,9 @@ function getCardRect(who) {
   return document.getElementById(id)?.getBoundingClientRect() || {left:200,top:300,width:120,height:170};
 }
 
-function spawnDmgNumber(amount, who, type='normal') {
-  const rect = getCardRect(who);
-  const el = document.createElement('div');
-  el.className = `dmg-number dmg-${type}`;
-  const prefix = type==='heal' ? '+' : type==='burn' ? '🔥' : type==='enemy' ? '' : '-';
-  el.textContent = prefix + amount;
-  const x = rect.left + rect.width/2 + (Math.random()*30-15);
-  const y = rect.top + rect.height/2 - 20;
-  el.style.cssText += `left:${x}px;top:${y}px;position:fixed;`;
-  document.body.appendChild(el);
-  setTimeout(() => el.remove(), 1200);
-}
+// (spawnDmgNumber is defined below in the BATTLE VFX ENGINE section)
 
-function spawnSlash(who, color='#fff', count=2) {
-  const rect = getCardRect(who);
-  const cx = rect.left + rect.width/2;
-  const cy = rect.top + rect.height/2;
-  for(let i=0;i<count;i++){
-    const wrap = document.createElement('div');
-    wrap.className = 'slash-vfx';
-    const angle = -35 + i*20 + (Math.random()*16-8);
-    const ox = (Math.random()*60-30);
-    const oy = (Math.random()*40-20);
-    wrap.style.cssText = `left:${cx-80+ox}px;top:${cy-8+oy}px;--angle:${angle}deg;animation-delay:${i*0.07}s`;
-    const line = document.createElement('div');
-    line.className = i===0 ? 'slash-line' : 'slash-line-2';
-    line.style.background = `linear-gradient(90deg, transparent, ${color}, transparent)`;
-    line.style.transform = `rotate(${angle}deg)`;
-    wrap.appendChild(line);
-    document.body.appendChild(wrap);
-    setTimeout(()=>wrap.remove(), 500+i*80);
-  }
-}
-
-function spawnImpactRings(who, color='#fff', count=3) {
-  const rect = getCardRect(who);
-  const cx = rect.left + rect.width/2;
-  const cy = rect.top + rect.height/2;
-  for(let i=0;i<count;i++){
-    const ring = document.createElement('div');
-    ring.className = 'impact-ring';
-    ring.style.cssText = `left:${cx}px;top:${cy}px;border-color:${color};animation-delay:${i*0.1}s;opacity:${0.9-i*0.2};`;
-    document.body.appendChild(ring);
-    setTimeout(()=>ring.remove(), 600+i*100);
-  }
-}
+// (spawnSlash is defined below in the BATTLE VFX ENGINE section)
 
 function spawnShieldBubble(who) {
   const imgId = who==='player'?'battlePlayerImg':'battleEnemyImg';
@@ -5254,86 +5213,7 @@ function cardHitFlash(who) {
   }, 60);
 }
 
-// ── Master VFX dispatcher ──
-async function playMoveVFX(move, isCrit, dmg, who='enemy') {
-  const hitWho = who; // who takes the hit
-  const attacker = who==='enemy' ? 'player' : 'enemy';
-  const atkColor = attacker==='player' ? '#ff9dc7' : '#c39bd3';
-
-  // 1. Attacker lunges
-  cardLunge(attacker);
-  await sleep(120);
-
-  if(move.type==='def' && move.id==='defend') {
-    spawnShieldBubble(attacker);
-    spawnImpactRings(attacker,'#5dade2',2);
-    return;
-  }
-  if(move.type==='def' && move.id==='heal') {
-    spawnHealEffect(attacker);
-    spawnDmgNumber(move.power, attacker, 'heal');
-    return;
-  }
-  if(move.type==='spc' && move.id==='focus') {
-    spawnFocusEffect(attacker);
-    return;
-  }
-
-  // 2. Move-type visuals
-  if(move.type==='ult') {
-    // Ultimate: magic circle + shockwave + particles
-    spawnMagicCircle(attacker, '#f1c40f');
-    await sleep(300);
-    spawnUltShockwave(attacker, '#f1c40f');
-    spawnParticles(5, '#f1c40f');
-    spawnParticles(3, atkColor);
-    await sleep(200);
-    spawnSlash(hitWho, '#f1c40f', 4);
-    spawnImpactRings(hitWho, '#f1c40f', 4);
-    cardHitFlash(hitWho);
-    spawnDmgNumber(dmg, hitWho, isCrit?'crit':'normal');
-    if(isCrit) critScreenEffect();
-    spawnParticles(4, '#f1c40f');
-    return;
-  }
-  if(move.type==='spc') {
-    spawnMagicCircle(attacker, atkColor);
-    spawnEmojiProjectile(attacker, '✨', 0, 0);
-    await sleep(250);
-    spawnSlash(hitWho, atkColor, 2);
-    spawnImpactRings(hitWho, atkColor, 2);
-    cardHitFlash(hitWho);
-    spawnDmgNumber(dmg, hitWho, isCrit?'crit':'normal');
-    return;
-  }
-  // Normal / Power attack
-  spawnSlash(hitWho, atkColor, isCrit?3:2);
-  spawnEmojiProjectile(attacker, move.type==='atk'?'⚔️':'💥', 0, 0);
-  await sleep(150);
-  cardHitFlash(hitWho);
-  spawnImpactRings(hitWho, atkColor, isCrit?3:2);
-  spawnDmgNumber(dmg, hitWho, isCrit?'crit':'normal');
-  if(isCrit) {
-    critScreenEffect();
-    spawnParticles(3, '#ff4444');
-  }
-}
-
-async function playEnemyMoveVFX(moveName, isCrit, dmg) {
-  const atkColor = '#c39bd3';
-  cardLunge('enemy');
-  await sleep(120);
-  spawnSlash('player', atkColor, isCrit?3:2);
-  spawnEmojiProjectile('enemy', '🌑', 0, 0);
-  await sleep(150);
-  cardHitFlash('player');
-  spawnImpactRings('player', atkColor, isCrit?3:2);
-  spawnDmgNumber(dmg, 'player', isCrit?'crit':'enemy');
-  if(isCrit) {
-    critScreenEffect();
-    spawnParticles(3,'#9b59b6');
-  }
-}
+// (playMoveVFX is defined below in the BATTLE VFX ENGINE section)
 
 async function playerMove(moveId) {
   if(battleState.battleEnded || battleState.movesCooldown) return;
@@ -5358,7 +5238,7 @@ async function playerMove(moveId) {
       battleState.playerHP = Math.min(battleState.playerMaxHP, battleState.playerHP + healAmt);
       await playMoveVFX('heal-action','player','player',healAmt,false, RARITY_COLORS[battleState.playerCard.rarity]);
       battleLog(`💊 ${battleState.playerCard.name} restores ${healAmt} HP!`, 'player');
-      spawnHealEffect('player'); spawnDmgNumber(healAmt, 'player', 'heal');
+      spawnHealEffect('player'); spawnDmgNumber('player', healAmt, false, true);
     }
   } else if(move.type==='spc' && moveId==='focus'){
     battleState.playerAtkBoost = 30;
@@ -5403,7 +5283,7 @@ async function playerMove(moveId) {
     // Enemy guarding?
     if(battleState.enemyGuarding){ baseDmg = Math.round(baseDmg*0.55); battleState.enemyGuarding=false; }
     battleState.enemyHP -= baseDmg;
-    await playMoveVFX(move, isCrit, baseDmg, 'enemy');
+    await playMoveVFX(move.type, 'player', 'enemy', baseDmg, isCrit, RARITY_COLORS[battleState.playerCard.rarity]||'#ff9dc7');
     playAttackSound(move.type); playHitSound(isCrit);
     const critStr = isCrit ? ' 💥 CRITICAL!' : '';
     battleLog(`${move.icon} ${battleState.playerCard.name} uses ${move.name}! ${baseDmg} damage${critStr}`, 'player');
@@ -5456,7 +5336,6 @@ async function enemyTurn() {
     const healAmt = Math.round(atkBase * 0.8);
     battleState.enemyHP = Math.min(battleState.enemyMaxHP, battleState.enemyHP + healAmt);
     await playMoveVFX('heal-action','enemy','enemy',healAmt,false, RARITY_COLORS[ec.rarity]);
-    spawnHealEffect('enemy'); spawnDmgNumber(healAmt,'enemy','heal');
     battleLog(`💊 ${ec.name} uses Recovery! +${healAmt} HP!`, 'enemy');
 
   } else if(action==='guard'){
@@ -5915,14 +5794,19 @@ async function uploadCardFile(input, targetFieldId, folder){
   }
 }
 
-async function uploadAbilityFile(input, targetId, folder){
+async function uploadAbilityFile(input, progressId, folder){
   const file = input.files[0];
   if(!file) return;
-  const el = document.getElementById(targetId);
+  const el = document.getElementById(progressId);
   if(el) el.textContent='⬆️ Uploading...';
   try{
     const url = await uploadToStorage(file, folder||'abilities');
-    document.getElementById(targetId.replace('_progress','_url')).value = url;
+    // Derive the URL input ID from the progress ID
+    // progress IDs: ab_gif_progress_N or ab_audio_progress_N
+    // url input IDs: ab_gif_url_N or ab_audio_url_N
+    const urlInputId = progressId.replace('_progress_', '_url_');
+    const urlInput = document.getElementById(urlInputId);
+    if(urlInput) urlInput.value = url;
     if(el) el.textContent='✅ Done';
     setTimeout(()=>{if(el)el.textContent='';},2000);
     showToast('✅ Uploaded!');
