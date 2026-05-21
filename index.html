@@ -180,12 +180,15 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .pull-big-btn span{font-family:'JetBrains Mono',monospace;font-size:0.8em;opacity:0.8;}
 .rN{color:var(--rN);border-color:var(--rN);}.rR{color:var(--rR);border-color:var(--rR);}.rSR{color:var(--rSR);border-color:var(--rSR);}.rSSR{color:var(--rSSR);border-color:var(--rSSR);}.rUR{color:var(--rUR);border-color:var(--rUR);}.rLR{color:var(--rLR);border-color:var(--rLR);}.rS{color:var(--rS);border-color:var(--rS);}
 /* ══ MOBILE NAV ══ */
-.mobile-nav{display:none;position:fixed;bottom:0;left:0;right:0;z-index:100;background:rgba(13,6,16,0.95);backdrop-filter:blur(20px);border-top:1px solid var(--border);padding:8px 4px;padding-bottom:max(8px,env(safe-area-inset-bottom));}
+.mobile-nav{display:none;position:fixed;bottom:0;left:0;right:0;z-index:100;background:rgba(13,6,16,0.96);backdrop-filter:blur(24px);border-top:1px solid var(--border);padding:6px 4px;padding-bottom:max(6px,env(safe-area-inset-bottom));}
 .mobile-nav-inner{display:flex;justify-content:space-around;align-items:center;}
-.mobile-nav-btn{display:flex;flex-direction:column;align-items:center;gap:2px;background:none;border:none;color:var(--text-dim);padding:6px 10px;border-radius:12px;cursor:pointer;transition:all 0.2s;font-size:0.62em;font-family:'Cormorant Garamond',serif;min-width:52px;}
-.mobile-nav-btn .mob-icon{font-size:1.5em;line-height:1;}
-.mobile-nav-btn.active,.mobile-nav-btn:hover{color:var(--pink);}
-.mobile-nav-btn.active .mob-icon{filter:drop-shadow(0 0 6px var(--pink-glow));}
+.mobile-nav-btn{display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:none;color:var(--text-dim);padding:6px 10px;border-radius:14px;cursor:pointer;transition:all 0.22s;font-size:0.6em;font-family:'Cormorant Garamond',serif;min-width:52px;position:relative;}
+.mobile-nav-btn .mob-icon{font-size:1.5em;line-height:1;transition:all 0.22s;}
+.mobile-nav-btn.active{color:var(--pink);}
+.mobile-nav-btn.active .mob-icon{filter:drop-shadow(0 0 8px var(--pink-glow));}
+/* pill behind active icon */
+.mobile-nav-btn.active::before{content:'';position:absolute;top:4px;left:50%;transform:translateX(-50%);width:36px;height:28px;background:rgba(255,157,199,0.14);border-radius:10px;z-index:-1;}
+
 
 /* ══ NAV PROFILE AVATAR BUTTON ══ */
 .nav-profile-avatar-btn {
@@ -209,6 +212,19 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   width: 100%; height: 100%;
   object-fit: cover;
   display: block;
+}
+/* subtle pulse ring on mobile so it's discoverable */
+@media(max-width:700px){
+  .nav-profile-avatar-btn {
+    width: 34px; height: 34px;
+    border-color: rgba(255,157,199,0.5);
+    box-shadow: 0 0 0 0 var(--pink-glow);
+    animation: avatarRingPulse 3s ease-in-out infinite;
+  }
+}
+@keyframes avatarRingPulse {
+  0%,100% { box-shadow: 0 0 0 0 rgba(255,157,199,0.35); }
+  50%      { box-shadow: 0 0 0 4px rgba(255,157,199,0); }
 }
 
 /* ══ HOME PAGE — QUICK STATS ══ */
@@ -342,67 +358,133 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 }
 .hac-desc { font-size: 0.72em; color: var(--text-dim); line-height: 1.4; }
 
+/* ══ NAV RIGHT (coins + avatar) — always visible ══ */
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
 @media(max-width:700px){
-  .home-quick-stats { gap: 8px; }
-  .home-stat-chip { min-width: 90px; padding: 8px 12px; }
+  /* Hide desktop-only items */
+  nav .nav-links { display: none !important; }
+  /* nav-right stays visible — avatar + coins show on mobile top bar */
+  .nav-right { gap: 8px; }
+  .nav-coins { font-size: 0.76em; padding: 4px 10px; }
+  .nav-profile-avatar-btn { width: 34px; height: 34px; }
+
+  .mobile-nav { display: block; }
+  .page { padding: 16px 14px 92px; }
+
+  /* ── Top nav tighter ── */
+  nav { padding: 8px 14px; }
+  .nav-logo { font-size: 0.88em; }
+
+  /* ── Hero ── */
+  .hero { padding: 22px 14px 16px; }
+  .hero-title { font-size: clamp(1.5em, 9vw, 2.8em); }
+  .hero-sub { font-size: 0.88em; line-height: 1.5; }
+  .hero-actions { gap: 10px; }
+  .btn-primary, .btn-secondary { padding: 10px 22px; font-size: 0.78em; }
+
+  /* ── Home quick stats — 2×2 grid ── */
+  .home-quick-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 14px 0; }
+  .home-stat-chip { min-width: unset; padding: 10px 12px; border-radius: 14px; }
+  .hsc-icon { font-size: 1.2em; }
+  .hsc-val { font-size: 1em; }
+  .hsc-lbl { font-size: 0.68em; }
+
+  /* ── Daily teaser ── */
+  .home-daily-teaser { padding: 12px 14px; border-radius: 14px; }
+  .hdt-flame { font-size: 1.4em; }
+  .hdt-title { font-size: 0.8em; }
+  .hdt-sub { font-size: 0.72em; }
+
+  /* ── Quick actions — 3 col on mobile ── */
   .home-action-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; }
   .home-action-card { padding: 14px 8px; border-radius: 14px; }
-  .hac-icon { font-size: 1.5em; }
+  .hac-icon { font-size: 1.5em; margin-bottom: 6px; }
   .hac-name { font-size: 0.62em; }
   .hac-desc { display: none; }
-}
-@media(max-width:380px){
-  .home-action-grid { grid-template-columns: repeat(2, 1fr); }
+
+  /* ── Spotlight ── */
+  .home-spotlight-wrap { padding: 14px; border-radius: 16px; }
+
+  /* ── Banner ── */
+  .banner-card { grid-template-columns: 1fr !important; padding: 16px 14px; border-radius: 16px; }
+  .banner-art { display: none; }
+
+  /* ── Pull ── */
+  .pull-btn-group { grid-template-columns: 1fr 1fr; gap: 10px; max-width: 100%; }
+  .pull-big-btn { padding: 14px 10px; font-size: 0.78em; }
+  .pull-card-art { width: 190px; height: 270px; }
+  .pull-name { font-size: 1.3em; }
+
+  /* ── Cards ── */
+  .cards-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; }
+
+  /* ── Shop ── */
+  .shop-grid { grid-template-columns: 1fr 1fr; }
+
+  /* ── Collection filter ── */
+  .coll-filter { gap: 5px; }
+  .filter-btn { padding: 3px 8px; font-size: 0.72em; }
+
+  /* ── Profile ── */
+  .profile-banner-area { height: 120px; }
+  .profile-avatar-row { margin-top: -36px; padding: 0 16px; }
+  .profile-avatar-outer { width: 72px; height: 72px; }
+  .profile-body { padding: 10px 16px 20px; }
+  .profile-name { font-size: 1.05em; }
+  .profile-stats { grid-template-columns: repeat(3, 1fr); gap: 7px; }
+  .stat-box { padding: 9px 5px; }
+  .stat-val { font-size: 0.95em; }
+
+  /* ── Rates ── */
+  .rates-grid { grid-template-columns: repeat(4, 1fr); }
+
+  /* ── Multi-pull ── */
+  .multi-card-img { width: 90px; height: 128px; }
+  .multi-cards-row { gap: 8px; padding: 0 10px; }
+  .multi-pull-title { font-size: 0.8em; }
+  .multi-collect-btn { width: calc(100% - 40px); }
+
+  /* ── Modals ── */
+  .modal-box { max-height: 95vh; border-radius: 16px; }
+  .profile-edit-box { max-height: 95vh; border-radius: 16px; padding: 20px 16px; }
+  .pool-modal-box { padding: 16px; }
+  .pool-grid { grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 8px; }
+
+  /* ── Admin ── */
+  .admin-grid { grid-template-columns: 1fr 1fr; }
+
+  /* ── Battle ── */
+  .battle-moves-grid { grid-template-columns: 1fr; }
+  .battle-card-img { width: 90px; height: 128px; }
+  .battle-arena-bg { padding: 18px 14px; }
+  .battle-vs-badge { font-size: 1.4em; }
+
+  /* ── Section titles ── */
+  .section-title { font-size: 0.88em; }
+
+  /* ── Pity ── */
+  .pity-section { padding: 14px 16px; }
+
+  /* ── Mobile nav bottom ── */
+  .mobile-nav-btn { min-width: 44px; padding: 5px 8px; font-size: 0.58em; }
 }
 
-
-@media(max-width:700px){
-  nav .nav-links,.nav-signout-wrap{display:none!important;}
-  .mobile-nav{display:block;}
-  .page{padding:16px 14px 88px;}
-  .hero{padding:28px 16px 20px;}
-  .hero-title{font-size:clamp(1.6em,10vw,3em);}
-  .hero-sub{font-size:0.95em;}
-  .banner-card{grid-template-columns:1fr!important;padding:18px 16px;}
-  .banner-art{display:none;}
-  .pull-btn-group{grid-template-columns:1fr 1fr;gap:10px;max-width:100%;}
-  .pull-big-btn{padding:14px 10px;font-size:0.78em;}
-  .cards-grid{grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;}
-  /* Profile mobile fixes */
-  .profile-banner-area{height:120px;}
-  .profile-avatar-row{margin-top:-36px;padding:0 16px;}
-  .profile-avatar-outer{width:72px;height:72px;}
-  .profile-body{padding:10px 16px 20px;}
-  .profile-name{font-size:1.05em;}
-  .profile-stats{grid-template-columns:repeat(3,1fr);gap:7px;}
-  .stat-box{padding:9px 5px;}
-  .stat-val{font-size:0.95em;}
-  .multi-card-img{width:90px;height:128px;}
-  .multi-cards-row{gap:8px;padding:0 10px;}
-  .multi-pull-title{font-size:0.8em;}
-  .multi-collect-btn{width:calc(100% - 40px);}
-  nav{padding:10px 14px;}
-  .nav-logo{font-size:0.92em;}
-  .modal-box{max-height:95vh;border-radius:16px;}
-  .profile-edit-box{max-height:95vh;border-radius:16px;padding:20px 16px;}
-  .admin-grid{grid-template-columns:1fr 1fr;}
-  .rates-grid{grid-template-columns:repeat(4,1fr);}
-  .shop-grid{grid-template-columns:1fr 1fr;}
-  .coll-filter{gap:5px;}
-  .filter-btn{padding:3px 8px;font-size:0.72em;}
-  .pool-grid{grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:8px;}
-  .pool-modal-box{padding:16px;}
-  .pull-card-art{width:190px;height:270px;}
-  .pull-name{font-size:1.3em;}
-}
 @media(max-width:380px){
-  .pull-btn-group{grid-template-columns:1fr;}
-  .cards-grid{grid-template-columns:repeat(2,1fr);}
-  .shop-grid{grid-template-columns:1fr;}
-  .admin-grid{grid-template-columns:1fr;}
-  .rates-grid{grid-template-columns:repeat(3,1fr);}
-  .profile-stats{gap:5px;}
-  .stat-val{font-size:0.88em;}
+  .pull-btn-group { grid-template-columns: 1fr; }
+  .cards-grid { grid-template-columns: repeat(2, 1fr); }
+  .shop-grid { grid-template-columns: 1fr; }
+  .admin-grid { grid-template-columns: 1fr; }
+  .rates-grid { grid-template-columns: repeat(3, 1fr); }
+  .profile-stats { gap: 5px; }
+  .stat-val { font-size: 0.88em; }
+  .home-action-grid { grid-template-columns: repeat(3, 1fr); }
+  .nav-coins { display: none; } /* very small phones — hide coins, keep avatar */
 }
 
 /* ══ BANNER CARD SHOWCASE ══ */
@@ -2507,13 +2589,15 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
       <button class="nav-btn" onclick="goTo('activities',this)">⚔️ Activities</button>
       <button class="nav-btn" id="adminNavBtn" style="display:none" onclick="goTo('admin',this)">⚙️ Admin</button>
     </div>
-    <div style="display:flex;align-items:center;gap:10px;" class="nav-signout-wrap">
+    <!-- right side: coins + avatar — visible on BOTH desktop and mobile -->
+    <div class="nav-right" id="navRight">
       <div class="nav-coins">🪙 <span id="coinDisplay">1000</span></div>
       <button class="nav-profile-avatar-btn" onclick="goTo('profile',null)" title="View Profile" id="navProfileBtn">
         <img id="navProfileAvatar" src="https://cdn.discordapp.com/embed/avatars/0.png" alt="Profile"/>
       </button>
     </div>
-    <div class="nav-coins" style="display:none" id="mobileCoins">🪙 <span id="coinDisplayMobile">1000</span></div>
+    <!-- legacy mobile coins kept for JS compat, hidden -->
+    <div id="mobileCoins" style="display:none">🪙 <span id="coinDisplayMobile">1000</span></div>
   </nav>
 
   <!-- MOBILE BOTTOM NAV -->
@@ -2524,7 +2608,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
       <button class="mobile-nav-btn" id="mnav-collection" onclick="goTo('collection',null);setMobileNav('collection')"><span class="mob-icon">🃏</span>Cards</button>
       <button class="mobile-nav-btn" id="mnav-shop" onclick="goTo('shop',null);setMobileNav('shop')"><span class="mob-icon">🛍️</span>Shop</button>
       <button class="mobile-nav-btn" id="mnav-activities" onclick="goTo('activities',null);setMobileNav('activities')"><span class="mob-icon">⚔️</span>Activities</button>
-      <button class="mobile-nav-btn" id="mnav-profile" onclick="goTo('profile',null);setMobileNav('profile')"><span class="mob-icon">👤</span>Profile</button>
+      <button class="mobile-nav-btn" id="mnav-profile" style="display:none" onclick="goTo('profile',null);setMobileNav('profile')"><span class="mob-icon">👤</span>Profile</button>
       <button class="mobile-nav-btn" id="mnav-admin" style="display:none" onclick="goTo('admin',null);setMobileNav('admin')"><span class="mob-icon">⚙️</span>Admin</button>
     </div>
   </div>
