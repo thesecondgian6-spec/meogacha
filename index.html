@@ -1002,7 +1002,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 
 /* ── Cutscene modal ── */
 #abilityCutscene {
-  display: none;
+  display: none; /* shown via JS: display:flex */
   position: fixed;
   inset: 0;
   z-index: 999;
@@ -1010,6 +1010,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   justify-content: center;
   background: rgba(0,0,0,0.94);
   backdrop-filter: blur(4px);
+  overflow: hidden;
 }
 /* Stage: centred card + side panels */
 .cs-stage {
