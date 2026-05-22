@@ -7195,21 +7195,35 @@ async function adminGiveCoinsToPlayer(){
 // In-memory store: { cardId: { title, bgImage, defaultDuration, steps:[{text,image,audio,duration}] } }
 window.CARD_CUTSCENES = {};
 
-// Load all cutscenes from Supabase
+// Load all cutscenes from Supabase (row-per-step schema)
+// Schema: card_id, step_order, text, gif_url, audio_url, duration, is_title_step, bg_image, card_title, default_duration
 async function loadCutscenes() {
   try {
     const rows = await sb.getAll('card_cutscenes');
     if (rows && rows.length) {
       window.CARD_CUTSCENES = {};
+      // Group rows by card_id
       rows.forEach(r => {
-        let steps = [];
-        try { steps = typeof r.steps === 'string' ? JSON.parse(r.steps) : (r.steps || []); } catch(e) {}
-        window.CARD_CUTSCENES[r.card_id] = {
-          title: r.title || '',
-          bgImage: r.bg_image || '',
-          defaultDuration: r.default_duration || 3,
-          steps
-        };
+        if (!window.CARD_CUTSCENES[r.card_id]) {
+          window.CARD_CUTSCENES[r.card_id] = {
+            title: r.card_title || '',
+            bgImage: r.bg_image || '',
+            defaultDuration: r.default_duration || 3,
+            steps: []
+          };
+        }
+        if (!r.is_title_step) {
+          window.CARD_CUTSCENES[r.card_id].steps.push({
+            text:     r.text     || '',
+            image:    r.gif_url  || '',
+            audio:    r.audio_url|| '',
+            duration: r.duration != null ? r.duration : '',
+          });
+        }
+      });
+      // Sort steps by step_order
+      Object.values(window.CARD_CUTSCENES).forEach(cs => {
+        cs.steps.sort((a, b) => (a._order || 0) - (b._order || 0));
       });
     }
   } catch(e) { console.warn('Could not load cutscenes:', e); }
@@ -7479,15 +7493,37 @@ async function saveCutscene() {
   const { cardId, title, bgImage, defaultDuration, steps } = gatherCsData();
   if (!cardId) { showToast('Enter a card ID first'); return; }
   if (!steps.length) { showToast('Add at least one step'); return; }
-  const row = { card_id: cardId, title, bg_image: bgImage, default_duration: defaultDuration, steps: JSON.stringify(steps) };
-  const ok = await sb.upsert('card_cutscenes', row);
-  if (ok) {
+
+  // Delete all existing rows for this card first
+  await sb.delete('card_cutscenes', { card_id: cardId });
+
+  // Insert each step as a separate row
+  let allOk = true;
+  for (let i = 0; i < steps.length; i++) {
+    const s = steps[i];
+    const row = {
+      card_id:          cardId,
+      step_order:       i,
+      text:             s.text     || '',
+      gif_url:          s.image    || '',
+      audio_url:        s.audio    || '',
+      duration:         s.duration !== '' ? parseFloat(s.duration) : null,
+      is_title_step:    false,
+      bg_image:         bgImage,
+      card_title:       title,
+      default_duration: defaultDuration,
+    };
+    const ok = await sb.insert('card_cutscenes', row);
+    if (!ok) allOk = false;
+  }
+
+  if (allOk) {
     window.CARD_CUTSCENES[cardId] = { title, bgImage, defaultDuration, steps };
-    showToast(`✅ Cutscene saved for "${cardId}"`);
+    showToast('✅ Cutscene saved for "' + cardId + '"');
     updateCsPreview();
     loadCsSavedList();
   } else {
-    showToast('❌ Save failed — make sure card_cutscenes table exists in Supabase');
+    showToast('❌ Some rows failed — check Supabase table columns');
   }
 }
 
@@ -7495,10 +7531,10 @@ async function deleteCutscene() {
   if (!state.isAdmin) return;
   const cardId = (document.getElementById('csCardId')?.value || '').trim();
   if (!cardId) { showToast('Enter a card ID'); return; }
-  if (!confirm(`Delete cutscene for "${cardId}"?`)) return;
+  if (!confirm('Delete cutscene for "' + cardId + '"?')) return;
   await sb.delete('card_cutscenes', { card_id: cardId });
   delete window.CARD_CUTSCENES[cardId];
-  showToast(`🗑️ Cutscene for "${cardId}" deleted`);
+  showToast('🗑️ Cutscene for "' + cardId + '" deleted');
   clearCsForm();
   loadCsSavedList();
 }
@@ -7506,18 +7542,31 @@ async function deleteCutscene() {
 async function loadCutsceneForCard() {
   const cardId = (document.getElementById('csCardId')?.value || '').trim();
   if (!cardId) { showToast('Enter a card ID'); return; }
-  // Try in-memory first, then Supabase
-  let cs = window.CARD_CUTSCENES[cardId];
-  if (!cs) {
-    const rows = await sb.get('card_cutscenes', { card_id: cardId });
-    if (rows && rows.length) {
-      let steps = [];
-      try { steps = typeof rows[0].steps === 'string' ? JSON.parse(rows[0].steps) : (rows[0].steps || []); } catch(e) {}
-      cs = { title: rows[0].title || '', bgImage: rows[0].bg_image || '', defaultDuration: rows[0].default_duration || 3, steps };
-      window.CARD_CUTSCENES[cardId] = cs;
-    }
+
+  // Always fetch fresh from Supabase (row-per-step)
+  const rows = await sb.get('card_cutscenes', { card_id: cardId });
+  let cs = null;
+  if (rows && rows.length) {
+    // Sort by step_order, skip title steps
+    const sorted = rows.filter(r => !r.is_title_step).sort((a, b) => (a.step_order || 0) - (b.step_order || 0));
+    const meta = rows[0]; // grab shared meta from first row
+    cs = {
+      title:           meta.card_title       || '',
+      bgImage:         meta.bg_image         || '',
+      defaultDuration: meta.default_duration || 3,
+      steps: sorted.map(r => ({
+        text:     r.text      || '',
+        image:    r.gif_url   || '',
+        audio:    r.audio_url || '',
+        duration: r.duration  != null ? r.duration : '',
+      }))
+    };
+    window.CARD_CUTSCENES[cardId] = cs;
+  } else if (window.CARD_CUTSCENES[cardId]) {
+    cs = window.CARD_CUTSCENES[cardId];
   }
-  if (!cs) { showToast(`No cutscene found for "${cardId}"`); return; }
+
+  if (!cs) { showToast('No cutscene found for "' + cardId + '"'); return; }
   // Populate form
   document.getElementById('csTitle').value = cs.title || '';
   document.getElementById('csBgImage').value = cs.bgImage || '';
@@ -7526,7 +7575,7 @@ async function loadCutsceneForCard() {
   _csStepCount = 0;
   (cs.steps || []).forEach(s => addCsStep(s));
   updateCsPreview();
-  showToast(`📂 Loaded cutscene for "${cardId}"`);
+  showToast('📂 Loaded cutscene for "' + cardId + '"');
 }
 
 function clearCsForm() {
@@ -7549,30 +7598,30 @@ async function previewCutsceneAdmin() {
 async function loadCsSavedList() {
   const list = document.getElementById('csSavedList');
   if (!list) return;
-  const ids = Object.keys(window.CARD_CUTSCENES);
-  if (!ids.length) {
-    // try DB
-    const rows = await sb.getAll('card_cutscenes');
-    if (!rows || !rows.length) { list.innerHTML = '<div style="color:var(--text-dim);font-style:italic;font-size:0.85em;text-align:center;padding:16px;">No cutscenes saved yet.</div>'; return; }
-    rows.forEach(r => {
-      let steps = [];
-      try { steps = typeof r.steps === 'string' ? JSON.parse(r.steps) : (r.steps || []); } catch(e) {}
-      window.CARD_CUTSCENES[r.card_id] = { title: r.title || '', bgImage: r.bg_image || '', defaultDuration: r.default_duration || 3, steps };
-    });
+  // Always fetch fresh from DB
+  const rows = await sb.getAll('card_cutscenes');
+  if (!rows || !rows.length) {
+    list.innerHTML = '<div style="color:var(--text-dim);font-style:italic;font-size:0.85em;text-align:center;padding:16px;">No cutscenes saved yet.</div>';
+    return;
   }
-  const allIds = Object.keys(window.CARD_CUTSCENES);
-  list.innerHTML = allIds.map(id => {
-    const cs = window.CARD_CUTSCENES[id];
-    return `<div class="admin-card-row" style="margin-bottom:8px;">
-      <div class="admin-card-info">
-        <div class="admin-card-name">🎬 ${id}</div>
-        <div class="admin-card-meta">${cs.steps?.length || 0} step(s) · ${cs.title ? cs.title.slice(0,40) : '(no title)'}</div>
-      </div>
-      <div class="admin-card-actions">
-        <button class="admin-action-btn" onclick="document.getElementById('csCardId').value='${id}';loadCutsceneForCard()">✏️ Edit</button>
-        <button class="admin-action-btn" onclick="window.CARD_CUTSCENES['${id}']&&playCharacterCutscene(window.CARD_CUTSCENES['${id}'])">▶️</button>
-      </div>
-    </div>`;
+  // Group by card_id to get unique cards + step counts
+  const grouped = {};
+  rows.forEach(r => {
+    if (!grouped[r.card_id]) grouped[r.card_id] = { count: 0, title: r.card_title || '', meta: r };
+    if (!r.is_title_step) grouped[r.card_id].count++;
+  });
+  list.innerHTML = Object.entries(grouped).map(([id, info]) => {
+    const titleSnip = info.title ? info.title.slice(0, 40) : '(no title)';
+    return '<div class="admin-card-row" style="margin-bottom:8px;">' +
+      '<div class="admin-card-info">' +
+        '<div class="admin-card-name">🎬 ' + id + '</div>' +
+        '<div class="admin-card-meta">' + info.count + ' step(s) · ' + titleSnip + '</div>' +
+      '</div>' +
+      '<div class="admin-card-actions">' +
+        '<button class="admin-action-btn" onclick="document.getElementById('csCardId').value='' + id + '';loadCutsceneForCard()">✏️ Edit</button>' +
+        '<button class="admin-action-btn" onclick="document.getElementById('csCardId').value='' + id + '';loadCutsceneForCard().then(()=>previewCutsceneAdmin())">▶️</button>' +
+      '</div>' +
+    '</div>';
   }).join('');
 }
 
