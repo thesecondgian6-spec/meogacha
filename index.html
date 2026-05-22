@@ -2377,6 +2377,157 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 /* ── Color swatches ── */
 .color-swatch{width:20px;height:20px;border-radius:50%;cursor:pointer;border:2px solid rgba(255,255,255,0.15);flex-shrink:0;transition:transform 0.15s;}
 .color-swatch:hover{transform:scale(1.3);}
+
+/* ═══════════════════════════════════════════════════════
+   CHARACTER INTRO CUTSCENE SYSTEM
+═══════════════════════════════════════════════════════ */
+#charCutscene {
+  position: fixed; inset: 0; z-index: 500;
+  display: none; align-items: center; justify-content: center;
+  background: #000;
+  flex-direction: column;
+  overflow: hidden;
+}
+#charCutscene.ccs-active { display: flex; }
+
+/* cinematic black bars */
+.ccs-bar { position: absolute; left: 0; right: 0; height: 0; background: #000; z-index: 20; transition: height 0.5s cubic-bezier(0.4,0,0.2,1); }
+.ccs-bar-top { top: 0; }
+.ccs-bar-bot { bottom: 0; }
+#charCutscene.ccs-bars-in .ccs-bar { height: 80px; }
+
+/* background image/gif */
+#ccsBg {
+  position: absolute; inset: 0; object-fit: cover; width: 100%; height: 100%;
+  opacity: 0; transition: opacity 0.6s ease;
+  filter: brightness(0.45) saturate(1.3);
+  pointer-events: none;
+}
+#ccsBg.ccs-visible { opacity: 1; }
+
+/* scanlines */
+.ccs-scanlines {
+  position: absolute; inset: 0; pointer-events: none; z-index: 5;
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.07) 2px, rgba(0,0,0,0.07) 4px);
+}
+
+/* vignette */
+.ccs-vignette {
+  position: absolute; inset: 0; pointer-events: none; z-index: 6;
+  background: radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.6) 100%);
+}
+
+/* title banner */
+#ccsTitle {
+  position: relative; z-index: 15;
+  font-family: 'Cinzel Decorative', serif;
+  font-size: clamp(0.9em, 3vw, 1.6em);
+  color: #fff;
+  text-align: center;
+  padding: 14px 32px;
+  background: rgba(0,0,0,0.7);
+  border-top: 1px solid rgba(255,255,255,0.15);
+  border-bottom: 1px solid rgba(255,255,255,0.15);
+  width: 100%;
+  letter-spacing: 0.05em;
+  line-height: 1.4;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+  margin-bottom: 20px;
+}
+#ccsTitle.ccs-show { opacity: 1; transform: none; }
+
+/* step text */
+#ccsText {
+  position: relative; z-index: 15;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(1em, 3vw, 1.4em);
+  font-style: italic;
+  color: #f0d8e8;
+  text-align: center;
+  max-width: 680px;
+  padding: 0 32px;
+  line-height: 1.7;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  text-shadow: 0 2px 12px rgba(0,0,0,0.9), 0 0 30px rgba(0,0,0,0.8);
+}
+#ccsText.ccs-show { opacity: 1; }
+
+/* step image */
+#ccsStepImg {
+  position: relative; z-index: 14;
+  max-width: 340px; max-height: 200px;
+  object-fit: contain; border-radius: 10px;
+  margin-bottom: 16px;
+  opacity: 0; transition: opacity 0.5s ease;
+  box-shadow: 0 0 40px rgba(0,0,0,0.8);
+}
+#ccsStepImg.ccs-visible { opacity: 1; }
+
+/* skip btn */
+#ccsSkip {
+  position: absolute; bottom: 90px; right: 24px; z-index: 30;
+  background: rgba(0,0,0,0.55); border: 1px solid rgba(255,255,255,0.2);
+  color: rgba(255,255,255,0.6); padding: 6px 18px; border-radius: 20px;
+  font-family: 'JetBrains Mono', monospace; font-size: 0.72em; cursor: pointer;
+  transition: all 0.2s;
+}
+#ccsSkip:hover { background: rgba(255,157,199,0.2); color: var(--pink); border-color: var(--pink); }
+
+/* progress dots */
+#ccsDots {
+  position: absolute; bottom: 70px; left: 50%; transform: translateX(-50%);
+  z-index: 30; display: flex; gap: 8px;
+}
+.ccs-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: rgba(255,255,255,0.3); transition: all 0.3s;
+}
+.ccs-dot.active { background: var(--pink); transform: scale(1.4); }
+
+/* audio icon */
+#ccsAudioIcon {
+  position: absolute; top: 90px; right: 20px; z-index: 30;
+  font-size: 1.2em; opacity: 0.5; pointer-events: none;
+}
+
+/* ── Admin cutscene tab styles ── */
+.cs-step-block {
+  background: rgba(255,157,199,0.04);
+  border: 1px solid rgba(255,157,199,0.15);
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 12px;
+  position: relative;
+}
+.cs-step-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72em;
+  color: var(--pink);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.cs-remove-step {
+  background: none; border: none; color: rgba(231,76,60,0.6);
+  cursor: pointer; font-size: 0.9em; padding: 0 4px;
+  transition: color 0.2s;
+}
+.cs-remove-step:hover { color: #e74c3c; }
+.cs-preview-banner {
+  background: linear-gradient(135deg, rgba(255,157,199,0.06), rgba(192,132,184,0.06));
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  margin-top: 16px;
+  font-size: 0.82em;
+  color: var(--text-dim);
+  font-style: italic;
+}
+
 /* ── Admin section labels ── */
 .admin-section-label{font-size:0.72em;font-family:'JetBrains Mono',monospace;letter-spacing:0.12em;text-transform:uppercase;color:var(--pink);margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid rgba(255,157,199,0.15);}
 .admin-hint{font-size:0.85em;color:var(--text-dim);text-transform:none;letter-spacing:0;font-family:'Cormorant Garamond',serif;}
@@ -2570,6 +2721,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
         <div class="modal-actions">
           <button class="btn-primary" onclick="closeModal()">Close</button>
           <button class="btn-secondary" id="modalEquipBtn" onclick="equipCard()">⚔️ Equip</button>
+          <button class="btn-secondary" id="modalCutsceneBtn" style="display:none" onclick="viewCardCutscene()">🎬 Cutscene</button>
         </div>
       </div>
     </div>
@@ -2994,6 +3146,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
     <div class="section-title">⚙️ Admin Panel</div>
     <div style="display:flex;gap:8px;margin-bottom:24px;flex-wrap:wrap;">
       <button class="filter-btn active" id="atab-cards" onclick="switchAdminTab('cards',this)">🎴 Card Manager</button>
+      <button class="filter-btn" id="atab-cutscenes" onclick="switchAdminTab('cutscenes',this)">🎬 Cutscenes</button>
       <button class="filter-btn" id="atab-tools" onclick="switchAdminTab('tools',this)">🔧 Tools</button>
     </div>
 
@@ -3170,6 +3323,77 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
                 <div id="previewThumbStars" style="font-size:0.6em;color:#9b59b6;">★★★★</div>
               </div>
             </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- CUTSCENES TAB -->
+    <div id="adminTab-cutscenes" style="display:none;">
+      <div class="admin-panel">
+        <h3 style="margin-bottom:16px;">🎬 Character Intro Cutscenes</h3>
+        <p style="color:var(--text-dim);font-size:0.85em;margin-bottom:20px;line-height:1.5;">
+          Create cinematic intro cutscenes that play when pulling LR+ cards. Each cutscene has a title, text steps with optional images/GIFs, optional per-step audio, and adjustable step timing.
+        </p>
+
+        <!-- Card selector -->
+        <div style="margin-bottom:14px;">
+          <label class="admin-label">Card ID <span class="admin-hint">(which card this cutscene is for)</span></label>
+          <div style="display:flex;gap:8px;">
+            <input class="admin-input" id="csCardId" placeholder="e.g. deku, hakari, gojo" style="flex:1"/>
+            <button class="admin-btn" onclick="loadCutsceneForCard()" style="padding:8px 14px;white-space:nowrap;">📂 Load</button>
+          </div>
+        </div>
+
+        <!-- Title -->
+        <div style="margin-bottom:14px;">
+          <label class="admin-label">Cutscene Title <span class="admin-hint">(displayed as banner across screen)</span></label>
+          <input class="admin-input" id="csTitle" placeholder="e.g. 「 🔥 THE FEVER IS RISING!! 」"/>
+        </div>
+
+        <!-- Default step duration -->
+        <div style="margin-bottom:14px;">
+          <label class="admin-label">Default Step Duration <span class="admin-hint">(seconds each step shows, unless overridden per-step)</span></label>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <input class="admin-input" id="csDefaultDuration" type="number" min="0.3" max="30" step="0.5" value="3" style="width:100px;"/>
+            <span style="color:var(--text-dim);font-size:0.85em;">seconds</span>
+          </div>
+        </div>
+
+        <!-- Background image -->
+        <div style="margin-bottom:14px;">
+          <label class="admin-label">Background Image / GIF URL <span class="admin-hint">(optional — used as darkened full-screen backdrop)</span></label>
+          <input class="admin-input" id="csBgImage" placeholder="https://...gif or image URL"/>
+        </div>
+
+        <!-- Steps -->
+        <div class="admin-section-label" style="margin-top:18px;">Steps</div>
+        <div id="csStepList" style="margin-bottom:12px;"></div>
+        <button onclick="addCsStep()"
+          style="width:100%;padding:9px;border-radius:10px;border:1px dashed rgba(255,157,199,0.3);background:transparent;color:var(--text-dim);cursor:pointer;font-family:'Cormorant Garamond',serif;font-size:0.9em;transition:all 0.2s;margin-bottom:18px;"
+          onmouseenter="this.style.borderColor='var(--pink)';this.style.color='var(--pink)'"
+          onmouseleave="this.style.borderColor='rgba(255,157,199,0.3)';this.style.color='var(--text-dim)'">
+          ➕ Add Step
+        </button>
+
+        <!-- Preview info -->
+        <div class="cs-preview-banner" id="csPreviewBanner">
+          Preview will appear here when you load or build a cutscene.
+        </div>
+
+        <!-- Save/Delete buttons -->
+        <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;">
+          <button class="admin-btn" onclick="saveCutscene()" style="background:linear-gradient(135deg,var(--pink-deep),var(--purple));color:#fff;flex:1;">💾 Save Cutscene</button>
+          <button class="admin-btn" onclick="previewCutsceneAdmin()" style="flex:1;">▶️ Preview</button>
+          <button class="admin-btn danger" onclick="deleteCutscene()" style="background:rgba(231,76,60,0.1);border-color:rgba(231,76,60,0.4);color:#e74c3c;">🗑️</button>
+        </div>
+
+        <!-- Existing cutscenes list -->
+        <div style="margin-top:28px;">
+          <div class="admin-section-label">Saved Cutscenes</div>
+          <div id="csSavedList" style="margin-top:10px;">
+            <div style="color:var(--text-dim);font-style:italic;font-size:0.85em;text-align:center;padding:20px;">Click Load or save one to see them here</div>
           </div>
         </div>
       </div>
@@ -6963,10 +7187,431 @@ async function adminGiveCoinsToPlayer(){
   showToast(`✅ Gave ${amt} coins to ${rows[0].username||tid}`);
 }
 
+
+// ══════════════════════════════════════════════════════════════
+// CHARACTER INTRO CUTSCENE SYSTEM
+// ══════════════════════════════════════════════════════════════
+
+// In-memory store: { cardId: { title, bgImage, defaultDuration, steps:[{text,image,audio,duration}] } }
+window.CARD_CUTSCENES = {};
+
+// Load all cutscenes from Supabase
+async function loadCutscenes() {
+  try {
+    const rows = await sb.getAll('card_cutscenes');
+    if (rows && rows.length) {
+      window.CARD_CUTSCENES = {};
+      rows.forEach(r => {
+        let steps = [];
+        try { steps = typeof r.steps === 'string' ? JSON.parse(r.steps) : (r.steps || []); } catch(e) {}
+        window.CARD_CUTSCENES[r.card_id] = {
+          title: r.title || '',
+          bgImage: r.bg_image || '',
+          defaultDuration: r.default_duration || 3,
+          steps
+        };
+      });
+    }
+  } catch(e) { console.warn('Could not load cutscenes:', e); }
+}
+
+// ── Play a cutscene given a cutscene data object and optional callback ──
+let _ccsAudio = null;
+let _ccsSkipFn = null;
+
+async function playCharacterCutscene(csData) {
+  return new Promise(resolve => {
+    const overlay = document.getElementById('charCutscene');
+    const bgEl    = document.getElementById('ccsBg');
+    const titleEl = document.getElementById('ccsTitle');
+    const textEl  = document.getElementById('ccsText');
+    const imgEl   = document.getElementById('ccsStepImg');
+    const dotsEl  = document.getElementById('ccsDots');
+
+    let stepIndex   = 0;
+    let stepTimer   = null;
+    let cancelled   = false;
+    const steps     = csData.steps || [];
+
+    function finish() {
+      if (cancelled) return;
+      cancelled = true;
+      // fade out
+      overlay.style.transition = 'opacity 0.5s ease';
+      overlay.style.opacity = '0';
+      stopCcsAudio();
+      clearTimeout(stepTimer);
+      setTimeout(() => {
+        overlay.classList.remove('ccs-active', 'ccs-bars-in');
+        overlay.style.opacity = '';
+        overlay.style.transition = '';
+        bgEl.classList.remove('ccs-visible');
+        bgEl.src = '';
+        titleEl.classList.remove('ccs-show');
+        textEl.classList.remove('ccs-show');
+        imgEl.classList.remove('ccs-visible');
+        imgEl.src = '';
+        resolve();
+      }, 500);
+    }
+
+    _ccsSkipFn = finish;
+
+    // Build progress dots
+    dotsEl.innerHTML = steps.map((_, i) => `<div class="ccs-dot" id="ccs-dot-${i}"></div>`).join('');
+
+    // Setup overlay
+    overlay.classList.add('ccs-active');
+    overlay.style.opacity = '0';
+    requestAnimationFrame(() => {
+      overlay.style.transition = 'opacity 0.4s ease';
+      overlay.style.opacity = '1';
+    });
+
+    // BG image
+    if (csData.bgImage) {
+      bgEl.src = csData.bgImage;
+      bgEl.onload = () => bgEl.classList.add('ccs-visible');
+    }
+
+    // Show bars after slight delay
+    setTimeout(() => overlay.classList.add('ccs-bars-in'), 50);
+
+    // Title after bars
+    if (csData.title) {
+      titleEl.innerHTML = csData.title;
+      setTimeout(() => titleEl.classList.add('ccs-show'), 550);
+    }
+
+    function showStep(idx) {
+      if (cancelled || idx >= steps.length) { finish(); return; }
+      const step = steps[idx];
+      const dur  = ((step.duration != null && step.duration !== '') ? parseFloat(step.duration) : parseFloat(csData.defaultDuration || 3)) * 1000;
+
+      // Update dots
+      document.querySelectorAll('.ccs-dot').forEach((d, i) => d.classList.toggle('active', i === idx));
+
+      // Step image (hide old first)
+      imgEl.classList.remove('ccs-visible');
+      if (step.image) {
+        imgEl.src = step.image;
+        imgEl.style.display = 'block';
+        imgEl.onload = () => imgEl.classList.add('ccs-visible');
+        imgEl.onerror = () => { imgEl.style.display = 'none'; };
+      } else {
+        imgEl.style.display = 'none';
+        imgEl.src = '';
+      }
+
+      // Step audio
+      stopCcsAudio();
+      if (step.audio) {
+        try {
+          _ccsAudio = new Audio(step.audio);
+          _ccsAudio.play().catch(() => {});
+        } catch(e) {}
+      }
+
+      // Text
+      textEl.classList.remove('ccs-show');
+      requestAnimationFrame(() => {
+        textEl.innerHTML = step.text || '';
+        requestAnimationFrame(() => textEl.classList.add('ccs-show'));
+      });
+
+      stepTimer = setTimeout(() => showStep(idx + 1), dur);
+    }
+
+    // Start first step after title
+    const titleDelay = csData.title ? 900 : 400;
+    setTimeout(() => showStep(0), titleDelay);
+  });
+}
+
+function stopCcsAudio() {
+  if (_ccsAudio) { try { _ccsAudio.pause(); _ccsAudio.currentTime = 0; } catch(e) {} _ccsAudio = null; }
+}
+
+function skipCharCutscene() {
+  if (_ccsSkipFn) _ccsSkipFn();
+}
+
+// ── Hook into pull: play cutscene for LR+ before showing pull screen ──
+const _origDoPull = doPull;
+async function doPull(count) {
+  if (state.coins < (count === 1 ? 50 : 200)) { showToast('Not enough Meo Coins! 🪙'); return; }
+  state.coins -= count === 1 ? 50 : 200;
+  state.totalPulls += count;
+  updateCoins();
+
+  if (count === 1) {
+    const card = weightedPick(buildPool());
+    await handlePullResult([card]);
+    // LR or higher: play cutscene first
+    if (card.rarity >= 6) {
+      const cs = window.CARD_CUTSCENES[card.id];
+      if (cs && cs.steps && cs.steps.length) {
+        await playCharacterCutscene(cs);
+      }
+    }
+    showPullScreen(card);
+  } else {
+    const results = [];
+    for (let i = 0; i < count; i++) results.push(weightedPick(buildPool()));
+    await handlePullResult(results);
+    // If any LR+ in the 5-pull, play the highest rarity one's cutscene
+    const lrCards = results.filter(c => c.rarity >= 6);
+    if (lrCards.length) {
+      const best = lrCards.sort((a,b) => b.rarity - a.rarity)[0];
+      const cs = window.CARD_CUTSCENES[best.id];
+      if (cs && cs.steps && cs.steps.length) {
+        await playCharacterCutscene(cs);
+      }
+    }
+    showMultiPullScreen(results);
+  }
+}
+
+// ── Show cutscene button in card modal if cutscene exists ──
+const _origOpenCard = openCard;
+function openCard(id) {
+  _origOpenCard(id);
+  const ccsBtn = document.getElementById('modalCutsceneBtn');
+  if (ccsBtn) {
+    const cs = window.CARD_CUTSCENES[id];
+    ccsBtn.style.display = (cs && cs.steps && cs.steps.length) ? '' : 'none';
+  }
+}
+
+function viewCardCutscene() {
+  const cs = window.CARD_CUTSCENES[openCardId];
+  if (!cs) return;
+  document.getElementById('cardModal').classList.remove('active');
+  playCharacterCutscene(cs).then(() => {
+    document.getElementById('cardModal').classList.add('active');
+  });
+}
+
+// ══════════════════════════════════════════════════════════════
+// ADMIN — Cutscene editor
+// ══════════════════════════════════════════════════════════════
+let _csStepCount = 0;
+
+function addCsStep(data) {
+  _csStepCount++;
+  const idx = _csStepCount;
+  const text     = data?.text     || '';
+  const image    = data?.image    || '';
+  const audio    = data?.audio    || '';
+  const duration = data?.duration != null ? data.duration : '';
+  const el = document.createElement('div');
+  el.className = 'cs-step-block';
+  el.dataset.stepId = idx;
+  el.innerHTML = `
+    <div class="cs-step-num">
+      <span>Step #${document.querySelectorAll('.cs-step-block').length + 1}</span>
+      <button class="cs-remove-step" onclick="removeCsStep(this)">✕ Remove</button>
+    </div>
+    <label class="admin-label">Text <span class="admin-hint">(supports emoji)</span></label>
+    <textarea class="admin-input cs-step-text" rows="2" placeholder="Enter step text..." style="resize:vertical;margin-bottom:8px;">${text}</textarea>
+    <label class="admin-label">Image / GIF URL <span class="admin-hint">(optional — shown above text for this step)</span></label>
+    <input class="admin-input cs-step-image" placeholder="https://...gif" value="${image}" style="margin-bottom:8px;"/>
+    <label class="admin-label">Audio URL <span class="admin-hint">(optional .mp3/.ogg for this step)</span></label>
+    <input class="admin-input cs-step-audio" placeholder="https://...mp3" value="${audio}" style="margin-bottom:8px;"/>
+    <label class="admin-label">Step Duration <span class="admin-hint">(seconds, leave blank to use default)</span></label>
+    <input class="admin-input cs-step-duration" type="number" min="0.3" max="60" step="0.5" placeholder="(use default)" value="${duration}" style="width:120px;"/>
+  `;
+  document.getElementById('csStepList').appendChild(el);
+  renumberCsSteps();
+}
+
+function removeCsStep(btn) {
+  btn.closest('.cs-step-block').remove();
+  renumberCsSteps();
+}
+
+function renumberCsSteps() {
+  document.querySelectorAll('.cs-step-block').forEach((el, i) => {
+    el.querySelector('.cs-step-num span').textContent = `Step #${i + 1}`;
+  });
+}
+
+function gatherCsData() {
+  const cardId   = (document.getElementById('csCardId')?.value || '').trim();
+  const title    = document.getElementById('csTitle')?.value || '';
+  const bgImage  = document.getElementById('csBgImage')?.value || '';
+  const defDur   = parseFloat(document.getElementById('csDefaultDuration')?.value) || 3;
+  const steps = [];
+  document.querySelectorAll('.cs-step-block').forEach(el => {
+    steps.push({
+      text:     el.querySelector('.cs-step-text')?.value  || '',
+      image:    el.querySelector('.cs-step-image')?.value || '',
+      audio:    el.querySelector('.cs-step-audio')?.value || '',
+      duration: el.querySelector('.cs-step-duration')?.value || '',
+    });
+  });
+  return { cardId, title, bgImage, defaultDuration: defDur, steps };
+}
+
+function updateCsPreview() {
+  const { cardId, title, steps } = gatherCsData();
+  const banner = document.getElementById('csPreviewBanner');
+  if (!banner) return;
+  if (!cardId || !steps.length) {
+    banner.innerHTML = 'Fill in the Card ID and add steps to see a preview here.';
+    return;
+  }
+  const stepsHtml = steps.map((s, i) => {
+    const imgNote = s.image ? `<span style="color:var(--pink);">🖼️</span>` : '<span style="color:var(--text-dim);">(no image)</span>';
+    const audNote = s.audio ? ' 🔊' : '';
+    const durNote = s.duration ? ` ⏱️ ${s.duration}s` : '';
+    return `<div style="margin-bottom:4px;">${i+1}. ${s.text || '(empty)'} ${imgNote}${audNote}${durNote}</div>`;
+  }).join('');
+  banner.innerHTML = `
+    <strong>🎬 ${cardId}</strong> — ${steps.length} step(s)<br/>
+    <em>${title}</em>
+    <div style="margin-top:8px;">${stepsHtml}</div>
+  `;
+}
+
+async function saveCutscene() {
+  if (!state.isAdmin) return;
+  const { cardId, title, bgImage, defaultDuration, steps } = gatherCsData();
+  if (!cardId) { showToast('Enter a card ID first'); return; }
+  if (!steps.length) { showToast('Add at least one step'); return; }
+  const row = { card_id: cardId, title, bg_image: bgImage, default_duration: defaultDuration, steps: JSON.stringify(steps) };
+  const ok = await sb.upsert('card_cutscenes', row);
+  if (ok) {
+    window.CARD_CUTSCENES[cardId] = { title, bgImage, defaultDuration, steps };
+    showToast(`✅ Cutscene saved for "${cardId}"`);
+    updateCsPreview();
+    loadCsSavedList();
+  } else {
+    showToast('❌ Save failed — make sure card_cutscenes table exists in Supabase');
+  }
+}
+
+async function deleteCutscene() {
+  if (!state.isAdmin) return;
+  const cardId = (document.getElementById('csCardId')?.value || '').trim();
+  if (!cardId) { showToast('Enter a card ID'); return; }
+  if (!confirm(`Delete cutscene for "${cardId}"?`)) return;
+  await sb.delete('card_cutscenes', { card_id: cardId });
+  delete window.CARD_CUTSCENES[cardId];
+  showToast(`🗑️ Cutscene for "${cardId}" deleted`);
+  clearCsForm();
+  loadCsSavedList();
+}
+
+async function loadCutsceneForCard() {
+  const cardId = (document.getElementById('csCardId')?.value || '').trim();
+  if (!cardId) { showToast('Enter a card ID'); return; }
+  // Try in-memory first, then Supabase
+  let cs = window.CARD_CUTSCENES[cardId];
+  if (!cs) {
+    const rows = await sb.get('card_cutscenes', { card_id: cardId });
+    if (rows && rows.length) {
+      let steps = [];
+      try { steps = typeof rows[0].steps === 'string' ? JSON.parse(rows[0].steps) : (rows[0].steps || []); } catch(e) {}
+      cs = { title: rows[0].title || '', bgImage: rows[0].bg_image || '', defaultDuration: rows[0].default_duration || 3, steps };
+      window.CARD_CUTSCENES[cardId] = cs;
+    }
+  }
+  if (!cs) { showToast(`No cutscene found for "${cardId}"`); return; }
+  // Populate form
+  document.getElementById('csTitle').value = cs.title || '';
+  document.getElementById('csBgImage').value = cs.bgImage || '';
+  document.getElementById('csDefaultDuration').value = cs.defaultDuration || 3;
+  document.getElementById('csStepList').innerHTML = '';
+  _csStepCount = 0;
+  (cs.steps || []).forEach(s => addCsStep(s));
+  updateCsPreview();
+  showToast(`📂 Loaded cutscene for "${cardId}"`);
+}
+
+function clearCsForm() {
+  document.getElementById('csCardId').value = '';
+  document.getElementById('csTitle').value = '';
+  document.getElementById('csBgImage').value = '';
+  document.getElementById('csDefaultDuration').value = '3';
+  document.getElementById('csStepList').innerHTML = '';
+  _csStepCount = 0;
+  document.getElementById('csPreviewBanner').innerHTML = 'Fill in the Card ID and add steps to see a preview here.';
+}
+
+async function previewCutsceneAdmin() {
+  const { cardId, title, bgImage, defaultDuration, steps } = gatherCsData();
+  if (!steps.length) { showToast('Add steps first'); return; }
+  const cs = { title, bgImage, defaultDuration, steps };
+  await playCharacterCutscene(cs);
+}
+
+async function loadCsSavedList() {
+  const list = document.getElementById('csSavedList');
+  if (!list) return;
+  const ids = Object.keys(window.CARD_CUTSCENES);
+  if (!ids.length) {
+    // try DB
+    const rows = await sb.getAll('card_cutscenes');
+    if (!rows || !rows.length) { list.innerHTML = '<div style="color:var(--text-dim);font-style:italic;font-size:0.85em;text-align:center;padding:16px;">No cutscenes saved yet.</div>'; return; }
+    rows.forEach(r => {
+      let steps = [];
+      try { steps = typeof r.steps === 'string' ? JSON.parse(r.steps) : (r.steps || []); } catch(e) {}
+      window.CARD_CUTSCENES[r.card_id] = { title: r.title || '', bgImage: r.bg_image || '', defaultDuration: r.default_duration || 3, steps };
+    });
+  }
+  const allIds = Object.keys(window.CARD_CUTSCENES);
+  list.innerHTML = allIds.map(id => {
+    const cs = window.CARD_CUTSCENES[id];
+    return `<div class="admin-card-row" style="margin-bottom:8px;">
+      <div class="admin-card-info">
+        <div class="admin-card-name">🎬 ${id}</div>
+        <div class="admin-card-meta">${cs.steps?.length || 0} step(s) · ${cs.title ? cs.title.slice(0,40) : '(no title)'}</div>
+      </div>
+      <div class="admin-card-actions">
+        <button class="admin-action-btn" onclick="document.getElementById('csCardId').value='${id}';loadCutsceneForCard()">✏️ Edit</button>
+        <button class="admin-action-btn" onclick="window.CARD_CUTSCENES['${id}']&&playCharacterCutscene(window.CARD_CUTSCENES['${id}'])">▶️</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// Patch switchAdminTab to handle cutscenes tab
+const _origSwitchAdminTab = switchAdminTab;
+function switchAdminTab(tab, btn) {
+  _origSwitchAdminTab(tab, btn);
+  if (tab === 'cutscenes') {
+    loadCsSavedList();
+  }
+}
+
+// Load cutscenes on startup (after loadAll)
+const _origLoadAll = loadAll;
+async function loadAll(discordId) {
+  await _origLoadAll(discordId);
+  await loadCutscenes();
+}
+
 renderShop();
 renderFeaturedShowcase();
 tryAutoLogin();
 </script>
+
+
+<!-- CHARACTER INTRO CUTSCENE OVERLAY -->
+<div id="charCutscene">
+  <div class="ccs-bar ccs-bar-top"></div>
+  <div class="ccs-bar ccs-bar-bot"></div>
+  <img id="ccsBg" src="" alt="" aria-hidden="true"/>
+  <div class="ccs-scanlines"></div>
+  <div class="ccs-vignette"></div>
+  <div id="ccsAudioIcon">🔊</div>
+  <div id="ccsTitle"></div>
+  <img id="ccsStepImg" src="" alt=""/>
+  <div id="ccsText"></div>
+  <div id="ccsDots"></div>
+  <button id="ccsSkip" onclick="skipCharCutscene()">Skip ▸▸</button>
+</div>
 
 <!-- ABILITY CUTSCENE OVERLAY -->
 <div id="abilityCutscene">
