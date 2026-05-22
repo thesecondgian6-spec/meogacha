@@ -2418,193 +2418,138 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 
 
 /* ══════════════════════════════════════════════
-   CARD CUTSCENE SYSTEM
+   CARD CUTSCENE SYSTEM — CINEMATIC
 ══════════════════════════════════════════════ */
 #cardCutscene {
   position:fixed;inset:0;z-index:500;
   background:#000;
-  display:none;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
+  display:none;flex-direction:column;
+  align-items:center;justify-content:center;
   overflow:hidden;
-  cursor:pointer;
 }
 #cardCutscene.active { display:flex; }
 
-/* Cinematic black bars */
-.cc-bar {
-  position:absolute;left:0;right:0;height:72px;
-  background:#000;z-index:4;pointer-events:none;
-  transition:transform 0.6s cubic-bezier(0.77,0,0.18,1);
-}
-.cc-bar-top    { top:0;    transform:translateY(-100%); }
-.cc-bar-bottom { bottom:0; transform:translateY(100%);  }
-#cardCutscene.active .cc-bar-top    { transform:translateY(0); }
-#cardCutscene.active .cc-bar-bottom { transform:translateY(0); }
-
-/* Background GIF */
-#ccBgGif {
-  position:absolute;inset:0;width:100%;height:100%;
-  object-fit:cover;opacity:0;
-  transition:opacity 0.6s ease;
-  filter:brightness(0.55) saturate(1.3);
-  z-index:1;
-}
-#cardCutscene.active #ccBgGif { opacity:1; }
-
-/* Dark vignette overlay */
-#ccVignette {
-  position:absolute;inset:0;z-index:2;pointer-events:none;
-  background:radial-gradient(ellipse at 50% 50%, transparent 30%, rgba(0,0,0,0.65) 100%);
-}
-
-/* Scanlines */
 #ccScanlines {
-  position:absolute;inset:0;z-index:3;pointer-events:none;
-  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.08) 2px,rgba(0,0,0,0.08) 4px);
+  position:absolute;inset:0;z-index:2;pointer-events:none;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.07) 2px,rgba(0,0,0,0.07) 4px);
 }
-
-/* Glow splash */
 #ccGlow {
   position:absolute;inset:0;z-index:2;pointer-events:none;
-  opacity:0;transition:opacity 0.5s;
+  opacity:0;transition:opacity 0.8s ease;
 }
-
-/* Speed lines layer */
 #ccLines { position:absolute;inset:0;z-index:3;pointer-events:none;overflow:hidden; }
 
-/* ── Title step (the big dramatic title card) ── */
-#ccTitleWrap {
-  position:absolute;inset:0;z-index:5;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  opacity:0;pointer-events:none;
-  transition:opacity 0.5s;
-  padding:0 32px;
-  text-align:center;
+/* GIF — landscape, centred */
+#ccGifWrap {
+  position:absolute;
+  top:50%;left:50%;
+  transform:translate(-50%,-58%);
+  z-index:4;
+  width:min(680px,92vw);
+  border-radius:14px;overflow:hidden;
+  box-shadow:0 0 0 1px rgba(255,255,255,0.08),0 8px 60px rgba(0,0,0,0.8);
+  opacity:0;
+  transition:opacity 0.7s ease,transform 0.7s ease;
 }
-#ccTitleWrap.visible { opacity:1; }
+#ccGifWrap.visible {
+  opacity:1;
+  transform:translate(-50%,-58%) scale(1);
+}
+#ccGifWrap:not(.visible) {
+  transform:translate(-50%,-58%) scale(0.96);
+}
+#ccGif { width:100%;aspect-ratio:16/9;object-fit:cover;display:block; }
+#ccGifWrap::after {
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(to bottom,rgba(0,0,0,0.05) 0%,rgba(0,0,0,0.55) 100%);
+  pointer-events:none;
+}
+
+/* Title card */
+#ccTitleWrap {
+  position:absolute;inset:0;z-index:6;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:24px;text-align:center;pointer-events:none;
+}
 #ccTitleText {
   font-family:'Cinzel Decorative',serif;
-  font-size:clamp(1em,4.5vw,2.2em);
-  font-weight:900;
-  color:#fff;
-  text-shadow:0 0 40px currentColor, 0 2px 8px rgba(0,0,0,0.8);
-  line-height:1.3;
-  letter-spacing:0.06em;
-  max-width:760px;
-  transform:scaleX(0.7);opacity:0;
-  transition:all 0.55s cubic-bezier(0.34,1.56,0.64,1);
+  font-size:clamp(1em,5vw,2.3em);
+  font-weight:900;color:#fff;line-height:1.3;letter-spacing:0.05em;
+  text-shadow:0 0 60px currentColor,0 2px 8px rgba(0,0,0,0.9);
+  max-width:min(700px,88vw);
+  opacity:0;transform:scaleX(0.75) translateY(8px);
+  transition:opacity 0.6s ease,transform 0.6s cubic-bezier(0.34,1.4,0.64,1);
 }
-#ccTitleWrap.visible #ccTitleText { transform:scaleX(1);opacity:1; }
-#ccTitleSub {
-  margin-top:14px;
-  font-family:'Cormorant Garamond',serif;
-  font-size:clamp(0.88em,2.5vw,1.15em);
-  font-style:italic;
-  color:rgba(255,255,255,0.65);
-  max-width:580px;
-  opacity:0;transform:translateY(10px);
-  transition:all 0.4s ease 0.35s;
-}
-#ccTitleWrap.visible #ccTitleSub { opacity:1;transform:translateY(0); }
+#ccTitleText.visible { opacity:1;transform:scaleX(1) translateY(0); }
 #ccTitleLine {
-  width:0;height:2px;
-  background:currentColor;
-  margin:14px auto;
-  border-radius:1px;
-  transition:width 0.6s ease 0.2s;
+  width:0;height:2px;border-radius:1px;margin:14px auto;
+  background:currentColor;transition:width 0.7s ease 0.3s;
 }
-#ccTitleWrap.visible #ccTitleLine { width:min(60vw,320px); }
+#ccTitleLine.visible { width:min(280px,55vw); }
 
-/* ── Narration step (text + optional gif) ── */
-#ccNarrationWrap {
+/* Narration text — lower third */
+#ccTextWrap {
   position:absolute;
-  bottom:88px;left:0;right:0;z-index:5;
-  padding:0 40px;
-  display:flex;flex-direction:column;align-items:flex-start;
-  gap:8px;
+  bottom:0;left:0;right:0;z-index:7;
+  display:flex;align-items:flex-end;justify-content:center;
+  padding-bottom:clamp(32px,7vh,64px);pointer-events:none;
+}
+#ccTextInner {
+  text-align:center;max-width:min(600px,88vw);
   opacity:0;transform:translateY(16px);
-  transition:opacity 0.4s ease,transform 0.4s ease;
-  pointer-events:none;
+  transition:opacity 0.55s ease,transform 0.55s ease;
 }
-#ccNarrationWrap.visible { opacity:1;transform:translateY(0); pointer-events:auto; }
-
-#ccSpeakerName {
-  font-family:'JetBrains Mono',monospace;
-  font-size:0.78em;
-  color:rgba(255,255,255,0.55);
-  letter-spacing:0.12em;
-  text-transform:uppercase;
-  margin-bottom:2px;
-}
-
-#ccTextBox {
-  background:rgba(0,0,0,0.72);
-  border:1px solid rgba(255,255,255,0.12);
-  border-radius:12px;
-  padding:16px 20px;
-  backdrop-filter:blur(8px);
-  max-width:min(680px,90vw);
-  width:100%;
-}
-#ccText {
+#ccTextInner.visible { opacity:1;transform:translateY(0); }
+#ccTextMain {
   font-family:'Cormorant Garamond',serif;
-  font-size:clamp(1em,3vw,1.22em);
-  color:#fff;
-  line-height:1.65;
-  font-style:italic;
+  font-size:clamp(1.05em,3.5vw,1.45em);font-style:italic;
+  color:#fff;line-height:1.65;letter-spacing:0.02em;
+  text-shadow:0 1px 16px rgba(0,0,0,1),0 0 40px rgba(0,0,0,0.9);
 }
 
-/* Step indicator dots */
-#ccStepDots {
-  position:absolute;bottom:52px;left:0;right:0;z-index:5;
-  display:flex;justify-content:center;gap:6px;
-  pointer-events:none;
+/* Step dots */
+#ccDots {
+  position:absolute;bottom:clamp(10px,2vh,16px);left:0;right:0;z-index:8;
+  display:flex;justify-content:center;gap:6px;pointer-events:none;
 }
 .cc-dot {
-  width:7px;height:7px;border-radius:50%;
-  background:rgba(255,255,255,0.25);
-  transition:all 0.3s;
+  width:5px;height:5px;border-radius:50%;
+  background:rgba(255,255,255,0.2);transition:all 0.35s;
 }
-.cc-dot.active { background:#fff;transform:scale(1.3); }
+.cc-dot.active { background:#fff;transform:scale(1.5);box-shadow:0 0 6px #fff; }
+.cc-dot.done   { background:rgba(255,255,255,0.5); }
 
-/* Skip / next hint */
-#ccHint {
-  position:absolute;bottom:18px;right:24px;z-index:5;
-  font-size:0.7em;color:rgba(255,255,255,0.3);
-  font-family:'JetBrains Mono',monospace;
-  pointer-events:none;
+/* Timer bar */
+#ccTimerBar {
+  position:absolute;top:0;left:0;right:0;height:3px;z-index:9;
+  background:rgba(255,255,255,0.08);pointer-events:none;
 }
+#ccTimerFill { height:100%;width:0%;transition:width linear; }
 
-/* Progress bar */
-#ccProgressBar {
-  position:absolute;bottom:0;left:0;right:0;height:2px;
-  background:rgba(255,255,255,0.08);z-index:6;
-}
-#ccProgressFill {
-  height:100%;width:0%;
-  transition:width linear;
+/* Step counter */
+#ccCounter {
+  position:absolute;top:12px;left:16px;z-index:9;
+  font-family:'JetBrains Mono',monospace;font-size:0.66em;
+  color:rgba(255,255,255,0.25);pointer-events:none;letter-spacing:0.08em;
 }
 
-/* Character corner portrait */
-#ccPortrait {
-  position:absolute;bottom:80px;right:28px;z-index:5;
-  opacity:0;transform:translateX(20px);
-  transition:all 0.4s ease 0.3s;
+/* Mobile */
+@media (max-width:600px) {
+  #ccGifWrap { width:94vw;border-radius:10px; }
+  #ccTitleText { font-size:clamp(0.9em,5.5vw,1.35em); }
+  #ccTextMain  { font-size:clamp(0.95em,4vw,1.12em); }
+  #ccTextWrap  { padding-bottom:clamp(24px,4vh,40px); }
 }
-#ccPortrait.visible { opacity:1;transform:translateX(0); }
-#ccPortraitImg {
-  width:72px;height:100px;
-  object-fit:cover;border-radius:10px;
-  border:2px solid rgba(255,255,255,0.3);
-  box-shadow:0 4px 20px rgba(0,0,0,0.5);
+
+/* Admin cutscene editor slots */
+.cs-step-slot {
+  background:rgba(255,157,199,0.04);
+  border:1px solid rgba(255,157,199,0.15);
+  border-radius:12px;padding:14px;position:relative;
+  transition:border-color 0.2s;
 }
-#ccPortraitName {
-  font-family:'Cinzel Decorative',serif;
-  font-size:0.62em;color:rgba(255,255,255,0.7);
-  text-align:center;margin-top:4px;
-}
+.cs-step-slot:focus-within { border-color:rgba(255,157,199,0.35); }
+
 </style>
 </head>
 <body>
@@ -4674,8 +4619,7 @@ async function doPull(count){
   if(count===1){
     const card=weightedPick(buildPool());
     await handlePullResult([card]);
-    // Play card cutscene for LR+ before showing pull screen
-    if(card.rarity>=6 && cardHasCutscene(card.id)){
+    if(card.rarity>=6&&cardHasCutscene(card.id)){
       await playCardCutscene(card);
     }
     showPullScreen(card);
@@ -4881,10 +4825,8 @@ function openCard(id){
   const isOwned=state.collection.includes(id);
   const equipBtn=document.getElementById('modalEquipBtn');
   if(equipBtn)equipBtn.style.display=isOwned?'':'none';
-  // Show cutscene button if this card has one
-  const csBtn = document.getElementById('modalCutsceneBtn');
-  if(csBtn) csBtn.style.display = cardHasCutscene(id) ? '' : 'none';
-
+  const csBtn=document.getElementById('modalCutsceneBtn');
+  if(csBtn)csBtn.style.display=cardHasCutscene(id)?'':'none';
   document.getElementById('cardModal').classList.add('active');
 }
 function closeModal(e){
@@ -7084,7 +7026,7 @@ function renderAdminCardList(){
       </div>
       <div class="admin-card-actions">
         <button class="admin-toggle-btn" style="${enabledStyle}" onclick="adminToggleCard('${c.id}',${!c.enabled})">${c.enabled?'✅':'❌'}</button>
-        <button class="admin-action-btn" onclick="openCutsceneEditor('${c.id}','${c.name.replace(/'/g,"\\'")}')" title="Edit cutscene">${c.has_cutscene?'🎬✅':'🎬'}</button>
+        <button class="admin-action-btn" onclick="openCutsceneEditor('${c.id}','${c.name.replace(/'/g,"\\'")}')">🎬${c.has_cutscene?'<span style=\"color:#2ecc71;font-size:0.7em;\">✓</span>':''}</button>
         <button class="admin-action-btn" onclick="editCard('${c.id}')">✏️</button>
         <button class="admin-action-btn danger" onclick="deleteCard('${c.id}','${c.name.replace(/'/g,"\\'")}')">🗑️</button>
       </div>
@@ -7165,220 +7107,212 @@ async function adminGiveCoinsToPlayer(){
 // ══════════════════════════════════════════════
 // CARD CUTSCENE SYSTEM
 // ══════════════════════════════════════════════
-
-// Cache: { cardId: { title, steps: [{text, gif_url, is_title, step_order}] } }
 window.CARD_CUTSCENE_DATA = {};
 
 async function loadCardCutscenes(){
   const rows = await sb.getAll('card_cutscenes');
-  if(!rows || !rows.length) return;
-  window.CARD_CUTSCENE_DATA = {};
+  if(!rows||!rows.length)return;
+  window.CARD_CUTSCENE_DATA={};
   rows.forEach(r=>{
-    if(!window.CARD_CUTSCENE_DATA[r.card_id]){
-      window.CARD_CUTSCENE_DATA[r.card_id] = { title: r.title||'', steps:[] };
-    }
-    // Update title from any row that has it
-    if(r.title) window.CARD_CUTSCENE_DATA[r.card_id].title = r.title;
+    if(!window.CARD_CUTSCENE_DATA[r.card_id])
+      window.CARD_CUTSCENE_DATA[r.card_id]={title:r.title||'',steps:[]};
+    if(r.title)window.CARD_CUTSCENE_DATA[r.card_id].title=r.title;
     window.CARD_CUTSCENE_DATA[r.card_id].steps.push({
-      text:      r.text,
-      gif_url:   r.gif_url||'',
-      is_title:  r.is_title,
-      step_order:r.step_order,
+      text:r.text, gif_url:r.gif_url||'',
+      is_title:r.is_title, step_order:r.step_order,
+      duration:r.duration||0,  // seconds override; 0 = use default
+      audio_url:r.audio_url||'',
     });
   });
-  // Sort steps
   Object.values(window.CARD_CUTSCENE_DATA).forEach(cs=>{
     cs.steps.sort((a,b)=>a.step_order-b.step_order);
   });
-  console.log(`Loaded cutscenes for ${Object.keys(window.CARD_CUTSCENE_DATA).length} card(s)`);
 }
 
-// Returns true if this card has a cutscene defined
 function cardHasCutscene(cardId){
-  const cs = window.CARD_CUTSCENE_DATA[cardId];
-  return cs && cs.steps && cs.steps.length > 0;
+  const cs=window.CARD_CUTSCENE_DATA[cardId];
+  return cs&&cs.steps&&cs.steps.length>0;
 }
 
-// Play a card's cutscene — resolves when done
 async function playCardCutscene(card){
-  const cs = window.CARD_CUTSCENE_DATA[card.id];
-  if(!cs || !cs.steps.length) return;
+  const cs=window.CARD_CUTSCENE_DATA[card.id];
+  if(!cs||!cs.steps.length)return;
 
-  const color     = RARITY_COLORS[card.rarity] || '#ff9dc7';
-  const overlay   = document.getElementById('cardCutscene');
-  const steps     = cs.steps;
-  const totalSteps= steps.length;
+  const color=RARITY_COLORS[card.rarity]||'#ff9dc7';
+  const overlay=document.getElementById('cardCutscene');
+  const steps=cs.steps;
+  const total=steps.length;
 
-  // Build step dots
-  const dotsEl = document.getElementById('ccStepDots');
-  dotsEl.innerHTML = steps.map((_,i)=>`<div class="cc-dot" id="cc-dot-${i}"></div>`).join('');
+  // Dots
+  const dotsEl=document.getElementById('ccDots');
+  dotsEl.innerHTML=steps.map((_,i)=>`<div class="cc-dot" id="cc-dot-${i}"></div>`).join('');
 
-  // Portrait
-  const portEl     = document.getElementById('ccPortrait');
-  const portImg    = document.getElementById('ccPortraitImg');
-  const portName   = document.getElementById('ccPortraitName');
-  portImg.src      = card.thumbnail || card.image;
-  portName.textContent = card.name;
-  portName.style.color = color;
+  // Glow colour
+  const glowEl=document.getElementById('ccGlow');
+  glowEl.style.background=`radial-gradient(ellipse at 50% 40%, ${color}2a, transparent 70%)`;
 
-  // Glow
-  const glowEl = document.getElementById('ccGlow');
-  glowEl.style.background = `radial-gradient(ellipse at 50% 50%, ${color}33, transparent 70%)`;
-
-  // Progress fill color
-  document.getElementById('ccProgressFill').style.background = color;
-  document.getElementById('ccTitleLine').style.color = color;
-  document.getElementById('ccTitleText').style.color = color;
+  // Timer fill colour
+  document.getElementById('ccTimerFill').style.background=color;
+  document.getElementById('ccTitleLine').style.color=color;
+  document.getElementById('ccTitleText').style.color=color;
 
   // Show overlay
   overlay.classList.add('active');
-  // Speed lines
+  await new Promise(r=>setTimeout(r,60));
+
+  // Kick off speed lines
   spawnCutsceneLines(color);
 
-  // Animate into view — slight delay for bars to close
-  await new Promise(r=>setTimeout(r,300));
-
-  // Show portrait
-  portEl.classList.add('visible');
+  let _stepAudio=null;
 
   return new Promise(resolve=>{
-    let stepIdx = 0;
+    let stepIdx=0;
 
-    function buildDots(){
+    function updateDots(){
       steps.forEach((_,i)=>{
-        const d = document.getElementById(`cc-dot-${i}`);
-        if(d) d.className = 'cc-dot' + (i===stepIdx?' active':'');
+        const d=document.getElementById(`cc-dot-${i}`);
+        if(!d)return;
+        d.className='cc-dot'+(i===stepIdx?' active':i<stepIdx?' done':'');
       });
     }
 
     async function showStep(idx){
-      buildDots();
-      const step = steps[idx];
-      const isLast = idx === totalSteps - 1;
+      updateDots();
+      const step=steps[idx];
+      const isLast=idx===total-1;
 
-      const titleWrap    = document.getElementById('ccTitleWrap');
-      const narrationWrap= document.getElementById('ccNarrationWrap');
-      const bgGif        = document.getElementById('ccBgGif');
-      const ccText       = document.getElementById('ccText');
-      const ccSpeaker    = document.getElementById('ccSpeakerName');
-      const titleTextEl  = document.getElementById('ccTitleText');
-      const titleSubEl   = document.getElementById('ccTitleSub');
-      const hintEl       = document.getElementById('ccHint');
+      // Stop previous audio
+      if(_stepAudio){try{_stepAudio.pause();_stepAudio.currentTime=0;}catch(e){}_stepAudio=null;}
 
-      hintEl.textContent = isLast ? 'tap to finish' : 'tap to continue';
+      // Counter
+      document.getElementById('ccCounter').textContent=`${idx+1} / ${total}`;
 
-      // Hide both first
-      titleWrap.classList.remove('visible');
-      narrationWrap.classList.remove('visible');
-      void titleWrap.offsetWidth;
+      const titleWrap=document.getElementById('ccTitleWrap');
+      const titleTextEl=document.getElementById('ccTitleText');
+      const titleLineEl=document.getElementById('ccTitleLine');
+      const textInner=document.getElementById('ccTextInner');
+      const textMain=document.getElementById('ccTextMain');
+      const gifWrap=document.getElementById('ccGifWrap');
+      const gifEl=document.getElementById('ccGif');
 
-      // Set BG gif if this step has one
+      // ── Fade out current content ──
+      titleTextEl.classList.remove('visible');
+      titleLineEl.classList.remove('visible');
+      textInner.classList.remove('visible');
+      gifWrap.classList.remove('visible');
+
+      await new Promise(r=>setTimeout(r,380));
+
+      // ── Set GIF ──
       if(step.gif_url){
-        bgGif.src = step.gif_url;
-        bgGif.style.opacity = '0';
-        await new Promise(r=>{ bgGif.onload=r; bgGif.onerror=r; setTimeout(r,1000); });
-        bgGif.style.opacity = '1';
+        gifEl.src=step.gif_url;
+        await new Promise(r=>{gifEl.onload=r;gifEl.onerror=r;setTimeout(r,1200);});
+        gifWrap.classList.add('visible');
       } else {
-        // Fade out existing gif
-        bgGif.style.opacity = '0';
-        // Fallback: card image as bg
-        bgGif.src = card.image;
-        setTimeout(()=>{ bgGif.style.opacity = '1'; }, 200);
+        gifWrap.classList.remove('visible');
+        gifEl.src='';
       }
+
+      // ── Play step audio if set ──
+      if(step.audio_url){
+        try{
+          _stepAudio=new Audio(step.audio_url);
+          _stepAudio.volume=0.85;
+          _stepAudio.play().catch(()=>{});
+        }catch(e){}
+      }
+
+      // ── Glow pulse ──
+      glowEl.style.opacity=step.is_title?'0.7':'0.3';
+      setTimeout(()=>{glowEl.style.opacity=step.is_title?'0.25':'0.12';},900);
 
       await new Promise(r=>setTimeout(r,120));
 
+      // ── Show content ──
       if(step.is_title){
-        // ── TITLE STEP ──
-        titleTextEl.textContent = cs.title || step.text;
-        titleTextEl.style.color = color;
-        titleSubEl.textContent  = step.text !== cs.title ? step.text : '';
-        titleSubEl.style.display = titleSubEl.textContent ? '' : 'none';
-        titleWrap.classList.add('visible');
+        titleTextEl.textContent=cs.title||step.text;
+        titleWrap.style.background='rgba(0,0,0,0.15)';
+        await new Promise(r=>setTimeout(r,40));
+        titleTextEl.classList.add('visible');
+        setTimeout(()=>titleLineEl.classList.add('visible'),200);
         spawnCutsceneLines(color);
-        spawnParticles(card.rarity, color);
+        spawnParticles(card.rarity,color);
         playAbilityCutsceneSound('ultimate');
-        glowEl.style.opacity = '0.8';
-        setTimeout(()=>glowEl.style.opacity='0.3', 800);
       } else {
-        // ── NARRATION STEP ──
-        ccSpeaker.textContent = card.name;
-        ccSpeaker.style.color = `${color}cc`;
-        ccText.textContent    = step.text;
-        narrationWrap.classList.add('visible');
-        glowEl.style.opacity = '0.2';
-        playAbilityCutsceneSound('passive');
+        textMain.textContent=step.text;
+        titleWrap.style.background='transparent';
+        await new Promise(r=>setTimeout(r,40));
+        textInner.classList.add('visible');
       }
 
-      // Progress bar for this step
-      const pb = document.getElementById('ccProgressFill');
-      const AUTO_ADVANCE_MS = step.is_title ? 4000 : 5500;
-      pb.style.transition = 'none';
-      pb.style.width = '0%';
-      void pb.offsetWidth;
-      pb.style.transition = `width ${AUTO_ADVANCE_MS}ms linear`;
-      pb.style.width = '100%';
-
-      // Auto-advance or wait for tap
-      let tapped = false;
-      let autoTimer = setTimeout(()=>{ if(!tapped) advance(); }, AUTO_ADVANCE_MS);
-
-      window._ccAdvance = ()=>{
-        tapped = true;
-        clearTimeout(autoTimer);
-        advance();
-      };
-
-      function advance(){
-        window._ccAdvance = null;
-        pb.style.transition = 'none';
-        pb.style.width = '0%';
-        if(isLast){
-          closeCutscene();
-        } else {
-          stepIdx++;
-          showStep(stepIdx);
-        }
+      // ── Duration: custom seconds > audio length > tier default ──
+      let durMs;
+      if(step.duration&&step.duration>0){
+        durMs=step.duration*1000;
+      } else if(_stepAudio){
+        // Wait for audio metadata to know length
+        await new Promise(r=>{
+          if(_stepAudio.duration){r();}
+          else{_stepAudio.addEventListener('loadedmetadata',r,{once:true});setTimeout(r,600);}
+        });
+        durMs=_stepAudio.duration>0
+          ? (_stepAudio.duration*1000+400)
+          : (step.is_title?4000:5000);
+      } else {
+        durMs=step.is_title?4000:5000;
       }
+
+      // ── Timer bar ──
+      const fill=document.getElementById('ccTimerFill');
+      fill.style.transition='none';fill.style.width='0%';
+      void fill.offsetWidth;
+      fill.style.transition=`width ${durMs}ms linear`;
+      fill.style.width='100%';
+
+      // ── Auto-advance (no manual skip — audio sync) ──
+      window._ccStepTimer=setTimeout(()=>{
+        window._ccStepTimer=null;
+        if(isLast) closeCutscene();
+        else{stepIdx++;showStep(stepIdx);}
+      },durMs);
     }
 
-    overlay.onclick = ()=>{ if(window._ccAdvance) window._ccAdvance(); };
-
     function closeCutscene(){
-      overlay.onclick = null;
-      window._ccAdvance = null;
-      portEl.classList.remove('visible');
-      overlay.style.transition = 'opacity 0.5s';
-      overlay.style.opacity = '0';
+      if(window._ccStepTimer){clearTimeout(window._ccStepTimer);window._ccStepTimer=null;}
+      if(_stepAudio){try{_stepAudio.pause();}catch(e){}_stepAudio=null;}
+      // Fade out
+      const titleTextEl=document.getElementById('ccTitleText');
+      const titleLineEl=document.getElementById('ccTitleLine');
+      const textInner=document.getElementById('ccTextInner');
+      const gifWrap=document.getElementById('ccGifWrap');
+      titleTextEl.classList.remove('visible');
+      titleLineEl.classList.remove('visible');
+      textInner.classList.remove('visible');
+      gifWrap.classList.remove('visible');
+      overlay.style.transition='opacity 0.6s';
+      overlay.style.opacity='0';
       setTimeout(()=>{
         overlay.classList.remove('active');
-        overlay.style.opacity = '';
-        overlay.style.transition = '';
-        document.getElementById('ccBgGif').style.opacity = '0';
-        document.getElementById('ccBgGif').src = '';
-        document.getElementById('ccGlow').style.opacity = '0';
+        overlay.style.opacity='';overlay.style.transition='';
+        document.getElementById('ccGif').src='';
+        document.getElementById('ccGlow').style.opacity='0';
+        document.getElementById('ccTimerFill').style.width='0%';
         resolve();
-      }, 500);
+      },640);
     }
 
     showStep(0);
   });
 }
 
-// ── Hook into doPull: play cutscene for LR+ before showing pull screen ──
-// We'll patch doPull to call this
 async function runCardCutsceneIfNeeded(card){
-  if(card.rarity >= 6 && cardHasCutscene(card.id)){
-    await playCardCutscene(card);
-  }
+  if(card.rarity>=6&&cardHasCutscene(card.id))await playCardCutscene(card);
 }
 
-// ── View cutscene from collection ──
 async function viewCardCutscene(cardId){
-  const card = (window.DEMO_CARDS||DEMO_CARDS).find(c=>c.id===cardId);
-  if(!card){ showToast('Card not found'); return; }
-  if(!cardHasCutscene(cardId)){ showToast('This card has no cutscene yet ʚɞ'); return; }
-  // Close card modal first
+  const card=(window.DEMO_CARDS||DEMO_CARDS).find(c=>c.id===cardId);
+  if(!card){showToast('Card not found');return;}
+  if(!cardHasCutscene(cardId)){showToast('This card has no cutscene yet ʚɞ');return;}
   document.getElementById('cardModal').classList.remove('active');
   await playCardCutscene(card);
 }
@@ -7386,206 +7320,220 @@ async function viewCardCutscene(cardId){
 // ══════════════════════════════════════════════
 // ADMIN: CUTSCENE EDITOR
 // ══════════════════════════════════════════════
-let _cutsceneEditorCardId = null;
-let _cutsceneSteps = [];
+let _cutsceneEditorCardId=null;
+let _csStepCount=0;
 
-function openCutsceneEditor(cardId, cardName){
-  _cutsceneEditorCardId = cardId;
-  _cutsceneSteps = [];
-
-  // Build editor modal
-  let modal = document.getElementById('cutsceneEditorModal');
+function openCutsceneEditor(cardId,cardName){
+  _cutsceneEditorCardId=cardId;
+  _csStepCount=0;
+  let modal=document.getElementById('cutsceneEditorModal');
   if(!modal){
-    modal = document.createElement('div');
-    modal.id = 'cutsceneEditorModal';
-    modal.style.cssText = 'position:fixed;inset:0;z-index:800;background:rgba(0,0,0,0.85);display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(6px);';
-    modal.innerHTML = `
-      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:20px;width:100%;max-width:680px;max-height:90vh;overflow-y:auto;padding:28px;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
-          <h2 style="font-family:'Cinzel Decorative',serif;font-size:1.1em;color:var(--pink-pale);">🎬 Cutscene Editor</h2>
-          <button onclick="closeCutsceneEditor()" style="background:rgba(255,255,255,0.1);border:none;color:#fff;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:1em;">✕</button>
+    modal=document.createElement('div');
+    modal.id='cutsceneEditorModal';
+    modal.style.cssText='position:fixed;inset:0;z-index:800;background:rgba(0,0,0,0.88);display:flex;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(8px);';
+    modal.innerHTML=`
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:20px;width:100%;max-width:680px;max-height:92vh;overflow-y:auto;padding:24px;position:relative;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
+          <h2 style="font-family:'Cinzel Decorative',serif;font-size:1em;color:var(--pink-pale);">🎬 Cutscene Editor</h2>
+          <button onclick="closeCutsceneEditor()" style="background:rgba(255,255,255,0.08);border:none;color:#fff;width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:0.9em;">✕</button>
         </div>
-        <div id="csEditorCardName" style="font-size:0.85em;color:var(--text-dim);font-family:'JetBrains Mono',monospace;margin-bottom:16px;"></div>
+        <div id="csEditorCardName" style="font-size:0.8em;color:var(--text-dim);font-family:'JetBrains Mono',monospace;margin-bottom:14px;"></div>
 
-        <div style="margin-bottom:16px;">
-          <label class="admin-label">Cinematic Title <span class="admin-hint">(the big dramatic line shown on the title step)</span></label>
-          <input class="admin-input" id="csEditorTitle" placeholder="e.g. 「 🔥 THE FEVER IS RISING!! 」"/>
-        </div>
-
-        <div class="admin-section-label" style="margin-bottom:10px;">Steps <span class="admin-hint">(each step = one screen. Tap through during playback)</span></div>
-        <div id="csEditorSteps" style="display:flex;flex-direction:column;gap:10px;margin-bottom:12px;"></div>
-        <button onclick="addCutsceneStep()" style="width:100%;padding:8px;border-radius:10px;border:1px dashed rgba(255,157,199,0.3);background:transparent;color:var(--text-dim);cursor:pointer;font-family:'Cormorant Garamond',serif;font-size:0.9em;margin-bottom:16px;transition:all 0.2s;" onmouseenter="this.style.borderColor='var(--pink)';this.style.color='var(--pink)'" onmouseleave="this.style.borderColor='rgba(255,157,199,0.3)';this.style.color='var(--text-dim)'">
-          ➕ Add Step
-        </button>
-
-        <div style="background:rgba(255,157,199,0.06);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:16px;font-size:0.82em;color:var(--text-dim);line-height:1.6;">
-          💡 <strong style="color:var(--pink-pale);">Tips:</strong><br/>
-          · Mark one step as <strong style="color:var(--pink);">"Title Step"</strong> to make it show the big cinematic title card with the title text above<br/>
-          · All other steps are narration — text shown in a box at the bottom<br/>
-          · GIFs are optional on any step — if none, the card art is used as background<br/>
-          · Steps play in order, auto-advance after a few seconds (or tap to skip)
+        <div style="margin-bottom:14px;">
+          <label class="admin-label">Cinematic Title <span class="admin-hint">(shown on the "Title Step" in big text)</span></label>
+          <input class="admin-input" id="csEditorTitle" placeholder='e.g. 「 🟢 IZUKU MIDORIYA... THE LAST EMBER OF ONE FOR ALL !! 」'/>
         </div>
 
-        <div style="display:flex;gap:10px;">
-          <button onclick="saveCutscene()" style="flex:1;padding:10px;border-radius:20px;background:linear-gradient(135deg,var(--pink-deep),var(--purple));border:none;color:#fff;font-family:'Cinzel Decorative',serif;font-size:0.85em;cursor:pointer;">💾 Save Cutscene</button>
-          <button onclick="deleteCutscene()" style="padding:10px 18px;border-radius:20px;background:rgba(231,76,60,0.1);border:1px solid rgba(231,76,60,0.3);color:#e74c3c;font-family:'Cormorant Garamond',serif;font-size:0.9em;cursor:pointer;">🗑️ Delete All</button>
+        <div class="admin-section-label" style="margin-bottom:10px;">
+          Steps <span class="admin-hint">— no manual skip, timer controls pacing to sync with audio</span>
+        </div>
+        <div id="csEditorSteps" style="display:flex;flex-direction:column;gap:10px;margin-bottom:10px;"></div>
+        <button onclick="addCutsceneStep()" style="width:100%;padding:7px;border-radius:10px;border:1px dashed rgba(255,157,199,0.25);background:transparent;color:var(--text-dim);cursor:pointer;font-family:'Cormorant Garamond',serif;font-size:0.88em;margin-bottom:14px;transition:all 0.2s;" onmouseenter="this.style.borderColor='var(--pink)';this.style.color='var(--pink)'" onmouseleave="this.style.borderColor='rgba(255,157,199,0.25)';this.style.color='var(--text-dim)'">➕ Add Step</button>
+
+        <div style="background:rgba(255,157,199,0.05);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:16px;font-size:0.8em;color:var(--text-dim);line-height:1.7;">
+          💡 <strong style="color:var(--pink-pale);">How it works:</strong><br/>
+          · <strong style="color:var(--pink);">Title Step</strong> = big cinematic centre text + the title above<br/>
+          · Other steps = italic narration text at the bottom, GIF behind<br/>
+          · <strong style="color:var(--pink);">Duration</strong> = how many seconds this step lasts. Set it to match your audio clip.<br/>
+          · If you upload audio, the step auto-matches the audio length (duration field overrides if set)<br/>
+          · No skip button — players watch it through, like a real cutscene
+        </div>
+
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <button onclick="saveCutscene()" style="flex:1;min-width:120px;padding:10px;border-radius:20px;background:linear-gradient(135deg,var(--pink-deep),var(--purple));border:none;color:#fff;font-family:'Cinzel Decorative',serif;font-size:0.82em;cursor:pointer;letter-spacing:0.04em;">💾 Save</button>
+          <button onclick="previewCutsceneAdmin()" style="padding:10px 18px;border-radius:20px;background:rgba(255,157,199,0.1);border:1px solid var(--border);color:var(--pink);font-family:'Cormorant Garamond',serif;font-size:0.9em;cursor:pointer;">▶️ Preview</button>
+          <button onclick="deleteCutscene()" style="padding:10px 18px;border-radius:20px;background:rgba(231,76,60,0.08);border:1px solid rgba(231,76,60,0.25);color:#e74c3c;font-family:'Cormorant Garamond',serif;font-size:0.9em;cursor:pointer;">🗑️ Delete</button>
         </div>
       </div>`;
     document.body.appendChild(modal);
   }
-
-  modal.style.display = 'flex';
-  document.getElementById('csEditorCardName').textContent = `Card: ${cardName} (${cardId})`;
-
-  // Load existing cutscene if any
+  modal.style.display='flex';
+  document.getElementById('csEditorCardName').textContent=`${cardName}  ·  id: ${cardId}`;
   loadCutsceneIntoEditor(cardId);
 }
 
 async function loadCutsceneIntoEditor(cardId){
-  const rows = await sb.get('card_cutscenes', {card_id: cardId});
-  const stepsEl = document.getElementById('csEditorSteps');
-  stepsEl.innerHTML = '';
-  _cutsceneSteps = [];
-
-  if(rows && rows.length){
+  const stepsEl=document.getElementById('csEditorSteps');
+  stepsEl.innerHTML='';_csStepCount=0;
+  const rows=await sb.get('card_cutscenes',{card_id:cardId});
+  if(rows&&rows.length){
     rows.sort((a,b)=>a.step_order-b.step_order);
-    const titleEl = document.getElementById('csEditorTitle');
-    if(rows[0].title) titleEl.value = rows[0].title;
-    rows.forEach(r=>addCutsceneStep({
-      text:     r.text,
-      gif_url:  r.gif_url||'',
-      is_title: r.is_title,
-      _dbId:    r.id,
-    }));
+    if(rows[0].title)document.getElementById('csEditorTitle').value=rows[0].title;
+    rows.forEach(r=>addCutsceneStep(r));
   } else {
-    // Default: one title step + two narration steps
-    addCutsceneStep({is_title:true});
-    addCutsceneStep({});
+    addCutsceneStep({is_title:false,text:'',gif_url:'',audio_url:'',duration:0});
+    addCutsceneStep({is_title:true, text:'',gif_url:'',audio_url:'',duration:0});
+    addCutsceneStep({is_title:false,text:'',gif_url:'',audio_url:'',duration:0});
   }
 }
 
-let _csStepCount = 0;
 function addCutsceneStep(prefill){
-  prefill = prefill || {};
-  const idx = _csStepCount++;
-  const el = document.createElement('div');
-  el.className = 'cs-step-slot';
-  el.dataset.idx = idx;
-  el.style.cssText = 'background:rgba(255,157,199,0.04);border:1px solid rgba(255,157,199,0.15);border-radius:12px;padding:12px;position:relative;';
-  el.innerHTML = `
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-      <span style="font-family:'JetBrains Mono',monospace;font-size:0.75em;color:var(--text-dim);">Step ${_csStepCount}</span>
-      <div style="display:flex;gap:8px;align-items:center;">
-        <label style="display:flex;align-items:center;gap:5px;font-size:0.8em;color:var(--pink);cursor:pointer;" title="This step displays the big cinematic title card">
-          <input type="checkbox" class="cs-is-title" ${prefill.is_title?'checked':''}/> Title Step
+  prefill=prefill||{};
+  const idx=_csStepCount++;
+  const stepNum=idx+1;
+  const el=document.createElement('div');
+  el.className='cs-step-slot';
+  el.dataset.idx=idx;
+  const isTitle=prefill.is_title||false;
+  const dur=prefill.duration||0;
+  el.innerHTML=`
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+      <span style="font-family:'JetBrains Mono',monospace;font-size:0.72em;color:var(--text-dim);">Step ${stepNum}</span>
+      <div style="display:flex;gap:10px;align-items:center;">
+        <label style="display:flex;align-items:center;gap:5px;font-size:0.8em;color:var(--pink);cursor:pointer;" title="Shows big cinematic title text">
+          <input type="checkbox" class="cs-is-title" ${isTitle?'checked':''}/> Title Step
         </label>
-        <button onclick="removeCutsceneStep(${idx})" style="background:rgba(231,76,60,0.1);border:1px solid rgba(231,76,60,0.2);color:#e74c3c;width:22px;height:22px;border-radius:50%;cursor:pointer;font-size:0.78em;display:flex;align-items:center;justify-content:center;">✕</button>
+        <button onclick="removeCsStep(${idx})" style="background:rgba(231,76,60,0.1);border:1px solid rgba(231,76,60,0.2);color:#e74c3c;width:22px;height:22px;border-radius:50%;cursor:pointer;font-size:0.78em;">✕</button>
       </div>
     </div>
+
     <div style="margin-bottom:8px;">
-      <label class="admin-label">Text <span class="admin-hint">(narration or dialogue for this step)</span></label>
-      <textarea class="admin-input cs-text" rows="2" style="resize:vertical;" placeholder="e.g. The unlimited Cursed Energy causes his body to reflexively perform RCT...">${prefill.text||''}</textarea>
+      <label class="admin-label">Text</label>
+      <textarea class="admin-input cs-text" rows="2" style="resize:vertical;" placeholder='"Scars... Blood... Filth..."'>${prefill.text||''}</textarea>
     </div>
-    <div>
-      <label class="admin-label">GIF <span class="admin-hint">(optional — shown as fullscreen background)</span></label>
-      <div style="display:flex;gap:8px;">
-        <input class="admin-input cs-gif-url" placeholder="GIF URL or upload 📁" style="flex:1;font-size:0.85em;" value="${prefill.gif_url||''}"/>
-        <label class="upload-btn" title="Upload GIF">
-          📁<input type="file" accept="image/gif,image/*" style="display:none" onchange="uploadCsGif(this,${idx})"/>
-        </label>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+      <div>
+        <label class="admin-label">GIF <span class="admin-hint">(optional, landscape)</span></label>
+        <div style="display:flex;gap:6px;">
+          <input class="admin-input cs-gif-url" placeholder="URL or upload" style="flex:1;font-size:0.82em;" value="${prefill.gif_url||''}"/>
+          <label class="upload-btn" title="Upload GIF">📁<input type="file" accept="image/gif,image/*" style="display:none" onchange="uploadCsFile(this,${idx},'gif')"/></label>
+        </div>
+        <div class="cs-upload-prog-${idx}-gif" style="font-size:0.7em;color:var(--pink);min-height:14px;"></div>
       </div>
-      <span class="cs-gif-progress-${idx}" style="font-size:0.72em;color:var(--pink);"></span>
-    </div>`;
+      <div>
+        <label class="admin-label">Audio <span class="admin-hint">(optional, syncs timer)</span></label>
+        <div style="display:flex;gap:6px;">
+          <input class="admin-input cs-audio-url" placeholder="URL or upload" style="flex:1;font-size:0.82em;" value="${prefill.audio_url||''}"/>
+          <label class="upload-btn" title="Upload audio">📁<input type="file" accept="audio/*" style="display:none" onchange="uploadCsFile(this,${idx},'audio')"/></label>
+        </div>
+        <div class="cs-upload-prog-${idx}-audio" style="font-size:0.7em;color:var(--pink);min-height:14px;"></div>
+      </div>
+    </div>
+
+    <div style="max-width:160px;">
+      <label class="admin-label">Duration (seconds) <span class="admin-hint">0 = auto</span></label>
+      <input class="admin-input cs-duration" type="number" min="0" step="0.5" placeholder="e.g. 4.5" value="${dur||''}" style="font-family:'JetBrains Mono',monospace;text-align:center;"/>
+    </div>
+  `;
   document.getElementById('csEditorSteps').appendChild(el);
 }
 
-function removeCutsceneStep(idx){
-  const el = document.querySelector(`.cs-step-slot[data-idx="${idx}"]`);
-  if(el) el.remove();
+function removeCsStep(idx){
+  const el=document.querySelector(`.cs-step-slot[data-idx="${idx}"]`);
+  if(el)el.remove();
 }
 
-async function uploadCsGif(input, idx){
-  const file = input.files[0];
-  if(!file) return;
-  const prog = document.querySelector(`.cs-gif-progress-${idx}`);
-  if(prog) prog.textContent = '⬆️ Uploading...';
+async function uploadCsFile(input,idx,type){
+  const file=input.files[0];if(!file)return;
+  const progClass=`.cs-upload-prog-${idx}-${type}`;
+  const prog=document.querySelector(progClass);
+  if(prog)prog.textContent='⬆️ Uploading...';
   try{
-    const url = await uploadToStorage(file, 'cutscenes');
-    // Find the gif url input in this slot
-    const slot = document.querySelector(`.cs-step-slot[data-idx="${idx}"]`);
-    if(slot) slot.querySelector('.cs-gif-url').value = url;
-    if(prog) prog.textContent = '✅ Done';
-    setTimeout(()=>{ if(prog) prog.textContent=''; },2000);
-    showToast('✅ GIF uploaded!');
+    const url=await uploadToStorage(file,'cutscenes');
+    const slot=document.querySelector(`.cs-step-slot[data-idx="${idx}"]`);
+    if(slot){
+      const inp=slot.querySelector(type==='gif'?'.cs-gif-url':'.cs-audio-url');
+      if(inp)inp.value=url;
+    }
+    if(prog)prog.textContent='✅ Done';
+    setTimeout(()=>{if(prog)prog.textContent='';},2000);
+    showToast('✅ Uploaded!');
   }catch(e){
-    if(prog) prog.textContent = '❌ Failed';
-    showToast('❌ Upload failed: '+e.message);
-  }finally{ input.value=''; }
+    if(prog)prog.textContent='❌ Failed';
+    showToast('❌ Upload error: '+e.message);
+  }finally{input.value='';}
 }
 
 async function saveCutscene(){
-  if(!state.isAdmin){ showToast('Admin only'); return; }
-  const cardId = _cutsceneEditorCardId;
-  if(!cardId){ showToast('No card selected'); return; }
-
-  const title = (document.getElementById('csEditorTitle')?.value||'').trim();
-  const slots  = document.querySelectorAll('#csEditorSteps .cs-step-slot');
-
-  if(!slots.length){ showToast('Add at least one step first'); return; }
-
-  const btn = document.querySelector('#cutsceneEditorModal button[onclick="saveCutscene()"]');
-  if(btn){ btn.textContent='Saving...'; btn.disabled=true; }
-
+  if(!state.isAdmin){showToast('Admin only');return;}
+  const cardId=_cutsceneEditorCardId;
+  if(!cardId)return;
+  const title=(document.getElementById('csEditorTitle')?.value||'').trim();
+  const slots=document.querySelectorAll('#csEditorSteps .cs-step-slot');
+  if(!slots.length){showToast('Add at least one step');return;}
+  const btn=document.querySelector('#cutsceneEditorModal button[onclick="saveCutscene()"]');
+  if(btn){btn.textContent='Saving...';btn.disabled=true;}
   try{
-    // Delete existing steps for this card
-    await sb.delete('card_cutscenes', {card_id: cardId});
-
-    // Insert new steps
-    let order = 0;
+    await sb.delete('card_cutscenes',{card_id:cardId});
+    let order=0;
     for(const slot of slots){
-      const text     = (slot.querySelector('.cs-text')?.value||'').trim();
-      const gif_url  = (slot.querySelector('.cs-gif-url')?.value||'').trim();
-      const is_title = slot.querySelector('.cs-is-title')?.checked || false;
-      if(!text && !is_title) continue; // skip empty non-title steps
-      await sb.insert('card_cutscenes', {
-        card_id: cardId, title, text, gif_url, is_title, step_order: order++
-      });
+      const text=(slot.querySelector('.cs-text')?.value||'').trim();
+      const gif_url=(slot.querySelector('.cs-gif-url')?.value||'').trim();
+      const audio_url=(slot.querySelector('.cs-audio-url')?.value||'').trim();
+      const is_title=slot.querySelector('.cs-is-title')?.checked||false;
+      const duration=parseFloat(slot.querySelector('.cs-duration')?.value)||0;
+      if(!text&&!is_title)continue;
+      await sb.insert('card_cutscenes',{card_id:cardId,title,text,gif_url,audio_url,is_title,duration,step_order:order++});
     }
-
-    // Update card's has_cutscene flag
-    await sb.update('cards', {has_cutscene: true, cutscene_title: title}, {id: cardId});
-
-    // Reload cutscene cache
+    await sb.update('cards',{has_cutscene:true,cutscene_title:title},{id:cardId});
     await loadCardCutscenes();
-
-    showToast(`🎬 Cutscene saved for ${cardId}!`);
+    showToast(`🎬 Cutscene saved!`);
     closeCutsceneEditor();
-    // Refresh card list
-    const idx = _adminCardCache.findIndex(c=>c.id===cardId);
-    if(idx>=0){ _adminCardCache[idx].has_cutscene=true; renderAdminCardList(); }
-  }catch(e){
-    showToast('❌ Error: '+e.message);
-    console.error(e);
-  }finally{
-    if(btn){ btn.textContent='💾 Save Cutscene'; btn.disabled=false; }
+    const idx=_adminCardCache.findIndex(c=>c.id===cardId);
+    if(idx>=0){_adminCardCache[idx].has_cutscene=true;renderAdminCardList();}
+  }catch(e){showToast('❌ Error: '+e.message);console.error(e);}
+  if(btn){btn.textContent='💾 Save';btn.disabled=false;}
+}
+
+async function previewCutsceneAdmin(){
+  // Build a temp cutscene from current editor state without saving
+  const cardId=_cutsceneEditorCardId;
+  const card=(window.DEMO_CARDS||DEMO_CARDS).find(c=>c.id===cardId)||{id:cardId,name:cardId,rarity:6,image:'',thumbnail:''};
+  const title=(document.getElementById('csEditorTitle')?.value||'').trim();
+  const slots=document.querySelectorAll('#csEditorSteps .cs-step-slot');
+  const steps=[];let order=0;
+  for(const slot of slots){
+    const text=(slot.querySelector('.cs-text')?.value||'').trim();
+    const gif_url=(slot.querySelector('.cs-gif-url')?.value||'').trim();
+    const audio_url=(slot.querySelector('.cs-audio-url')?.value||'').trim();
+    const is_title=slot.querySelector('.cs-is-title')?.checked||false;
+    const duration=parseFloat(slot.querySelector('.cs-duration')?.value)||0;
+    steps.push({text,gif_url,audio_url,is_title,duration,step_order:order++});
   }
+  if(!steps.length){showToast('Add steps first');return;}
+  // Temporarily inject into cache
+  window.CARD_CUTSCENE_DATA[cardId]={title,steps};
+  closeCutsceneEditor();
+  await playCardCutscene(card);
+  // Restore editor
+  setTimeout(()=>openCutsceneEditor(cardId,card.name),300);
 }
 
 async function deleteCutscene(){
-  if(!state.isAdmin) return;
-  if(!confirm('Delete all steps for this cutscene?')) return;
-  await sb.delete('card_cutscenes', {card_id: _cutsceneEditorCardId});
-  await sb.update('cards', {has_cutscene:false, cutscene_title:''}, {id: _cutsceneEditorCardId});
+  if(!state.isAdmin)return;
+  if(!confirm('Delete all steps for this cutscene?'))return;
+  await sb.delete('card_cutscenes',{card_id:_cutsceneEditorCardId});
+  await sb.update('cards',{has_cutscene:false,cutscene_title:''},{id:_cutsceneEditorCardId});
   await loadCardCutscenes();
   showToast('🗑️ Cutscene deleted');
   closeCutsceneEditor();
 }
 
 function closeCutsceneEditor(){
-  const modal = document.getElementById('cutsceneEditorModal');
-  if(modal) modal.style.display = 'none';
-  _cutsceneEditorCardId = null;
-  _csStepCount = 0;
+  const modal=document.getElementById('cutsceneEditorModal');
+  if(modal)modal.style.display='none';
+  _cutsceneEditorCardId=null;_csStepCount=0;
 }
 
 renderShop();
@@ -7620,41 +7568,32 @@ tryAutoLogin();
 
 <!-- ══ CARD CUTSCENE OVERLAY ══ -->
 <div id="cardCutscene">
-  <div class="cc-bar cc-bar-top"></div>
-  <div class="cc-bar cc-bar-bottom"></div>
-  <img id="ccBgGif" src="" alt="" aria-hidden="true"/>
-  <div id="ccVignette"></div>
   <div id="ccScanlines"></div>
   <div id="ccGlow"></div>
   <div id="ccLines"></div>
 
-  <!-- Title step overlay -->
+  <!-- GIF — landscape centred -->
+  <div id="ccGifWrap">
+    <img id="ccGif" src="" alt="" aria-hidden="true"/>
+  </div>
+
+  <!-- Title card (big text, full overlay) -->
   <div id="ccTitleWrap">
     <div id="ccTitleText"></div>
     <div id="ccTitleLine"></div>
-    <div id="ccTitleSub"></div>
   </div>
 
-  <!-- Narration step -->
-  <div id="ccNarrationWrap">
-    <div id="ccSpeakerName"></div>
-    <div id="ccTextBox">
-      <div id="ccText"></div>
+  <!-- Narration text — lower third -->
+  <div id="ccTextWrap">
+    <div id="ccTextInner">
+      <div id="ccTextMain"></div>
     </div>
   </div>
 
-  <!-- Character portrait -->
-  <div id="ccPortrait">
-    <img id="ccPortraitImg" src="" alt=""/>
-    <div id="ccPortraitName"></div>
-  </div>
-
-  <!-- Step dots -->
-  <div id="ccStepDots"></div>
-
-  <!-- Hint + progress -->
-  <div id="ccHint">tap to continue</div>
-  <div id="ccProgressBar"><div id="ccProgressFill"></div></div>
+  <!-- Progress / nav -->
+  <div id="ccDots"></div>
+  <div id="ccTimerBar"><div id="ccTimerFill"></div></div>
+  <div id="ccCounter"></div>
 </div>
 
 </body>
