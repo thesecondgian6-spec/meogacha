@@ -7885,6 +7885,7 @@ async function viewCardCutscene(cardId){
 // ══════════════════════════════════════════════
 let _cutsceneEditorCardId=null;
 let _csStepCount=0;
+let _pendingEditorState=null; // used by preview to restore unsaved state on reopen
 
 function openCutsceneEditor(cardId,cardName){
   _cutsceneEditorCardId=cardId;
@@ -7990,13 +7991,23 @@ async function uploadCsBgm(input){
 async function loadCutsceneIntoEditor(cardId){
   const stepsEl=document.getElementById('csEditorSteps');
   stepsEl.innerHTML='';_csStepCount=0;
+  // If preview stashed unsaved state, restore it instead of re-fetching from DB
+  if(_pendingEditorState){
+    const ps=_pendingEditorState;_pendingEditorState=null;
+    const titleInp=document.getElementById('csEditorTitle');
+    const audioInp=document.getElementById('csEditorAudio');
+    if(titleInp)titleInp.value=ps.title||'';
+    if(audioInp)audioInp.value=ps.audio_url||'';
+    (ps.steps||[]).forEach(r=>addCutsceneStep(r));
+    return;
+  }
   const rows=await sb.get('card_cutscenes',{card_id:cardId});
   if(rows&&rows.length){
     rows.sort((a,b)=>a.step_order-b.step_order);
     const titleInp=document.getElementById('csEditorTitle');
     const audioInp=document.getElementById('csEditorAudio');
-    if(rows[0].title)titleInp.value=rows[0].title;
-    if(rows[0].cutscene_audio)audioInp.value=rows[0].cutscene_audio;
+    if(titleInp)titleInp.value=rows[0].title||'';
+    if(audioInp)audioInp.value=rows[0].cutscene_audio||'';
     rows.forEach(r=>addCutsceneStep(r));
   } else {
     addCutsceneStep({is_title:false,text:'',gif_url:'',duration:0});
@@ -8072,7 +8083,6 @@ async function saveCutscene(){
   const title=(document.getElementById('csEditorTitle')?.value||'').trim();
   const bgmAudio=(document.getElementById('csEditorAudio')?.value||'').trim();
   const slots=document.querySelectorAll('#csEditorSteps .cs-step-slot');
-  if(!slots.length){showToast('Add at least one step');return;}
   const btn=document.querySelector('#cutsceneEditorModal button[onclick="saveCutscene()"]');
   if(btn){btn.textContent='Saving...';btn.disabled=true;}
   try{
@@ -8089,12 +8099,22 @@ async function saveCutscene(){
         text,gif_url,is_title,duration,step_order:order++
       });
     }
-    await sb.update('cards',{has_cutscene:true,cutscene_title:title},{id:cardId});
-    await loadCardCutscenes();
-    showToast('🎬 Cutscene saved!');
-    closeCutsceneEditor();
-    const ci=_adminCardCache.findIndex(c=>c.id===cardId);
-    if(ci>=0){_adminCardCache[ci].has_cutscene=true;renderAdminCardList();}
+    if(order===0){
+      // No valid steps were saved — treat as cutscene removal
+      await sb.update('cards',{has_cutscene:false,cutscene_title:''},{id:cardId});
+      await loadCardCutscenes();
+      showToast('🎬 Cutscene removed.');
+      closeCutsceneEditor();
+      const ci=_adminCardCache.findIndex(c=>c.id===cardId);
+      if(ci>=0){_adminCardCache[ci].has_cutscene=false;renderAdminCardList();}
+    } else {
+      await sb.update('cards',{has_cutscene:true,cutscene_title:title},{id:cardId});
+      await loadCardCutscenes();
+      showToast('🎬 Cutscene saved!');
+      closeCutsceneEditor();
+      const ci=_adminCardCache.findIndex(c=>c.id===cardId);
+      if(ci>=0){_adminCardCache[ci].has_cutscene=true;renderAdminCardList();}
+    }
   }catch(e){showToast('❌ Error: '+e.message);console.error(e);}
   if(btn){btn.textContent='💾 Save';btn.disabled=false;}
 }
@@ -8114,6 +8134,8 @@ async function previewCutsceneAdmin(){
     steps.push({text,gif_url,is_title,duration,step_order:order++});
   }
   if(!steps.length){showToast('Add steps first');return;}
+  // Stash unsaved state so the editor reloads it instead of re-fetching from DB
+  _pendingEditorState={title,audio_url:bgmAudio,steps};
   window.CARD_CUTSCENE_DATA[cardId]={title,audio_url:bgmAudio,steps};
   closeCutsceneEditor();
   await playCardCutscene(card);
