@@ -2421,152 +2421,198 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
    CARD CUTSCENE SYSTEM — CINEMATIC REDESIGN v3
 ══════════════════════════════════════════════ */
 
-/* ── Keyframes ── */
-@keyframes ccSpeedLine {
-  0%  { transform:translateX(-120%) skewX(-12deg); opacity:0; }
-  15% { opacity:1; }
-  85% { opacity:0.7; }
-  100%{ transform:translateX(120vw) skewX(-12deg); opacity:0; }
-}
-@keyframes ccBeamRotate {
-  0%   { transform:rotate(0deg);   }
-  100% { transform:rotate(360deg); }
-}
-@keyframes ccPulseRing {
-  0%   { transform:translate(-50%,-50%) scale(0.3); opacity:0.9; }
-  100% { transform:translate(-50%,-50%) scale(2.8); opacity:0; }
-}
-@keyframes ccShockwave {
-  0%   { transform:translate(-50%,-50%) scale(0); opacity:1; }
-  60%  { opacity:0.6; }
-  100% { transform:translate(-50%,-50%) scale(3.5); opacity:0; }
-}
-@keyframes ccTitleSlam {
-  0%  { transform:scaleX(0.55) translateY(20px); opacity:0; filter:blur(12px); }
-  55% { transform:scaleX(1.04) translateY(-3px); opacity:1; filter:blur(0); }
-  75% { transform:scaleX(0.98) translateY(1px); }
-  100%{ transform:scaleX(1)    translateY(0);   opacity:1; }
-}
-@keyframes ccTitleGlitch {
-  0%,100%{ clip-path:inset(0 0 0 0); transform:translateX(0); }
-  20%    { clip-path:inset(10% 0 60% 0); transform:translateX(-4px); }
-  40%    { clip-path:inset(50% 0 20% 0); transform:translateX(4px); }
-  60%    { clip-path:inset(25% 0 45% 0); transform:translateX(-2px); }
-  80%    { clip-path:inset(0 0 0 0); transform:translateX(0); }
-}
-@keyframes ccFlashWhite {
-  0%   { opacity:0; }
-  15%  { opacity:1; }
-  100% { opacity:0; }
-}
-@keyframes ccBgPulse {
-  0%,100%{ opacity:0.55; }
-  50%    { opacity:0.85; }
-}
-
 /* ── Overlay ── */
 #cardCutscene {
   position:fixed;inset:0;z-index:500;
-  background:#060408;
+  background:var(--cc-bg-base, #000);
   display:none;flex-direction:column;
   align-items:center;justify-content:center;
   overflow:hidden;
   font-family:'Cormorant Garamond',serif;
-  --cc-color: #ff9dc7;
-  --cc-color-dim: rgba(255,157,199,0.18);
-  --cc-color-glow: rgba(255,157,199,0.35);
+  transition:background 0.8s ease;
 }
 #cardCutscene.active { display:flex; }
 
-/* ── Deep gradient background ── */
+/* ── Dynamic gradient background layer ── */
 #ccBgGradient {
-  position:absolute;inset:0;z-index:0;pointer-events:none;
-  background:
-    radial-gradient(ellipse 80% 60% at 50% 30%, var(--cc-color-dim) 0%, transparent 70%),
-    radial-gradient(ellipse 60% 80% at 20% 80%, rgba(0,0,0,0.6) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 80% at 80% 80%, rgba(0,0,0,0.6) 0%, transparent 60%);
-  transition:all 1.2s ease;
-  animation:ccBgPulse 6s ease-in-out infinite;
-}
-
-/* ── Rotating beam layer (behind everything) ── */
-#ccBeams {
   position:absolute;inset:0;z-index:1;pointer-events:none;
-  opacity:0;transition:opacity 0.8s ease;
+  opacity:0;
+  transition:opacity 1.2s ease, background 0.8s ease;
 }
-#ccBeams.visible { opacity:1; }
-#ccBeamsInner {
-  position:absolute;
-  top:50%;left:50%;
-  width:300vmax;height:300vmax;
-  margin:-150vmax;
-  animation:ccBeamRotate 18s linear infinite;
-}
+#ccBgGradient.visible { opacity:1; }
 
-/* ── Horizontal speed lines canvas ── */
+/* ── Animated nebula/smoke layer ── */
+#ccBgNebula {
+  position:absolute;inset:-20%;z-index:1;pointer-events:none;
+  opacity:0;
+  transition:opacity 1.5s ease;
+  border-radius:50%;
+  filter:blur(60px);
+}
+#ccBgNebula.visible { opacity:0.55; }
+
+/* ── Speed lines canvas (radial burst) ── */
 #ccSpeedCanvas {
-  position:absolute;inset:0;z-index:2;pointer-events:none;
-  opacity:0;transition:opacity 0.5s ease;
+  position:absolute;inset:0;z-index:3;pointer-events:none;
+  opacity:0;
+  transition:opacity 0.3s ease;
 }
-#ccSpeedCanvas.burst { opacity:1; }
+#ccSpeedCanvas.visible { opacity:1; }
 
-/* ── Scanlines ── */
+/* Scanlines */
 #ccScanlines {
   position:absolute;inset:0;z-index:5;pointer-events:none;
-  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.055) 2px,rgba(0,0,0,0.055) 4px);
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.07) 2px,rgba(0,0,0,0.07) 4px);
 }
-/* ── Glow layer ── */
+/* Glow layer */
 #ccGlow {
-  position:absolute;inset:0;z-index:3;pointer-events:none;
+  position:absolute;inset:0;z-index:2;pointer-events:none;
   opacity:0;transition:opacity 0.9s ease;
 }
-/* ── Speed lines (DOM, burst on title) ── */
+/* Speed lines (CSS-based burst on top) */
 #ccLines { position:absolute;inset:0;z-index:4;pointer-events:none;overflow:hidden; }
-/* ── Vignette ── */
+/* Vignette */
 #ccVignette {
   position:absolute;inset:0;z-index:4;pointer-events:none;
-  background:radial-gradient(ellipse at 50% 50%,transparent 38%,rgba(0,0,0,0.72) 100%);
-}
-/* ── White flash for title slam ── */
-#ccFlash {
-  position:absolute;inset:0;z-index:10;pointer-events:none;
-  background:#fff;
-  opacity:0;
-}
-/* ── Shockwave rings ── */
-#ccRings { position:absolute;inset:0;z-index:6;pointer-events:none;overflow:hidden; }
-.cc-ring {
-  position:absolute;
-  border-radius:50%;
-  border:2px solid var(--cc-color);
-  left:50%;top:50%;
-  width:40px;height:40px;
-  margin:-20px;
-  animation:ccShockwave 0.9s cubic-bezier(0.2,0.8,0.4,1) forwards;
-  box-shadow:0 0 8px var(--cc-color);
+  background:radial-gradient(ellipse at 50% 50%,transparent 35%,rgba(0,0,0,0.72) 100%);
 }
 
-/* ── GIF container ── */
-#ccGifWrap {
+/* ── Decorative background — diamond/cross pattern like ability cutscene ── */
+#cardCutscene::before {
+  content:'';
+  position:absolute;inset:0;z-index:2;pointer-events:none;
+  background-image:
+    linear-gradient(45deg, rgba(255,255,255,0.018) 25%, transparent 25%),
+    linear-gradient(-45deg, rgba(255,255,255,0.018) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, rgba(255,255,255,0.018) 75%),
+    linear-gradient(-45deg, transparent 75%, rgba(255,255,255,0.018) 75%);
+  background-size:28px 28px;
+  background-position:0 0, 0 14px, 14px -14px, -14px 0;
+  mask-image:radial-gradient(ellipse at 50% 50%, transparent 40%, rgba(0,0,0,0.5) 100%);
+  -webkit-mask-image:radial-gradient(ellipse at 50% 50%, transparent 40%, rgba(0,0,0,0.5) 100%);
+}
+/* ── Corner decorative accents ── */
+#cardCutscene::after {
+  content:'';
+  position:absolute;inset:0;z-index:2;pointer-events:none;
+  background:
+    linear-gradient(135deg, var(--cc-accent-color, rgba(255,157,199,0.16)) 0%, transparent 22%),
+    linear-gradient(315deg, var(--cc-accent-color, rgba(255,157,199,0.16)) 0%, transparent 22%);
+  transition:all 0.8s ease;
+}
+
+/* ── Title impact flash ── */
+#ccTitleFlash {
+  position:absolute;inset:0;z-index:10;pointer-events:none;
+  opacity:0;background:#fff;
+  transition:opacity 0.05s ease;
+}
+#ccTitleFlash.pop { opacity:0.18; }
+
+/* ── Radial burst ring on title ── */
+#ccBurstRing {
   position:absolute;
-  top:0;left:0;right:0;
-  height:58%;
-  z-index:7;
+  left:50%;top:50%;
+  transform:translate(-50%,-50%) scale(0);
+  width:300px;height:300px;
+  border-radius:50%;
+  border:3px solid var(--cc-bar-color, rgba(255,157,199,0.8));
+  z-index:9;pointer-events:none;
+  opacity:0;
+  box-shadow:0 0 40px var(--cc-bar-color, rgba(255,157,199,0.4));
+}
+@keyframes burstExpand {
+  0%   { transform:translate(-50%,-50%) scale(0); opacity:0.9; }
+  100% { transform:translate(-50%,-50%) scale(4.5); opacity:0; }
+}
+#ccBurstRing.pop {
+  animation: burstExpand 0.7s cubic-bezier(0.1,0.6,0.4,1) forwards;
+}
+
+/* ── Shockwave lines burst on title ── */
+@keyframes shockLineOut {
+  0%   { transform:scaleX(0); opacity:1; }
+  100% { transform:scaleX(1); opacity:0; }
+}
+.cc-shock-line {
+  position:absolute;
+  height:2px;
+  background:var(--cc-bar-color, rgba(255,157,199,0.7));
+  transform-origin:left center;
+  animation: shockLineOut 0.5s ease-out forwards;
+  z-index:9;
+  pointer-events:none;
+}
+
+/* ── Animated speed-lines (radial) CSS fallback ── */
+@keyframes radialLineShot {
+  0%   { opacity:0.9; transform:scaleX(0); }
+  100% { opacity:0;   transform:scaleX(1); }
+}
+
+/* ── Background theme selector (admin editor) ── */
+.cc-theme-btn {
+  display:flex;align-items:center;gap:6px;
+  background:rgba(255,157,199,0.06);
+  border:1px solid rgba(255,157,199,0.18);
+  border-radius:10px;padding:6px 12px;
+  cursor:pointer;font-size:0.8em;color:var(--text-dim);
+  transition:all 0.2s;
+}
+.cc-theme-btn:hover,.cc-theme-btn.active {
+  border-color:var(--pink);color:var(--pink);background:rgba(255,157,199,0.12);
+}
+.cc-theme-swatch {
+  width:16px;height:16px;border-radius:50%;flex-shrink:0;
+  border:1px solid rgba(255,255,255,0.15);
+}
+/* Horizontal bars — anime letterbox style */
+#cardCutscene .cc-bar-top,
+#cardCutscene .cc-bar-bot {
+  position:absolute;left:0;right:0;height:3px;z-index:8;pointer-events:none;
+  background:var(--cc-bar-color, rgba(255,157,199,0.6));
+  box-shadow:0 0 12px var(--cc-bar-color, rgba(255,157,199,0.4));
+  transition:background 0.6s ease, box-shadow 0.6s ease;
+}
+#cardCutscene .cc-bar-top { top:0; }
+#cardCutscene .cc-bar-bot { bottom:0; }
+
+/* ────────────────────────────────────────────
+   STEP LAYOUT — column flow (GIF above text)
+   .cc-has-gif  → gif + text below in column
+   (no class)   → text centred, no gif
+   ──────────────────────────────────────────── */
+
+/* ── GIF container ── in flow now, not absolute ── */
+#ccGifWrap {
+  position:relative;
+  width:100%;
+  z-index:4;
   display:flex;align-items:center;justify-content:center;
   opacity:0;
   transition:opacity 0.65s ease;
   pointer-events:none;
+  flex-shrink:0;
+  /* hidden by default — absolute centering fallback */
+  position:absolute;top:-9999px;
 }
 #ccGifWrap.visible { opacity:1; }
+
+/* When gif is active — bring it into normal flow via the overlay stage */
+#cardCutscene.cc-has-gif #ccGifWrap {
+  position:relative;
+  top:auto;
+}
+
 #ccGifInner {
-  width:min(640px,88vw);
+  width:min(560px,82vw);
   border-radius:14px;
   overflow:hidden;
-  position:relative;
   box-shadow:
-    0 0 0 1px rgba(255,255,255,0.1),
-    0 6px 50px rgba(0,0,0,0.85),
-    0 0 40px var(--cc-color-glow);
+    0 4px 40px rgba(0,0,0,0.8),
+    0 0 0 1px rgba(255,255,255,0.08),
+    0 0 30px var(--cc-bar-color, rgba(255,157,199,0.2));
+  position:relative;
 }
 #ccGif {
   width:100%;
@@ -2574,17 +2620,37 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   object-fit:cover;
   display:block;
 }
+/* Gradient fade bottom of gif — properly positioned */
 #ccGifInner::after {
-  content:'';position:absolute;left:0;right:0;bottom:0;
-  height:55%;
-  background:linear-gradient(to bottom,transparent,rgba(6,4,8,0.85) 100%);
+  content:'';
+  position:absolute;
+  left:0;right:0;bottom:0;
+  height:45%;
+  background:linear-gradient(to bottom,transparent,rgba(0,0,0,0.75) 100%);
   pointer-events:none;border-radius:0 0 14px 14px;
+}
+
+/* ── Central stage when using gif — flex column ── */
+#cardCutscene.cc-has-gif {
+  justify-content:center;
+}
+#ccCenterStage {
+  position:relative;
+  z-index:6;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  width:100%;
+  max-height:100%;
+  gap:clamp(10px,2vh,20px);
+  padding:clamp(40px,7vh,70px) clamp(20px,6vw,80px) clamp(50px,8vh,80px);
 }
 
 /* ── Text area ── */
 #ccTextArea {
   position:absolute;
-  z-index:8;
+  z-index:6;
   width:100%;
   display:flex;flex-direction:column;
   align-items:center;justify-content:center;
@@ -2593,9 +2659,12 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   text-align:center;
   top:0;bottom:0;
 }
+/* When gif is showing — text sits below the gif in the stage, not absolute */
 #cardCutscene.cc-has-gif #ccTextArea {
-  top:auto;bottom:0;height:45%;
-  justify-content:center;
+  position:relative;
+  top:auto;bottom:auto;
+  padding:0 clamp(16px,4vw,60px);
+  flex-shrink:0;
 }
 
 /* ── Main narration text ── */
@@ -2606,80 +2675,66 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   color:#fff;
   line-height:1.5;
   letter-spacing:0.02em;
-  text-shadow:0 2px 24px rgba(0,0,0,0.98), 0 0 60px var(--cc-color-glow);
+  text-shadow:
+    0 2px 20px rgba(0,0,0,0.95),
+    0 0 60px rgba(0,0,0,0.8);
   max-width:min(700px,86vw);
   opacity:0;
   transform:translateY(14px) scale(0.97);
   transition:opacity 0.55s ease,transform 0.55s cubic-bezier(0.34,1.2,0.64,1);
 }
-#ccTextMain.visible { opacity:1;transform:translateY(0) scale(1); }
+#ccTextMain.visible {
+  opacity:1;
+  transform:translateY(0) scale(1);
+}
 
-/* ── Title step ── */
+/* ── Title step — even bigger, gold tinted ── */
 #ccTitleBlock {
-  display:flex;flex-direction:column;align-items:center;gap:12px;
-  pointer-events:none;position:relative;
+  display:flex;flex-direction:column;align-items:center;gap:10px;
+  pointer-events:none;
 }
-/* Decorative corner brackets around title */
-#ccTitleBlock::before,#ccTitleBlock::after {
-  content:'';
-  position:absolute;
-  width:24px;height:24px;
-  opacity:0;
-  transition:opacity 0.4s ease 0.6s;
-  border-color:var(--cc-color);
-  border-style:solid;
-}
-#ccTitleBlock::before { top:-10px;left:50%;margin-left:-180px; border-width:2px 0 0 2px; }
-#ccTitleBlock::after  { bottom:-10px;left:50%;margin-left:156px; border-width:0 2px 2px 0; }
-#ccTitleBlock.brackets-visible::before,
-#ccTitleBlock.brackets-visible::after { opacity:0.6; }
-
 #ccTitleMain {
   font-family:'Cinzel Decorative',serif;
-  font-size:clamp(1.1em,5vw,2.8em);
+  font-size:clamp(1.1em,5vw,2.6em);
   font-weight:900;
-  color:var(--cc-color);
-  line-height:1.2;
-  letter-spacing:0.08em;
-  text-shadow:
-    0 0 40px var(--cc-color),
-    0 0 80px var(--cc-color-glow),
-    0 2px 12px rgba(0,0,0,0.98);
+  color:#fff;
+  line-height:1.25;
+  letter-spacing:0.06em;
+  text-shadow:0 0 80px currentColor,0 2px 10px rgba(0,0,0,0.95);
   max-width:min(720px,88vw);
   text-align:center;
   opacity:0;
-  transform:scaleX(0.55) translateY(20px);
-  filter:blur(12px);
-  /* slam animation applied in JS */
+  transform:scaleX(0.72) translateY(6px);
+  transition:opacity 0.6s ease,transform 0.6s cubic-bezier(0.34,1.4,0.64,1);
 }
 #ccTitleMain.visible {
-  animation:ccTitleSlam 0.7s cubic-bezier(0.22,1,0.36,1) forwards;
+  opacity:1;transform:scaleX(1) translateY(0);
 }
 #ccTitleDivider {
   width:0;height:2px;border-radius:1px;
-  background:linear-gradient(90deg,transparent,var(--cc-color),transparent);
-  transition:width 0.6s ease 0.35s;
-  box-shadow:0 0 8px var(--cc-color);
+  background:currentColor;
+  transition:width 0.65s ease 0.28s;
+  opacity:0.7;
 }
-#ccTitleDivider.visible { width:min(340px,62vw); }
+#ccTitleDivider.visible { width:min(260px,52vw); }
 #ccTitleSub {
   font-family:'Cormorant Garamond',serif;
   font-style:italic;
-  font-size:clamp(0.95em,2.8vw,1.3em);
-  color:rgba(255,255,255,0.78);
+  font-size:clamp(0.95em,2.8vw,1.25em);
+  color:rgba(255,255,255,0.72);
   text-align:center;
   max-width:min(580px,84vw);
   line-height:1.55;
   opacity:0;transform:translateY(10px);
-  transition:opacity 0.45s ease 0.55s,transform 0.45s ease 0.55s;
-  text-shadow:0 1px 12px rgba(0,0,0,0.9), 0 0 30px var(--cc-color-glow);
+  transition:opacity 0.45s ease 0.45s,transform 0.45s ease 0.45s;
+  text-shadow:0 1px 10px rgba(0,0,0,0.9);
 }
 #ccTitleSub.visible { opacity:1;transform:translateY(0); }
 
 /* ── Step dots ── */
 #ccDots {
   position:absolute;bottom:clamp(10px,2.5vh,18px);
-  left:0;right:0;z-index:9;
+  left:0;right:0;z-index:8;
   display:flex;justify-content:center;gap:7px;
   pointer-events:none;
 }
@@ -2689,34 +2744,29 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   transition:all 0.35s;
 }
 .cc-dot.active {
-  background:var(--cc-color);
-  transform:scale(1.7);
-  box-shadow:0 0 10px var(--cc-color);
+  background:#fff;transform:scale(1.6);
+  box-shadow:0 0 8px #fff;
 }
 .cc-dot.done { background:rgba(255,255,255,0.45); }
 
 /* ── Timer bar ── */
 #ccTimerBar {
-  position:absolute;top:0;left:0;right:0;height:2px;z-index:11;
-  background:rgba(255,255,255,0.06);pointer-events:none;
+  position:absolute;top:0;left:0;right:0;height:2px;z-index:9;
+  background:rgba(255,255,255,0.07);pointer-events:none;
 }
-#ccTimerFill {
-  height:100%;width:0%;transition:width linear;
-  box-shadow:0 0 8px var(--cc-color);
-}
+#ccTimerFill { height:100%;width:0%;transition:width linear; }
 
 /* ── Counter ── */
 #ccCounter {
-  position:absolute;top:14px;left:18px;z-index:11;
+  position:absolute;top:12px;left:16px;z-index:9;
   font-family:'JetBrains Mono',monospace;font-size:0.65em;
   color:rgba(255,255,255,0.22);pointer-events:none;letter-spacing:0.08em;
 }
 
 /* ── Mobile ── */
 @media (max-width:600px) {
-  #ccGifWrap { height:52%; }
-  #cardCutscene.cc-has-gif #ccTextArea { height:50%; }
-  #ccGifInner { width:92vw;border-radius:8px; }
+  #ccCenterStage { padding:clamp(36px,6vh,56px) 14px clamp(44px,7vh,64px); gap:8px; }
+  #ccGifInner { width:90vw;border-radius:8px; }
   #ccTextMain  { font-size:clamp(1.1em,5vw,1.6em); }
   #ccTitleMain { font-size:clamp(0.95em,5.5vw,1.5em); }
   #ccTitleSub  { font-size:clamp(0.88em,3.5vw,1.05em); }
@@ -3660,6 +3710,16 @@ const CARD_ABILITIES = {
       desc:'Risk everything — 70 damage. Recoil 15 to self. [ULTIMATE]', battleEffect:'ofa100', value:70 },
     { id:'symbolfeat', name:"Symbol Inherited", icon:'🌟', type:'secret', tier:'secret',
       desc:'??? Inherits strength of all predecessors — ×2 power for final strike.', battleEffect:'finallegacy', value:2 }
+  ],
+  hakari: [
+    { id:'privatepure', name:"Private Pure Love Train", icon:'🎰', type:'active', tier:'active',
+      desc:"Activate domain expansion. Deals 30 damage and triggers jackpot roll.", battleEffect:'curse', value:30 },
+    { id:'jackpot', name:"Jackpot! Infinite Cursed Energy", icon:'💫', type:'passive', tier:'passive',
+      desc:"When jackpot triggers, restore 20 HP and negate next damage instance.", battleEffect:'regen', value:20 },
+    { id:'rollingblackout', name:"Rolling Blackout", icon:'⚡', type:'ultimate', tier:'ultimate',
+      desc:"Rapid-fire cursed energy burst — 5 hits of 14 damage each. [ULTIMATE]", battleEffect:'frenzy', value:70 },
+    { id:'deathgamble', name:"Death Gamble", icon:'🃏', type:'secret', tier:'secret',
+      desc:"??? Go all-in — flip a coin. Heads: deal 80 and heal 30. Tails: take 20 recoil.", battleEffect:'ofa100', value:80 }
   ]
 };
 
@@ -3705,6 +3765,7 @@ const DEMO_CARDS = [
   {id:'zero2',name:'Zero Two',rarity:3,rarityName:'[SR]',rarityStars:'★★★',series:'DARLING in the FRANXX',quote:"I want to be human. I want to be your darling.",desc:'The mysterious partner-killer who only found peace in one pilot.',image:'https://media1.tenor.com/m/Giv4A22u3KUAAAAC/zero-two-smile.gif',color:'#e74c3c',weight:40},
   {id:'hinata',name:'Hinata Shoyo',rarity:2,rarityName:'[R]',rarityStars:'★★',series:'Haikyuu!!',quote:"I'm not tall. But I can jump.",desc:'The little giant who refused to be limited by his height or his circumstances.',image:'https://media1.tenor.com/m/lazWdimyxj8AAAAC/haikyuu-anime.gif',color:'#f39c12',weight:70},
   {id:'naruto',name:'Naruto Uzumaki',rarity:1,rarityName:'[N]',rarityStars:'★',series:'Naruto',quote:"I'm not gonna run away, I never go back on my word!",desc:'The knucklehead ninja who dreamed of being Hokage — and made it.',image:'https://media1.tenor.com/m/xrQKVA243MsAAAAC/naruto-believe-it.gif',color:'#f39c12',weight:100},
+  {id:'hakari',name:'Kinji Hakari',rarity:5,rarityName:'[UR]',rarityStars:'★★★★★',series:'Jujutsu Kaisen',quote:"Jackpot. My domain's on a winning streak — and luck? Luck doesn't run out.",desc:"Jujutsu Tech's most dangerous gambler. When his domain hits the jackpot, he becomes effectively immortal — an unstoppable force wrapped in a fever dream of pachinko and pure cursed energy.",image:'https://media1.tenor.com/m/YXN8SXrpWekAAAAC/hakari-kinji-hakari.gif',color:'#f1c40f',weight:5},
 ];
 
 const SHOP_ITEMS = [
@@ -7316,23 +7377,137 @@ function cardHasCutscene(cardId){
   return cs&&cs.steps&&cs.steps.length>0;
 }
 
+function ccSpawnLines(color){
+  const container=document.getElementById('ccLines');
+  if(!container)return;
+  container.innerHTML='';
+  for(let i=0;i<24;i++){
+    const line=document.createElement('div');
+    const angle=Math.random()*360;
+    const len=80+Math.random()*360;
+    const x=Math.random()*100, y=Math.random()*100;
+    line.style.cssText=`position:absolute;left:${x}%;top:${y}%;width:${len}px;height:2px;background:${color};transform:rotate(${angle}deg);transform-origin:left center;opacity:0;animation:lineShot ${0.3+Math.random()*0.4}s ease forwards ${Math.random()*0.3}s;`;
+    container.appendChild(line);
+  }
+}
+
+// ── Card Cutscene Background Themes ──
+const CC_BG_THEMES = {
+  auto: null, // uses rarity color
+  noir:    { base:'#000',        nebula:'#111111',        grad:'radial-gradient(ellipse at 50% 30%, #1a0a0a 0%, #000 60%)' },
+  sakura:  { base:'#0d0610',     nebula:'#ff9dc7',        grad:'radial-gradient(ellipse at 40% 20%, #2a0520 0%, #0d0610 55%, #000 100%)' },
+  abyss:   { base:'#020210',     nebula:'#3340cc',        grad:'radial-gradient(ellipse at 50% 60%, #0a0a30 0%, #020210 55%, #000 100%)' },
+  ember:   { base:'#100400',     nebula:'#ff4400',        grad:'radial-gradient(ellipse at 60% 30%, #200800 0%, #100400 55%, #000 100%)' },
+  celestial:{ base:'#00050f',    nebula:'#00ccff',        grad:'radial-gradient(ellipse at 30% 40%, #001020 0%, #00050f 55%, #000 100%)' },
+  gold:    { base:'#0a0800',     nebula:'#f1c40f',        grad:'radial-gradient(ellipse at 50% 30%, #1a1400 0%, #0a0800 55%, #000 100%)' },
+  void:    { base:'#05000f',     nebula:'#9b59b6',        grad:'radial-gradient(ellipse at 50% 50%, #12003a 0%, #05000f 60%, #000 100%)' },
+};
+let _ccActiveBgTheme = 'auto';
+
+function setCcBgTheme(theme) {
+  _ccActiveBgTheme = theme;
+  // update active button styling in editor if open
+  document.querySelectorAll('.cc-theme-btn').forEach(b=>{
+    b.classList.toggle('active', b.dataset.theme===theme);
+  });
+}
+
+function applyCcBackground(color, overlay) {
+  const theme = CC_BG_THEMES[_ccActiveBgTheme];
+  const gradEl = document.getElementById('ccBgGradient');
+  const nebEl  = document.getElementById('ccBgNebula');
+  if(!gradEl || !nebEl) return;
+
+  // derive hex from color for auto
+  const useColor = color || '#ff9dc7';
+  let baseColor, nebulaColor, gradStyle;
+
+  if(!theme || _ccActiveBgTheme === 'auto') {
+    // auto: derive from rarity color
+    baseColor   = '#000';
+    nebulaColor = useColor;
+    gradStyle   = `radial-gradient(ellipse at 45% 30%, ${useColor}30 0%, ${useColor}08 35%, #000 65%)`;
+  } else {
+    baseColor   = theme.base;
+    nebulaColor = theme.nebula;
+    gradStyle   = theme.grad;
+  }
+
+  overlay.style.setProperty('--cc-bg-base', baseColor);
+  gradEl.style.background = gradStyle;
+  nebEl.style.background  = nebulaColor;
+  gradEl.classList.add('visible');
+  nebEl.classList.add('visible');
+}
+
+function fireSpeedLinesBurst(color) {
+  const canvas = document.getElementById('ccSpeedCanvas');
+  if(!canvas) return;
+  canvas.width  = window.innerWidth;
+  canvas.height = window.innerHeight;
+  const ctx = canvas.getContext('2d');
+  const cx  = canvas.width  * 0.5;
+  const cy  = canvas.height * 0.45;
+  const COUNT = 80;
+
+  canvas.classList.add('visible');
+  let start = null;
+  const DURATION = 600;
+
+  function draw(ts) {
+    if(!start) start = ts;
+    const p = Math.min((ts - start) / DURATION, 1);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    for(let i = 0; i < COUNT; i++) {
+      const angle  = (i / COUNT) * Math.PI * 2;
+      const len    = (60 + Math.random() * 300) * p;
+      const gap    = 18 + i * 1.2;
+      const x1 = cx + Math.cos(angle) * gap;
+      const y1 = cy + Math.sin(angle) * gap;
+      const x2 = cx + Math.cos(angle) * (gap + len);
+      const y2 = cy + Math.sin(angle) * (gap + len);
+      const alpha = Math.max(0, (1 - p) * 0.85);
+      ctx.beginPath();
+      ctx.moveTo(x1, y1);
+      ctx.lineTo(x2, y2);
+      ctx.strokeStyle = color + Math.round(alpha * 255).toString(16).padStart(2,'0');
+      ctx.lineWidth   = 0.8 + Math.random() * 1.4;
+      ctx.stroke();
+    }
+    if(p < 1) requestAnimationFrame(draw);
+    else { ctx.clearRect(0,0,canvas.width,canvas.height); canvas.classList.remove('visible'); }
+  }
+  requestAnimationFrame(draw);
+}
+
+function fireTitleImpact(color) {
+  // White flash
+  const flash = document.getElementById('ccTitleFlash');
+  if(flash) {
+    flash.classList.add('pop');
+    setTimeout(()=>flash.classList.remove('pop'), 120);
+  }
+  // Burst ring
+  const ring = document.getElementById('ccBurstRing');
+  if(ring) {
+    ring.classList.remove('pop');
+    void ring.offsetWidth;
+    ring.classList.add('pop');
+    setTimeout(()=>ring.classList.remove('pop'), 720);
+  }
+  // Speed line burst on canvas
+  fireSpeedLinesBurst(color);
+}
+
 async function playCardCutscene(card){
   const cs=window.CARD_CUTSCENE_DATA[card.id];
   if(!cs||!cs.steps.length)return;
 
-  // Use cutscene's own color if set, else card rarity color
-  const color = cs.color || RARITY_COLORS[card.rarity] || '#ff9dc7';
-  const colorDim  = color+'2e';
-  const colorGlow = color+'59';
-
+  const color=RARITY_COLORS[card.rarity]||'#ff9dc7';
   const overlay=document.getElementById('cardCutscene');
   const steps=cs.steps;
   const total=steps.length;
-
-  // ── Set CSS custom property for entire cutscene theming ──
-  overlay.style.setProperty('--cc-color', color);
-  overlay.style.setProperty('--cc-color-dim', colorDim);
-  overlay.style.setProperty('--cc-color-glow', colorGlow);
 
   // ── Build step dots ──
   const dotsEl=document.getElementById('ccDots');
@@ -7340,127 +7515,41 @@ async function playCardCutscene(card){
 
   // ── Timer fill colour ──
   document.getElementById('ccTimerFill').style.background=color;
-  document.getElementById('ccTimerFill').style.boxShadow=`0 0 8px ${color}`;
+  document.getElementById('ccTitleDivider').style.color=color;
+  document.getElementById('ccTitleMain').style.color=color;
+  document.getElementById('ccTitleMain').style.textShadow=`0 0 80px ${color}, 0 2px 10px rgba(0,0,0,0.95)`;
 
   // ── Glow ──
   const glowEl=document.getElementById('ccGlow');
-  glowEl.style.background=`radial-gradient(ellipse at 50% 35%, ${color}33, transparent 60%)`;
+  glowEl.style.background=`radial-gradient(ellipse at 50% 40%, ${color}30, transparent 65%)`;
 
-  // ── Rotating beam wedges ──
-  const beamsInner=document.getElementById('ccBeamsInner');
-  const beamCount=12;
-  beamsInner.innerHTML='';
-  for(let i=0;i<beamCount;i++){
-    const w=document.createElement('div');
-    const rot=(i/beamCount)*360;
-    const alpha= i%2===0 ? '0.045' : '0.022';
-    w.style.cssText=`position:absolute;top:50%;left:50%;width:0;height:0;
-      border-left:150vmax solid transparent;border-right:150vmax solid transparent;
-      border-top:${150 + Math.random()*60}vmax solid ${color};
-      opacity:${alpha};transform-origin:0 0;transform:rotate(${rot}deg);`;
-    beamsInner.appendChild(w);
-  }
-  document.getElementById('ccBeams').classList.add('visible');
+  // ── Set CSS accent color for background decoration and bars ──
+  overlay.style.setProperty('--cc-accent-color', color+'28');
+  overlay.style.setProperty('--cc-bar-color', color);
 
-  // ── Speed lines canvas ──
-  let _ccSpeedAnim=null;
-  const canvas=document.getElementById('ccSpeedCanvas');
-  canvas.width=window.innerWidth;canvas.height=window.innerHeight;
-  const ctx2=canvas.getContext('2d');
-
-  function startSpeedLines(){
-    canvas.classList.add('burst');
-    const lines=[];
-    for(let i=0;i<38;i++){
-      lines.push({
-        x:Math.random()*canvas.width,
-        y:Math.random()*canvas.height,
-        len:80+Math.random()*220,
-        speed:8+Math.random()*18,
-        alpha:0.18+Math.random()*0.38,
-        w:1+Math.random()*2,
-      });
-    }
-    let frame=0;
-    function draw(){
-      ctx2.clearRect(0,0,canvas.width,canvas.height);
-      lines.forEach(l=>{
-        ctx2.save();
-        ctx2.globalAlpha=l.alpha*(1-frame/60);
-        ctx2.strokeStyle=color;
-        ctx2.lineWidth=l.w;
-        ctx2.beginPath();
-        ctx2.moveTo(l.x,l.y);
-        ctx2.lineTo(l.x+l.len,l.y);
-        ctx2.stroke();
-        ctx2.restore();
-        l.x+=l.speed;
-        if(l.x>canvas.width+l.len){ l.x=-l.len; l.y=Math.random()*canvas.height; }
-      });
-      frame++;
-      if(frame<60) _ccSpeedAnim=requestAnimationFrame(draw);
-      else { canvas.classList.remove('burst'); ctx2.clearRect(0,0,canvas.width,canvas.height); _ccSpeedAnim=null; }
-    }
-    _ccSpeedAnim=requestAnimationFrame(draw);
-  }
-
-  function stopSpeedLines(){
-    if(_ccSpeedAnim){cancelAnimationFrame(_ccSpeedAnim);_ccSpeedAnim=null;}
-    canvas.classList.remove('burst');
-    ctx2.clearRect(0,0,canvas.width,canvas.height);
-  }
-
-  function spawnShockwaves(){
-    const ring=document.getElementById('ccRings');
-    ring.innerHTML='';
-    for(let i=0;i<3;i++){
-      const r=document.createElement('div');
-      r.className='cc-ring';
-      r.style.animationDelay=`${i*0.18}s`;
-      r.style.borderColor=color;
-      r.style.boxShadow=`0 0 12px ${color}`;
-      ring.appendChild(r);
-    }
-    setTimeout(()=>{ring.innerHTML='';},1400);
-  }
-
-  function flashScreen(){
-    const f=document.getElementById('ccFlash');
-    f.style.animation='none';void f.offsetWidth;
-    f.style.animation='ccFlashWhite 0.45s ease forwards';
-  }
-
-  function spawnCCLines(){
-    const container=document.getElementById('ccLines');
-    container.innerHTML='';
-    for(let i=0;i<24;i++){
-      const line=document.createElement('div');
-      const angle=-15+Math.random()*30;
-      const len=60+Math.random()*260;
-      const x=Math.random()*100, y=Math.random()*100;
-      line.style.cssText=`position:absolute;left:${x}%;top:${y}%;width:${len}px;height:${1+Math.random()*2}px;
-        background:linear-gradient(90deg,transparent,${color},transparent);
-        transform:rotate(${angle}deg);transform-origin:left center;opacity:0;
-        animation:lineShot ${0.25+Math.random()*0.35}s ease forwards ${Math.random()*0.25}s;
-        box-shadow:0 0 4px ${color};`;
-      container.appendChild(line);
-    }
-  }
+  // ── Apply background theme ──
+  applyCcBackground(color, overlay);
 
   // ── Show overlay ──
   overlay.classList.add('active');
   await new Promise(r=>setTimeout(r,60));
-  startSpeedLines();
+  ccSpawnLines(color);
 
   // ── Single BGM audio for whole cutscene ──
   let bgAudio=null;
   if(cs.audio_url){
     try{
       bgAudio=new Audio(cs.audio_url);
-      bgAudio.volume=0;bgAudio.loop=false;
+      bgAudio.volume=0;
+      bgAudio.loop=false;
       bgAudio.play().catch(()=>{});
+      // Fade in
       let vol=0;
-      const fadeIn=setInterval(()=>{vol=Math.min(vol+0.05,0.82);bgAudio.volume=vol;if(vol>=0.82)clearInterval(fadeIn);},60);
+      const fadeIn=setInterval(()=>{
+        vol=Math.min(vol+0.05,0.82);
+        bgAudio.volume=vol;
+        if(vol>=0.82)clearInterval(fadeIn);
+      },60);
     }catch(e){}
   }
 
@@ -7499,15 +7588,13 @@ async function playCardCutscene(card){
       const titleMain = document.getElementById('ccTitleMain');
       const titleDiv  = document.getElementById('ccTitleDivider');
       const titleSub  = document.getElementById('ccTitleSub');
+      const stage     = document.getElementById('ccCenterStage');
 
       // ── Fade out current content ──
       textMain.classList.remove('visible');
       titleMain.classList.remove('visible');
       titleDiv.classList.remove('visible');
       titleSub.classList.remove('visible');
-      titleBlock.classList.remove('brackets-visible');
-      // reset title slam so it re-fires
-      titleMain.style.animation='none';
       gifWrap.classList.remove('visible');
       overlay.classList.remove('cc-has-gif');
 
@@ -7521,13 +7608,16 @@ async function playCardCutscene(card){
         gifEl.onerror=()=>{};
         setTimeout(()=>gifWrap.classList.add('visible'),800);
         overlay.classList.add('cc-has-gif');
+        // Move gifWrap into the stage if not already there
+        if(gifWrap.parentElement!==stage) stage.insertBefore(gifWrap,stage.firstChild);
       } else {
-        gifWrap.classList.remove('visible');gifEl.src='';
+        gifWrap.classList.remove('visible');
+        gifEl.src='';
       }
 
       // ── Glow pulse ──
-      glowEl.style.opacity=step.is_title?'0.8':'0.35';
-      setTimeout(()=>glowEl.style.opacity=step.is_title?'0.25':'0.12',1200);
+      glowEl.style.opacity=step.is_title?'0.65':'0.28';
+      setTimeout(()=>glowEl.style.opacity=step.is_title?'0.2':'0.1',1000);
 
       await new Promise(r=>setTimeout(r,hasGif?180:100));
 
@@ -7538,48 +7628,36 @@ async function playCardCutscene(card){
         titleMain.textContent=cs.title||step.text;
         titleSub.textContent=step.text&&step.text!==cs.title?step.text:'';
         titleSub.style.display=titleSub.textContent?'':'none';
-
-        // TITLE SLAM sequence
         await new Promise(r=>setTimeout(r,30));
-        flashScreen();
-        startSpeedLines();
-        spawnCCLines();
-        spawnShockwaves();
+        titleMain.classList.add('visible');
+        setTimeout(()=>titleDiv.classList.add('visible'),200);
+        setTimeout(()=>titleSub.classList.add('visible'),320);
+        ccSpawnLines(color);
         spawnParticles(card.rarity,color);
         playAbilityCutsceneSound('ultimate');
-
-        // Small delay then slam title in
-        await new Promise(r=>setTimeout(r,80));
-        void titleMain.offsetWidth; // reflow to re-trigger animation
-        titleMain.style.animation='';
-        titleMain.classList.add('visible');
-        setTimeout(()=>titleDiv.classList.add('visible'),320);
-        setTimeout(()=>titleSub.classList.add('visible'),480);
-        setTimeout(()=>titleBlock.classList.add('brackets-visible'),600);
-
-        // Second wave of particles after slam settles
-        setTimeout(()=>spawnParticles(card.rarity,color),700);
-
+        // ── Impact effects on title drop ──
+        fireTitleImpact(color);
       } else {
         titleBlock.style.display='none';
         textMain.style.display='';
         textMain.textContent=step.text;
         await new Promise(r=>setTimeout(r,30));
         textMain.classList.add('visible');
-        spawnCCLines();
       }
 
       // ── Duration ──
       const durMs = step.duration>0 ? step.duration*1000
-                  : step.is_title   ? 4500
+                  : step.is_title   ? 4200
                   : 4800;
 
+      // Timer bar
       const fill=document.getElementById('ccTimerFill');
       fill.style.transition='none';fill.style.width='0%';
       void fill.offsetWidth;
       fill.style.transition=`width ${durMs}ms linear`;
       fill.style.width='100%';
 
+      // Auto-advance — no skip
       window._ccStepTimer=setTimeout(()=>{
         window._ccStepTimer=null;
         if(isLast) closeCutscene();
@@ -7589,14 +7667,14 @@ async function playCardCutscene(card){
 
     function closeCutscene(){
       if(window._ccStepTimer){clearTimeout(window._ccStepTimer);window._ccStepTimer=null;}
-      stopSpeedLines();
       fadeOutAudio();
 
+      // Fade out all content
       ['ccTextMain','ccTitleMain','ccTitleDivider','ccTitleSub'].forEach(id=>{
-        const el=document.getElementById(id);if(el)el.classList.remove('visible');
+        const el=document.getElementById(id);
+        if(el)el.classList.remove('visible');
       });
       document.getElementById('ccGifWrap').classList.remove('visible');
-      document.getElementById('ccBeams').classList.remove('visible');
       overlay.classList.remove('cc-has-gif');
       glowEl.style.opacity='0';
 
@@ -7609,8 +7687,11 @@ async function playCardCutscene(card){
         overlay.style.transition='';
         document.getElementById('ccGif').src='';
         document.getElementById('ccTimerFill').style.width='0%';
-        document.getElementById('ccLines').innerHTML='';
-        document.getElementById('ccRings').innerHTML='';
+        // Reset bg layers
+        const gradEl=document.getElementById('ccBgGradient');
+        const nebEl=document.getElementById('ccBgNebula');
+        if(gradEl){gradEl.classList.remove('visible');gradEl.style.background='';}
+        if(nebEl){nebEl.classList.remove('visible');nebEl.style.background='';}
         resolve();
       },680);
     }
@@ -7658,6 +7739,18 @@ function openCutsceneEditor(cardId,cardName){
         <div style="margin-bottom:10px;">
           <label class="admin-label">Cinematic Title <span class="admin-hint">(shown big on the Title Step)</span></label>
           <input class="admin-input" id="csEditorTitle" placeholder='e.g. 「 🟢 IZUKU MIDORIYA... THE LAST EMBER OF ONE FOR ALL !! 」'/>
+        </div>
+
+        <div style="margin-bottom:10px;">
+          <label class="admin-label">Background Theme <span class="admin-hint">(changes the cutscene backdrop)</span></label>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;" id="csThemePicker">
+            ${Object.entries({auto:'🌈 Auto',noir:'⬛ Noir',sakura:'🌸 Sakura',abyss:'🌊 Abyss',ember:'🔥 Ember',celestial:'❄️ Celestial',gold:'⭐ Gold',void:'🔮 Void'}).map(([k,label])=>{
+              const swatchColors={auto:'conic-gradient(#ff9dc7,#9b59b6,#f1c40f,#ff9dc7)',noir:'#111',sakura:'#ff9dc7',abyss:'#3340cc',ember:'#ff4400',celestial:'#00ccff',gold:'#f1c40f',void:'#9b59b6'};
+              return `<button class="cc-theme-btn${k==='auto'?' active':''}" data-theme="${k}" onclick="setCcBgTheme('${k}');document.querySelectorAll('.cc-theme-btn').forEach(b=>b.classList.toggle('active',b.dataset.theme==='${k}'))">
+                <span class="cc-theme-swatch" style="background:${swatchColors[k]||'#888'}"></span>${label}
+              </button>`;
+            }).join('')}
+          </div>
         </div>
 
         <div style="margin-bottom:16px;">
@@ -7893,34 +7986,43 @@ tryAutoLogin();
 
 <!-- ══ CARD CUTSCENE OVERLAY ══ -->
 <div id="cardCutscene">
-  <!-- Background layers (lowest z) -->
+  <div class="cc-bar-top"></div>
+  <div class="cc-bar-bot"></div>
   <div id="ccBgGradient"></div>
-  <div id="ccBeams"><div id="ccBeamsInner"></div></div>
+  <div id="ccBgNebula"></div>
   <canvas id="ccSpeedCanvas"></canvas>
   <div id="ccScanlines"></div>
   <div id="ccGlow"></div>
-  <div id="ccLines"></div>
   <div id="ccVignette"></div>
-  <div id="ccRings"></div>
+  <div id="ccLines"></div>
+  <div id="ccTitleFlash"></div>
+  <div id="ccBurstRing"></div>
 
-  <!-- White flash for title slam -->
-  <div id="ccFlash"></div>
+  <!-- Central stage — column layout: GIF then text -->
+  <div id="ccCenterStage">
 
-  <!-- GIF (top half, landscape) -->
-  <div id="ccGifWrap">
-    <div id="ccGifInner">
-      <img id="ccGif" src="" alt="" aria-hidden="true"/>
+    <!-- GIF — sits inline above text when present -->
+    <div id="ccGifWrap">
+      <div id="ccGifInner">
+        <img id="ccGif" src="" alt="" aria-hidden="true"/>
+      </div>
     </div>
-  </div>
 
-  <!-- Text area -->
-  <div id="ccTextArea">
-    <div id="ccTextMain"></div>
-    <div id="ccTitleBlock" style="display:none;">
-      <div id="ccTitleMain"></div>
-      <div id="ccTitleDivider"></div>
-      <div id="ccTitleSub"></div>
+    <!-- Text area — sits below GIF or centred alone -->
+    <div id="ccTextArea">
+
+      <!-- Narration text (non-title steps) -->
+      <div id="ccTextMain"></div>
+
+      <!-- Title block (title steps) -->
+      <div id="ccTitleBlock" style="display:none;">
+        <div id="ccTitleMain"></div>
+        <div id="ccTitleDivider"></div>
+        <div id="ccTitleSub"></div>
+      </div>
+
     </div>
+
   </div>
 
   <!-- Step dots + timer + counter -->
