@@ -2550,21 +2550,11 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   100% { opacity:0;   transform:scaleX(1); }
 }
 
-/* ── Background theme selector (admin editor) ── */
-.cc-theme-btn {
-  display:flex;align-items:center;gap:6px;
-  background:rgba(255,157,199,0.06);
-  border:1px solid rgba(255,157,199,0.18);
-  border-radius:10px;padding:6px 12px;
-  cursor:pointer;font-size:0.8em;color:var(--text-dim);
-  transition:all 0.2s;
-}
-.cc-theme-btn:hover,.cc-theme-btn.active {
-  border-color:var(--pink);color:var(--pink);background:rgba(255,157,199,0.12);
-}
-.cc-theme-swatch {
-  width:16px;height:16px;border-radius:50%;flex-shrink:0;
-  border:1px solid rgba(255,255,255,0.15);
+/* ── Color preset active state ── */
+.cc-preset-btn.active {
+  border-color: var(--pink) !important;
+  color: var(--pink) !important;
+  background: rgba(255,157,199,0.1) !important;
 }
 /* Horizontal bars — anime letterbox style */
 #cardCutscene .cc-bar-top,
@@ -7391,55 +7381,57 @@ function ccSpawnLines(color){
   }
 }
 
-// ── Card Cutscene Background Themes ──
-const CC_BG_THEMES = {
-  auto: null, // uses rarity color
-  noir:    { base:'#000',        nebula:'#111111',        grad:'radial-gradient(ellipse at 50% 30%, #1a0a0a 0%, #000 60%)' },
-  sakura:  { base:'#0d0610',     nebula:'#ff9dc7',        grad:'radial-gradient(ellipse at 40% 20%, #2a0520 0%, #0d0610 55%, #000 100%)' },
-  abyss:   { base:'#020210',     nebula:'#3340cc',        grad:'radial-gradient(ellipse at 50% 60%, #0a0a30 0%, #020210 55%, #000 100%)' },
-  ember:   { base:'#100400',     nebula:'#ff4400',        grad:'radial-gradient(ellipse at 60% 30%, #200800 0%, #100400 55%, #000 100%)' },
-  celestial:{ base:'#00050f',    nebula:'#00ccff',        grad:'radial-gradient(ellipse at 30% 40%, #001020 0%, #00050f 55%, #000 100%)' },
-  gold:    { base:'#0a0800',     nebula:'#f1c40f',        grad:'radial-gradient(ellipse at 50% 30%, #1a1400 0%, #0a0800 55%, #000 100%)' },
-  void:    { base:'#05000f',     nebula:'#9b59b6',        grad:'radial-gradient(ellipse at 50% 50%, #12003a 0%, #05000f 60%, #000 100%)' },
-};
-let _ccActiveBgTheme = 'auto';
+// ── Card Cutscene Color System ──
+// Preset color templates
+const CC_COLOR_PRESETS = [
+  { label:'Auto',      hex: null,      desc:'Follows rarity color' },
+  { label:'Sakura',    hex:'#ff9dc7',  desc:'Soft pink' },
+  { label:'Gold',      hex:'#f1c40f',  desc:'Shimmering gold' },
+  { label:'Void',      hex:'#9b59b6',  desc:'Deep violet' },
+  { label:'Ember',     hex:'#ff4400',  desc:'Blazing orange-red' },
+  { label:'Abyss',     hex:'#3b82f6',  desc:'Royal blue' },
+  { label:'Celestial', hex:'#00ccff',  desc:'Icy cyan' },
+  { label:'Venom',     hex:'#00e676',  desc:'Toxic green' },
+  { label:'Crimson',   hex:'#e53935',  desc:'Blood red' },
+  { label:'Ivory',     hex:'#f5f0e8',  desc:'Pure white' },
+];
+// null means "use rarity color automatically"
+let _ccCustomColor = null; // hex string or null
 
-function setCcBgTheme(theme) {
-  _ccActiveBgTheme = theme;
-  // update active button styling in editor if open
-  document.querySelectorAll('.cc-theme-btn').forEach(b=>{
-    b.classList.toggle('active', b.dataset.theme===theme);
+function getCcActiveColor(rarityColor) {
+  return _ccCustomColor || rarityColor || '#ff9dc7';
+}
+
+function setCcCustomColor(hex) {
+  _ccCustomColor = hex || null;
+  // Sync UI
+  const inp = document.getElementById('csColorHex');
+  if(inp && hex) inp.value = hex;
+  const picker = document.getElementById('csColorPicker');
+  if(picker && hex) picker.value = hex;
+  // Update preset active states
+  document.querySelectorAll('.cc-preset-btn').forEach(b=>{
+    const match = b.dataset.hex === (hex||'auto');
+    b.classList.toggle('active', match);
   });
+  // Live preview swatch
+  const swatch = document.getElementById('csColorSwatch');
+  if(swatch) swatch.style.background = hex || 'conic-gradient(#ff9dc7,#9b59b6,#f1c40f,#ff9dc7)';
 }
 
 function applyCcBackground(color, overlay) {
-  const theme = CC_BG_THEMES[_ccActiveBgTheme];
   const gradEl = document.getElementById('ccBgGradient');
   const nebEl  = document.getElementById('ccBgNebula');
   if(!gradEl || !nebEl) return;
 
-  // derive hex from color for auto
-  const useColor = color || '#ff9dc7';
-  let baseColor, nebulaColor, gradStyle;
-
-  if(!theme || _ccActiveBgTheme === 'auto') {
-    // auto: derive from rarity color
-    baseColor   = '#000';
-    nebulaColor = useColor;
-    gradStyle   = `radial-gradient(ellipse at 45% 30%, ${useColor}30 0%, ${useColor}08 35%, #000 65%)`;
-  } else {
-    baseColor   = theme.base;
-    nebulaColor = theme.nebula;
-    gradStyle   = theme.grad;
-  }
-
-  overlay.style.setProperty('--cc-bg-base', baseColor);
-  gradEl.style.background = gradStyle;
-  nebEl.style.background  = nebulaColor;
+  overlay.style.setProperty('--cc-bg-base', '#000');
+  gradEl.style.background = `radial-gradient(ellipse at 45% 30%, ${color}2e 0%, ${color}0a 38%, #000 68%)`;
+  nebEl.style.background  = color;
   gradEl.classList.add('visible');
   nebEl.classList.add('visible');
 }
 
+// ── Speed lines canvas: one-shot burst ──
 function fireSpeedLinesBurst(color) {
   const canvas = document.getElementById('ccSpeedCanvas');
   if(!canvas) return;
@@ -7447,38 +7439,119 @@ function fireSpeedLinesBurst(color) {
   canvas.height = window.innerHeight;
   const ctx = canvas.getContext('2d');
   const cx  = canvas.width  * 0.5;
-  const cy  = canvas.height * 0.45;
-  const COUNT = 80;
+  const cy  = canvas.height * 0.46;
+  const COUNT = 90;
+
+  // Pre-bake per-line randomness so it's stable across frames
+  const lines = Array.from({length:COUNT}, (_,i)=>({
+    angle: (i / COUNT) * Math.PI * 2,
+    gap:   20 + i * 1.1,
+    len:   70 + Math.random() * 320,
+    width: 0.7 + Math.random() * 1.6,
+  }));
 
   canvas.classList.add('visible');
   let start = null;
-  const DURATION = 600;
+  const DURATION = 550;
 
   function draw(ts) {
     if(!start) start = ts;
     const p = Math.min((ts - start) / DURATION, 1);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    for(let i = 0; i < COUNT; i++) {
-      const angle  = (i / COUNT) * Math.PI * 2;
-      const len    = (60 + Math.random() * 300) * p;
-      const gap    = 18 + i * 1.2;
-      const x1 = cx + Math.cos(angle) * gap;
-      const y1 = cy + Math.sin(angle) * gap;
-      const x2 = cx + Math.cos(angle) * (gap + len);
-      const y2 = cy + Math.sin(angle) * (gap + len);
-      const alpha = Math.max(0, (1 - p) * 0.85);
+    const alpha = Math.max(0, (1 - p) * 0.9);
+    for(const ln of lines) {
+      const drawLen = ln.len * p;
+      const x1 = cx + Math.cos(ln.angle) * ln.gap;
+      const y1 = cy + Math.sin(ln.angle) * ln.gap;
+      const x2 = cx + Math.cos(ln.angle) * (ln.gap + drawLen);
+      const y2 = cy + Math.sin(ln.angle) * (ln.gap + drawLen);
       ctx.beginPath();
       ctx.moveTo(x1, y1);
       ctx.lineTo(x2, y2);
       ctx.strokeStyle = color + Math.round(alpha * 255).toString(16).padStart(2,'0');
-      ctx.lineWidth   = 0.8 + Math.random() * 1.4;
+      ctx.lineWidth   = ln.width;
       ctx.stroke();
     }
     if(p < 1) requestAnimationFrame(draw);
     else { ctx.clearRect(0,0,canvas.width,canvas.height); canvas.classList.remove('visible'); }
   }
   requestAnimationFrame(draw);
+}
+
+// ── Continuous speed lines loop (for title step duration) ──
+let _ccSpeedLinesRaf = null;
+let _ccSpeedLinesActive = false;
+
+function startContinuousSpeedLines(color) {
+  stopContinuousSpeedLines();
+  const canvas = document.getElementById('ccSpeedCanvas');
+  if(!canvas) return;
+  canvas.width  = window.innerWidth;
+  canvas.height = window.innerHeight;
+  const ctx = canvas.getContext('2d');
+  const cx  = canvas.width  * 0.5;
+  const cy  = canvas.height * 0.46;
+  const COUNT = 90;
+  _ccSpeedLinesActive = true;
+
+  // Each "line" has its own phase offset so they sweep continuously
+  const lines = Array.from({length:COUNT}, (_,i)=>({
+    angle:  (i / COUNT) * Math.PI * 2,
+    gap:    22 + i * 1.05,
+    maxLen: 80 + Math.random() * 300,
+    width:  0.6 + Math.random() * 1.5,
+    speed:  0.55 + Math.random() * 0.7,   // cycles per second
+    phase:  Math.random(),                  // offset so they don't all sync
+  }));
+
+  canvas.classList.add('visible');
+  let lastTs = null;
+  let elapsed = 0;
+
+  function draw(ts) {
+    if(!_ccSpeedLinesActive) {
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      canvas.classList.remove('visible');
+      return;
+    }
+    if(!lastTs) lastTs = ts;
+    const dt = (ts - lastTs) / 1000;
+    lastTs = ts;
+    elapsed += dt;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    for(const ln of lines) {
+      // t oscillates 0→1→0 per cycle using sine wave — gives a sweeping in/out feel
+      const t = (Math.sin((elapsed * ln.speed + ln.phase) * Math.PI * 2) + 1) / 2;
+      if(t < 0.05) continue; // hide when near base
+      const drawLen = ln.maxLen * t;
+      const alpha   = t * 0.75;
+      const x1 = cx + Math.cos(ln.angle) * ln.gap;
+      const y1 = cy + Math.sin(ln.angle) * ln.gap;
+      const x2 = cx + Math.cos(ln.angle) * (ln.gap + drawLen);
+      const y2 = cy + Math.sin(ln.angle) * (ln.gap + drawLen);
+      ctx.beginPath();
+      ctx.moveTo(x1, y1);
+      ctx.lineTo(x2, y2);
+      ctx.strokeStyle = color + Math.round(alpha * 255).toString(16).padStart(2,'0');
+      ctx.lineWidth   = ln.width;
+      ctx.stroke();
+    }
+    _ccSpeedLinesRaf = requestAnimationFrame(draw);
+  }
+  _ccSpeedLinesRaf = requestAnimationFrame(draw);
+}
+
+function stopContinuousSpeedLines() {
+  _ccSpeedLinesActive = false;
+  if(_ccSpeedLinesRaf) { cancelAnimationFrame(_ccSpeedLinesRaf); _ccSpeedLinesRaf = null; }
+  const canvas = document.getElementById('ccSpeedCanvas');
+  if(canvas) {
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    canvas.classList.remove('visible');
+  }
 }
 
 function fireTitleImpact(color) {
@@ -7496,15 +7569,17 @@ function fireTitleImpact(color) {
     ring.classList.add('pop');
     setTimeout(()=>ring.classList.remove('pop'), 720);
   }
-  // Speed line burst on canvas
-  fireSpeedLinesBurst(color);
+  // Start continuous speed lines (stopped when step ends)
+  startContinuousSpeedLines(color);
 }
 
 async function playCardCutscene(card){
   const cs=window.CARD_CUTSCENE_DATA[card.id];
   if(!cs||!cs.steps.length)return;
 
-  const color=RARITY_COLORS[card.rarity]||'#ff9dc7';
+  const rarityColor=RARITY_COLORS[card.rarity]||'#ff9dc7';
+  // Use custom color override if set, otherwise fall back to rarity color
+  const color = getCcActiveColor(rarityColor);
   const overlay=document.getElementById('cardCutscene');
   const steps=cs.steps;
   const total=steps.length;
@@ -7597,6 +7672,8 @@ async function playCardCutscene(card){
       titleSub.classList.remove('visible');
       gifWrap.classList.remove('visible');
       overlay.classList.remove('cc-has-gif');
+      // Stop continuous speed lines from previous title step
+      stopContinuousSpeedLines();
 
       await new Promise(r=>setTimeout(r,350));
 
@@ -7668,6 +7745,7 @@ async function playCardCutscene(card){
     function closeCutscene(){
       if(window._ccStepTimer){clearTimeout(window._ccStepTimer);window._ccStepTimer=null;}
       fadeOutAudio();
+      stopContinuousSpeedLines();
 
       // Fade out all content
       ['ccTextMain','ccTitleMain','ccTitleDivider','ccTitleSub'].forEach(id=>{
@@ -7741,15 +7819,29 @@ function openCutsceneEditor(cardId,cardName){
           <input class="admin-input" id="csEditorTitle" placeholder='e.g. 「 🟢 IZUKU MIDORIYA... THE LAST EMBER OF ONE FOR ALL !! 」'/>
         </div>
 
-        <div style="margin-bottom:10px;">
-          <label class="admin-label">Background Theme <span class="admin-hint">(changes the cutscene backdrop)</span></label>
-          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;" id="csThemePicker">
-            ${Object.entries({auto:'🌈 Auto',noir:'⬛ Noir',sakura:'🌸 Sakura',abyss:'🌊 Abyss',ember:'🔥 Ember',celestial:'❄️ Celestial',gold:'⭐ Gold',void:'🔮 Void'}).map(([k,label])=>{
-              const swatchColors={auto:'conic-gradient(#ff9dc7,#9b59b6,#f1c40f,#ff9dc7)',noir:'#111',sakura:'#ff9dc7',abyss:'#3340cc',ember:'#ff4400',celestial:'#00ccff',gold:'#f1c40f',void:'#9b59b6'};
-              return `<button class="cc-theme-btn${k==='auto'?' active':''}" data-theme="${k}" onclick="setCcBgTheme('${k}');document.querySelectorAll('.cc-theme-btn').forEach(b=>b.classList.toggle('active',b.dataset.theme==='${k}'))">
-                <span class="cc-theme-swatch" style="background:${swatchColors[k]||'#888'}"></span>${label}
-              </button>`;
-            }).join('')}
+        <div style="margin-bottom:14px;">
+          <label class="admin-label">Cutscene Color <span class="admin-hint">(tints background, speed lines, title glow &amp; bars)</span></label>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:6px;margin-bottom:8px;">
+            <input type="color" id="csColorPicker" value="#ff9dc7"
+              style="width:38px;height:38px;border-radius:8px;border:1px solid var(--border);background:none;cursor:pointer;padding:2px;flex-shrink:0;"
+              oninput="setCcCustomColor(this.value);document.getElementById('csColorHex').value=this.value"/>
+            <input class="admin-input" id="csColorHex" placeholder="#ff9dc7 or leave blank for auto"
+              style="flex:1;font-family:'JetBrains Mono',monospace;letter-spacing:0.05em;"
+              maxlength="7"
+              oninput="(()=>{const v=this.value.trim();if(/^#[0-9a-fA-F]{6}$/.test(v)){setCcCustomColor(v);}else if(!v){setCcCustomColor(null);}})()"/>
+            <div id="csColorSwatch" style="width:38px;height:38px;border-radius:8px;border:1px solid var(--border);background:conic-gradient(#ff9dc7,#9b59b6,#f1c40f,#ff9dc7);flex-shrink:0;transition:background 0.25s;"></div>
+          </div>
+          <div style="display:flex;gap:5px;flex-wrap:wrap;">
+            ${CC_COLOR_PRESETS.map(p=>`
+              <button class="cc-preset-btn${p.hex===null?' active':''}" data-hex="${p.hex||'auto'}"
+                title="${p.desc}"
+                onclick="setCcCustomColor(${p.hex?`'${p.hex}'`:'null'})"
+                style="display:flex;align-items:center;gap:5px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:5px 9px;cursor:pointer;font-size:0.75em;color:var(--text-dim);transition:all 0.18s;"
+                onmouseenter="this.style.borderColor='rgba(255,255,255,0.35)';this.style.color='#fff'"
+                onmouseleave="if(!this.classList.contains('active')){this.style.borderColor='rgba(255,255,255,0.12)';this.style.color='var(--text-dim)'}">
+                <span style="width:12px;height:12px;border-radius:50%;background:${p.hex||'conic-gradient(#ff9dc7,#9b59b6,#f1c40f,#ff9dc7)'};flex-shrink:0;border:1px solid rgba(255,255,255,0.2);"></span>
+                ${p.label}
+              </button>`).join('')}
           </div>
         </div>
 
