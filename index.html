@@ -2861,20 +2861,28 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
     </div>
 
     <div class="edit-field">
-      <label class="edit-label">Profile Picture URL <span style="color:var(--text-dim);font-size:.85em">(paste an image link)</span></label>
+      <label class="edit-label">Profile Picture <span style="color:var(--text-dim);font-size:.85em">(URL or upload from gallery)</span></label>
       <div class="img-url-wrap">
         <input class="edit-input" id="editAvatarUrl" type="url" placeholder="https://i.imgur.com/... or Discord CDN URL"/>
         <button onclick="previewAvatar()">Preview</button>
+        <label class="img-url-wrap-upload" title="Upload from gallery" style="cursor:pointer;flex-shrink:0;padding:8px 12px;border-radius:10px;background:rgba(255,157,199,0.12);border:1px solid var(--border);color:var(--pink);font-size:0.82em;transition:all 0.2s;display:flex;align-items:center;">
+          📁
+          <input type="file" accept="image/*" style="display:none" onchange="handleAvatarFileUpload(this)"/>
+        </label>
       </div>
       <img class="img-preview-mini" id="avatarPreview" src="" alt="avatar preview" onerror="this.src=''"/>
       <p style="font-size:.75em;color:var(--text-dim);margin-top:4px;">Leave blank to use your Discord avatar</p>
     </div>
 
     <div class="edit-field">
-      <label class="edit-label">Banner Image URL <span style="color:var(--text-dim);font-size:.85em">(paste an image link)</span></label>
+      <label class="edit-label">Banner Image <span style="color:var(--text-dim);font-size:.85em">(URL or upload from gallery)</span></label>
       <div class="img-url-wrap">
         <input class="edit-input" id="editBannerUrl" type="url" placeholder="https://i.imgur.com/... wide image works best"/>
         <button onclick="previewBannerImg()">Preview</button>
+        <label class="img-url-wrap-upload" title="Upload from gallery" style="cursor:pointer;flex-shrink:0;padding:8px 12px;border-radius:10px;background:rgba(255,157,199,0.12);border:1px solid var(--border);color:var(--pink);font-size:0.82em;transition:all 0.2s;display:flex;align-items:center;">
+          📁
+          <input type="file" accept="image/*" style="display:none" onchange="handleBannerFileUpload(this)"/>
+        </label>
       </div>
       <img class="img-preview-banner" id="bannerImgPreview" src="" alt="banner preview" onerror="this.src=''"/>
       <p style="font-size:.75em;color:var(--text-dim);margin-top:4px;">Leave blank to use gradient color below</p>
@@ -4721,13 +4729,25 @@ async function loadPlayer(discordId){
     state.equippedId=p.equipped_card??null;state.totalPulls=p.total_pulls??0;
     state.username=p.username??state.username;state.avatar=p.avatar??'';
     state.bio=p.bio??state.bio;
-    state.title=p.title??state.title;
-    state.bannerColor=p.banner_color??state.bannerColor;
-    state.displayName=p.display_name??'';
-    state.customAvatar=p.custom_avatar??'';
-    state.bannerImage=p.banner_image??'';
+    state.title=p.active_title??state.title;
+    // profile_color stores banner gradient index (0=Rose default)
+    const BANNER_COLORS_DB=[
+      'linear-gradient(135deg,#e0608a,#c084b8)',
+      'linear-gradient(135deg,#1a0533,#3a1060)',
+      'linear-gradient(135deg,#0a3d62,#1e6091)',
+      'linear-gradient(135deg,#1a4731,#2d7a4f)',
+      'linear-gradient(135deg,#7d5a00,#c9990a)',
+      'linear-gradient(135deg,#7b0000,#c0392b)',
+      'linear-gradient(135deg,#0d0d0d,#1a1a2e,#16213e)',
+      'linear-gradient(135deg,#ff9a9e,#fad0c4)',
+    ];
+    const colorIdx=p.profile_color??0;
+    state.bannerColor=BANNER_COLORS_DB[colorIdx]??state.bannerColor;
+    state.displayName=p.username??''; // use username as display fallback
+    state.customAvatar=p.profile_thumbnail??'';
+    state.bannerImage=p.profile_banner??'';
   } else {
-    await sb.upsert('players',{discord_id:discordId,username:state.username,avatar:state.avatar||'',coins:1000,total_pulls:0,pity_sr:0,pity_ur:0,bio:state.bio,title:state.title,banner_color:state.bannerColor,display_name:'',custom_avatar:'',banner_image:''});
+    await sb.upsert('players',{discord_id:discordId,username:state.username,avatar:state.avatar||'',coins:1000,total_pulls:0,pity_sr:0,pity_ur:0,bio:state.bio,active_title:state.title,profile_color:0,profile_thumbnail:'',profile_banner:''});
   }
   // Sync localStorage with DB (DB is authoritative now that upsert includes username/avatar)
   localStorage.setItem('mg_coins_'+discordId, state.coins);
@@ -4745,6 +4765,18 @@ async function loadXpMap(discordId){
 async function savePlayer(){
   if(!state.discordId||state.isGuest)return;
   localStorage.setItem('mg_coins_'+state.discordId, state.coins);
+  // Map banner gradient to index for profile_color column
+  const BANNER_COLORS_DB=[
+    'linear-gradient(135deg,#e0608a,#c084b8)',
+    'linear-gradient(135deg,#1a0533,#3a1060)',
+    'linear-gradient(135deg,#0a3d62,#1e6091)',
+    'linear-gradient(135deg,#1a4731,#2d7a4f)',
+    'linear-gradient(135deg,#7d5a00,#c9990a)',
+    'linear-gradient(135deg,#7b0000,#c0392b)',
+    'linear-gradient(135deg,#0d0d0d,#1a1a2e,#16213e)',
+    'linear-gradient(135deg,#ff9a9e,#fad0c4)',
+  ];
+  const colorIdx=Math.max(0,BANNER_COLORS_DB.indexOf(state.bannerColor));
   await sb.upsert('players',{
     discord_id:state.discordId,
     username:state.username,
@@ -4755,11 +4787,10 @@ async function savePlayer(){
     total_pulls:state.totalPulls,
     equipped_card:state.equippedId,
     bio:state.bio,
-    title:state.title,
-    banner_color:state.bannerColor,
-    display_name:state.displayName,
-    custom_avatar:state.customAvatar,
-    banner_image:state.bannerImage,
+    active_title:state.title,
+    profile_color:colorIdx,
+    profile_thumbnail:state.customAvatar,
+    profile_banner:state.bannerImage,
   });
 }
 async function saveCardToCollection(discordId,cardId){
@@ -5450,6 +5481,30 @@ function previewBannerImg(){
   const prev=document.getElementById('bannerImgPreview');
   if(url){prev.src=url;prev.style.display='block';}
 }
+function handleAvatarFileUpload(input){
+  const file=input.files[0];
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=function(e){
+    const dataUrl=e.target.result;
+    document.getElementById('editAvatarUrl').value=dataUrl;
+    const prev=document.getElementById('avatarPreview');
+    prev.src=dataUrl;prev.style.display='block';
+  };
+  reader.readAsDataURL(file);
+}
+function handleBannerFileUpload(input){
+  const file=input.files[0];
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=function(e){
+    const dataUrl=e.target.result;
+    document.getElementById('editBannerUrl').value=dataUrl;
+    const prev=document.getElementById('bannerImgPreview');
+    prev.src=dataUrl;prev.style.display='block';
+  };
+  reader.readAsDataURL(file);
+}
 function selectBannerColor(v,el){
   editBannerColor=v;
   document.getElementById('bannerPreview').style.background=v;
@@ -5504,20 +5559,25 @@ function adminAddCoins500(){
   if(!checkAdmin())return;
   state.coins+=500;updateCoins();savePlayer();showToast(`👑 +500 coins!`);
 }
-function adminUnlockAll(){
+async function adminUnlockAll(){
   if(!checkAdmin())return;
-  DEMO_CARDS.forEach(c=>{if(!state.collection.includes(c.id))state.collection.push(c.id);});
-  renderCollection();updateProfile();savePlayer();showToast('👑 All cards unlocked!');
+  const newCards=DEMO_CARDS.filter(c=>!state.collection.includes(c.id));
+  newCards.forEach(c=>state.collection.push(c.id));
+  // Save each new card to the collection table
+  for(const c of newCards){ await saveCardToCollection(state.discordId,c.id); }
+  renderCollection();updateProfile();await savePlayer();showToast('👑 All cards unlocked!');
 }
 function adminResetPity(){
   if(!checkAdmin())return;
   state.pitySR=0;state.pityUR=0;updatePity();savePlayer();showToast('👑 Pity reset!');
 }
-function adminMaxXp(){
+async function adminMaxXp(){
   if(!checkAdmin())return;
   const maxXp=4500;
-  [...new Set(state.collection)].forEach(id=>{state.xpMap[id]=maxXp;});
-  renderCollection();savePlayer();showToast('👑 All cards maxed out!');
+  const owned=[...new Set(state.collection)];
+  owned.forEach(id=>{state.xpMap[id]=maxXp;});
+  for(const id of owned){ await saveXp(state.discordId,id,maxXp); }
+  renderCollection();showToast('👑 All cards maxed out!');
 }
 function adminClearCollection(){
   if(!checkAdmin())return;
