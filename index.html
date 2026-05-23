@@ -7190,105 +7190,156 @@ function updateCardPreview(){
 // ══════════════════════════════════════════════
 // ABILITY TEMPLATES — the reusable effect library
 // ══════════════════════════════════════════════
+// descFn(params, tier) — tier is 'active'|'passive'|'ultimate'|'secret'
+// Each effect auto-adjusts its description + battle_effect based on tier.
+// tierEffect(tier, activeKey, passiveKey) picks the right battle_effect string.
+function _te(tier, active, passive){ return (tier==='passive') ? passive : active; }
+
 const ABILITY_TEMPLATES = {
   // ── DAMAGE ──────────────────────────────────
   direct_damage: {
     label:'⚔️ Direct Damage', category:'damage',
     battle_effect:'smash', defaultValue:30,
     params:[{key:'damage',label:'Damage Amount',type:'number',min:5,max:200,step:5,default:30}],
-    descFn:(p)=>`Deals ${p.damage} damage to the enemy.`,
+    descFn:(p,tier)=> tier==='passive'
+      ? `Passive: ${p.chance||25}% chance to deal ${p.damage} bonus damage whenever you make any move.`
+      : `Active: Deal ${p.damage} damage to the enemy.`,
+    tierEffect:(tier)=>_te(tier,'smash','strike_passive'),
     valueFn:(p)=>p.damage,
   },
   burst_damage: {
     label:'💥 Burst / Nuke', category:'damage',
     battle_effect:'burst', defaultValue:50,
     params:[{key:'damage',label:'Burst Damage',type:'number',min:10,max:300,step:5,default:50}],
-    descFn:(p)=>`Unleash a devastating burst. Deals ${p.damage} massive damage.`,
+    descFn:(p,tier)=> tier==='passive'
+      ? `Passive: ${p.chance||20}% chance to trigger a burst on any attack, dealing ${p.damage} bonus damage.`
+      : `Active: Unleash a devastating burst — deals ${p.damage} massive damage.`,
+    tierEffect:(tier)=>_te(tier,'burst','strike_passive'),
     valueFn:(p)=>p.damage,
   },
   multi_hit: {
     label:'🌀 Multi-Hit Combo', category:'damage',
     battle_effect:'multihit', defaultValue:20,
     params:[
-      {key:'hits',  label:'Number of Hits', type:'number',min:2,max:10,step:1,default:3},
-      {key:'dmgEach',label:'Damage per Hit',type:'number',min:5,max:80,step:5,default:15},
+      {key:'hits',   label:'Number of Hits', type:'number',min:2,max:10,step:1,default:3},
+      {key:'dmgEach',label:'Damage per Hit', type:'number',min:5,max:80,step:5,default:15},
     ],
-    descFn:(p)=>`Strike ${p.hits} times in rapid succession — ${p.dmgEach} damage each hit.`,
+    descFn:(p,tier)=> tier==='passive'
+      ? `Passive: ${p.chance||20}% chance to follow up any move with ${p.hits} rapid hits of ${p.dmgEach} each.`
+      : `Active: Strike ${p.hits} times in rapid succession — ${p.dmgEach} damage each hit.`,
+    tierEffect:(tier)=>_te(tier,'multihit','strike_passive'),
     valueFn:(p)=>Math.round(p.hits*p.dmgEach),
   },
   piercing: {
     label:'🔱 Piercing Strike', category:'damage',
     battle_effect:'pierce', defaultValue:30,
     params:[{key:'damage',label:'Pierce Damage',type:'number',min:5,max:200,step:5,default:30}],
-    descFn:(p)=>`A strike that cuts through all defenses. Deals ${p.damage} damage — ignores shields.`,
+    descFn:(p,tier)=> tier==='passive'
+      ? `Passive: All your attacks passively pierce through enemy shields and defenses.`
+      : `Active: A strike that cuts through all defenses — deals ${p.damage} damage, ignores shields.`,
+    tierEffect:(tier)=>_te(tier,'pierce','pierce'),
     valueFn:(p)=>p.damage,
   },
   recoil_strike: {
-    label:'🎯 All-Out Attack (Recoil)', category:'damage',
+    label:'🎯 All-Out Attack', category:'damage',
     battle_effect:'ofa100', defaultValue:70,
     params:[
       {key:'damage',label:'Damage Dealt',type:'number',min:20,max:300,step:5,default:70},
-      {key:'recoil',label:'Self Recoil',  type:'number',min:5, max:60, step:5,default:15},
+      {key:'recoil',label:'Self Recoil', type:'number',min:5, max:60, step:5,default:15},
     ],
-    descFn:(p)=>`Go all-out — deal ${p.damage} damage. Take ${p.recoil} recoil damage to self.`,
+    descFn:(p,tier)=> tier==='passive'
+      ? `Passive: Every attack you make deals ${p.recoil} extra damage — but you also take ${p.recoil} recoil each turn.`
+      : `Active: Go all-out — deal ${p.damage} damage. Take ${p.recoil} recoil damage to self.`,
+    tierEffect:(tier)=>_te(tier,'ofa100','ofa100'),
     valueFn:(p)=>p.damage,
   },
   frenzy: {
     label:'🔥 Frenzy Slash', category:'damage',
     battle_effect:'frenzy', defaultValue:60,
     params:[
-      {key:'hits',  label:'Slash Count',  type:'number',min:2,max:10,step:1,default:5},
-      {key:'dmgEach',label:'Damage Each', type:'number',min:5,max:50,step:5,default:12},
+      {key:'hits',   label:'Slash Count',  type:'number',min:2,max:10,step:1,default:5},
+      {key:'dmgEach',label:'Damage Each',  type:'number',min:5,max:50,step:5,default:12},
     ],
-    descFn:(p)=>`Frenzied assault — ${p.hits} rapid slashes dealing ${p.dmgEach} each.`,
+    descFn:(p,tier)=> tier==='passive'
+      ? `Passive: ${p.chance||25}% chance to enter a frenzy after any move, striking ${p.hits} more times for ${p.dmgEach} each.`
+      : `Active: Frenzied assault — ${p.hits} rapid slashes dealing ${p.dmgEach} each.`,
+    tierEffect:(tier)=>_te(tier,'frenzy','strike_passive'),
     valueFn:(p)=>Math.round(p.hits*p.dmgEach),
   },
   curse_damage: {
     label:'👁️ Curse Strike', category:'damage',
     battle_effect:'curse', defaultValue:35,
     params:[{key:'damage',label:'Curse Damage',type:'number',min:5,max:200,step:5,default:35}],
-    descFn:(p)=>`Channel cursed energy. Deals ${p.damage} curse damage to the enemy.`,
+    descFn:(p,tier)=> tier==='passive'
+      ? `Passive: ${p.chance||30}% chance to automatically curse the enemy for ${p.damage} damage when they attack you.`
+      : `Active: Channel cursed energy — deals ${p.damage} curse damage to the enemy.`,
+    tierEffect:(tier)=>_te(tier,'curse','copy_passive'),
     valueFn:(p)=>p.damage,
   },
   curse_burst: {
     label:'💜 Curse Burst + Burn', category:'damage',
     battle_effect:'curseburst', defaultValue:55,
     params:[{key:'damage',label:'Burst Damage',type:'number',min:20,max:300,step:5,default:55}],
-    descFn:(p)=>`Overwhelming cursed energy surge. Deals ${p.damage} damage and burns the enemy for 3 turns.`,
+    descFn:(p,tier)=> tier==='passive'
+      ? `Passive: ${p.chance||20}% chance any attack triggers a cursed burst dealing ${p.damage} and burning the enemy.`
+      : `Active: Overwhelming cursed energy surge — deals ${p.damage} damage and burns the enemy for 3 turns.`,
+    tierEffect:(tier)=>_te(tier,'curseburst','strike_passive'),
     valueFn:(p)=>p.damage,
   },
 
   // ── HEALING / SUPPORT ────────────────────────
   regen: {
-    label:'💚 Regen (HP per turn)', category:'healing',
+    label:'💚 Regen', category:'healing',
     battle_effect:'regen', defaultValue:8,
-    params:[{key:'hp',label:'HP Restored per Turn',type:'number',min:1,max:50,step:1,default:8}],
-    descFn:(p)=>`Regenerate ${p.hp} HP at the start of each turn.`,
+    params:[{key:'hp',label:'HP Amount',type:'number',min:1,max:50,step:1,default:8}],
+    descFn:(p,tier)=> tier==='passive'
+      ? `Passive: Regenerate ${p.hp} HP at the start of each turn automatically.`
+      : `Active: Instantly restore ${p.hp} HP to yourself.`,
+    tierEffect:(tier)=>_te(tier,'regen','regen'),
     valueFn:(p)=>p.hp,
   },
   hp_boost: {
-    label:'❤️ Max HP Boost (Passive)', category:'healing',
+    label:'❤️ Max HP Boost', category:'healing',
     battle_effect:'hpboost', defaultValue:25,
-    params:[{key:'hp',label:'Max HP Bonus',type:'number',min:5,max:150,step:5,default:25}],
-    descFn:(p)=>`Increase maximum HP by ${p.hp}.`,
+    params:[{key:'hp',label:'HP Bonus',type:'number',min:5,max:150,step:5,default:25}],
+    descFn:(p,tier)=> tier==='passive'
+      ? `Passive: Permanently increase maximum HP by ${p.hp}.`
+      : `Active: Surge with vitality — boost your max HP by ${p.hp} for this battle.`,
+    tierEffect:(tier)=>_te(tier,'hpboost','hpboost'),
     valueFn:(p)=>p.hp,
   },
   life_drain: {
-    label:'🩸 Life Drain (Damage + Heal)', category:'healing',
+    label:'🩸 Life Drain', category:'healing',
     battle_effect:'lifeswap', defaultValue:40,
     params:[
       {key:'damage',label:'Damage Dealt',type:'number',min:10,max:150,step:5,default:40},
       {key:'heal',  label:'HP Restored', type:'number',min:5, max:150,step:5,default:40},
     ],
-    descFn:(p)=>`Drain life force — deal ${p.damage} damage and restore ${p.heal} HP to self.`,
+    descFn:(p,tier)=> tier==='passive'
+      ? `Passive: Restore ${p.heal} HP every time you deal damage.`
+      : `Active: Drain life force — deal ${p.damage} damage and restore ${p.heal} HP to self.`,
+    tierEffect:(tier)=>_te(tier,'lifeswap','lifesteal_passive'),
     valueFn:(p)=>p.damage,
   },
   double_regen: {
     label:'✨ Double Heal Aura', category:'healing',
     battle_effect:'doubleregen', defaultValue:2,
     params:[],
-    descFn:()=>`All healing this battle is doubled.`,
+    descFn:(p,tier)=> tier==='passive'
+      ? `Passive: All healing you receive this entire battle is doubled.`
+      : `Active: Activate a healing aura — all healing is doubled for 2 turns.`,
+    tierEffect:(tier)=>_te(tier,'doubleregen','doubleregen'),
     valueFn:()=>2,
+  },
+  mp_regen: {
+    label:'💎 MP Regen', category:'healing',
+    battle_effect:'mp_regen', defaultValue:1,
+    params:[{key:'mp',label:'MP per Turn',type:'number',min:1,max:3,step:1,default:1}],
+    descFn:(p,tier)=> tier==='passive'
+      ? `Passive: Restore ${p.mp} MP at the start of each turn.`
+      : `Active: Meditate — instantly recover ${p.mp} MP.`,
+    tierEffect:(tier)=>_te(tier,'mp_regen','mp_regen'),
+    valueFn:(p)=>p.mp,
   },
 
   // ── BUFFS ────────────────────────────────────
@@ -7296,164 +7347,196 @@ const ABILITY_TEMPLATES = {
     label:'⬆️ Attack Boost', category:'buff',
     battle_effect:'atkboost', defaultValue:35,
     params:[{key:'pct',label:'Attack Bonus (%)',type:'number',min:5,max:200,step:5,default:35}],
-    descFn:(p)=>`Power up! Attack increased by ${p.pct}% this turn.`,
+    descFn:(p,tier)=> tier==='passive'
+      ? `Passive: Attack is permanently increased by ${p.pct}% for the entire battle.`
+      : `Active: Power up — attack increased by ${p.pct}% for this turn.`,
+    tierEffect:(tier)=>_te(tier,'atkboost','atkboost'),
     valueFn:(p)=>p.pct,
   },
   def_boost: {
     label:'🛡️ Defense Boost', category:'buff',
     battle_effect:'defboost', defaultValue:20,
     params:[{key:'pct',label:'Defense Bonus (%)',type:'number',min:5,max:100,step:5,default:20}],
-    descFn:(p)=>`Harden defenses. Reduce incoming damage by ${p.pct}%.`,
+    descFn:(p,tier)=> tier==='passive'
+      ? `Passive: Permanently reduce all incoming damage by ${p.pct}%.`
+      : `Active: Steel your defenses — reduce incoming damage by ${p.pct}% for 2 turns.`,
+    tierEffect:(tier)=>_te(tier,'defboost','defboost'),
     valueFn:(p)=>p.pct,
   },
   spell_boost: {
     label:'🧠 Spell Power Boost', category:'buff',
     battle_effect:'spellboost', defaultValue:20,
     params:[{key:'pct',label:'Spell Bonus (%)',type:'number',min:5,max:200,step:5,default:20}],
-    descFn:(p)=>`Amplify magical power. Spell damage increased by ${p.pct}%.`,
+    descFn:(p,tier)=> tier==='passive'
+      ? `Passive: Spell damage is permanently amplified by ${p.pct}%.`
+      : `Active: Amplify your magical power — spell damage increased by ${p.pct}% this turn.`,
+    tierEffect:(tier)=>_te(tier,'spellboost','spellboost'),
     valueFn:(p)=>p.pct,
   },
   double_atk: {
     label:'⚡ Double Attack', category:'buff',
     battle_effect:'doubleatk', defaultValue:2,
     params:[],
-    descFn:()=>`Attack twice this turn at full power.`,
+    descFn:(p,tier)=> tier==='passive'
+      ? `Passive: ${25}% chance to automatically attack twice whenever you use any move.`
+      : `Active: Attack twice this turn at full power.`,
+    tierEffect:(tier)=>_te(tier,'doubleatk','strike_passive'),
     valueFn:()=>2,
   },
   transformation: {
-    label:'😈 Transformation (Stat Multiply)', category:'buff',
+    label:'😈 Transformation', category:'buff',
     battle_effect:'demonform', defaultValue:50,
     params:[
-      {key:'mult',  label:'Stat Multiplier (×)', type:'number',min:1.1,max:5,step:0.1,default:1.5},
-      {key:'turns', label:'Duration (turns)',     type:'number',min:1,max:5,step:1,default:2},
+      {key:'mult', label:'Stat Multiplier (×)',type:'number',min:1.1,max:5,step:0.1,default:1.5},
+      {key:'turns',label:'Duration (turns)',   type:'number',min:1,max:5,step:1,default:2},
     ],
-    descFn:(p)=>`Unleash a powerful transformation. All stats ×${p.mult} for ${p.turns} turn${p.turns>1?'s':''}.`,
+    descFn:(p,tier)=> tier==='passive'
+      ? `Passive: Permanently transformed — all stats are boosted by ×${p.mult} throughout the battle.`
+      : `Active: Unleash your true form — all stats ×${p.mult} for ${p.turns} turn${p.turns>1?'s':''}.`,
+    tierEffect:(tier)=>_te(tier,'demonform','demonform'),
     valueFn:(p)=>Math.round(p.mult*100-100),
   },
   first_crit: {
-    label:'🎯 First Strike Crit', category:'buff',
+    label:'🎯 Critical Analysis', category:'buff',
     battle_effect:'firstcrit', defaultValue:1,
     params:[],
-    descFn:()=>`Analyze the opponent. Your first attack of the battle always lands a critical hit.`,
+    descFn:(p,tier)=> tier==='passive'
+      ? `Passive: Analyze the opponent before the battle. Your first attack always lands a critical hit.`
+      : `Active: Scrutinize the enemy — guarantee your next hit is a critical strike.`,
+    tierEffect:(tier)=>_te(tier,'firstcrit','firstcrit'),
     valueFn:()=>1,
   },
 
-  // ── SPECIAL ──────────────────────────────────
+  // ── SPECIAL / CONTROL ─────────────────────────
   dodge: {
     label:'💨 Evasion / Dodge', category:'special',
     battle_effect:'dodge', defaultValue:10,
     params:[{key:'chance',label:'Dodge Chance (%)',type:'number',min:5,max:80,step:5,default:10}],
-    descFn:(p)=>`Nimble footing. ${p.chance}% chance to evade any incoming attack.`,
+    descFn:(p,tier)=> tier==='passive'
+      ? `Passive: ${p.chance}% chance to automatically evade any incoming attack.`
+      : `Active: Enter an evasive stance — ${p.chance}% chance to dodge the next hit.`,
+    tierEffect:(tier)=>_te(tier,'dodge','dodge'),
     valueFn:(p)=>p.chance,
+  },
+  copy: {
+    label:'🪞 Copy / Mirror', category:'special',
+    battle_effect:'copy_active', defaultValue:40,
+    params:[{key:'chance',label:'Copy Chance (%) — passive only',type:'number',min:5,max:80,step:5,default:40}],
+    descFn:(p,tier)=> tier==='passive'
+      ? `Passive: ${p.chance}% chance to automatically copy any ability used against you and reflect its effect back.`
+      : `Active: Mirror the enemy — immediately copy and use their last-used ability effect on them.`,
+    tierEffect:(tier)=>_te(tier,'copy_active','copy_passive'),
+    valueFn:(p)=>p.chance,
+  },
+  strike: {
+    label:'⚡ Strike', category:'special',
+    battle_effect:'strike_active', defaultValue:25,
+    params:[
+      {key:'damage',label:'Strike Damage',     type:'number',min:5,max:150,step:5,default:25},
+      {key:'chance',label:'Trigger % — passive only',type:'number',min:5,max:60,step:5,default:25},
+    ],
+    descFn:(p,tier)=> tier==='passive'
+      ? `Passive: ${p.chance}% chance to follow up any move (attack, heal, shield) with an extra ${p.damage} damage strike.`
+      : `Active: Deliver a guaranteed powerful strike — deals ${p.damage} damage.`,
+    tierEffect:(tier)=>_te(tier,'strike_active','strike_passive'),
+    valueFn:(p)=>p.damage,
   },
   anti_magic: {
     label:'🚫 Anti-Magic / Nullify', category:'special',
     battle_effect:'antimagic', defaultValue:30,
     params:[{key:'damage',label:'Strike Damage',type:'number',min:0,max:100,step:5,default:30}],
-    descFn:(p)=>`Nullify all magical effects and enemy shields. Deals ${p.damage} true damage.`,
+    descFn:(p,tier)=> tier==='passive'
+      ? `Passive: Passively nullify all magical buffs and shields the enemy has — they cannot benefit from them.`
+      : `Active: Nullify all magical effects and enemy shields — deals ${p.damage} true damage.`,
+    tierEffect:(tier)=>_te(tier,'antimagic','antimagic'),
     valueFn:(p)=>p.damage,
   },
   void_steal: {
-    label:'🌌 Void Steal / Stun', category:'special',
+    label:'🌌 Void Steal', category:'special',
     battle_effect:'voidsteal', defaultValue:30,
     params:[{key:'damage',label:'Stolen Power (dmg)',type:'number',min:10,max:100,step:5,default:30}],
-    descFn:(p)=>`Stun the enemy for 1 turn and steal their next move's power (${p.damage} damage).`,
-    valueFn:(p)=>p.damage,
-  },
-  copy_active: {
-    label:'🪞 Copy — Active (Guaranteed Steal)', category:'special',
-    battle_effect:'copy_active', defaultValue:0,
-    params:[],
-    descFn:()=>`Active: Immediately copy and use the enemy's last-used ability effect on them.`,
-    valueFn:()=>0,
-  },
-  copy_passive: {
-    label:'🪞 Copy — Passive (Chance on Hit)', category:'special',
-    battle_effect:'copy_passive', defaultValue:40,
-    params:[{key:'chance',label:'Copy Chance (%)',type:'number',min:5,max:80,step:5,default:40}],
-    descFn:(p)=>`Passive: ${p.chance}% chance to automatically copy an ability used against you and reflect its effect.`,
-    valueFn:(p)=>p.chance,
-  },
-  strike_active: {
-    label:'⚡ Strike — Active (Guaranteed)', category:'damage',
-    battle_effect:'strike_active', defaultValue:25,
-    params:[{key:'damage',label:'Strike Damage',type:'number',min:5,max:150,step:5,default:25}],
-    descFn:(p)=>`Active: Deliver a guaranteed powerful strike dealing ${p.damage} damage. Costs MP.`,
-    valueFn:(p)=>p.damage,
-  },
-  strike_passive: {
-    label:'⚡ Strike — Passive (Chance on Any Move)', category:'damage',
-    battle_effect:'strike_passive', defaultValue:20,
-    params:[
-      {key:'chance',label:'Trigger Chance (%)',type:'number',min:5,max:60,step:5,default:25},
-      {key:'damage',label:'Bonus Strike Damage',type:'number',min:5,max:80,step:5,default:20},
-    ],
-    descFn:(p)=>`Passive: ${p.chance}% chance to follow up any move (attack, heal, shield) with an extra ${p.damage} damage strike.`,
+    descFn:(p,tier)=> tier==='passive'
+      ? `Passive: ${30}% chance to drain the enemy's next move when they attack, dealing ${p.damage} damage instead.`
+      : `Active: Stun the enemy for 1 turn and steal their next move's power (${p.damage} damage).`,
+    tierEffect:(tier)=>_te(tier,'voidsteal','voidsteal'),
     valueFn:(p)=>p.damage,
   },
   invincible: {
-    label:'🛡️ Invincible Shield (All Attacks Blocked)', category:'special',
+    label:'🛡️ Invincible Barrier', category:'special',
     battle_effect:'invincible', defaultValue:2,
     params:[
-      {key:'turns',label:'Shield Duration (turns)',type:'number',min:1,max:5,step:1,default:2},
-      {key:'mpCost',label:'MP Cost',type:'number',min:1,max:5,step:1,default:3},
+      {key:'turns',label:'Duration (turns)',type:'number',min:1,max:5,step:1,default:2},
     ],
-    descFn:(p)=>`Ultimate: Erect an invincible barrier — ALL enemy attacks are completely ineffective for ${p.turns} turn${p.turns>1?'s':''}. Costs ${p.mpCost} MP.`,
+    descFn:(p,tier)=> tier==='passive'
+      ? `Passive: Start the battle with an invincible barrier active — all attacks are completely blocked for ${p.turns} turn${p.turns>1?'s':''}.`
+      : `Active: Erect an invincible barrier — ALL enemy attacks are completely ineffective for ${p.turns} turn${p.turns>1?'s':''}.`,
+    tierEffect:(tier)=>_te(tier,'invincible','invincible'),
     valueFn:(p)=>p.turns,
   },
   counter: {
-    label:'🔄 Counter — Passive (Reflect Damage)', category:'special',
+    label:'🔄 Counter', category:'special',
     battle_effect:'counter', defaultValue:50,
     params:[
-      {key:'chance',label:'Counter Chance (%)',type:'number',min:5,max:80,step:5,default:30},
-      {key:'pct',  label:'Damage Reflected (%)',type:'number',min:10,max:100,step:10,default:50},
+      {key:'chance',label:'Counter Chance (%)',   type:'number',min:5,max:80,step:5,default:30},
+      {key:'pct',   label:'Damage Reflected (%)', type:'number',min:10,max:100,step:10,default:50},
     ],
-    descFn:(p)=>`Passive: ${p.chance}% chance to counter any attack, reflecting ${p.pct}% of the damage back to the attacker.`,
+    descFn:(p,tier)=> tier==='passive'
+      ? `Passive: ${p.chance}% chance to counter any attack — automatically reflects ${p.pct}% of the damage back at the attacker.`
+      : `Active: Enter a counter stance — the next hit you take is reflected back at ${p.pct}% damage.`,
+    tierEffect:(tier)=>_te(tier,'counter','counter'),
     valueFn:(p)=>p.pct,
   },
-  burn_active: {
-    label:'🔥 Burn — Active (Ignite Enemy)', category:'damage',
+  burn: {
+    label:'🔥 Burn', category:'special',
     battle_effect:'burn_active', defaultValue:3,
     params:[
-      {key:'turns',label:'Burn Duration (turns)',type:'number',min:1,max:5,step:1,default:3},
-      {key:'dmgPerTurn',label:'Burn Damage/Turn',type:'number',min:3,max:20,step:1,default:8},
+      {key:'turns',     label:'Burn Duration (turns)',type:'number',min:1,max:5,step:1,default:3},
+      {key:'dmgPerTurn',label:'Burn Damage / Turn',  type:'number',min:3,max:20,step:1,default:8},
     ],
-    descFn:(p)=>`Active: Set the enemy ablaze — they take ${p.dmgPerTurn} burn damage each turn for ${p.turns} turns.`,
+    descFn:(p,tier)=> tier==='passive'
+      ? `Passive: ${30}% chance to inflict burn on an enemy who attacks you — ${p.dmgPerTurn} damage/turn for ${p.turns} turns.`
+      : `Active: Set the enemy ablaze — they take ${p.dmgPerTurn} burn damage each turn for ${p.turns} turns.`,
+    tierEffect:(tier)=>_te(tier,'burn_active','burn_active'),
     valueFn:(p)=>p.dmgPerTurn*p.turns,
   },
   stun: {
-    label:'💫 Stun — Active (Skip Enemy Turn)', category:'special',
+    label:'💫 Stun', category:'special',
     battle_effect:'stun', defaultValue:1,
     params:[{key:'turns',label:'Stun Duration (turns)',type:'number',min:1,max:3,step:1,default:1}],
-    descFn:(p)=>`Active: Stun the enemy — they cannot act for ${p.turns} turn${p.turns>1?'s':''}.`,
+    descFn:(p,tier)=> tier==='passive'
+      ? `Passive: ${20}% chance to stun the enemy for ${p.turns} turn${p.turns>1?'s':''} when they attack you.`
+      : `Active: Stun the enemy — they cannot act for ${p.turns} turn${p.turns>1?'s':''}.`,
+    tierEffect:(tier)=>_te(tier,'stun','stun'),
     valueFn:(p)=>p.turns,
   },
-  mp_regen: {
-    label:'💎 MP Regen — Passive', category:'healing',
-    battle_effect:'mp_regen', defaultValue:1,
-    params:[{key:'mp',label:'MP Restored per Turn',type:'number',min:1,max:3,step:1,default:1}],
-    descFn:(p)=>`Passive: Restore ${p.mp} MP at the start of each turn.`,
-    valueFn:(p)=>p.mp,
-  },
-  shield_active: {
-    label:'🔵 Damage Shield — Active (Absorb Hits)', category:'special',
+  shield: {
+    label:'🔵 Damage Shield', category:'special',
     battle_effect:'shield_active', defaultValue:30,
-    params:[{key:'absorb',label:'Shield Absorb Amount',type:'number',min:10,max:150,step:5,default:30}],
-    descFn:(p)=>`Active: Conjure a shield that absorbs the next ${p.absorb} damage dealt to you.`,
+    params:[{key:'absorb',label:'Absorb Amount',type:'number',min:10,max:150,step:5,default:30}],
+    descFn:(p,tier)=> tier==='passive'
+      ? `Passive: Start the battle with a ${p.absorb}-HP absorb shield that blocks incoming damage.`
+      : `Active: Conjure a shield — absorbs the next ${p.absorb} damage dealt to you.`,
+    tierEffect:(tier)=>_te(tier,'shield_active','shield_active'),
     valueFn:(p)=>p.absorb,
   },
-  lifesteal_passive: {
-    label:'🩸 Life Steal — Passive (Heal on Hit)', category:'healing',
+  lifesteal: {
+    label:'🩸 Life Steal', category:'special',
     battle_effect:'lifesteal_passive', defaultValue:30,
-    params:[{key:'pct',label:'Lifesteal % of Damage',type:'number',min:10,max:80,step:5,default:30}],
-    descFn:(p)=>`Passive: Restore HP equal to ${p.pct}% of all damage you deal.`,
+    params:[{key:'pct',label:'Lifesteal (%)',type:'number',min:10,max:80,step:5,default:30}],
+    descFn:(p,tier)=> tier==='passive'
+      ? `Passive: Restore HP equal to ${p.pct}% of all damage you deal.`
+      : `Active: Activate vampiric bite — your next attack heals you for ${p.pct}% of damage dealt.`,
+    tierEffect:(tier)=>_te(tier,'lifesteal_passive','lifesteal_passive'),
     valueFn:(p)=>p.pct,
   },
   final_legacy: {
-    label:'🌟 Final Legacy (Ultimate Finisher)', category:'special',
+    label:'🌟 Final Legacy', category:'special',
     battle_effect:'finallegacy', defaultValue:2,
     params:[{key:'mult',label:'Power Multiplier (×)',type:'number',min:1.5,max:5,step:0.5,default:2}],
-    descFn:(p)=>`Summon everything — final strike hits at ×${p.mult} power.`,
+    descFn:(p,tier)=> tier==='passive'
+      ? `Passive: Your power grows — all attacks permanently deal ×${p.mult} damage.`
+      : `Active: Summon everything — this strike hits at ×${p.mult} power.`,
+    tierEffect:(tier)=>_te(tier,'finallegacy','finallegacy'),
     valueFn:(p)=>p.mult,
   },
 };
@@ -7515,7 +7598,7 @@ function addAbilitySlot(prefill){
       </div>
       <div>
         <label class="admin-label">Tier</label>
-        <select class="admin-input ab-tier-select" onchange="updateCardPreview()">
+        <select class="admin-input ab-tier-select" onchange="onAbilityTierChange(this,${idx});updateCardPreview()">
           <option value="passive"  ${(data.tier||'active')==='passive' ?'selected':''}>passive</option>
           <option value="active"   ${(data.tier||'active')==='active'  ?'selected':''}>active</option>
           <option value="ultimate" ${(data.tier||'')==='ultimate'?'selected':''}>ultimate</option>
@@ -7598,15 +7681,42 @@ function addAbilitySlot(prefill){
   }
 }
 
+// Called when user changes the TIER dropdown — refresh desc + battle_effect
+function onAbilityTierChange(tierSelectEl, idx){
+  const slot = tierSelectEl.closest('.ab-slot');
+  const tier = tierSelectEl.value;
+  const templateKey = slot.querySelector('.ab-template-select').value;
+  const tmpl = ABILITY_TEMPLATES[templateKey];
+  if(!tmpl) return;
+
+  // Collect current param values
+  const paramValues = {};
+  slot.querySelectorAll('.ab-param-input').forEach(inp=>{
+    paramValues[inp.dataset.param] = parseFloat(inp.value)||0;
+  });
+
+  // Regenerate description with new tier
+  const descEl = document.getElementById(`ab_desc_${idx}`);
+  if(descEl) descEl.value = tmpl.descFn(paramValues, tier);
+
+  // Update the hidden battle_effect field based on tier
+  const effectInput = slot.querySelector('.ab-effect-input');
+  if(effectInput && tmpl.tierEffect) effectInput.value = tmpl.tierEffect(tier);
+}
+
 // Called when user picks a different template from the dropdown
 function onAbilityTemplateChange(selectEl, idx){
   const key = selectEl.value;
   const slot = selectEl.closest('.ab-slot');
-  buildAbilityParamsPanel(idx, key, {}, slot);
-  // Auto-fill GIF if blank
+  const tier = slot.querySelector('.ab-tier-select')?.value || 'active';
+  buildAbilityParamsPanel(idx, key, {}, slot, tier);
+  // Update battle_effect based on tier
   const tmpl = ABILITY_TEMPLATES[key];
   if(tmpl){
-    const def = DEFAULT_AB_MEDIA[tmpl.battle_effect];
+    const effectInput = slot.querySelector('.ab-effect-input');
+    if(effectInput && tmpl.tierEffect) effectInput.value = tmpl.tierEffect(tier);
+    // Auto-fill GIF if blank
+    const def = DEFAULT_AB_MEDIA[tmpl.tierEffect ? tmpl.tierEffect(tier) : tmpl.battle_effect];
     if(def){
       const gi=document.getElementById(`ab_gif_url_${idx}`);
       if(gi&&!gi.value) gi.value=def.gif;
