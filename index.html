@@ -6481,16 +6481,34 @@ window.ACTIVE_BANNER = null;  // {id, name, description, image, featured_cards:[
 let _adminBannerCache = [];
 let _bannerFeaturedSlotCount = 0;
 
+// Safely parse featured_cards whether it's a JS array, JSON string, or postgres array string
+function parseFeaturedCards(raw){
+  if(!raw) return [];
+  if(Array.isArray(raw)) return raw;
+  if(typeof raw === 'string'){
+    const t = raw.trim();
+    // JSON array string: ["a","b"]
+    if(t.startsWith('[')){ try{ return JSON.parse(t); }catch(e){} }
+    // Postgres array literal: {a,b,c}
+    if(t.startsWith('{')){ return t.slice(1,-1).split(',').map(s=>s.replace(/^"|"$/g,'')).filter(Boolean); }
+    // Comma-separated fallback
+    return t.split(',').map(s=>s.trim()).filter(Boolean);
+  }
+  return [];
+}
+
 // ── Load active banner from Supabase (or fall back to DEMO_CARDS) ──
 async function loadActiveBanner(){
   try {
     const rows = await sb.getAll('banners');
     if(rows && rows.length){
       const active = rows.find(b=>b.is_active) || rows[0];
+      // Normalise featured_cards to always be a plain JS array
+      active.featured_cards = parseFeaturedCards(active.featured_cards);
       window.ACTIVE_BANNER = active;
     }
   } catch(e) {
-    // Table may not exist yet — fall back to default banner
+    console.warn('Could not load banners:', e);
   }
   renderActiveBanner();
   renderHomeBannerWidget();
@@ -6540,7 +6558,7 @@ function buildPool(){
   if(!pool.length) pool=[...source];
 
   // Rate-up: featured cards appear 3× more likely
-  const featuredIds = banner.featured_cards || [];
+  const featuredIds = parseFeaturedCards(banner.featured_cards);
   if(featuredIds.length){
     const extraFeatured = pool.filter(c=>featuredIds.includes(c.id));
     pool = [...pool, ...extraFeatured, ...extraFeatured]; // tripled
@@ -6555,7 +6573,7 @@ function renderActiveBanner(){
   if(!el) return;
   const banner = getActiveBanner();
   const allCards = window.DEMO_CARDS || DEMO_CARDS;
-  const featuredCards = (banner.featured_cards||[]).map(id=>allCards.find(c=>c.id===id)).filter(Boolean);
+  const featuredCards = parseFeaturedCards(banner.featured_cards).map(id=>allCards.find(c=>c.id===id)).filter(Boolean);
 
   el.innerHTML = `
     <div class="section-title">Current Banner</div>
@@ -6605,7 +6623,7 @@ function renderHomeBannerWidget(){
   if(!el) return;
   const banner = getActiveBanner();
   const allCards = window.DEMO_CARDS || DEMO_CARDS;
-  const featuredCards = (banner.featured_cards||[]).map(id=>allCards.find(c=>c.id===id)).filter(Boolean).slice(0,4);
+  const featuredCards = parseFeaturedCards(banner.featured_cards).map(id=>allCards.find(c=>c.id===id)).filter(Boolean).slice(0,4);
 
   el.innerHTML = `
     <div class="home-banner-card" onclick="goTo('pull')">
@@ -6673,7 +6691,7 @@ function renderAdminBannerList(){
   }
   const allCards = window.DEMO_CARDS || DEMO_CARDS;
   el.innerHTML = _adminBannerCache.map(b=>{
-    const featNames = (b.featured_cards||[]).map(id=>{const c=allCards.find(x=>x.id===id);return c?c.name:id;}).join(', ');
+    const featNames = parseFeaturedCards(b.featured_cards).map(id=>{const c=allCards.find(x=>x.id===id);return c?c.name:id;}).join(', ');
     return `<div class="banner-list-item${b.is_active?' active-banner':''}">
       ${b.image ? `<img class="banner-list-item-media" src="${b.image}" alt="" onerror="this.src=''"/>` : '<div class="banner-list-item-media" style="background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:1.4em;">🏮</div>'}
       <div class="banner-list-info">
@@ -6788,7 +6806,7 @@ async function submitBannerForm(){
     name,
     description: (document.getElementById('bannerForm_desc')?.value||'').trim(),
     image:        (document.getElementById('bannerForm_image')?.value||'').trim(),
-    featured_cards: collectBannerFeaturedIds(),
+    featured_cards: JSON.stringify(collectBannerFeaturedIds()),
     series_filter: (document.getElementById('bannerForm_seriesFilter')?.value||'').trim(),
     min_rarity:    parseInt(document.getElementById('bannerForm_minRarity')?.value)||1,
     is_active:     isActive,
@@ -6808,13 +6826,11 @@ async function submitBannerForm(){
     }
     let ok;
     if(editId){
-      // Editing existing — upsert on id conflict
       ok = await sb.upsert('banners', bannerData);
     } else {
-      // New banner — use insert so Supabase generates the UUID
       ok = await sb.insert('banners', bannerData);
     }
-    if(!ok) throw new Error('Save failed');
+    if(!ok) throw new Error('Supabase rejected the request — check browser console (F12) for the exact error from the ⚠️ DB toast above');
     showToast(editId ? '✅ Banner updated!' : '✅ Banner created!');
     cancelBannerEdit();
     await loadAdminBannerList();
@@ -6855,7 +6871,7 @@ function editBanner(bannerId){
   document.getElementById('bannerForm_minRarity').value = b.min_rarity||1;
   previewBannerForm();
   clearBannerFeaturedSlots();
-  (b.featured_cards||[]).forEach(id=>addBannerFeaturedSlot(id));
+  parseFeaturedCards(b.featured_cards).forEach(id=>addBannerFeaturedSlot(id));
   document.getElementById('bannerFormTitle').textContent = '✏️ Edit Banner — '+b.name;
   document.getElementById('bannerFormSubmitBtn').textContent = '💾 Save Changes';
   document.getElementById('bannerFormCancelBtn').style.display = '';
