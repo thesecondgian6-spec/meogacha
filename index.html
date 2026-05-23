@@ -2418,7 +2418,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 
 
 /* ══════════════════════════════════════════════
-   CARD CUTSCENE SYSTEM — CINEMATIC REDESIGN v2
+   CARD CUTSCENE SYSTEM — CINEMATIC REDESIGN v3
 ══════════════════════════════════════════════ */
 
 /* ── Overlay ── */
@@ -2450,29 +2450,78 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   background:radial-gradient(ellipse at 50% 50%,transparent 45%,rgba(0,0,0,0.6) 100%);
 }
 
+/* ── Decorative background — diamond/cross pattern like ability cutscene ── */
+#cardCutscene::before {
+  content:'';
+  position:absolute;inset:0;z-index:1;pointer-events:none;
+  background-image:
+    linear-gradient(45deg, rgba(255,255,255,0.018) 25%, transparent 25%),
+    linear-gradient(-45deg, rgba(255,255,255,0.018) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, rgba(255,255,255,0.018) 75%),
+    linear-gradient(-45deg, transparent 75%, rgba(255,255,255,0.018) 75%);
+  background-size:28px 28px;
+  background-position:0 0, 0 14px, 14px -14px, -14px 0;
+  mask-image:radial-gradient(ellipse at 50% 50%, transparent 40%, rgba(0,0,0,0.5) 100%);
+  -webkit-mask-image:radial-gradient(ellipse at 50% 50%, transparent 40%, rgba(0,0,0,0.5) 100%);
+}
+/* ── Corner decorative accents ── */
+#cardCutscene::after {
+  content:'';
+  position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:
+    /* top-left corner accent */
+    linear-gradient(135deg, var(--cc-accent-color, rgba(255,157,199,0.12)) 0%, transparent 20%),
+    /* bottom-right corner accent */
+    linear-gradient(315deg, var(--cc-accent-color, rgba(255,157,199,0.12)) 0%, transparent 20%);
+  transition:all 0.8s ease;
+}
+/* Horizontal bars — anime letterbox style */
+#cardCutscene .cc-bar-top,
+#cardCutscene .cc-bar-bot {
+  position:absolute;left:0;right:0;height:3px;z-index:8;pointer-events:none;
+  background:var(--cc-bar-color, rgba(255,157,199,0.6));
+  box-shadow:0 0 12px var(--cc-bar-color, rgba(255,157,199,0.4));
+  transition:background 0.6s ease, box-shadow 0.6s ease;
+}
+#cardCutscene .cc-bar-top { top:0; }
+#cardCutscene .cc-bar-bot { bottom:0; }
+
 /* ────────────────────────────────────────────
-   STEP LAYOUT — two modes handled by classes
-   .cc-has-gif  → gif top half, text below
+   STEP LAYOUT — column flow (GIF above text)
+   .cc-has-gif  → gif + text below in column
    (no class)   → text centred, no gif
    ──────────────────────────────────────────── */
 
-/* ── GIF container ── */
+/* ── GIF container ── in flow now, not absolute ── */
 #ccGifWrap {
-  position:absolute;
-  top:0;left:0;right:0;
-  height:58%;
+  position:relative;
+  width:100%;
   z-index:4;
   display:flex;align-items:center;justify-content:center;
   opacity:0;
   transition:opacity 0.65s ease;
   pointer-events:none;
+  flex-shrink:0;
+  /* hidden by default — absolute centering fallback */
+  position:absolute;top:-9999px;
 }
 #ccGifWrap.visible { opacity:1; }
+
+/* When gif is active — bring it into normal flow via the overlay stage */
+#cardCutscene.cc-has-gif #ccGifWrap {
+  position:relative;
+  top:auto;
+}
+
 #ccGifInner {
-  width:min(640px,88vw);
-  border-radius:12px;
+  width:min(560px,82vw);
+  border-radius:14px;
   overflow:hidden;
-  box-shadow:0 4px 40px rgba(0,0,0,0.7),0 0 0 1px rgba(255,255,255,0.06);
+  box-shadow:
+    0 4px 40px rgba(0,0,0,0.8),
+    0 0 0 1px rgba(255,255,255,0.08),
+    0 0 30px var(--cc-bar-color, rgba(255,157,199,0.2));
+  position:relative;
 }
 #ccGif {
   width:100%;
@@ -2480,15 +2529,34 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   object-fit:cover;
   display:block;
 }
-/* Gradient fade bottom of gif */
+/* Gradient fade bottom of gif — properly positioned */
 #ccGifInner::after {
-  content:'';position:absolute;inset:0;
-  background:linear-gradient(to bottom,transparent 55%,rgba(0,0,0,0.6) 100%);
-  pointer-events:none;border-radius:12px;
-  position:relative;margin-top:-4px;height:0;
+  content:'';
+  position:absolute;
+  left:0;right:0;bottom:0;
+  height:45%;
+  background:linear-gradient(to bottom,transparent,rgba(0,0,0,0.75) 100%);
+  pointer-events:none;border-radius:0 0 14px 14px;
 }
 
-/* ── Text area — centres differently based on gif ── */
+/* ── Central stage when using gif — flex column ── */
+#cardCutscene.cc-has-gif {
+  justify-content:center;
+}
+#ccCenterStage {
+  position:relative;
+  z-index:6;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  width:100%;
+  max-height:100%;
+  gap:clamp(10px,2vh,20px);
+  padding:clamp(40px,7vh,70px) clamp(20px,6vw,80px) clamp(50px,8vh,80px);
+}
+
+/* ── Text area ── */
 #ccTextArea {
   position:absolute;
   z-index:6;
@@ -2498,13 +2566,14 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   padding:0 clamp(20px,6vw,80px);
   pointer-events:none;
   text-align:center;
-  /* Default: fully centred */
   top:0;bottom:0;
 }
-/* When gif is showing — push text to lower 44% */
+/* When gif is showing — text sits below the gif in the stage, not absolute */
 #cardCutscene.cc-has-gif #ccTextArea {
-  top:auto;bottom:0;height:45%;
-  justify-content:center;
+  position:relative;
+  top:auto;bottom:auto;
+  padding:0 clamp(16px,4vw,60px);
+  flex-shrink:0;
 }
 
 /* ── Main narration text ── */
@@ -2605,9 +2674,8 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 
 /* ── Mobile ── */
 @media (max-width:600px) {
-  #ccGifWrap { height:52%; }
-  #cardCutscene.cc-has-gif #ccTextArea { height:50%; }
-  #ccGifInner { width:92vw;border-radius:8px; }
+  #ccCenterStage { padding:clamp(36px,6vh,56px) 14px clamp(44px,7vh,64px); gap:8px; }
+  #ccGifInner { width:90vw;border-radius:8px; }
   #ccTextMain  { font-size:clamp(1.1em,5vw,1.6em); }
   #ccTitleMain { font-size:clamp(0.95em,5.5vw,1.5em); }
   #ccTitleSub  { font-size:clamp(0.88em,3.5vw,1.05em); }
@@ -3551,6 +3619,16 @@ const CARD_ABILITIES = {
       desc:'Risk everything — 70 damage. Recoil 15 to self. [ULTIMATE]', battleEffect:'ofa100', value:70 },
     { id:'symbolfeat', name:"Symbol Inherited", icon:'🌟', type:'secret', tier:'secret',
       desc:'??? Inherits strength of all predecessors — ×2 power for final strike.', battleEffect:'finallegacy', value:2 }
+  ],
+  hakari: [
+    { id:'privatepure', name:"Private Pure Love Train", icon:'🎰', type:'active', tier:'active',
+      desc:"Activate domain expansion. Deals 30 damage and triggers jackpot roll.", battleEffect:'curse', value:30 },
+    { id:'jackpot', name:"Jackpot! Infinite Cursed Energy", icon:'💫', type:'passive', tier:'passive',
+      desc:"When jackpot triggers, restore 20 HP and negate next damage instance.", battleEffect:'regen', value:20 },
+    { id:'rollingblackout', name:"Rolling Blackout", icon:'⚡', type:'ultimate', tier:'ultimate',
+      desc:"Rapid-fire cursed energy burst — 5 hits of 14 damage each. [ULTIMATE]", battleEffect:'frenzy', value:70 },
+    { id:'deathgamble', name:"Death Gamble", icon:'🃏', type:'secret', tier:'secret',
+      desc:"??? Go all-in — flip a coin. Heads: deal 80 and heal 30. Tails: take 20 recoil.", battleEffect:'ofa100', value:80 }
   ]
 };
 
@@ -3596,6 +3674,7 @@ const DEMO_CARDS = [
   {id:'zero2',name:'Zero Two',rarity:3,rarityName:'[SR]',rarityStars:'★★★',series:'DARLING in the FRANXX',quote:"I want to be human. I want to be your darling.",desc:'The mysterious partner-killer who only found peace in one pilot.',image:'https://media1.tenor.com/m/Giv4A22u3KUAAAAC/zero-two-smile.gif',color:'#e74c3c',weight:40},
   {id:'hinata',name:'Hinata Shoyo',rarity:2,rarityName:'[R]',rarityStars:'★★',series:'Haikyuu!!',quote:"I'm not tall. But I can jump.",desc:'The little giant who refused to be limited by his height or his circumstances.',image:'https://media1.tenor.com/m/lazWdimyxj8AAAAC/haikyuu-anime.gif',color:'#f39c12',weight:70},
   {id:'naruto',name:'Naruto Uzumaki',rarity:1,rarityName:'[N]',rarityStars:'★',series:'Naruto',quote:"I'm not gonna run away, I never go back on my word!",desc:'The knucklehead ninja who dreamed of being Hokage — and made it.',image:'https://media1.tenor.com/m/xrQKVA243MsAAAAC/naruto-believe-it.gif',color:'#f39c12',weight:100},
+  {id:'hakari',name:'Kinji Hakari',rarity:5,rarityName:'[UR]',rarityStars:'★★★★★',series:'Jujutsu Kaisen',quote:"Jackpot. My domain's on a winning streak — and luck? Luck doesn't run out.",desc:"Jujutsu Tech's most dangerous gambler. When his domain hits the jackpot, he becomes effectively immortal — an unstoppable force wrapped in a fever dream of pachinko and pure cursed energy.",image:'https://media1.tenor.com/m/YXN8SXrpWekAAAAC/hakari-kinji-hakari.gif',color:'#f1c40f',weight:5},
 ];
 
 const SHOP_ITEMS = [
@@ -7230,6 +7309,10 @@ async function playCardCutscene(card){
   const glowEl=document.getElementById('ccGlow');
   glowEl.style.background=`radial-gradient(ellipse at 50% 40%, ${color}25, transparent 65%)`;
 
+  // ── Set CSS accent color for background decoration and bars ──
+  overlay.style.setProperty('--cc-accent-color', color+'22');
+  overlay.style.setProperty('--cc-bar-color', color);
+
   // ── Show overlay ──
   overlay.classList.add('active');
   await new Promise(r=>setTimeout(r,60));
@@ -7288,6 +7371,7 @@ async function playCardCutscene(card){
       const titleMain = document.getElementById('ccTitleMain');
       const titleDiv  = document.getElementById('ccTitleDivider');
       const titleSub  = document.getElementById('ccTitleSub');
+      const stage     = document.getElementById('ccCenterStage');
 
       // ── Fade out current content ──
       textMain.classList.remove('visible');
@@ -7303,11 +7387,12 @@ async function playCardCutscene(card){
       const hasGif=!!step.gif_url;
       if(hasGif){
         gifEl.src=step.gif_url;
-        // Don't wait too long — load async
         gifEl.onload=()=>gifWrap.classList.add('visible');
         gifEl.onerror=()=>{};
-        setTimeout(()=>gifWrap.classList.add('visible'),800); // show even if slow
+        setTimeout(()=>gifWrap.classList.add('visible'),800);
         overlay.classList.add('cc-has-gif');
+        // Move gifWrap into the stage if not already there
+        if(gifWrap.parentElement!==stage) stage.insertBefore(gifWrap,stage.firstChild);
       } else {
         gifWrap.classList.remove('visible');
         gifEl.src='';
@@ -7665,29 +7750,36 @@ tryAutoLogin();
 
 <!-- ══ CARD CUTSCENE OVERLAY ══ -->
 <div id="cardCutscene">
+  <div class="cc-bar-top"></div>
+  <div class="cc-bar-bot"></div>
   <div id="ccScanlines"></div>
   <div id="ccGlow"></div>
   <div id="ccVignette"></div>
   <div id="ccLines"></div>
 
-  <!-- GIF (top half, landscape) -->
-  <div id="ccGifWrap">
-    <div id="ccGifInner">
-      <img id="ccGif" src="" alt="" aria-hidden="true"/>
+  <!-- Central stage — column layout: GIF then text -->
+  <div id="ccCenterStage">
+
+    <!-- GIF — sits inline above text when present -->
+    <div id="ccGifWrap">
+      <div id="ccGifInner">
+        <img id="ccGif" src="" alt="" aria-hidden="true"/>
+      </div>
     </div>
-  </div>
 
-  <!-- Text area — centres or aligns based on cc-has-gif class -->
-  <div id="ccTextArea">
+    <!-- Text area — sits below GIF or centred alone -->
+    <div id="ccTextArea">
 
-    <!-- Narration text (non-title steps) -->
-    <div id="ccTextMain"></div>
+      <!-- Narration text (non-title steps) -->
+      <div id="ccTextMain"></div>
 
-    <!-- Title block (title steps) -->
-    <div id="ccTitleBlock" style="display:none;">
-      <div id="ccTitleMain"></div>
-      <div id="ccTitleDivider"></div>
-      <div id="ccTitleSub"></div>
+      <!-- Title block (title steps) -->
+      <div id="ccTitleBlock" style="display:none;">
+        <div id="ccTitleMain"></div>
+        <div id="ccTitleDivider"></div>
+        <div id="ccTitleSub"></div>
+      </div>
+
     </div>
 
   </div>
