@@ -7754,8 +7754,8 @@ function addAbilitySlot(prefill){
     <input type="hidden" class="ab-id-input"     value="${data.ability_id||data.id||''}"/>
     <input type="hidden" class="ab-effect-input" value="${prefillEffect}"/>
     <input type="hidden" class="ab-value-input"  value="${data.value||0}"/>
-    <input type="hidden" class="ab-mpCost-input" value="0"/>
-    <input type="hidden" class="ab-chance-input" value="100"/>
+    <input type="hidden" class="ab-mpCost-input" value="${data.mp_cost||data.mpCost||0}"/>
+    <input type="hidden" class="ab-chance-input" value="${data.chance!=null?data.chance:100}"/>
   `;
 
   document.getElementById('abilitySlots').appendChild(el);
