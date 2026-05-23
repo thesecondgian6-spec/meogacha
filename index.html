@@ -49,17 +49,18 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   font-family:'Cinzel Decorative',serif;
   font-size:clamp(2em,6vw,5em);
   font-weight:900;
-  background:linear-gradient(90deg,#ffd6ea,#ff9dc7,#e879b0,#c084b8,#a855f7,#818cf8,#60d9f0,#34d399,#fde68a,#ff9dc7,#ffd6ea);
-  background-size:400%;
+  background:linear-gradient(90deg,#ffd6ea,#ff9dc7,#e0608a,#c084b8,#e0608a,#ff9dc7,#ffd6ea);
+  background-size:300%;
   -webkit-background-clip:text;
   -webkit-text-fill-color:transparent;
-  animation:auroraShift 6s linear infinite;
+  animation:pinkPulse 8s ease-in-out infinite;
   margin-bottom:6px;
   letter-spacing:0.04em;
   filter:drop-shadow(0 0 24px rgba(255,157,199,0.5)) drop-shadow(0 2px 40px rgba(192,132,184,0.35));
   position:relative;
   display:inline-block;
 }
+@keyframes pinkPulse{0%{background-position:0%;}50%{background-position:100%;}100%{background-position:0%;}}
 .hero-title-wrap{position:relative;display:inline-block;margin-bottom:14px;}
 .hero-title-deco{
   position:absolute;
@@ -88,7 +89,8 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   border-radius:2px;
   opacity:0.7;
 }
-.hero-gif-banner{width:100%;max-height:280px;object-fit:cover;object-position:center top;border-radius:0 0 24px 24px;display:block;mask-image:linear-gradient(to bottom,rgba(0,0,0,0.95) 0%,rgba(0,0,0,0.7) 55%,transparent 100%);-webkit-mask-image:linear-gradient(to bottom,rgba(0,0,0,0.95) 0%,rgba(0,0,0,0.7) 55%,transparent 100%);margin-bottom:-80px;position:relative;z-index:0;}
+.hero-gif-banner{width:100%;height:260px;border-radius:0 0 24px 24px;display:block;mask-image:linear-gradient(to bottom,rgba(0,0,0,0.95) 0%,rgba(0,0,0,0.7) 55%,transparent 100%);-webkit-mask-image:linear-gradient(to bottom,rgba(0,0,0,0.95) 0%,rgba(0,0,0,0.7) 55%,transparent 100%);margin-bottom:-80px;position:relative;z-index:0;background-size:cover;background-position:center center;background-repeat:no-repeat;}
+.hero-gif-banner img{display:none;}
 .hero-sub{font-style:italic;font-size:1.2em;color:var(--text-dim);margin-bottom:40px;letter-spacing:0.05em;}
 .hero-actions{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;}
 .btn-primary{background:linear-gradient(135deg,var(--pink-deep),var(--purple));border:none;color:#fff;padding:12px 32px;border-radius:30px;font-family:'Cinzel Decorative',serif;font-size:0.85em;font-weight:700;cursor:pointer;transition:all 0.25s;box-shadow:0 4px 20px var(--pink-glow);letter-spacing:0.05em;}
@@ -678,19 +680,31 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   gap: 20px;
   align-items: start;
 }
-@media(max-width:800px){
+@media(max-width:860px){
   .admin-card-editor-grid {
     grid-template-columns: 1fr;
   }
   .admin-card-editor-grid > div:last-child {
-    /* Live Preview column: move to top on mobile as a collapsed/compact bar */
+    /* Live Preview column: move to top on mobile */
     order: -1;
     position: static !important;
   }
-  #cardPreviewBox { display: flex; gap: 12px; overflow: hidden; border-radius: 14px !important; }
-  #cardPreviewBox > div:first-child { flex: 0 0 100px; min-height: 100px !important; }
+  #cardPreviewBox {
+    display: flex;
+    gap: 12px;
+    overflow: hidden;
+    border-radius: 14px !important;
+  }
+  #cardPreviewBox > div:first-child {
+    flex: 0 0 110px;
+    min-height: 110px !important;
+  }
   #previewBody { flex: 1; }
-  #cardPreviewBox img { max-height: 140px !important; }
+  #cardPreviewBox img { max-height: 155px !important; }
+  /* Keep preview label above the box */
+  .admin-card-editor-grid > div:last-child > .admin-section-label {
+    text-align: left;
+  }
 }
 
 /* ── 5x PULL CAROUSEL ── */
@@ -751,12 +765,13 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .rarity-rainbow-border{border-image:var(--rainbow) 1;animation:rainbowShift 2.5s linear infinite;background-size:200%;}
 
 /* ── HOME GIF BANNER ── */
-.hero-gif-banner{width:100%;max-height:180px;object-fit:cover;object-position:center top;border-radius:0 0 20px 20px;display:block;mask-image:linear-gradient(to bottom,rgba(0,0,0,0.85) 0%,rgba(0,0,0,0.6) 60%,transparent 100%);-webkit-mask-image:linear-gradient(to bottom,rgba(0,0,0,0.85) 0%,rgba(0,0,0,0.6) 60%,transparent 100%);margin-bottom:-60px;position:relative;z-index:0;}
+.hero-gif-banner{width:100%;height:260px;border-radius:0 0 24px 24px;display:block;mask-image:linear-gradient(to bottom,rgba(0,0,0,0.95) 0%,rgba(0,0,0,0.7) 55%,transparent 100%);-webkit-mask-image:linear-gradient(to bottom,rgba(0,0,0,0.95) 0%,rgba(0,0,0,0.7) 55%,transparent 100%);margin-bottom:-80px;position:relative;z-index:0;background-size:cover;background-position:center center;background-repeat:no-repeat;}
+.hero-gif-banner img{display:none;}
 .hero{position:relative;z-index:1;}
 
 /* ── MULTI PULL MOBILE FIX ── */
 @media(max-width:700px){
-  .hero-gif-banner{max-height:180px;margin-bottom:-60px;}
+  .hero-gif-banner{height:220px;margin-bottom:-60px;background-position:center top;}
   .multi-card-img{width:80px;height:113px;}
   .multi-card-name{font-size:0.6em;max-width:80px;}
   .multi-pull-title{font-size:0.8em;margin-bottom:14px;}
@@ -3366,7 +3381,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 
   <!-- HOME -->
   <div class="page active" id="page-home">
-    <img class="hero-gif-banner" src="https://media1.tenor.com/m/8fKXg5VL2tEAAAAC/purple-aesthetic.gif" alt="" aria-hidden="true" onerror="this.style.display='none'"/>
+    <div class="hero-gif-banner" style="background-image:url('https://media1.tenor.com/m/8fKXg5VL2tEAAAAC/purple-aesthetic.gif')" role="presentation" aria-hidden="true"></div>
     <div class="hero">
       <div class="hero-title-wrap">
         <span class="hero-title-deco tl">🌸</span>
