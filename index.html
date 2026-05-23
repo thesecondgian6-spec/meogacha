@@ -7350,14 +7350,22 @@ window.CARD_CUTSCENE_DATA = {};
 
 async function loadCardCutscenes(){
   const rows = await sb.getAll('card_cutscenes');
-  if(!rows||!rows.length)return;
   window.CARD_CUTSCENE_DATA={};
+  if(!rows||!rows.length)return;
+  const audioSet = new Set(); // track which card_ids have had audio resolved
   rows.forEach(r=>{
-    if(!window.CARD_CUTSCENE_DATA[r.card_id])
-      window.CARD_CUTSCENE_DATA[r.card_id]={title:r.title||'',audio_url:r.cutscene_audio||'',steps:[]};
-    if(r.title)window.CARD_CUTSCENE_DATA[r.card_id].title=r.title;
-    if(r.cutscene_audio)window.CARD_CUTSCENE_DATA[r.card_id].audio_url=r.cutscene_audio;
-    window.CARD_CUTSCENE_DATA[r.card_id].steps.push({
+    if(!window.CARD_CUTSCENE_DATA[r.card_id]){
+      window.CARD_CUTSCENE_DATA[r.card_id]={title:'',audio_url:'',steps:[]};
+    }
+    const cs = window.CARD_CUTSCENE_DATA[r.card_id];
+    if(r.title) cs.title = r.title;
+    // Take audio from first row encountered for this card (all rows share same value)
+    // Using a Set so we only take it once — this correctly handles '' (cleared audio)
+    if(!audioSet.has(r.card_id)){
+      cs.audio_url = r.cutscene_audio || '';
+      audioSet.add(r.card_id);
+    }
+    cs.steps.push({
       text:      r.text||'',
       gif_url:   r.gif_url||'',
       is_title:  r.is_title||false,
@@ -7885,7 +7893,6 @@ async function viewCardCutscene(cardId){
 // ══════════════════════════════════════════════
 let _cutsceneEditorCardId=null;
 let _csStepCount=0;
-let _pendingEditorState=null; // used by preview to restore unsaved state on reopen
 
 function openCutsceneEditor(cardId,cardName){
   _cutsceneEditorCardId=cardId;
@@ -7991,23 +7998,13 @@ async function uploadCsBgm(input){
 async function loadCutsceneIntoEditor(cardId){
   const stepsEl=document.getElementById('csEditorSteps');
   stepsEl.innerHTML='';_csStepCount=0;
-  // If preview stashed unsaved state, restore it instead of re-fetching from DB
-  if(_pendingEditorState){
-    const ps=_pendingEditorState;_pendingEditorState=null;
-    const titleInp=document.getElementById('csEditorTitle');
-    const audioInp=document.getElementById('csEditorAudio');
-    if(titleInp)titleInp.value=ps.title||'';
-    if(audioInp)audioInp.value=ps.audio_url||'';
-    (ps.steps||[]).forEach(r=>addCutsceneStep(r));
-    return;
-  }
   const rows=await sb.get('card_cutscenes',{card_id:cardId});
   if(rows&&rows.length){
     rows.sort((a,b)=>a.step_order-b.step_order);
     const titleInp=document.getElementById('csEditorTitle');
     const audioInp=document.getElementById('csEditorAudio');
-    if(titleInp)titleInp.value=rows[0].title||'';
-    if(audioInp)audioInp.value=rows[0].cutscene_audio||'';
+    if(rows[0].title)titleInp.value=rows[0].title;
+    if(rows[0].cutscene_audio)audioInp.value=rows[0].cutscene_audio;
     rows.forEach(r=>addCutsceneStep(r));
   } else {
     addCutsceneStep({is_title:false,text:'',gif_url:'',duration:0});
@@ -8086,28 +8083,39 @@ async function saveCutscene(){
   const btn=document.querySelector('#cutsceneEditorModal button[onclick="saveCutscene()"]');
   if(btn){btn.textContent='Saving...';btn.disabled=true;}
   try{
+    // Delete all existing rows for this card first
     await sb.delete('card_cutscenes',{card_id:cardId});
+
+    // Collect valid steps — a step is valid if it has text OR a gif OR is a title step
     let order=0;
+    const stepsToInsert=[];
     for(const slot of slots){
       const text=(slot.querySelector('.cs-text')?.value||'').trim();
       const gif_url=(slot.querySelector('.cs-gif-url')?.value||'').trim();
       const is_title=slot.querySelector('.cs-is-title')?.checked||false;
       const duration=parseFloat(slot.querySelector('.cs-duration')?.value)||0;
-      if(!text&&!is_title)continue;
-      await sb.insert('card_cutscenes',{
-        card_id:cardId,title,cutscene_audio:bgmAudio,
-        text,gif_url,is_title,duration,step_order:order++
-      });
+      // Keep step if it has any content or is a title step
+      if(!text&&!gif_url&&!is_title)continue;
+      stepsToInsert.push({text,gif_url,is_title,duration,step_order:order++});
     }
-    if(order===0){
-      // No valid steps were saved — treat as cutscene removal
+
+    if(stepsToInsert.length===0){
+      // No valid steps — treat as delete
       await sb.update('cards',{has_cutscene:false,cutscene_title:''},{id:cardId});
       await loadCardCutscenes();
-      showToast('🎬 Cutscene removed.');
+      showToast('🗑️ No steps — cutscene removed');
       closeCutsceneEditor();
       const ci=_adminCardCache.findIndex(c=>c.id===cardId);
       if(ci>=0){_adminCardCache[ci].has_cutscene=false;renderAdminCardList();}
     } else {
+      for(const step of stepsToInsert){
+        await sb.insert('card_cutscenes',{
+          card_id:cardId,title,cutscene_audio:bgmAudio,
+          text:step.text,gif_url:step.gif_url,
+          is_title:step.is_title,duration:step.duration,
+          step_order:step.step_order
+        });
+      }
       await sb.update('cards',{has_cutscene:true,cutscene_title:title},{id:cardId});
       await loadCardCutscenes();
       showToast('🎬 Cutscene saved!');
@@ -8134,8 +8142,6 @@ async function previewCutsceneAdmin(){
     steps.push({text,gif_url,is_title,duration,step_order:order++});
   }
   if(!steps.length){showToast('Add steps first');return;}
-  // Stash unsaved state so the editor reloads it instead of re-fetching from DB
-  _pendingEditorState={title,audio_url:bgmAudio,steps};
   window.CARD_CUTSCENE_DATA[cardId]={title,audio_url:bgmAudio,steps};
   closeCutsceneEditor();
   await playCardCutscene(card);
