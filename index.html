@@ -34,7 +34,7 @@ body{font-family:'Cormorant Garamond',serif;background:var(--bg);color:var(--tex
 @keyframes sakuraFall2{0%{transform:translate(0,-40px) rotate(-10deg);opacity:0;}8%{opacity:0.85;}50%{transform:translate(16px,50vh) rotate(165deg);opacity:0.7;}100%{transform:translate(-20px,108vh) rotate(340deg);opacity:0;}}
 @keyframes sakuraFall3{0%{transform:translate(0,-40px) rotate(20deg);opacity:0;}8%{opacity:0.7;}50%{transform:translate(-18px,50vh) rotate(220deg);opacity:0.6;}100%{transform:translate(24px,108vh) rotate(400deg);opacity:0;}}
 @keyframes sakuraFall4{0%{transform:translate(0,-40px) rotate(-20deg);opacity:0;}8%{opacity:0.8;}50%{transform:translate(30px,50vh) rotate(155deg);opacity:0.65;}100%{transform:translate(-8px,108vh) rotate(320deg);opacity:0;}}
-#app{position:relative;z-index:2;min-height:100vh;}
+#app{position:relative;z-index:2;min-height:100vh;overflow-x:hidden;}
 nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:14px 32px;background:rgba(13,6,16,0.85);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);}
 .nav-logo{font-family:'Cinzel Decorative',serif;font-size:1.1em;font-weight:700;background:linear-gradient(135deg,var(--pink),var(--purple),var(--pink-pale));-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:0.05em;}
 .nav-links{display:flex;gap:8px;}
@@ -89,8 +89,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   border-radius:2px;
   opacity:0.7;
 }
-.hero-gif-banner{width:100%;height:260px;border-radius:0 0 24px 24px;display:block;mask-image:linear-gradient(to bottom,rgba(0,0,0,0.95) 0%,rgba(0,0,0,0.7) 55%,transparent 100%);-webkit-mask-image:linear-gradient(to bottom,rgba(0,0,0,0.95) 0%,rgba(0,0,0,0.7) 55%,transparent 100%);margin-bottom:-80px;position:relative;z-index:0;background-size:cover;background-position:center center;background-repeat:no-repeat;}
-.hero-gif-banner img{display:none;}
+/* hero-gif-banner base — see HOME GIF BANNER block below */
 .hero-sub{font-style:italic;font-size:1.2em;color:var(--text-dim);margin-bottom:40px;letter-spacing:0.05em;}
 .hero-actions{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;}
 .btn-primary{background:linear-gradient(135deg,var(--pink-deep),var(--purple));border:none;color:#fff;padding:12px 32px;border-radius:30px;font-family:'Cinzel Decorative',serif;font-size:0.85em;font-weight:700;cursor:pointer;transition:all 0.25s;box-shadow:0 4px 20px var(--pink-glow);letter-spacing:0.05em;}
@@ -765,13 +764,26 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .rarity-rainbow-border{border-image:var(--rainbow) 1;animation:rainbowShift 2.5s linear infinite;background-size:200%;}
 
 /* ── HOME GIF BANNER ── */
-.hero-gif-banner{width:100%;height:260px;border-radius:0 0 24px 24px;display:block;mask-image:linear-gradient(to bottom,rgba(0,0,0,0.95) 0%,rgba(0,0,0,0.7) 55%,transparent 100%);-webkit-mask-image:linear-gradient(to bottom,rgba(0,0,0,0.95) 0%,rgba(0,0,0,0.7) 55%,transparent 100%);margin-bottom:-80px;position:relative;z-index:0;background-size:cover;background-position:center center;background-repeat:no-repeat;}
+.hero-gif-banner{
+  width:100vw;
+  height:320px;
+  position:relative;
+  left:50%;
+  margin-left:-50vw;
+  margin-bottom:-110px;
+  z-index:0;
+  background-size:cover;
+  background-position:center center;
+  background-repeat:no-repeat;
+  mask-image:linear-gradient(to bottom,rgba(0,0,0,1) 0%,rgba(0,0,0,0.85) 40%,rgba(0,0,0,0.35) 72%,transparent 100%);
+  -webkit-mask-image:linear-gradient(to bottom,rgba(0,0,0,1) 0%,rgba(0,0,0,0.85) 40%,rgba(0,0,0,0.35) 72%,transparent 100%);
+}
 .hero-gif-banner img{display:none;}
 .hero{position:relative;z-index:1;}
 
 /* ── MULTI PULL MOBILE FIX ── */
 @media(max-width:700px){
-  .hero-gif-banner{height:220px;margin-bottom:-60px;background-position:center top;}
+  .hero-gif-banner{width:100vw;height:220px;margin-bottom:-70px;background-position:center top;}
   .multi-card-img{width:80px;height:113px;}
   .multi-card-name{font-size:0.6em;max-width:80px;}
   .multi-pull-title{font-size:0.8em;margin-bottom:14px;}
