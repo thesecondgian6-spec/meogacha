@@ -4554,6 +4554,7 @@ function buildStarHTML(count, color) {
 }
 
 function showPullScreen(card) {
+  window._lastPulledCard = card; // store for cutscene on collect
   const isDupe = state.collection.filter(x=>x===card.id).length > 1;
   const color = RARITY_COLORS[card.rarity] || '#ff9dc7';
   const rarity = card.rarity;
@@ -4850,9 +4851,6 @@ async function doPull(count){
   if(count===1){
     const card=weightedPick(buildPool());
     await handlePullResult([card]);
-    if(card.rarity>=6&&cardHasCutscene(card.id)){
-      await playCardCutscene(card);
-    }
     showPullScreen(card);
   } else {
     const results=[];
@@ -4863,6 +4861,7 @@ async function doPull(count){
 }
 
 function showMultiPullScreen(cards){
+  window._lastMultiPulledCards = cards; // store for cutscenes on collect
   const row=document.getElementById('multiCardsRow');
   row.innerHTML='';
   cards.forEach((card,i)=>{
@@ -4891,6 +4890,13 @@ function showMultiPullScreen(cards){
 function closeMultiPull(){
   document.getElementById('multiPullScreen').classList.remove('active');
   renderCollection();
+  // Play cutscenes for any cards that have them, in sequence
+  const cards = window._lastMultiPulledCards || [];
+  window._lastMultiPulledCards = null;
+  const withCutscenes = cards.filter(c => cardHasCutscene(c.id));
+  if(withCutscenes.length){
+    (async()=>{ for(const c of withCutscenes) await playCardCutscene(c); })();
+  }
 }
 
 async function handlePullResult(cards){
@@ -4917,6 +4923,12 @@ async function handlePullResult(cards){
 function closePull(){
   document.getElementById('pullScreen').classList.remove('active');
   renderCollection();
+  // Play cutscene if this card has one
+  const card = window._lastPulledCard;
+  window._lastPulledCard = null;
+  if(card && cardHasCutscene(card.id)){
+    playCardCutscene(card);
+  }
 }
 function pullAgain(){
   document.getElementById('pullScreen').classList.remove('active');
