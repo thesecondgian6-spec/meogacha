@@ -7640,14 +7640,29 @@ function addAbilitySlot(prefill){
   el.dataset.idx=idx;
   el.style.cssText='background:rgba(255,157,199,0.04);border:1px solid rgba(255,157,199,0.15);border-radius:14px;padding:14px;position:relative;';
 
-  // Detect prefill template key by matching battle_effect
+  // Detect prefill template key by matching battle_effect (supports both old and new strings)
   const prefillEffect = data.battleEffect||data.battle_effect||'';
+  // Map old-style effects to new template keys for backwards compatibility
+  const LEGACY_EFFECT_MAP = {
+    'regen':'regen', 'doubleregen':'regen', 'hpboost':'hpboost', 'atkboost':'powerup',
+    'defboost':'shield', 'burst':'burst', 'smash':'strike', 'multihit':'multihit',
+    'pierce':'pierce', 'antimagic':'pierce', 'frenzy':'multihit', 'demonform':'powerup',
+    'ofa100':'strike', 'lifeswap':'lifedrain', 'copy':'copy', 'dodge':'dodge',
+    'firstcrit':'strike', 'spellboost':'powerup', 'curseburst':'curse', 'curse':'curse',
+    'finallegacy':'strike', 'voidsteal':'stun', 'doubleatk':'powerup',
+  };
   let prefillTemplateKey = 'strike';
   if(prefillEffect){
-    prefillTemplateKey = Object.keys(ABILITY_TEMPLATES).find(k=>{
-      const t=ABILITY_TEMPLATES[k];
-      return Object.values(t.battle_effect).includes(prefillEffect);
-    })||'strike';
+    // Try new-style match first (e.g. 'regen_passive', 'burst_ult')
+    const newMatch = Object.keys(ABILITY_TEMPLATES).find(k=>
+      Object.values(ABILITY_TEMPLATES[k].battle_effect).includes(prefillEffect)
+    );
+    if(newMatch){
+      prefillTemplateKey = newMatch;
+    } else {
+      // Try legacy match
+      prefillTemplateKey = LEGACY_EFFECT_MAP[prefillEffect] || 'strike';
+    }
   }
 
   // Build category-grouped template options
@@ -7742,8 +7757,8 @@ function addAbilitySlot(prefill){
   document.getElementById('abilitySlots').appendChild(el);
   document.getElementById('addAbilitySlotBtn').style.display=abilitySlotCount>=5?'none':'';
 
-  // Build params panel with correct tier
-  buildAbilityParamsPanel(idx, prefillTemplateKey, data, el);
+  // Build params panel — pass prefillTier inside data so it's available before DOM select is live
+  buildAbilityParamsPanel(idx, prefillTemplateKey, {...data, tier: prefillTier}, el);
   updateTierHint(idx, prefillTier, prefillTemplateKey);
 }
 
@@ -7804,9 +7819,9 @@ function buildAbilityParamsPanel(idx, templateKey, prefillData, slotEl){
   const panel = slotEl ? slotEl.querySelector('.ab-params-area') : document.getElementById(`ab_params_${idx}`);
   if(!panel) return;
 
-  const tier = (slotEl||panel).querySelector?slotEl.querySelector('.ab-tier-select')?.value||'active':'active';
-  const tierParams = tmpl.params[tier]||tmpl.params['active']||[];
-  const storedValue = parseInt(prefillData.value)||0;
+  // Read tier from the slot's select, fall back to prefillData, fall back to 'active'
+  const tier = slotEl?.querySelector('.ab-tier-select')?.value || prefillData?.tier || 'active';
+  const tierParams = tmpl.params[tier] || tmpl.params['active'] || [];
   const catColor = TEMPLATE_CATEGORIES[tmpl.category]?.color||'var(--pink)';
 
   if(!tierParams || tierParams.length===0){
@@ -7818,11 +7833,12 @@ function buildAbilityParamsPanel(idx, templateKey, prefillData, slotEl){
     return;
   }
 
-  // Prefill param values
+  // Prefill param values — first param gets stored value if no explicit key match
   const paramValues = {};
   tierParams.forEach((p,i)=>{
-    if(i===0 && storedValue && !prefillData[p.key]) paramValues[p.key] = storedValue;
-    else paramValues[p.key] = prefillData[p.key]!==undefined ? prefillData[p.key] : p.default;
+    if(prefillData[p.key] !== undefined) paramValues[p.key] = prefillData[p.key];
+    else if(i===0 && parseInt(prefillData.value)) paramValues[p.key] = parseInt(prefillData.value);
+    else paramValues[p.key] = p.default;
   });
 
   panel.innerHTML = `
@@ -7847,6 +7863,7 @@ function buildAbilityParamsPanel(idx, templateKey, prefillData, slotEl){
   _syncAbilityHiddenFields(idx, tmpl, tier, paramValues, slotEl);
   const descEl = document.getElementById(`ab_desc_${idx}`);
   const descFn = tmpl[`desc_${tier}`]||tmpl.desc_active;
+  // Only auto-generate if blank — don't overwrite manually written or prefilled descriptions
   if(descEl && !descEl.value && descFn) descEl.value = descFn(paramValues);
 }
 
