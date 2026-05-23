@@ -3574,6 +3574,19 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 const SUPABASE_URL = 'https://rfzljmzmycfxohthxroy.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJmemxqbXpteWNmeG9odGh4cm95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkwNjk2MTEsImV4cCI6MjA5NDY0NTYxMX0.MLNFLhkbshYdrrV-MGCYctcSfuMbTQfk_xD84jbg4FY';
 
+// ── Debug logger — shows errors in console AND in a visible toast ──
+function sbLog(method, table, status, body){
+  const msg = `[SB] ${method} ${table} → ${status}`;
+  if(status < 200 || status >= 300){
+    console.error(msg, body);
+    // Surface the real Supabase error so we can diagnose it
+    const detail = (typeof body === 'object' ? (body.message||body.hint||JSON.stringify(body)) : body)||'unknown error';
+    showToast(`⚠️ DB error (${table}): ${detail.slice(0,80)}`);
+  } else {
+    console.log(msg);
+  }
+}
+
 const sb = {
   async get(table, filters={}) {
     const params = new URLSearchParams();
@@ -3581,22 +3594,41 @@ const sb = {
     const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${params}`,{
       headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY}
     });
-    return res.ok ? res.json() : [];
+    const body = await res.json().catch(()=>null);
+    sbLog('GET', table, res.status, body);
+    return res.ok ? body : [];
   },
   async upsert(table, data) {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}`,{
+    // For players table, conflict resolution must target discord_id (the unique key).
+    // We also set id = discord_id so the primary key is always populated.
+    const payload = table === 'players' ? { id: data.discord_id, ...data } : data;
+    const conflictCol = table === 'players' ? 'discord_id' :
+                        table === 'card_xp'  ? 'discord_id,card_id' :
+                        table === 'inventory'? 'discord_id,item_id' :
+                        table === 'cooldowns'? 'discord_id,action' : '';
+    const prefer = conflictCol
+      ? `resolution=merge-duplicates,return=minimal`
+      : `resolution=merge-duplicates,return=minimal`;
+    const url = conflictCol
+      ? `${SUPABASE_URL}/rest/v1/${table}?on_conflict=${encodeURIComponent(conflictCol)}`
+      : `${SUPABASE_URL}/rest/v1/${table}`;
+    const res = await fetch(url,{
       method:'POST',
-      headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json','Prefer':'resolution=merge-duplicates'},
-      body:JSON.stringify(data)
+      headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json','Prefer':prefer},
+      body:JSON.stringify(payload)
     });
+    const body = res.status !== 204 ? await res.json().catch(()=>null) : null;
+    sbLog('UPSERT', table, res.status, body);
     return res.ok;
   },
   async insert(table, data) {
     const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}`,{
       method:'POST',
-      headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json'},
+      headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},
       body:JSON.stringify(data)
     });
+    const body = res.status !== 204 ? await res.json().catch(()=>null) : null;
+    sbLog('INSERT', table, res.status, body);
     return res.ok;
   },
   async update(table, data, filters={}) {
@@ -3604,9 +3636,11 @@ const sb = {
     Object.entries(filters).forEach(([k,v])=>params.set(k,'eq.'+v));
     const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${params}`,{
       method:'PATCH',
-      headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json'},
+      headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},
       body:JSON.stringify(data)
     });
+    const body = res.status !== 204 ? await res.json().catch(()=>null) : null;
+    sbLog('UPDATE', table, res.status, body);
     return res.ok;
   },
   async delete(table, filters={}) {
@@ -3614,16 +3648,19 @@ const sb = {
     Object.entries(filters).forEach(([k,v])=>params.set(k,'eq.'+v));
     const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${params}`,{
       method:'DELETE',
-      headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY},
+      headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Prefer':'return=minimal'},
     });
+    const body = res.status !== 204 ? await res.json().catch(()=>null) : null;
+    sbLog('DELETE', table, res.status, body);
     return res.ok;
   },
   async getAll(table) {
-    // Fetch all rows (no filter) — used for abilities
     const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?limit=1000`,{
       headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Prefer':'count=none'}
     });
-    return res.ok ? res.json() : [];
+    const body = await res.json().catch(()=>null);
+    sbLog('GETALL', table, res.status, body);
+    return res.ok ? body : [];
   }
 };
 
@@ -4730,8 +4767,10 @@ async function loadPlayer(discordId){
     state.username=p.username??state.username;state.avatar=p.avatar??'';
     state.bio=p.bio??state.bio;
     state.title=p.active_title??state.title;
-    // profile_color stores banner gradient index (0=Rose default)
-    const BANNER_COLORS_DB=[
+    state.customAvatar=p.profile_thumbnail??'';
+    state.bannerImage=p.profile_banner??'';
+    // profile_color is an int index into the banner gradient list
+    const BANNER_COLORS_IDX=[
       'linear-gradient(135deg,#e0608a,#c084b8)',
       'linear-gradient(135deg,#1a0533,#3a1060)',
       'linear-gradient(135deg,#0a3d62,#1e6091)',
@@ -4741,15 +4780,26 @@ async function loadPlayer(discordId){
       'linear-gradient(135deg,#0d0d0d,#1a1a2e,#16213e)',
       'linear-gradient(135deg,#ff9a9e,#fad0c4)',
     ];
-    const colorIdx=p.profile_color??0;
-    state.bannerColor=BANNER_COLORS_DB[colorIdx]??state.bannerColor;
-    state.displayName=p.username??''; // use username as display fallback
-    state.customAvatar=p.profile_thumbnail??'';
-    state.bannerImage=p.profile_banner??'';
+    const idx = typeof p.profile_color === 'number' ? p.profile_color : 0;
+    state.bannerColor = BANNER_COLORS_IDX[idx] ?? state.bannerColor;
+    state.displayName = p.username ?? '';
   } else {
-    await sb.upsert('players',{discord_id:discordId,username:state.username,avatar:state.avatar||'',coins:1000,total_pulls:0,pity_sr:0,pity_ur:0,bio:state.bio,active_title:state.title,profile_color:0,profile_thumbnail:'',profile_banner:''});
+    // First login — create the player row
+    await sb.upsert('players',{
+      discord_id:discordId,
+      username:state.username,
+      avatar:state.avatar||'',
+      coins:1000,
+      total_pulls:0,
+      pity_sr:0,
+      pity_ur:0,
+      bio:state.bio,
+      active_title:state.title,
+      profile_color:0,
+      profile_thumbnail:'',
+      profile_banner:'',
+    });
   }
-  // Sync localStorage with DB (DB is authoritative now that upsert includes username/avatar)
   localStorage.setItem('mg_coins_'+discordId, state.coins);
   state.isAdmin = ADMIN_IDS.includes(discordId);
 }
@@ -4765,8 +4815,7 @@ async function loadXpMap(discordId){
 async function savePlayer(){
   if(!state.discordId||state.isGuest)return;
   localStorage.setItem('mg_coins_'+state.discordId, state.coins);
-  // Map banner gradient to index for profile_color column
-  const BANNER_COLORS_DB=[
+  const BANNER_COLORS_IDX=[
     'linear-gradient(135deg,#e0608a,#c084b8)',
     'linear-gradient(135deg,#1a0533,#3a1060)',
     'linear-gradient(135deg,#0a3d62,#1e6091)',
@@ -4776,8 +4825,8 @@ async function savePlayer(){
     'linear-gradient(135deg,#0d0d0d,#1a1a2e,#16213e)',
     'linear-gradient(135deg,#ff9a9e,#fad0c4)',
   ];
-  const colorIdx=Math.max(0,BANNER_COLORS_DB.indexOf(state.bannerColor));
-  await sb.upsert('players',{
+  const colorIdx = Math.max(0, BANNER_COLORS_IDX.indexOf(state.bannerColor));
+  const ok = await sb.upsert('players',{
     discord_id:state.discordId,
     username:state.username,
     avatar:state.avatar||'',
@@ -4792,6 +4841,7 @@ async function savePlayer(){
     profile_thumbnail:state.customAvatar,
     profile_banner:state.bannerImage,
   });
+  if(!ok) console.error('[savePlayer] upsert failed — check console for DB error above');
 }
 async function saveCardToCollection(discordId,cardId){
   await sb.insert('collection',{discord_id:discordId,card_id:cardId});
