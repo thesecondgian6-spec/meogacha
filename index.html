@@ -4851,6 +4851,10 @@ async function doPull(count){
   if(count===1){
     const card=weightedPick(buildPool());
     await handlePullResult([card]);
+    // Play cutscene first if card has one, THEN show the pull screen
+    if(cardHasCutscene(card.id)){
+      await playCardCutscene(card, /*fromPull=*/true);
+    }
     showPullScreen(card);
   } else {
     const results=[];
@@ -4890,13 +4894,7 @@ function showMultiPullScreen(cards){
 function closeMultiPull(){
   document.getElementById('multiPullScreen').classList.remove('active');
   renderCollection();
-  // Play cutscenes for any cards that have them, in sequence
-  const cards = window._lastMultiPulledCards || [];
-  window._lastMultiPulledCards = null;
-  const withCutscenes = cards.filter(c => cardHasCutscene(c.id));
-  if(withCutscenes.length){
-    (async()=>{ for(const c of withCutscenes) await playCardCutscene(c); })();
-  }
+  ccFadeOutGlobalAudio();
 }
 
 async function handlePullResult(cards){
@@ -4923,15 +4921,13 @@ async function handlePullResult(cards){
 function closePull(){
   document.getElementById('pullScreen').classList.remove('active');
   renderCollection();
-  // Play cutscene if this card has one
-  const card = window._lastPulledCard;
-  window._lastPulledCard = null;
-  if(card && cardHasCutscene(card.id)){
-    playCardCutscene(card);
-  }
+  // Fade out cutscene BGM now that user has collected
+  ccFadeOutGlobalAudio();
 }
 function pullAgain(){
   document.getElementById('pullScreen').classList.remove('active');
+  // Stop any lingering cutscene BGM before the next pull
+  ccFadeOutGlobalAudio();
   setTimeout(()=>doPull(1),100);
 }
 
@@ -7585,12 +7581,25 @@ function fireTitleImpact(color) {
   startContinuousSpeedLines(color);
 }
 
-async function playCardCutscene(card){
+// ── Global handle so closePull/pullAgain can fade out the BGM ──
+window._ccGlobalAudio = null;
+function ccFadeOutGlobalAudio(){
+  const audio = window._ccGlobalAudio;
+  if(!audio) return;
+  window._ccGlobalAudio = null;
+  let vol = audio.volume;
+  const fi = setInterval(()=>{
+    vol = Math.max(vol - 0.06, 0);
+    try{ audio.volume = vol; }catch(e){}
+    if(vol <= 0){ clearInterval(fi); try{ audio.pause(); }catch(e){} }
+  }, 50);
+}
+
+async function playCardCutscene(card, fromPull=false){
   const cs=window.CARD_CUTSCENE_DATA[card.id];
   if(!cs||!cs.steps.length)return;
 
   const rarityColor=RARITY_COLORS[card.rarity]||'#ff9dc7';
-  // Use custom color override if set, otherwise fall back to rarity color
   const color = getCcActiveColor(rarityColor);
   const overlay=document.getElementById('cardCutscene');
   const steps=cs.steps;
@@ -7610,19 +7619,38 @@ async function playCardCutscene(card){
   const glowEl=document.getElementById('ccGlow');
   glowEl.style.background=`radial-gradient(ellipse at 50% 40%, ${color}30, transparent 65%)`;
 
-  // ── Set CSS accent color for background decoration and bars ──
+  // ── CSS vars ──
   overlay.style.setProperty('--cc-accent-color', color+'28');
   overlay.style.setProperty('--cc-bar-color', color);
 
-  // ── Apply background theme ──
+  // ── Background ──
   applyCcBackground(color, overlay);
+
+  // ── Skip button ──
+  let skipBtn = document.getElementById('ccSkipBtn');
+  if(!skipBtn){
+    skipBtn = document.createElement('button');
+    skipBtn.id = 'ccSkipBtn';
+    skipBtn.textContent = 'Skip ›';
+    skipBtn.style.cssText = `
+      position:absolute;bottom:clamp(14px,3vh,22px);right:clamp(14px,3vw,24px);
+      z-index:12;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.22);
+      color:rgba(255,255,255,0.55);padding:6px 16px;border-radius:20px;
+      font-family:'Cormorant Garamond',serif;font-size:0.82em;letter-spacing:0.06em;
+      cursor:pointer;transition:all 0.2s;backdrop-filter:blur(4px);
+    `;
+    skipBtn.onmouseenter = ()=>{ skipBtn.style.color='#fff'; skipBtn.style.borderColor='rgba(255,255,255,0.55)'; };
+    skipBtn.onmouseleave = ()=>{ skipBtn.style.color='rgba(255,255,255,0.55)'; skipBtn.style.borderColor='rgba(255,255,255,0.22)'; };
+    overlay.appendChild(skipBtn);
+  }
+  skipBtn.style.display = 'block';
 
   // ── Show overlay ──
   overlay.classList.add('active');
   await new Promise(r=>setTimeout(r,60));
   ccSpawnLines(color);
 
-  // ── Single BGM audio for whole cutscene ──
+  // ── BGM ──
   let bgAudio=null;
   if(cs.audio_url){
     try{
@@ -7630,18 +7658,21 @@ async function playCardCutscene(card){
       bgAudio.volume=0;
       bgAudio.loop=false;
       bgAudio.play().catch(()=>{});
-      // Fade in
       let vol=0;
       const fadeIn=setInterval(()=>{
         vol=Math.min(vol+0.05,0.82);
         bgAudio.volume=vol;
         if(vol>=0.82)clearInterval(fadeIn);
       },60);
+      // Expose globally so collect/pull-again can kill it
+      if(fromPull) window._ccGlobalAudio = bgAudio;
     }catch(e){}
   }
 
   function fadeOutAudio(){
     if(!bgAudio)return;
+    // Don't double-fade if fromPull already handed it off globally
+    if(fromPull && window._ccGlobalAudio === bgAudio){ bgAudio=null; return; }
     let vol=bgAudio.volume;
     const fi=setInterval(()=>{
       vol=Math.max(vol-0.06,0);
@@ -7652,6 +7683,52 @@ async function playCardCutscene(card){
 
   return new Promise(resolve=>{
     let stepIdx=0;
+    let skipped=false;
+
+    // ── Skip handler ──
+    skipBtn.onclick = ()=>{
+      if(skipped) return;
+      skipped = true;
+      skipToEnd();
+    };
+
+    function skipToEnd(){
+      if(window._ccStepTimer){clearTimeout(window._ccStepTimer);window._ccStepTimer=null;}
+      stopContinuousSpeedLines();
+      // Hide all text immediately
+      ['ccTextMain','ccTitleMain','ccTitleDivider','ccTitleSub'].forEach(id=>{
+        const el=document.getElementById(id);
+        if(el){ el.classList.remove('visible'); el.style.transition='none'; }
+      });
+      document.getElementById('ccGifWrap').classList.remove('visible');
+      overlay.classList.remove('cc-has-gif');
+      glowEl.style.opacity='0';
+      skipBtn.style.display='none';
+
+      // Fade the overlay out quickly
+      overlay.style.transition='opacity 0.4s ease';
+      overlay.style.opacity='0';
+      setTimeout(()=>{
+        overlay.classList.remove('active');
+        overlay.style.opacity='';
+        overlay.style.transition='';
+        document.getElementById('ccGif').src='';
+        document.getElementById('ccTimerFill').style.width='0%';
+        const gradEl=document.getElementById('ccBgGradient');
+        const nebEl=document.getElementById('ccBgNebula');
+        if(gradEl){gradEl.classList.remove('visible');gradEl.style.background='';}
+        if(nebEl){nebEl.classList.remove('visible');nebEl.style.background='';}
+        // Restore text transitions
+        ['ccTextMain','ccTitleMain','ccTitleDivider','ccTitleSub'].forEach(id=>{
+          const el=document.getElementById(id);
+          if(el) el.style.transition='';
+        });
+        // Audio: if fromPull, let it keep playing (closePull handles it)
+        // Otherwise fade out now
+        if(!fromPull) fadeOutAudio();
+        resolve();
+      },420);
+    }
 
     function updateDots(){
       steps.forEach((_,i)=>{
@@ -7662,6 +7739,7 @@ async function playCardCutscene(card){
     }
 
     async function showStep(idx){
+      if(skipped) return;
       updateDots();
       const step=steps[idx];
       const isLast=idx===total-1;
@@ -7677,19 +7755,19 @@ async function playCardCutscene(card){
       const titleSub  = document.getElementById('ccTitleSub');
       const stage     = document.getElementById('ccCenterStage');
 
-      // ── Fade out current content ──
+      // Fade out current content
       textMain.classList.remove('visible');
       titleMain.classList.remove('visible');
       titleDiv.classList.remove('visible');
       titleSub.classList.remove('visible');
       gifWrap.classList.remove('visible');
       overlay.classList.remove('cc-has-gif');
-      // Stop continuous speed lines from previous title step
       stopContinuousSpeedLines();
 
       await new Promise(r=>setTimeout(r,350));
+      if(skipped) return;
 
-      // ── Handle GIF ──
+      // GIF
       const hasGif=!!step.gif_url;
       if(hasGif){
         gifEl.src=step.gif_url;
@@ -7697,20 +7775,20 @@ async function playCardCutscene(card){
         gifEl.onerror=()=>{};
         setTimeout(()=>gifWrap.classList.add('visible'),800);
         overlay.classList.add('cc-has-gif');
-        // Move gifWrap into the stage if not already there
         if(gifWrap.parentElement!==stage) stage.insertBefore(gifWrap,stage.firstChild);
       } else {
         gifWrap.classList.remove('visible');
         gifEl.src='';
       }
 
-      // ── Glow pulse ──
+      // Glow pulse
       glowEl.style.opacity=step.is_title?'0.65':'0.28';
       setTimeout(()=>glowEl.style.opacity=step.is_title?'0.2':'0.1',1000);
 
       await new Promise(r=>setTimeout(r,hasGif?180:100));
+      if(skipped) return;
 
-      // ── Show content ──
+      // Show content
       if(step.is_title){
         titleBlock.style.display='flex';
         textMain.style.display='none';
@@ -7724,7 +7802,6 @@ async function playCardCutscene(card){
         ccSpawnLines(color);
         spawnParticles(card.rarity,color);
         playAbilityCutsceneSound('ultimate');
-        // ── Impact effects on title drop ──
         fireTitleImpact(color);
       } else {
         titleBlock.style.display='none';
@@ -7734,7 +7811,7 @@ async function playCardCutscene(card){
         textMain.classList.add('visible');
       }
 
-      // ── Duration ──
+      // Duration
       const durMs = step.duration>0 ? step.duration*1000
                   : step.is_title   ? 4200
                   : 4800;
@@ -7746,20 +7823,20 @@ async function playCardCutscene(card){
       fill.style.transition=`width ${durMs}ms linear`;
       fill.style.width='100%';
 
-      // Auto-advance — no skip
       window._ccStepTimer=setTimeout(()=>{
         window._ccStepTimer=null;
-        if(isLast) closeCutscene();
+        if(skipped) return;
+        if(isLast) finishCutscene();
         else{stepIdx++;showStep(stepIdx);}
       },durMs);
     }
 
-    function closeCutscene(){
+    // Called when all steps have played — hide overlay but let audio keep going if fromPull
+    function finishCutscene(){
       if(window._ccStepTimer){clearTimeout(window._ccStepTimer);window._ccStepTimer=null;}
-      fadeOutAudio();
       stopContinuousSpeedLines();
+      skipBtn.style.display='none';
 
-      // Fade out all content
       ['ccTextMain','ccTitleMain','ccTitleDivider','ccTitleSub'].forEach(id=>{
         const el=document.getElementById(id);
         if(el)el.classList.remove('visible');
@@ -7777,11 +7854,12 @@ async function playCardCutscene(card){
         overlay.style.transition='';
         document.getElementById('ccGif').src='';
         document.getElementById('ccTimerFill').style.width='0%';
-        // Reset bg layers
         const gradEl=document.getElementById('ccBgGradient');
         const nebEl=document.getElementById('ccBgNebula');
         if(gradEl){gradEl.classList.remove('visible');gradEl.style.background='';}
         if(nebEl){nebEl.classList.remove('visible');nebEl.style.background='';}
+        // fromPull: audio keeps playing until collect/pull-again calls ccFadeOutGlobalAudio
+        if(!fromPull) fadeOutAudio();
         resolve();
       },680);
     }
