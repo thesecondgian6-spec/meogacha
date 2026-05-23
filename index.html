@@ -2762,6 +2762,318 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   #ccTitleSub  { font-size:clamp(0.88em,3.5vw,1.05em); }
 }
 
+/* ══════════════════════════════════════════
+   BANNER SYSTEM — Admin & Display
+══════════════════════════════════════════ */
+
+/* ── Banner display on pull page ── */
+.banner-hero {
+  position: relative;
+  border-radius: 20px;
+  overflow: hidden;
+  margin-bottom: 24px;
+  background: linear-gradient(135deg, rgba(255,157,199,0.08), rgba(192,132,184,0.08));
+  border: 1px solid var(--border);
+}
+.banner-hero-media {
+  width: 100%;
+  max-height: 220px;
+  object-fit: cover;
+  object-position: center top;
+  display: block;
+  mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 60%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 60%, transparent 100%);
+}
+.banner-hero-body {
+  padding: 16px 24px 24px;
+}
+.banner-hero-title {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: clamp(1.1em, 3vw, 1.6em);
+  color: var(--pink-pale);
+  margin-bottom: 6px;
+  text-shadow: 0 0 20px var(--pink-glow);
+}
+.banner-hero-desc {
+  color: var(--text-dim);
+  font-style: italic;
+  font-size: 0.9em;
+  margin-bottom: 20px;
+  line-height: 1.55;
+}
+
+/* ── Featured cards strip (Genshin-style) ── */
+.banner-featured-strip {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  margin-bottom: 20px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+.banner-featured-strip::-webkit-scrollbar { height: 4px; }
+.banner-featured-strip::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+.bfs-card {
+  flex-shrink: 0;
+  position: relative;
+  width: 110px;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 2px solid var(--border);
+  cursor: pointer;
+  transition: all 0.25s;
+  background: var(--bg3);
+}
+.bfs-card:hover { transform: translateY(-4px); border-color: var(--pink); box-shadow: 0 8px 24px rgba(255,157,199,0.2); }
+.bfs-card img { width: 100%; aspect-ratio: 2/3; object-fit: cover; display: block; }
+.bfs-card-label {
+  padding: 6px 8px;
+  background: linear-gradient(0deg, rgba(0,0,0,0.85), transparent);
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+}
+.bfs-card-name {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 0.6em;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.bfs-card-rarity { font-size: 0.55em; margin-top: 1px; }
+.bfs-card-rateup {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  background: linear-gradient(135deg, var(--pink-deep), var(--purple));
+  color: #fff;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.5em;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 6px;
+  letter-spacing: 0.08em;
+}
+.bfs-card-rarity-badge {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  background: rgba(0,0,0,0.75);
+  border-radius: 5px;
+  padding: 1px 5px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.5em;
+  backdrop-filter: blur(3px);
+}
+
+/* ── "What is Rate Up?" tooltip inline ── */
+.rateup-explain {
+  font-size: 0.78em;
+  color: var(--text-dim);
+  font-style: italic;
+  margin-bottom: 16px;
+  padding: 8px 12px;
+  background: rgba(255,157,199,0.05);
+  border-radius: 8px;
+  border-left: 2px solid rgba(255,157,199,0.3);
+}
+
+/* ── Active banner home card ── */
+.home-banner-card {
+  background: linear-gradient(135deg, rgba(255,157,199,0.07), rgba(192,132,184,0.07));
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  overflow: hidden;
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: all 0.25s;
+  position: relative;
+}
+.home-banner-card:hover { border-color: rgba(255,157,199,0.4); transform: translateY(-2px); }
+.home-banner-card-media {
+  width: 100%;
+  max-height: 120px;
+  object-fit: cover;
+  object-position: center top;
+  display: block;
+  mask-image: linear-gradient(to bottom, rgba(0,0,0,0.9) 50%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,0.9) 50%, transparent 100%);
+}
+.home-banner-card-body { padding: 10px 16px 14px; }
+.home-banner-card-title {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 0.9em;
+  color: var(--pink-pale);
+  margin-bottom: 4px;
+}
+.home-banner-card-desc {
+  font-size: 0.78em;
+  color: var(--text-dim);
+  font-style: italic;
+  margin-bottom: 10px;
+  line-height: 1.45;
+}
+.home-banner-featured-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+.hbfr-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 4px 8px;
+}
+.hbfr-img {
+  width: 28px;
+  height: 36px;
+  object-fit: cover;
+  border-radius: 5px;
+  border: 1px solid rgba(255,255,255,0.15);
+}
+.hbfr-info { line-height: 1.2; }
+.hbfr-name { font-size: 0.68em; font-weight: 600; color: var(--text); }
+.hbfr-rarity { font-size: 0.6em; }
+.home-banner-pull-btn {
+  width: 100%;
+  padding: 10px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--pink-deep), var(--purple));
+  border: none;
+  color: #fff;
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 0.75em;
+  cursor: pointer;
+  letter-spacing: 0.06em;
+  transition: all 0.2s;
+}
+.home-banner-pull-btn:hover { opacity: 0.88; transform: translateY(-1px); }
+
+/* ── Banner list in admin ── */
+.banner-list-item {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 16px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: all 0.2s;
+}
+.banner-list-item.active-banner { border-color: rgba(241,196,15,0.5); background: rgba(241,196,15,0.06); }
+.banner-list-item-media {
+  width: 60px;
+  height: 40px;
+  border-radius: 8px;
+  object-fit: cover;
+  background: var(--bg3);
+  flex-shrink: 0;
+  border: 1px solid var(--border);
+}
+.banner-list-info { flex: 1; min-width: 0; }
+.banner-list-name { font-family: 'Cinzel Decorative', serif; font-size: 0.85em; color: var(--pink-pale); }
+.banner-list-meta { font-size: 0.72em; color: var(--text-dim); font-style: italic; margin-top: 2px; }
+.banner-list-actions { display: flex; gap: 6px; flex-shrink: 0; }
+.banner-active-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6em;
+  padding: 2px 8px;
+  border-radius: 8px;
+  background: rgba(241,196,15,0.15);
+  color: #f1c40f;
+  border: 1px solid rgba(241,196,15,0.4);
+  flex-shrink: 0;
+}
+
+/* ── Banner form ── */
+.banner-featured-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.bfp-slot {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255,157,199,0.04);
+  border: 1px solid rgba(255,157,199,0.12);
+  border-radius: 10px;
+  padding: 8px 12px;
+}
+.bfp-slot-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7em;
+  color: var(--text-dim);
+  width: 20px;
+  flex-shrink: 0;
+}
+.bfp-img {
+  width: 28px;
+  height: 36px;
+  object-fit: cover;
+  border-radius: 5px;
+  border: 1px solid rgba(255,255,255,0.12);
+  flex-shrink: 0;
+  background: var(--bg3);
+}
+.bfp-select {
+  flex: 1;
+  background: rgba(255,157,199,0.05);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 10px;
+  color: var(--text);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.78em;
+}
+.bfp-select:focus { outline: none; border-color: var(--pink); }
+.bfp-remove {
+  background: rgba(231,76,60,0.1);
+  border: 1px solid rgba(231,76,60,0.25);
+  color: #e74c3c;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 0.75em;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.bfp-remove:hover { background: rgba(231,76,60,0.2); }
+
+/* ── Pool filter tags ── */
+.pool-tag-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+.pool-tag {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 4px 12px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75em;
+  color: var(--text-dim);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.pool-tag.active, .pool-tag:hover { border-color: var(--pink); color: var(--pink); }
+.pool-tag.active { background: rgba(255,157,199,0.1); }
+
+/* ── Admin banner tab responsive ── */
+@media (max-width: 700px) {
+  .bfs-card { width: 88px; }
+  .banner-hero-body { padding: 12px 14px 18px; }
+}
+
 /* ── Admin cutscene editor slots ── */
 .cs-step-slot {
   background:rgba(255,157,199,0.04);
@@ -3004,13 +3316,14 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
       <div class="hdt-arrow">›</div>
     </div>
 
-    <!-- FEATURED CARD SPOTLIGHT -->
-    <div class="section-title" style="margin-top:28px;">✦ Summon Spotlight</div>
-    <div class="home-spotlight-wrap">
-      <div class="home-spotlight-inner" id="homeSpotlight">
-        <div style="color:var(--text-dim);font-style:italic;text-align:center;padding:20px;">Pull cards to see your best ones here! ʚɞ</div>
+    <!-- ACTIVE BANNER WIDGET -->
+    <div class="section-title" style="margin-top:28px;">✦ Current Banner</div>
+    <div id="homeBannerWidget">
+      <div class="home-banner-card" onclick="goTo('pull')">
+        <div class="home-banner-card-body" style="text-align:center;padding:20px;">
+          <div style="color:var(--text-dim);font-style:italic;font-size:0.9em;">Loading banner... ʚɞ</div>
+        </div>
       </div>
-      <button class="home-spotlight-pull-btn btn-primary" onclick="goTo('pull')">✦ Go Pull Now</button>
     </div>
 
     <!-- QUICK ACTIONS GRID -->
@@ -3063,26 +3376,10 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 
   <!-- PULL PAGE -->
   <div class="page" id="page-pull">
-    <div class="section-title">Current Banner</div>
-    <div class="banner-card">
-      <div class="banner-info">
-        <h2>✦ First Bloom Banner ✦</h2>
-        <p>The inaugural banner — featuring iconic characters from across the anime universe.</p>
-        <div class="featured-cards-showcase" id="featuredShowcase">
-          <!-- filled by JS -->
-        </div>
-        <div class="pull-costs">
-          <span class="cost-tag">1 Pull = 50 🪙</span>
-          <span class="cost-tag">5 Pull = 200 🪙</span>
-        </div>
-        <button class="pool-view-btn" onclick="openPoolView()">🃏 View All Cards in Pool</button>
-      </div>
-    </div>
-    <div class="section-title" style="margin-top:24px;">Gacha Pull</div>
-    <div class="banner-card">
+    <div id="pullBannerContainer"><!-- filled by renderActiveBanner() --></div>
+
+    <div class="banner-card" style="margin-top:4px;">
       <div style="width:100%;max-width:400px;">
-        <h2 style="font-family:'Cinzel Decorative',serif;font-size:1.3em;color:var(--pink-pale);margin-bottom:8px;text-align:center;">✦ First Bloom Banner ✦</h2>
-        <p style="color:var(--text-dim);font-style:italic;margin-bottom:20px;text-align:center;">May your pulls be blessed, summoner. ʚɞ</p>
         <div class="pull-btn-group">
           <button class="pull-big-btn" onclick="doPull(1)">🎴 Pull × 1<span>50 🪙</span></button>
           <button class="pull-big-btn" onclick="doPull(5)">🎴🎴 Pull × 5<span>200 🪙</span></button>
@@ -3355,6 +3652,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
     <div class="section-title">⚙️ Admin Panel</div>
     <div style="display:flex;gap:8px;margin-bottom:24px;flex-wrap:wrap;">
       <button class="filter-btn active" id="atab-cards" onclick="switchAdminTab('cards',this)">🎴 Card Manager</button>
+      <button class="filter-btn" id="atab-banners" onclick="switchAdminTab('banners',this)">🏮 Banner Manager</button>
       <button class="filter-btn" id="atab-tools" onclick="switchAdminTab('tools',this)">🔧 Tools</button>
     </div>
 
@@ -3532,6 +3830,96 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
               </div>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BANNER MANAGER TAB -->
+    <div id="adminTab-banners" style="display:none;">
+
+      <!-- Banner Form -->
+      <div class="admin-panel" id="bannerFormPanel">
+        <h3 id="bannerFormTitle" style="margin-bottom:16px;">🏮 Create New Banner</h3>
+        <input type="hidden" id="bannerEditId"/>
+
+        <div class="admin-section-label">Banner Info</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
+          <div>
+            <label class="admin-label">Banner Name *</label>
+            <input class="admin-input" id="bannerForm_name" placeholder="e.g. One Piece Banner"/>
+          </div>
+          <div>
+            <label class="admin-label">Status</label>
+            <select class="admin-input" id="bannerForm_active">
+              <option value="false">Inactive</option>
+              <option value="true">⭐ Active (Live)</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="margin-bottom:12px;">
+          <label class="admin-label">Description</label>
+          <textarea class="admin-input" id="bannerForm_desc" rows="2" placeholder="Short description shown on banner card..." style="resize:vertical;"></textarea>
+        </div>
+
+        <div class="admin-section-label">Banner Art</div>
+        <div style="margin-bottom:12px;">
+          <label class="admin-label">Banner Image / GIF URL <span class="admin-hint">(shown as banner header — use a wide image or GIF)</span></label>
+          <div style="display:flex;gap:8px;">
+            <input class="admin-input" id="bannerForm_image" placeholder="Paste image or GIF URL..." style="flex:1" oninput="previewBannerForm()"/>
+            <label class="upload-btn" title="Upload image/GIF">
+              📁
+              <input type="file" accept="image/*,.gif" style="display:none" onchange="uploadBannerFile(this)"/>
+            </label>
+          </div>
+          <img id="bannerFormImgPreview" src="" alt="" style="width:100%;max-height:120px;object-fit:cover;border-radius:8px;margin-top:8px;display:none;" onerror="this.style.display='none'"/>
+        </div>
+
+        <div class="admin-section-label">Featured Cards <span class="admin-hint">(1–4 rate-up cards shown prominently)</span></div>
+        <div class="banner-featured-picker" id="bannerFeaturedSlots">
+          <!-- slots injected by JS -->
+        </div>
+        <button onclick="addBannerFeaturedSlot()"
+          style="width:100%;padding:8px;border-radius:10px;border:1px dashed rgba(255,157,199,0.3);background:transparent;color:var(--text-dim);cursor:pointer;font-family:'Cormorant Garamond',serif;font-size:0.9em;transition:all 0.2s;margin-bottom:16px;"
+          id="addBannerFeaturedBtn"
+          onmouseenter="this.style.borderColor='var(--pink)';this.style.color='var(--pink)'"
+          onmouseleave="this.style.borderColor='rgba(255,157,199,0.3)';this.style.color='var(--text-dim)'">
+          ➕ Add Featured Card Slot
+        </button>
+
+        <div class="admin-section-label">Card Pool Filter <span class="admin-hint">(leave all blank = all cards. Pick series tags to restrict this banner's pool.)</span></div>
+        <div style="margin-bottom:8px;">
+          <label class="admin-label">Filter by Series (comma-separated, e.g. "One Piece, Naruto")</label>
+          <input class="admin-input" id="bannerForm_seriesFilter" placeholder="Leave blank to include ALL cards"/>
+        </div>
+        <div style="margin-bottom:8px;">
+          <label class="admin-label">Filter by Min. Rarity</label>
+          <select class="admin-input" id="bannerForm_minRarity">
+            <option value="1">All rarities (N+)</option>
+            <option value="2">R and above</option>
+            <option value="3">SR and above</option>
+            <option value="4">SSR and above</option>
+            <option value="5">UR and above</option>
+          </select>
+        </div>
+
+        <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;">
+          <button class="admin-btn" id="bannerFormSubmitBtn" onclick="submitBannerForm()"
+            style="background:linear-gradient(135deg,var(--pink-deep),var(--purple));color:#fff;flex:1;">
+            🏮 Create Banner
+          </button>
+          <button class="admin-btn" id="bannerFormCancelBtn" onclick="cancelBannerEdit()" style="display:none;">✕ Cancel</button>
+        </div>
+      </div>
+
+      <!-- Banner List -->
+      <div class="admin-panel" style="margin-top:16px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;gap:8px;flex-wrap:wrap;">
+          <h3 style="margin:0;">🏮 All Banners</h3>
+          <button class="admin-btn" onclick="loadAdminBannerList()" style="padding:6px 12px;font-size:0.82em;">🔄 Refresh</button>
+        </div>
+        <div id="adminBannerList">
+          <div style="color:var(--text-dim);font-style:italic;font-size:0.85em;text-align:center;padding:20px;">Click 🔄 to load banners</div>
         </div>
       </div>
     </div>
@@ -4737,14 +5125,7 @@ function weightedPick(pool){
   for(const c of pool){cum+=c.weight;if(cum>=r)return c;}
   return pool[pool.length-1];
 }
-function buildPool(){
-  const source = (window.DEMO_CARDS||DEMO_CARDS).filter(c=>!c.limited);
-  let pool=[...source];
-  if(state.pityUR>=80) pool=pool.filter(c=>c.rarity>=5);
-  else if(state.pitySR>=40) pool=pool.filter(c=>c.rarity>=4);
-  if(!pool.length) pool=[...source];
-  return pool;
-}
+// buildPool() is defined in the BANNER SYSTEM section above
 
 // ══════════════════════════════════════════════
 // DB OPERATIONS
@@ -4884,7 +5265,7 @@ async function loadAll(discordId){
   await Promise.all([loadCards(), loadCardCutscenes(), loadPlayer(discordId), loadCollection(discordId), loadXpMap(discordId)]);
   showLoadingOverlay(false);
   updateCoins();updatePity();updateProfile();renderCollection();renderShop();
-  renderFeaturedShowcase();
+  await loadActiveBanner();
   if(state.isAdmin) showAdminNav();
 }
 
@@ -5201,8 +5582,8 @@ function updateProfile(){
   if(hsu)hsu.textContent=owned.length;
   const hsw=document.getElementById('homeStatWins');
   if(hsw)hsw.textContent=state.battleWins||0;
-  // Update home spotlight
-  updateHomeSpotlight();
+  // Update home banner widget when cards load
+  renderHomeBannerWidget();
   // Banner: image overrides gradient color
   const bannerEl=document.getElementById('profileBannerEl');
   const bannerImgEl=document.getElementById('profileBannerImg');
@@ -5347,7 +5728,7 @@ async function guestLogin(){
   }
   hideLoginOverlay();
   updateCoins();updatePity();updateProfile();renderCollection();renderShop();
-  renderFeaturedShowcase();
+  await loadActiveBanner();
   showToast('👤 Playing as Guest — progress saves locally ʚɞ');
 }
 
@@ -6092,27 +6473,410 @@ function closePoolView(e){
 }
 
 // ══════════════════════════════════════════════
-// FEATURED BANNER SHOWCASE (home page)
+// BANNER SYSTEM
 // ══════════════════════════════════════════════
-function renderFeaturedShowcase(){
-  const el=document.getElementById('featuredShowcase');
-  if(!el)return;
-  const RATE_UP_IDS=['deku','yuta','asta1'];
-  // Only show the 3 featured rate-up cards
-  const featured=(window.DEMO_CARDS||DEMO_CARDS).filter(c=>RATE_UP_IDS.includes(c.id))
-    .sort((a,b)=>b.rarity-a.rarity);
-  el.innerHTML=featured.map(c=>{
-    const color=RARITY_COLORS[c.rarity]||'#bdc3c7';
-    return`<div class="featured-card-visual" onclick="openCard('${c.id}')" style="border-color:${color};">
-      <img src="${c.image}" alt="${c.name}" onerror="this.style.background='#1c0f26'"/>
-      <div class="fcv-badge" style="color:${color}">${c.rarityName}</div>
-      <div class="fcv-rateup">RATE UP</div>
-      <div class="fcv-label">
-        <span class="fcv-name">${c.name}</span>
-        <span class="fcv-stars" style="color:${color}">${c.rarityStars}</span>
+window.ACTIVE_BANNER = null;  // {id, name, description, image, featured_cards:[], series_filter:'', min_rarity:1, is_active:true}
+let _adminBannerCache = [];
+let _bannerFeaturedSlotCount = 0;
+
+// ── Load active banner from Supabase (or fall back to DEMO_CARDS) ──
+async function loadActiveBanner(){
+  try {
+    const rows = await sb.getAll('banners');
+    if(rows && rows.length){
+      const active = rows.find(b=>b.is_active) || rows[0];
+      window.ACTIVE_BANNER = active;
+    }
+  } catch(e) {
+    // Table may not exist yet — fall back to default banner
+  }
+  renderActiveBanner();
+  renderHomeBannerWidget();
+}
+
+// Default fallback banner using DEMO_CARDS
+function getDefaultBanner(){
+  return {
+    id: '_default',
+    name: '✦ First Bloom Banner ✦',
+    description: 'The inaugural banner — featuring iconic characters from across the anime universe.',
+    image: 'https://media1.tenor.com/m/8fKXg5VL2tEAAAAC/purple-aesthetic.gif',
+    featured_cards: ['deku','yuta','asta1'],
+    series_filter: '',
+    min_rarity: 1,
+    is_active: true,
+  };
+}
+
+function getActiveBanner(){ return window.ACTIVE_BANNER || getDefaultBanner(); }
+
+// ── Build the gacha pool for the active banner ──
+function buildPool(){
+  const banner = getActiveBanner();
+  let source = (window.DEMO_CARDS||DEMO_CARDS).filter(c=>!c.limited);
+
+  // Apply banner series filter
+  if(banner.series_filter){
+    const tags = banner.series_filter.split(',').map(s=>s.trim().toLowerCase()).filter(Boolean);
+    if(tags.length){
+      const filtered = source.filter(c=>tags.some(t=>c.series.toLowerCase().includes(t)));
+      if(filtered.length >= 3) source = filtered; // only apply filter if enough cards remain
+    }
+  }
+
+  // Apply min rarity filter
+  const minR = parseInt(banner.min_rarity)||1;
+  if(minR > 1){
+    const filtered = source.filter(c=>c.rarity >= minR);
+    if(filtered.length >= 2) source = filtered;
+  }
+
+  // Apply pity logic
+  let pool = [...source];
+  if(state.pityUR>=80) pool = pool.filter(c=>c.rarity>=5);
+  else if(state.pitySR>=40) pool = pool.filter(c=>c.rarity>=4);
+  if(!pool.length) pool=[...source];
+
+  // Rate-up: featured cards appear 3× more likely
+  const featuredIds = banner.featured_cards || [];
+  if(featuredIds.length){
+    const extraFeatured = pool.filter(c=>featuredIds.includes(c.id));
+    pool = [...pool, ...extraFeatured, ...extraFeatured]; // tripled
+  }
+
+  return pool;
+}
+
+// ── Render the active banner on the Pull page ──
+function renderActiveBanner(){
+  const el = document.getElementById('pullBannerContainer');
+  if(!el) return;
+  const banner = getActiveBanner();
+  const allCards = window.DEMO_CARDS || DEMO_CARDS;
+  const featuredCards = (banner.featured_cards||[]).map(id=>allCards.find(c=>c.id===id)).filter(Boolean);
+
+  el.innerHTML = `
+    <div class="section-title">Current Banner</div>
+    <div class="banner-hero">
+      ${banner.image ? `<img class="banner-hero-media" src="${banner.image}" alt="" onerror="this.style.display='none'"/>` : ''}
+      <div class="banner-hero-body">
+        <div class="banner-hero-title">${banner.name}</div>
+        <div class="banner-hero-desc">${banner.description||''}</div>
+
+        ${featuredCards.length ? `
+          <div style="font-family:'Cinzel Decorative',serif;font-size:0.72em;letter-spacing:0.12em;color:var(--text-dim);margin-bottom:10px;text-transform:uppercase;">✦ Featured — Rate Up</div>
+          <div class="banner-featured-strip">
+            ${featuredCards.map(c=>{
+              const color = RARITY_COLORS[c.rarity]||'#bdc3c7';
+              return `<div class="bfs-card" onclick="openCard('${c.id}')">
+                <img src="${c.thumbnail||c.image}" alt="${c.name}" onerror="this.style.background='#1c0f26'"/>
+                <div class="bfs-card-rateup">RATE ▲</div>
+                <div class="bfs-card-rarity-badge" style="color:${color}">${c.rarityName}</div>
+                <div class="bfs-card-label">
+                  <div class="bfs-card-name">${c.name}</div>
+                  <div class="bfs-card-rarity" style="color:${color}">${c.rarityStars}</div>
+                </div>
+              </div>`;
+            }).join('')}
+          </div>
+          <div class="rateup-explain">
+            ⬆️ <strong>Rate Up</strong> means these featured cards appear more frequently — their chance is boosted by 3× for this banner! You'll still see other cards from the pool too.
+          </div>
+        ` : ''}
+
+        <div class="pull-costs">
+          <span class="cost-tag">1 Pull = 50 🪙</span>
+          <span class="cost-tag">5 Pull = 200 🪙</span>
+        </div>
+        <div style="margin-top:12px;">
+          <button class="pool-view-btn" onclick="openPoolView()">🃏 View All Cards in Pool</button>
+        </div>
+      </div>
+    </div>
+  `;
+  updatePity();
+}
+
+// ── Render active banner on the Home page ──
+function renderHomeBannerWidget(){
+  const el = document.getElementById('homeBannerWidget');
+  if(!el) return;
+  const banner = getActiveBanner();
+  const allCards = window.DEMO_CARDS || DEMO_CARDS;
+  const featuredCards = (banner.featured_cards||[]).map(id=>allCards.find(c=>c.id===id)).filter(Boolean).slice(0,4);
+
+  el.innerHTML = `
+    <div class="home-banner-card" onclick="goTo('pull')">
+      ${banner.image ? `<img class="home-banner-card-media" src="${banner.image}" alt="" onerror="this.style.display='none'"/>` : ''}
+      <div class="home-banner-card-body">
+        <div class="home-banner-card-title">${banner.name}</div>
+        ${banner.description ? `<div class="home-banner-card-desc">${banner.description}</div>` : ''}
+        ${featuredCards.length ? `
+          <div style="font-size:0.7em;color:var(--text-dim);font-style:italic;margin-bottom:6px;">✦ Featured Rate-Up Cards</div>
+          <div class="home-banner-featured-row">
+            ${featuredCards.map(c=>{
+              const color = RARITY_COLORS[c.rarity]||'#bdc3c7';
+              return `<div class="hbfr-chip">
+                <img class="hbfr-img" src="${c.thumbnail||c.image}" alt="${c.name}" onerror="this.style.background='#1c0f26'"/>
+                <div class="hbfr-info">
+                  <div class="hbfr-name">${c.name}</div>
+                  <div class="hbfr-rarity" style="color:${color}">${c.rarityStars}</div>
+                </div>
+              </div>`;
+            }).join('')}
+          </div>
+        ` : ''}
+        <button class="home-banner-pull-btn">✦ Pull Now</button>
+      </div>
+    </div>
+  `;
+}
+
+// Legacy alias — kept for compatibility with old call sites
+function renderFeaturedShowcase(){ renderActiveBanner(); renderHomeBannerWidget(); }
+
+// ── Admin: Load banners ──
+async function loadAdminBannerList(){
+  const el = document.getElementById('adminBannerList');
+  if(!el) return;
+  el.innerHTML = '<div style="color:var(--text-dim);font-style:italic;font-size:0.85em;text-align:center;padding:16px;">Loading...</div>';
+  try {
+    _adminBannerCache = await sb.getAll('banners') || [];
+  } catch(e) {
+    _adminBannerCache = [];
+    el.innerHTML = '<div style="color:#e74c3c;font-size:0.85em;text-align:center;padding:16px;">⚠️ Could not load banners. Make sure the <code>banners</code> table exists in Supabase.<br/><span style="color:var(--text-dim)">See console for setup SQL.</span></div>';
+    console.log('%cCreate banners table SQL:\n', 'color:#f1c40f;font-weight:bold',
+      `CREATE TABLE banners (
+  id TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
+  name TEXT NOT NULL,
+  description TEXT,
+  image TEXT,
+  featured_cards TEXT[], -- array of card IDs
+  series_filter TEXT,
+  min_rarity INTEGER DEFAULT 1,
+  is_active BOOLEAN DEFAULT false,
+  created_at TIMESTAMPTZ DEFAULT now()
+);`);
+    return;
+  }
+  renderAdminBannerList();
+}
+
+function renderAdminBannerList(){
+  const el = document.getElementById('adminBannerList');
+  if(!el) return;
+  if(!_adminBannerCache.length){
+    el.innerHTML = '<div style="color:var(--text-dim);font-style:italic;font-size:0.85em;text-align:center;padding:20px;">No banners yet. Create one above!</div>';
+    return;
+  }
+  const allCards = window.DEMO_CARDS || DEMO_CARDS;
+  el.innerHTML = _adminBannerCache.map(b=>{
+    const featNames = (b.featured_cards||[]).map(id=>{const c=allCards.find(x=>x.id===id);return c?c.name:id;}).join(', ');
+    return `<div class="banner-list-item${b.is_active?' active-banner':''}">
+      ${b.image ? `<img class="banner-list-item-media" src="${b.image}" alt="" onerror="this.src=''"/>` : '<div class="banner-list-item-media" style="background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:1.4em;">🏮</div>'}
+      <div class="banner-list-info">
+        <div class="banner-list-name">${b.name}</div>
+        <div class="banner-list-meta">${featNames ? `Featured: ${featNames}` : 'No featured cards'}</div>
+        ${b.series_filter ? `<div class="banner-list-meta">Pool filter: ${b.series_filter}</div>` : ''}
+      </div>
+      ${b.is_active ? '<span class="banner-active-badge">⭐ LIVE</span>' : ''}
+      <div class="banner-list-actions">
+        ${!b.is_active ? `<button class="admin-btn" style="padding:5px 10px;font-size:0.78em;" onclick="setActiveBanner('${b.id}')">▶ Set Live</button>` : ''}
+        <button class="admin-action-btn" onclick="editBanner('${b.id}')">✏️</button>
+        <button class="admin-action-btn danger" onclick="deleteBanner('${b.id}','${b.name.replace(/'/g,"\\'")}')">🗑️</button>
       </div>
     </div>`;
   }).join('');
+}
+
+// ── Banner featured slots ──
+function addBannerFeaturedSlot(cardId=''){
+  const container = document.getElementById('bannerFeaturedSlots');
+  if(!container) return;
+  const currentSlots = container.querySelectorAll('.bfp-slot');
+  if(currentSlots.length >= 4){ showToast('Max 4 featured cards per banner'); return; }
+  const allCards = window.DEMO_CARDS || DEMO_CARDS;
+  const idx = _bannerFeaturedSlotCount++;
+  const opts = allCards.map(c=>`<option value="${c.id}" ${c.id===cardId?'selected':''}>${c.name} [${c.series}] ${c.rarityName}</option>`).join('');
+  const slot = document.createElement('div');
+  slot.className = 'bfp-slot';
+  slot.dataset.idx = idx;
+  const existingCard = allCards.find(c=>c.id===cardId);
+  slot.innerHTML = `
+    <span class="bfp-slot-num">${container.querySelectorAll('.bfp-slot').length+1}</span>
+    <img class="bfp-img" id="bfpImg_${idx}" src="${existingCard?.thumbnail||existingCard?.image||''}" onerror="this.style.opacity=0"/>
+    <select class="bfp-select" id="bfpSel_${idx}" onchange="onBfpChange(${idx})">
+      <option value="">— Select Card —</option>
+      ${opts}
+    </select>
+    <button class="bfp-remove" onclick="removeBfpSlot(this)">✕</button>
+  `;
+  container.appendChild(slot);
+  // Renumber
+  renumberBfpSlots();
+}
+
+function onBfpChange(idx){
+  const sel = document.getElementById(`bfpSel_${idx}`);
+  const img = document.getElementById(`bfpImg_${idx}`);
+  if(!sel||!img) return;
+  const allCards = window.DEMO_CARDS || DEMO_CARDS;
+  const c = allCards.find(x=>x.id===sel.value);
+  img.src = c ? (c.thumbnail||c.image) : '';
+  img.style.opacity = c ? '1' : '0';
+}
+
+function removeBfpSlot(btn){
+  btn.closest('.bfp-slot').remove();
+  renumberBfpSlots();
+}
+
+function renumberBfpSlots(){
+  const container = document.getElementById('bannerFeaturedSlots');
+  if(!container) return;
+  container.querySelectorAll('.bfp-slot .bfp-slot-num').forEach((el,i)=>{ el.textContent = i+1; });
+  const addBtn = document.getElementById('addBannerFeaturedBtn');
+  if(addBtn) addBtn.style.display = container.querySelectorAll('.bfp-slot').length >= 4 ? 'none' : '';
+}
+
+function collectBannerFeaturedIds(){
+  const container = document.getElementById('bannerFeaturedSlots');
+  if(!container) return [];
+  return [...container.querySelectorAll('.bfp-slot')].map(slot=>{
+    const sel = slot.querySelector('.bfp-select');
+    return sel?.value || '';
+  }).filter(Boolean);
+}
+
+function clearBannerFeaturedSlots(){
+  const container = document.getElementById('bannerFeaturedSlots');
+  if(container) container.innerHTML = '';
+  _bannerFeaturedSlotCount = 0;
+  const addBtn = document.getElementById('addBannerFeaturedBtn');
+  if(addBtn) addBtn.style.display = '';
+}
+
+function previewBannerForm(){
+  const url = document.getElementById('bannerForm_image')?.value?.trim();
+  const prev = document.getElementById('bannerFormImgPreview');
+  if(!prev) return;
+  if(url){ prev.src = url; prev.style.display = 'block'; }
+  else prev.style.display = 'none';
+}
+
+async function uploadBannerFile(input){
+  const file = input.files[0]; if(!file) return;
+  showToast('⬆️ Uploading...');
+  try {
+    const url = await uploadToStorage(file, 'banners');
+    document.getElementById('bannerForm_image').value = url;
+    previewBannerForm();
+    showToast('✅ Uploaded!');
+  } catch(e){ showToast('❌ Upload failed: '+e.message); }
+}
+
+// ── Submit banner form ──
+async function submitBannerForm(){
+  if(!state.isAdmin){ showToast('Admin only'); return; }
+  const name = (document.getElementById('bannerForm_name')?.value||'').trim();
+  if(!name){ showToast('Banner name is required!'); return; }
+
+  const isActive = document.getElementById('bannerForm_active')?.value === 'true';
+  const bannerData = {
+    name,
+    description: (document.getElementById('bannerForm_desc')?.value||'').trim(),
+    image:        (document.getElementById('bannerForm_image')?.value||'').trim(),
+    featured_cards: collectBannerFeaturedIds(),
+    series_filter: (document.getElementById('bannerForm_seriesFilter')?.value||'').trim(),
+    min_rarity:    parseInt(document.getElementById('bannerForm_minRarity')?.value)||1,
+    is_active:     isActive,
+  };
+
+  const editId = document.getElementById('bannerEditId')?.value||'';
+  if(editId) bannerData.id = editId;
+
+  const btn = document.getElementById('bannerFormSubmitBtn');
+  btn.textContent = 'Saving...'; btn.disabled = true;
+  try {
+    // If setting active, deactivate all others first
+    if(isActive && _adminBannerCache.length){
+      for(const b of _adminBannerCache){
+        if(b.id !== editId && b.is_active) await sb.update('banners',{is_active:false},{id:b.id});
+      }
+    }
+    const ok = await sb.upsert('banners', bannerData);
+    if(!ok) throw new Error('Upsert failed');
+    showToast(editId ? '✅ Banner updated!' : '✅ Banner created!');
+    cancelBannerEdit();
+    await loadAdminBannerList();
+    await loadActiveBanner();
+  } catch(e){
+    showToast('❌ Error: '+e.message);
+    console.error(e);
+  }
+  btn.textContent = editId ? '💾 Save Changes' : '🏮 Create Banner';
+  btn.disabled = false;
+}
+
+function cancelBannerEdit(){
+  document.getElementById('bannerEditId').value = '';
+  document.getElementById('bannerForm_name').value = '';
+  document.getElementById('bannerForm_desc').value = '';
+  document.getElementById('bannerForm_image').value = '';
+  document.getElementById('bannerForm_active').value = 'false';
+  document.getElementById('bannerForm_seriesFilter').value = '';
+  document.getElementById('bannerForm_minRarity').value = '1';
+  const prev = document.getElementById('bannerFormImgPreview');
+  if(prev){ prev.src=''; prev.style.display='none'; }
+  clearBannerFeaturedSlots();
+  document.getElementById('bannerFormTitle').textContent = '🏮 Create New Banner';
+  document.getElementById('bannerFormSubmitBtn').textContent = '🏮 Create Banner';
+  document.getElementById('bannerFormCancelBtn').style.display = 'none';
+}
+
+function editBanner(bannerId){
+  const b = _adminBannerCache.find(x=>x.id===bannerId);
+  if(!b) return;
+  document.getElementById('bannerEditId').value = b.id;
+  document.getElementById('bannerForm_name').value = b.name||'';
+  document.getElementById('bannerForm_desc').value = b.description||'';
+  document.getElementById('bannerForm_image').value = b.image||'';
+  document.getElementById('bannerForm_active').value = b.is_active?'true':'false';
+  document.getElementById('bannerForm_seriesFilter').value = b.series_filter||'';
+  document.getElementById('bannerForm_minRarity').value = b.min_rarity||1;
+  previewBannerForm();
+  clearBannerFeaturedSlots();
+  (b.featured_cards||[]).forEach(id=>addBannerFeaturedSlot(id));
+  document.getElementById('bannerFormTitle').textContent = '✏️ Edit Banner — '+b.name;
+  document.getElementById('bannerFormSubmitBtn').textContent = '💾 Save Changes';
+  document.getElementById('bannerFormCancelBtn').style.display = '';
+  document.getElementById('bannerFormPanel').scrollIntoView({behavior:'smooth'});
+}
+
+async function setActiveBanner(bannerId){
+  if(!state.isAdmin) return;
+  try {
+    // Deactivate all
+    for(const b of _adminBannerCache){
+      if(b.is_active) await sb.update('banners',{is_active:false},{id:b.id});
+    }
+    // Activate selected
+    await sb.update('banners',{is_active:true},{id:bannerId});
+    showToast('⭐ Banner set live!');
+    await loadAdminBannerList();
+    await loadActiveBanner();
+  } catch(e){ showToast('❌ Error: '+e.message); }
+}
+
+async function deleteBanner(bannerId, bannerName){
+  if(!state.isAdmin) return;
+  if(!confirm(`Delete banner "${bannerName}"? This cannot be undone.`)) return;
+  try {
+    await sb.delete('banners',{id:bannerId});
+    showToast(`🗑️ "${bannerName}" deleted`);
+    await loadAdminBannerList();
+    await loadActiveBanner();
+  } catch(e){ showToast('❌ Delete failed: '+e.message); }
 }
 
 // ══════════════════════════════════════════════
@@ -7338,12 +8102,13 @@ function showAdminNav(){
 }
 
 function switchAdminTab(tab, btn){
-  ['cards','tools'].forEach(t=>{
+  ['cards','banners','tools'].forEach(t=>{
     const el=document.getElementById('adminTab-'+t);
     const b=document.getElementById('atab-'+t);
     if(el)el.style.display=t===tab?'block':'none';
     if(b)b.classList.toggle('active',t===tab);
   });
+  if(tab==='banners') loadAdminBannerList();
 }
 
 // ── Upload file to Supabase Storage ──
@@ -9101,7 +9866,8 @@ function closeCutsceneEditor(){
 }
 
 renderShop();
-renderFeaturedShowcase();
+renderActiveBanner();
+renderHomeBannerWidget();
 tryAutoLogin();
 </script>
 
