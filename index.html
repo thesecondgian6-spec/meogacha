@@ -3986,7 +3986,9 @@ const sb = {
     const conflictCol = table==='players' ? 'discord_id' :
                         table==='card_xp'  ? 'discord_id,card_id' :
                         table==='inventory'? 'discord_id,item_id' :
-                        table==='cooldowns'? 'discord_id,action' : '';
+                        table==='cooldowns'? 'discord_id,action' :
+                        table==='banners'  ? 'id' :
+                        table==='cards'    ? 'id' : '';
     const payload = table==='players' ? {id: data.discord_id, ...data} : data;
     const url = conflictCol
       ? `${SUPABASE_URL}/rest/v1/${table}?on_conflict=${encodeURIComponent(conflictCol)}`
@@ -6804,8 +6806,15 @@ async function submitBannerForm(){
         if(b.id !== editId && b.is_active) await sb.update('banners',{is_active:false},{id:b.id});
       }
     }
-    const ok = await sb.upsert('banners', bannerData);
-    if(!ok) throw new Error('Upsert failed');
+    let ok;
+    if(editId){
+      // Editing existing — upsert on id conflict
+      ok = await sb.upsert('banners', bannerData);
+    } else {
+      // New banner — use insert so Supabase generates the UUID
+      ok = await sb.insert('banners', bannerData);
+    }
+    if(!ok) throw new Error('Save failed');
     showToast(editId ? '✅ Banner updated!' : '✅ Banner created!');
     cancelBannerEdit();
     await loadAdminBannerList();
