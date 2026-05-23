@@ -7042,8 +7042,206 @@ function updateCardPreview(){
   const tr=document.getElementById('previewThumbRarity');if(tr){tr.textContent=rd.name;tr.style.color=color;}
 }
 
+// ══════════════════════════════════════════════
+// ABILITY TEMPLATES — the reusable effect library
+// ══════════════════════════════════════════════
+const ABILITY_TEMPLATES = {
+  // ── DAMAGE ──────────────────────────────────
+  direct_damage: {
+    label:'⚔️ Direct Damage', category:'damage',
+    battle_effect:'smash', defaultValue:30,
+    params:[{key:'damage',label:'Damage Amount',type:'number',min:5,max:200,step:5,default:30}],
+    descFn:(p)=>`Deals ${p.damage} damage to the enemy.`,
+    valueFn:(p)=>p.damage,
+  },
+  burst_damage: {
+    label:'💥 Burst / Nuke', category:'damage',
+    battle_effect:'burst', defaultValue:50,
+    params:[{key:'damage',label:'Burst Damage',type:'number',min:10,max:300,step:5,default:50}],
+    descFn:(p)=>`Unleash a devastating burst. Deals ${p.damage} massive damage.`,
+    valueFn:(p)=>p.damage,
+  },
+  multi_hit: {
+    label:'🌀 Multi-Hit Combo', category:'damage',
+    battle_effect:'multihit', defaultValue:20,
+    params:[
+      {key:'hits',  label:'Number of Hits', type:'number',min:2,max:10,step:1,default:3},
+      {key:'dmgEach',label:'Damage per Hit',type:'number',min:5,max:80,step:5,default:15},
+    ],
+    descFn:(p)=>`Strike ${p.hits} times in rapid succession — ${p.dmgEach} damage each hit.`,
+    valueFn:(p)=>Math.round(p.hits*p.dmgEach),
+  },
+  piercing: {
+    label:'🔱 Piercing Strike', category:'damage',
+    battle_effect:'pierce', defaultValue:30,
+    params:[{key:'damage',label:'Pierce Damage',type:'number',min:5,max:200,step:5,default:30}],
+    descFn:(p)=>`A strike that cuts through all defenses. Deals ${p.damage} damage — ignores shields.`,
+    valueFn:(p)=>p.damage,
+  },
+  recoil_strike: {
+    label:'🎯 All-Out Attack (Recoil)', category:'damage',
+    battle_effect:'ofa100', defaultValue:70,
+    params:[
+      {key:'damage',label:'Damage Dealt',type:'number',min:20,max:300,step:5,default:70},
+      {key:'recoil',label:'Self Recoil',  type:'number',min:5, max:60, step:5,default:15},
+    ],
+    descFn:(p)=>`Go all-out — deal ${p.damage} damage. Take ${p.recoil} recoil damage to self.`,
+    valueFn:(p)=>p.damage,
+  },
+  frenzy: {
+    label:'🔥 Frenzy Slash', category:'damage',
+    battle_effect:'frenzy', defaultValue:60,
+    params:[
+      {key:'hits',  label:'Slash Count',  type:'number',min:2,max:10,step:1,default:5},
+      {key:'dmgEach',label:'Damage Each', type:'number',min:5,max:50,step:5,default:12},
+    ],
+    descFn:(p)=>`Frenzied assault — ${p.hits} rapid slashes dealing ${p.dmgEach} each.`,
+    valueFn:(p)=>Math.round(p.hits*p.dmgEach),
+  },
+  curse_damage: {
+    label:'👁️ Curse Strike', category:'damage',
+    battle_effect:'curse', defaultValue:35,
+    params:[{key:'damage',label:'Curse Damage',type:'number',min:5,max:200,step:5,default:35}],
+    descFn:(p)=>`Channel cursed energy. Deals ${p.damage} curse damage to the enemy.`,
+    valueFn:(p)=>p.damage,
+  },
+  curse_burst: {
+    label:'💜 Curse Burst + Burn', category:'damage',
+    battle_effect:'curseburst', defaultValue:55,
+    params:[{key:'damage',label:'Burst Damage',type:'number',min:20,max:300,step:5,default:55}],
+    descFn:(p)=>`Overwhelming cursed energy surge. Deals ${p.damage} damage and burns the enemy for 3 turns.`,
+    valueFn:(p)=>p.damage,
+  },
+
+  // ── HEALING / SUPPORT ────────────────────────
+  regen: {
+    label:'💚 Regen (HP per turn)', category:'healing',
+    battle_effect:'regen', defaultValue:8,
+    params:[{key:'hp',label:'HP Restored per Turn',type:'number',min:1,max:50,step:1,default:8}],
+    descFn:(p)=>`Regenerate ${p.hp} HP at the start of each turn.`,
+    valueFn:(p)=>p.hp,
+  },
+  hp_boost: {
+    label:'❤️ Max HP Boost (Passive)', category:'healing',
+    battle_effect:'hpboost', defaultValue:25,
+    params:[{key:'hp',label:'Max HP Bonus',type:'number',min:5,max:150,step:5,default:25}],
+    descFn:(p)=>`Increase maximum HP by ${p.hp}.`,
+    valueFn:(p)=>p.hp,
+  },
+  life_drain: {
+    label:'🩸 Life Drain (Damage + Heal)', category:'healing',
+    battle_effect:'lifeswap', defaultValue:40,
+    params:[
+      {key:'damage',label:'Damage Dealt',type:'number',min:10,max:150,step:5,default:40},
+      {key:'heal',  label:'HP Restored', type:'number',min:5, max:150,step:5,default:40},
+    ],
+    descFn:(p)=>`Drain life force — deal ${p.damage} damage and restore ${p.heal} HP to self.`,
+    valueFn:(p)=>p.damage,
+  },
+  double_regen: {
+    label:'✨ Double Heal Aura', category:'healing',
+    battle_effect:'doubleregen', defaultValue:2,
+    params:[],
+    descFn:()=>`All healing this battle is doubled.`,
+    valueFn:()=>2,
+  },
+
+  // ── BUFFS ────────────────────────────────────
+  atk_boost: {
+    label:'⬆️ Attack Boost', category:'buff',
+    battle_effect:'atkboost', defaultValue:35,
+    params:[{key:'pct',label:'Attack Bonus (%)',type:'number',min:5,max:200,step:5,default:35}],
+    descFn:(p)=>`Power up! Attack increased by ${p.pct}% this turn.`,
+    valueFn:(p)=>p.pct,
+  },
+  def_boost: {
+    label:'🛡️ Defense Boost', category:'buff',
+    battle_effect:'defboost', defaultValue:20,
+    params:[{key:'pct',label:'Defense Bonus (%)',type:'number',min:5,max:100,step:5,default:20}],
+    descFn:(p)=>`Harden defenses. Reduce incoming damage by ${p.pct}%.`,
+    valueFn:(p)=>p.pct,
+  },
+  spell_boost: {
+    label:'🧠 Spell Power Boost', category:'buff',
+    battle_effect:'spellboost', defaultValue:20,
+    params:[{key:'pct',label:'Spell Bonus (%)',type:'number',min:5,max:200,step:5,default:20}],
+    descFn:(p)=>`Amplify magical power. Spell damage increased by ${p.pct}%.`,
+    valueFn:(p)=>p.pct,
+  },
+  double_atk: {
+    label:'⚡ Double Attack', category:'buff',
+    battle_effect:'doubleatk', defaultValue:2,
+    params:[],
+    descFn:()=>`Attack twice this turn at full power.`,
+    valueFn:()=>2,
+  },
+  transformation: {
+    label:'😈 Transformation (Stat Multiply)', category:'buff',
+    battle_effect:'demonform', defaultValue:50,
+    params:[
+      {key:'mult',  label:'Stat Multiplier (×)', type:'number',min:1.1,max:5,step:0.1,default:1.5},
+      {key:'turns', label:'Duration (turns)',     type:'number',min:1,max:5,step:1,default:2},
+    ],
+    descFn:(p)=>`Unleash a powerful transformation. All stats ×${p.mult} for ${p.turns} turn${p.turns>1?'s':''}.`,
+    valueFn:(p)=>Math.round(p.mult*100-100),
+  },
+  first_crit: {
+    label:'🎯 First Strike Crit', category:'buff',
+    battle_effect:'firstcrit', defaultValue:1,
+    params:[],
+    descFn:()=>`Analyze the opponent. Your first attack of the battle always lands a critical hit.`,
+    valueFn:()=>1,
+  },
+
+  // ── SPECIAL ──────────────────────────────────
+  dodge: {
+    label:'💨 Evasion / Dodge', category:'special',
+    battle_effect:'dodge', defaultValue:10,
+    params:[{key:'chance',label:'Dodge Chance (%)',type:'number',min:5,max:80,step:5,default:10}],
+    descFn:(p)=>`Nimble footing. ${p.chance}% chance to evade any incoming attack.`,
+    valueFn:(p)=>p.chance,
+  },
+  anti_magic: {
+    label:'🚫 Anti-Magic / Nullify', category:'special',
+    battle_effect:'antimagic', defaultValue:30,
+    params:[{key:'damage',label:'Strike Damage',type:'number',min:0,max:100,step:5,default:30}],
+    descFn:(p)=>`Nullify all magical effects and enemy shields. Deals ${p.damage} true damage.`,
+    valueFn:(p)=>p.damage,
+  },
+  void_steal: {
+    label:'🌌 Void Steal / Stun', category:'special',
+    battle_effect:'voidsteal', defaultValue:30,
+    params:[{key:'damage',label:'Stolen Power (dmg)',type:'number',min:10,max:100,step:5,default:30}],
+    descFn:(p)=>`Stun the enemy for 1 turn and steal their next move's power (${p.damage} damage).`,
+    valueFn:(p)=>p.damage,
+  },
+  copy: {
+    label:'🪞 Copy / Mimic', category:'special',
+    battle_effect:'copy', defaultValue:0,
+    params:[],
+    descFn:()=>`Mirror the opponent. Copy their last used ability effect.`,
+    valueFn:()=>0,
+  },
+  final_legacy: {
+    label:'🌟 Final Legacy (Ultimate Finisher)', category:'special',
+    battle_effect:'finallegacy', defaultValue:2,
+    params:[{key:'mult',label:'Power Multiplier (×)',type:'number',min:1.5,max:5,step:0.5,default:2}],
+    descFn:(p)=>`Summon everything — final strike hits at ×${p.mult} power.`,
+    valueFn:(p)=>p.mult,
+  },
+};
+
+// Category labels & colors
+const TEMPLATE_CATEGORIES = {
+  damage:  {label:'⚔️ Damage',         color:'#e74c3c'},
+  healing: {label:'💚 Healing / HP',   color:'#2ecc71'},
+  buff:    {label:'⚡ Buffs / Power',  color:'#f1c40f'},
+  special: {label:'🌌 Special',        color:'#9b59b6'},
+};
+
 // ── Ability slots ──
 let abilitySlotCount=0;
+
 function addAbilitySlot(prefill){
   if(abilitySlotCount>=5){showToast('Max 5 abilities per card');return;}
   const idx=abilitySlotCount++;
@@ -7051,75 +7249,231 @@ function addAbilitySlot(prefill){
   const el=document.createElement('div');
   el.className='ab-slot';
   el.dataset.idx=idx;
-  el.style.cssText='background:rgba(255,157,199,0.04);border:1px solid rgba(255,157,199,0.15);border-radius:12px;padding:12px;position:relative;';
+  el.style.cssText='background:rgba(255,157,199,0.04);border:1px solid rgba(255,157,199,0.15);border-radius:14px;padding:14px;position:relative;';
+
+  // Detect prefill template key by matching battle_effect
+  const prefillEffect = data.battleEffect||data.battle_effect||'';
+  let prefillTemplateKey = '';
+  if(prefillEffect){
+    // Find first template with matching battle_effect
+    prefillTemplateKey = Object.keys(ABILITY_TEMPLATES).find(k=>ABILITY_TEMPLATES[k].battle_effect===prefillEffect)||'direct_damage';
+  } else {
+    prefillTemplateKey = 'direct_damage';
+  }
+
+  // Build category-grouped template options
+  const catGroups = {};
+  Object.entries(ABILITY_TEMPLATES).forEach(([k,t])=>{
+    if(!catGroups[t.category]) catGroups[t.category]=[];
+    catGroups[t.category].push({k,t});
+  });
+  const optionsHTML = Object.entries(catGroups).map(([cat,items])=>{
+    const ci = TEMPLATE_CATEGORIES[cat];
+    return `<optgroup label="${ci.label}">${items.map(({k,t})=>`<option value="${k}" ${k===prefillTemplateKey?'selected':''}>${t.label}</option>`).join('')}</optgroup>`;
+  }).join('');
+
   el.innerHTML=`
     <button onclick="removeAbilitySlot(${idx})" title="Remove"
-      style="position:absolute;top:8px;right:8px;background:rgba(231,76,60,0.1);border:1px solid rgba(231,76,60,0.25);color:#e74c3c;width:22px;height:22px;border-radius:50%;cursor:pointer;font-size:0.8em;display:flex;align-items:center;justify-content:center;">✕</button>
-    <div style="display:grid;grid-template-columns:50px 1fr 1fr;gap:8px;margin-bottom:8px;">
+      style="position:absolute;top:10px;right:10px;background:rgba(231,76,60,0.1);border:1px solid rgba(231,76,60,0.25);color:#e74c3c;width:24px;height:24px;border-radius:50%;cursor:pointer;font-size:0.85em;display:flex;align-items:center;justify-content:center;z-index:2;">✕</button>
+
+    <!-- Row 1: Icon / Name / Tier -->
+    <div style="display:grid;grid-template-columns:52px 1fr 110px;gap:8px;margin-bottom:10px;">
       <div>
         <label class="admin-label">Icon</label>
-        <input class="admin-input ab-icon-input" value="${data.icon||'⚡'}" maxlength="4" style="text-align:center;font-size:1.2em;" oninput="updateCardPreview()"/>
+        <input class="admin-input ab-icon-input" value="${data.icon||'⚡'}" maxlength="4" style="text-align:center;font-size:1.3em;" oninput="updateCardPreview()"/>
       </div>
       <div>
         <label class="admin-label">Ability Name *</label>
-        <input class="admin-input ab-name-input" placeholder="e.g. Detroit Smash" value="${data.name||''}" oninput="updateCardPreview()"/>
+        <input class="admin-input ab-name-input" placeholder="e.g. Blazing Surge" value="${data.name||''}" oninput="updateCardPreview()"/>
       </div>
       <div>
         <label class="admin-label">Tier</label>
         <select class="admin-input ab-tier-select" onchange="updateCardPreview()">
-          <option value="passive" ${(data.tier||'active')==='passive'?'selected':''}>passive</option>
-          <option value="active"  ${(data.tier||'active')==='active' ?'selected':''}>active</option>
-          <option value="ultimate"${(data.tier||'')==='ultimate'?'selected':''}>ultimate</option>
-          <option value="secret"  ${(data.tier||'')==='secret'  ?'selected':''}>secret</option>
+          <option value="passive"  ${(data.tier||'active')==='passive' ?'selected':''}>passive</option>
+          <option value="active"   ${(data.tier||'active')==='active'  ?'selected':''}>active</option>
+          <option value="ultimate" ${(data.tier||'')==='ultimate'?'selected':''}>ultimate</option>
+          <option value="secret"   ${(data.tier||'')==='secret'  ?'selected':''}>secret</option>
         </select>
       </div>
     </div>
-    <div style="margin-bottom:8px;">
-      <label class="admin-label">Description *</label>
-      <textarea class="admin-input ab-desc-input" rows="2" placeholder="What does this ability do?" style="resize:vertical;">${data.desc||data.description||''}</textarea>
+
+    <!-- Row 2: Effect Template picker -->
+    <div style="margin-bottom:10px;">
+      <label class="admin-label">Effect Template <span class="admin-hint">— pick an effect type, then tune it below</span></label>
+      <select class="admin-input ab-template-select"
+        style="font-size:0.88em;"
+        onchange="onAbilityTemplateChange(this, ${idx})">
+        ${optionsHTML}
+      </select>
     </div>
-    <div style="display:grid;grid-template-columns:1fr 80px;gap:8px;margin-bottom:8px;">
-      <div>
-        <label class="admin-label">Battle Effect</label>
-        <select class="admin-input ab-effect-select" onchange="applyDefaultAbMedia(this,${idx})">
-          ${['burst','regen','doubleatk','multihit','antimagic','hpboost','defboost','atkboost','smash','curse','pierce','frenzy','demonform','ofa100','lifeswap','copy','dodge','firstcrit','spellboost','doubleregen','voidsteal','curseburst','finallegacy'].map(e=>`<option value="${e}" ${(data.battleEffect||data.battle_effect||'')==e?'selected':''}>${e}</option>`).join('')}
-        </select>
-      </div>
-      <div>
-        <label class="admin-label">Value</label>
-        <input class="admin-input ab-value-input" type="number" value="${data.value||30}" min="0" style="text-align:center;"/>
-      </div>
+
+    <!-- Row 3: Dynamic params — injected by onAbilityTemplateChange -->
+    <div class="ab-params-area" id="ab_params_${idx}" style="margin-bottom:10px;"></div>
+
+    <!-- Row 4: Auto-generated description (editable) -->
+    <div style="margin-bottom:10px;">
+      <label class="admin-label">Description <span class="admin-hint">— auto-filled, feel free to edit</span></label>
+      <textarea class="admin-input ab-desc-input" id="ab_desc_${idx}" rows="2"
+        placeholder="Describe what this ability does…" style="resize:vertical;">${data.desc||data.description||''}</textarea>
     </div>
+
+    <!-- Row 5: GIF + Audio -->
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
       <div>
-        <label class="admin-label">Ability GIF <span class="admin-hint">(shown in battle)</span></label>
+        <label class="admin-label">Ability GIF <span class="admin-hint">(battle)</span></label>
         <div style="display:flex;gap:6px;">
           <input class="admin-input ab-gif-url" id="ab_gif_url_${idx}" placeholder="URL or upload" style="flex:1;font-size:0.8em;" value="${data.gif_url||data.gifUrl||''}"/>
-          <label class="upload-btn" title="Upload GIF">
-            📁<input type="file" accept="image/gif,image/*" style="display:none" onchange="uploadAbilityFile(this,'ab_gif_progress_${idx}')"/>
-          </label>
+          <label class="upload-btn" title="Upload GIF">📁<input type="file" accept="image/gif,image/*" style="display:none" onchange="uploadAbilityFile(this,'ab_gif_progress_${idx}')"/></label>
         </div>
         <span id="ab_gif_progress_${idx}" style="font-size:0.72em;color:var(--pink);"></span>
       </div>
       <div>
-        <label class="admin-label">Sound Effect <span class="admin-hint">(plays on use)</span></label>
+        <label class="admin-label">Sound Effect <span class="admin-hint">(on use)</span></label>
         <div style="display:flex;gap:6px;">
           <input class="admin-input ab-audio-url" id="ab_audio_url_${idx}" placeholder="URL or upload" style="flex:1;font-size:0.8em;" value="${data.audio_url||data.audioUrl||''}"/>
-          <label class="upload-btn" title="Upload audio">
-            📁<input type="file" accept="audio/*" style="display:none" onchange="uploadAbilityFile(this,'ab_audio_progress_${idx}')"/>
-          </label>
+          <label class="upload-btn" title="Upload audio">📁<input type="file" accept="audio/*" style="display:none" onchange="uploadAbilityFile(this,'ab_audio_progress_${idx}')"/></label>
         </div>
         <span id="ab_audio_progress_${idx}" style="font-size:0.72em;color:var(--pink);"></span>
       </div>
     </div>
-    <input type="hidden" class="ab-id-input" value="${data.ability_id||data.id||''}"/>
+
+    <!-- Hidden fields -->
+    <input type="hidden" class="ab-id-input"     value="${data.ability_id||data.id||''}"/>
+    <input type="hidden" class="ab-effect-input" value="${prefillEffect}"/>
+    <input type="hidden" class="ab-value-input"  value="${data.value||0}"/>
   `;
+
   document.getElementById('abilitySlots').appendChild(el);
-  // Show/hide add button
   document.getElementById('addAbilitySlotBtn').style.display=abilitySlotCount>=5?'none':'';
-  // Apply default media for selected effect
-  const effectSel=el.querySelector('.ab-effect-select');
-  if(effectSel&&!data.gif_url&&!data.gifUrl) applyDefaultAbMedia(effectSel,idx);
+
+  // Build the params panel for the selected template
+  const templateSel = el.querySelector('.ab-template-select');
+  buildAbilityParamsPanel(idx, prefillTemplateKey, data, el);
+
+  // If prefill has no desc yet, auto-generate
+  if(!data.desc && !data.description){
+    const tmpl = ABILITY_TEMPLATES[prefillTemplateKey];
+    if(tmpl && tmpl.params.length===0){
+      const descEl = document.getElementById(`ab_desc_${idx}`);
+      if(descEl) descEl.value = tmpl.descFn({});
+    }
+  }
+  // Apply default GIF media
+  if(!data.gif_url && !data.gifUrl){
+    const effectVal = ABILITY_TEMPLATES[prefillTemplateKey]?.battle_effect||'burst';
+    const def = DEFAULT_AB_MEDIA[effectVal];
+    if(def){
+      const gi=document.getElementById(`ab_gif_url_${idx}`);
+      if(gi&&!gi.value) gi.value=def.gif;
+      const ai=document.getElementById(`ab_audio_url_${idx}`);
+      if(ai&&!ai.value&&def.audio) ai.value=def.audio;
+    }
+  }
+}
+
+// Called when user picks a different template from the dropdown
+function onAbilityTemplateChange(selectEl, idx){
+  const key = selectEl.value;
+  const slot = selectEl.closest('.ab-slot');
+  buildAbilityParamsPanel(idx, key, {}, slot);
+  // Auto-fill GIF if blank
+  const tmpl = ABILITY_TEMPLATES[key];
+  if(tmpl){
+    const def = DEFAULT_AB_MEDIA[tmpl.battle_effect];
+    if(def){
+      const gi=document.getElementById(`ab_gif_url_${idx}`);
+      if(gi&&!gi.value) gi.value=def.gif;
+      const ai=document.getElementById(`ab_audio_url_${idx}`);
+      if(ai&&!ai.value&&def.audio) ai.value=def.audio;
+    }
+  }
+}
+
+// Build (or rebuild) the parameter inputs for an ability slot
+function buildAbilityParamsPanel(idx, templateKey, prefillData, slotEl){
+  const tmpl = ABILITY_TEMPLATES[templateKey];
+  if(!tmpl) return;
+  const panel = slotEl ? slotEl.querySelector('.ab-params-area') : document.getElementById(`ab_params_${idx}`);
+  if(!panel) return;
+
+  // Decode prefill values from the existing description or stored value
+  // We attempt to reverse-map stored values back to params using simple heuristics
+  const storedValue = parseInt(prefillData.value)||0;
+
+  if(tmpl.params.length===0){
+    panel.innerHTML=`<div style="font-size:0.78em;color:var(--text-dim);font-style:italic;padding:4px 0;">✓ No extra settings needed for this effect.</div>`;
+    // Update hidden fields
+    _syncAbilityHiddenFields(idx, tmpl, {}, slotEl);
+    // Auto-fill desc
+    const descEl = document.getElementById(`ab_desc_${idx}`);
+    if(descEl && !descEl.value) descEl.value = tmpl.descFn({});
+    return;
+  }
+
+  // Figure out the category color
+  const catColor = TEMPLATE_CATEGORIES[tmpl.category]?.color || 'var(--pink)';
+
+  // Attempt to pre-fill param values: if only 1 param, use storedValue; else use defaults
+  const paramValues = {};
+  tmpl.params.forEach((p,i)=>{
+    if(i===0 && storedValue) paramValues[p.key] = storedValue;
+    else paramValues[p.key] = prefillData[p.key] || p.default;
+  });
+
+  panel.innerHTML = `
+    <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:10px;">
+      <div style="font-size:0.72em;color:${catColor};font-family:'JetBrains Mono',monospace;letter-spacing:0.08em;margin-bottom:8px;text-transform:uppercase;">Effect Settings</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;">
+        ${tmpl.params.map(p=>`
+          <div>
+            <label class="admin-label">${p.label}</label>
+            <input class="admin-input ab-param-input" type="number"
+              data-param="${p.key}"
+              value="${paramValues[p.key]}"
+              min="${p.min}" max="${p.max}" step="${p.step}"
+              style="text-align:center;font-family:'JetBrains Mono',monospace;font-size:0.9em;"
+              oninput="onAbilityParamInput(this,${idx})"/>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+
+  _syncAbilityHiddenFields(idx, tmpl, paramValues, slotEl);
+  // Auto-generate desc on first load if blank
+  const descEl = document.getElementById(`ab_desc_${idx}`);
+  if(descEl && !descEl.value){
+    descEl.value = tmpl.descFn(paramValues);
+  }
+}
+
+// Called when a param input changes
+function onAbilityParamInput(inputEl, idx){
+  const slot = inputEl.closest('.ab-slot');
+  const templateKey = slot.querySelector('.ab-template-select').value;
+  const tmpl = ABILITY_TEMPLATES[templateKey];
+  if(!tmpl) return;
+
+  // Collect current param values
+  const paramValues = {};
+  slot.querySelectorAll('.ab-param-input').forEach(inp=>{
+    paramValues[inp.dataset.param] = parseFloat(inp.value)||0;
+  });
+
+  // Regenerate description
+  const descEl = document.getElementById(`ab_desc_${idx}`);
+  if(descEl) descEl.value = tmpl.descFn(paramValues);
+
+  // Update hidden fields
+  _syncAbilityHiddenFields(idx, tmpl, paramValues, slot);
+  updateCardPreview();
+}
+
+function _syncAbilityHiddenFields(idx, tmpl, paramValues, slotEl){
+  const effectInput = slotEl.querySelector('.ab-effect-input');
+  const valueInput  = slotEl.querySelector('.ab-value-input');
+  if(effectInput) effectInput.value = tmpl.battle_effect;
+  if(valueInput)  valueInput.value  = Math.round(tmpl.valueFn(paramValues)||0);
 }
 
 function removeAbilitySlot(idx){
@@ -7143,18 +7497,32 @@ function applyDefaultAbMedia(selectEl, idx){
 
 function collectAbilitySlots(){
   const slots=document.querySelectorAll('.ab-slot');
-  return [...slots].map((s,i)=>({
-    ability_id: s.querySelector('.ab-id-input')?.value || (s.querySelector('.ab-name-input')?.value||'').toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_]/g,'')||`ability_${i}`,
-    name:       s.querySelector('.ab-name-input')?.value?.trim()||'',
-    icon:       s.querySelector('.ab-icon-input')?.value?.trim()||'⚡',
-    tier:       s.querySelector('.ab-tier-select')?.value||'active',
-    description:s.querySelector('.ab-desc-input')?.value?.trim()||'',
-    battle_effect:s.querySelector('.ab-effect-select')?.value||'burst',
-    value:      parseInt(s.querySelector('.ab-value-input')?.value)||0,
-    gif_url:    s.querySelector('.ab-gif-url')?.value?.trim()||'',
-    audio_url:  s.querySelector('.ab-audio-url')?.value?.trim()||'',
-    sort_order: i,
-  })).filter(a=>a.name);
+  return [...slots].map((s,i)=>{
+    const templateKey = s.querySelector('.ab-template-select')?.value||'direct_damage';
+    const tmpl = ABILITY_TEMPLATES[templateKey];
+    if(tmpl){
+      const paramValues={};
+      s.querySelectorAll('.ab-param-input').forEach(inp=>{
+        paramValues[inp.dataset.param]=parseFloat(inp.value)||0;
+      });
+      const effectInput=s.querySelector('.ab-effect-input');
+      const valueInput =s.querySelector('.ab-value-input');
+      if(effectInput) effectInput.value=tmpl.battle_effect;
+      if(valueInput)  valueInput.value =Math.round(tmpl.valueFn(paramValues)||0);
+    }
+    return {
+      ability_id:   s.querySelector('.ab-id-input')?.value || (s.querySelector('.ab-name-input')?.value||'').toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_]/g,'')||`ability_${i}`,
+      name:         s.querySelector('.ab-name-input')?.value?.trim()||'',
+      icon:         s.querySelector('.ab-icon-input')?.value?.trim()||'⚡',
+      tier:         s.querySelector('.ab-tier-select')?.value||'active',
+      description:  s.querySelector('.ab-desc-input')?.value?.trim()||'',
+      battle_effect:s.querySelector('.ab-effect-input')?.value||'burst',
+      value:        parseInt(s.querySelector('.ab-value-input')?.value)||0,
+      gif_url:      s.querySelector('.ab-gif-url')?.value?.trim()||'',
+      audio_url:    s.querySelector('.ab-audio-url')?.value?.trim()||'',
+      sort_order: i,
+    };
+  }).filter(a=>a.name);
 }
 
 // ── Submit card ──
