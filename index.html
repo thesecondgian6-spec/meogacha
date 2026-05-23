@@ -7355,8 +7355,13 @@ function updateCardPreview(){
   // Image
   const img=document.getElementById('previewImg');
   const ph=document.getElementById('previewImgPlaceholder');
-  if(image){img.src=image;img.style.display='';if(ph)ph.style.display='none';}
-  else{img.style.display='none';if(ph)ph.style.display='';}
+  if(img) img.src=''; // always reset first so old image never bleeds through
+  if(image){
+    if(img){img.src=image;img.style.display='';if(ph)ph.style.display='none';}
+  } else {
+    if(img)img.style.display='none';
+    if(ph)ph.style.display='';
+  }
 
   // Rarity badge
   const badge=document.getElementById('previewRarityBadge');
@@ -7388,7 +7393,8 @@ function updateCardPreview(){
   // Thumb preview
   const ti=document.getElementById('previewThumbImg');
   const tp=document.getElementById('previewThumbPlaceholder');
-  if(ti){if(image){ti.src=image;ti.style.display='';if(tp)tp.style.display='none';}else{ti.style.display='';if(tp)tp.style.display='';}}
+  if(ti) ti.src=''; // reset first
+  if(ti){if(image){ti.src=image;ti.style.display='';if(tp)tp.style.display='none';}else{ti.style.display='none';if(tp)tp.style.display='';}}
   const tn=document.getElementById('previewThumbName');if(tn)tn.textContent=name;
   const ts=document.getElementById('previewThumbStars');if(ts){ts.textContent=rd.stars;ts.style.color=color;}
   const tr=document.getElementById('previewThumbRarity');if(tr){tr.textContent=rd.name;tr.style.color=color;}
@@ -7628,8 +7634,48 @@ const EFFECT_CATEGORIES = {
   special: {label:'🌌 Special',       color:'#9b59b6'},
 };
 
-// Aliases — the admin editor references these names
-const ABILITY_TEMPLATES   = EFFECT_LIBRARY;
+// Adapter — reshapes EFFECT_LIBRARY into the shape the admin editor functions expect:
+//   tmpl.params[tier]        — array of param descriptors
+//   tmpl.battle_effect[tier] — effect key string
+//   tmpl.desc_passive / desc_active / desc_ultimate / desc_secret  — descFn per tier
+//   tmpl.valueFn(params)     — computes the primary value integer
+//   tmpl.mpFn(params)        — computes mp cost (0 if not applicable)
+//   tmpl.chanceFn(params)    — computes chance (100 if not applicable)
+const ABILITY_TEMPLATES = {};
+Object.entries(EFFECT_LIBRARY).forEach(([key, src]) => {
+  const tb = src.tierBehavior || {};
+  const params = {};
+  const battle_effect = {};
+  ['passive','active','ultimate','secret'].forEach(tier => {
+    const t = tb[tier] || tb['active'] || {};
+    params[tier] = t.params || [];
+    battle_effect[tier] = t.effect || (tier + '_' + key);
+  });
+  // descFn per tier
+  const desc_passive  = tb.passive  ? (p) => tb.passive.descFn(p)  : null;
+  const desc_active   = tb.active   ? (p) => tb.active.descFn(p)   : null;
+  const desc_ultimate = tb.ultimate ? (p) => tb.ultimate.descFn(p) : null;
+  const desc_secret   = tb.secret   ? (p) => tb.secret.descFn(p)   : null;
+  // valueFn: return first numeric param, or 0
+  const valueFn = (p) => {
+    const vals = Object.values(p).filter(v => typeof v === 'number');
+    return vals.length ? vals[0] : 0;
+  };
+  ABILITY_TEMPLATES[key] = {
+    label: src.label,
+    category: src.category,
+    icon: src.icon,
+    params,
+    battle_effect,
+    desc_passive,
+    desc_active,
+    desc_ultimate,
+    desc_secret,
+    valueFn,
+    mpFn:     null,
+    chanceFn: (p) => (p.chance != null ? p.chance : 100),
+  };
+});
 const TEMPLATE_CATEGORIES = EFFECT_CATEGORIES;
 
 // ── Ability slots ──
@@ -7832,7 +7878,7 @@ function buildAbilityParamsPanel(idx, templateKey, prefillData, slotEl){
     panel.innerHTML=`<div style="font-size:0.78em;color:var(--text-dim);font-style:italic;padding:4px 0;">✓ No extra settings for this combination — description auto-fills.</div>`;
     _syncAbilityHiddenFields(idx, tmpl, tier, {}, slotEl);
     const descEl = document.getElementById(`ab_desc_${idx}`);
-    const descFn = tmpl[`desc_${tier}`]||tmpl.desc_active;
+    const descFn = tmpl['desc_'+tier]||tmpl.desc_active;
     if(descEl && !descEl.value && descFn) descEl.value = descFn({});
     return;
   }
@@ -7866,7 +7912,7 @@ function buildAbilityParamsPanel(idx, templateKey, prefillData, slotEl){
 
   _syncAbilityHiddenFields(idx, tmpl, tier, paramValues, slotEl);
   const descEl = document.getElementById(`ab_desc_${idx}`);
-  const descFn = tmpl[`desc_${tier}`]||tmpl.desc_active;
+  const descFn = tmpl['desc_'+tier]||tmpl.desc_active;
   // Only auto-generate if blank — don't overwrite manually written or prefilled descriptions
   if(descEl && !descEl.value && descFn) descEl.value = descFn(paramValues);
 }
@@ -7883,7 +7929,7 @@ function onAbilityParamInput(inputEl, idx){
     paramValues[inp.dataset.param] = parseFloat(inp.value)||0;
   });
 
-  const descFn = tmpl[`desc_${tier}`]||tmpl.desc_active;
+  const descFn = tmpl['desc_'+tier]||tmpl.desc_active;
   const descEl = document.getElementById(`ab_desc_${idx}`);
   if(descEl && descFn) descEl.value = descFn(paramValues);
 
