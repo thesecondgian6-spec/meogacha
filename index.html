@@ -7628,6 +7628,10 @@ const EFFECT_CATEGORIES = {
   special: {label:'🌌 Special',       color:'#9b59b6'},
 };
 
+// Aliases — the admin editor references these names
+const ABILITY_TEMPLATES   = EFFECT_LIBRARY;
+const TEMPLATE_CATEGORIES = EFFECT_CATEGORIES;
+
 // ── Ability slots ──
 let abilitySlotCount=0;
 
@@ -7682,7 +7686,7 @@ function addAbilitySlot(prefill){
     <button onclick="removeAbilitySlot(${idx})" title="Remove"
       style="position:absolute;top:10px;right:10px;background:rgba(231,76,60,0.1);border:1px solid rgba(231,76,60,0.25);color:#e74c3c;width:24px;height:24px;border-radius:50%;cursor:pointer;font-size:0.85em;display:flex;align-items:center;justify-content:center;z-index:2;">✕</button>
 
-    <!-- Row 1: Icon / Name -->
+    
     <div style="display:grid;grid-template-columns:52px 1fr;gap:8px;margin-bottom:10px;">
       <div>
         <label class="admin-label">Icon</label>
@@ -7694,7 +7698,7 @@ function addAbilitySlot(prefill){
       </div>
     </div>
 
-    <!-- Row 2: Effect picker + Tier side by side -->
+    
     <div style="display:grid;grid-template-columns:1fr 130px;gap:8px;margin-bottom:6px;">
       <div>
         <label class="admin-label">Effect Type <span class="admin-hint">— what does it do?</span></label>
@@ -7713,20 +7717,20 @@ function addAbilitySlot(prefill){
       </div>
     </div>
 
-    <!-- Tier hint text -->
+    
     <div class="ab-tier-hint" id="ab_tier_hint_${idx}" style="font-size:0.74em;font-style:italic;margin-bottom:10px;padding:4px 8px;border-radius:6px;background:rgba(255,255,255,0.03);"></div>
 
-    <!-- Row 3: Dynamic params panel -->
+    
     <div class="ab-params-area" id="ab_params_${idx}" style="margin-bottom:10px;"></div>
 
-    <!-- Row 4: Auto-generated description (editable) -->
+    
     <div style="margin-bottom:10px;">
       <label class="admin-label">Description <span class="admin-hint">— auto-filled, tweak freely</span></label>
       <textarea class="admin-input ab-desc-input" id="ab_desc_${idx}" rows="2"
         placeholder="What does this ability do?" style="resize:vertical;">${data.desc||data.description||''}</textarea>
     </div>
 
-    <!-- Row 5: GIF + Audio -->
+    
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
       <div>
         <label class="admin-label">Ability GIF <span class="admin-hint">(battle)</span></label>
@@ -7746,7 +7750,7 @@ function addAbilitySlot(prefill){
       </div>
     </div>
 
-    <!-- Hidden fields -->
+    
     <input type="hidden" class="ab-id-input"     value="${data.ability_id||data.id||''}"/>
     <input type="hidden" class="ab-effect-input" value="${prefillEffect}"/>
     <input type="hidden" class="ab-value-input"  value="${data.value||0}"/>
