@@ -520,7 +520,16 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   /* ── Pity ── */
   .pity-section { padding: 14px 16px; }
 
-  /* ── Mobile nav bottom ── */
+  /* ── Minigame modal mobile ── */
+  .mg-box { padding: 20px 16px 18px; border-radius: 20px; }
+  .mg-title { font-size: 0.95em; }
+  .mg-heist-grid { max-width: 260px; gap: 8px; }
+  .mg-heist-panel { border-radius: 10px; font-size: 1.2em; }
+  .mg-surge-btn { padding: 12px 36px; font-size: 0.9em; }
+  .mg-path-node { width: 60px; height: 60px; font-size: 1.2em; border-radius: 12px; }
+  .mg-result-grade { font-size: 2.4em; }
+
+    /* ── Mobile nav bottom ── */
   .mobile-nav-btn { min-width: 44px; padding: 5px 8px; font-size: 0.58em; }
 }
 
@@ -982,6 +991,88 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   animation: gradeReveal 0.6s cubic-bezier(0.34,1.56,0.64,1);
 }
 @keyframes gradeReveal { from{transform:scale(0) rotate(-20deg);opacity:0;} to{transform:scale(1) rotate(0);opacity:1;} }
+
+/* ══ ACTIVITY CARD REVAMP ══ */
+.activities-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px,1fr)); gap: 20px; }
+.act-card-art { position: relative; text-align: center; margin-bottom: 10px; }
+.act-card-orb { position: absolute; inset: 0; border-radius: 50%; margin: auto; width: 90px; height: 90px; filter: blur(18px); pointer-events: none; }
+.mg-work  { background: linear-gradient(145deg, rgba(30,18,5,0.95), rgba(20,14,5,0.95)); border: 1px solid rgba(241,196,15,0.25); }
+.mg-train { background: linear-gradient(145deg, rgba(5,18,30,0.95), rgba(5,14,22,0.95)); border: 1px solid rgba(52,152,219,0.25); }
+.mg-quest { background: linear-gradient(145deg, rgba(18,5,30,0.95), rgba(12,5,22,0.95)); border: 1px solid rgba(155,89,182,0.25); }
+
+/* ══ MINIGAME MODAL ══ */
+.mg-modal { position: fixed; inset: 0; z-index: 260; display: none; align-items: center; justify-content: center; background: rgba(0,0,0,0.92); backdrop-filter: blur(10px); padding: 16px; }
+.mg-modal.active { display: flex; }
+.mg-box { background: linear-gradient(145deg, #110820, #0d0514); border: 1px solid var(--border); border-radius: 28px; max-width: 480px; width: 100%; max-height: 92vh; overflow-y: auto; padding: 28px 24px 24px; animation: modalIn 0.35s cubic-bezier(0.34,1.56,0.64,1); position: relative; }
+.mg-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+.mg-title { font-family: 'Cinzel Decorative', serif; font-size: 1.15em; color: var(--pink-pale); }
+.mg-skip-btn { background: none; border: 1px solid var(--border); color: var(--text-dim); width: 30px; height: 30px; border-radius: 50%; cursor: pointer; font-size: 0.8em; transition: all 0.2s; display: flex; align-items: center; justify-content: center; }
+.mg-skip-btn:hover { border-color: var(--pink); color: var(--pink); }
+.mg-sub { color: var(--text-dim); font-style: italic; font-size: 0.82em; margin-bottom: 18px; }
+.mg-game-area { animation: fadeIn 0.3s ease; }
+.mg-instr { font-size: 0.82em; color: var(--pink-pale); text-align: center; margin-bottom: 14px; line-height: 1.5; background: rgba(255,157,199,0.06); border-radius: 10px; padding: 8px 12px; border: 1px solid rgba(255,157,199,0.12); }
+.mg-instr b { color: var(--pink); }
+.mg-status-row { display: flex; align-items: center; justify-content: space-between; margin-top: 12px; min-height: 24px; }
+.mg-round-label { font-family: 'JetBrains Mono', monospace; font-size: 0.78em; color: var(--text-dim); }
+.mg-status-chip { font-family: 'JetBrains Mono', monospace; font-size: 0.78em; padding: 2px 10px; border-radius: 10px; background: rgba(255,157,199,0.1); border: 1px solid var(--border); color: var(--pink); transition: all 0.2s; }
+.mg-status-chip.perfect { background: rgba(241,196,15,0.15); border-color: rgba(241,196,15,0.5); color: #f1c40f; }
+.mg-status-chip.good    { background: rgba(46,204,113,0.12); border-color: rgba(46,204,113,0.4); color: #2ecc71; }
+.mg-status-chip.miss    { background: rgba(231,76,60,0.12); border-color: rgba(231,76,60,0.4); color: #e74c3c; }
+
+/* HEIST grid */
+.mg-heist-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 0 auto; max-width: 300px; }
+.mg-heist-panel { aspect-ratio: 1; border-radius: 14px; border: 2px solid rgba(255,157,199,0.15); background: rgba(255,157,199,0.04); cursor: pointer; transition: all 0.12s; font-size: 1.5em; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+.mg-heist-panel.lit { background: rgba(255,200,50,0.25); border-color: #f1c40f; box-shadow: 0 0 18px rgba(241,196,15,0.5); transform: scale(1.06); }
+.mg-heist-panel.correct { background: rgba(46,204,113,0.3); border-color: #2ecc71; box-shadow: 0 0 18px rgba(46,204,113,0.5); }
+.mg-heist-panel.wrong   { background: rgba(231,76,60,0.3); border-color: #e74c3c; box-shadow: 0 0 18px rgba(231,76,60,0.5); animation: shake 0.3s ease; }
+.mg-heist-panel:hover:not(.disabled) { background: rgba(255,157,199,0.1); border-color: var(--pink); }
+@keyframes shake { 0%,100%{transform:translateX(0);} 25%{transform:translateX(-6px);} 75%{transform:translateX(6px);} }
+
+/* SPIRIT SURGE */
+.mg-surge-wrap { display: flex; flex-direction: column; align-items: center; gap: 18px; padding: 10px 0; }
+.mg-surge-track { width: 100%; height: 44px; background: rgba(255,255,255,0.04); border-radius: 22px; border: 1px solid var(--border); position: relative; overflow: hidden; }
+.mg-surge-zone { position: absolute; top: 0; bottom: 0; width: 18%; right: 4%; background: linear-gradient(90deg, rgba(46,204,113,0.15), rgba(46,204,113,0.45)); border: 1px solid rgba(46,204,113,0.5); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1em; }
+.mg-surge-zone::after { content: '⚡'; font-size: 1em; }
+.mg-surge-bar { position: absolute; top: 4px; bottom: 4px; width: 28px; border-radius: 10px; background: linear-gradient(180deg, #60d9f0, #3498db, var(--pink)); box-shadow: 0 0 14px rgba(52,152,219,0.7); left: 0; transition: none; }
+.mg-surge-btn { padding: 14px 48px; font-family: 'Cinzel Decorative', serif; font-size: 1em; font-weight: 700; border-radius: 30px; background: linear-gradient(135deg, #3498db, var(--purple)); border: none; color: #fff; cursor: pointer; letter-spacing: 0.06em; box-shadow: 0 4px 20px rgba(52,152,219,0.4); transition: all 0.1s; active:transform:scale(0.95); }
+.mg-surge-btn:active { transform: scale(0.94); box-shadow: 0 2px 10px rgba(52,152,219,0.3); }
+.mg-surge-hits { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; min-height: 28px; margin-top: 4px; }
+.mg-hit-dot { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7em; font-family: 'JetBrains Mono', monospace; font-weight: 700; }
+.mg-hit-dot.perfect { background: rgba(241,196,15,0.2); border: 2px solid #f1c40f; color: #f1c40f; }
+.mg-hit-dot.good    { background: rgba(46,204,113,0.2); border: 2px solid #2ecc71; color: #2ecc71; }
+.mg-hit-dot.miss    { background: rgba(231,76,60,0.15); border: 2px solid #e74c3c; color: #e74c3c; }
+.mg-hit-dot.pending { background: rgba(255,255,255,0.04); border: 2px solid var(--border); color: var(--text-dim); }
+
+/* CURSED PATH */
+.mg-path-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; font-family: 'JetBrains Mono', monospace; font-size: 0.8em; color: var(--text-dim); }
+.mg-stamina-label { color: #e74c3c; }
+.mg-path-depth { color: var(--purple); }
+.mg-path-map { display: flex; flex-direction: column; gap: 12px; padding: 8px 0; min-height: 120px; }
+.mg-path-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+.mg-path-node { width: 72px; height: 72px; border-radius: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; cursor: pointer; border: 2px solid var(--border); background: rgba(255,255,255,0.03); transition: all 0.22s; font-size: 1.5em; position: relative; }
+.mg-path-node:hover:not(.visited):not(.locked) { transform: translateY(-4px) scale(1.05); border-color: var(--pink); box-shadow: 0 8px 24px rgba(255,157,199,0.2); }
+.mg-path-node.current { border-color: var(--pink); box-shadow: 0 0 18px rgba(255,157,199,0.4); background: rgba(255,157,199,0.08); animation: pulsePink 1.4s ease-in-out infinite; }
+.mg-path-node.visited { opacity: 0.35; cursor: default; }
+.mg-path-node.locked  { opacity: 0.18; cursor: not-allowed; }
+.mg-path-node.boss    { border-color: #f1c40f; background: rgba(241,196,15,0.08); }
+.mg-node-label { font-size: 0.46em; font-family: 'JetBrains Mono', monospace; color: var(--text-dim); letter-spacing: 0.03em; }
+@keyframes pulsePink { 0%,100%{box-shadow:0 0 12px rgba(255,157,199,0.3);} 50%{box-shadow:0 0 24px rgba(255,157,199,0.6);} }
+.mg-path-event { margin-top: 14px; min-height: 80px; font-size: 0.88em; line-height: 1.65; }
+.mg-path-choices { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+.mg-path-choice { background: rgba(255,157,199,0.05); border: 1px solid var(--border); border-radius: 12px; padding: 10px 14px; cursor: pointer; font-family: 'Cormorant Garamond', serif; font-size: 0.95em; color: var(--text); transition: all 0.18s; text-align: left; }
+.mg-path-choice:hover { border-color: var(--pink); background: rgba(255,157,199,0.1); transform: translateX(4px); }
+
+/* Score + Result */
+.mg-score-bar { display: flex; align-items: center; gap: 10px; margin-top: 18px; }
+.mg-score-lbl { font-family: 'JetBrains Mono', monospace; font-size: 0.72em; color: var(--text-dim); white-space: nowrap; }
+.mg-score-track { flex: 1; height: 8px; background: rgba(255,255,255,0.06); border-radius: 4px; overflow: hidden; }
+.mg-score-fill { height: 100%; border-radius: 4px; background: linear-gradient(90deg, var(--pink-deep), #f1c40f); transition: width 0.5s ease; }
+.mg-score-val { font-family: 'JetBrains Mono', monospace; font-size: 0.78em; color: var(--pink); white-space: nowrap; }
+.mg-result { text-align: center; animation: fadeIn 0.4s ease; padding: 10px 0 6px; }
+.mg-result-grade { font-family: 'Cinzel Decorative', serif; font-size: 3.2em; animation: gradeReveal 0.6s cubic-bezier(0.34,1.56,0.64,1); margin-bottom: 6px; }
+.mg-result-msg { color: var(--pink-pale); font-style: italic; margin-bottom: 14px; font-size: 0.95em; }
+.mg-result-rewards { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-bottom: 10px; }
+.mg-result-hint { font-size: 0.78em; color: var(--text-dim); font-style: italic; }
 
 /* ══════════════════════════════════════════
    TCG BATTLE SYSTEM
@@ -3601,47 +3692,56 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 
     <div class="section-title" style="margin-top:32px;">⚔️ Activities</div>
     <div class="activities-grid">
-      <!-- WORK -->
-      <div class="activity-card" style="--ac-glow:rgba(241,196,15,0.12);--ac-glow2:rgba(241,196,15,0.06)">
+      <!-- WORK → NEON HEIST -->
+      <div class="activity-card mg-work" style="--ac-glow:rgba(255,180,50,0.18);--ac-glow2:rgba(255,180,50,0.07)">
         <span class="activity-badge" style="background:rgba(241,196,15,0.15);color:#f1c40f;border:1px solid rgba(241,196,15,0.3);">COINS</span>
-        <span class="activity-type-icon">💴</span>
-        <div class="activity-name">City Mission</div>
-        <div class="activity-lore">"The city never sleeps — and neither do those who seek fortune within it."</div>
-        <div class="activity-desc">Navigate high-stakes urban jobs across the anime world — from Shibuya neon districts to underground dealings. Your choices determine your pay.</div>
+        <div class="act-card-art">
+          <div class="act-card-orb" style="background:radial-gradient(circle,rgba(255,200,50,0.35),transparent 70%)"></div>
+          <span class="activity-type-icon">🏴‍☠️</span>
+        </div>
+        <div class="activity-name">Neon Heist</div>
+        <div class="activity-lore">"Every vault has a heartbeat. Learn it, and the riches are yours."</div>
+        <div class="activity-desc">Crack a neon-lit vault in the Shibuya underground. Memorize and repeat the glowing panel sequence before the alarm triggers — the longer you last, the bigger the haul.</div>
         <div class="activity-reward">
-          <span class="reward-tag">💰 80–200 🪙</span>
-          <span class="reward-tag xp">⭐ 10–30 XP</span>
+          <span class="reward-tag">💰 80–220 🪙</span>
+          <span class="reward-tag xp">⭐ 10–35 XP</span>
         </div>
         <div class="activity-cooldown" id="workCooldown">Ready!</div>
-        <button class="activity-btn btn-ripple" id="workBtn" onclick="openActivity('work')">💴 Start Mission</button>
+        <button class="activity-btn btn-ripple" id="workBtn" onclick="openMinigame('work')">🔓 Start Heist</button>
       </div>
-      <!-- TRAIN -->
-      <div class="activity-card" style="--ac-glow:rgba(52,152,219,0.12);--ac-glow2:rgba(52,152,219,0.05)">
+      <!-- TRAIN → SPIRIT SURGE -->
+      <div class="activity-card mg-train" style="--ac-glow:rgba(100,180,255,0.18);--ac-glow2:rgba(100,180,255,0.07)">
         <span class="activity-badge" style="background:rgba(52,152,219,0.15);color:#5dade2;border:1px solid rgba(52,152,219,0.3);">XP FOCUS</span>
-        <span class="activity-type-icon">🌀</span>
-        <div class="activity-name">Ascension Trials</div>
-        <div class="activity-lore">"Beyond your limits lies the power you were always meant to wield."</div>
-        <div class="activity-desc">Enter mystical training grounds used by legendary shinobi and sorcerers. Push your equipped card through grueling spirit trials for massive XP.</div>
+        <div class="act-card-art">
+          <div class="act-card-orb" style="background:radial-gradient(circle,rgba(80,160,255,0.35),transparent 70%)"></div>
+          <span class="activity-type-icon">⚡</span>
+        </div>
+        <div class="activity-name">Spirit Surge</div>
+        <div class="activity-lore">"Feel the rhythm of your soul. Strike at the peak — that's where legends are forged."</div>
+        <div class="activity-desc">Channel your card's spirit energy in a rhythm duel. Tap the surge bar at its blazing peak across five rounds. Perfect timing = maximum XP overflow.</div>
         <div class="activity-reward">
-          <span class="reward-tag">💰 20–50 🪙</span>
-          <span class="reward-tag xp">⭐ 80–200 XP</span>
+          <span class="reward-tag">💰 20–55 🪙</span>
+          <span class="reward-tag xp">⭐ 80–220 XP</span>
         </div>
         <div class="activity-cooldown" id="trainCooldown">Ready!</div>
-        <button class="activity-btn btn-ripple" id="trainBtn" onclick="openActivity('train')">🌀 Enter Trials</button>
+        <button class="activity-btn btn-ripple" id="trainBtn" onclick="openMinigame('train')">⚡ Begin Surge</button>
       </div>
-      <!-- QUEST -->
-      <div class="activity-card" style="--ac-glow:rgba(155,89,182,0.12);--ac-glow2:rgba(155,89,182,0.05)">
+      <!-- QUEST → CURSED PATH -->
+      <div class="activity-card mg-quest" style="--ac-glow:rgba(180,100,255,0.18);--ac-glow2:rgba(180,100,255,0.07)">
         <span class="activity-badge" style="background:rgba(155,89,182,0.15);color:#c39bd3;border:1px solid rgba(155,89,182,0.3);">ADVENTURE</span>
-        <span class="activity-type-icon">🌌</span>
-        <div class="activity-name">Isekai Quest</div>
-        <div class="activity-lore">"Every path leads somewhere. The question is — do you have the courage to choose?"</div>
-        <div class="activity-desc">Explore cursed shrines, supernatural phenomena, and forgotten ruins from across anime realms. Your instincts and wisdom shape the rewards.</div>
+        <div class="act-card-art">
+          <div class="act-card-orb" style="background:radial-gradient(circle,rgba(160,80,255,0.35),transparent 70%)"></div>
+          <span class="activity-type-icon">🌌</span>
+        </div>
+        <div class="activity-name">Cursed Path</div>
+        <div class="activity-lore">"The isekai road never shows what lies beyond the next gate. Only the brave walk it."</div>
+        <div class="activity-desc">Navigate a procedurally cursed dungeon map. Each node hides treasure, traps, or spirit encounters. Manage your stamina and reach the final seal to claim the loot.</div>
         <div class="activity-reward">
-          <span class="reward-tag">💰 40–120 🪙</span>
-          <span class="reward-tag xp">⭐ 40–100 XP</span>
+          <span class="reward-tag">💰 40–140 🪙</span>
+          <span class="reward-tag xp">⭐ 40–110 XP</span>
         </div>
         <div class="activity-cooldown" id="questCooldown">Ready!</div>
-        <button class="activity-btn btn-ripple" id="questBtn" onclick="openActivity('quest')">🌌 Begin Quest</button>
+        <button class="activity-btn btn-ripple" id="questBtn" onclick="openMinigame('quest')">🗺️ Enter Dungeon</button>
       </div>
     </div>
 
@@ -3744,18 +3844,82 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 
 
   <!-- ACTIVITY MODAL -->
-  <div class="act-modal" id="actModal">
-    <div class="act-modal-box">
-      <div class="act-modal-title" id="actModalTitle">Activity</div>
-      <div class="act-modal-sub" id="actModalSub"></div>
-      <div class="act-progress-wrap" id="actProgressWrap">
-        <div class="act-progress-label"><span id="actProgressLabel">Progress</span><span id="actProgressVal">0 / 3</span></div>
-        <div class="act-progress-track"><div class="act-progress-fill" id="actProgressFill" style="width:0%"></div></div>
+  <!-- ══ MINIGAME MODAL ══ -->
+  <div class="mg-modal" id="mgModal">
+    <div class="mg-box" id="mgBox">
+      <div class="mg-header">
+        <div class="mg-title" id="mgTitle">Minigame</div>
+        <button class="mg-skip-btn" id="mgSkipBtn" onclick="closeMg()">✕</button>
       </div>
-      <div class="act-scene" id="actScene"></div>
-      <div class="act-choices" id="actChoices"></div>
-      <div class="act-result" id="actResult" style="display:none"></div>
-      <button class="act-close-btn" id="actCloseBtn" onclick="closeActivity()" style="display:none">✦ Collect Rewards</button>
+      <div class="mg-sub" id="mgSub"></div>
+
+      <!-- NEON HEIST canvas area -->
+      <div id="mgHeist" class="mg-game-area" style="display:none">
+        <div class="mg-instr" id="heistInstr">Watch the sequence, then tap the panels in order!</div>
+        <div class="mg-heist-grid" id="heistGrid"></div>
+        <div class="mg-status-row">
+          <span id="heistRoundLabel" class="mg-round-label"></span>
+          <span id="heistStatus" class="mg-status-chip"></span>
+        </div>
+      </div>
+
+      <!-- SPIRIT SURGE area -->
+      <div id="mgSurge" class="mg-game-area" style="display:none">
+        <div class="mg-instr" id="surgeInstr">Tap <b>SURGE</b> when the bar hits the ⚡ zone!</div>
+        <div class="mg-surge-wrap">
+          <div class="mg-surge-track">
+            <div class="mg-surge-zone"></div>
+            <div class="mg-surge-bar" id="surgeBar"></div>
+          </div>
+          <button class="mg-surge-btn" id="surgeTapBtn" onclick="surgeTap()">⚡ SURGE</button>
+        </div>
+        <div class="mg-status-row">
+          <span id="surgeRoundLabel" class="mg-round-label"></span>
+          <span id="surgeResult" class="mg-status-chip"></span>
+        </div>
+        <div class="mg-surge-hits" id="surgeHits"></div>
+      </div>
+
+      <!-- CURSED PATH area -->
+      <div id="mgQuest" class="mg-game-area" style="display:none">
+        <div class="mg-instr">Choose your path through the cursed dungeon. Reach the final seal!</div>
+        <div class="mg-path-meta">
+          <span class="mg-stamina-label">❤️ Stamina: <span id="pathStamina">5</span>/5</span>
+          <span class="mg-path-depth">Floor <span id="pathDepth">1</span>/5</span>
+        </div>
+        <div class="mg-path-map" id="pathMap"></div>
+        <div class="mg-path-event" id="pathEvent"></div>
+      </div>
+
+      <!-- Score bar -->
+      <div class="mg-score-bar" id="mgScoreBar" style="display:none">
+        <span class="mg-score-lbl">Score</span>
+        <div class="mg-score-track"><div class="mg-score-fill" id="mgScoreFill"></div></div>
+        <span class="mg-score-val" id="mgScoreVal">0</span>
+      </div>
+
+      <!-- Result panel -->
+      <div class="mg-result" id="mgResult" style="display:none">
+        <div class="mg-result-grade" id="mgResultGrade"></div>
+        <div class="mg-result-msg" id="mgResultMsg"></div>
+        <div class="mg-result-rewards" id="mgResultRewards"></div>
+        <div class="mg-result-hint" id="mgResultHint"></div>
+      </div>
+
+      <button class="act-close-btn" id="mgCollectBtn" onclick="collectMg()" style="display:none">✦ Collect Rewards</button>
+    </div>
+  </div>
+
+  <!-- legacy act-modal stub so old JS refs don't break -->
+  <div class="act-modal" id="actModal" style="display:none!important">
+    <div class="act-modal-box">
+      <div id="actModalTitle"></div><div id="actModalSub"></div>
+      <div id="actProgressWrap"><div id="actProgressLabel"></div><div id="actProgressVal"></div>
+        <div class="act-progress-track"><div class="act-progress-fill" id="actProgressFill"></div></div>
+      </div>
+      <div id="actScene"></div><div id="actChoices"></div>
+      <div id="actResult"></div>
+      <button id="actCloseBtn" onclick="closeActivity()"></button>
     </div>
   </div>
 
@@ -6236,6 +6400,486 @@ function updateActivityCooldowns(){
 setInterval(updateActivityCooldowns, 1000);
 
 // ── SCENARIO DATA ──
+
+// ══════════════════════════════════════════════════════════════
+// MINIGAME ENGINE — Neon Heist · Spirit Surge · Cursed Path
+// ══════════════════════════════════════════════════════════════
+let mgState = { type:null, score:0, maxScore:0, done:false };
+
+/* ── Shared helpers ── */
+function openMinigame(type){
+  const left = getCooldownLeft(type);
+  if(left>0){ showToast(`⏳ On cooldown! Ready in ${fmtTime(left)}`); playErrorSound(); return; }
+  mgState = { type, score:0, maxScore:0, done:false };
+
+  const titles = { work:'🏴‍☠️ Neon Heist', train:'⚡ Spirit Surge', quest:'🌌 Cursed Path' };
+  const subs   = { work:'Memorize the panel sequence — then repeat it perfectly!',
+                   train:'Tap SURGE when the bar hits the ⚡ zone!',
+                   quest:'Navigate the dungeon. Manage your stamina. Claim the seal.' };
+  document.getElementById('mgTitle').textContent = titles[type];
+  document.getElementById('mgSub').textContent   = subs[type];
+  document.getElementById('mgHeist').style.display = 'none';
+  document.getElementById('mgSurge').style.display  = 'none';
+  document.getElementById('mgQuest').style.display  = 'none';
+  document.getElementById('mgResult').style.display = 'none';
+  document.getElementById('mgScoreBar').style.display = 'none';
+  document.getElementById('mgCollectBtn').style.display = 'none';
+  document.getElementById('mgModal').classList.add('active');
+
+  if(type==='work')  initHeist();
+  else if(type==='train') initSurge();
+  else               initQuestPath();
+}
+
+function closeMg(){
+  stopSurge();
+  document.getElementById('mgModal').classList.remove('active');
+}
+
+function collectMg(){
+  closeMg();
+  updateProfile();
+  renderCollection();
+}
+
+function updateMgScore(score, maxScore){
+  const pct = maxScore>0 ? Math.round((score/maxScore)*100) : 0;
+  document.getElementById('mgScoreFill').style.width = pct+'%';
+  document.getElementById('mgScoreVal').textContent  = pct+'%';
+  document.getElementById('mgScoreBar').style.display = 'flex';
+}
+
+async function finishMinigame(score, maxScore){
+  if(mgState.done) return;
+  mgState.done = true;
+  const type = mgState.type;
+  const ratio = maxScore>0 ? score/maxScore : 0;
+
+  const coinRanges = { work:[80,220], train:[20,55], quest:[40,140] };
+  const xpRanges   = { work:[10,35],  train:[80,220], quest:[40,110] };
+  const [cMin,cMax] = coinRanges[type];
+  const [xMin,xMax] = xpRanges[type];
+  const coins = Math.round(cMin + (cMax-cMin)*ratio);
+  const xp    = Math.round(xMin + (xMax-xMin)*ratio);
+
+  state.coins += coins;
+  updateCoins();
+  if(state.equippedId){
+    state.xpMap[state.equippedId] = (state.xpMap[state.equippedId]||0)+xp;
+    if(state.discordId&&!state.isGuest) await saveXp(state.discordId, state.equippedId, state.xpMap[state.equippedId]);
+  }
+  if(state.discordId&&!state.isGuest) await savePlayer();
+  if(state.isGuest) saveGuestState();
+  setLastAct(type);
+  updateActivityCooldowns();
+
+  const grade    = ratio>=0.9?'S':ratio>=0.7?'A':ratio>=0.5?'B':'C';
+  const gradeMap = { S:'🌟', A:'⭐', B:'👍', C:'😅' };
+  const msgMap   = { S:'Perfect run! You\'re legendary!', A:'Excellent! Great performance!',
+                     B:'Solid effort — keep pushing!', C:'Every run is progress. Try again soon!' };
+  const gradeColors = { S:'#f1c40f', A:'#ff9dc7', B:'#2ecc71', C:'#bdc3c7' };
+
+  updateMgScore(score, maxScore);
+  const resultEl = document.getElementById('mgResult');
+  resultEl.style.display = 'block';
+  const gradeEl = document.getElementById('mgResultGrade');
+  gradeEl.textContent = gradeMap[grade]+' '+grade;
+  gradeEl.style.color = gradeColors[grade];
+  gradeEl.style.webkitTextFillColor = gradeColors[grade];
+  document.getElementById('mgResultMsg').textContent = msgMap[grade];
+  document.getElementById('mgResultRewards').innerHTML =
+    `<span class="reward-tag">+${coins} 🪙</span>`+
+    (state.equippedId?`<span class="reward-tag xp">+${xp} XP</span>`:'');
+  document.getElementById('mgResultHint').textContent =
+    state.equippedId?'XP added to your equipped card.':'Equip a card to earn XP!';
+  document.getElementById('mgCollectBtn').style.display = 'block';
+  spawnParticles(ratio>=0.7?5:2,'#f1c40f');
+  playGradeSound(grade);
+}
+
+// ── NEON HEIST (Simon Says) ──────────────────────────────────
+const HEIST_PANELS = ['🔴','🟡','🟢','🔵','🟣','🟠','⚪','🔶','🩵'];
+let heistSeq=[], heistInput=[], heistRound=0, heistLocked=false;
+const HEIST_ROUNDS = 5;
+const HEIST_PANEL_EMOJIS = ['🗝️','💎','🔓','💰','🏮','⚡','🌀','🎯','🔥'];
+
+function initHeist(){
+  heistSeq=[]; heistInput=[]; heistRound=0; heistLocked=false;
+  document.getElementById('mgHeist').style.display='block';
+  const grid=document.getElementById('heistGrid');
+  grid.innerHTML='';
+  for(let i=0;i<9;i++){
+    const btn=document.createElement('button');
+    btn.className='mg-heist-panel';
+    btn.dataset.idx=i;
+    btn.textContent=HEIST_PANEL_EMOJIS[i];
+    btn.onclick=()=>heistTap(i,btn);
+    grid.appendChild(btn);
+  }
+  document.getElementById('heistStatus').textContent='';
+  mgState.maxScore = HEIST_ROUNDS * 10;
+  nextHeistRound();
+}
+
+function nextHeistRound(){
+  if(heistRound>=HEIST_ROUNDS){ finishMinigame(mgState.score,mgState.maxScore); return; }
+  heistInput=[];
+  heistLocked=true;
+  const newIdx=Math.floor(Math.random()*9);
+  heistSeq=[...heistSeq, newIdx];
+  document.getElementById('heistRoundLabel').textContent=`Round ${heistRound+1} / ${HEIST_ROUNDS}`;
+  document.getElementById('heistStatus').textContent='Watch…';
+  document.getElementById('heistStatus').className='mg-status-chip';
+  setHeistPanelsDisabled(true);
+  playHeistSequence(0);
+}
+
+function playHeistSequence(i){
+  if(i>=heistSeq.length){
+    heistLocked=false;
+    setHeistPanelsDisabled(false);
+    document.getElementById('heistStatus').textContent='Your turn!';
+    document.getElementById('heistInstr').textContent='Tap the panels in the same order!';
+    return;
+  }
+  const panels=document.querySelectorAll('.mg-heist-panel');
+  const idx=heistSeq[i];
+  setTimeout(()=>{
+    panels[idx].classList.add('lit');
+    setTimeout(()=>{
+      panels[idx].classList.remove('lit');
+      playHeistSequence(i+1);
+    }, 400+heistRound*20);
+  }, 500);
+}
+
+function setHeistPanelsDisabled(d){
+  document.querySelectorAll('.mg-heist-panel').forEach(p=>{
+    p.classList.toggle('disabled',d);
+    p.style.pointerEvents=d?'none':'';
+  });
+}
+
+function heistTap(idx, btn){
+  if(heistLocked) return;
+  const expected=heistSeq[heistInput.length];
+  heistInput.push(idx);
+  if(idx===expected){
+    btn.classList.add('correct');
+    setTimeout(()=>btn.classList.remove('correct'),300);
+    if(heistInput.length===heistSeq.length){
+      // Completed round
+      const pts = 10 - heistRound; // earlier rounds slightly easier
+      mgState.score += Math.max(5,pts);
+      document.getElementById('heistStatus').textContent='✓ Correct!';
+      document.getElementById('heistStatus').className='mg-status-chip good';
+      updateMgScore(mgState.score,mgState.maxScore);
+      heistRound++;
+      setTimeout(nextHeistRound, 700);
+    }
+  } else {
+    btn.classList.add('wrong');
+    document.getElementById('heistStatus').textContent='✗ Wrong!';
+    document.getElementById('heistStatus').className='mg-status-chip miss';
+    setHeistPanelsDisabled(true);
+    heistLocked=true;
+    setTimeout(()=>{
+      btn.classList.remove('wrong');
+      // Partial credit for how far they got, then advance
+      heistRound++;
+      setTimeout(nextHeistRound, 500);
+    }, 600);
+  }
+}
+
+
+// ── SPIRIT SURGE (Rhythm Timing) ────────────────────────────
+const SURGE_ROUNDS = 5;
+let surgeRound=0, surgeBarPos=0, surgeDir=1, surgeSpeed=0.8, surgeRaf=null, surgeActive=false, surgeTapped=false;
+let surgeHits=[]; // 'perfect'|'good'|'miss'
+
+function initSurge(){
+  surgeRound=0; surgeHits=[]; surgeActive=false;
+  document.getElementById('mgSurge').style.display='block';
+  mgState.maxScore = SURGE_ROUNDS * 10;
+  renderSurgeHits();
+  startSurgeRound();
+}
+
+function startSurgeRound(){
+  if(surgeRound>=SURGE_ROUNDS){ finishMinigame(mgState.score,mgState.maxScore); return; }
+  surgeTapped=false;
+  surgeBarPos=0; surgeDir=1;
+  surgeSpeed = 0.7 + surgeRound*0.08; // gets faster each round
+  surgeActive=true;
+  document.getElementById('surgeRoundLabel').textContent=`Round ${surgeRound+1} / ${SURGE_ROUNDS}`;
+  document.getElementById('surgeResult').textContent='';
+  document.getElementById('surgeResult').className='mg-status-chip';
+  animateSurge();
+}
+
+function animateSurge(){
+  if(!surgeActive) return;
+  const bar=document.getElementById('surgeBar');
+  const track=document.getElementById('surgeBar').parentElement;
+  const trackW=track.offsetWidth;
+  const barW=bar.offsetWidth||28;
+  const maxPos=trackW-barW-8;
+  surgeBarPos += surgeDir * surgeSpeed;
+  if(surgeBarPos>=maxPos){ surgeBarPos=maxPos; surgeDir=-1; }
+  if(surgeBarPos<=4){ surgeBarPos=4; surgeDir=1; }
+  bar.style.left=surgeBarPos+'px';
+  if(!surgeTapped) surgeRaf=requestAnimationFrame(animateSurge);
+}
+
+function stopSurge(){ surgeActive=false; if(surgeRaf) cancelAnimationFrame(surgeRaf); }
+
+function surgeTap(){
+  if(!surgeActive||surgeTapped) return;
+  surgeTapped=true;
+  surgeActive=false;
+  if(surgeRaf) cancelAnimationFrame(surgeRaf);
+
+  // Zone: right 4%..22% of track
+  const track=document.getElementById('mgSurge').querySelector('.mg-surge-track');
+  const trackW=track.offsetWidth;
+  const zoneStart=trackW*0.78;
+  const zoneEnd=trackW*0.97;
+  const perfectStart=trackW*0.84;
+
+  let hitType, pts;
+  if(surgeBarPos>=perfectStart && surgeBarPos<=zoneEnd){
+    hitType='perfect'; pts=10;
+  } else if(surgeBarPos>=zoneStart && surgeBarPos<=zoneEnd){
+    hitType='good'; pts=6;
+  } else if(surgeBarPos>=zoneStart*0.85){
+    hitType='good'; pts=4;
+  } else {
+    hitType='miss'; pts=0;
+  }
+  mgState.score+=pts;
+  surgeHits.push(hitType);
+  const chip=document.getElementById('surgeResult');
+  chip.textContent={perfect:'⚡ PERFECT!',good:'✓ Good!',miss:'✗ Miss'}[hitType];
+  chip.className='mg-status-chip '+hitType;
+  renderSurgeHits();
+  updateMgScore(mgState.score,mgState.maxScore);
+  surgeRound++;
+  setTimeout(startSurgeRound, 900);
+}
+
+function renderSurgeHits(){
+  const el=document.getElementById('surgeHits');
+  const total=SURGE_ROUNDS;
+  let html='';
+  for(let i=0;i<total;i++){
+    if(i<surgeHits.length){
+      const h=surgeHits[i];
+      const lbl={perfect:'★',good:'◆',miss:'✕'}[h];
+      html+=`<div class="mg-hit-dot ${h}">${lbl}</div>`;
+    } else {
+      html+=`<div class="mg-hit-dot pending">·</div>`;
+    }
+  }
+  el.innerHTML=html;
+}
+
+
+// ── CURSED PATH (Dungeon Map) ────────────────────────────────
+const PATH_DEPTH=5;
+let pathStamina=5, pathDepth=0, pathNodes=[], pathResolved=false;
+
+const PATH_NODE_TYPES=[
+  { emoji:'💰', label:'Loot',    weight:3, score:8,  stam:0,  text:'A glowing chest — inside: cursed gold. Take it?' },
+  { emoji:'⚔️',  label:'Spirit', weight:2, score:5,  stam:-1, text:'A wandering spirit blocks the corridor. Face it or flee?' },
+  { emoji:'🌀',  label:'Portal', weight:2, score:6,  stam:0,  text:'A rift in space hums with unstable energy. Step through?' },
+  { emoji:'🌿',  label:'Rest',   weight:2, score:2,  stam:2,  text:'A mossy alcove glows softly. Rest here to restore stamina.' },
+  { emoji:'💀',  label:'Curse',  weight:1, score:-2, stam:-2, text:'A cursed glyph pulses on the floor. Ignore it — or study it?' },
+  { emoji:'🔮',  label:'Oracle', weight:1, score:10, stam:-1, text:'An oracle offers forbidden knowledge... for a price.' },
+  { emoji:'🏯',  label:'Boss',   weight:1, score:15, stam:-3, text:'The Floor Boss awakens. Defeat it to claim legendary loot!' },
+];
+
+function weightedRandom(items){
+  const total=items.reduce((s,i)=>s+i.weight,0);
+  let r=Math.random()*total;
+  for(const i of items){ r-=i.weight; if(r<=0) return i; }
+  return items[items.length-1];
+}
+
+function initQuestPath(){
+  pathStamina=5; pathDepth=0; pathResolved=false;
+  mgState.maxScore=PATH_DEPTH*10+15;
+  document.getElementById('mgQuest').style.display='block';
+  document.getElementById('pathEvent').innerHTML='<span style="color:var(--text-dim);font-style:italic;">Choose a path to begin your descent...</span>';
+  renderPathMap();
+}
+
+function renderPathMap(){
+  document.getElementById('pathStamina').textContent=pathStamina;
+  document.getElementById('pathDepth').textContent=pathDepth+1;
+  const mapEl=document.getElementById('pathMap');
+
+  // Generate current floor options (2-3 nodes)
+  const numChoices = pathDepth===PATH_DEPTH-1 ? 1 : (Math.random()<0.4?2:3);
+  const pool = pathDepth===PATH_DEPTH-1
+    ? [PATH_NODE_TYPES.find(n=>n.label==='Boss')]
+    : PATH_NODE_TYPES.filter(n=>n.label!=='Boss');
+
+  pathNodes=[];
+  for(let i=0;i<numChoices;i++) pathNodes.push(weightedRandom(pool));
+
+  let html='<div class="mg-path-row">';
+  pathNodes.forEach((node,i)=>{
+    const isBoss=node.label==='Boss';
+    html+=`<div class="mg-path-node${isBoss?' boss':''}" onclick="choosePathNode(${i})">
+      <span>${node.emoji}</span>
+      <span class="mg-node-label">${node.label}</span>
+    </div>`;
+  });
+  html+='</div>';
+  mapEl.innerHTML=html;
+}
+
+function choosePathNode(i){
+  if(pathResolved) return;
+  pathResolved=true;
+  const node=pathNodes[i];
+  document.querySelectorAll('.mg-path-node').forEach((n,idx)=>{
+    n.classList.add(idx===i?'current':'locked');
+    n.style.pointerEvents='none';
+  });
+
+  const eventEl=document.getElementById('pathEvent');
+  const gainStam=Math.max(0,node.stam);
+  const loseStam=Math.abs(Math.min(0,node.stam));
+  pathStamina=Math.min(5, pathStamina+gainStam);
+  pathStamina=Math.max(0, pathStamina-loseStam);
+  mgState.score=Math.max(0,mgState.score+node.score);
+  updateMgScore(mgState.score,mgState.maxScore);
+  document.getElementById('pathStamina').textContent=pathStamina;
+
+  // Build choices for node
+  const choices=getPathChoices(node);
+  let html=`<div style="color:var(--pink-pale);margin-bottom:10px;font-style:italic;">${node.text}</div>`;
+  html+=`<div class="mg-path-choices">`;
+  choices.forEach((c,ci)=>{
+    html+=`<button class="mg-path-choice" onclick="resolvePathChoice(${ci},${JSON.stringify(c.score)},${JSON.stringify(c.stam)},${JSON.stringify(c.label)})">${c.emoji} ${c.label}</button>`;
+  });
+  html+=`</div>`;
+  eventEl.innerHTML=html;
+}
+
+function getPathChoices(node){
+  const sets={
+    'Loot':[
+      {emoji:'💰',label:'Take all of it — greed wins',score:5,stam:0},
+      {emoji:'🎯',label:'Take only what you can carry',score:3,stam:1},
+      {emoji:'🚶',label:'Leave it — too suspicious',score:0,stam:0},
+    ],
+    'Spirit':[
+      {emoji:'⚔️',label:'Fight the spirit head-on',score:4,stam:-1},
+      {emoji:'🧘',label:'Offer it peace and dialogue',score:6,stam:0},
+      {emoji:'🏃',label:'Run past it',score:1,stam:1},
+    ],
+    'Portal':[
+      {emoji:'🌀',label:'Step through without hesitation',score:8,stam:-1},
+      {emoji:'🔍',label:'Study it first, then enter',score:5,stam:0},
+      {emoji:'❌',label:'Leave it alone',score:0,stam:1},
+    ],
+    'Rest':[
+      {emoji:'💤',label:'Rest fully — restore max stamina',score:1,stam:3},
+      {emoji:'📖',label:'Study the runes while resting',score:3,stam:1},
+      {emoji:'⏩',label:'Ignore it and push on',score:0,stam:0},
+    ],
+    'Curse':[
+      {emoji:'📖',label:'Study the glyph — risk knowledge',score:6,stam:-1},
+      {emoji:'🚫',label:'Seal it — safe but slow',score:2,stam:0},
+      {emoji:'💥',label:'Destroy it outright',score:3,stam:-2},
+    ],
+    'Oracle':[
+      {emoji:'💬',label:'Pay her price — secrets revealed',score:8,stam:-1},
+      {emoji:'🤝',label:'Negotiate — half the price',score:4,stam:0},
+      {emoji:'🚶',label:'Walk away — trust your instincts',score:1,stam:1},
+    ],
+    'Boss':[
+      {emoji:'⚔️',label:'Fight with everything you have!',score:12,stam:-2},
+      {emoji:'🧠',label:'Find the pattern, then strike',score:10,stam:-1},
+      {emoji:'🤝',label:'Offer a pact — avoid bloodshed',score:6,stam:0},
+    ],
+  };
+  return sets[node.label]||sets['Loot'];
+}
+
+function resolvePathChoice(ci, baseScore, baseStam, label){
+  // Disable all choices
+  document.querySelectorAll('.mg-path-choice').forEach(b=>b.disabled=true);
+  mgState.score=Math.max(0,mgState.score+baseScore);
+  pathStamina=Math.min(5,Math.max(0,pathStamina+baseStam));
+  updateMgScore(mgState.score,mgState.maxScore);
+  document.getElementById('pathStamina').textContent=pathStamina;
+
+  const flavors={
+    'Take all of it — greed wins':'Your pockets overflow with cursed gold. Worth it.',
+    'Take only what you can carry':'Smart choice. You move on faster.',
+    'Leave it — too suspicious':'Wise call. A trap activates behind you — harmless from here.',
+    'Fight the spirit head-on':'A fierce battle! You emerge victorious but winded.',
+    'Offer it peace and dialogue':'The spirit dissolves — it only wanted acknowledgement.',
+    'Run past it':'You slip through, barely! Adrenaline surges.',
+    'Step through without hesitation':'The portal hurls you forward — reward awaits!',
+    'Study it first, then enter':'Your patience pays off — a safer route found.',
+    'Leave it alone':'You take the long way. Safe but slow.',
+    'Rest fully — restore max stamina':'You wake feeling renewed. The dungeon feels less dark.',
+    'Study the runes while resting':'Ancient knowledge seeps into your mind. Power grows.',
+    'Ignore it and push on':'Discipline. You press deeper into the dark.',
+    'Study the glyph — risk knowledge':'The curse burns — but the forbidden knowledge is worth it.',
+    'Seal it — safe but slow':'The glyph goes dark. You move on carefully.',
+    'Destroy it outright':'Shards fly everywhere. Costly, but done.',
+    'Pay her price — secrets revealed':'The oracle smiles. The truth is stranger than expected.',
+    'Negotiate — half the price':'A fair deal. She respects the boldness.',
+    'Walk away — trust your instincts':'Your gut was right — the oracle watches you go with quiet respect.',
+    'Fight with everything you have!':'An EPIC battle! The boss falls — loot rains down!',
+    'Find the pattern, then strike':'Tactical genius. The boss never saw it coming.',
+    'Offer a pact — avoid bloodshed':'A tenuous alliance forms. Unexpected, but rewarding.',
+  };
+  const flavor=flavors[label]||'An unexpected outcome shapes your journey.';
+  const staminaDead=pathStamina<=0;
+
+  pathDepth++;
+  const isEnd=pathDepth>=PATH_DEPTH;
+
+  const eventEl=document.getElementById('pathEvent');
+
+  if(staminaDead && !isEnd){
+    eventEl.innerHTML=`<div style="color:#e74c3c;font-weight:700;margin-bottom:8px;">💀 Out of Stamina!</div><div style="color:var(--text-dim);font-style:italic;">${flavor}<br/><br/>You collapse at Floor ${pathDepth}. Partial rewards collected.</div>`;
+    setTimeout(()=>finishMinigame(mgState.score,mgState.maxScore), 1800);
+    return;
+  }
+
+  eventEl.innerHTML=`<div style="color:var(--pink-pale);font-style:italic;">${flavor}</div>`;
+
+  if(isEnd){
+    mgState.score+=10; // completion bonus
+    updateMgScore(mgState.score,mgState.maxScore);
+    setTimeout(()=>{
+      eventEl.innerHTML+=`<div style="margin-top:10px;color:#f1c40f;font-family:'Cinzel Decorative',serif;font-size:0.9em;">✦ The Final Seal is broken — dungeon cleared! ✦</div>`;
+      setTimeout(()=>finishMinigame(mgState.score,mgState.maxScore), 1200);
+    }, 600);
+  } else {
+    document.getElementById('pathDepth').textContent=pathDepth+1;
+    pathResolved=false;
+    setTimeout(renderPathMap, 900);
+  }
+}
+
+// ── Legacy shim (openActivity used in cooldown logic) ──
+function openActivity(type){ openMinigame(type); }
+function closeActivity(){
+  document.getElementById('actModal').classList.remove('active');
+  updateProfile();
+  renderCollection();
+}
+
+const WORK_SCENARIOS=[], TRAIN_SCENARIOS=[], QUEST_SCENARIOS=[];
 
 const WORK_SCENARIOS = [
   {
