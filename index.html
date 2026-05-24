@@ -3256,86 +3256,178 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
    MULTIPLAYER — CHAT, PROFILES, TRADES, PVP
 ══════════════════════════════════════════════ */
 
-/* ── Chat page layout ── */
-.chat-layout { display:flex; flex-direction:column; height:calc(100vh - 160px); min-height:400px; gap:0; }
+/* ── Chat layout — Discord-style ── */
+.chat-layout {
+  display:flex; flex-direction:column;
+  height:calc(100vh - 155px); min-height:440px; gap:0;
+  background:#111016; border-radius:14px;
+  border:1px solid rgba(255,157,199,0.1);
+  overflow:hidden;
+}
+
+/* ── Channel header bar ── */
+.chat-header {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:10px 16px; background:#161219;
+  border-bottom:1px solid rgba(255,157,199,0.08);
+  flex-shrink:0;
+}
+.chat-header-left { display:flex; align-items:center; gap:10px; }
+.chat-channel-name {
+  font-family:'JetBrains Mono',monospace; font-size:0.82em;
+  color:var(--text); font-weight:600; letter-spacing:0.02em;
+}
+.chat-channel-name span { color:rgba(255,157,199,0.4); margin-right:3px; }
+
+/* ── Feed ── */
 .chat-feed {
-  flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:10px;
-  padding:16px; background:rgba(255,157,199,0.02); border:1px solid var(--border);
-  border-radius:16px 16px 0 0; scroll-behavior:smooth;
+  flex:1; overflow-y:auto; display:flex; flex-direction:column;
+  padding:8px 0; scroll-behavior:smooth;
+  background:#111016;
 }
 .chat-feed::-webkit-scrollbar{width:4px;}
-.chat-feed::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+.chat-feed::-webkit-scrollbar-thumb{background:rgba(255,157,199,0.15);border-radius:2px;}
+.chat-feed::-webkit-scrollbar-track{background:transparent;}
+
+/* ── Discord-style message row ── */
+.chat-msg {
+  display:flex; flex-direction:row; align-items:flex-start; gap:12px;
+  padding:3px 16px; animation:fadeIn 0.2s ease;
+  max-width:100%; width:100%; box-sizing:border-box;
+  transition:background 0.1s;
+}
+.chat-msg:hover { background:rgba(255,157,199,0.025); }
+.chat-msg.chat-me:hover { background:rgba(255,157,199,0.04); }
+
+/* Avatar column */
+.chat-avatar-wrap { flex-shrink:0; width:38px; display:flex; flex-direction:column; align-items:center; padding-top:2px; }
+.chat-avatar {
+  width:38px; height:38px; border-radius:50%; object-fit:cover;
+  border:2px solid rgba(255,157,199,0.15); cursor:pointer; transition:border-color 0.2s;
+  flex-shrink:0;
+}
+.chat-avatar:hover { border-color:var(--pink); }
+
+/* Message body */
+.chat-bubble {
+  flex:1; min-width:0; background:none; border:none; padding:0;
+}
+.chat-me .chat-bubble { background:none; border:none; }
+
+/* Group spacing — same sender within 5 min gets compact row */
+.chat-msg.chat-compact { padding-top:1px; padding-bottom:1px; }
+.chat-msg.chat-compact .chat-avatar-wrap { visibility:hidden; }
+
+.chat-meta {
+  display:flex; align-items:baseline; gap:8px; margin-bottom:2px; cursor:pointer;
+}
+.chat-meta:hover .chat-username { text-decoration:underline; }
+.chat-username {
+  font-size:0.88em; font-weight:700; font-family:'JetBrains Mono',monospace;
+  line-height:1;
+}
+/* My messages get pink, others get a muted purple */
+.chat-me .chat-username { color:var(--pink); }
+.chat-msg:not(.chat-me) .chat-username { color:#c39bd3; }
+
+.chat-time {
+  font-size:0.65em; color:rgba(255,255,255,0.25);
+  font-family:'JetBrains Mono',monospace; flex-shrink:0;
+}
+.chat-text {
+  font-size:0.92em; color:#dcddde; line-height:1.55;
+  word-break:break-word; white-space:pre-wrap;
+}
+.chat-me .chat-text { color:#f0d8e8; }
+
+/* Compact hover timestamp */
+.chat-msg.chat-compact .chat-meta { display:none; }
+.chat-msg.chat-compact .chat-avatar-wrap::after {
+  content: attr(data-time);
+  font-size:0.58em; color:rgba(255,255,255,0.2);
+  font-family:'JetBrains Mono',monospace; margin-top:8px;
+  display:none;
+}
+.chat-msg.chat-compact:hover .chat-avatar-wrap::after { display:block; }
+
+/* ── Day divider ── */
+.chat-day-divider {
+  display:flex; align-items:center; gap:12px;
+  padding:12px 16px; color:rgba(255,255,255,0.25);
+  font-size:0.72em; font-family:'JetBrains Mono',monospace;
+  user-select:none;
+}
+.chat-day-divider::before,.chat-day-divider::after {
+  content:''; flex:1; height:1px; background:rgba(255,157,199,0.08);
+}
+
+/* ── Input area ── */
 .chat-input-bar {
-  display:flex; gap:8px; padding:12px 14px;
-  background:var(--bg2); border:1px solid var(--border); border-top:none;
-  border-radius:0 0 16px 16px; align-items:center; flex-wrap:wrap; gap:8px;
+  display:flex; align-items:center; gap:0;
+  padding:12px 16px; background:#161219;
+  border-top:1px solid rgba(255,157,199,0.08); flex-shrink:0;
 }
+.chat-input-wrap {
+  flex:1; display:flex; align-items:center; gap:8px;
+  background:#1e1723; border:1px solid rgba(255,157,199,0.12);
+  border-radius:10px; padding:0 12px; transition:border-color 0.2s;
+}
+.chat-input-wrap:focus-within { border-color:rgba(255,157,199,0.35); }
 .chat-input-bar input {
-  flex:1; min-width:0; background:rgba(255,157,199,0.06); border:1px solid var(--border);
-  border-radius:20px; padding:9px 16px; color:var(--text);
-  font-family:'Cormorant Garamond',serif; font-size:0.95em;
+  flex:1; background:none; border:none; outline:none;
+  color:#dcddde; font-family:'Cormorant Garamond',serif; font-size:0.97em;
+  padding:10px 0; min-width:0;
 }
-.chat-input-bar input:focus{outline:none;border-color:var(--pink);}
+.chat-input-bar input::placeholder { color:rgba(255,255,255,0.22); }
+.chat-flex-btn {
+  background:none; border:none; cursor:pointer; padding:6px 4px;
+  font-size:1.1em; opacity:0.5; transition:opacity 0.2s; white-space:nowrap;
+  flex-shrink:0;
+}
+.chat-flex-btn:hover { opacity:1; }
 .chat-send-btn {
   background:linear-gradient(135deg,var(--pink-deep),var(--purple));
-  border:none;color:#fff;padding:9px 20px;border-radius:20px;
-  font-family:'Cinzel Decorative',serif;font-size:0.7em;cursor:pointer;
-  white-space:nowrap; transition:all 0.2s; letter-spacing:0.04em;
+  border:none; color:#fff; padding:9px 18px; border-radius:8px;
+  font-family:'Cinzel Decorative',serif; font-size:0.68em; cursor:pointer;
+  white-space:nowrap; transition:all 0.2s; letter-spacing:0.05em;
+  margin-left:8px; flex-shrink:0;
 }
-.chat-send-btn:hover{transform:translateY(-1px);box-shadow:0 4px 16px var(--pink-glow);}
-.chat-flex-btn {
-  background:rgba(241,196,15,0.1);border:1px solid rgba(241,196,15,0.3);
-  color:#f1c40f;padding:9px 16px;border-radius:20px;
-  font-family:'Cormorant Garamond',serif;font-size:0.9em;cursor:pointer;
-  white-space:nowrap;transition:all 0.2s;
-}
-.chat-flex-btn:hover{background:rgba(241,196,15,0.18);}
+.chat-send-btn:hover { transform:translateY(-1px); box-shadow:0 4px 16px var(--pink-glow); }
 
-/* ── Chat messages ── */
-.chat-msg { display:flex; flex-direction:column; max-width:85%; animation:fadeIn 0.25s ease; }
-.chat-msg.chat-me { align-self:flex-end; }
-.chat-bubble {
-  background:var(--surface); border:1px solid var(--border);
-  border-radius:14px; padding:10px 14px; position:relative;
-}
-.chat-me .chat-bubble {
-  background:rgba(255,157,199,0.1); border-color:rgba(255,157,199,0.25);
-}
-.chat-meta {
-  display:flex; align-items:center; gap:7px; margin-bottom:5px; cursor:pointer;
-}
-.chat-meta:hover .chat-username{color:var(--pink);}
-.chat-avatar {
-  width:22px; height:22px; border-radius:50%; object-fit:cover;
-  border:1px solid var(--border); flex-shrink:0;
-}
-.chat-username { font-size:0.75em; color:var(--pink); font-weight:600; font-family:'JetBrains Mono',monospace; }
-.chat-text { font-size:0.9em; color:var(--text); line-height:1.5; word-break:break-word; }
-.chat-time { font-size:0.65em; color:var(--text-dim); margin-top:4px; font-family:'JetBrains Mono',monospace; }
-
-/* ── Flex card in chat ── */
+/* ── Flex card embed ── */
 .chat-flex-card {
   display:flex; align-items:center; gap:10px;
-  background:rgba(241,196,15,0.06); border:1px solid rgba(241,196,15,0.2);
-  border-radius:10px; padding:8px 12px; margin:6px 0; cursor:pointer;
-  transition:all 0.2s;
+  background:rgba(241,196,15,0.05); border-left:3px solid rgba(241,196,15,0.5);
+  border-radius:0 8px 8px 0; padding:8px 12px; margin:4px 0; cursor:pointer;
+  transition:all 0.2s; max-width:320px;
 }
-.chat-flex-card:hover{border-color:rgba(241,196,15,0.4);background:rgba(241,196,15,0.1);}
-.flex-thumb{width:32px;height:44px;border-radius:6px;object-fit:cover;border:1px solid var(--border);}
-.flex-name{font-size:0.82em;font-weight:600;color:var(--text);}
-.flex-rarity{font-size:0.72em;color:var(--text-dim);margin-top:1px;}
+.chat-flex-card:hover{background:rgba(241,196,15,0.1);}
+.flex-thumb{width:32px;height:44px;border-radius:5px;object-fit:cover;border:1px solid rgba(255,255,255,0.1);}
+.flex-name{font-size:0.85em;font-weight:600;color:#f0d8e8;}
+.flex-rarity{font-size:0.72em;color:rgba(255,255,255,0.4);margin-top:2px;}
+
+/* ── PvP / trade request embed ── */
+.chat-pvp-embed {
+  background:#1e1723; border:1px solid rgba(255,157,199,0.15);
+  border-left:3px solid var(--pink); border-radius:0 8px 8px 0;
+  padding:10px 14px; margin:4px 0; max-width:340px;
+}
+.chat-pvp-embed-title { font-size:0.78em; color:var(--pink); font-weight:700; margin-bottom:4px; font-family:'JetBrains Mono',monospace; }
+.chat-pvp-embed-body { font-size:0.85em; color:#dcddde; margin-bottom:8px; }
+
+/* ── Action buttons ── */
 .chat-action-btns{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap;}
 .chat-action-btn{
-  background:rgba(255,157,199,0.08);border:1px solid var(--border);
-  color:var(--pink);padding:4px 12px;border-radius:20px;
-  font-size:0.75em;cursor:pointer;font-family:'Cormorant Garamond',serif;
-  transition:all 0.2s;
+  background:rgba(255,157,199,0.1); border:1px solid rgba(255,157,199,0.2);
+  color:var(--pink); padding:5px 14px; border-radius:6px;
+  font-size:0.75em; cursor:pointer; font-family:'Cormorant Garamond',serif;
+  transition:all 0.15s; font-weight:600;
 }
-.chat-action-btn:hover{background:rgba(255,157,199,0.18);border-color:var(--pink);}
+.chat-action-btn:hover{background:rgba(255,157,199,0.22);border-color:var(--pink); transform:translateY(-1px);}
 
 /* ── Online badge ── */
-.online-dot{width:8px;height:8px;border-radius:50%;background:#2ecc71;display:inline-block;box-shadow:0 0 6px #2ecc71;flex-shrink:0;}
-.online-bar{display:flex;align-items:center;gap:8px;font-size:0.78em;color:var(--text-dim);padding:8px 0 12px;font-family:'JetBrains Mono',monospace;}
+.online-dot{width:8px;height:8px;border-radius:50%;background:#3ba55d;display:inline-block;box-shadow:0 0 6px #3ba55d55;flex-shrink:0;}
+.online-bar{display:flex;align-items:center;gap:6px;font-size:0.75em;color:rgba(255,255,255,0.35);font-family:'JetBrains Mono',monospace;}
 
 /* ── Player Profile Modal ── */
 #playerProfileModal {
@@ -4014,7 +4106,6 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   <div class="page" id="page-social">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
       <div class="section-title" style="margin:0;">✦ Social Hub</div>
-      <div class="online-bar" id="onlineBar"><span class="online-dot"></span><span id="onlineCount">0 online</span></div>
     </div>
     <!-- Tab switcher -->
     <div style="display:flex;gap:6px;margin-bottom:18px;flex-wrap:wrap;">
@@ -4026,16 +4117,28 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
     <!-- CHAT TAB -->
     <div id="socialTab-chat">
       <div class="chat-layout">
+        <!-- Channel header -->
+        <div class="chat-header">
+          <div class="chat-header-left">
+            <span style="font-size:1.1em;">💬</span>
+            <div class="chat-channel-name"><span>#</span>global-chat</div>
+          </div>
+          <div class="online-bar"><span class="online-dot"></span><span id="onlineCount">0 online</span></div>
+        </div>
+        <!-- Feed -->
         <div class="chat-feed" id="chatFeed">
-          <div style="text-align:center;color:var(--text-dim);font-style:italic;font-size:0.85em;padding:20px 0;">
+          <div style="text-align:center;color:rgba(255,255,255,0.2);font-style:italic;font-size:0.82em;padding:28px 0;font-family:'JetBrains Mono',monospace;" data-placeholder>
             ✦ Connecting to global chat... ✦
           </div>
         </div>
+        <!-- Input bar -->
         <div class="chat-input-bar">
-          <input id="chatInput" placeholder="Say something... (max 300 chars)" maxlength="300"
-            onkeydown="if(event.key==='Enter')submitChat()"/>
-          <button class="chat-send-btn" onclick="submitChat()">✦ Send</button>
-          <button class="chat-flex-btn" onclick="openFlexPicker()">✨ Flex Card</button>
+          <div class="chat-input-wrap">
+            <button class="chat-flex-btn" onclick="openFlexPicker()" title="Flex a card">✨</button>
+            <input id="chatInput" placeholder="Message #global-chat" maxlength="300"
+              onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();submitChat();}"/>
+          </div>
+          <button class="chat-send-btn" onclick="submitChat()">Send ✦</button>
         </div>
       </div>
     </div>
@@ -10608,60 +10711,76 @@ function renderChatMsg(msg){
   if(placeholder) placeholder.remove();
 
   const isMe = msg.discord_id === state.discordId;
-  const el   = document.createElement('div');
-  el.className = 'chat-msg' + (isMe ? ' chat-me' : '');
-  el.style.alignSelf = isMe ? 'flex-end' : 'flex-start';
-
   const time = msg.created_at
     ? new Date(msg.created_at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})
     : '';
 
-  let inner = `
-    <div class="chat-bubble">
-      <div class="chat-meta" onclick="viewPlayerProfile('${msg.discord_id}')">
-        <img class="chat-avatar" src="${msg.avatar_url||'https://cdn.discordapp.com/embed/avatars/0.png'}"
-          onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'"/>
-        <span class="chat-username">${escapeHtml(msg.username)}</span>
-      </div>`;
+  // Group detection — compact if same sender as last message
+  const lastMsg = feed.lastElementChild;
+  const lastId  = lastMsg?.dataset?.senderId;
+  const lastTs  = lastMsg?.dataset?.ts ? parseInt(lastMsg.dataset.ts) : 0;
+  const thisTs  = msg.created_at ? new Date(msg.created_at).getTime() : Date.now();
+  const isCompact = lastId === msg.discord_id && (thisTs - lastTs) < 5 * 60 * 1000;
 
+  const el = document.createElement('div');
+  el.className = 'chat-msg' + (isMe ? ' chat-me' : '') + (isCompact ? ' chat-compact' : '');
+  el.dataset.senderId = msg.discord_id;
+  el.dataset.ts = thisTs;
+
+  // Avatar column
+  const avatarWrap = `
+    <div class="chat-avatar-wrap" data-time="${time}">
+      ${!isCompact ? `<img class="chat-avatar"
+        src="${msg.avatar_url||'https://cdn.discordapp.com/embed/avatars/0.png'}"
+        onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'"
+        onclick="viewPlayerProfile('${msg.discord_id}')" title="${escapeHtml(msg.username)}"/>` : ''}
+    </div>`;
+
+  // Message body
+  let body = '';
+
+  // Header (username + timestamp) — hidden in compact
+  if(!isCompact){
+    body += `<div class="chat-meta" onclick="viewPlayerProfile('${msg.discord_id}')">
+      <span class="chat-username">${escapeHtml(msg.username)}</span>
+      <span class="chat-time">${time}</span>
+    </div>`;
+  }
+
+  // Content by type
   if(msg.msg_type === 'flex' && msg.card_id){
     const card = (window.DEMO_CARDS||[]).find(c=>c.id===msg.card_id);
     if(card){
-      inner += `
-        <div class="chat-flex-card" onclick="openCardById('${card.id}')">
-          <img class="flex-thumb" src="${card.thumbnail||card.image}"
-            onerror="this.style.display='none'"/>
-          <div>
-            <div class="flex-name">${escapeHtml(card.name)}</div>
-            <div class="flex-rarity">${escapeHtml(card.rarityName||'')} ${card.rarityStars||''}</div>
-          </div>
-        </div>`;
+      body += `<div class="chat-flex-card" onclick="openCardById('${card.id}')">
+        <img class="flex-thumb" src="${card.thumbnail||card.image}" onerror="this.style.display='none'"/>
+        <div>
+          <div class="flex-name">${escapeHtml(card.name)}</div>
+          <div class="flex-rarity">${escapeHtml(card.rarityName||'')} ${card.rarityStars||''}</div>
+        </div>
+      </div>`;
     }
-  }
-
-  inner += `<div class="chat-text">${escapeHtml(msg.content)}</div>`;
-
-  // Action buttons — only on others' flex/pvp_req messages
-  if(!isMe && msg.msg_type === 'flex' && msg.card_id){
-    inner += `
-      <div class="chat-action-btns">
+    if(msg.content) body += `<div class="chat-text">${escapeHtml(msg.content)}</div>`;
+    if(!isMe){
+      body += `<div class="chat-action-btns">
         <button class="chat-action-btn" onclick="openTradeWithPlayer('${msg.discord_id}')">🔄 Trade</button>
         <button class="chat-action-btn" onclick="challengeToPvp('${msg.discord_id}')">⚔️ Challenge</button>
       </div>`;
-  }
-  if(!isMe && msg.msg_type === 'pvp_req'){
-    // Extract battle id from content
-    const match = msg.content.match(/\[battleId:([\w-]+)\]/);
-    if(match){
-      inner += `
-        <div class="chat-action-btns">
-          <button class="chat-action-btn" onclick="acceptPvpChallenge('${match[1]}','${msg.discord_id}')">⚔️ Accept Battle</button>
-        </div>`;
     }
+  } else if(msg.msg_type === 'pvp_req'){
+    const match = msg.content.match(/\[battleId:([\w-]+)\]/);
+    const cleanContent = msg.content.replace(/\[battleId:[\w-]+\]/,'').trim();
+    body += `<div class="chat-pvp-embed">
+      <div class="chat-pvp-embed-title">⚔️ Battle Challenge</div>
+      <div class="chat-pvp-embed-body">${escapeHtml(cleanContent)}</div>
+      ${(!isMe && match) ? `<div class="chat-action-btns">
+        <button class="chat-action-btn" onclick="acceptPvpChallenge('${match[1]}','${msg.discord_id}')">⚔️ Accept Battle</button>
+      </div>` : ''}
+    </div>`;
+  } else {
+    body += `<div class="chat-text">${escapeHtml(msg.content)}</div>`;
   }
 
-  inner += `<div class="chat-time">${time}</div></div>`;
-  el.innerHTML = inner;
+  el.innerHTML = avatarWrap + `<div class="chat-bubble">${body}</div>`;
   feed.appendChild(el);
 
   // Cap DOM at 100 messages
@@ -10833,12 +10952,14 @@ async function openTradeWithPlayer(targetDiscordId){
   // Fetch target's username
   let targetName = targetDiscordId;
   try {
-    const { data } = await rt.from('players').select('username,collection').eq('discord_id',targetDiscordId).limit(1);
-    if(data && data[0]){
-      targetName = data[0].username || targetDiscordId;
-      tradeTargetCollection = Array.isArray(data[0].collection) ? data[0].collection : [];
-    }
+    const { data: pdata } = await rt.from('players').select('username').eq('discord_id',targetDiscordId).limit(1);
+    if(pdata && pdata[0]) targetName = pdata[0].username || targetDiscordId;
   } catch(e){}
+  // Fetch target's collection from the collection table (not a column on players)
+  try {
+    const { data: cdata } = await rt.from('collection').select('card_id').eq('discord_id',targetDiscordId);
+    tradeTargetCollection = cdata ? [...new Set(cdata.map(r=>r.card_id))] : [];
+  } catch(e){ tradeTargetCollection = []; }
 
   document.getElementById('tradeTargetName').textContent = targetName;
 
@@ -10905,9 +11026,11 @@ async function submitTradeOffer(){
     });
     if(!res.ok){ const e = await res.json().catch(()=>{}); showToast('❌ Trade error: '+(e?.message||res.status)); return; }
     showToast('🔄 Trade offer sent!');
+    const offerCardId = tradeOfferCard.offer;
+    const wantCardId  = tradeOfferCard.want;
     closeTradeModal();
-    const offerCard = (window.DEMO_CARDS||[]).find(c=>c.id===tradeOfferCard.offer);
-    const wantCard  = (window.DEMO_CARDS||[]).find(c=>c.id===tradeOfferCard.want);
+    const offerCard = (window.DEMO_CARDS||[]).find(c=>c.id===offerCardId);
+    const wantCard  = (window.DEMO_CARDS||[]).find(c=>c.id===wantCardId);
     if(offerCard && wantCard){
       await sendChatMsg(`🔄 Trade offer sent: my ${offerCard.name} for ${wantCard.name}`, 'text', null);
     }
