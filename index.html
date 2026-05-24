@@ -10489,26 +10489,36 @@ function switchSocialTab(tab, btn){
 // ══════════════════════════════════════════════
 async function initChat(){
   const rt = getSupaRT();
-  if(!rt) return;
-  if(chatInited) return;
+  if(!rt){ console.error('[MP] Supabase RT client failed to init'); return; }
+
+  // Resubscribe if channel dropped
+  if(chatInited && chatChannel) return;
   chatInited = true;
 
   const feed = document.getElementById('chatFeed');
-  if(feed) feed.innerHTML = '';
+  if(feed) feed.innerHTML = '<div style="text-align:center;color:var(--text-dim);font-style:italic;font-size:0.85em;padding:20px;" data-placeholder>✦ Loading chat... ✦</div>';
 
-  // 1. Load last 60 messages
+  // 1. Load last 60 messages via REST (bypasses RLS issues with anon key)
   try {
-    const { data } = await rt
-      .from('chat_messages')
-      .select('*')
-      .order('created_at', { ascending: false })
-      .limit(60);
+    const res = await fetch(
+      `${SUPABASE_URL}/rest/v1/chat_messages?order=created_at.desc&limit=60`,
+      { headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY } }
+    );
+    if(!res.ok){ const err = await res.json().catch(()=>{}); console.error('[MP] Chat load HTTP error', res.status, err);
+      chatDebugError(`Load failed (${res.status}): ${err?.message||err?.hint||'check Supabase RLS / table exists'}`);
+    }
+    const data = res.ok ? await res.json() : [];
     const history = (data || []).reverse();
+    if(feed) feed.innerHTML = '';
+    if(!history.length){
+      if(feed) feed.innerHTML = '<div style="text-align:center;color:var(--text-dim);font-style:italic;font-size:0.85em;padding:30px;" data-placeholder>✦ No messages yet. Say hello! ✦</div>';
+    }
     history.forEach(msg => renderChatMsg(msg));
     scrollChatToBottom();
-  } catch(e){ console.warn('Chat load error', e); }
+  } catch(e){ console.warn('[MP] Chat load error', e); }
 
-  // 2. Subscribe to new messages
+  // 2. Subscribe to new messages via Realtime
+  if(chatChannel){ try{ rt.removeChannel(chatChannel); }catch(e){} }
   chatChannel = rt.channel('public-chat')
     .on('postgres_changes', {
       event: 'INSERT', schema: 'public', table: 'chat_messages'
@@ -10516,7 +10526,9 @@ async function initChat(){
       renderChatMsg(payload.new);
       scrollChatToBottom();
     })
-    .subscribe();
+    .subscribe((status, err) => {
+      console.log('[MP] Chat channel status:', status, err||'');
+    });
 
   // 3. Presence — who's online
   presenceChannel = rt.channel('online-users');
@@ -10557,17 +10569,33 @@ async function sendChatMsg(content, type='text', cardId=null){
   }
   if(!content.trim()) return;
   const safe = content.replace(/<[^>]*>/g,'').slice(0,300);
-  const rt = getSupaRT();
-  if(!rt) return;
+
+  // Use direct REST POST — same pattern as your existing sb wrapper
   try {
-    await rt.from('chat_messages').insert({
-      discord_id: state.discordId,
-      username:   state.username  || 'Summoner',
-      avatar_url: state.avatar    || '',
-      content:    safe,
-      msg_type:   type,
-      card_id:    cardId || null
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/chat_messages`, {
+      method: 'POST',
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': 'Bearer ' + SUPABASE_KEY,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify({
+        discord_id: state.discordId,
+        username:   state.username  || 'Summoner',
+        avatar_url: state.avatar    || '',
+        content:    safe,
+        msg_type:   type,
+        card_id:    cardId || null
+      })
     });
+    if(!res.ok){
+      const err = await res.json().catch(()=>({ message: 'unknown' }));
+      console.error('[MP] sendChatMsg error', res.status, err);
+      const hint = err?.message || err?.hint || String(res.status);
+      chatDebugError(`Send failed: ${hint}`);
+      showToast('❌ Chat error — see feed for details');
+    }
   } catch(e){ showToast('❌ Chat error: ' + (e.message||'')); }
 }
 
@@ -10643,6 +10671,16 @@ function renderChatMsg(msg){
 function scrollChatToBottom(){
   const feed = document.getElementById('chatFeed');
   if(feed) feed.scrollTop = feed.scrollHeight;
+}
+
+function chatDebugError(msg){
+  const feed = document.getElementById('chatFeed');
+  if(!feed) return;
+  const el = document.createElement('div');
+  el.style.cssText = 'background:rgba(231,76,60,0.1);border:1px solid rgba(231,76,60,0.3);border-radius:10px;padding:8px 12px;font-size:0.75em;color:#e74c3c;font-family:\'JetBrains Mono\',monospace;margin:4px 0;';
+  el.textContent = '⚠️ ' + msg;
+  feed.appendChild(el);
+  scrollChatToBottom();
 }
 
 function escapeHtml(str){
@@ -10849,26 +10887,28 @@ async function submitTradeOffer(){
   if(!tradeOfferCard.want){  showToast('Pick a card you want first');  return; }
   if(!tradeTargetId)         return;
 
-  const rt = getSupaRT();
   try {
-    await rt.from('trade_offers').insert({
-      from_discord_id: state.discordId,
-      to_discord_id:   tradeTargetId,
-      offer_card_id:   tradeOfferCard.offer,
-      want_card_id:    tradeOfferCard.want,
-      status: 'pending'
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/trade_offers`, {
+      method: 'POST',
+      headers: {
+        'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY,
+        'Content-Type': 'application/json', 'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify({
+        from_discord_id: state.discordId,
+        to_discord_id:   tradeTargetId,
+        offer_card_id:   tradeOfferCard.offer,
+        want_card_id:    tradeOfferCard.want,
+        status: 'pending'
+      })
     });
+    if(!res.ok){ const e = await res.json().catch(()=>{}); showToast('❌ Trade error: '+(e?.message||res.status)); return; }
     showToast('🔄 Trade offer sent!');
     closeTradeModal();
-
-    // Also post in chat
     const offerCard = (window.DEMO_CARDS||[]).find(c=>c.id===tradeOfferCard.offer);
     const wantCard  = (window.DEMO_CARDS||[]).find(c=>c.id===tradeOfferCard.want);
     if(offerCard && wantCard){
-      await sendChatMsg(
-        `🔄 Trade offer to ${tradeTargetId}: my ${offerCard.name} for their ${wantCard.name}`,
-        'text', null
-      );
+      await sendChatMsg(`🔄 Trade offer sent: my ${offerCard.name} for ${wantCard.name}`, 'text', null);
     }
   } catch(e){ showToast('❌ Trade error: '+(e.message||'')); }
 }
@@ -11326,36 +11366,53 @@ function switchLeaderboard(type, btn){
 }
 
 async function loadLeaderboard(type='pvp'){
-  const rt = getSupaRT();
-  if(!rt) return;
   const list = document.getElementById('leaderboardList');
   if(!list) return;
   list.innerHTML = '<div style="color:var(--text-dim);font-style:italic;text-align:center;padding:20px;">Loading... ✦</div>';
   try {
-    let query = rt.from('players').select('discord_id,username,avatar,pvp_wins,pvp_losses,equipped_card,collection').eq('is_public',true);
-    if(type==='pvp')   query = query.order('pvp_wins',{ascending:false}).limit(50);
-    else               query = query.limit(200);
+    // Fetch players — is_public may be null on old rows so we just fetch all and show top 50
+    let url, res, rows = [];
 
-    const { data } = await query;
-    let rows = data || [];
+    if(type === 'pvp'){
+      url = `${SUPABASE_URL}/rest/v1/players?select=discord_id,username,avatar,pvp_wins,pvp_losses,equipped_card&order=pvp_wins.desc&limit=50`;
+    } else {
+      // For card count we need to count from collection table grouped by discord_id
+      url = `${SUPABASE_URL}/rest/v1/players?select=discord_id,username,avatar,pvp_wins,pvp_losses,equipped_card&order=pvp_wins.desc&limit=200`;
+    }
 
-    if(type==='cards'){
-      rows = rows.map(r=>({ ...r, _cardCount: Array.isArray(r.collection)?r.collection.length:0 }))
-                 .sort((a,b)=>b._cardCount-a._cardCount)
+    res = await fetch(url, {
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }
+    });
+    rows = res.ok ? await res.json() : [];
+    rows = rows || [];
+
+    if(type === 'cards'){
+      // Fetch collection counts
+      const collRes = await fetch(
+        `${SUPABASE_URL}/rest/v1/collection?select=discord_id`,
+        { headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY } }
+      );
+      const collRows = collRes.ok ? await collRes.json() : [];
+      const countMap = {};
+      (collRows||[]).forEach(r=>{ countMap[r.discord_id] = (countMap[r.discord_id]||0)+1; });
+      rows = rows.map(r=>({ ...r, _cardCount: countMap[r.discord_id]||0 }))
+                 .sort((a,b)=>b._cardCount - a._cardCount)
                  .slice(0,50);
     }
 
     if(!rows.length){
-      list.innerHTML = '<div style="color:var(--text-dim);font-style:italic;text-align:center;padding:20px;">No data yet ʚɞ</div>';
+      list.innerHTML = '<div style="color:var(--text-dim);font-style:italic;text-align:center;padding:20px;">No players yet ʚɞ — be the first!</div>';
       return;
     }
     list.innerHTML = '';
     rows.forEach((p,i)=>{
       const rankClass = i===0?'gold':i===1?'silver':i===2?'bronze':'';
       const rankLabel = i===0?'🥇':i===1?'🥈':i===2?'🥉':`#${i+1}`;
-      const statVal   = type==='pvp' ? `${p.pvp_wins||0} wins` : `${Array.isArray(p.collection)?p.collection.length:0} cards`;
-      const equip     = (window.DEMO_CARDS||[]).find(c=>c.id===p.equipped_card);
-      const row = document.createElement('div');
+      const statVal   = type==='pvp'
+        ? `${p.pvp_wins||0} wins`
+        : `${p._cardCount||0} cards`;
+      const equip = (window.DEMO_CARDS||[]).find(c=>c.id===p.equipped_card);
+      const row   = document.createElement('div');
       row.className = 'leaderboard-row';
       row.onclick   = () => viewPlayerProfile(p.discord_id);
       row.innerHTML = `
@@ -11369,6 +11426,7 @@ async function loadLeaderboard(type='pvp'){
       list.appendChild(row);
     });
   } catch(e){
+    console.error('[MP] Leaderboard error', e);
     list.innerHTML = '<div style="color:var(--text-dim);font-style:italic;text-align:center;padding:20px;">Error loading leaderboard</div>';
   }
 }
