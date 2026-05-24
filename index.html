@@ -34,7 +34,7 @@ body{font-family:'Cormorant Garamond',serif;background:var(--bg);color:var(--tex
 @keyframes sakuraFall2{0%{transform:translate(0,-40px) rotate(-10deg);opacity:0;}8%{opacity:0.85;}50%{transform:translate(16px,50vh) rotate(165deg);opacity:0.7;}100%{transform:translate(-20px,108vh) rotate(340deg);opacity:0;}}
 @keyframes sakuraFall3{0%{transform:translate(0,-40px) rotate(20deg);opacity:0;}8%{opacity:0.7;}50%{transform:translate(-18px,50vh) rotate(220deg);opacity:0.6;}100%{transform:translate(24px,108vh) rotate(400deg);opacity:0;}}
 @keyframes sakuraFall4{0%{transform:translate(0,-40px) rotate(-20deg);opacity:0;}8%{opacity:0.8;}50%{transform:translate(30px,50vh) rotate(155deg);opacity:0.65;}100%{transform:translate(-8px,108vh) rotate(320deg);opacity:0;}}
-#app{position:relative;z-index:2;min-height:100vh;overflow-x:hidden;}
+#app{position:relative;z-index:2;min-height:100vh;}
 nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:14px 32px;background:rgba(13,6,16,0.85);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);}
 .nav-logo{font-family:'Cinzel Decorative',serif;font-size:1.1em;font-weight:700;background:linear-gradient(135deg,var(--pink),var(--purple),var(--pink-pale));-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:0.05em;}
 .nav-links{display:flex;gap:8px;}
@@ -49,18 +49,17 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   font-family:'Cinzel Decorative',serif;
   font-size:clamp(2em,6vw,5em);
   font-weight:900;
-  background:linear-gradient(90deg,#ffd6ea,#ff9dc7,#e0608a,#c084b8,#e0608a,#ff9dc7,#ffd6ea);
+  background:linear-gradient(90deg,#ffd6ea,#ffadd5,#ff9dc7,#e0608a,#c084b8,#d86fa0,#ff9dc7,#ffd6ea);
   background-size:300%;
   -webkit-background-clip:text;
   -webkit-text-fill-color:transparent;
-  animation:pinkPulse 8s ease-in-out infinite;
+  animation:pinkShift 9s linear infinite;
   margin-bottom:6px;
   letter-spacing:0.04em;
   filter:drop-shadow(0 0 24px rgba(255,157,199,0.5)) drop-shadow(0 2px 40px rgba(192,132,184,0.35));
   position:relative;
   display:inline-block;
 }
-@keyframes pinkPulse{0%{background-position:0%;}50%{background-position:100%;}100%{background-position:0%;}}
 .hero-title-wrap{position:relative;display:inline-block;margin-bottom:14px;}
 .hero-title-deco{
   position:absolute;
@@ -84,12 +83,36 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   height:2px;
   background:linear-gradient(90deg,transparent,var(--pink),var(--purple),var(--pink),transparent);
   background-size:300%;
-  animation:auroraShift 4s linear infinite;
+  animation:shimmer 6s linear infinite;
   margin:0 auto 4px;
   border-radius:2px;
   opacity:0.7;
 }
-/* hero-gif-banner base — see HOME GIF BANNER block below */
+/* ── Hero section with GIF background ── */
+.hero-section{position:relative;overflow:hidden;border-radius:0 0 28px 28px;margin:-32px -32px 0;padding:80px 32px 44px;}
+.hero-bg{position:absolute;inset:0;background-image:var(--hero-gif,none);background-size:cover;background-position:center center;z-index:0;}
+.hero-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,rgba(13,6,16,0.45) 0%,rgba(13,6,16,0.55) 50%,rgba(13,6,16,0.85) 80%,var(--bg) 100%);}
+.hero{position:relative;z-index:1;text-align:center;padding:0;}
+/* Pink-only title gradient */
+.hero-title{
+  font-family:'Cinzel Decorative',serif;
+  font-size:clamp(2em,6vw,5em);
+  font-weight:900;
+  background:linear-gradient(90deg,#ffd6ea,#ffadd5,#ff9dc7,#e0608a,#c084b8,#d86fa0,#ff9dc7,#ffd6ea);
+  background-size:300%;
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  animation:pinkShift 9s linear infinite;
+  margin-bottom:6px;
+  letter-spacing:0.04em;
+  filter:drop-shadow(0 0 28px rgba(255,157,199,0.55)) drop-shadow(0 2px 40px rgba(192,132,184,0.35));
+  position:relative;
+  display:inline-block;
+}
+@keyframes pinkShift{0%{background-position:0%;}100%{background-position:300%;}}
+@media(max-width:700px){
+  .hero-section{margin:-16px -14px 0;padding:60px 14px 32px;border-radius:0 0 20px 20px;}
+}
 .hero-sub{font-style:italic;font-size:1.2em;color:var(--text-dim);margin-bottom:40px;letter-spacing:0.05em;}
 .hero-actions{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;}
 .btn-primary{background:linear-gradient(135deg,var(--pink-deep),var(--purple));border:none;color:#fff;padding:12px 32px;border-radius:30px;font-family:'Cinzel Decorative',serif;font-size:0.85em;font-weight:700;cursor:pointer;transition:all 0.25s;box-shadow:0 4px 20px var(--pink-glow);letter-spacing:0.05em;}
@@ -208,7 +231,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 #toast.show{transform:translateX(-50%) translateY(0);}
 #loginOverlay{position:fixed;inset:0;z-index:400;display:flex;align-items:center;justify-content:center;background:rgba(13,6,16,0.97);backdrop-filter:blur(20px);}
 .login-box{text-align:center;max-width:420px;width:90%;animation:fadeIn 0.6s ease;}
-.login-logo{font-family:'Cinzel Decorative',serif;font-size:2.5em;font-weight:900;background:linear-gradient(90deg,#ffd6ea,#ff9dc7,#e879b0,#c084b8,#a855f7,#ffd6ea);background-size:300%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:auroraShift 5s linear infinite;margin-bottom:8px;filter:drop-shadow(0 0 24px rgba(255,157,199,0.5));}
+.login-logo{font-family:'Cinzel Decorative',serif;font-size:2.5em;font-weight:900;background:linear-gradient(90deg,#ffd6ea,#ffadd5,#ff9dc7,#e0608a,#c084b8,#ffd6ea);background-size:300%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:pinkShift 9s linear infinite;margin-bottom:8px;filter:drop-shadow(0 0 24px rgba(255,157,199,0.5));}
 .login-tagline{color:var(--text-dim);font-style:italic;margin-bottom:40px;font-size:1.1em;}
 .discord-btn{display:inline-flex;align-items:center;gap:12px;background:#5865F2;color:#fff;border:none;padding:14px 32px;border-radius:30px;font-family:'Cinzel Decorative',serif;font-size:0.9em;font-weight:700;cursor:pointer;transition:all 0.25s;box-shadow:0 4px 24px rgba(88,101,242,0.4);margin-bottom:16px;}
 .discord-btn:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(88,101,242,0.5);}
@@ -429,7 +452,6 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   .nav-logo { font-size: 0.88em; }
 
   /* ── Hero ── */
-  .hero { padding: 30px 14px 16px; }
   .hero-title { font-size: clamp(1.5em, 9vw, 2.8em); }
   .hero-title-deco.tl,.hero-title-deco.tr{font-size:0.7em;top:-6px;}
   .hero-title-deco.bl,.hero-title-deco.br{bottom:-6px;font-size:0.5em;}
@@ -520,16 +542,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   /* ── Pity ── */
   .pity-section { padding: 14px 16px; }
 
-  /* ── Minigame modal mobile ── */
-  .mg-box { padding: 20px 16px 18px; border-radius: 20px; }
-  .mg-title { font-size: 0.95em; }
-  .mg-heist-grid { max-width: 260px; gap: 8px; }
-  .mg-heist-panel { border-radius: 10px; font-size: 1.2em; }
-  .mg-surge-btn { padding: 12px 36px; font-size: 0.9em; }
-  .mg-path-node { width: 60px; height: 60px; font-size: 1.2em; border-radius: 12px; }
-  .mg-result-grade { font-size: 2.4em; }
-
-    /* ── Mobile nav bottom ── */
+  /* ── Mobile nav bottom ── */
   .mobile-nav-btn { min-width: 44px; padding: 5px 8px; font-size: 0.58em; }
 }
 
@@ -645,6 +658,55 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .act-result-rewards{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:12px 0;}
 .act-close-btn{width:100%;padding:12px;border-radius:14px;background:linear-gradient(135deg,var(--pink-deep),var(--purple));border:none;color:#fff;font-family:'Cinzel Decorative',serif;font-size:0.82em;cursor:pointer;margin-top:6px;letter-spacing:0.04em;}
 
+/* ══ MINIGAME STYLES ══ */
+
+/* WORK GAME — Stitch Whack-a-Mole */
+.wg-container{padding:6px 0;}
+.wg-info{display:flex;justify-content:space-between;margin-bottom:8px;font-family:'JetBrains Mono',monospace;font-size:0.74em;color:var(--text-dim);flex-wrap:wrap;gap:4px;}
+.wg-hits{color:#2ecc71;}
+.wg-round-lbl{color:var(--text-dim);}
+.wg-progress-wrap{height:5px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden;margin-bottom:12px;}
+.wg-progress-bar{height:100%;background:linear-gradient(90deg,var(--pink-deep),var(--purple));border-radius:3px;transition:width 0.5s ease;}
+.wg-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:300px;margin:0 auto 14px;}
+.wg-cell{background:rgba(255,157,199,0.04);border:1px solid var(--border);border-radius:14px;aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:1.7em;cursor:pointer;transition:all 0.15s;user-select:none;-webkit-user-select:none;}
+.wg-cell.wg-active{background:rgba(241,196,15,0.18);border-color:#f1c40f;box-shadow:0 0 18px rgba(241,196,15,0.55);animation:wgPulse 0.45s ease-in-out infinite alternate;}
+.wg-cell.wg-hit{background:rgba(46,204,113,0.25);border-color:#2ecc71;transform:scale(1.12);}
+.wg-cell.wg-miss{background:rgba(231,76,60,0.18);border-color:#e74c3c;}
+.wg-cell.wg-wrong{animation:wgShake 0.25s ease;}
+@keyframes wgPulse{from{box-shadow:0 0 8px rgba(241,196,15,0.3);}to{box-shadow:0 0 22px rgba(241,196,15,0.75);}}
+@keyframes wgShake{0%,100%{transform:translateX(0);}25%{transform:translateX(-5px);}75%{transform:translateX(5px);}}
+.wg-tip{text-align:center;font-size:0.8em;color:var(--pink);font-style:italic;min-height:20px;}
+
+/* TRAIN GAME — Timing Ring */
+.tg-container{padding:4px 0;}
+.tg-info{display:flex;justify-content:space-between;margin-bottom:10px;font-family:'JetBrains Mono',monospace;font-size:0.74em;}
+.tg-hits{color:#f1c40f;}
+.tg-ring-wrap{position:relative;width:220px;height:220px;margin:0 auto 14px;}
+#tgCanvas{display:block;}
+.tg-center-btn{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:82px;height:82px;border-radius:50%;background:linear-gradient(135deg,var(--pink-deep),var(--purple));border:3px solid rgba(255,157,199,0.5);cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 0 22px var(--pink-glow);transition:all 0.1s;}
+.tg-center-btn:hover{box-shadow:0 0 32px var(--pink-glow);}
+.tg-center-btn:active{transform:translate(-50%,-50%) scale(0.91);}
+.tg-btn-inner{font-size:1.9em;pointer-events:none;}
+.tg-feedback{text-align:center;font-family:'Cinzel Decorative',serif;font-size:0.92em;color:var(--pink-pale);margin-bottom:8px;min-height:24px;transition:color 0.3s;}
+.tg-hint{text-align:center;font-size:0.77em;color:var(--text-dim);font-style:italic;}
+
+/* QUEST GAME — Dungeon Tiles */
+.qg-container{padding:4px 0;}
+.qg-status{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:6px;}
+.qg-hearts{font-size:0.95em;letter-spacing:1px;}
+.qg-score{font-family:'JetBrains Mono',monospace;font-size:0.78em;color:#f1c40f;}
+.qg-theme-text{font-style:italic;color:var(--text-dim);font-size:0.81em;text-align:center;margin-bottom:11px;}
+.qg-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:12px;}
+.qg-tile{background:rgba(255,157,199,0.04);border:1px solid var(--border);border-radius:10px;aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all 0.18s;position:relative;overflow:hidden;}
+.qg-tile:not(.revealed):hover{border-color:var(--pink);background:rgba(255,157,199,0.1);transform:translateY(-2px);box-shadow:0 4px 12px var(--pink-glow);}
+.qg-tile.revealed{cursor:default;background:rgba(255,157,199,0.03);}
+.qg-tile-back{font-size:1.35em;}
+.qg-tile-emoji{font-size:1.2em;}
+.qg-tile-label{font-size:0.5em;font-family:'JetBrains Mono',monospace;color:var(--text-dim);margin-top:2px;text-align:center;line-height:1.2;}
+.qg-log{background:rgba(255,157,199,0.04);border:1px solid var(--border);border-radius:10px;padding:8px 12px;min-height:54px;}
+.qg-log-entry{font-size:0.78em;color:var(--text-dim);padding:2px 0;font-style:italic;line-height:1.4;}
+.qg-log-entry:first-child{color:var(--text);}
+
 /* ══ DAILY LOGIN ══ */
 .daily-streak-banner{background:linear-gradient(135deg,rgba(241,196,15,0.12),rgba(255,157,199,0.08));border:1px solid rgba(241,196,15,0.3);border-radius:18px;padding:20px 24px;margin-bottom:24px;display:flex;align-items:center;gap:18px;flex-wrap:wrap;}
 .daily-flame{font-size:3em;animation:orbPulse 2s ease-in-out infinite;}
@@ -684,7 +746,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 /* Responsive admin card editor — full-width side-by-side on desktop, stacked on mobile */
 .admin-card-editor-grid {
   display: grid;
-  grid-template-columns: 1fr min(320px, 100%);
+  grid-template-columns: 1fr 320px;
   gap: 20px;
   align-items: start;
 }
@@ -692,27 +754,33 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   .admin-card-editor-grid {
     grid-template-columns: 1fr;
   }
+  /* Live Preview column: floats to top on mobile */
   .admin-card-editor-grid > div:last-child {
-    /* Live Preview column: move to top on mobile */
     order: -1;
     position: static !important;
   }
+  /* Compact horizontal preview on mobile */
   #cardPreviewBox {
-    display: flex;
-    gap: 12px;
+    display: flex !important;
+    flex-direction: row !important;
     overflow: hidden;
     border-radius: 14px !important;
+    min-height: unset !important;
   }
   #cardPreviewBox > div:first-child {
-    flex: 0 0 110px;
-    min-height: 110px !important;
+    width: 110px !important;
+    min-height: 150px !important;
+    flex-shrink: 0;
   }
-  #previewBody { flex: 1; }
-  #cardPreviewBox img { max-height: 155px !important; }
-  /* Keep preview label above the box */
-  .admin-card-editor-grid > div:last-child > .admin-section-label {
-    text-align: left;
+  #cardPreviewBox > div:first-child img {
+    max-height: 150px !important;
+    width: 110px !important;
+    object-fit: cover;
   }
+  #previewBody { flex: 1; padding: 10px 12px !important; }
+  #previewImgPlaceholder { padding: 20px 8px !important; font-size: 0.72em !important; }
+  /* Hide the collection thumb on mobile — saves space */
+  .admin-card-editor-grid > div:last-child > div:last-child { display: none; }
 }
 
 /* ── 5x PULL CAROUSEL ── */
@@ -773,26 +841,12 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .rarity-rainbow-border{border-image:var(--rainbow) 1;animation:rainbowShift 2.5s linear infinite;background-size:200%;}
 
 /* ── HOME GIF BANNER ── */
-.hero-gif-banner{
-  width:100vw;
-  height:320px;
-  position:relative;
-  left:50%;
-  margin-left:-50vw;
-  margin-bottom:-110px;
-  z-index:0;
-  background-size:cover;
-  background-position:center center;
-  background-repeat:no-repeat;
-  mask-image:linear-gradient(to bottom,rgba(0,0,0,1) 0%,rgba(0,0,0,0.85) 40%,rgba(0,0,0,0.35) 72%,transparent 100%);
-  -webkit-mask-image:linear-gradient(to bottom,rgba(0,0,0,1) 0%,rgba(0,0,0,0.85) 40%,rgba(0,0,0,0.35) 72%,transparent 100%);
-}
-.hero-gif-banner img{display:none;}
+.hero-gif-banner{width:100%;max-height:180px;object-fit:cover;object-position:center top;border-radius:0 0 20px 20px;display:block;mask-image:linear-gradient(to bottom,rgba(0,0,0,0.85) 0%,rgba(0,0,0,0.6) 60%,transparent 100%);-webkit-mask-image:linear-gradient(to bottom,rgba(0,0,0,0.85) 0%,rgba(0,0,0,0.6) 60%,transparent 100%);margin-bottom:-60px;position:relative;z-index:0;}
 .hero{position:relative;z-index:1;}
 
 /* ── MULTI PULL MOBILE FIX ── */
 @media(max-width:700px){
-  .hero-gif-banner{width:100vw;height:220px;margin-bottom:-70px;background-position:center top;}
+/* ── Multi pull mobile fix ── */
   .multi-card-img{width:80px;height:113px;}
   .multi-card-name{font-size:0.6em;max-width:80px;}
   .multi-pull-title{font-size:0.8em;margin-bottom:14px;}
@@ -991,88 +1045,6 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   animation: gradeReveal 0.6s cubic-bezier(0.34,1.56,0.64,1);
 }
 @keyframes gradeReveal { from{transform:scale(0) rotate(-20deg);opacity:0;} to{transform:scale(1) rotate(0);opacity:1;} }
-
-/* ══ ACTIVITY CARD REVAMP ══ */
-.activities-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px,1fr)); gap: 20px; }
-.act-card-art { position: relative; text-align: center; margin-bottom: 10px; }
-.act-card-orb { position: absolute; inset: 0; border-radius: 50%; margin: auto; width: 90px; height: 90px; filter: blur(18px); pointer-events: none; }
-.mg-work  { background: linear-gradient(145deg, rgba(30,18,5,0.95), rgba(20,14,5,0.95)); border: 1px solid rgba(241,196,15,0.25); }
-.mg-train { background: linear-gradient(145deg, rgba(5,18,30,0.95), rgba(5,14,22,0.95)); border: 1px solid rgba(52,152,219,0.25); }
-.mg-quest { background: linear-gradient(145deg, rgba(18,5,30,0.95), rgba(12,5,22,0.95)); border: 1px solid rgba(155,89,182,0.25); }
-
-/* ══ MINIGAME MODAL ══ */
-.mg-modal { position: fixed; inset: 0; z-index: 260; display: none; align-items: center; justify-content: center; background: rgba(0,0,0,0.92); backdrop-filter: blur(10px); padding: 16px; }
-.mg-modal.active { display: flex; }
-.mg-box { background: linear-gradient(145deg, #110820, #0d0514); border: 1px solid var(--border); border-radius: 28px; max-width: 480px; width: 100%; max-height: 92vh; overflow-y: auto; padding: 28px 24px 24px; animation: modalIn 0.35s cubic-bezier(0.34,1.56,0.64,1); position: relative; }
-.mg-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
-.mg-title { font-family: 'Cinzel Decorative', serif; font-size: 1.15em; color: var(--pink-pale); }
-.mg-skip-btn { background: none; border: 1px solid var(--border); color: var(--text-dim); width: 30px; height: 30px; border-radius: 50%; cursor: pointer; font-size: 0.8em; transition: all 0.2s; display: flex; align-items: center; justify-content: center; }
-.mg-skip-btn:hover { border-color: var(--pink); color: var(--pink); }
-.mg-sub { color: var(--text-dim); font-style: italic; font-size: 0.82em; margin-bottom: 18px; }
-.mg-game-area { animation: fadeIn 0.3s ease; }
-.mg-instr { font-size: 0.82em; color: var(--pink-pale); text-align: center; margin-bottom: 14px; line-height: 1.5; background: rgba(255,157,199,0.06); border-radius: 10px; padding: 8px 12px; border: 1px solid rgba(255,157,199,0.12); }
-.mg-instr b { color: var(--pink); }
-.mg-status-row { display: flex; align-items: center; justify-content: space-between; margin-top: 12px; min-height: 24px; }
-.mg-round-label { font-family: 'JetBrains Mono', monospace; font-size: 0.78em; color: var(--text-dim); }
-.mg-status-chip { font-family: 'JetBrains Mono', monospace; font-size: 0.78em; padding: 2px 10px; border-radius: 10px; background: rgba(255,157,199,0.1); border: 1px solid var(--border); color: var(--pink); transition: all 0.2s; }
-.mg-status-chip.perfect { background: rgba(241,196,15,0.15); border-color: rgba(241,196,15,0.5); color: #f1c40f; }
-.mg-status-chip.good    { background: rgba(46,204,113,0.12); border-color: rgba(46,204,113,0.4); color: #2ecc71; }
-.mg-status-chip.miss    { background: rgba(231,76,60,0.12); border-color: rgba(231,76,60,0.4); color: #e74c3c; }
-
-/* HEIST grid */
-.mg-heist-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 0 auto; max-width: 300px; }
-.mg-heist-panel { aspect-ratio: 1; border-radius: 14px; border: 2px solid rgba(255,157,199,0.15); background: rgba(255,157,199,0.04); cursor: pointer; transition: all 0.12s; font-size: 1.5em; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
-.mg-heist-panel.lit { background: rgba(255,200,50,0.25); border-color: #f1c40f; box-shadow: 0 0 18px rgba(241,196,15,0.5); transform: scale(1.06); }
-.mg-heist-panel.correct { background: rgba(46,204,113,0.3); border-color: #2ecc71; box-shadow: 0 0 18px rgba(46,204,113,0.5); }
-.mg-heist-panel.wrong   { background: rgba(231,76,60,0.3); border-color: #e74c3c; box-shadow: 0 0 18px rgba(231,76,60,0.5); animation: shake 0.3s ease; }
-.mg-heist-panel:hover:not(.disabled) { background: rgba(255,157,199,0.1); border-color: var(--pink); }
-@keyframes shake { 0%,100%{transform:translateX(0);} 25%{transform:translateX(-6px);} 75%{transform:translateX(6px);} }
-
-/* SPIRIT SURGE */
-.mg-surge-wrap { display: flex; flex-direction: column; align-items: center; gap: 18px; padding: 10px 0; }
-.mg-surge-track { width: 100%; height: 44px; background: rgba(255,255,255,0.04); border-radius: 22px; border: 1px solid var(--border); position: relative; overflow: hidden; }
-.mg-surge-zone { position: absolute; top: 0; bottom: 0; width: 18%; right: 4%; background: linear-gradient(90deg, rgba(46,204,113,0.15), rgba(46,204,113,0.45)); border: 1px solid rgba(46,204,113,0.5); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1em; }
-.mg-surge-zone::after { content: '⚡'; font-size: 1em; }
-.mg-surge-bar { position: absolute; top: 4px; bottom: 4px; width: 28px; border-radius: 10px; background: linear-gradient(180deg, #60d9f0, #3498db, var(--pink)); box-shadow: 0 0 14px rgba(52,152,219,0.7); left: 0; transition: none; }
-.mg-surge-btn { padding: 14px 48px; font-family: 'Cinzel Decorative', serif; font-size: 1em; font-weight: 700; border-radius: 30px; background: linear-gradient(135deg, #3498db, var(--purple)); border: none; color: #fff; cursor: pointer; letter-spacing: 0.06em; box-shadow: 0 4px 20px rgba(52,152,219,0.4); transition: all 0.1s; active:transform:scale(0.95); }
-.mg-surge-btn:active { transform: scale(0.94); box-shadow: 0 2px 10px rgba(52,152,219,0.3); }
-.mg-surge-hits { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; min-height: 28px; margin-top: 4px; }
-.mg-hit-dot { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7em; font-family: 'JetBrains Mono', monospace; font-weight: 700; }
-.mg-hit-dot.perfect { background: rgba(241,196,15,0.2); border: 2px solid #f1c40f; color: #f1c40f; }
-.mg-hit-dot.good    { background: rgba(46,204,113,0.2); border: 2px solid #2ecc71; color: #2ecc71; }
-.mg-hit-dot.miss    { background: rgba(231,76,60,0.15); border: 2px solid #e74c3c; color: #e74c3c; }
-.mg-hit-dot.pending { background: rgba(255,255,255,0.04); border: 2px solid var(--border); color: var(--text-dim); }
-
-/* CURSED PATH */
-.mg-path-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; font-family: 'JetBrains Mono', monospace; font-size: 0.8em; color: var(--text-dim); }
-.mg-stamina-label { color: #e74c3c; }
-.mg-path-depth { color: var(--purple); }
-.mg-path-map { display: flex; flex-direction: column; gap: 12px; padding: 8px 0; min-height: 120px; }
-.mg-path-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
-.mg-path-node { width: 72px; height: 72px; border-radius: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; cursor: pointer; border: 2px solid var(--border); background: rgba(255,255,255,0.03); transition: all 0.22s; font-size: 1.5em; position: relative; }
-.mg-path-node:hover:not(.visited):not(.locked) { transform: translateY(-4px) scale(1.05); border-color: var(--pink); box-shadow: 0 8px 24px rgba(255,157,199,0.2); }
-.mg-path-node.current { border-color: var(--pink); box-shadow: 0 0 18px rgba(255,157,199,0.4); background: rgba(255,157,199,0.08); animation: pulsePink 1.4s ease-in-out infinite; }
-.mg-path-node.visited { opacity: 0.35; cursor: default; }
-.mg-path-node.locked  { opacity: 0.18; cursor: not-allowed; }
-.mg-path-node.boss    { border-color: #f1c40f; background: rgba(241,196,15,0.08); }
-.mg-node-label { font-size: 0.46em; font-family: 'JetBrains Mono', monospace; color: var(--text-dim); letter-spacing: 0.03em; }
-@keyframes pulsePink { 0%,100%{box-shadow:0 0 12px rgba(255,157,199,0.3);} 50%{box-shadow:0 0 24px rgba(255,157,199,0.6);} }
-.mg-path-event { margin-top: 14px; min-height: 80px; font-size: 0.88em; line-height: 1.65; }
-.mg-path-choices { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
-.mg-path-choice { background: rgba(255,157,199,0.05); border: 1px solid var(--border); border-radius: 12px; padding: 10px 14px; cursor: pointer; font-family: 'Cormorant Garamond', serif; font-size: 0.95em; color: var(--text); transition: all 0.18s; text-align: left; }
-.mg-path-choice:hover { border-color: var(--pink); background: rgba(255,157,199,0.1); transform: translateX(4px); }
-
-/* Score + Result */
-.mg-score-bar { display: flex; align-items: center; gap: 10px; margin-top: 18px; }
-.mg-score-lbl { font-family: 'JetBrains Mono', monospace; font-size: 0.72em; color: var(--text-dim); white-space: nowrap; }
-.mg-score-track { flex: 1; height: 8px; background: rgba(255,255,255,0.06); border-radius: 4px; overflow: hidden; }
-.mg-score-fill { height: 100%; border-radius: 4px; background: linear-gradient(90deg, var(--pink-deep), #f1c40f); transition: width 0.5s ease; }
-.mg-score-val { font-family: 'JetBrains Mono', monospace; font-size: 0.78em; color: var(--pink); white-space: nowrap; }
-.mg-result { text-align: center; animation: fadeIn 0.4s ease; padding: 10px 0 6px; }
-.mg-result-grade { font-family: 'Cinzel Decorative', serif; font-size: 3.2em; animation: gradeReveal 0.6s cubic-bezier(0.34,1.56,0.64,1); margin-bottom: 6px; }
-.mg-result-msg { color: var(--pink-pale); font-style: italic; margin-bottom: 14px; font-size: 0.95em; }
-.mg-result-rewards { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-bottom: 10px; }
-.mg-result-hint { font-size: 0.78em; color: var(--text-dim); font-style: italic; }
 
 /* ══════════════════════════════════════════
    TCG BATTLE SYSTEM
@@ -3484,20 +3456,22 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 
   <!-- HOME -->
   <div class="page active" id="page-home">
-    <div class="hero-gif-banner" style="background-image:url('https://media1.tenor.com/m/8fKXg5VL2tEAAAAC/purple-aesthetic.gif')" role="presentation" aria-hidden="true"></div>
-    <div class="hero">
-      <div class="hero-title-wrap">
-        <span class="hero-title-deco tl">🌸</span>
-        <span class="hero-title-deco tr">✦</span>
-        <div class="hero-title">MeoGacha</div>
-        <span class="hero-title-underline"></span>
-        <span class="hero-title-deco bl">🌸</span>
-        <span class="hero-title-deco br">✦</span>
-      </div>
-      <div class="hero-sub">⋆  ̊。⋆ pull cards · build your collection · evolve your legend ⋆  ̊。⋆</div>
-      <div class="hero-actions">
-        <button class="btn-primary" onclick="goTo('pull')">🎴 Start Pulling</button>
-        <button class="btn-secondary" onclick="goTo('collection')">🃏 My Collection</button>
+    <div class="hero-section" style="--hero-gif:url('https://media1.tenor.com/m/8fKXg5VL2tEAAAAC/purple-aesthetic.gif')">
+      <div class="hero-bg"></div>
+      <div class="hero">
+        <div class="hero-title-wrap">
+          <span class="hero-title-deco tl">🌸</span>
+          <span class="hero-title-deco tr">✦</span>
+          <div class="hero-title">MeoGacha</div>
+          <span class="hero-title-underline"></span>
+          <span class="hero-title-deco bl">🌸</span>
+          <span class="hero-title-deco br">✦</span>
+        </div>
+        <div class="hero-sub">⋆  ̊。⋆ pull cards · build your collection · evolve your legend ⋆  ̊。⋆</div>
+        <div class="hero-actions">
+          <button class="btn-primary" onclick="goTo('pull')">🎴 Start Pulling</button>
+          <button class="btn-secondary" onclick="goTo('collection')">🃏 My Collection</button>
+        </div>
       </div>
     </div>
 
@@ -3692,56 +3666,47 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 
     <div class="section-title" style="margin-top:32px;">⚔️ Activities</div>
     <div class="activities-grid">
-      <!-- WORK → NEON HEIST -->
-      <div class="activity-card mg-work" style="--ac-glow:rgba(255,180,50,0.18);--ac-glow2:rgba(255,180,50,0.07)">
+      <!-- WORK -->
+      <div class="activity-card" style="--ac-glow:rgba(241,196,15,0.12);--ac-glow2:rgba(241,196,15,0.06)">
         <span class="activity-badge" style="background:rgba(241,196,15,0.15);color:#f1c40f;border:1px solid rgba(241,196,15,0.3);">COINS</span>
-        <div class="act-card-art">
-          <div class="act-card-orb" style="background:radial-gradient(circle,rgba(255,200,50,0.35),transparent 70%)"></div>
-          <span class="activity-type-icon">🏴‍☠️</span>
-        </div>
-        <div class="activity-name">Neon Heist</div>
-        <div class="activity-lore">"Every vault has a heartbeat. Learn it, and the riches are yours."</div>
-        <div class="activity-desc">Crack a neon-lit vault in the Shibuya underground. Memorize and repeat the glowing panel sequence before the alarm triggers — the longer you last, the bigger the haul.</div>
+        <span class="activity-type-icon">🧵</span>
+        <div class="activity-name">Work</div>
+        <div class="activity-lore">"The cosplay won't sew itself, senpai — and those quintuplets won't tutor themselves either."</div>
+        <div class="activity-desc">Help Marin Kitagawa stitch her cosplay, tutor the Nakano quintuplets, or hustle through an anime-world part-time shift. Tap the glowing points before they fade!</div>
         <div class="activity-reward">
-          <span class="reward-tag">💰 80–220 🪙</span>
-          <span class="reward-tag xp">⭐ 10–35 XP</span>
+          <span class="reward-tag">💰 75–200 🪙</span>
+          <span class="reward-tag xp">⭐ 8–20 XP</span>
         </div>
         <div class="activity-cooldown" id="workCooldown">Ready!</div>
-        <button class="activity-btn btn-ripple" id="workBtn" onclick="openMinigame('work')">🔓 Start Heist</button>
+        <button class="activity-btn btn-ripple" id="workBtn" onclick="openActivity('work')">🧵 Start Working</button>
       </div>
-      <!-- TRAIN → SPIRIT SURGE -->
-      <div class="activity-card mg-train" style="--ac-glow:rgba(100,180,255,0.18);--ac-glow2:rgba(100,180,255,0.07)">
+      <!-- TRAIN -->
+      <div class="activity-card" style="--ac-glow:rgba(52,152,219,0.12);--ac-glow2:rgba(52,152,219,0.05)">
         <span class="activity-badge" style="background:rgba(52,152,219,0.15);color:#5dade2;border:1px solid rgba(52,152,219,0.3);">XP FOCUS</span>
-        <div class="act-card-art">
-          <div class="act-card-orb" style="background:radial-gradient(circle,rgba(80,160,255,0.35),transparent 70%)"></div>
-          <span class="activity-type-icon">⚡</span>
-        </div>
-        <div class="activity-name">Spirit Surge</div>
-        <div class="activity-lore">"Feel the rhythm of your soul. Strike at the peak — that's where legends are forged."</div>
-        <div class="activity-desc">Channel your card's spirit energy in a rhythm duel. Tap the surge bar at its blazing peak across five rounds. Perfect timing = maximum XP overflow.</div>
+        <span class="activity-type-icon">⚡</span>
+        <div class="activity-name">Train</div>
+        <div class="activity-lore">"Beyond your limits lies the power you were always meant to wield — but first, timing."</div>
+        <div class="activity-desc">Practice Water Breathing with Urokodaki, focus cursed energy under Gojo's watch, or master chakra with Kakashi. Hit the sweet spot on the timing ring to earn XP!</div>
         <div class="activity-reward">
-          <span class="reward-tag">💰 20–55 🪙</span>
-          <span class="reward-tag xp">⭐ 80–220 XP</span>
+          <span class="reward-tag">💰 12–30 🪙</span>
+          <span class="reward-tag xp">⭐ 75–200 XP</span>
         </div>
         <div class="activity-cooldown" id="trainCooldown">Ready!</div>
-        <button class="activity-btn btn-ripple" id="trainBtn" onclick="openMinigame('train')">⚡ Begin Surge</button>
+        <button class="activity-btn btn-ripple" id="trainBtn" onclick="openActivity('train')">⚡ Start Training</button>
       </div>
-      <!-- QUEST → CURSED PATH -->
-      <div class="activity-card mg-quest" style="--ac-glow:rgba(180,100,255,0.18);--ac-glow2:rgba(180,100,255,0.07)">
+      <!-- QUEST -->
+      <div class="activity-card" style="--ac-glow:rgba(155,89,182,0.12);--ac-glow2:rgba(155,89,182,0.05)">
         <span class="activity-badge" style="background:rgba(155,89,182,0.15);color:#c39bd3;border:1px solid rgba(155,89,182,0.3);">ADVENTURE</span>
-        <div class="act-card-art">
-          <div class="act-card-orb" style="background:radial-gradient(circle,rgba(160,80,255,0.35),transparent 70%)"></div>
-          <span class="activity-type-icon">🌌</span>
-        </div>
-        <div class="activity-name">Cursed Path</div>
-        <div class="activity-lore">"The isekai road never shows what lies beyond the next gate. Only the brave walk it."</div>
-        <div class="activity-desc">Navigate a procedurally cursed dungeon map. Each node hides treasure, traps, or spirit encounters. Manage your stamina and reach the final seal to claim the loot.</div>
+        <span class="activity-type-icon">🗺️</span>
+        <div class="activity-name">Quest</div>
+        <div class="activity-lore">"Every tile hides a fate — brave adventurer, will you flip them all?"</div>
+        <div class="activity-desc">Explore dungeon tiles as Kazuma, Tanjiro, or Bell Cranel. Flip tiles to uncover treasure, battle monsters, dodge traps — survive with your hearts intact!</div>
         <div class="activity-reward">
-          <span class="reward-tag">💰 40–140 🪙</span>
-          <span class="reward-tag xp">⭐ 40–110 XP</span>
+          <span class="reward-tag">💰 50–160 🪙</span>
+          <span class="reward-tag xp">⭐ 38–120 XP</span>
         </div>
         <div class="activity-cooldown" id="questCooldown">Ready!</div>
-        <button class="activity-btn btn-ripple" id="questBtn" onclick="openMinigame('quest')">🗺️ Enter Dungeon</button>
+        <button class="activity-btn btn-ripple" id="questBtn" onclick="openActivity('quest')">🗺️ Begin Quest</button>
       </div>
     </div>
 
@@ -3844,82 +3809,19 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 
 
   <!-- ACTIVITY MODAL -->
-  <!-- ══ MINIGAME MODAL ══ -->
-  <div class="mg-modal" id="mgModal">
-    <div class="mg-box" id="mgBox">
-      <div class="mg-header">
-        <div class="mg-title" id="mgTitle">Minigame</div>
-        <button class="mg-skip-btn" id="mgSkipBtn" onclick="closeMg()">✕</button>
-      </div>
-      <div class="mg-sub" id="mgSub"></div>
-
-      <!-- NEON HEIST canvas area -->
-      <div id="mgHeist" class="mg-game-area" style="display:none">
-        <div class="mg-instr" id="heistInstr">Watch the sequence, then tap the panels in order!</div>
-        <div class="mg-heist-grid" id="heistGrid"></div>
-        <div class="mg-status-row">
-          <span id="heistRoundLabel" class="mg-round-label"></span>
-          <span id="heistStatus" class="mg-status-chip"></span>
-        </div>
-      </div>
-
-      <!-- SPIRIT SURGE area -->
-      <div id="mgSurge" class="mg-game-area" style="display:none">
-        <div class="mg-instr" id="surgeInstr">Tap <b>SURGE</b> when the bar hits the ⚡ zone!</div>
-        <div class="mg-surge-wrap">
-          <div class="mg-surge-track">
-            <div class="mg-surge-zone"></div>
-            <div class="mg-surge-bar" id="surgeBar"></div>
-          </div>
-          <button class="mg-surge-btn" id="surgeTapBtn" onclick="surgeTap()">⚡ SURGE</button>
-        </div>
-        <div class="mg-status-row">
-          <span id="surgeRoundLabel" class="mg-round-label"></span>
-          <span id="surgeResult" class="mg-status-chip"></span>
-        </div>
-        <div class="mg-surge-hits" id="surgeHits"></div>
-      </div>
-
-      <!-- CURSED PATH area -->
-      <div id="mgQuest" class="mg-game-area" style="display:none">
-        <div class="mg-instr">Choose your path through the cursed dungeon. Reach the final seal!</div>
-        <div class="mg-path-meta">
-          <span class="mg-stamina-label">❤️ Stamina: <span id="pathStamina">5</span>/5</span>
-          <span class="mg-path-depth">Floor <span id="pathDepth">1</span>/5</span>
-        </div>
-        <div class="mg-path-map" id="pathMap"></div>
-        <div class="mg-path-event" id="pathEvent"></div>
-      </div>
-
-      <!-- Score bar -->
-      <div class="mg-score-bar" id="mgScoreBar" style="display:none">
-        <span class="mg-score-lbl">Score</span>
-        <div class="mg-score-track"><div class="mg-score-fill" id="mgScoreFill"></div></div>
-        <span class="mg-score-val" id="mgScoreVal">0</span>
-      </div>
-
-      <!-- Result panel -->
-      <div class="mg-result" id="mgResult" style="display:none">
-        <div class="mg-result-grade" id="mgResultGrade"></div>
-        <div class="mg-result-msg" id="mgResultMsg"></div>
-        <div class="mg-result-rewards" id="mgResultRewards"></div>
-        <div class="mg-result-hint" id="mgResultHint"></div>
-      </div>
-
-      <button class="act-close-btn" id="mgCollectBtn" onclick="collectMg()" style="display:none">✦ Collect Rewards</button>
-    </div>
-  </div>
-
-  <!-- legacy act-modal stub so old JS refs don't break -->
-  <div class="act-modal" id="actModal" style="display:none!important">
+  <div class="act-modal" id="actModal">
     <div class="act-modal-box">
-      <div id="actModalTitle"></div><div id="actModalSub"></div>
-      <div id="actProgressWrap"><div id="actProgressLabel"></div><div id="actProgressVal"></div>
-        <div class="act-progress-track"><div class="act-progress-fill" id="actProgressFill"></div></div>
+      <div class="act-modal-title" id="actModalTitle">Activity</div>
+      <div class="act-modal-sub" id="actModalSub"></div>
+      <div id="actGame" style="display:none;"></div>
+      <div class="act-progress-wrap" id="actProgressWrap">
+        <div class="act-progress-label"><span id="actProgressLabel">Progress</span><span id="actProgressVal">0 / 3</span></div>
+        <div class="act-progress-track"><div class="act-progress-fill" id="actProgressFill" style="width:0%"></div></div>
       </div>
-      <div id="actScene"></div><div id="actChoices"></div>
-      <div id="actResult"></div>
-      <button id="actCloseBtn" onclick="closeActivity()"></button>
+      <div class="act-scene" id="actScene"></div>
+      <div class="act-choices" id="actChoices"></div>
+      <div class="act-result" id="actResult" style="display:none"></div>
+      <button class="act-close-btn" id="actCloseBtn" onclick="closeActivity()" style="display:none">✦ Collect Rewards</button>
     </div>
   </div>
 
@@ -3934,7 +3836,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 
     <!-- CARD MANAGER TAB -->
     <div id="adminTab-cards">
-      <div style="display:grid;grid-template-columns:1fr min(320px,100%);gap:20px;align-items:start;" class="admin-card-editor-grid">
+      <div class="admin-card-editor-grid">
 
         <!-- FORM COLUMN -->
         <div>
@@ -6399,758 +6301,399 @@ function updateActivityCooldowns(){
 
 setInterval(updateActivityCooldowns, 1000);
 
-// ── SCENARIO DATA ──
+// ══════════════════════════════════════════════
+// MINIGAME SYSTEM — Work / Train / Quest
+// ══════════════════════════════════════════════
 
-// ══════════════════════════════════════════════════════════════
-// MINIGAME ENGINE — Neon Heist · Spirit Surge · Cursed Path
-// ══════════════════════════════════════════════════════════════
-let mgState = { type:null, score:0, maxScore:0, done:false };
+let _actFrameId = null;
+let _actTimeout1 = null;
+let _actTimeout2 = null;
 
-/* ── Shared helpers ── */
-function openMinigame(type){
+function _actClearAll() {
+  if(_actFrameId) { cancelAnimationFrame(_actFrameId); _actFrameId = null; }
+  if(_actTimeout1) { clearTimeout(_actTimeout1); _actTimeout1 = null; }
+  if(_actTimeout2) { clearTimeout(_actTimeout2); _actTimeout2 = null; }
+}
+
+// ── WORK THEMES ──
+const WORK_THEMES = [
+  { char:'Marin Kitagawa', anime:'My Dress-Up Darling', scene:'🧵 Marin\'s cosplay deadline is TONIGHT! Stitch the glowing fabric points before she moves to the next piece!', btn:'✂️' },
+  { char:'Fuutarou Uesugi', anime:'Quintessential Quintuplets', scene:'📚 Five sisters, five subjects, one night. Fuutarou needs you to stamp the study spots before the quintuplets fall asleep!', btn:'📚' },
+  { char:'Marin & Sajuna', anime:'My Dress-Up Darling', scene:'👗 Wig-styling session! Pin the hot spots on the mannequin before Sajuna starts the next cosplay piece!', btn:'📌' },
+];
+
+// ── TRAIN THEMES ──
+const TRAIN_THEMES = [
+  { char:'Urokodaki Sakonji', anime:'Demon Slayer', scene:'"Water Breathing — First Form." Urokodaki watches from the mist. Release your breath the instant the needle hits gold.', btn:'💨', label:'RELEASE BREATH', color:'rgba(93,173,226,0.9)' },
+  { char:'Satoru Gojo', anime:'Jujutsu Kaisen', scene:'Gojo smirks behind his blindfold. "Channel your cursed energy to peak resonance. Overflow and you\'re out." Hit it perfectly.', btn:'⚡', label:'UNLEASH', color:'rgba(192,132,184,0.9)' },
+  { char:'Kakashi Hatake', anime:'Naruto', scene:'"Chakra control isn\'t about raw power — it\'s timing." One eye on you, one on the needle. Tap at the exact apex.', btn:'🌀', label:'FOCUS', color:'rgba(46,204,113,0.9)' },
+];
+
+// ── QUEST THEMES ──
+const QUEST_THEMES = [
+  { char:'Kazuma Sato', anime:'KonoSuba', scene:'"I didn\'t choose this dungeon. Well, technically I did. Let\'s just hope Aqua isn\'t here to jinx the tiles."', emoji:'🗺️' },
+  { char:'Tanjiro Kamado', anime:'Demon Slayer', scene:'The ruins of a demon stronghold loom. Tanjiro grips his blade. Every tile holds a secret — or a danger.', emoji:'🏯' },
+  { char:'Bell Cranel', anime:'DanMachi', scene:'Level B dungeon of Orario. Bell\'s instincts are sharp tonight — but the dungeon never plays fair.', emoji:'⚔️' },
+];
+
+function openActivity(type) {
   const left = getCooldownLeft(type);
-  if(left>0){ showToast(`⏳ On cooldown! Ready in ${fmtTime(left)}`); playErrorSound(); return; }
-  mgState = { type, score:0, maxScore:0, done:false };
-
-  const titles = { work:'🏴‍☠️ Neon Heist', train:'⚡ Spirit Surge', quest:'🌌 Cursed Path' };
-  const subs   = { work:'Memorize the panel sequence — then repeat it perfectly!',
-                   train:'Tap SURGE when the bar hits the ⚡ zone!',
-                   quest:'Navigate the dungeon. Manage your stamina. Claim the seal.' };
-  document.getElementById('mgTitle').textContent = titles[type];
-  document.getElementById('mgSub').textContent   = subs[type];
-  document.getElementById('mgHeist').style.display = 'none';
-  document.getElementById('mgSurge').style.display  = 'none';
-  document.getElementById('mgQuest').style.display  = 'none';
-  document.getElementById('mgResult').style.display = 'none';
-  document.getElementById('mgScoreBar').style.display = 'none';
-  document.getElementById('mgCollectBtn').style.display = 'none';
-  document.getElementById('mgModal').classList.add('active');
-
-  if(type==='work')  initHeist();
-  else if(type==='train') initSurge();
-  else               initQuestPath();
-}
-
-function closeMg(){
-  stopSurge();
-  document.getElementById('mgModal').classList.remove('active');
-}
-
-function collectMg(){
-  closeMg();
-  updateProfile();
-  renderCollection();
-}
-
-function updateMgScore(score, maxScore){
-  const pct = maxScore>0 ? Math.round((score/maxScore)*100) : 0;
-  document.getElementById('mgScoreFill').style.width = pct+'%';
-  document.getElementById('mgScoreVal').textContent  = pct+'%';
-  document.getElementById('mgScoreBar').style.display = 'flex';
-}
-
-async function finishMinigame(score, maxScore){
-  if(mgState.done) return;
-  mgState.done = true;
-  const type = mgState.type;
-  const ratio = maxScore>0 ? score/maxScore : 0;
-
-  const coinRanges = { work:[80,220], train:[20,55], quest:[40,140] };
-  const xpRanges   = { work:[10,35],  train:[80,220], quest:[40,110] };
-  const [cMin,cMax] = coinRanges[type];
-  const [xMin,xMax] = xpRanges[type];
-  const coins = Math.round(cMin + (cMax-cMin)*ratio);
-  const xp    = Math.round(xMin + (xMax-xMin)*ratio);
-
-  state.coins += coins;
-  updateCoins();
-  if(state.equippedId){
-    state.xpMap[state.equippedId] = (state.xpMap[state.equippedId]||0)+xp;
-    if(state.discordId&&!state.isGuest) await saveXp(state.discordId, state.equippedId, state.xpMap[state.equippedId]);
-  }
-  if(state.discordId&&!state.isGuest) await savePlayer();
-  if(state.isGuest) saveGuestState();
-  setLastAct(type);
-  updateActivityCooldowns();
-
-  const grade    = ratio>=0.9?'S':ratio>=0.7?'A':ratio>=0.5?'B':'C';
-  const gradeMap = { S:'🌟', A:'⭐', B:'👍', C:'😅' };
-  const msgMap   = { S:'Perfect run! You\'re legendary!', A:'Excellent! Great performance!',
-                     B:'Solid effort — keep pushing!', C:'Every run is progress. Try again soon!' };
-  const gradeColors = { S:'#f1c40f', A:'#ff9dc7', B:'#2ecc71', C:'#bdc3c7' };
-
-  updateMgScore(score, maxScore);
-  const resultEl = document.getElementById('mgResult');
-  resultEl.style.display = 'block';
-  const gradeEl = document.getElementById('mgResultGrade');
-  gradeEl.textContent = gradeMap[grade]+' '+grade;
-  gradeEl.style.color = gradeColors[grade];
-  gradeEl.style.webkitTextFillColor = gradeColors[grade];
-  document.getElementById('mgResultMsg').textContent = msgMap[grade];
-  document.getElementById('mgResultRewards').innerHTML =
-    `<span class="reward-tag">+${coins} 🪙</span>`+
-    (state.equippedId?`<span class="reward-tag xp">+${xp} XP</span>`:'');
-  document.getElementById('mgResultHint').textContent =
-    state.equippedId?'XP added to your equipped card.':'Equip a card to earn XP!';
-  document.getElementById('mgCollectBtn').style.display = 'block';
-  spawnParticles(ratio>=0.7?5:2,'#f1c40f');
-  playGradeSound(grade);
-}
-
-// ── NEON HEIST (Simon Says) ──────────────────────────────────
-const HEIST_PANELS = ['🔴','🟡','🟢','🔵','🟣','🟠','⚪','🔶','🩵'];
-let heistSeq=[], heistInput=[], heistRound=0, heistLocked=false;
-const HEIST_ROUNDS = 5;
-const HEIST_PANEL_EMOJIS = ['🗝️','💎','🔓','💰','🏮','⚡','🌀','🎯','🔥'];
-
-function initHeist(){
-  heistSeq=[]; heistInput=[]; heistRound=0; heistLocked=false;
-  document.getElementById('mgHeist').style.display='block';
-  const grid=document.getElementById('heistGrid');
-  grid.innerHTML='';
-  for(let i=0;i<9;i++){
-    const btn=document.createElement('button');
-    btn.className='mg-heist-panel';
-    btn.dataset.idx=i;
-    btn.textContent=HEIST_PANEL_EMOJIS[i];
-    btn.onclick=()=>heistTap(i,btn);
-    grid.appendChild(btn);
-  }
-  document.getElementById('heistStatus').textContent='';
-  mgState.maxScore = HEIST_ROUNDS * 10;
-  nextHeistRound();
-}
-
-function nextHeistRound(){
-  if(heistRound>=HEIST_ROUNDS){ finishMinigame(mgState.score,mgState.maxScore); return; }
-  heistInput=[];
-  heistLocked=true;
-  const newIdx=Math.floor(Math.random()*9);
-  heistSeq=[...heistSeq, newIdx];
-  document.getElementById('heistRoundLabel').textContent=`Round ${heistRound+1} / ${HEIST_ROUNDS}`;
-  document.getElementById('heistStatus').textContent='Watch…';
-  document.getElementById('heistStatus').className='mg-status-chip';
-  setHeistPanelsDisabled(true);
-  playHeistSequence(0);
-}
-
-function playHeistSequence(i){
-  if(i>=heistSeq.length){
-    heistLocked=false;
-    setHeistPanelsDisabled(false);
-    document.getElementById('heistStatus').textContent='Your turn!';
-    document.getElementById('heistInstr').textContent='Tap the panels in the same order!';
-    return;
-  }
-  const panels=document.querySelectorAll('.mg-heist-panel');
-  const idx=heistSeq[i];
-  setTimeout(()=>{
-    panels[idx].classList.add('lit');
-    setTimeout(()=>{
-      panels[idx].classList.remove('lit');
-      playHeistSequence(i+1);
-    }, 400+heistRound*20);
-  }, 500);
-}
-
-function setHeistPanelsDisabled(d){
-  document.querySelectorAll('.mg-heist-panel').forEach(p=>{
-    p.classList.toggle('disabled',d);
-    p.style.pointerEvents=d?'none':'';
-  });
-}
-
-function heistTap(idx, btn){
-  if(heistLocked) return;
-  const expected=heistSeq[heistInput.length];
-  heistInput.push(idx);
-  if(idx===expected){
-    btn.classList.add('correct');
-    setTimeout(()=>btn.classList.remove('correct'),300);
-    if(heistInput.length===heistSeq.length){
-      // Completed round
-      const pts = 10 - heistRound; // earlier rounds slightly easier
-      mgState.score += Math.max(5,pts);
-      document.getElementById('heistStatus').textContent='✓ Correct!';
-      document.getElementById('heistStatus').className='mg-status-chip good';
-      updateMgScore(mgState.score,mgState.maxScore);
-      heistRound++;
-      setTimeout(nextHeistRound, 700);
-    }
-  } else {
-    btn.classList.add('wrong');
-    document.getElementById('heistStatus').textContent='✗ Wrong!';
-    document.getElementById('heistStatus').className='mg-status-chip miss';
-    setHeistPanelsDisabled(true);
-    heistLocked=true;
-    setTimeout(()=>{
-      btn.classList.remove('wrong');
-      // Partial credit for how far they got, then advance
-      heistRound++;
-      setTimeout(nextHeistRound, 500);
-    }, 600);
-  }
-}
-
-
-// ── SPIRIT SURGE (Rhythm Timing) ────────────────────────────
-const SURGE_ROUNDS = 5;
-let surgeRound=0, surgeBarPos=0, surgeDir=1, surgeSpeed=0.8, surgeRaf=null, surgeActive=false, surgeTapped=false;
-let surgeHits=[]; // 'perfect'|'good'|'miss'
-
-function initSurge(){
-  surgeRound=0; surgeHits=[]; surgeActive=false;
-  document.getElementById('mgSurge').style.display='block';
-  mgState.maxScore = SURGE_ROUNDS * 10;
-  renderSurgeHits();
-  startSurgeRound();
-}
-
-function startSurgeRound(){
-  if(surgeRound>=SURGE_ROUNDS){ finishMinigame(mgState.score,mgState.maxScore); return; }
-  surgeTapped=false;
-  surgeBarPos=0; surgeDir=1;
-  surgeSpeed = 0.7 + surgeRound*0.08; // gets faster each round
-  surgeActive=true;
-  document.getElementById('surgeRoundLabel').textContent=`Round ${surgeRound+1} / ${SURGE_ROUNDS}`;
-  document.getElementById('surgeResult').textContent='';
-  document.getElementById('surgeResult').className='mg-status-chip';
-  animateSurge();
-}
-
-function animateSurge(){
-  if(!surgeActive) return;
-  const bar=document.getElementById('surgeBar');
-  const track=document.getElementById('surgeBar').parentElement;
-  const trackW=track.offsetWidth;
-  const barW=bar.offsetWidth||28;
-  const maxPos=trackW-barW-8;
-  surgeBarPos += surgeDir * surgeSpeed;
-  if(surgeBarPos>=maxPos){ surgeBarPos=maxPos; surgeDir=-1; }
-  if(surgeBarPos<=4){ surgeBarPos=4; surgeDir=1; }
-  bar.style.left=surgeBarPos+'px';
-  if(!surgeTapped) surgeRaf=requestAnimationFrame(animateSurge);
-}
-
-function stopSurge(){ surgeActive=false; if(surgeRaf) cancelAnimationFrame(surgeRaf); }
-
-function surgeTap(){
-  if(!surgeActive||surgeTapped) return;
-  surgeTapped=true;
-  surgeActive=false;
-  if(surgeRaf) cancelAnimationFrame(surgeRaf);
-
-  // Zone: right 4%..22% of track
-  const track=document.getElementById('mgSurge').querySelector('.mg-surge-track');
-  const trackW=track.offsetWidth;
-  const zoneStart=trackW*0.78;
-  const zoneEnd=trackW*0.97;
-  const perfectStart=trackW*0.84;
-
-  let hitType, pts;
-  if(surgeBarPos>=perfectStart && surgeBarPos<=zoneEnd){
-    hitType='perfect'; pts=10;
-  } else if(surgeBarPos>=zoneStart && surgeBarPos<=zoneEnd){
-    hitType='good'; pts=6;
-  } else if(surgeBarPos>=zoneStart*0.85){
-    hitType='good'; pts=4;
-  } else {
-    hitType='miss'; pts=0;
-  }
-  mgState.score+=pts;
-  surgeHits.push(hitType);
-  const chip=document.getElementById('surgeResult');
-  chip.textContent={perfect:'⚡ PERFECT!',good:'✓ Good!',miss:'✗ Miss'}[hitType];
-  chip.className='mg-status-chip '+hitType;
-  renderSurgeHits();
-  updateMgScore(mgState.score,mgState.maxScore);
-  surgeRound++;
-  setTimeout(startSurgeRound, 900);
-}
-
-function renderSurgeHits(){
-  const el=document.getElementById('surgeHits');
-  const total=SURGE_ROUNDS;
-  let html='';
-  for(let i=0;i<total;i++){
-    if(i<surgeHits.length){
-      const h=surgeHits[i];
-      const lbl={perfect:'★',good:'◆',miss:'✕'}[h];
-      html+=`<div class="mg-hit-dot ${h}">${lbl}</div>`;
-    } else {
-      html+=`<div class="mg-hit-dot pending">·</div>`;
-    }
-  }
-  el.innerHTML=html;
-}
-
-
-// ── CURSED PATH (Dungeon Map) ────────────────────────────────
-const PATH_DEPTH=5;
-let pathStamina=5, pathDepth=0, pathNodes=[], pathResolved=false;
-
-const PATH_NODE_TYPES=[
-  { emoji:'💰', label:'Loot',    weight:3, score:8,  stam:0,  text:'A glowing chest — inside: cursed gold. Take it?' },
-  { emoji:'⚔️',  label:'Spirit', weight:2, score:5,  stam:-1, text:'A wandering spirit blocks the corridor. Face it or flee?' },
-  { emoji:'🌀',  label:'Portal', weight:2, score:6,  stam:0,  text:'A rift in space hums with unstable energy. Step through?' },
-  { emoji:'🌿',  label:'Rest',   weight:2, score:2,  stam:2,  text:'A mossy alcove glows softly. Rest here to restore stamina.' },
-  { emoji:'💀',  label:'Curse',  weight:1, score:-2, stam:-2, text:'A cursed glyph pulses on the floor. Ignore it — or study it?' },
-  { emoji:'🔮',  label:'Oracle', weight:1, score:10, stam:-1, text:'An oracle offers forbidden knowledge... for a price.' },
-  { emoji:'🏯',  label:'Boss',   weight:1, score:15, stam:-3, text:'The Floor Boss awakens. Defeat it to claim legendary loot!' },
-];
-
-function weightedRandom(items){
-  const total=items.reduce((s,i)=>s+i.weight,0);
-  let r=Math.random()*total;
-  for(const i of items){ r-=i.weight; if(r<=0) return i; }
-  return items[items.length-1];
-}
-
-function initQuestPath(){
-  pathStamina=5; pathDepth=0; pathResolved=false;
-  mgState.maxScore=PATH_DEPTH*10+15;
-  document.getElementById('mgQuest').style.display='block';
-  document.getElementById('pathEvent').innerHTML='<span style="color:var(--text-dim);font-style:italic;">Choose a path to begin your descent...</span>';
-  renderPathMap();
-}
-
-function renderPathMap(){
-  document.getElementById('pathStamina').textContent=pathStamina;
-  document.getElementById('pathDepth').textContent=pathDepth+1;
-  const mapEl=document.getElementById('pathMap');
-
-  // Generate current floor options (2-3 nodes)
-  const numChoices = pathDepth===PATH_DEPTH-1 ? 1 : (Math.random()<0.4?2:3);
-  const pool = pathDepth===PATH_DEPTH-1
-    ? [PATH_NODE_TYPES.find(n=>n.label==='Boss')]
-    : PATH_NODE_TYPES.filter(n=>n.label!=='Boss');
-
-  pathNodes=[];
-  for(let i=0;i<numChoices;i++) pathNodes.push(weightedRandom(pool));
-
-  let html='<div class="mg-path-row">';
-  pathNodes.forEach((node,i)=>{
-    const isBoss=node.label==='Boss';
-    html+=`<div class="mg-path-node${isBoss?' boss':''}" onclick="choosePathNode(${i})">
-      <span>${node.emoji}</span>
-      <span class="mg-node-label">${node.label}</span>
-    </div>`;
-  });
-  html+='</div>';
-  mapEl.innerHTML=html;
-}
-
-function choosePathNode(i){
-  if(pathResolved) return;
-  pathResolved=true;
-  const node=pathNodes[i];
-  document.querySelectorAll('.mg-path-node').forEach((n,idx)=>{
-    n.classList.add(idx===i?'current':'locked');
-    n.style.pointerEvents='none';
-  });
-
-  const eventEl=document.getElementById('pathEvent');
-  const gainStam=Math.max(0,node.stam);
-  const loseStam=Math.abs(Math.min(0,node.stam));
-  pathStamina=Math.min(5, pathStamina+gainStam);
-  pathStamina=Math.max(0, pathStamina-loseStam);
-  mgState.score=Math.max(0,mgState.score+node.score);
-  updateMgScore(mgState.score,mgState.maxScore);
-  document.getElementById('pathStamina').textContent=pathStamina;
-
-  // Build choices for node
-  const choices=getPathChoices(node);
-  let html=`<div style="color:var(--pink-pale);margin-bottom:10px;font-style:italic;">${node.text}</div>`;
-  html+=`<div class="mg-path-choices">`;
-  choices.forEach((c,ci)=>{
-    html+=`<button class="mg-path-choice" onclick="resolvePathChoice(${ci},${JSON.stringify(c.score)},${JSON.stringify(c.stam)},${JSON.stringify(c.label)})">${c.emoji} ${c.label}</button>`;
-  });
-  html+=`</div>`;
-  eventEl.innerHTML=html;
-}
-
-function getPathChoices(node){
-  const sets={
-    'Loot':[
-      {emoji:'💰',label:'Take all of it — greed wins',score:5,stam:0},
-      {emoji:'🎯',label:'Take only what you can carry',score:3,stam:1},
-      {emoji:'🚶',label:'Leave it — too suspicious',score:0,stam:0},
-    ],
-    'Spirit':[
-      {emoji:'⚔️',label:'Fight the spirit head-on',score:4,stam:-1},
-      {emoji:'🧘',label:'Offer it peace and dialogue',score:6,stam:0},
-      {emoji:'🏃',label:'Run past it',score:1,stam:1},
-    ],
-    'Portal':[
-      {emoji:'🌀',label:'Step through without hesitation',score:8,stam:-1},
-      {emoji:'🔍',label:'Study it first, then enter',score:5,stam:0},
-      {emoji:'❌',label:'Leave it alone',score:0,stam:1},
-    ],
-    'Rest':[
-      {emoji:'💤',label:'Rest fully — restore max stamina',score:1,stam:3},
-      {emoji:'📖',label:'Study the runes while resting',score:3,stam:1},
-      {emoji:'⏩',label:'Ignore it and push on',score:0,stam:0},
-    ],
-    'Curse':[
-      {emoji:'📖',label:'Study the glyph — risk knowledge',score:6,stam:-1},
-      {emoji:'🚫',label:'Seal it — safe but slow',score:2,stam:0},
-      {emoji:'💥',label:'Destroy it outright',score:3,stam:-2},
-    ],
-    'Oracle':[
-      {emoji:'💬',label:'Pay her price — secrets revealed',score:8,stam:-1},
-      {emoji:'🤝',label:'Negotiate — half the price',score:4,stam:0},
-      {emoji:'🚶',label:'Walk away — trust your instincts',score:1,stam:1},
-    ],
-    'Boss':[
-      {emoji:'⚔️',label:'Fight with everything you have!',score:12,stam:-2},
-      {emoji:'🧠',label:'Find the pattern, then strike',score:10,stam:-1},
-      {emoji:'🤝',label:'Offer a pact — avoid bloodshed',score:6,stam:0},
-    ],
-  };
-  return sets[node.label]||sets['Loot'];
-}
-
-function resolvePathChoice(ci, baseScore, baseStam, label){
-  // Disable all choices
-  document.querySelectorAll('.mg-path-choice').forEach(b=>b.disabled=true);
-  mgState.score=Math.max(0,mgState.score+baseScore);
-  pathStamina=Math.min(5,Math.max(0,pathStamina+baseStam));
-  updateMgScore(mgState.score,mgState.maxScore);
-  document.getElementById('pathStamina').textContent=pathStamina;
-
-  const flavors={
-    'Take all of it — greed wins':'Your pockets overflow with cursed gold. Worth it.',
-    'Take only what you can carry':'Smart choice. You move on faster.',
-    'Leave it — too suspicious':'Wise call. A trap activates behind you — harmless from here.',
-    'Fight the spirit head-on':'A fierce battle! You emerge victorious but winded.',
-    'Offer it peace and dialogue':'The spirit dissolves — it only wanted acknowledgement.',
-    'Run past it':'You slip through, barely! Adrenaline surges.',
-    'Step through without hesitation':'The portal hurls you forward — reward awaits!',
-    'Study it first, then enter':'Your patience pays off — a safer route found.',
-    'Leave it alone':'You take the long way. Safe but slow.',
-    'Rest fully — restore max stamina':'You wake feeling renewed. The dungeon feels less dark.',
-    'Study the runes while resting':'Ancient knowledge seeps into your mind. Power grows.',
-    'Ignore it and push on':'Discipline. You press deeper into the dark.',
-    'Study the glyph — risk knowledge':'The curse burns — but the forbidden knowledge is worth it.',
-    'Seal it — safe but slow':'The glyph goes dark. You move on carefully.',
-    'Destroy it outright':'Shards fly everywhere. Costly, but done.',
-    'Pay her price — secrets revealed':'The oracle smiles. The truth is stranger than expected.',
-    'Negotiate — half the price':'A fair deal. She respects the boldness.',
-    'Walk away — trust your instincts':'Your gut was right — the oracle watches you go with quiet respect.',
-    'Fight with everything you have!':'An EPIC battle! The boss falls — loot rains down!',
-    'Find the pattern, then strike':'Tactical genius. The boss never saw it coming.',
-    'Offer a pact — avoid bloodshed':'A tenuous alliance forms. Unexpected, but rewarding.',
-  };
-  const flavor=flavors[label]||'An unexpected outcome shapes your journey.';
-  const staminaDead=pathStamina<=0;
-
-  pathDepth++;
-  const isEnd=pathDepth>=PATH_DEPTH;
-
-  const eventEl=document.getElementById('pathEvent');
-
-  if(staminaDead && !isEnd){
-    eventEl.innerHTML=`<div style="color:#e74c3c;font-weight:700;margin-bottom:8px;">💀 Out of Stamina!</div><div style="color:var(--text-dim);font-style:italic;">${flavor}<br/><br/>You collapse at Floor ${pathDepth}. Partial rewards collected.</div>`;
-    setTimeout(()=>finishMinigame(mgState.score,mgState.maxScore), 1800);
-    return;
-  }
-
-  eventEl.innerHTML=`<div style="color:var(--pink-pale);font-style:italic;">${flavor}</div>`;
-
-  if(isEnd){
-    mgState.score+=10; // completion bonus
-    updateMgScore(mgState.score,mgState.maxScore);
-    setTimeout(()=>{
-      eventEl.innerHTML+=`<div style="margin-top:10px;color:#f1c40f;font-family:'Cinzel Decorative',serif;font-size:0.9em;">✦ The Final Seal is broken — dungeon cleared! ✦</div>`;
-      setTimeout(()=>finishMinigame(mgState.score,mgState.maxScore), 1200);
-    }, 600);
-  } else {
-    document.getElementById('pathDepth').textContent=pathDepth+1;
-    pathResolved=false;
-    setTimeout(renderPathMap, 900);
-  }
-}
-
-// ── Legacy shim (openActivity used in cooldown logic) ──
-function openActivity(type){ openMinigame(type); }
-function closeActivity(){
-  document.getElementById('actModal').classList.remove('active');
-  updateProfile();
-  renderCollection();
-}
-
-const WORK_SCENARIOS=[], TRAIN_SCENARIOS=[], QUEST_SCENARIOS=[];
-
-const WORK_SCENARIOS = [
-  {
-    scene: "🌃 Akihabara, 2:00 AM — You've been hired as night security at a massive anime merchandise vault. Someone tripped the silent alarm. Three cameras show movement...",
-    steps:[
-      { text:"Camera 1: A shadowy figure near the Limited Edition Deku figures. Camera 2: An open window. Camera 3: A cat walking past a motion sensor.", choices:[
-        {label:"🐱 Check the cat — it triggered the sensor", score:2, flavor:"Smart call! False alarm. The client is relieved and impressed."},
-        {label:"🔦 Sweep all three areas at once (call backup)", score:1, flavor:"Cautious approach. Nothing found, but protocol was followed."},
-        {label:"🚨 Hit the full lockdown alarm immediately", score:0, flavor:"Overreaction — it was the cat. Client pays, but notes the panic."},
-      ]},
-      { text:"Your supervisor texts: 'VIP collector arriving at 4 AM. Make sure rare section is perfect.' It's 2:30 AM.", choices:[
-        {label:"✅ Start organizing the rare wing immediately", score:2, flavor:"Done by 3:45. VIP arrives to a flawless display!"},
-        {label:"📋 Do a thorough inventory check first", score:1, flavor:"Takes longer but everything is verified. Safe and professional."},
-        {label:"😴 It's hours away — you'll get to it at 3:45", score:0, flavor:"You're rushing when VIP arrives early. Barely passes."},
-      ]},
-      { text:"The VIP collector offers you a suspicious amount of cash to 'look away' while they inspect the back room alone.", choices:[
-        {label:"🚫 Firmly decline. Protocol is protocol.", score:2, flavor:"VIP respects your integrity. You get a bonus from management!"},
-        {label:"📞 Report it to your supervisor first", score:1, flavor:"Smart escalation. Management handles it professionally."},
-        {label:"💸 Accept — it's just looking away, right?", score:0, flavor:"Three items go missing. Awkward conversation incoming."},
-      ]},
-    ],
-    coinBase:90, coinPerScore:28, xpBase:12, xpPerScore:8,
-  },
-  {
-    scene: "🍜 Shibuya — You're a delivery rider for Nomu Express, the hottest supernatural-themed food delivery in Tokyo. Three wild orders come in at once.",
-    steps:[
-      { text:"Order 1: Ramen to a dojo (5 min away). Order 2: Sushi to a hospital (15 min, urgent). Order 3: Takoyaki to an address that doesn't exist on any map.", choices:[
-        {label:"🏥 Hospital first — medical priority", score:2, flavor:"Patient was waiting for it. Doctor slips you extra tip!"},
-        {label:"🍜 Closest first, then optimize route", score:1, flavor:"Efficient routing. All delivered on time."},
-        {label:"🗺️ Investigate the mystery address first", score:0, flavor:"You find a spirit shrine. Real orders go cold."},
-      ]},
-      { text:"Midway through deliveries, your bike gets a flat tire in the middle of an intersection.", choices:[
-        {label:"📞 Call a fellow rider to cover the last delivery", score:2, flavor:"Teamwork! Customer gets food hot, you get full pay."},
-        {label:"🏃 Run the last 800 meters on foot", score:1, flavor:"You arrive sweaty but on time. Customer is touched."},
-        {label:"😤 Call the customer and explain honestly", score:1, flavor:"Honest communication earns respect. Partial credit."},
-      ]},
-      { text:"A customer gives a 1-star review claiming their ramen was cold — but your thermal bag data says it was perfect.", choices:[
-        {label:"📊 Submit the thermal bag data as evidence", score:2, flavor:"Review removed! Platform gives you a performance badge."},
-        {label:"😤 Politely respond and offer a discount", score:1, flavor:"Customer softens. Review updated to 3 stars."},
-        {label:"🤷 Ignore it — one review doesn't matter", score:0, flavor:"It affects your weekly bonus. Small sting."},
-      ]},
-    ],
-    coinBase:85, coinPerScore:25, xpBase:10, xpPerScore:7,
-  },
-  {
-    scene: "🏢 Konoha Corp HQ — You're a junior analyst at a prestigious firm that manages mystical artifact portfolios. A critical report is due at noon.",
-    steps:[
-      { text:"Your senior coworker left the report half-finished and called in sick. Deadline is 3 hours away.", choices:[
-        {label:"📝 Finish it yourself using their notes", score:2, flavor:"You pull it off brilliantly. Senior owes you one!"},
-        {label:"📧 Email the client asking for a 1-hour extension", score:1, flavor:"Client grants it. You submit polished work."},
-        {label:"📢 Escalate to manager immediately", score:0, flavor:"Manager handles it but you look like you couldn't."},
-      ]},
-      { text:"While writing, you discover the data suggests a huge opportunity the senior missed.", choices:[
-        {label:"✨ Include it in the report with your analysis", score:2, flavor:"Client is thrilled! Partner level bonus incoming."},
-        {label:"📌 Flag it separately as 'Future Opportunity'", score:1, flavor:"Smart. Gets noticed at the quarterly review."},
-        {label:"🤐 Leave it out — not your place to add", score:0, flavor:"Someone else finds it later. You could've shined."},
-      ]},
-      { text:"After submitting, client calls with changes. Your manager says 'just handle it'.", choices:[
-        {label:"⚡ Address all changes within 30 minutes", score:2, flavor:"Client is amazed. They request you for future work!"},
-        {label:"📋 Prioritize the most critical changes first", score:1, flavor:"Sensible. Key feedback addressed. Client satisfied."},
-        {label:"😅 Do your best but flag you're overwhelmed", score:0, flavor:"Honest but unprepared. Partial credit."},
-      ]},
-    ],
-    coinBase:100, coinPerScore:30, xpBase:15, xpPerScore:8,
-  },
-];
-
-
-
-const TRAIN_SCENARIOS = [
-  {
-    scene: "🏯 The Phantom Dojo — A legendary training ground where only the chosen enter. Ancient spirits watch as you step inside. Three trials of spirit, mind, and body await.",
-    steps:[
-      { text:"🌊 Trial of Spirit: A vast, dark ocean stretches before you. A single light glows in the distance. You must swim to it.", choices:[
-        {label:"💨 Control your breathing, dive deep, swim true", score:2, flavor:"You breach the surface at the light — a glowing orb grants power!"},
-        {label:"🏊 Swim at full speed on the surface", score:1, flavor:"You make it, tired but triumphant!"},
-        {label:"😰 Hesitate at the edge, then wade in slowly", score:0, flavor:"You make it eventually. The spirits note your hesitation."},
-      ]},
-      { text:"🔥 Trial of Mind: Three doors appear. Behind one is glory, one is emptiness, one is a trap. A riddle reads: 'I speak without a mouth and hear without ears. I have no body, but come alive in the wind.'", choices:[
-        {label:"🌬️ Choose the door marked with wind — 'Echo'", score:2, flavor:"Correct! The echo door opens to a chamber of ancient techniques!"},
-        {label:"🧩 Study all three doors carefully for clues", score:1, flavor:"You deduce correctly through observation. Solid approach."},
-        {label:"🎲 Pick randomly with confidence", score:0, flavor:"You got lucky — it was the right door, but just barely."},
-      ]},
-      { text:"⚡ Trial of Body: A spectral opponent — your own shadow — stands before you. It copies every move. One must defeat the other.", choices:[
-        {label:"🧠 Feint left, strike right, use the unexpected", score:2, flavor:"Shadow can't predict the unpredictable. You win!"},
-        {label:"🛡️ Outlast it — wear it down defensively", score:1, flavor:"Methodical victory. The shadow dissolves with respect."},
-        {label:"💥 All-out offensive from the start", score:0, flavor:"It mirrors you perfectly. You tire first. Partial credit."},
-      ]},
-    ],
-    coinBase:20, coinPerScore:12, xpBase:90, xpPerScore:45,
-  },
-  {
-    scene: "🌸 The Sakura Coliseum — Under falling petals, your card faces three legendary training opponents sent by the Meo Coliseum Masters. The crowd watches...",
-    steps:[
-      { text:"Round 1 — 'The Iron Wall': Your opponent has impenetrable defense. Every direct strike bounces off.", choices:[
-        {label:"🎭 Find the pattern, then time a perfect counter", score:2, flavor:"Crack found! Crowd erupts as you break through!"},
-        {label:"🌀 Keep pressure — drain their stamina", score:1, flavor:"Attrition victory. Not flashy, but effective."},
-        {label:"💪 Hit harder — brute force it", score:0, flavor:"Your knuckles ache. Takes much longer but you prevail."},
-      ]},
-      { text:"Round 2 — 'The Ghost': Opponent moves faster than the eye can track. You can't land a hit.", choices:[
-        {label:"👁️ Close your eyes — trust instinct and sound", score:2, flavor:"Like a true anime protagonist — you land a devastating hit!"},
-        {label:"🕸️ Predict movement patterns mathematically", score:1, flavor:"Analytical approach works. Opponent is surprised."},
-        {label:"🌪️ Spin and attack in all directions", score:0, flavor:"You graze them twice. Crowd laughs but applauds effort."},
-      ]},
-      { text:"Final Round — 'The Mirror': Opponent is an exact copy of your card. Same HP, same power, same moveset.", choices:[
-        {label:"😤 Burn all remaining energy on one ultimate move", score:2, flavor:"They weren't expecting that intensity! Spectacular win!"},
-        {label:"🧘 Use a technique the copy never saw", score:1, flavor:"Elegant. The masters nod in deep approval."},
-        {label:"🤝 Call it a draw — mutual respect", score:1, flavor:"Honorable. Both grow from the exchange."},
-      ]},
-    ],
-    coinBase:25, coinPerScore:10, xpBase:95, xpPerScore:42,
-  },
-];
-
-
-
-const QUEST_SCENARIOS = [
-  {
-    scene: "🌙 A crescent moon letter arrives at midnight, sealed in cursed wax: 'The Demon Lord\'s vault has been unsealed. Treasures — and horrors — await. Come alone.' Your hand trembles as you pocket it.",
-    steps:[
-      { text:"You reach the vault entrance: a crumbling gate between two crumbling statues. The left statue\'s eyes glow blue. The right one\'s glow red. Between them, a riddle is etched: 'Cold preserves, fire destroys — which side houses truth?'", choices:[
-        {label:"❄️ Touch the left statue — blue is cold, cold preserves", score:2, flavor:"The gate opens with a chime! Inside: ancient coin caches and rare scrolls!"},
-        {label:"🔍 Examine both statues carefully before choosing", score:1, flavor:"You find a third clue behind each. Smart adventurer!"},
-        {label:"💪 Force the gate open with brute strength", score:0, flavor:"It budges. You bruise your shoulder but squeeze through."},
-      ]},
-      { text:"Inside, a corridor splits three ways. One smells of vanilla (suspiciously nice), one smells of sulfur, one is silent.", choices:[
-        {label:"🤫 Take the silent path — silence hides secrets", score:2, flavor:"A hidden alcove reveals a legendary chest! Jackpot!"},
-        {label:"🍦 The vanilla path — pleasant things lead somewhere good", score:0, flavor:"Trap! A cursed confectionary golem ambushes you. Escape costs loot."},
-        {label:"💨 The sulfur path — demon lords like hellish things", score:1, flavor:"Leads to the main vault. Direct but dangerous."},
-      ]},
-      { text:"The vault's guardian — a spirit bound to the treasure — offers a deal: 'Answer my riddle or fight me. 'I have cities, but no houses live there. I have mountains, but no trees grow. I have water, but no fish swim. What am I?'", choices:[
-        {label:"🗺️ A map!", score:2, flavor:"CORRECT! Spirit bows. You claim the treasure peacefully and earn a bonus!"},
-        {label:"⚔️ Decline and fight the spirit", score:1, flavor:"Hard fight. You win, but at a cost. Partial loot."},
-        {label:"🤔 Guess 'a dream'", score:0, flavor:"Wrong. You fight. Survive but get less."},
-      ]},
-    ],
-    coinBase:50, coinPerScore:28, xpBase:50, xpPerScore:22,
-  },
-  {
-    scene: "🌊 The coastal village of Umizuki reports a storm spirit has trapped fishing vessels at sea. The village elder pays in ancient gold. Your card steps forward.",
-    steps:[
-      { text:"You arrive at the dock. The storm spirit manifests as a towering wave-wolf. It circles the trapped boats. An old fisherman says: 'Legend says it only calms when offered something it lost long ago.'", choices:[
-        {label:"🎣 Listen to all the fisherman's stories patiently", score:2, flavor:"You learn the spirit lost a cub in a net long ago. Crucial intel!"},
-        {label:"⚡ Attack the spirit immediately — show strength", score:0, flavor:"It grows angrier. Three boats nearly capsize."},
-        {label:"🌙 Wait until it's calm at night and observe", score:1, flavor:"You spot the pattern of its grief. Useful knowledge."},
-      ]},
-      { text:"With the fisherman's knowledge, you know the spirit mourns a lost sea creature. You find a jade carving of a wolf pup in the village museum.", choices:[
-        {label:"🐾 Offer the jade carving to the spirit", score:2, flavor:"It stops. Stares. A mournful howl — then the storm CLEARS! The village celebrates!"},
-        {label:"🔮 Use it as a focus to cast a calming spell", score:1, flavor:"Partially works. Storm weakens enough for boats to return."},
-        {label:"📸 Document it and keep it as evidence", score:0, flavor:"You delay. Two more boats are damaged. Then you offer it."},
-      ]},
-      { text:"The spirit, now calm, offers you a blessing or a warning. You must choose.", choices:[
-        {label:"🌟 Accept the blessing — power and wisdom", score:2, flavor:"You receive a rare spirit blessing! Bonus loot and the elder doubles your pay!"},
-        {label:"⚠️ Take the warning — knowledge is power", score:1, flavor:"The warning prevents a future disaster. Village gives a long-term retainer!"},
-        {label:"🏃 Decline both and leave quickly", score:0, flavor:"Safe but you leave value on the table."},
-      ]},
-    ],
-    coinBase:55, coinPerScore:25, xpBase:55, xpPerScore:20,
-  },
-  {
-    scene: "🎭 The Masked Tournament — An underground card-dueling tournament run by a mysterious figure known only as 'The Collector'. Entry fee: one secret. Prize: legendary loot.",
-    steps:[
-      { text:"Registration. The masked host asks your secret. You must reveal something true.", choices:[
-        {label:"💭 'I once thought about giving up on everything.'", score:2, flavor:"The host nods slowly. 'Honest. I respect that.' VIP treatment granted."},
-        {label:"🎭 'I'm afraid of losing what I've built.'", score:1, flavor:"A relatable answer. You're ushered in with respect."},
-        {label:"😎 Make up something trivial", score:0, flavor:"The host sees through it. You're allowed in but watched closely."},
-      ]},
-      { text:"Your first match opponent is clearly cheating — their cards transform mid-play. No referee intervenes.", choices:[
-        {label:"🎯 Find a counter to the cheat within the rules", score:2, flavor:"You beat them at their own game. Crowd goes wild!"},
-        {label:"📢 Report the cheating to the host", score:1, flavor:"Host investigates — match replayed fairly. You win cleanly."},
-        {label:"⚔️ Challenge them directly: 'I saw what you did'", score:1, flavor:"They fold under pressure. You win by forfeit."},
-      ]},
-      { text:"Finals. Your opponent reveals themselves — it's someone who once wronged you in a past tournament. They offer a forfeit in exchange for your silence.", choices:[
-        {label:"🏆 Decline. Fight honestly and win on merit.", score:2, flavor:"You win in a legendary match. The Collector awards double prize!"},
-        {label:"🤝 Accept — move forward, not backward", score:1, flavor:"You take the prize. A quiet, dignified resolution."},
-        {label:"😤 Expose them publicly before the crowd", score:0, flavor:"Drama unfolds. You win but the prize is reduced during chaos."},
-      ]},
-    ],
-    coinBase:60, coinPerScore:30, xpBase:60, xpPerScore:25,
-  },
-];
-
-
-// ── ACTIVITY STATE ──
-let actState = { type:null, scenario:null, step:0, score:0 };
-
-function openActivity(type){
-  const left = getCooldownLeft(type);
-  if(left>0){ showToast(`⏳ On cooldown! Ready in ${fmtTime(left)}`); playErrorSound(); return; }
+  if(left > 0) { showToast(`⏳ On cooldown! Ready in ${fmtTime(left)}`); playErrorSound(); return; }
   playActivitySound(type);
-  const scenarios = type==='work'?WORK_SCENARIOS:type==='train'?TRAIN_SCENARIOS:QUEST_SCENARIOS;
-  const scenario = scenarios[Math.floor(Math.random()*scenarios.length)];
-  actState = { type, scenario, step:0, score:0 };
-  const titles = {work:'💼 Work Shift', train:'🏋️ Training', quest:'🗺️ Quest'};
-  const subs = {work:'Make smart choices to earn max coins!', train:'Push your card\'s limits for maximum XP!', quest:'Adventure awaits — choose wisely!'};
-  document.getElementById('actModalTitle').textContent = titles[type];
-  document.getElementById('actModalSub').textContent = subs[type];
-  document.getElementById('actResult').style.display='none';
-  document.getElementById('actCloseBtn').style.display='none';
-  document.getElementById('actChoices').style.display='flex';
-  document.getElementById('actProgressWrap').style.display='block';
-  renderActivityStep();
+  _actClearAll();
+
+  document.getElementById('actProgressWrap').style.display = 'none';
+  document.getElementById('actScene').style.display = 'none';
+  document.getElementById('actChoices').style.display = 'none';
+  document.getElementById('actResult').style.display = 'none';
+  document.getElementById('actCloseBtn').style.display = 'none';
+
+  const gameEl = document.getElementById('actGame');
+  gameEl.style.display = 'block';
+  gameEl.innerHTML = '';
   document.getElementById('actModal').classList.add('active');
-}
 
-function renderActivityStep(){
-  const {scenario, step, score} = actState;
-  const total = scenario.steps.length;
-  const s = scenario.steps[step];
-  document.getElementById('actProgressLabel').textContent = `Step ${step+1} of ${total}`;
-  document.getElementById('actProgressVal').textContent = `${step+1} / ${total}`;
-  document.getElementById('actProgressFill').style.width = `${((step)/total)*100}%`;
-  const sceneEl = document.getElementById('actScene');
-  if(step===0){
-    sceneEl.innerHTML = `<div class="act-scene-header">New Scenario</div><div>${scenario.scene}</div><hr style="border-color:var(--border);margin:12px 0;"/><div>${s.text}</div>`;
+  if(type === 'work') {
+    const theme = WORK_THEMES[Math.floor(Math.random()*WORK_THEMES.length)];
+    document.getElementById('actModalTitle').textContent = '🪡 Work';
+    document.getElementById('actModalSub').textContent = theme.scene;
+    startWorkGame(theme);
+  } else if(type === 'train') {
+    const theme = TRAIN_THEMES[Math.floor(Math.random()*TRAIN_THEMES.length)];
+    document.getElementById('actModalTitle').textContent = '⚡ Train';
+    document.getElementById('actModalSub').textContent = theme.scene;
+    startTrainGame(theme);
   } else {
-    sceneEl.innerHTML = `<div class="act-scene-header">Step ${step+1}</div><div>${s.text}</div>`;
-  }
-  const choicesEl = document.getElementById('actChoices');
-  choicesEl.innerHTML = s.choices.map((c,i)=>
-    `<button class="act-choice" onclick="pickChoice(${i})">${c.label}</button>`
-  ).join('');
-}
-
-async function pickChoice(idx){ playChoiceSound(actState.scenario.steps[actState.step].choices[idx].score);
-  const {scenario, step} = actState;
-  const choice = scenario.steps[step].choices[idx];
-  actState.score += choice.score;
-  // Show flavor text briefly
-  const sceneEl = document.getElementById('actScene');
-  sceneEl.innerHTML = `<div class='act-scene-header'>Result</div><div>✨ ${choice.flavor}</div>`;
-  document.getElementById('actChoices').innerHTML = '';
-  actState.step++;
-  if(actState.step >= scenario.steps.length){
-    setTimeout(finishActivity, 900);
-  } else {
-    setTimeout(renderActivityStep, 900);
+    const theme = QUEST_THEMES[Math.floor(Math.random()*QUEST_THEMES.length)];
+    document.getElementById('actModalTitle').textContent = '🌌 Quest';
+    document.getElementById('actModalSub').textContent = theme.scene;
+    startQuestGame(theme);
   }
 }
 
-async function finishActivity(){
-  const {type, scenario, score} = actState;
-  const maxScore = scenario.steps.reduce((s,st)=>s+Math.max(...st.choices.map(c=>c.score)),0);
-  const ratio = maxScore>0 ? score/maxScore : 0;
-  const coins = Math.round(scenario.coinBase + scenario.coinPerScore * score);
-  const xp = Math.round(scenario.xpBase + scenario.xpPerScore * score);
-  // Apply rewards
-  state.coins += coins;
-  updateCoins();
-  // Apply XP to equipped card
+// ═══════════════════════════════════════════
+// 🪡 WORK GAME — Stitch Whack-a-Mole
+//   Cosplay panels light up briefly → click them!
+// ═══════════════════════════════════════════
+const WG_ROUNDS = [
+  { count:2, ms:1500, label:'Warm Up 🌸' },
+  { count:3, ms:1100, label:'Pick up the pace! 🔥' },
+  { count:3, ms:800,  label:'Pro speed! ⚡' },
+  { count:4, ms:580,  label:'MARIN MODE 🌟' },
+];
+let _wg = {};
+
+function startWorkGame(theme) {
+  _wg = { round:0, hits:0, total:0, active:new Set(), theme };
+  _renderWG();
+}
+
+function _renderWG() {
+  const el = document.getElementById('actGame');
+  if(!el) return;
+  el.innerHTML = `
+    <div class="wg-container">
+      <div class="wg-info">
+        <span class="wg-round-lbl" id="wgRound">Round 1 / ${WG_ROUNDS.length}</span>
+        <span class="wg-hits" id="wgHits">✂️ 0 stitched</span>
+      </div>
+      <div class="wg-progress-wrap"><div class="wg-progress-bar" id="wgPB" style="width:0%"></div></div>
+      <div class="wg-grid" id="wgGrid">
+        ${Array(9).fill(0).map((_,i)=>`<div class="wg-cell" id="wgC${i}" data-idx="${i}" data-alive="0">🪡</div>`).join('')}
+      </div>
+      <div class="wg-tip" id="wgTip">Get ready...</div>
+    </div>`;
+  const grid = document.getElementById('wgGrid');
+  if(grid) grid.onclick = (e) => {
+    const cell = e.target.closest('.wg-cell');
+    if(cell) _wgClick(parseInt(cell.dataset.idx));
+  };
+  _actTimeout1 = setTimeout(_wgRunRound, 800);
+}
+
+function _wgRunRound() {
+  if(_wg.round >= WG_ROUNDS.length) { _finishWork(); return; }
+  const cfg = WG_ROUNDS[_wg.round];
+  const tipEl = document.getElementById('wgTip');
+  const rdEl  = document.getElementById('wgRound');
+  const pbEl  = document.getElementById('wgPB');
+  if(tipEl) tipEl.textContent = `${cfg.label} — Tap the glowing spots! (${cfg.count} at once)`;
+  if(rdEl)  rdEl.textContent  = `Round ${_wg.round+1} / ${WG_ROUNDS.length}`;
+  if(pbEl)  pbEl.style.width  = `${(_wg.round / WG_ROUNDS.length) * 100}%`;
+
+  _wg.active = new Set();
+  while(_wg.active.size < cfg.count) _wg.active.add(Math.floor(Math.random() * 9));
+  _wg.active.forEach(idx => {
+    const c = document.getElementById(`wgC${idx}`);
+    if(c) { c.classList.add('wg-active'); c.dataset.alive = '1'; }
+  });
+  _wg.total += cfg.count;
+
+  _actTimeout1 = setTimeout(() => {
+    _wg.active.forEach(idx => {
+      const c = document.getElementById(`wgC${idx}`);
+      if(c && c.dataset.alive === '1') {
+        c.classList.remove('wg-active');
+        c.classList.add('wg-miss');
+        c.dataset.alive = '0';
+        setTimeout(() => c && c.classList.remove('wg-miss'), 450);
+      }
+    });
+    _wg.round++;
+    _actTimeout2 = setTimeout(_wgRunRound, 600);
+  }, cfg.ms);
+}
+
+function _wgClick(idx) {
+  const c = document.getElementById(`wgC${idx}`);
+  if(!c) return;
+  if(c.dataset.alive === '1') {
+    c.classList.remove('wg-active');
+    c.classList.add('wg-hit');
+    c.dataset.alive = '0';
+    _wg.hits++;
+    const hEl = document.getElementById('wgHits');
+    if(hEl) hEl.textContent = `✂️ ${_wg.hits} stitched`;
+    setTimeout(() => c && c.classList.remove('wg-hit'), 380);
+  } else if(!c.classList.contains('wg-hit') && !c.classList.contains('wg-miss')) {
+    c.classList.add('wg-wrong');
+    setTimeout(() => c && c.classList.remove('wg-wrong'), 290);
+  }
+}
+
+function _finishWork() {
+  _actClearAll();
+  const pct = _wg.total > 0 ? _wg.hits / _wg.total : 0;
+  _finishMinigame('work', pct);
+}
+
+// ═══════════════════════════════════════════
+// ⚡ TRAIN GAME — Precision Timing Ring
+//   Spinning needle → tap when it hits the golden zone
+// ═══════════════════════════════════════════
+let _tg = {};
+
+function startTrainGame(theme) {
+  _tg = { round:0, total:5, hits:0, angle:Math.random()*360, speed:2.3, zoneStart:55, zoneSize:85, theme, running:false };
+  _renderTG();
+}
+
+function _renderTG() {
+  const el = document.getElementById('actGame');
+  if(!el) return;
+  el.innerHTML = `
+    <div class="tg-container">
+      <div class="tg-info">
+        <span id="tgRound" style="font-family:'JetBrains Mono',monospace;font-size:0.74em;color:var(--text-dim);">Form 1 / ${_tg.total}</span>
+        <span id="tgHits" class="tg-hits">⚡ 0 energy</span>
+      </div>
+      <div class="tg-ring-wrap">
+        <canvas id="tgCanvas" width="220" height="220"></canvas>
+        <button class="tg-center-btn" id="tgBtn" onclick="_tgRelease()">
+          <span class="tg-btn-inner">${_tg.theme.btn}</span>
+        </button>
+      </div>
+      <div class="tg-feedback" id="tgFeedback">Take a breath... Focus your energy.</div>
+      <div class="tg-hint">Tap <strong style="color:var(--pink);">${_tg.theme.label}</strong> when the needle enters the <span style="color:#f1c40f;">✦ golden zone</span></div>
+    </div>`;
+  _tgStartRound();
+}
+
+function _tgStartRound() {
+  if(_tg.round >= _tg.total) { _finishTrain(); return; }
+  const rdEl = document.getElementById('tgRound');
+  const fbEl = document.getElementById('tgFeedback');
+  if(rdEl) rdEl.textContent = `Form ${_tg.round+1} / ${_tg.total}`;
+  if(fbEl) fbEl.textContent = _tg.round === 0 ? 'Focus your energy...' : '...ready...';
+  _tg.angle = Math.random() * 360;
+  _tg.speed = 2.3 + _tg.round * 0.48;
+  _tg.zoneSize = Math.max(26, 85 - _tg.round * 11);
+  _tg.running = true;
+  _tgDraw();
+}
+
+function _tgDraw() {
+  if(!_tg.running) return;
+  const canvas = document.getElementById('tgCanvas');
+  if(!canvas) { _tg.running = false; return; }
+  const ctx = canvas.getContext('2d');
+  const cx=110, cy=110, r=88, tw=17;
+  ctx.clearRect(0,0,220,220);
+
+  // Background track
+  ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2);
+  ctx.strokeStyle='rgba(255,157,199,0.09)'; ctx.lineWidth=tw; ctx.stroke();
+
+  // Golden zone arc
+  const zS=(_tg.zoneStart-90)*Math.PI/180, zE=(_tg.zoneStart+_tg.zoneSize-90)*Math.PI/180;
+  const grd=ctx.createLinearGradient(cx-r,cy,cx+r,cy);
+  grd.addColorStop(0,'rgba(241,196,15,0.92)'); grd.addColorStop(1,'rgba(255,210,60,0.75)');
+  ctx.beginPath(); ctx.arc(cx,cy,r,zS,zE);
+  ctx.strokeStyle=grd; ctx.lineWidth=tw; ctx.stroke();
+
+  // Center mark of zone
+  const midZ=_tg.zoneStart+_tg.zoneSize/2;
+  const mRad=(midZ-90)*Math.PI/180;
+  const mx=cx+r*Math.cos(mRad), my=cy+r*Math.sin(mRad);
+  ctx.beginPath(); ctx.arc(mx,my,7,0,Math.PI*2);
+  ctx.fillStyle='rgba(241,196,15,0.7)'; ctx.fill();
+
+  // Needle dot
+  const nRad=(_tg.angle-90)*Math.PI/180;
+  const nx=cx+r*Math.cos(nRad), ny=cy+r*Math.sin(nRad);
+  // Glow halo
+  const inZoneNow=_tg.angle>=_tg.zoneStart&&_tg.angle<=_tg.zoneStart+_tg.zoneSize;
+  if(inZoneNow){
+    ctx.beginPath(); ctx.arc(nx,ny,18,0,Math.PI*2);
+    ctx.fillStyle='rgba(255,255,255,0.12)'; ctx.fill();
+  }
+  ctx.beginPath(); ctx.arc(nx,ny,11,0,Math.PI*2);
+  ctx.fillStyle='#fff'; ctx.fill();
+  ctx.strokeStyle=inZoneNow?'rgba(241,196,15,0.9)':'rgba(255,157,199,0.8)';
+  ctx.lineWidth=2.5; ctx.stroke();
+
+  _tg.angle=(_tg.angle+_tg.speed)%360;
+  _actFrameId=requestAnimationFrame(_tgDraw);
+}
+
+function _tgRelease() {
+  if(!_tg.running) return;
+  _tg.running=false;
+  cancelAnimationFrame(_actFrameId);
+  const ang=_tg.angle;
+  const inZone=ang>=_tg.zoneStart&&ang<=_tg.zoneStart+_tg.zoneSize;
+  const center=_tg.zoneStart+_tg.zoneSize/2;
+  const distC=Math.abs(ang-center);
+  const half=_tg.zoneSize/2;
+  let msg;
+  if(inZone&&distC<half*0.35){
+    msg='🔥 PERFECT! Peak resonance!'; _tg.hits+=2;
+  } else if(inZone){
+    msg='✨ Good timing!'; _tg.hits+=1;
+  } else {
+    msg='💨 Missed the zone... breathe again.';
+  }
+  const fb=document.getElementById('tgFeedback');
+  const hEl=document.getElementById('tgHits');
+  if(fb) fb.textContent=msg;
+  if(hEl) hEl.textContent=`⚡ ${_tg.hits} energy`;
+  _tg.round++;
+  _actTimeout1=setTimeout(_tgStartRound, 950);
+}
+
+function _finishTrain(){
+  _actClearAll();
+  const pct=(_tg.total*2)>0 ? _tg.hits/(_tg.total*2) : 0;
+  _finishMinigame('train',pct);
+}
+
+// ═══════════════════════════════════════════
+// 🗺️ QUEST GAME — Dungeon Tile Explorer
+//   Flip face-down tiles, collect loot, survive!
+// ═══════════════════════════════════════════
+const QG_TILE_POOL = [
+  { emoji:'💰', label:'Gold Hoard!',  score:3, hearts:0,  msg:'A cache of gold coins! Jackpot!' },
+  { emoji:'💎', label:'Gem Cache!',   score:4, hearts:0,  msg:'Rare gems hidden in the wall!' },
+  { emoji:'✨', label:'Blessing!',    score:4, hearts:0,  msg:'A benevolent spirit blesses your journey!' },
+  { emoji:'📜', label:'Technique!',  score:2, hearts:0,  msg:'An ancient scroll — a lost technique!' },
+  { emoji:'🍃', label:'Safe Room',   score:1, hearts:0,  msg:'Just dust and silence. Safe passage.' },
+  { emoji:'🕯️', label:'Quiet Path',  score:1, hearts:0,  msg:'A lone candle flickers. Nothing here.' },
+  { emoji:'🌙', label:'Moonbeam',    score:1, hearts:0,  msg:'Moonlight filters in. Peaceful, empty.' },
+  { emoji:'⚔️', label:'Monster!',    score:1, hearts:-1, msg:'A demon ambushes you — you survive, barely!' },
+  { emoji:'👹', label:'Oni Attack!', score:1, hearts:-1, msg:'An Oni leaps from the shadows!' },
+  { emoji:'💀', label:'Trap!',       score:0, hearts:-1, msg:'A cursed seal activates underfoot!' },
+  { emoji:'🕳️', label:'Pitfall!',   score:0, hearts:-1, msg:'The floor collapses — you grab the ledge!' },
+  { emoji:'🎲', label:'Mystery...',  score:0, hearts:0,  msg:'...', mystery:true },
+];
+let _qg = {};
+
+function startQuestGame(theme) {
+  const pool=[...QG_TILE_POOL];
+  for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]];}
+  _qg={ tiles:pool.slice(0,12).map((t,i)=>({...t,id:i,revealed:false})), hearts:3, picks:0, maxPicks:8, score:0, log:[], theme };
+  _renderQG();
+}
+
+function _renderQG() {
+  const el=document.getElementById('actGame');
+  if(!el) return;
+  const heartsStr='❤️'.repeat(_qg.hearts)+'🖤'.repeat(Math.max(0,3-_qg.hearts));
+  el.innerHTML=`
+    <div class="qg-container">
+      <div class="qg-status">
+        <span class="qg-hearts">${heartsStr}</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:0.74em;color:var(--text-dim);">${_qg.picks}/${_qg.maxPicks} tiles</span>
+        <span class="qg-score">⭐ ${_qg.score}</span>
+      </div>
+      <div class="qg-theme-text">"${_qg.theme.char} ventures deeper..."</div>
+      <div class="qg-grid">
+        ${_qg.tiles.map((t,i)=>`
+          <div class="qg-tile${t.revealed?' revealed':''}" id="qgT${i}" onclick="_qgFlip(${i})">
+            ${t.revealed
+              ?`<span class="qg-tile-emoji">${t.emoji}</span><div class="qg-tile-label">${t.label}</div>`
+              :`<span class="qg-tile-back">❓</span>`}
+          </div>`).join('')}
+      </div>
+      <div class="qg-log">
+        ${_qg.log.length
+          ? _qg.log.slice(0,3).map((l,i)=>`<div class="qg-log-entry" style="opacity:${1-i*0.28}">${l}</div>`).join('')
+          : '<div class="qg-log-entry">Choose a tile to begin exploring...</div>'}
+      </div>
+    </div>`;
+}
+
+function _qgFlip(i) {
+  const tile=_qg.tiles[i];
+  if(tile.revealed || _qg.picks>=_qg.maxPicks || _qg.hearts<=0) return;
+  tile.revealed=true; _qg.picks++;
+  if(tile.mystery){
+    if(Math.random()<0.5){ tile.emoji='💰';tile.score=3;tile.hearts=0;tile.msg='Mystery was TREASURE! Lucky day!';tile.label='Lucky!'; }
+    else { tile.emoji='💀';tile.score=0;tile.hearts=-1;tile.msg='Mystery was a CURSE! Run!';tile.label='Cursed!'; }
+  }
+  _qg.hearts=Math.max(0,_qg.hearts+tile.hearts);
+  _qg.score+=tile.score;
+  _qg.log.unshift(`${tile.emoji} ${tile.msg}`);
+  _renderQG();
+  if(_qg.hearts<=0||_qg.picks>=_qg.maxPicks) _actTimeout1=setTimeout(_finishQuest, 700);
+}
+
+function _finishQuest(){
+  _actClearAll();
+  const maxPossible=_qg.maxPicks*4;
+  const pct=Math.min(_qg.score/(maxPossible*0.55),1);
+  _finishMinigame('quest',pct);
+}
+
+// ═══════════════════════════════════════════
+// 🏆 SHARED — Grade + Rewards
+// ═══════════════════════════════════════════
+async function _finishMinigame(type, ratio) {
+  _actClearAll();
+  const grade=ratio>=0.9?'S':ratio>=0.7?'A':ratio>=0.5?'B':'C';
+  const rewards={
+    work:  {S:{coins:200,xp:20},A:{coins:155,xp:15},B:{coins:110,xp:10},C:{coins:75,xp:8}},
+    train: {S:{coins:30,xp:200},A:{coins:23,xp:155},B:{coins:17,xp:110},C:{coins:12,xp:75}},
+    quest: {S:{coins:160,xp:120},A:{coins:120,xp:90},B:{coins:85,xp:60},C:{coins:50,xp:38}},
+  };
+  const {coins,xp}=rewards[type][grade];
+  state.coins+=coins; updateCoins();
   if(state.equippedId){
-    state.xpMap[state.equippedId] = (state.xpMap[state.equippedId]||0) + xp;
-    if(state.discordId&&!state.isGuest) await saveXp(state.discordId, state.equippedId, state.xpMap[state.equippedId]);
+    state.xpMap[state.equippedId]=(state.xpMap[state.equippedId]||0)+xp;
+    if(state.discordId&&!state.isGuest) await saveXp(state.discordId,state.equippedId,state.xpMap[state.equippedId]);
   }
   if(state.discordId&&!state.isGuest) await savePlayer();
   if(state.isGuest) saveGuestState();
-  setLastAct(type);
-  updateActivityCooldowns();
-  // Show result
-  const grade = ratio>=0.9?'S':ratio>=0.7?'A':ratio>=0.5?'B':'C';
-  const gradeEmoji = {S:'🌟',A:'⭐',B:'👍',C:'😅'}[grade];
-  const msgs = {
-    S:'Perfect performance! You crushed it!',
-    A:'Excellent work! Great choices all around.',
-    B:'Solid effort. You did well!',
-    C:'Room to improve, but every bit counts.',
+  setLastAct(type); updateActivityCooldowns();
+
+  const gradeEmoji={S:'🌟',A:'⭐',B:'👍',C:'😅'}[grade];
+  const msgs={
+    S:'Flawless! A true anime protagonist moment! 🔥',
+    A:'Excellent! The sensei is seriously impressed! ✨',
+    B:'Solid effort! Keep pushing your limits!',
+    C:'Room to grow — every session makes you stronger.',
   };
-  document.getElementById('actProgressWrap').style.display='none';
-  document.getElementById('actChoices').style.display='none';
-  document.getElementById('actScene').style.display='none';
-  const resultEl = document.getElementById('actResult');
+  document.getElementById('actGame').style.display='none';
+  const resultEl=document.getElementById('actResult');
   resultEl.style.display='block';
   resultEl.innerHTML=`
     <div class="act-result-big">${gradeEmoji}</div>
@@ -7159,17 +6702,17 @@ async function finishActivity(){
       <span class="reward-tag">+${coins} 🪙</span>
       ${state.equippedId?`<span class="reward-tag xp">+${xp} XP</span>`:''}
     </div>
-    <div style="font-size:0.8em;color:var(--text-dim);font-style:italic;">${state.equippedId?'XP added to your equipped card':'Equip a card to earn XP!'}</div>
-  `;
+    <div style="font-size:0.8em;color:var(--text-dim);font-style:italic;margin-top:8px;">${state.equippedId?'XP added to your equipped card':'Equip a card to earn XP!'}</div>`;
   document.getElementById('actCloseBtn').style.display='block';
   spawnParticles(ratio>=0.7?4:2,'#f1c40f'); playGradeSound(grade);
 }
 
 function closeActivity(){
+  _actClearAll();
   document.getElementById('actModal').classList.remove('active');
   document.getElementById('actScene').style.display='block';
-  updateProfile();
-  renderCollection();
+  document.getElementById('actGame').style.display='none';
+  updateProfile(); renderCollection();
 }
 
 function initActivitiesPage(){
