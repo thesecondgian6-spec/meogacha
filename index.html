@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>MeoGacha ✦</title>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <style>
 :root {
   --pink:       #ff9dc7;
@@ -3250,6 +3251,183 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   transition:border-color 0.2s;
 }
 .cs-step-slot:focus-within { border-color:rgba(255,157,199,0.35); }
+
+/* ══════════════════════════════════════════════
+   MULTIPLAYER — CHAT, PROFILES, TRADES, PVP
+══════════════════════════════════════════════ */
+
+/* ── Chat page layout ── */
+.chat-layout { display:flex; flex-direction:column; height:calc(100vh - 160px); min-height:400px; gap:0; }
+.chat-feed {
+  flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:10px;
+  padding:16px; background:rgba(255,157,199,0.02); border:1px solid var(--border);
+  border-radius:16px 16px 0 0; scroll-behavior:smooth;
+}
+.chat-feed::-webkit-scrollbar{width:4px;}
+.chat-feed::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+.chat-input-bar {
+  display:flex; gap:8px; padding:12px 14px;
+  background:var(--bg2); border:1px solid var(--border); border-top:none;
+  border-radius:0 0 16px 16px; align-items:center; flex-wrap:wrap; gap:8px;
+}
+.chat-input-bar input {
+  flex:1; min-width:0; background:rgba(255,157,199,0.06); border:1px solid var(--border);
+  border-radius:20px; padding:9px 16px; color:var(--text);
+  font-family:'Cormorant Garamond',serif; font-size:0.95em;
+}
+.chat-input-bar input:focus{outline:none;border-color:var(--pink);}
+.chat-send-btn {
+  background:linear-gradient(135deg,var(--pink-deep),var(--purple));
+  border:none;color:#fff;padding:9px 20px;border-radius:20px;
+  font-family:'Cinzel Decorative',serif;font-size:0.7em;cursor:pointer;
+  white-space:nowrap; transition:all 0.2s; letter-spacing:0.04em;
+}
+.chat-send-btn:hover{transform:translateY(-1px);box-shadow:0 4px 16px var(--pink-glow);}
+.chat-flex-btn {
+  background:rgba(241,196,15,0.1);border:1px solid rgba(241,196,15,0.3);
+  color:#f1c40f;padding:9px 16px;border-radius:20px;
+  font-family:'Cormorant Garamond',serif;font-size:0.9em;cursor:pointer;
+  white-space:nowrap;transition:all 0.2s;
+}
+.chat-flex-btn:hover{background:rgba(241,196,15,0.18);}
+
+/* ── Chat messages ── */
+.chat-msg { display:flex; flex-direction:column; max-width:85%; animation:fadeIn 0.25s ease; }
+.chat-msg.chat-me { align-self:flex-end; }
+.chat-bubble {
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:14px; padding:10px 14px; position:relative;
+}
+.chat-me .chat-bubble {
+  background:rgba(255,157,199,0.1); border-color:rgba(255,157,199,0.25);
+}
+.chat-meta {
+  display:flex; align-items:center; gap:7px; margin-bottom:5px; cursor:pointer;
+}
+.chat-meta:hover .chat-username{color:var(--pink);}
+.chat-avatar {
+  width:22px; height:22px; border-radius:50%; object-fit:cover;
+  border:1px solid var(--border); flex-shrink:0;
+}
+.chat-username { font-size:0.75em; color:var(--pink); font-weight:600; font-family:'JetBrains Mono',monospace; }
+.chat-text { font-size:0.9em; color:var(--text); line-height:1.5; word-break:break-word; }
+.chat-time { font-size:0.65em; color:var(--text-dim); margin-top:4px; font-family:'JetBrains Mono',monospace; }
+
+/* ── Flex card in chat ── */
+.chat-flex-card {
+  display:flex; align-items:center; gap:10px;
+  background:rgba(241,196,15,0.06); border:1px solid rgba(241,196,15,0.2);
+  border-radius:10px; padding:8px 12px; margin:6px 0; cursor:pointer;
+  transition:all 0.2s;
+}
+.chat-flex-card:hover{border-color:rgba(241,196,15,0.4);background:rgba(241,196,15,0.1);}
+.flex-thumb{width:32px;height:44px;border-radius:6px;object-fit:cover;border:1px solid var(--border);}
+.flex-name{font-size:0.82em;font-weight:600;color:var(--text);}
+.flex-rarity{font-size:0.72em;color:var(--text-dim);margin-top:1px;}
+.chat-action-btns{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap;}
+.chat-action-btn{
+  background:rgba(255,157,199,0.08);border:1px solid var(--border);
+  color:var(--pink);padding:4px 12px;border-radius:20px;
+  font-size:0.75em;cursor:pointer;font-family:'Cormorant Garamond',serif;
+  transition:all 0.2s;
+}
+.chat-action-btn:hover{background:rgba(255,157,199,0.18);border-color:var(--pink);}
+
+/* ── Online badge ── */
+.online-dot{width:8px;height:8px;border-radius:50%;background:#2ecc71;display:inline-block;box-shadow:0 0 6px #2ecc71;flex-shrink:0;}
+.online-bar{display:flex;align-items:center;gap:8px;font-size:0.78em;color:var(--text-dim);padding:8px 0 12px;font-family:'JetBrains Mono',monospace;}
+
+/* ── Player Profile Modal ── */
+#playerProfileModal {
+  position:fixed;inset:0;z-index:350;display:none;
+  align-items:center;justify-content:center;
+  background:rgba(0,0,0,0.85);backdrop-filter:blur(6px);padding:20px;
+}
+#playerProfileModal.active{display:flex;}
+
+/* ── Trade Modal ── */
+#tradeModal {
+  position:fixed;inset:0;z-index:360;display:none;
+  align-items:center;justify-content:center;
+  background:rgba(0,0,0,0.88);backdrop-filter:blur(8px);padding:20px;
+}
+#tradeModal.active{display:flex;}
+.trade-box{
+  background:linear-gradient(135deg,var(--bg2),var(--bg3));
+  border:1px solid var(--border);border-radius:24px;
+  max-width:520px;width:100%;max-height:90vh;overflow-y:auto;
+  animation:modalIn 0.3s cubic-bezier(0.34,1.56,0.64,1);padding:28px;
+}
+.trade-section-label{
+  font-family:'Cinzel Decorative',serif;font-size:0.72em;
+  letter-spacing:0.12em;color:var(--text-dim);margin-bottom:10px;text-transform:uppercase;
+}
+.trade-card-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));
+  gap:8px;max-height:220px;overflow-y:auto;margin-bottom:16px;
+}
+.trade-card-option{
+  background:var(--surface);border:2px solid var(--border);
+  border-radius:10px;overflow:hidden;cursor:pointer;transition:all 0.2s;
+}
+.trade-card-option:hover{border-color:rgba(255,157,199,0.5);transform:translateY(-2px);}
+.trade-card-option.selected{border-color:var(--pink);box-shadow:0 0 12px var(--pink-glow);}
+.trade-card-option img{width:100%;aspect-ratio:3/4;object-fit:cover;display:block;}
+.trade-card-option-name{font-size:0.62em;color:var(--text);padding:4px 5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+
+/* ── Incoming trade/pvp notification ── */
+.mp-notification {
+  position:fixed;bottom:90px;right:20px;z-index:450;
+  background:linear-gradient(135deg,var(--bg2),var(--bg3));
+  border:1px solid var(--pink);border-radius:16px;padding:16px 20px;
+  max-width:320px;animation:slideUp 0.4s cubic-bezier(0.34,1.56,0.64,1);
+  box-shadow:0 8px 32px rgba(255,157,199,0.2);
+}
+@keyframes slideUp{from{transform:translateY(20px);opacity:0;}to{transform:none;opacity:1;}}
+.mp-notif-title{font-family:'Cinzel Decorative',serif;font-size:0.72em;color:var(--pink);margin-bottom:6px;}
+.mp-notif-body{font-size:0.85em;color:var(--text-dim);margin-bottom:12px;line-height:1.5;}
+.mp-notif-btns{display:flex;gap:8px;}
+
+/* ── PvP Battle Modal ── */
+#pvpBattleModal{
+  position:fixed;inset:0;z-index:370;display:none;
+  align-items:center;justify-content:center;
+  background:rgba(0,0,0,0.94);backdrop-filter:blur(10px);padding:20px;
+}
+#pvpBattleModal.active{display:flex;}
+.pvp-battle-box{
+  background:linear-gradient(135deg,var(--bg2),var(--bg3));
+  border:1px solid var(--border);border-radius:24px;
+  max-width:600px;width:100%;max-height:90vh;overflow-y:auto;padding:24px;
+  animation:modalIn 0.3s cubic-bezier(0.34,1.56,0.64,1);
+}
+.pvp-turn-banner{
+  text-align:center;padding:8px;border-radius:10px;font-family:'JetBrains Mono',monospace;
+  font-size:0.78em;margin-bottom:16px;
+}
+.pvp-turn-banner.your-turn{background:rgba(255,157,199,0.12);color:var(--pink);border:1px solid rgba(255,157,199,0.3);}
+.pvp-turn-banner.their-turn{background:rgba(100,80,120,0.2);color:var(--text-dim);border:1px solid var(--border);}
+
+/* ── Leaderboard ── */
+.leaderboard-row{
+  display:flex;align-items:center;gap:12px;
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:12px;padding:12px 16px;margin-bottom:8px;
+  cursor:pointer;transition:all 0.2s;
+}
+.leaderboard-row:hover{border-color:rgba(255,157,199,0.35);transform:translateX(3px);}
+.lb-rank{font-family:'JetBrains Mono',monospace;font-size:0.85em;color:var(--text-dim);min-width:28px;}
+.lb-rank.gold{color:#f1c40f;font-weight:700;}
+.lb-rank.silver{color:#bdc3c7;font-weight:700;}
+.lb-rank.bronze{color:#cd6133;font-weight:700;}
+.lb-avatar{width:36px;height:36px;border-radius:50%;object-fit:cover;border:2px solid var(--border);}
+.lb-name{flex:1;font-size:0.9em;font-weight:600;color:var(--text);}
+.lb-stat{font-family:'JetBrains Mono',monospace;font-size:0.78em;color:var(--pink);}
+
+@media(max-width:700px){
+  .chat-layout{height:calc(100vh - 200px);}
+  .trade-card-grid{grid-template-columns:repeat(auto-fill,minmax(76px,1fr));}
+}
 </style>
 </head>
 <body>
@@ -3428,6 +3606,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
       <button class="nav-btn" onclick="goTo('collection',this)">🃏 Cards</button>
       <button class="nav-btn" onclick="goTo('shop',this)">🛍️ Shop</button>
       <button class="nav-btn" onclick="goTo('activities',this)">⚔️ Activities</button>
+      <button class="nav-btn" onclick="goTo('social',this)">💬 Social</button>
       <button class="nav-btn" id="adminNavBtn" style="display:none" onclick="goTo('admin',this)">⚙️ Admin</button>
     </div>
     <!-- right side: coins + avatar — visible on BOTH desktop and mobile -->
@@ -3448,7 +3627,8 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
       <button class="mobile-nav-btn" id="mnav-pull" onclick="goTo('pull',null);setMobileNav('pull')"><span class="mob-icon">🎴</span>Pull</button>
       <button class="mobile-nav-btn" id="mnav-collection" onclick="goTo('collection',null);setMobileNav('collection')"><span class="mob-icon">🃏</span>Cards</button>
       <button class="mobile-nav-btn" id="mnav-shop" onclick="goTo('shop',null);setMobileNav('shop')"><span class="mob-icon">🛍️</span>Shop</button>
-      <button class="mobile-nav-btn" id="mnav-activities" onclick="goTo('activities',null);setMobileNav('activities')"><span class="mob-icon">⚔️</span>Activities</button>
+      <button class="mobile-nav-btn" id="mnav-activities" onclick="goTo('activities',null);setMobileNav('activities')"><span class="mob-icon">⚔️</span>Battle</button>
+      <button class="mobile-nav-btn" id="mnav-social" onclick="goTo('social',null);setMobileNav('social')"><span class="mob-icon">💬</span>Social</button>
       <button class="mobile-nav-btn" id="mnav-profile" style="display:none" onclick="goTo('profile',null);setMobileNav('profile')"><span class="mob-icon">👤</span>Profile</button>
       <button class="mobile-nav-btn" id="mnav-admin" style="display:none" onclick="goTo('admin',null);setMobileNav('admin')"><span class="mob-icon">⚙️</span>Admin</button>
     </div>
@@ -3530,6 +3710,11 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
         <div class="hac-icon">🛍️</div>
         <div class="hac-name">Shop</div>
         <div class="hac-desc">Spend coins on upgrades &amp; items</div>
+      </div>
+      <div class="home-action-card" onclick="goTo('social')" style="--hac-color:var(--pink);">
+        <div class="hac-icon">💬</div>
+        <div class="hac-name">Social</div>
+        <div class="hac-desc">Chat, trade cards &amp; challenge players</div>
       </div>
       <div class="home-action-card" onclick="goTo('profile')" style="--hac-color:var(--purple);">
         <div class="hac-icon">👤</div>
@@ -3822,6 +4007,59 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
       <div class="act-choices" id="actChoices"></div>
       <div class="act-result" id="actResult" style="display:none"></div>
       <button class="act-close-btn" id="actCloseBtn" onclick="closeActivity()" style="display:none">✦ Collect Rewards</button>
+    </div>
+  </div>
+
+  <!-- SOCIAL PAGE -->
+  <div class="page" id="page-social">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
+      <div class="section-title" style="margin:0;">✦ Social Hub</div>
+      <div class="online-bar" id="onlineBar"><span class="online-dot"></span><span id="onlineCount">0 online</span></div>
+    </div>
+    <!-- Tab switcher -->
+    <div style="display:flex;gap:6px;margin-bottom:18px;flex-wrap:wrap;">
+      <button class="filter-btn active" id="stab-chat" onclick="switchSocialTab('chat',this)">💬 Global Chat</button>
+      <button class="filter-btn" id="stab-trades" onclick="switchSocialTab('trades',this)">🔄 My Trades</button>
+      <button class="filter-btn" id="stab-leaderboard" onclick="switchSocialTab('leaderboard',this)">🏆 Leaderboard</button>
+    </div>
+
+    <!-- CHAT TAB -->
+    <div id="socialTab-chat">
+      <div class="chat-layout">
+        <div class="chat-feed" id="chatFeed">
+          <div style="text-align:center;color:var(--text-dim);font-style:italic;font-size:0.85em;padding:20px 0;">
+            ✦ Connecting to global chat... ✦
+          </div>
+        </div>
+        <div class="chat-input-bar">
+          <input id="chatInput" placeholder="Say something... (max 300 chars)" maxlength="300"
+            onkeydown="if(event.key==='Enter')submitChat()"/>
+          <button class="chat-send-btn" onclick="submitChat()">✦ Send</button>
+          <button class="chat-flex-btn" onclick="openFlexPicker()">✨ Flex Card</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TRADES TAB -->
+    <div id="socialTab-trades" style="display:none;">
+      <div style="margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+        <div style="color:var(--text-dim);font-size:0.88em;font-style:italic;">Pending trade offers sent &amp; received</div>
+        <button class="btn-secondary" style="font-size:0.8em;padding:6px 18px;" onclick="loadMyTrades()">🔄 Refresh</button>
+      </div>
+      <div id="tradesList">
+        <div style="text-align:center;color:var(--text-dim);font-style:italic;padding:30px;">No active trades ʚɞ</div>
+      </div>
+    </div>
+
+    <!-- LEADERBOARD TAB -->
+    <div id="socialTab-leaderboard" style="display:none;">
+      <div style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;">
+        <button class="filter-btn active" id="lbf-pvp" onclick="switchLeaderboard('pvp',this)">⚔️ PvP Wins</button>
+        <button class="filter-btn" id="lbf-cards" onclick="switchLeaderboard('cards',this)">🃏 Most Cards</button>
+      </div>
+      <div id="leaderboardList">
+        <div style="text-align:center;color:var(--text-dim);font-style:italic;padding:30px;">Loading leaderboard... ✦</div>
+      </div>
     </div>
   </div>
 
@@ -5872,6 +6110,7 @@ function goTo(page,btn){ playNavSound();
   if(page==='activities'){renderBattleCardSelect();}
   if(page==='shop')renderShop();
   if(page==='profile')updateProfile();
+  if(page==='social'){ initChat(); loadLeaderboard('pvp'); }
 }
 
 // ══════════════════════════════════════════════
@@ -10206,6 +10445,952 @@ renderShop();
 renderActiveBanner();
 renderHomeBannerWidget();
 tryAutoLogin();
+
+// ══════════════════════════════════════════════════════════════
+// MULTIPLAYER — SUPABASE REALTIME CLIENT + CHAT + TRADES + PVP
+// ══════════════════════════════════════════════════════════════
+
+// ── Realtime client (separate from the REST sb wrapper) ──
+let _supaRT = null;
+function getSupaRT(){
+  if(!_supaRT && typeof supabase !== 'undefined'){
+    _supaRT = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  }
+  return _supaRT;
+}
+
+// ── State ──
+let chatChannel      = null;
+let tradeChannel     = null;
+let pvpChannel       = null;
+let presenceChannel  = null;
+let chatInited       = false;
+let activePvpBattleId = null;
+let tradeOfferCard   = null;   // { offer: cardId, want: cardId }
+let tradeTargetId    = null;
+let tradeTargetCollection = [];
+
+// ══════════════════════════════════════════════
+// SOCIAL TAB SWITCHER
+// ══════════════════════════════════════════════
+function switchSocialTab(tab, btn){
+  ['chat','trades','leaderboard'].forEach(t=>{
+    const el = document.getElementById('socialTab-'+t);
+    const b  = document.getElementById('stab-'+t);
+    if(el) el.style.display = t===tab ? '' : 'none';
+    if(b)  b.classList.toggle('active', t===tab);
+  });
+  if(tab==='trades') loadMyTrades();
+  if(tab==='leaderboard') loadLeaderboard(document.getElementById('lbf-pvp')?.classList.contains('active') ? 'pvp' : 'cards');
+}
+
+// ══════════════════════════════════════════════
+// CHAT SYSTEM
+// ══════════════════════════════════════════════
+async function initChat(){
+  const rt = getSupaRT();
+  if(!rt) return;
+  if(chatInited) return;
+  chatInited = true;
+
+  const feed = document.getElementById('chatFeed');
+  if(feed) feed.innerHTML = '';
+
+  // 1. Load last 60 messages
+  try {
+    const { data } = await rt
+      .from('chat_messages')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(60);
+    const history = (data || []).reverse();
+    history.forEach(msg => renderChatMsg(msg));
+    scrollChatToBottom();
+  } catch(e){ console.warn('Chat load error', e); }
+
+  // 2. Subscribe to new messages
+  chatChannel = rt.channel('public-chat')
+    .on('postgres_changes', {
+      event: 'INSERT', schema: 'public', table: 'chat_messages'
+    }, payload => {
+      renderChatMsg(payload.new);
+      scrollChatToBottom();
+    })
+    .subscribe();
+
+  // 3. Presence — who's online
+  presenceChannel = rt.channel('online-users');
+  presenceChannel
+    .on('presence', { event: 'sync' }, () => {
+      const state_obj = presenceChannel.presenceState();
+      const count = Object.keys(state_obj).length;
+      const el = document.getElementById('onlineCount');
+      if(el) el.textContent = count + ' online';
+    })
+    .subscribe(async (status) => {
+      if(status !== 'SUBSCRIBED') return;
+      if(state.discordId && !state.isGuest){
+        await presenceChannel.track({
+          discord_id: state.discordId,
+          username:   state.username || 'Summoner',
+          avatar:     state.avatar   || ''
+        });
+      }
+    });
+
+  // 4. Listen for incoming trades
+  if(state.discordId && !state.isGuest) listenForTrades();
+}
+
+async function submitChat(){
+  const input = document.getElementById('chatInput');
+  if(!input) return;
+  const content = input.value.trim();
+  if(!content) return;
+  input.value = '';
+  await sendChatMsg(content, 'text', null);
+}
+
+async function sendChatMsg(content, type='text', cardId=null){
+  if(!state.discordId || state.isGuest){
+    showToast('❌ Login with Discord to chat'); return;
+  }
+  if(!content.trim()) return;
+  const safe = content.replace(/<[^>]*>/g,'').slice(0,300);
+  const rt = getSupaRT();
+  if(!rt) return;
+  try {
+    await rt.from('chat_messages').insert({
+      discord_id: state.discordId,
+      username:   state.username  || 'Summoner',
+      avatar_url: state.avatar    || '',
+      content:    safe,
+      msg_type:   type,
+      card_id:    cardId || null
+    });
+  } catch(e){ showToast('❌ Chat error: ' + (e.message||'')); }
+}
+
+function renderChatMsg(msg){
+  const feed = document.getElementById('chatFeed');
+  if(!feed) return;
+
+  // Remove placeholder
+  const placeholder = feed.querySelector('[data-placeholder]');
+  if(placeholder) placeholder.remove();
+
+  const isMe = msg.discord_id === state.discordId;
+  const el   = document.createElement('div');
+  el.className = 'chat-msg' + (isMe ? ' chat-me' : '');
+  el.style.alignSelf = isMe ? 'flex-end' : 'flex-start';
+
+  const time = msg.created_at
+    ? new Date(msg.created_at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})
+    : '';
+
+  let inner = `
+    <div class="chat-bubble">
+      <div class="chat-meta" onclick="viewPlayerProfile('${msg.discord_id}')">
+        <img class="chat-avatar" src="${msg.avatar_url||'https://cdn.discordapp.com/embed/avatars/0.png'}"
+          onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'"/>
+        <span class="chat-username">${escapeHtml(msg.username)}</span>
+      </div>`;
+
+  if(msg.msg_type === 'flex' && msg.card_id){
+    const card = (window.DEMO_CARDS||[]).find(c=>c.id===msg.card_id);
+    if(card){
+      inner += `
+        <div class="chat-flex-card" onclick="openCardById('${card.id}')">
+          <img class="flex-thumb" src="${card.thumbnail||card.image}"
+            onerror="this.style.display='none'"/>
+          <div>
+            <div class="flex-name">${escapeHtml(card.name)}</div>
+            <div class="flex-rarity">${escapeHtml(card.rarityName||'')} ${card.rarityStars||''}</div>
+          </div>
+        </div>`;
+    }
+  }
+
+  inner += `<div class="chat-text">${escapeHtml(msg.content)}</div>`;
+
+  // Action buttons — only on others' flex/pvp_req messages
+  if(!isMe && msg.msg_type === 'flex' && msg.card_id){
+    inner += `
+      <div class="chat-action-btns">
+        <button class="chat-action-btn" onclick="openTradeWithPlayer('${msg.discord_id}')">🔄 Trade</button>
+        <button class="chat-action-btn" onclick="challengeToPvp('${msg.discord_id}')">⚔️ Challenge</button>
+      </div>`;
+  }
+  if(!isMe && msg.msg_type === 'pvp_req'){
+    // Extract battle id from content
+    const match = msg.content.match(/\[battleId:([\w-]+)\]/);
+    if(match){
+      inner += `
+        <div class="chat-action-btns">
+          <button class="chat-action-btn" onclick="acceptPvpChallenge('${match[1]}','${msg.discord_id}')">⚔️ Accept Battle</button>
+        </div>`;
+    }
+  }
+
+  inner += `<div class="chat-time">${time}</div></div>`;
+  el.innerHTML = inner;
+  feed.appendChild(el);
+
+  // Cap DOM at 100 messages
+  while(feed.children.length > 100) feed.removeChild(feed.firstChild);
+}
+
+function scrollChatToBottom(){
+  const feed = document.getElementById('chatFeed');
+  if(feed) feed.scrollTop = feed.scrollHeight;
+}
+
+function escapeHtml(str){
+  if(!str) return '';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ══════════════════════════════════════════════
+// FLEX CARD PICKER
+// ══════════════════════════════════════════════
+function openFlexPicker(){
+  if(!state.discordId || state.isGuest){
+    showToast('❌ Login with Discord to flex cards'); return;
+  }
+  const grid = document.getElementById('flexPickerGrid');
+  if(!grid) return;
+  grid.innerHTML = '';
+  const owned = new Set(state.collection || []);
+  const cards = (window.DEMO_CARDS||[]).filter(c=>owned.has(c.id));
+  if(!cards.length){
+    grid.innerHTML = '<div style="color:var(--text-dim);font-style:italic;text-align:center;padding:20px;">No cards in collection yet ʚɞ</div>';
+  } else {
+    cards.forEach(card=>{
+      const div = document.createElement('div');
+      div.className = 'card-thumb';
+      div.innerHTML = `
+        <img src="${card.thumbnail||card.image}" loading="lazy"
+          onerror="this.src='https://placehold.co/150x200/1c0f26/ff9dc7?text=?'"/>
+        <div class="card-thumb-info">
+          <div class="card-thumb-name">${escapeHtml(card.name)}</div>
+          <div class="card-thumb-rarity">${escapeHtml(card.rarityName||'')}</div>
+        </div>`;
+      div.onclick = () => { flexCardInChat(card.id); closeFlexPicker(); };
+      grid.appendChild(div);
+    });
+  }
+  document.getElementById('flexPickerModal').style.display = 'flex';
+}
+
+function closeFlexPicker(){
+  const el = document.getElementById('flexPickerModal');
+  if(el) el.style.display = 'none';
+}
+
+async function flexCardInChat(cardId){
+  const card = (window.DEMO_CARDS||[]).find(c=>c.id===cardId);
+  if(!card) return;
+  await sendChatMsg(`Look what I pulled! ✨ ${card.rarityName} card`, 'flex', cardId);
+}
+
+// ══════════════════════════════════════════════
+// PLAYER PROFILES
+// ══════════════════════════════════════════════
+async function viewPlayerProfile(discordId){
+  if(!discordId) return;
+  if(discordId === state.discordId){ goTo('profile',null); return; }
+
+  const rt = getSupaRT();
+  if(!rt) return;
+
+  try {
+    const { data } = await rt
+      .from('players')
+      .select('*')
+      .eq('discord_id', discordId)
+      .limit(1);
+    const player = data && data[0];
+    if(!player){ showToast('🔒 This profile is private'); return; }
+    openPlayerModal(player);
+  } catch(e){ showToast('Could not load profile'); }
+}
+
+function openPlayerModal(player){
+  const modal   = document.getElementById('playerProfileModal');
+  const content = document.getElementById('playerProfileContent');
+  if(!modal || !content) return;
+
+  const wins     = player.pvp_wins   || 0;
+  const losses   = player.pvp_losses || 0;
+  const winRate  = (wins + losses) > 0 ? Math.round(wins/(wins+losses)*100) : 0;
+  const cardCount= Array.isArray(player.collection) ? player.collection.length : 0;
+  const equip    = (window.DEMO_CARDS||[]).find(c=>c.id===player.equipped_card);
+  const name     = player.username || 'Summoner';
+
+  content.innerHTML = `
+    <div class="modal-box" style="max-width:480px;animation:modalIn 0.3s cubic-bezier(0.34,1.56,0.64,1);">
+      <div class="profile-banner" style="height:130px;">
+        ${player.profile_banner
+          ? `<img src="${player.profile_banner}" style="width:100%;height:100%;object-fit:cover;opacity:0.7;"/>`
+          : ''}
+      </div>
+      <div class="modal-body">
+        <div style="display:flex;align-items:flex-end;gap:14px;margin-top:-42px;margin-bottom:10px;">
+          <img src="${player.avatar||'https://cdn.discordapp.com/embed/avatars/0.png'}"
+            style="width:64px;height:64px;border-radius:50%;border:3px solid var(--pink);object-fit:cover;background:var(--bg2);"
+            onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'"/>
+          <div>
+            <div class="modal-name" style="font-size:1.1em;">${escapeHtml(name)}</div>
+            <div style="font-style:italic;color:var(--pink);font-size:0.85em;">${escapeHtml(player.active_title||'Summoner')}</div>
+          </div>
+        </div>
+        <div style="color:var(--text-dim);font-size:0.88em;margin-bottom:16px;line-height:1.5;">
+          ${escapeHtml(player.bio||'No bio yet...')}
+        </div>
+        <div class="profile-stats" style="margin-bottom:16px;">
+          <div class="stat-box"><div class="stat-val">${cardCount}</div><div class="stat-lbl">Cards</div></div>
+          <div class="stat-box"><div class="stat-val">${wins}</div><div class="stat-lbl">PvP Wins</div></div>
+          <div class="stat-box"><div class="stat-val">${winRate}%</div><div class="stat-lbl">Win Rate</div></div>
+        </div>
+        ${equip ? `
+        <div class="equipped-card-preview" style="margin-bottom:16px;">
+          <img src="${equip.thumbnail||equip.image}" class="equipped-thumb"
+            onerror="this.style.display='none'"/>
+          <div class="equipped-info">
+            <div class="equipped-name">${escapeHtml(equip.name)}</div>
+            <div class="equipped-rarity">${escapeHtml(equip.rarityName||'')} ${equip.rarityStars||''}</div>
+          </div>
+        </div>` : ''}
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="btn-primary" onclick="challengeToPvp('${player.discord_id}');closePlayerModal()">⚔️ Challenge</button>
+          <button class="btn-secondary" onclick="openTradeWithPlayer('${player.discord_id}');closePlayerModal()">🔄 Trade</button>
+          <button class="btn-secondary" onclick="closePlayerModal()">Close</button>
+        </div>
+      </div>
+    </div>`;
+
+  modal.classList.add('active');
+}
+
+function closePlayerModal(){
+  const modal = document.getElementById('playerProfileModal');
+  if(modal) modal.classList.remove('active');
+}
+
+// ══════════════════════════════════════════════
+// CARD TRADING
+// ══════════════════════════════════════════════
+async function openTradeWithPlayer(targetDiscordId){
+  if(!state.discordId || state.isGuest){
+    showToast('❌ Login with Discord to trade'); return;
+  }
+  if(targetDiscordId === state.discordId){
+    showToast('You can\'t trade with yourself 😅'); return;
+  }
+
+  tradeTargetId = targetDiscordId;
+  tradeOfferCard = { offer: null, want: null };
+
+  const rt = getSupaRT();
+  // Fetch target's username
+  let targetName = targetDiscordId;
+  try {
+    const { data } = await rt.from('players').select('username,collection').eq('discord_id',targetDiscordId).limit(1);
+    if(data && data[0]){
+      targetName = data[0].username || targetDiscordId;
+      tradeTargetCollection = Array.isArray(data[0].collection) ? data[0].collection : [];
+    }
+  } catch(e){}
+
+  document.getElementById('tradeTargetName').textContent = targetName;
+
+  // Build offer grid — my cards
+  buildTradeCardGrid('tradeOfferGrid', state.collection || [], 'offer');
+  // Build want grid — their cards
+  buildTradeCardGrid('tradeWantGrid', tradeTargetCollection, 'want');
+
+  document.getElementById('tradeModal').classList.add('active');
+}
+
+function buildTradeCardGrid(gridId, cardIds, side){
+  const grid = document.getElementById(gridId);
+  if(!grid) return;
+  grid.innerHTML = '';
+  if(!cardIds.length){
+    grid.innerHTML = '<div style="color:var(--text-dim);font-size:0.82em;font-style:italic;padding:10px;">No cards available</div>';
+    return;
+  }
+  const uniqueIds = [...new Set(cardIds)];
+  uniqueIds.forEach(id=>{
+    const card = (window.DEMO_CARDS||[]).find(c=>c.id===id);
+    if(!card) return;
+    const div = document.createElement('div');
+    div.className = 'trade-card-option';
+    div.dataset.cardId = id;
+    div.dataset.side = side;
+    div.innerHTML = `
+      <img src="${card.thumbnail||card.image}" loading="lazy"
+        onerror="this.src='https://placehold.co/90x120/1c0f26/ff9dc7?text=?'"/>
+      <div class="trade-card-option-name">${escapeHtml(card.name)}</div>`;
+    div.onclick = () => selectTradeCard(div, id, side);
+    grid.appendChild(div);
+  });
+}
+
+function selectTradeCard(el, cardId, side){
+  const grid = el.closest('.trade-card-grid');
+  if(grid) grid.querySelectorAll('.trade-card-option').forEach(c=>c.classList.remove('selected'));
+  el.classList.add('selected');
+  tradeOfferCard[side] = cardId;
+}
+
+async function submitTradeOffer(){
+  if(!tradeOfferCard.offer){ showToast('Pick a card to offer first'); return; }
+  if(!tradeOfferCard.want){  showToast('Pick a card you want first');  return; }
+  if(!tradeTargetId)         return;
+
+  const rt = getSupaRT();
+  try {
+    await rt.from('trade_offers').insert({
+      from_discord_id: state.discordId,
+      to_discord_id:   tradeTargetId,
+      offer_card_id:   tradeOfferCard.offer,
+      want_card_id:    tradeOfferCard.want,
+      status: 'pending'
+    });
+    showToast('🔄 Trade offer sent!');
+    closeTradeModal();
+
+    // Also post in chat
+    const offerCard = (window.DEMO_CARDS||[]).find(c=>c.id===tradeOfferCard.offer);
+    const wantCard  = (window.DEMO_CARDS||[]).find(c=>c.id===tradeOfferCard.want);
+    if(offerCard && wantCard){
+      await sendChatMsg(
+        `🔄 Trade offer to ${tradeTargetId}: my ${offerCard.name} for their ${wantCard.name}`,
+        'text', null
+      );
+    }
+  } catch(e){ showToast('❌ Trade error: '+(e.message||'')); }
+}
+
+function closeTradeModal(){
+  const el = document.getElementById('tradeModal');
+  if(el) el.classList.remove('active');
+  tradeTargetId = null; tradeOfferCard = null; tradeTargetCollection = [];
+}
+
+// Listen for incoming trade offers via Realtime
+function listenForTrades(){
+  if(!state.discordId || state.isGuest) return;
+  const rt = getSupaRT();
+  if(!rt) return;
+  tradeChannel = rt
+    .channel('trades-'+state.discordId)
+    .on('postgres_changes', {
+      event: 'INSERT', schema: 'public', table: 'trade_offers',
+      filter: `to_discord_id=eq.${state.discordId}`
+    }, payload => {
+      showTradeNotification(payload.new);
+    })
+    .subscribe();
+}
+
+function showTradeNotification(trade){
+  const offerCard = (window.DEMO_CARDS||[]).find(c=>c.id===trade.offer_card_id);
+  const wantCard  = (window.DEMO_CARDS||[]).find(c=>c.id===trade.want_card_id);
+
+  const notif = document.createElement('div');
+  notif.className = 'mp-notification';
+  notif.innerHTML = `
+    <div class="mp-notif-title">🔄 Trade Offer!</div>
+    <div class="mp-notif-body">
+      <strong>${escapeHtml(trade.from_discord_id)}</strong> offers
+      <strong>${offerCard ? escapeHtml(offerCard.name) : '???'}</strong>
+      for your <strong>${wantCard ? escapeHtml(wantCard.name) : '???'}</strong>
+    </div>
+    <div class="mp-notif-btns">
+      <button class="btn-primary" style="font-size:0.8em;padding:6px 16px;"
+        onclick="acceptTrade('${trade.id}',this.closest('.mp-notification'))">✅ Accept</button>
+      <button class="btn-secondary" style="font-size:0.8em;padding:6px 16px;"
+        onclick="declineTrade('${trade.id}',this.closest('.mp-notification'))">✕ Decline</button>
+    </div>`;
+  document.body.appendChild(notif);
+  // Auto-dismiss after 30s
+  setTimeout(()=>{ if(notif.parentNode) notif.remove(); }, 30000);
+}
+
+async function acceptTrade(tradeId, notifEl){
+  const rt = getSupaRT();
+  try {
+    const { error } = await rt.rpc('accept_trade', { trade_id: tradeId });
+    if(error){ showToast('❌ Trade failed: '+error.message); return; }
+    showToast('✅ Trade complete! Check your collection.');
+    if(notifEl) notifEl.remove();
+    // Reload collection
+    await loadCollection(state.discordId);
+    renderCollection();
+  } catch(e){ showToast('❌ Trade error: '+(e.message||'')); }
+}
+
+async function declineTrade(tradeId, notifEl){
+  const rt = getSupaRT();
+  try {
+    await rt.from('trade_offers').update({ status:'declined', resolved_at: new Date().toISOString() }).eq('id',tradeId);
+    showToast('Trade declined.');
+    if(notifEl) notifEl.remove();
+  } catch(e){}
+}
+
+async function loadMyTrades(){
+  if(!state.discordId || state.isGuest){
+    document.getElementById('tradesList').innerHTML =
+      '<div style="color:var(--text-dim);font-style:italic;text-align:center;padding:20px;">Login to see trades</div>';
+    return;
+  }
+  const rt = getSupaRT();
+  const list = document.getElementById('tradesList');
+  if(!list) return;
+  list.innerHTML = '<div style="color:var(--text-dim);font-style:italic;text-align:center;padding:16px;">Loading...</div>';
+  try {
+    const { data: sent }     = await rt.from('trade_offers').select('*').eq('from_discord_id',state.discordId).eq('status','pending').order('created_at',{ascending:false}).limit(20);
+    const { data: received } = await rt.from('trade_offers').select('*').eq('to_discord_id',state.discordId).eq('status','pending').order('created_at',{ascending:false}).limit(20);
+    const all = [...(sent||[]), ...(received||[])];
+    if(!all.length){
+      list.innerHTML = '<div style="color:var(--text-dim);font-style:italic;text-align:center;padding:20px;">No active trades ʚɞ</div>';
+      return;
+    }
+    list.innerHTML = '';
+    all.forEach(t=>{
+      const offerCard = (window.DEMO_CARDS||[]).find(c=>c.id===t.offer_card_id);
+      const wantCard  = (window.DEMO_CARDS||[]).find(c=>c.id===t.want_card_id);
+      const isSent    = t.from_discord_id === state.discordId;
+      const row = document.createElement('div');
+      row.style.cssText = 'background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:10px;';
+      row.innerHTML = `
+        <div style="font-size:0.78em;color:var(--text-dim);margin-bottom:6px;font-family:\'JetBrains Mono\',monospace;">
+          ${isSent ? '📤 SENT' : '📥 RECEIVED'} · ${new Date(t.created_at).toLocaleDateString()}
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap;">
+          <div style="text-align:center;">
+            ${offerCard ? `<img src="${offerCard.thumbnail||offerCard.image}" style="width:40px;height:56px;border-radius:6px;object-fit:cover;border:1px solid var(--border);" onerror="this.style.display='none'"/>` : ''}
+            <div style="font-size:0.7em;color:var(--text-dim);margin-top:2px;">${offerCard?escapeHtml(offerCard.name):'???'}</div>
+          </div>
+          <div style="color:var(--text-dim);font-size:1.2em;">⇄</div>
+          <div style="text-align:center;">
+            ${wantCard ? `<img src="${wantCard.thumbnail||wantCard.image}" style="width:40px;height:56px;border-radius:6px;object-fit:cover;border:1px solid var(--border);" onerror="this.style.display='none'"/>` : ''}
+            <div style="font-size:0.7em;color:var(--text-dim);margin-top:2px;">${wantCard?escapeHtml(wantCard.name):'???'}</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          ${!isSent ? `
+            <button class="btn-primary" style="font-size:0.78em;padding:6px 16px;" onclick="acceptTrade('${t.id}',null)">✅ Accept</button>
+            <button class="btn-secondary" style="font-size:0.78em;padding:6px 16px;" onclick="declineTrade('${t.id}',null)">✕ Decline</button>
+          ` : `
+            <button class="btn-secondary" style="font-size:0.78em;padding:6px 16px;" onclick="cancelTrade('${t.id}',this.closest('div[style]'))">✕ Cancel</button>
+          `}
+        </div>`;
+      list.appendChild(row);
+    });
+  } catch(e){
+    list.innerHTML = '<div style="color:var(--text-dim);font-style:italic;text-align:center;padding:20px;">Error loading trades</div>';
+  }
+}
+
+async function cancelTrade(tradeId, rowEl){
+  const rt = getSupaRT();
+  try {
+    await rt.from('trade_offers').update({ status:'cancelled', resolved_at: new Date().toISOString() }).eq('id',tradeId);
+    showToast('Trade cancelled.');
+    if(rowEl) rowEl.remove();
+  } catch(e){}
+}
+
+// ══════════════════════════════════════════════
+// PVP BATTLES
+// ══════════════════════════════════════════════
+async function challengeToPvp(opponentId){
+  if(!state.discordId || state.isGuest){
+    showToast('❌ Login with Discord for PvP'); return;
+  }
+  if(opponentId === state.discordId){ showToast('You can\'t battle yourself 😅'); return; }
+  if(!state.equippedId){ showToast('Equip a card first to battle!'); return; }
+
+  const rt = getSupaRT();
+  try {
+    const initBattleState = buildPvpInitState();
+    const { data, error } = await rt
+      .from('pvp_battles')
+      .insert({
+        player1_id:   state.discordId,
+        card1_id:     state.equippedId,
+        status:       'waiting',
+        current_turn: state.discordId,
+        battle_state: initBattleState
+      })
+      .select()
+      .single();
+    if(error){ showToast('❌ Could not create battle: '+error.message); return; }
+
+    const battleId = data.id;
+    // Post challenge in chat
+    await sendChatMsg(
+      `⚔️ @${opponentId} — I challenge you to a duel! [battleId:${battleId}]`,
+      'pvp_req', null
+    );
+    showToast('⚔️ Challenge sent! Waiting for opponent...');
+
+    // Show waiting state
+    openPvpWaitingScreen(battleId, opponentId);
+    listenToBattle(battleId);
+  } catch(e){ showToast('❌ PvP error: '+(e.message||'')); }
+}
+
+async function acceptPvpChallenge(battleId, challengerId){
+  if(!state.discordId || state.isGuest){
+    showToast('❌ Login with Discord to battle'); return;
+  }
+  if(!state.equippedId){ showToast('Equip a card first to battle!'); return; }
+  if(challengerId === state.discordId) return;
+
+  const rt = getSupaRT();
+  try {
+    const { data: battle } = await rt.from('pvp_battles').select('*').eq('id',battleId).single();
+    if(!battle || battle.status !== 'waiting'){ showToast('This challenge is no longer available.'); return; }
+
+    // Set up initial HP from both cards
+    const card1 = (window.DEMO_CARDS||[]).find(c=>c.id===battle.card1_id);
+    const card2 = (window.DEMO_CARDS||[]).find(c=>c.id===state.equippedId);
+    const bs = battle.battle_state || {};
+    bs.p1_hp     = bs.p1_hp    || getCardHp(card1);
+    bs.p1_hp_max = bs.p1_hp_max|| getCardHp(card1);
+    bs.p2_hp     = getCardHp(card2);
+    bs.p2_hp_max = getCardHp(card2);
+    bs.p1_name   = (card1||{}).name || 'Player 1';
+    bs.p2_name   = (card2||{}).name || 'Player 2';
+    bs.log        = ['⚔️ Battle begins!'];
+    bs.winner     = null;
+
+    await rt.from('pvp_battles').update({
+      player2_id:   state.discordId,
+      card2_id:     state.equippedId,
+      status:       'active',
+      battle_state: bs,
+      updated_at:   new Date().toISOString()
+    }).eq('id', battleId);
+
+    activePvpBattleId = battleId;
+    openPvpBattleScreen(battleId, { ...battle, player2_id: state.discordId, card2_id: state.equippedId, status:'active', battle_state: bs });
+    listenToBattle(battleId);
+  } catch(e){ showToast('❌ Could not accept battle: '+(e.message||'')); }
+}
+
+function buildPvpInitState(){
+  const card = (window.DEMO_CARDS||[]).find(c=>c.id===state.equippedId);
+  return {
+    p1_hp: getCardHp(card), p1_hp_max: getCardHp(card),
+    p2_hp: 0, p2_hp_max: 0,
+    p1_name: card ? card.name : 'Player 1',
+    p2_name: 'Waiting...',
+    log: [], winner: null
+  };
+}
+
+function getCardHp(card){
+  if(!card) return 100;
+  // Base HP on rarity — matches your battle engine logic
+  const baseHp = [0,80,100,130,160,200,250,300][card.rarity] || 100;
+  return baseHp;
+}
+
+function openPvpWaitingScreen(battleId, opponentId){
+  activePvpBattleId = battleId;
+  const modal = document.getElementById('pvpBattleModal');
+  const content = document.getElementById('pvpBattleContent');
+  content.innerHTML = `
+    <div style="text-align:center;padding:30px 20px;">
+      <div style="font-size:2.5em;animation:orbPulse 1.5s ease-in-out infinite;margin-bottom:16px;">⚔️</div>
+      <div style="font-family:'Cinzel Decorative',serif;font-size:1.1em;color:var(--pink-pale);margin-bottom:8px;">Challenge Sent!</div>
+      <div style="color:var(--text-dim);font-size:0.88em;margin-bottom:24px;">Waiting for opponent to accept...</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:0.72em;color:var(--text-dim);margin-bottom:20px;">
+        Battle ID: ${battleId.slice(0,8)}...
+      </div>
+      <button class="btn-secondary" onclick="closePvpModal()">Cancel</button>
+    </div>`;
+  modal.classList.add('active');
+}
+
+function openPvpBattleScreen(battleId, battle){
+  activePvpBattleId = battleId;
+  renderPvpState(battle);
+  document.getElementById('pvpBattleModal').classList.add('active');
+}
+
+function renderPvpState(battle){
+  const content = document.getElementById('pvpBattleContent');
+  if(!content) return;
+
+  const bs       = battle.battle_state || {};
+  const isP1     = battle.player1_id === state.discordId;
+  const myHp     = isP1 ? (bs.p1_hp||0) : (bs.p2_hp||0);
+  const myHpMax  = isP1 ? (bs.p1_hp_max||100) : (bs.p2_hp_max||100);
+  const oppHp    = isP1 ? (bs.p2_hp||0) : (bs.p1_hp||0);
+  const oppHpMax = isP1 ? (bs.p2_hp_max||100) : (bs.p1_hp_max||100);
+  const myName   = isP1 ? (bs.p1_name||'You') : (bs.p2_name||'You');
+  const oppName  = isP1 ? (bs.p2_name||'Opponent') : (bs.p1_name||'Opponent');
+  const myCard   = (window.DEMO_CARDS||[]).find(c=>c.id===(isP1?battle.card1_id:battle.card2_id));
+  const oppCard  = (window.DEMO_CARDS||[]).find(c=>c.id===(isP1?battle.card2_id:battle.card1_id));
+  const isMyTurn = battle.current_turn === state.discordId;
+  const isOver   = battle.status === 'finished';
+  const iWon     = battle.winner_id === state.discordId;
+  const log      = Array.isArray(bs.log) ? bs.log.slice(-6) : [];
+
+  // Build abilities list
+  const abilities = (window.DB_ABILITIES && myCard && window.DB_ABILITIES[myCard.id]) || [];
+
+  content.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+      <div style="font-family:'Cinzel Decorative',serif;font-size:0.85em;color:var(--pink-pale);">⚔️ PvP Battle</div>
+      <button onclick="closePvpModal()" style="background:none;border:none;color:var(--text-dim);font-size:1.1em;cursor:pointer;">✕</button>
+    </div>
+
+    ${isOver ? `
+    <div style="text-align:center;padding:20px 0;">
+      <div style="font-size:2.5em;margin-bottom:10px;">${iWon?'🏆':'💔'}</div>
+      <div style="font-family:'Cinzel Decorative',serif;font-size:1.1em;color:${iWon?'#f1c40f':'var(--text-dim)'};">
+        ${iWon ? 'Victory!' : 'Defeated...'}
+      </div>
+      <button class="btn-primary" style="margin-top:20px;" onclick="closePvpModal()">Close</button>
+    </div>` : `
+
+    <div class="pvp-turn-banner ${isMyTurn?'your-turn':'their-turn'}">
+      ${isMyTurn ? '✨ Your turn — choose a move!' : '⏳ Waiting for opponent...'}
+    </div>
+
+    <div class="battle-vs-header" style="margin-bottom:16px;">
+      <div class="battle-player-side">
+        ${myCard ? `<img src="${myCard.thumbnail||myCard.image}" class="battle-card-img player-img" style="width:80px;height:110px;" onerror="this.src='https://placehold.co/80x110/1c0f26/ff9dc7?text=?'"/>` : '<div style="width:80px;height:110px;background:var(--surface);border-radius:10px;"></div>'}
+        <div style="font-size:0.75em;color:var(--pink);margin-top:6px;">${escapeHtml(myName)}</div>
+      </div>
+      <div class="battle-vs-badge">VS</div>
+      <div class="battle-enemy-side">
+        ${oppCard ? `<img src="${oppCard.thumbnail||oppCard.image}" class="battle-card-img enemy-img" style="width:80px;height:110px;" onerror="this.src='https://placehold.co/80x110/1c0f26/ff9dc7?text=?'"/>` : '<div style="width:80px;height:110px;background:var(--surface);border-radius:10px;"></div>'}
+        <div style="font-size:0.75em;color:#c39bd3;margin-top:6px;">${escapeHtml(oppName)}</div>
+      </div>
+    </div>
+
+    <div class="battle-hp-section">
+      <div class="battle-combatant-row">
+        <span class="battle-combatant-label">You</span>
+        <div class="battle-hp-track"><div class="battle-hp-fill player-hp" style="width:${Math.max(0,myHp/myHpMax*100)}%"></div></div>
+        <span class="battle-hp-text">${myHp}/${myHpMax}</span>
+      </div>
+      <div class="battle-combatant-row">
+        <span class="battle-combatant-label">Them</span>
+        <div class="battle-hp-track"><div class="battle-hp-fill enemy-hp" style="width:${Math.max(0,oppHp/oppHpMax*100)}%"></div></div>
+        <span class="battle-hp-text">${oppHp}/${oppHpMax}</span>
+      </div>
+    </div>
+
+    <div class="battle-log" style="margin-bottom:14px;">
+      ${log.length ? log.map(l=>`<div class="log-entry">${escapeHtml(l)}</div>`).join('') : '<div class="log-entry system-log">Battle has started!</div>'}
+    </div>
+
+    ${isMyTurn ? `
+    <div class="battle-moves-grid">
+      <button class="battle-move-btn" onclick="takePvpTurn('attack','${battleId}')">
+        ⚔️ Attack<br/><span style="font-size:0.75em;color:var(--text-dim);">Basic strike</span>
+      </button>
+      <button class="battle-move-btn" onclick="takePvpTurn('heavy','${battleId}')">
+        💥 Heavy Hit<br/><span style="font-size:0.75em;color:var(--text-dim);">High dmg, can miss</span>
+      </button>
+      ${abilities.length ? `
+      <button class="battle-move-btn" onclick="takePvpTurn('ability','${battleId}')">
+        ${abilities[0].icon||'✨'} ${escapeHtml(abilities[0].name)}<br/>
+        <span style="font-size:0.75em;color:var(--text-dim);">${escapeHtml(abilities[0].desc||'Special move')}</span>
+      </button>` : ''}
+      <button class="battle-move-btn" onclick="takePvpTurn('guard','${battleId}')">
+        🛡️ Guard<br/><span style="font-size:0.75em;color:var(--text-dim);">Reduce incoming dmg</span>
+      </button>
+    </div>` : ''}
+  `}`;
+
+  // Store battleId for the move buttons (they reference it from closure)
+  content.dataset.battleId = battleId;
+}
+
+async function takePvpTurn(action, battleId){
+  const rt = getSupaRT();
+  try {
+    const { data: battle } = await rt.from('pvp_battles').select('*').eq('id',battleId).single();
+    if(!battle || battle.status !== 'active'){ showToast('Battle is no longer active.'); return; }
+    if(battle.current_turn !== state.discordId){ showToast("It's not your turn!"); return; }
+
+    const isP1  = battle.player1_id === state.discordId;
+    const bs    = { ...battle.battle_state };
+    const myCard = (window.DEMO_CARDS||[]).find(c=>c.id===(isP1?battle.card1_id:battle.card2_id));
+    const opCard = (window.DEMO_CARDS||[]).find(c=>c.id===(isP1?battle.card2_id:battle.card1_id));
+    const myName = isP1 ? (bs.p1_name||'You') : (bs.p2_name||'You');
+    const opName = isP1 ? (bs.p2_name||'Opponent') : (bs.p1_name||'Opponent');
+
+    let dmg = 0, logMsg = '';
+    const baseAtk = myCard ? (myCard.rarity||1) * 10 : 20;
+
+    if(action === 'attack'){
+      dmg = Math.floor(baseAtk * (0.8 + Math.random()*0.4));
+      logMsg = `${myName} attacks for ${dmg} damage!`;
+    } else if(action === 'heavy'){
+      if(Math.random() < 0.3){
+        logMsg = `${myName}'s heavy hit missed!`;
+      } else {
+        dmg = Math.floor(baseAtk * (1.6 + Math.random()*0.6));
+        logMsg = `${myName} lands a HEAVY HIT for ${dmg} damage!`;
+      }
+    } else if(action === 'ability'){
+      const ab = (window.DB_ABILITIES && myCard && window.DB_ABILITIES[myCard.id]||[])[0];
+      dmg = Math.floor((ab ? (ab.value||baseAtk) : baseAtk) * (0.9 + Math.random()*0.3));
+      logMsg = `${myName} uses ${ab?ab.name:'Special'} for ${dmg}!`;
+    } else if(action === 'guard'){
+      logMsg = `${myName} takes a defensive stance!`;
+      bs.guard = true;
+    }
+
+    // Apply damage to opponent
+    if(isP1){ bs.p2_hp = Math.max(0,(bs.p2_hp||0) - dmg); }
+    else     { bs.p1_hp = Math.max(0,(bs.p1_hp||0) - dmg); }
+
+    if(!Array.isArray(bs.log)) bs.log = [];
+    bs.log.push(logMsg);
+
+    // Check win condition
+    const oppHp = isP1 ? bs.p2_hp : bs.p1_hp;
+    const isOver = oppHp <= 0;
+    const nextTurn = isP1 ? battle.player2_id : battle.player1_id;
+
+    await rt.from('pvp_battles').update({
+      battle_state: bs,
+      current_turn: isOver ? null : nextTurn,
+      status:       isOver ? 'finished' : 'active',
+      winner_id:    isOver ? state.discordId : null,
+      updated_at:   new Date().toISOString()
+    }).eq('id', battleId);
+
+    if(isOver){
+      showToast('🏆 You won the battle!');
+      // Update win/loss counts
+      await sb.update('players', { pvp_wins: (state.pvpWins||0)+1 }, { discord_id: state.discordId });
+      await sb.update('players', { pvp_losses: (state.pvpLosses||0)+1 }, { discord_id: nextTurn });
+    }
+
+  } catch(e){ showToast('❌ Move error: '+(e.message||'')); }
+}
+
+function listenToBattle(battleId){
+  const rt = getSupaRT();
+  if(!rt) return;
+  pvpChannel = rt
+    .channel('battle-'+battleId)
+    .on('postgres_changes', {
+      event: 'UPDATE', schema: 'public', table: 'pvp_battles',
+      filter: `id=eq.${battleId}`
+    }, payload => {
+      renderPvpState(payload.new);
+      if(payload.new.status === 'active' && payload.new.player2_id &&
+         document.getElementById('pvpBattleModal').classList.contains('active') &&
+         !document.getElementById('pvpBattleContent').querySelector('.battle-moves-grid') &&
+         payload.new.player1_id === state.discordId){
+        // Challenger's screen transitions from waiting → battle
+        openPvpBattleScreen(battleId, payload.new);
+      }
+      if(payload.new.status === 'finished'){
+        const iWon = payload.new.winner_id === state.discordId;
+        setTimeout(()=>{ if(!iWon) showToast('💔 You lost the battle...'); }, 300);
+      }
+    })
+    .subscribe();
+}
+
+function closePvpModal(){
+  const modal = document.getElementById('pvpBattleModal');
+  if(modal) modal.classList.remove('active');
+  if(pvpChannel){ pvpChannel.unsubscribe(); pvpChannel = null; }
+  activePvpBattleId = null;
+}
+
+// ══════════════════════════════════════════════
+// LEADERBOARD
+// ══════════════════════════════════════════════
+function switchLeaderboard(type, btn){
+  document.querySelectorAll('[id^="lbf-"]').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  loadLeaderboard(type);
+}
+
+async function loadLeaderboard(type='pvp'){
+  const rt = getSupaRT();
+  if(!rt) return;
+  const list = document.getElementById('leaderboardList');
+  if(!list) return;
+  list.innerHTML = '<div style="color:var(--text-dim);font-style:italic;text-align:center;padding:20px;">Loading... ✦</div>';
+  try {
+    let query = rt.from('players').select('discord_id,username,avatar,pvp_wins,pvp_losses,equipped_card,collection').eq('is_public',true);
+    if(type==='pvp')   query = query.order('pvp_wins',{ascending:false}).limit(50);
+    else               query = query.limit(200);
+
+    const { data } = await query;
+    let rows = data || [];
+
+    if(type==='cards'){
+      rows = rows.map(r=>({ ...r, _cardCount: Array.isArray(r.collection)?r.collection.length:0 }))
+                 .sort((a,b)=>b._cardCount-a._cardCount)
+                 .slice(0,50);
+    }
+
+    if(!rows.length){
+      list.innerHTML = '<div style="color:var(--text-dim);font-style:italic;text-align:center;padding:20px;">No data yet ʚɞ</div>';
+      return;
+    }
+    list.innerHTML = '';
+    rows.forEach((p,i)=>{
+      const rankClass = i===0?'gold':i===1?'silver':i===2?'bronze':'';
+      const rankLabel = i===0?'🥇':i===1?'🥈':i===2?'🥉':`#${i+1}`;
+      const statVal   = type==='pvp' ? `${p.pvp_wins||0} wins` : `${Array.isArray(p.collection)?p.collection.length:0} cards`;
+      const equip     = (window.DEMO_CARDS||[]).find(c=>c.id===p.equipped_card);
+      const row = document.createElement('div');
+      row.className = 'leaderboard-row';
+      row.onclick   = () => viewPlayerProfile(p.discord_id);
+      row.innerHTML = `
+        <div class="lb-rank ${rankClass}">${rankLabel}</div>
+        <img class="lb-avatar"
+          src="${p.avatar||'https://cdn.discordapp.com/embed/avatars/0.png'}"
+          onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'"/>
+        <div class="lb-name">${escapeHtml(p.username||'Summoner')}</div>
+        ${equip ? `<img src="${equip.thumbnail||equip.image}" style="width:28px;height:38px;border-radius:5px;object-fit:cover;border:1px solid var(--border);" onerror="this.style.display='none'"/>` : ''}
+        <div class="lb-stat">${statVal}</div>`;
+      list.appendChild(row);
+    });
+  } catch(e){
+    list.innerHTML = '<div style="color:var(--text-dim);font-style:italic;text-align:center;padding:20px;">Error loading leaderboard</div>';
+  }
+}
+
+// ── Small helper: open card modal from ID (used in chat flex click) ──
+function openCardById(cardId){
+  const card = (window.DEMO_CARDS||[]).find(c=>c.id===cardId);
+  if(card && typeof openCard === 'function') openCard(card.id);
+}
+
+// ── Patch: also add pvp_wins / pvp_losses to state when loading player ──
+const _origLoadPlayer = loadPlayer;
+window.loadPlayer = async function(discordId){
+  await _origLoadPlayer(discordId);
+  // pvp stats (already in players table after migration)
+  const rows = await sb.get('players',{discord_id:discordId});
+  if(rows && rows[0]){
+    state.pvpWins   = rows[0].pvp_wins   || 0;
+    state.pvpLosses = rows[0].pvp_losses || 0;
+  }
+};
+
 </script>
 
 <!-- ABILITY CUTSCENE OVERLAY -->
@@ -10281,6 +11466,48 @@ tryAutoLogin();
   <div id="ccCounter"></div>
 </div>
 
+<!-- PLAYER PROFILE MODAL -->
+<div id="playerProfileModal" onclick="if(event.target===this)closePlayerModal()">
+  <div id="playerProfileContent"></div>
+</div>
+
+<!-- TRADE MODAL -->
+<div id="tradeModal" onclick="if(event.target===this)closeTradeModal()">
+  <div class="trade-box">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+      <h3 style="font-family:'Cinzel Decorative',serif;font-size:1em;color:var(--pink-pale);">🔄 Send Trade Offer</h3>
+      <button onclick="closeTradeModal()" style="background:none;border:none;color:var(--text-dim);font-size:1.2em;cursor:pointer;">✕</button>
+    </div>
+    <div style="font-size:0.85em;color:var(--text-dim);margin-bottom:16px;">Trading with: <span id="tradeTargetName" style="color:var(--pink);"></span></div>
+    <div class="trade-section-label">You offer (pick one of YOUR cards)</div>
+    <div class="trade-card-grid" id="tradeOfferGrid"></div>
+    <div class="trade-section-label">You want (pick one of THEIR cards)</div>
+    <div class="trade-card-grid" id="tradeWantGrid"></div>
+    <div style="display:flex;gap:10px;margin-top:8px;flex-wrap:wrap;">
+      <button class="btn-primary" style="flex:1;" onclick="submitTradeOffer()">🔄 Send Offer</button>
+      <button class="btn-secondary" onclick="closeTradeModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- PVP BATTLE MODAL -->
+<div id="pvpBattleModal">
+  <div class="pvp-battle-box" id="pvpBattleContent">
+    <!-- filled dynamically -->
+  </div>
+</div>
+
+<!-- FLEX CARD PICKER (small modal) -->
+<div id="flexPickerModal" style="position:fixed;inset:0;z-index:355;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.85);backdrop-filter:blur(6px);padding:20px;" onclick="if(event.target===this)closeFlexPicker()">
+  <div style="background:linear-gradient(135deg,var(--bg2),var(--bg3));border:1px solid var(--border);border-radius:20px;max-width:480px;width:100%;max-height:80vh;overflow-y:auto;padding:24px;animation:modalIn 0.3s cubic-bezier(0.34,1.56,0.64,1);">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <h3 style="font-family:'Cinzel Decorative',serif;font-size:0.9em;color:var(--pink-pale);">✨ Flex a Card</h3>
+      <button onclick="closeFlexPicker()" style="background:none;border:none;color:var(--text-dim);font-size:1.1em;cursor:pointer;">✕</button>
+    </div>
+    <p style="color:var(--text-dim);font-size:0.85em;margin-bottom:14px;">Pick a card to show off in chat!</p>
+    <div class="cards-grid" id="flexPickerGrid" style="max-height:340px;overflow-y:auto;"></div>
+  </div>
+</div>
 
 </body>
 </html>
