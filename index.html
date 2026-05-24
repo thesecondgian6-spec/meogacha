@@ -3503,6 +3503,33 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 }
 .pvp-turn-banner.your-turn{background:rgba(255,157,199,0.12);color:var(--pink);border:1px solid rgba(255,157,199,0.3);}
 .pvp-turn-banner.their-turn{background:rgba(100,80,120,0.2);color:var(--text-dim);border:1px solid var(--border);}
+/* PVP MP Bar */
+.pvp-mp-bar{display:flex;align-items:center;gap:6px;margin-bottom:12px;justify-content:flex-end;}
+.pvp-mp-pip{width:18px;height:8px;border-radius:4px;transition:all 0.35s cubic-bezier(0.34,1.56,0.64,1);}
+.pvp-mp-pip.filled{background:linear-gradient(90deg,#5dade2,#a9d4f5);box-shadow:0 0 6px #5dade299;}
+.pvp-mp-pip.empty{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);}
+/* PVP damage flash overlay */
+#pvpDmgFlash{position:fixed;inset:0;z-index:380;pointer-events:none;opacity:0;border-radius:0;}
+#pvpDmgFlash.flash-red{background:radial-gradient(ellipse at center,transparent 40%,rgba(231,76,60,0.35) 100%);animation:pvpFlash 0.4s ease-out forwards;}
+#pvpDmgFlash.flash-pink{background:radial-gradient(ellipse at center,transparent 40%,rgba(255,157,199,0.3) 100%);animation:pvpFlash 0.35s ease-out forwards;}
+@keyframes pvpFlash{0%{opacity:1;}100%{opacity:0;}}
+/* PVP outcome box */
+.pvp-outcome-box{text-align:center;padding:24px 16px;}
+.pvp-outcome-icon{font-size:3.5em;margin-bottom:12px;animation:pvpOutcomeIn 0.6s cubic-bezier(0.34,1.56,0.64,1);}
+.pvp-outcome-title{font-family:'Cinzel Decorative',serif;font-size:1.3em;margin-bottom:8px;}
+.pvp-outcome-title.win{background:linear-gradient(135deg,#f1c40f,#ff9dc7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.pvp-outcome-title.lose{color:var(--text-dim);}
+.pvp-outcome-rewards{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:14px 0;}
+.pvp-reward-pill{background:rgba(241,196,15,0.12);border:1px solid rgba(241,196,15,0.35);border-radius:20px;padding:6px 16px;font-family:'JetBrains Mono',monospace;font-size:0.82em;color:#f1c40f;animation:pvpOutcomeIn 0.5s cubic-bezier(0.34,1.56,0.64,1) both;}
+.pvp-reward-pill.xp{background:rgba(52,152,219,0.12);border-color:rgba(52,152,219,0.35);color:#5dade2;}
+@keyframes pvpOutcomeIn{from{transform:scale(0.6) translateY(20px);opacity:0;}to{transform:scale(1) translateY(0);opacity:1;}}
+/* PVP hit shake */
+@keyframes pvpShake{0%,100%{transform:translateX(0);}20%{transform:translateX(-6px);}40%{transform:translateX(6px);}60%{transform:translateX(-4px);}80%{transform:translateX(3px);}}
+.pvp-hit-shake{animation:pvpShake 0.4s ease-out;}
+/* PVP HP bar pulse on low HP */
+.battle-hp-fill.player-hp.low{animation:hpPulse 1s ease-in-out infinite;}
+.battle-hp-fill.enemy-hp.low{animation:hpPulse 1s ease-in-out infinite;}
+@keyframes hpPulse{0%,100%{opacity:1;}50%{opacity:0.55;}}
 
 /* ── Leaderboard ── */
 .leaderboard-row{
@@ -3993,104 +4020,6 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
         <button class="activity-btn btn-ripple" id="questBtn" onclick="openActivity('quest')">🗺️ Begin Quest</button>
       </div>
     </div>
-
-    <!-- BATTLE SECTION EMBEDDED IN ACTIVITIES -->
-    <div class="section-title" style="margin-top:36px;">⚡ TCG Card Battle</div>
-    <p style="text-align:center;color:var(--text-dim);font-style:italic;margin-bottom:24px;font-size:0.9em;">Challenge AI opponents using your collected cards. Win to earn coins &amp; XP!</p>
-
-    <!-- SETUP PHASE -->
-    <div class="battle-setup-section active" id="battleSetup">
-      <div class="battle-arena-bg" style="position:relative;">
-        <div id="battleVFXLayer"></div>
-        <div style="text-align:center;margin-bottom:20px;">
-          <div style="font-family:'Cinzel Decorative',serif;font-size:1.1em;color:var(--pink-pale);margin-bottom:6px;">⚔️ Choose Your Fighter</div>
-          <div style="color:var(--text-dim);font-size:0.85em;font-style:italic;">Select a card from your collection to battle with</div>
-        </div>
-        <div class="battle-card-select-grid" id="battleCardSelectGrid">
-          <div style="color:var(--text-dim);font-style:italic;font-size:0.85em;grid-column:1/-1;text-align:center;padding:20px;">Pull some cards first to battle! ʚɞ</div>
-        </div>
-      </div>
-
-      <div style="text-align:center;margin-bottom:20px;">
-        <div style="font-family:'Cinzel Decorative',serif;font-size:1em;color:var(--text-dim);margin-bottom:16px;letter-spacing:0.1em;">⚡ Choose Difficulty</div>
-        <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;" id="difficultyPicker">
-          <button class="diff-btn active" data-diff="easy" onclick="selectDifficulty('easy',this)" style="background:rgba(46,204,113,0.1);border:1px solid rgba(46,204,113,0.4);color:#2ecc71;padding:10px 20px;border-radius:14px;cursor:pointer;font-family:'Cinzel Decorative',serif;font-size:0.75em;transition:all 0.2s;">🌱 Novice<br><span style="font-family:'JetBrains Mono',monospace;font-size:0.8em;opacity:0.7;">×1 rewards</span></button>
-          <button class="diff-btn" data-diff="normal" onclick="selectDifficulty('normal',this)" style="background:rgba(241,196,15,0.1);border:1px solid rgba(241,196,15,0.3);color:#f1c40f;padding:10px 20px;border-radius:14px;cursor:pointer;font-family:'Cinzel Decorative',serif;font-size:0.75em;transition:all 0.2s;">⚔️ Warrior<br><span style="font-family:'JetBrains Mono',monospace;font-size:0.8em;opacity:0.7;">×2 rewards</span></button>
-          <button class="diff-btn" data-diff="hard" onclick="selectDifficulty('hard',this)" style="background:rgba(231,76,60,0.1);border:1px solid rgba(231,76,60,0.3);color:#e74c3c;padding:10px 20px;border-radius:14px;cursor:pointer;font-family:'Cinzel Decorative',serif;font-size:0.75em;transition:all 0.2s;">💀 Demon King<br><span style="font-family:'JetBrains Mono',monospace;font-size:0.8em;opacity:0.7;">×4 rewards</span></button>
-        </div>
-      </div>
-
-      <div style="text-align:center;">
-        <button class="btn-primary btn-ripple" id="startBattleBtn" onclick="startBattle()" style="font-size:0.9em;padding:14px 40px;" disabled>⚡ Start Battle</button>
-        <div style="font-size:0.75em;color:var(--text-dim);font-style:italic;margin-top:8px;" id="battleSelectedInfo">No card selected</div>
-      </div>
-    </div>
-
-    <!-- FIGHT PHASE -->
-    <div class="battle-fight-section" id="battleFight">
-      <div class="battle-arena-bg" style="position:relative;">
-        <div id="battleVFXLayer2"></div>
-        <!-- VS Header -->
-        <div class="battle-vs-header">
-          <div class="battle-player-side">
-            <div style="font-family:'JetBrains Mono',monospace;font-size:0.7em;color:var(--pink);margin-bottom:8px;">YOU</div>
-            <div class="battle-card-display">
-              <img class="battle-card-img player-img" id="battlePlayerImg" src="" alt="player card"/>
-              <div class="battle-card-name-tag" id="battlePlayerName">—</div>
-            </div>
-          </div>
-          <div class="battle-vs-badge">VS</div>
-          <div class="battle-enemy-side">
-            <div style="font-family:'JetBrains Mono',monospace;font-size:0.7em;color:#c39bd3;margin-bottom:8px;">ENEMY</div>
-            <div class="battle-card-display">
-              <img class="battle-card-img enemy-img" id="battleEnemyImg" src="" alt="enemy card"/>
-              <div class="battle-card-name-tag" id="battleEnemyName">—</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- HP Bars -->
-        <div class="battle-hp-section">
-          <div class="battle-combatant-row">
-            <div class="battle-combatant-label" id="playerHpLabel">Player</div>
-            <div class="battle-hp-track"><div class="battle-hp-fill player-hp" id="playerHpBar" style="width:100%"></div></div>
-            <div class="battle-hp-text" id="playerHpText">100/100</div>
-          </div>
-          <div class="battle-combatant-row">
-            <div class="battle-combatant-label" id="enemyHpLabel">Enemy</div>
-            <div class="battle-hp-track"><div class="battle-hp-fill enemy-hp" id="enemyHpBar" style="width:100%"></div></div>
-            <div class="battle-hp-text" id="enemyHpText">100/100</div>
-          </div>
-        </div>
-
-        <!-- Status effects -->
-        <div class="battle-status-row" id="battleStatusRow"></div>
-
-        <!-- Turn info -->
-        <div style="text-align:center;font-family:'JetBrains Mono',monospace;font-size:0.72em;color:var(--text-dim);margin-bottom:12px;" id="battleTurnLabel">Turn 1 · Your move</div>
-      </div>
-
-      <!-- Battle Log -->
-      <div class="battle-log" id="battleLog">
-        <div class="log-entry system-log">⚡ The battle begins! Choose your move wisely...</div>
-      </div>
-
-      <!-- Move Buttons -->
-      <div class="battle-moves-grid" id="battleMovesGrid"></div>
-
-      <!-- Outcome -->
-      <div class="battle-outcome-box" id="battleOutcome" style="display:none">
-        <div class="battle-outcome-title" id="battleOutcomeTitle">Victory!</div>
-        <div style="color:var(--text-dim);font-style:italic;margin:8px 0 16px;" id="battleOutcomeMsg"></div>
-        <div class="battle-outcome-rewards" id="battleOutcomeRewards"></div>
-        <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:16px;">
-          <button class="btn-primary btn-ripple" onclick="battleRematch()">🔄 Rematch</button>
-          <button class="btn-secondary" onclick="battleReturn()">🏠 Return</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
 
   <!-- ACTIVITY MODAL -->
   <div class="act-modal" id="actModal">
@@ -11597,8 +11526,13 @@ async function acceptPvpChallenge(battleId, challengerId){
     bs.p2_hp_max = getCardHp(card2);
     bs.p1_name   = (card1||{}).name || 'Player 1';
     bs.p2_name   = (card2||{}).name || 'Player 2';
+    bs.p1_mp     = 3;
+    bs.p2_mp     = 3;
+    bs.p1_guarding = false;
+    bs.p2_guarding = false;
     bs.log        = ['⚔️ Battle begins!'];
     bs.winner     = null;
+    bs.last_cutscene = null;
 
     await rt.from('pvp_battles').update({
       player2_id:   state.discordId,
@@ -11656,7 +11590,6 @@ function openPvpBattleScreen(battleId, battle){
 }
 
 function renderPvpState(battle, battleId){
-  // battleId may come from the realtime payload (.id) or be passed explicitly
   const resolvedBattleId = battleId || battle.id || activePvpBattleId;
   const content = document.getElementById('pvpBattleContent');
   if(!content) return;
@@ -11675,9 +11608,20 @@ function renderPvpState(battle, battleId){
   const isOver   = battle.status === 'finished';
   const iWon     = battle.winner_id === state.discordId;
   const log      = Array.isArray(bs.log) ? bs.log.slice(-6) : [];
+  const myMp     = isP1 ? (bs.p1_mp||0) : (bs.p2_mp||0);
+  const myMpMax  = 3;
 
-  // Build abilities list — prefer DB, fall back to hardcoded (same as card editor)
+  // Build abilities list
   const abilities = myCard ? getCardAbilities(myCard.id, myCard.rarity) : [];
+
+  // ── MP pips (only shown to local player) ──
+  const mpPips = Array.from({length: myMpMax}, (_,i) =>
+    `<div class="pvp-mp-pip ${i < myMp ? 'filled' : 'empty'}"></div>`
+  ).join('');
+
+  // ── HP bar low-HP warning ──
+  const myHpPct  = myHpMax > 0 ? myHp/myHpMax : 0;
+  const oppHpPct = oppHpMax > 0 ? oppHp/oppHpMax : 0;
 
   content.innerHTML = `
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
@@ -11686,44 +11630,55 @@ function renderPvpState(battle, battleId){
     </div>
 
     ${isOver ? `
-    <div style="text-align:center;padding:20px 0;">
-      <div style="font-size:2.5em;margin-bottom:10px;">${iWon?'🏆':'💔'}</div>
-      <div style="font-family:'Cinzel Decorative',serif;font-size:1.1em;color:${iWon?'#f1c40f':'var(--text-dim)'};">
-        ${iWon ? 'Victory!' : 'Defeated...'}
+    <div class="pvp-outcome-box">
+      <div class="pvp-outcome-icon">${iWon ? '🏆' : '💔'}</div>
+      <div class="pvp-outcome-title ${iWon ? 'win' : 'lose'}">${iWon ? '✦ Victory! ✦' : 'Defeated...'}</div>
+      <div style="color:var(--text-dim);font-size:0.85em;margin-bottom:4px;">${iWon ? 'You crushed your opponent!' : 'Better luck next time.'}</div>
+      <div class="pvp-outcome-rewards" id="pvpOutcomeRewards"></div>
+      <div style="display:flex;gap:10px;justify-content:center;margin-top:16px;flex-wrap:wrap;">
+        <button class="btn-primary" onclick="closePvpModal()">✕ Close</button>
       </div>
-      <button class="btn-primary" style="margin-top:20px;" onclick="closePvpModal()">Close</button>
     </div>` : `
 
     <div class="pvp-turn-banner ${isMyTurn?'your-turn':'their-turn'}">
       ${isMyTurn ? '✨ Your turn — choose a move!' : '⏳ Waiting for opponent...'}
     </div>
 
-    <div class="battle-vs-header" style="margin-bottom:16px;">
+    <div class="battle-vs-header" style="margin-bottom:10px;">
       <div class="battle-player-side">
-        ${myCard ? `<img src="${myCard.thumbnail||myCard.image}" class="battle-card-img player-img" style="width:80px;height:110px;" onerror="this.src='https://placehold.co/80x110/1c0f26/ff9dc7?text=?'"/>` : '<div style="width:80px;height:110px;background:var(--surface);border-radius:10px;"></div>'}
-        <div style="font-size:0.75em;color:var(--pink);margin-top:6px;">${escapeHtml(myName)}</div>
+        ${myCard ? `<img src="${myCard.thumbnail||myCard.image}" class="battle-card-img player-img pvp-card-img" id="pvpMyCardImg" style="width:80px;height:110px;" onerror="this.src='https://placehold.co/80x110/1c0f26/ff9dc7?text=?'"/>` : '<div style="width:80px;height:110px;background:var(--surface);border-radius:10px;"></div>'}
+        <div style="font-size:0.72em;color:var(--pink);margin-top:5px;text-align:center;">${escapeHtml(myName)}</div>
       </div>
       <div class="battle-vs-badge">VS</div>
       <div class="battle-enemy-side">
-        ${oppCard ? `<img src="${oppCard.thumbnail||oppCard.image}" class="battle-card-img enemy-img" style="width:80px;height:110px;" onerror="this.src='https://placehold.co/80x110/1c0f26/ff9dc7?text=?'"/>` : '<div style="width:80px;height:110px;background:var(--surface);border-radius:10px;"></div>'}
-        <div style="font-size:0.75em;color:#c39bd3;margin-top:6px;">${escapeHtml(oppName)}</div>
+        ${oppCard ? `<img src="${oppCard.thumbnail||oppCard.image}" class="battle-card-img enemy-img pvp-card-img" id="pvpOppCardImg" style="width:80px;height:110px;" onerror="this.src='https://placehold.co/80x110/1c0f26/ff9dc7?text=?'"/>` : '<div style="width:80px;height:110px;background:var(--surface);border-radius:10px;"></div>'}
+        <div style="font-size:0.72em;color:#c39bd3;margin-top:5px;text-align:center;">${escapeHtml(oppName)}</div>
       </div>
     </div>
 
     <div class="battle-hp-section">
       <div class="battle-combatant-row">
-        <span class="battle-combatant-label">You</span>
-        <div class="battle-hp-track"><div class="battle-hp-fill player-hp" style="width:${Math.max(0,myHp/myHpMax*100)}%"></div></div>
+        <span class="battle-combatant-label" style="min-width:36px;">You</span>
+        <div class="battle-hp-track">
+          <div class="battle-hp-fill player-hp ${myHpPct < 0.3 ? 'low' : ''}" id="pvpMyHpFill" style="width:${Math.max(0,myHpPct*100)}%;transition:width 0.6s cubic-bezier(0.4,0,0.2,1);"></div>
+        </div>
         <span class="battle-hp-text">${myHp}/${myHpMax}</span>
       </div>
       <div class="battle-combatant-row">
-        <span class="battle-combatant-label">Them</span>
-        <div class="battle-hp-track"><div class="battle-hp-fill enemy-hp" style="width:${Math.max(0,oppHp/oppHpMax*100)}%"></div></div>
+        <span class="battle-combatant-label" style="min-width:36px;">Them</span>
+        <div class="battle-hp-track">
+          <div class="battle-hp-fill enemy-hp ${oppHpPct < 0.3 ? 'low' : ''}" id="pvpOppHpFill" style="width:${Math.max(0,oppHpPct*100)}%;transition:width 0.6s cubic-bezier(0.4,0,0.2,1);"></div>
+        </div>
         <span class="battle-hp-text">${oppHp}/${oppHpMax}</span>
       </div>
     </div>
 
-    <div class="battle-log" style="margin-bottom:14px;">
+    <div class="pvp-mp-bar" title="Your MP">
+      <span style="font-family:'JetBrains Mono',monospace;font-size:0.65em;color:var(--text-dim);margin-right:2px;">MP</span>
+      ${mpPips}
+    </div>
+
+    <div class="battle-log" style="margin-bottom:14px;max-height:110px;">
       ${log.length ? log.map(l=>`<div class="log-entry">${escapeHtml(l)}</div>`).join('') : '<div class="log-entry system-log">Battle has started!</div>'}
     </div>
 
@@ -11746,14 +11701,15 @@ function renderPvpState(battle, battleId){
         const tierClr = isUlt?'#f1c40f': isPas?'#5dade2':'#ff9dc7';
         const _cardId = myCard ? myCard.id : '';
         const _cardRar = myCard ? myCard.rarity : 1;
+        const noMp = !isPas && mpCost > myMp;
         const clickAb = isPas ? '' : `onclick="takePvpTurn('ability','${resolvedBattleId}','${ab.id}')"`;
         return `<button class="battle-move-btn" ${clickAb}
-          style="border-color:${borderClr};${isPas?'opacity:0.7;cursor:default;':''}">
+          style="border-color:${borderClr};${isPas?'opacity:0.6;cursor:default;':''}${noMp?'opacity:0.4;cursor:not-allowed;':''}" ${noMp&&!isPas?'disabled':''}>
           <span class="move-name" style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;">
             <span>${ab.icon||'✨'} ${escapeHtml(ab.name)}</span>
             <span style="margin-left:auto;display:flex;gap:4px;align-items:center;">
               <span style="font-family:'JetBrains Mono',monospace;font-size:0.58em;padding:1px 5px;border-radius:6px;background:${tierClr}22;border:1px solid ${tierClr}55;color:${tierClr};">${tierLabel}</span>
-              ${!isPas ? `<span style="font-family:'JetBrains Mono',monospace;font-size:0.6em;color:#f1c40f;">${mpCost}MP</span>` : `<span style="font-family:'JetBrains Mono',monospace;font-size:0.58em;color:var(--text-dim);">PASSIVE</span>`}
+              ${!isPas ? `<span style="font-family:'JetBrains Mono',monospace;font-size:0.6em;color:${noMp?'#e74c3c':'#f1c40f'};">${mpCost}MP</span>` : `<span style="font-family:'JetBrains Mono',monospace;font-size:0.58em;color:var(--text-dim);">PASSIVE</span>`}
               <span onclick="event.stopPropagation();playAbilityCutscene('${_cardId}',${_cardRar},'${ab.id}')" title="Preview ability" style="font-size:0.8em;cursor:pointer;padding:2px 4px;border-radius:4px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);">👁</span>
             </span>
           </span>
@@ -11762,14 +11718,76 @@ function renderPvpState(battle, battleId){
       }).join('')}
       <button class="battle-move-btn" style="border-color:rgba(93,173,226,0.35);" onclick="takePvpTurn('guard','${resolvedBattleId}',null)">
         <span class="move-name">🛡️ Guard</span>
-        <span class="move-desc">Reduce incoming damage</span>
+        <span class="move-desc">Reduces incoming damage this turn</span>
       </button>
     </div>` : ''}
   `}`;
 
-  // Store resolvedBattleId for reference
   content.dataset.battleId = resolvedBattleId;
   if(resolvedBattleId) activePvpBattleId = resolvedBattleId;
+
+  // ── Populate rewards after render (won state) ──
+  if(isOver){
+    const rewardsEl = document.getElementById('pvpOutcomeRewards');
+    if(rewardsEl && bs.rewards && bs.rewards[state.discordId]){
+      const r = bs.rewards[state.discordId];
+      rewardsEl.innerHTML = `
+        ${r.coins ? `<div class="pvp-reward-pill">+${r.coins} 🪙</div>` : ''}
+        ${r.xp    ? `<div class="pvp-reward-pill xp" style="animation-delay:0.1s;">+${r.xp} XP</div>` : ''}
+      `;
+    }
+  }
+}
+
+// ── VFX helpers for PVP ──
+function pvpFlashDamage(who){
+  const el = document.getElementById('pvpDmgFlash');
+  if(!el) return;
+  el.className = '';
+  void el.offsetWidth; // force reflow
+  el.className = who === 'me' ? 'flash-red' : 'flash-pink';
+  setTimeout(()=>{ el.className=''; }, 420);
+}
+
+function pvpShakeCard(who){
+  const id = who === 'me' ? 'pvpMyCardImg' : 'pvpOppCardImg';
+  const el = document.getElementById(id);
+  if(!el) return;
+  el.classList.remove('pvp-hit-shake');
+  void el.offsetWidth;
+  el.classList.add('pvp-hit-shake');
+  setTimeout(()=>el.classList.remove('pvp-hit-shake'), 420);
+}
+
+function pvpSpawnDmgNumber(who, dmg){
+  const id = who === 'me' ? 'pvpMyCardImg' : 'pvpOppCardImg';
+  const anchor = document.getElementById(id);
+  if(!anchor) return;
+  const rect = anchor.getBoundingClientRect();
+  const el = document.createElement('div');
+  el.textContent = (dmg > 0 ? '-' : '+') + Math.abs(dmg);
+  el.style.cssText = `
+    position:fixed;
+    left:${rect.left + rect.width/2}px;
+    top:${rect.top + rect.height*0.3}px;
+    transform:translateX(-50%);
+    font-family:'Cinzel Decorative',serif;
+    font-size:${dmg >= 50 ? '1.6' : '1.2'}em;
+    font-weight:900;
+    color:${dmg > 0 ? '#ff4444' : '#2ecc71'};
+    text-shadow:0 0 12px currentColor;
+    pointer-events:none;
+    z-index:400;
+    animation:pvpDmgNum 1.1s cubic-bezier(0.2,0.8,0.4,1) forwards;
+  `;
+  document.body.appendChild(el);
+  // inject keyframe once
+  if(!document.getElementById('pvpDmgKeyframe')){
+    const s=document.createElement('style');s.id='pvpDmgKeyframe';
+    s.textContent='@keyframes pvpDmgNum{0%{transform:translateX(-50%) scale(0.5);opacity:1;}60%{transform:translateX(-50%) translateY(-40px) scale(1.2);opacity:1;}100%{transform:translateX(-50%) translateY(-80px) scale(0.9);opacity:0;}}';
+    document.head.appendChild(s);
+  }
+  setTimeout(()=>el.remove(), 1200);
 }
 
 async function takePvpTurn(action, battleId, abilityId){
@@ -11782,54 +11800,108 @@ async function takePvpTurn(action, battleId, abilityId){
     const isP1   = battle.player1_id === state.discordId;
     const bs     = { ...battle.battle_state };
     const myCard = (window.DEMO_CARDS||[]).find(c=>c.id===(isP1?battle.card1_id:battle.card2_id));
-    const opCard = (window.DEMO_CARDS||[]).find(c=>c.id===(isP1?battle.card2_id:battle.card1_id));
     const myName = isP1 ? (bs.p1_name||'You') : (bs.p2_name||'You');
-    const opName = isP1 ? (bs.p2_name||'Opponent') : (bs.p1_name||'Opponent');
 
-    let dmg = 0, logMsg = '';
+    // ── MP tracking ──
+    if(!bs.p1_mp && bs.p1_mp !== 0) bs.p1_mp = 3;
+    if(!bs.p2_mp && bs.p2_mp !== 0) bs.p2_mp = 3;
+    const myMpKey = isP1 ? 'p1_mp' : 'p2_mp';
+    const myMp = bs[myMpKey] || 0;
+
+    let dmg = 0, logMsg = '', isCrit = false, usedAbility = null;
     const baseAtk = myCard ? (myCard.rarity||1) * 10 : 20;
 
     if(action === 'attack'){
-      dmg = Math.floor(baseAtk * (0.8 + Math.random()*0.4));
-      logMsg = `${myName} attacks for ${dmg} damage!`;
+      isCrit = Math.random() < 0.12;
+      dmg = Math.floor(baseAtk * (isCrit ? 1.8 : 1) * (0.85 + Math.random()*0.3));
+      logMsg = isCrit
+        ? `💥 ${myName} lands a CRITICAL STRIKE for ${dmg} damage!`
+        : `⚔️ ${myName} attacks for ${dmg} damage!`;
+      bs[myMpKey] = Math.min(3, myMp + 1); // basic attack regenerates 1 MP
+
     } else if(action === 'heavy'){
-      if(Math.random() < 0.3){
-        logMsg = `${myName}'s heavy hit missed!`;
+      if(Math.random() < 0.28){
+        logMsg = `💨 ${myName}'s heavy hit missed!`;
       } else {
-        dmg = Math.floor(baseAtk * (1.6 + Math.random()*0.6));
-        logMsg = `${myName} lands a HEAVY HIT for ${dmg} damage!`;
+        isCrit = Math.random() < 0.2;
+        dmg = Math.floor(baseAtk * (isCrit ? 2.8 : 1.8) * (0.9 + Math.random()*0.3));
+        logMsg = isCrit
+          ? `🔥 ${myName} hits a DEVASTATING blow — ${dmg} damage!`
+          : `💥 ${myName} lands a HEAVY HIT for ${dmg} damage!`;
       }
+
     } else if(action === 'ability'){
-      // Find the specific ability by id — use getCardAbilities for fallback (same as card editor)
       const cardAbils = myCard ? getCardAbilities(myCard.id, myCard.rarity) : [];
       const ab = (abilityId ? cardAbils.find(a=>a.id===abilityId) : null) || cardAbils[0];
+      const mpCost = ab ? (ab.mp_cost||ab.mpCost||1) : 1;
+      if(mpCost > myMp){ showToast('❌ Not enough MP!'); return; }
+      bs[myMpKey] = Math.max(0, myMp - mpCost);
+      usedAbility = ab;
       dmg = Math.floor((ab ? (ab.value||baseAtk) : baseAtk) * (0.9 + Math.random()*0.3));
-      logMsg = `${myName} uses ${ab ? ab.name : 'Special'} for ${dmg} damage!`;
-      // ✦ Play the ability cutscene — then MUST re-fetch battle to avoid overwriting opponent HP
-      if(ab && myCard){
-        await playAbilityCutscene(myCard.id, myCard.rarity, ab.id);
-        // Re-fetch latest battle state so we don't clobber changes made during cutscene
-        const { data: freshBattle } = await rt.from('pvp_battles').select('*').eq('id',battleId).single();
-        if(!freshBattle || freshBattle.status !== 'active'){ return; } // battle ended while cutscene played
-        if(freshBattle.current_turn !== state.discordId){ showToast("It's not your turn!"); return; }
-        Object.assign(bs, freshBattle.battle_state);
-      }
+      logMsg = `${ab ? ab.icon||'✨' : '✨'} ${myName} uses ${ab ? ab.name : 'Special'} for ${dmg} damage!`;
+
+      // ── Broadcast cutscene so opponent sees it too ──
+      bs.last_cutscene = ab ? { cardId: myCard.id, rarity: myCard.rarity, abilityId: ab.id, ts: Date.now() } : null;
+      // Write cutscene trigger first so opponent sees it immediately
+      await rt.from('pvp_battles').update({ battle_state: bs, updated_at: new Date().toISOString() }).eq('id', battleId);
+
+      // Play locally + wait
+      await playAbilityCutscene(myCard.id, myCard.rarity, ab.id);
+
+      // Re-fetch fresh state after cutscene
+      const { data: freshBattle } = await rt.from('pvp_battles').select('*').eq('id',battleId).single();
+      if(!freshBattle || freshBattle.status !== 'active'){ return; }
+      if(freshBattle.current_turn !== state.discordId){ showToast("It's not your turn!"); return; }
+      Object.assign(bs, freshBattle.battle_state);
+
     } else if(action === 'guard'){
-      logMsg = `${myName} takes a defensive stance!`;
-      bs.guard = true;
+      logMsg = `🛡️ ${myName} braces for impact!`;
+      if(isP1) bs.p1_guarding = true; else bs.p2_guarding = true;
+      bs[myMpKey] = Math.min(3, myMp + 1); // guard also regens 1 MP
     }
 
-    // Apply damage to opponent (using latest fetched HP values)
+    // ── Apply guard damage reduction ──
+    const oppGuardKey = isP1 ? 'p2_guarding' : 'p1_guarding';
+    if(bs[oppGuardKey] && dmg > 0){
+      dmg = Math.floor(dmg * 0.45);
+      logMsg += ' (blocked!)';
+      bs[oppGuardKey] = false;
+    }
+    // Clear own guard after taking a turn
+    const myGuardKey = isP1 ? 'p1_guarding' : 'p2_guarding';
+    bs[myGuardKey] = false;
+
+    // ── Apply damage ──
     if(isP1){ bs.p2_hp = Math.max(0,(bs.p2_hp!=null?bs.p2_hp:0) - dmg); }
     else     { bs.p1_hp = Math.max(0,(bs.p1_hp!=null?bs.p1_hp:0) - dmg); }
 
     if(!Array.isArray(bs.log)) bs.log = [];
     bs.log.push(logMsg);
 
-    // Check win condition
-    const oppHp = isP1 ? bs.p2_hp : bs.p1_hp;
-    const isOver = oppHp <= 0;
+    // ── Local VFX (only for the player acting) ──
+    if(dmg > 0){
+      pvpFlashDamage('opp');
+      pvpShakeCard('opp');
+      pvpSpawnDmgNumber('opp', dmg);
+      if(isCrit) spawnParticles(5, '#f1c40f');
+    }
+
+    // ── Win condition ──
+    const oppHp   = isP1 ? bs.p2_hp : bs.p1_hp;
+    const isOver  = oppHp <= 0;
     const nextTurn = isP1 ? battle.player2_id : battle.player1_id;
+
+    // ── Compute rewards if winning ──
+    if(isOver){
+      const winCoins = 60 + (myCard ? myCard.rarity * 15 : 0);
+      const winXp    = 80 + (myCard ? myCard.rarity * 20 : 0);
+      const loseXp   = 20;
+      bs.rewards = {
+        [state.discordId]: { coins: winCoins, xp: winXp },
+        [nextTurn]:         { coins: 0, xp: loseXp },
+      };
+      bs.last_cutscene = null;
+    }
 
     await rt.from('pvp_battles').update({
       battle_state: bs,
@@ -11840,10 +11912,22 @@ async function takePvpTurn(action, battleId, abilityId){
     }).eq('id', battleId);
 
     if(isOver){
-      showToast('🏆 You won the battle!');
-      // Update win/loss counts
-      await sb.update('players', { pvp_wins: (state.pvpWins||0)+1 }, { discord_id: state.discordId });
+      const winCoins = bs.rewards[state.discordId].coins;
+      const winXp    = bs.rewards[state.discordId].xp;
+      // Grant coins + XP locally
+      state.coins += winCoins;
+      updateCoins();
+      if(state.equippedId){
+        state.xpMap[state.equippedId] = (state.xpMap[state.equippedId]||0) + winXp;
+        if(state.discordId && !state.isGuest) await saveXp(state.discordId, state.equippedId, state.xpMap[state.equippedId]);
+      }
+      if(state.discordId && !state.isGuest){
+        await sb.update('players', { pvp_wins: (state.pvpWins||0)+1, coins: state.coins }, { discord_id: state.discordId });
+        state.pvpWins = (state.pvpWins||0)+1;
+      }
       await sb.update('players', { pvp_losses: (state.pvpLosses||0)+1 }, { discord_id: nextTurn });
+      spawnParticles(6, '#f1c40f');
+      showToast(`🏆 Victory! +${winCoins}🪙 +${winXp}XP`);
     }
 
   } catch(e){ showToast('❌ Move error: '+(e.message||'')); }
@@ -11852,33 +11936,78 @@ async function takePvpTurn(action, battleId, abilityId){
 function listenToBattle(battleId){
   const rt = getSupaRT();
   if(!rt) return;
+  let lastCutsceneTs = 0;
   pvpChannel = rt
     .channel('battle-'+battleId)
     .on('postgres_changes', {
       event: 'UPDATE', schema: 'public', table: 'pvp_battles',
       filter: `id=eq.${battleId}`
-    }, payload => {
-      renderPvpState(payload.new, battleId);
-      if(payload.new.status === 'active' && payload.new.player2_id &&
+    }, async payload => {
+      const data = payload.new;
+      const bs   = data.battle_state || {};
+
+      // ── Show opponent's ability cutscene ──
+      const cs = bs.last_cutscene;
+      if(cs && cs.ts && cs.ts !== lastCutsceneTs && data.current_turn === state.discordId){
+        // It's now MY turn — meaning opponent just moved and triggered cutscene
+        lastCutsceneTs = cs.ts;
+        // VFX: I was hit
+        pvpFlashDamage('me');
+        pvpShakeCard('me');
+        // Play their cutscene so I can see it
+        if(cs.cardId && cs.abilityId){
+          await playAbilityCutscene(cs.cardId, cs.rarity||1, cs.abilityId);
+        }
+      } else if(data.current_turn === state.discordId && lastCutsceneTs !== (cs&&cs.ts)){
+        // Opponent did a normal attack — flash me
+        pvpFlashDamage('me');
+        pvpShakeCard('me');
+        // spawn damage number for me
+        const isP1 = data.player1_id === state.discordId;
+        const prevHp = isP1 ? ((pvpLastBs&&pvpLastBs.p1_hp)||0) : ((pvpLastBs&&pvpLastBs.p2_hp)||0);
+        const newHp  = isP1 ? (bs.p1_hp||0) : (bs.p2_hp||0);
+        if(prevHp - newHp > 0) pvpSpawnDmgNumber('me', prevHp - newHp);
+      }
+      pvpLastBs = bs;
+
+      renderPvpState(data, battleId);
+
+      // Transition waiting → active for challenger
+      if(data.status === 'active' && data.player2_id &&
          document.getElementById('pvpBattleModal').classList.contains('active') &&
          !document.getElementById('pvpBattleContent').querySelector('.battle-moves-grid') &&
-         payload.new.player1_id === state.discordId){
-        // Challenger's screen transitions from waiting → battle
-        openPvpBattleScreen(battleId, payload.new);
+         data.player1_id === state.discordId){
+        openPvpBattleScreen(battleId, data);
       }
-      if(payload.new.status === 'finished'){
-        const iWon = payload.new.winner_id === state.discordId;
-        setTimeout(()=>{ if(!iWon) showToast('💔 You lost the battle...'); }, 300);
+
+      // Win/loss outcomes for the OPPONENT (loser side)
+      if(data.status === 'finished'){
+        const iWon = data.winner_id === state.discordId;
+        if(!iWon){
+          const loseXp = 20;
+          if(state.equippedId){
+            state.xpMap[state.equippedId] = (state.xpMap[state.equippedId]||0) + loseXp;
+            if(state.discordId && !state.isGuest) await saveXp(state.discordId, state.equippedId, state.xpMap[state.equippedId]);
+          }
+          if(state.discordId && !state.isGuest){
+            state.pvpLosses = (state.pvpLosses||0)+1;
+            await sb.update('players', { pvp_losses: state.pvpLosses }, { discord_id: state.discordId });
+          }
+          showToast('💔 You lost the battle...');
+        }
       }
     })
     .subscribe();
 }
+
+let pvpLastBs = null;
 
 function closePvpModal(){
   const modal = document.getElementById('pvpBattleModal');
   if(modal) modal.classList.remove('active');
   if(pvpChannel){ pvpChannel.unsubscribe(); pvpChannel = null; }
   activePvpBattleId = null;
+  pvpLastBs = null;
 }
 
 // ══════════════════════════════════════════════
@@ -12073,6 +12202,8 @@ window.loadPlayer = async function(discordId){
     </div>
   </div>
 </div>
+
+<div id="pvpDmgFlash"></div>
 
 <!-- PVP BATTLE MODAL -->
 <div id="pvpBattleModal">
