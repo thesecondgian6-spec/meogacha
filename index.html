@@ -4435,11 +4435,16 @@ const sb = {
     if(opts.order)  params.set('order',  opts.order);
     if(opts.limit)  params.set('limit',  String(opts.limit));
     const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${params}`,{
-      headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY}
+      headers:{
+        'apikey':SUPABASE_KEY,
+        'Authorization':'Bearer '+SUPABASE_KEY,
+        'Accept':'application/json'
+      }
     });
     const body = await res.json().catch(()=>null);
     sbLog('GET', table, res.status, body);
-    return res.ok ? body : [];
+    if(!res.ok) throw new Error(`[SB] GET ${table} failed ${res.status}: ${body?.message||body?.hint||''}`);
+    return body || [];
   },
   async upsert(table, data) {
     const conflictCol = table==='players' ? 'discord_id' :
@@ -6158,9 +6163,8 @@ function goTo(page,btn){ playNavSound();
   if(page==='shop')renderShop();
   if(page==='profile')updateProfile();
   if(page==='social'){
-    waitForSupabase()
-      .then(()=>{ initChat(); loadLeaderboard('pvp'); })
-      .catch(e=>{ console.error('[MP] Supabase not available:', e); });
+    initChat();
+    loadLeaderboard('pvp');
   }
 }
 
@@ -10587,17 +10591,10 @@ function switchSocialTab(tab, btn){
 // CHAT SYSTEM
 // ══════════════════════════════════════════════
 async function initChat(){
-  // Reset lock so we can retry on CHANNEL_ERROR
-  const rt = getSupaRT();
-  if(!rt){ console.error('[MP] supabase-js not ready'); return; }
-
-  // Only skip if channel is healthy
-  if(chatChannel && chatChannel.state === 'joined') return;
-
   const feed = document.getElementById('chatFeed');
   if(feed) feed.innerHTML = '<div style="text-align:center;color:var(--text-dim);font-style:italic;font-size:0.85em;padding:20px;">✦ Loading chat... ✦</div>';
 
-  // 1. Load history via sb wrapper (same fetch path that works everywhere else)
+  // 1. Load history — pure REST, no realtime client needed
   try {
     const data = await sb.get('chat_messages', {}, { order: 'created_at.desc', limit: 60 });
     const history = (Array.isArray(data) ? data : []).reverse();
@@ -10611,54 +10608,55 @@ async function initChat(){
   } catch(e){
     console.warn('[MP] Chat load error', e);
     if(feed) feed.innerHTML = `<div style="text-align:center;color:var(--text-dim);font-style:italic;font-size:0.85em;padding:30px;">
-      ⚠️ Could not load chat<br>
-      <span style="font-size:0.8em;opacity:0.6;">${escapeHtml(e.message||String(e))}</span><br>
+      ⚠️ Chat error: ${escapeHtml(e.message||String(e))}<br>
       <button onclick="initChat()" style="margin-top:10px;background:var(--surface);border:1px solid var(--border);color:var(--text);border-radius:10px;padding:6px 16px;cursor:pointer;font-size:0.85em;">↺ Retry</button>
     </div>`;
   }
 
-  // 2. Realtime subscription — rebuild if dropped
-  try {
-    if(chatChannel){ try{ await rt.removeChannel(chatChannel); }catch(e){} chatChannel = null; }
-    chatChannel = rt.channel('public-chat', { config: { broadcast: { self: false } } })
-      .on('postgres_changes', {
-        event: 'INSERT', schema: 'public', table: 'chat_messages'
-      }, payload => {
-        renderChatMsg(payload.new);
-        scrollChatToBottom();
-      })
-      .subscribe((status, err) => {
-        console.log('[MP] Chat channel status:', status, err||'');
-        if(status === 'CHANNEL_ERROR' || status === 'TIMED_OUT'){
-          // Auto-retry after 3s
-          chatChannel = null;
-          setTimeout(()=>{ if(document.getElementById('socialTab-chat')?.style.display !== 'none') initChat(); }, 3000);
-        }
-      });
-  } catch(e){ console.warn('[MP] Realtime subscribe error', e); }
+  // 2. Realtime subscription — only if supabase-js CDN loaded
+  const rt = getSupaRT();
+  if(rt){
+    try {
+      if(chatChannel && chatChannel.state === 'joined') return;
+      if(chatChannel){ try{ await rt.removeChannel(chatChannel); }catch(_){} chatChannel = null; }
+      chatChannel = rt.channel('public-chat')
+        .on('postgres_changes', {
+          event: 'INSERT', schema: 'public', table: 'chat_messages'
+        }, payload => {
+          renderChatMsg(payload.new);
+          scrollChatToBottom();
+        })
+        .subscribe((status, err) => {
+          console.log('[MP] Chat channel status:', status, err||'');
+          if(status === 'CHANNEL_ERROR' || status === 'TIMED_OUT'){
+            chatChannel = null;
+            setTimeout(()=>{ if(document.getElementById('socialTab-chat')?.style.display !== 'none') initChat(); }, 4000);
+          }
+        });
+    } catch(e){ console.warn('[MP] Realtime subscribe error', e); }
 
-  // 3. Presence
-  try {
-    if(presenceChannel){ try{ await rt.removeChannel(presenceChannel); }catch(e){} }
-    presenceChannel = rt.channel('online-users');
-    presenceChannel
-      .on('presence', { event: 'sync' }, () => {
-        const state_obj = presenceChannel.presenceState();
-        const count = Object.keys(state_obj).length;
-        const el = document.getElementById('onlineCount');
-        if(el) el.textContent = count + ' online';
-      })
-      .subscribe(async (status) => {
-        if(status !== 'SUBSCRIBED') return;
-        if(state.discordId && !state.isGuest){
-          await presenceChannel.track({
-            discord_id: state.discordId,
-            username:   state.username || 'Summoner',
-            avatar:     state.avatar   || ''
-          });
-        }
-      });
-  } catch(e){ console.warn('[MP] Presence error', e); }
+    // 3. Presence
+    try {
+      if(presenceChannel){ try{ await rt.removeChannel(presenceChannel); }catch(_){} }
+      presenceChannel = rt.channel('online-users');
+      presenceChannel
+        .on('presence', { event: 'sync' }, () => {
+          const ps = presenceChannel.presenceState();
+          const el = document.getElementById('onlineCount');
+          if(el) el.textContent = Object.keys(ps).length + ' online';
+        })
+        .subscribe(async (status) => {
+          if(status !== 'SUBSCRIBED') return;
+          if(state.discordId && !state.isGuest){
+            await presenceChannel.track({
+              discord_id: state.discordId,
+              username:   state.username || 'Summoner',
+              avatar:     state.avatar   || ''
+            });
+          }
+        });
+    } catch(e){ console.warn('[MP] Presence error', e); }
+  } // end if(rt)
 
   // 4. Listen for incoming trades
   if(state.discordId && !state.isGuest) listenForTrades();
