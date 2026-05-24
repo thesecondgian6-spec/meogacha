@@ -7644,7 +7644,7 @@ function startBattle() {
   const playerAbils = getCardAbilities(playerCard.id, playerCard.rarity);
 
   // ── Compute passive boosts from abilities ──
-  const hpBoost    = playerAbils.filter(a=>a.battleEffect==='hpboost_passive').reduce((s,a)=>s+a.value,0);
+  const hpBoost    = playerAbils.filter(a=>a.battleEffect==='hpboost_passive'||a.battleEffect==='hpboost').reduce((s,a)=>s+a.value,0);
   const atkBoostP  = playerAbils.filter(a=>a.battleEffect==='atkboost_passive').reduce((s,a)=>s+a.value,0);
   const defReduceP = playerAbils.filter(a=>a.battleEffect==='shield_passive').reduce((s,a)=>s+a.value,0);
   const regenP     = playerAbils.filter(a=>a.battleEffect==='regen_passive').reduce((s,a)=>s+a.value,0);
@@ -11676,8 +11676,8 @@ function renderPvpState(battle, battleId){
   const iWon     = battle.winner_id === state.discordId;
   const log      = Array.isArray(bs.log) ? bs.log.slice(-6) : [];
 
-  // Build abilities list
-  const abilities = (window.DB_ABILITIES && myCard && window.DB_ABILITIES[myCard.id]) || [];
+  // Build abilities list — prefer DB, fall back to hardcoded (same as card editor)
+  const abilities = myCard ? getCardAbilities(myCard.id, myCard.rarity) : [];
 
   content.innerHTML = `
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
@@ -11739,15 +11739,25 @@ function renderPvpState(battle, battleId){
       </button>
       ${abilities.map((ab,i) => {
         const isUlt = ab.tier==='ultimate'||ab.tier==='secret';
-        const borderClr = isUlt ? 'rgba(241,196,15,0.5)' : 'rgba(255,157,199,0.4)';
-        const mpCost = ab.mp_cost||ab.mpCost||1;
-        return `<button class="battle-move-btn"
-          style="border-color:${borderClr};"
-          onclick="takePvpTurn('ability','${resolvedBattleId}','${ab.id}')">
-          <span class="move-name">${ab.icon||'✨'} ${escapeHtml(ab.name)}
-            <span style="font-family:'JetBrains Mono',monospace;font-size:0.62em;color:#f1c40f;float:right;">${mpCost}MP</span>
+        const isPas = ab.tier==='passive';
+        const borderClr = isUlt ? 'rgba(241,196,15,0.5)' : isPas ? 'rgba(93,173,226,0.25)' : 'rgba(255,157,199,0.4)';
+        const mpCost = ab.mp_cost||ab.mpCost||(isPas?0:1);
+        const tierLabel = ab.tier==='secret'?'??? SECRET':ab.tier.toUpperCase();
+        const tierClr = isUlt?'#f1c40f': isPas?'#5dade2':'#ff9dc7';
+        const _cardId = myCard ? myCard.id : '';
+        const _cardRar = myCard ? myCard.rarity : 1;
+        const clickAb = isPas ? '' : `onclick="takePvpTurn('ability','${resolvedBattleId}','${ab.id}')"`;
+        return `<button class="battle-move-btn" ${clickAb}
+          style="border-color:${borderClr};${isPas?'opacity:0.7;cursor:default;':''}">
+          <span class="move-name" style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;">
+            <span>${ab.icon||'✨'} ${escapeHtml(ab.name)}</span>
+            <span style="margin-left:auto;display:flex;gap:4px;align-items:center;">
+              <span style="font-family:'JetBrains Mono',monospace;font-size:0.58em;padding:1px 5px;border-radius:6px;background:${tierClr}22;border:1px solid ${tierClr}55;color:${tierClr};">${tierLabel}</span>
+              ${!isPas ? `<span style="font-family:'JetBrains Mono',monospace;font-size:0.6em;color:#f1c40f;">${mpCost}MP</span>` : `<span style="font-family:'JetBrains Mono',monospace;font-size:0.58em;color:var(--text-dim);">PASSIVE</span>`}
+              <span onclick="event.stopPropagation();playAbilityCutscene('${_cardId}',${_cardRar},'${ab.id}')" title="Preview ability" style="font-size:0.8em;cursor:pointer;padding:2px 4px;border-radius:4px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);">👁</span>
+            </span>
           </span>
-          <span class="move-desc">${escapeHtml(ab.desc||'Special move')}</span>
+          <span class="move-desc">${escapeHtml(ab.desc||ab.description||'Special move')}</span>
         </button>`;
       }).join('')}
       <button class="battle-move-btn" style="border-color:rgba(93,173,226,0.35);" onclick="takePvpTurn('guard','${resolvedBattleId}',null)">
@@ -11790,23 +11800,28 @@ async function takePvpTurn(action, battleId, abilityId){
         logMsg = `${myName} lands a HEAVY HIT for ${dmg} damage!`;
       }
     } else if(action === 'ability'){
-      // Find the specific ability by id, or fall back to first
-      const cardAbils = (window.DB_ABILITIES && myCard && window.DB_ABILITIES[myCard.id]) || [];
+      // Find the specific ability by id — use getCardAbilities for fallback (same as card editor)
+      const cardAbils = myCard ? getCardAbilities(myCard.id, myCard.rarity) : [];
       const ab = (abilityId ? cardAbils.find(a=>a.id===abilityId) : null) || cardAbils[0];
       dmg = Math.floor((ab ? (ab.value||baseAtk) : baseAtk) * (0.9 + Math.random()*0.3));
       logMsg = `${myName} uses ${ab ? ab.name : 'Special'} for ${dmg} damage!`;
-      // ✦ Play the ability cutscene before applying damage
+      // ✦ Play the ability cutscene — then MUST re-fetch battle to avoid overwriting opponent HP
       if(ab && myCard){
         await playAbilityCutscene(myCard.id, myCard.rarity, ab.id);
+        // Re-fetch latest battle state so we don't clobber changes made during cutscene
+        const { data: freshBattle } = await rt.from('pvp_battles').select('*').eq('id',battleId).single();
+        if(!freshBattle || freshBattle.status !== 'active'){ return; } // battle ended while cutscene played
+        if(freshBattle.current_turn !== state.discordId){ showToast("It's not your turn!"); return; }
+        Object.assign(bs, freshBattle.battle_state);
       }
     } else if(action === 'guard'){
       logMsg = `${myName} takes a defensive stance!`;
       bs.guard = true;
     }
 
-    // Apply damage to opponent
-    if(isP1){ bs.p2_hp = Math.max(0,(bs.p2_hp||0) - dmg); }
-    else     { bs.p1_hp = Math.max(0,(bs.p1_hp||0) - dmg); }
+    // Apply damage to opponent (using latest fetched HP values)
+    if(isP1){ bs.p2_hp = Math.max(0,(bs.p2_hp!=null?bs.p2_hp:0) - dmg); }
+    else     { bs.p1_hp = Math.max(0,(bs.p1_hp!=null?bs.p1_hp:0) - dmg); }
 
     if(!Array.isArray(bs.log)) bs.log = [];
     bs.log.push(logMsg);
