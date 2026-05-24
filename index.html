@@ -11215,7 +11215,7 @@ async function openTradeConfirm(trade, role){
       <div class="trade-player-status" id="tradeStatus-sender">
         <div class="trade-player-status-dot"></div>
         <div class="trade-player-status-name">Sender</div>
-        <div class="trade-player-status-label">${role === 'sender' ? '✓ Ready' : 'Waiting'}</div>
+        <div class="trade-player-status-label">Waiting</div>
       </div>
       <div class="trade-player-status" id="tradeStatus-receiver">
         <div class="trade-player-status-dot"></div>
@@ -11223,7 +11223,6 @@ async function openTradeConfirm(trade, role){
         <div class="trade-player-status-label">Waiting</div>
       </div>
     </div>
-    ${role === 'sender' ? `<script>document.getElementById('tradeStatus-sender').classList.add('accepted');<\/script>` : ''}
 
     <!-- Countdown timer (hidden until both ready) -->
     <div class="trade-timer-wrap" id="tradeTimerWrap" style="display:none;">
@@ -11283,6 +11282,23 @@ async function openTradeConfirm(trade, role){
   }
 
   startTradeExpiry(trade.id);
+
+  // Sender is implicitly ready the moment the modal opens — write to DB so receiver sees it
+  if(role === 'sender'){
+    (async()=>{
+      try{
+        await rt.from('trade_offers')
+          .update({ sender_confirmed: true, status: 'confirming' })
+          .eq('id', trade.id);
+        // Update local UI immediately
+        const sEl = document.getElementById('tradeStatus-sender');
+        if(sEl){
+          sEl.classList.add('accepted');
+          sEl.querySelector('.trade-player-status-label').textContent = '✓ Ready';
+        }
+      } catch(e){ console.warn('Could not auto-confirm sender:', e); }
+    })();
+  }
 }
 
 function updateTradeConfirmUI(trade){
@@ -11401,7 +11417,7 @@ function startTradeExpiry(tradeId){
   _tradeExpiryTimer = setTimeout(async ()=>{
     if(!_tradeConfirmId) return;
     const rt = getSupaRT();
-    try { await rt.from('trade_offers').update({ status:'cancelled', resolved_at: new Date().toISOString() }).eq('id',tradeId).eq('status','pending'); }
+    try { await rt.from('trade_offers').update({ status:'cancelled', resolved_at: new Date().toISOString() }).eq('id',tradeId).in('status',['pending','confirming']); }
     catch(e){}
     closeTradeConfirm();
     showToast('⏱️ Trade offer expired.');
