@@ -185,7 +185,8 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .card-thumb-lvl{position:absolute;bottom:44px;left:8px;background:rgba(0,0,0,0.75);border-radius:6px;padding:2px 8px;font-size:0.7em;font-family:'JetBrains Mono',monospace;color:#f1c40f;backdrop-filter:blur(4px);}
 #cardModal{position:fixed;inset:0;z-index:300;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.85);backdrop-filter:blur(6px);padding:20px;}
 #cardModal.active{display:flex;}
-.modal-box{background:linear-gradient(135deg,var(--bg2),var(--bg3));border:1px solid var(--border);border-radius:24px;max-width:560px;width:100%;max-height:90vh;overflow-y:auto;animation:modalIn 0.3s cubic-bezier(0.34,1.56,0.64,1);}
+.modal-box{background:linear-gradient(135deg,var(--bg2),var(--bg3));border:1px solid var(--border);border-radius:24px;max-width:560px;width:100%;max-height:90vh;overflow:visible;animation:modalIn 0.3s cubic-bezier(0.34,1.56,0.64,1);position:relative;}
+.modal-box-scroll{overflow-y:auto;max-height:90vh;border-radius:24px;}
 @keyframes modalIn{from{transform:scale(0.9);opacity:0;}to{transform:scale(1);opacity:1;}}
 .modal-art{width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:20px 20px 0 0;}
 .modal-body{padding:24px;}
@@ -3256,189 +3257,145 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
    MULTIPLAYER — CHAT, PROFILES, TRADES, PVP
 ══════════════════════════════════════════════ */
 
-/* ── Chat layout — Discord-style ── */
-.chat-layout {
-  display:flex; flex-direction:column;
-  height:calc(100vh - 155px); min-height:440px; gap:0;
-  background:#111016; border-radius:14px;
-  border:1px solid rgba(255,157,199,0.1);
-  overflow:hidden;
-}
-
-/* ── Channel header bar ── */
-.chat-header {
-  display:flex; align-items:center; justify-content:space-between;
-  padding:10px 16px; background:#161219;
-  border-bottom:1px solid rgba(255,157,199,0.08);
-  flex-shrink:0;
-}
-.chat-header-left { display:flex; align-items:center; gap:10px; }
-.chat-channel-name {
-  font-family:'JetBrains Mono',monospace; font-size:0.82em;
-  color:var(--text); font-weight:600; letter-spacing:0.02em;
-}
-.chat-channel-name span { color:rgba(255,157,199,0.4); margin-right:3px; }
-
-/* ── Feed ── */
+/* ── Chat page layout ── */
+.chat-layout { display:flex; flex-direction:column; height:calc(100vh - 160px); min-height:400px; gap:0; }
 .chat-feed {
-  flex:1; overflow-y:auto; display:flex; flex-direction:column;
-  padding:8px 0; scroll-behavior:smooth;
-  background:#111016;
+  flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:10px;
+  padding:16px; background:rgba(255,157,199,0.02); border:1px solid var(--border);
+  border-radius:16px 16px 0 0; scroll-behavior:smooth;
 }
 .chat-feed::-webkit-scrollbar{width:4px;}
-.chat-feed::-webkit-scrollbar-thumb{background:rgba(255,157,199,0.15);border-radius:2px;}
-.chat-feed::-webkit-scrollbar-track{background:transparent;}
-
-/* ── Discord-style message row ── */
-.chat-msg {
-  display:flex; flex-direction:row; align-items:flex-start; gap:12px;
-  padding:3px 16px; animation:fadeIn 0.2s ease;
-  max-width:100%; width:100%; box-sizing:border-box;
-  transition:background 0.1s;
-}
-.chat-msg:hover { background:rgba(255,157,199,0.025); }
-.chat-msg.chat-me:hover { background:rgba(255,157,199,0.04); }
-
-/* Avatar column */
-.chat-avatar-wrap { flex-shrink:0; width:38px; display:flex; flex-direction:column; align-items:center; padding-top:2px; }
-.chat-avatar {
-  width:38px; height:38px; border-radius:50%; object-fit:cover;
-  border:2px solid rgba(255,157,199,0.15); cursor:pointer; transition:border-color 0.2s;
-  flex-shrink:0;
-}
-.chat-avatar:hover { border-color:var(--pink); }
-
-/* Message body */
-.chat-bubble {
-  flex:1; min-width:0; background:none; border:none; padding:0;
-}
-.chat-me .chat-bubble { background:none; border:none; }
-
-/* Group spacing — same sender within 5 min gets compact row */
-.chat-msg.chat-compact { padding-top:1px; padding-bottom:1px; }
-.chat-msg.chat-compact .chat-avatar-wrap { visibility:hidden; }
-
-.chat-meta {
-  display:flex; align-items:baseline; gap:8px; margin-bottom:2px; cursor:pointer;
-}
-.chat-meta:hover .chat-username { text-decoration:underline; }
-.chat-username {
-  font-size:0.88em; font-weight:700; font-family:'JetBrains Mono',monospace;
-  line-height:1;
-}
-/* My messages get pink, others get a muted purple */
-.chat-me .chat-username { color:var(--pink); }
-.chat-msg:not(.chat-me) .chat-username { color:#c39bd3; }
-
-.chat-time {
-  font-size:0.65em; color:rgba(255,255,255,0.25);
-  font-family:'JetBrains Mono',monospace; flex-shrink:0;
-}
-.chat-text {
-  font-size:0.92em; color:#dcddde; line-height:1.55;
-  word-break:break-word; white-space:pre-wrap;
-}
-.chat-me .chat-text { color:#f0d8e8; }
-
-/* Compact hover timestamp */
-.chat-msg.chat-compact .chat-meta { display:none; }
-.chat-msg.chat-compact .chat-avatar-wrap::after {
-  content: attr(data-time);
-  font-size:0.58em; color:rgba(255,255,255,0.2);
-  font-family:'JetBrains Mono',monospace; margin-top:8px;
-  display:none;
-}
-.chat-msg.chat-compact:hover .chat-avatar-wrap::after { display:block; }
-
-/* ── Day divider ── */
-.chat-day-divider {
-  display:flex; align-items:center; gap:12px;
-  padding:12px 16px; color:rgba(255,255,255,0.25);
-  font-size:0.72em; font-family:'JetBrains Mono',monospace;
-  user-select:none;
-}
-.chat-day-divider::before,.chat-day-divider::after {
-  content:''; flex:1; height:1px; background:rgba(255,157,199,0.08);
-}
-
-/* ── Input area ── */
+.chat-feed::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
 .chat-input-bar {
-  display:flex; align-items:center; gap:0;
-  padding:12px 16px; background:#161219;
-  border-top:1px solid rgba(255,157,199,0.08); flex-shrink:0;
+  display:flex; gap:8px; padding:12px 14px;
+  background:var(--bg2); border:1px solid var(--border); border-top:none;
+  border-radius:0 0 16px 16px; align-items:center; flex-wrap:wrap; gap:8px;
 }
-.chat-input-wrap {
-  flex:1; display:flex; align-items:center; gap:8px;
-  background:#1e1723; border:1px solid rgba(255,157,199,0.12);
-  border-radius:10px; padding:0 12px; transition:border-color 0.2s;
-}
-.chat-input-wrap:focus-within { border-color:rgba(255,157,199,0.35); }
 .chat-input-bar input {
-  flex:1; background:none; border:none; outline:none;
-  color:#dcddde; font-family:'Cormorant Garamond',serif; font-size:0.97em;
-  padding:10px 0; min-width:0;
+  flex:1; min-width:0; background:rgba(255,157,199,0.06); border:1px solid var(--border);
+  border-radius:20px; padding:9px 16px; color:var(--text);
+  font-family:'Cormorant Garamond',serif; font-size:0.95em;
 }
-.chat-input-bar input::placeholder { color:rgba(255,255,255,0.22); }
-.chat-flex-btn {
-  background:none; border:none; cursor:pointer; padding:6px 4px;
-  font-size:1.1em; opacity:0.5; transition:opacity 0.2s; white-space:nowrap;
-  flex-shrink:0;
-}
-.chat-flex-btn:hover { opacity:1; }
+.chat-input-bar input:focus{outline:none;border-color:var(--pink);}
 .chat-send-btn {
   background:linear-gradient(135deg,var(--pink-deep),var(--purple));
-  border:none; color:#fff; padding:9px 18px; border-radius:8px;
-  font-family:'Cinzel Decorative',serif; font-size:0.68em; cursor:pointer;
-  white-space:nowrap; transition:all 0.2s; letter-spacing:0.05em;
-  margin-left:8px; flex-shrink:0;
+  border:none;color:#fff;padding:9px 20px;border-radius:20px;
+  font-family:'Cinzel Decorative',serif;font-size:0.7em;cursor:pointer;
+  white-space:nowrap; transition:all 0.2s; letter-spacing:0.04em;
 }
-.chat-send-btn:hover { transform:translateY(-1px); box-shadow:0 4px 16px var(--pink-glow); }
+.chat-send-btn:hover{transform:translateY(-1px);box-shadow:0 4px 16px var(--pink-glow);}
+.chat-flex-btn {
+  background:rgba(241,196,15,0.1);border:1px solid rgba(241,196,15,0.3);
+  color:#f1c40f;padding:9px 16px;border-radius:20px;
+  font-family:'Cormorant Garamond',serif;font-size:0.9em;cursor:pointer;
+  white-space:nowrap;transition:all 0.2s;
+}
+.chat-flex-btn:hover{background:rgba(241,196,15,0.18);}
 
-/* ── Flex card embed ── */
+/* ── Chat messages ── */
+.chat-msg { display:flex; flex-direction:column; max-width:85%; animation:fadeIn 0.25s ease; }
+.chat-msg.chat-me { align-self:flex-end; }
+.chat-bubble {
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:14px; padding:10px 14px; position:relative;
+}
+.chat-me .chat-bubble {
+  background:rgba(255,157,199,0.1); border-color:rgba(255,157,199,0.25);
+}
+.chat-meta {
+  display:flex; align-items:center; gap:7px; margin-bottom:5px; cursor:pointer;
+}
+.chat-meta:hover .chat-username{color:var(--pink);}
+.chat-avatar {
+  width:22px; height:22px; border-radius:50%; object-fit:cover;
+  border:1px solid var(--border); flex-shrink:0;
+}
+.chat-username { font-size:0.75em; color:var(--pink); font-weight:600; font-family:'JetBrains Mono',monospace; }
+.chat-text { font-size:0.9em; color:var(--text); line-height:1.5; word-break:break-word; }
+.chat-time { font-size:0.65em; color:var(--text-dim); margin-top:4px; font-family:'JetBrains Mono',monospace; }
+
+/* ── Flex card in chat ── */
 .chat-flex-card {
   display:flex; align-items:center; gap:10px;
-  background:rgba(241,196,15,0.05); border-left:3px solid rgba(241,196,15,0.5);
-  border-radius:0 8px 8px 0; padding:8px 12px; margin:4px 0; cursor:pointer;
-  transition:all 0.2s; max-width:320px;
+  background:rgba(241,196,15,0.06); border:1px solid rgba(241,196,15,0.2);
+  border-radius:10px; padding:8px 12px; margin:6px 0; cursor:pointer;
+  transition:all 0.2s;
 }
-.chat-flex-card:hover{background:rgba(241,196,15,0.1);}
-.flex-thumb{width:32px;height:44px;border-radius:5px;object-fit:cover;border:1px solid rgba(255,255,255,0.1);}
-.flex-name{font-size:0.85em;font-weight:600;color:#f0d8e8;}
-.flex-rarity{font-size:0.72em;color:rgba(255,255,255,0.4);margin-top:2px;}
-
-/* ── PvP / trade request embed ── */
-.chat-pvp-embed {
-  background:#1e1723; border:1px solid rgba(255,157,199,0.15);
-  border-left:3px solid var(--pink); border-radius:0 8px 8px 0;
-  padding:10px 14px; margin:4px 0; max-width:340px;
-}
-.chat-pvp-embed-title { font-size:0.78em; color:var(--pink); font-weight:700; margin-bottom:4px; font-family:'JetBrains Mono',monospace; }
-.chat-pvp-embed-body { font-size:0.85em; color:#dcddde; margin-bottom:8px; }
-
-/* ── Action buttons ── */
+.chat-flex-card:hover{border-color:rgba(241,196,15,0.4);background:rgba(241,196,15,0.1);}
+.flex-thumb{width:32px;height:44px;border-radius:6px;object-fit:cover;border:1px solid var(--border);}
+.flex-name{font-size:0.82em;font-weight:600;color:var(--text);}
+.flex-rarity{font-size:0.72em;color:var(--text-dim);margin-top:1px;}
 .chat-action-btns{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap;}
 .chat-action-btn{
-  background:rgba(255,157,199,0.1); border:1px solid rgba(255,157,199,0.2);
-  color:var(--pink); padding:5px 14px; border-radius:6px;
-  font-size:0.75em; cursor:pointer; font-family:'Cormorant Garamond',serif;
-  transition:all 0.15s; font-weight:600;
+  background:rgba(255,157,199,0.08);border:1px solid var(--border);
+  color:var(--pink);padding:4px 12px;border-radius:20px;
+  font-size:0.75em;cursor:pointer;font-family:'Cormorant Garamond',serif;
+  transition:all 0.2s;
 }
-.chat-action-btn:hover{background:rgba(255,157,199,0.22);border-color:var(--pink); transform:translateY(-1px);}
+.chat-action-btn:hover{background:rgba(255,157,199,0.18);border-color:var(--pink);}
 
 /* ── Online badge ── */
-.online-dot{width:8px;height:8px;border-radius:50%;background:#3ba55d;display:inline-block;box-shadow:0 0 6px #3ba55d55;flex-shrink:0;}
-.online-bar{display:flex;align-items:center;gap:6px;font-size:0.75em;color:rgba(255,255,255,0.35);font-family:'JetBrains Mono',monospace;}
+.online-dot{width:8px;height:8px;border-radius:50%;background:#2ecc71;display:inline-block;box-shadow:0 0 6px #2ecc71;flex-shrink:0;}
+.online-bar{display:flex;align-items:center;gap:8px;font-size:0.78em;color:var(--text-dim);padding:8px 0 12px;font-family:'JetBrains Mono',monospace;}
 
 /* ── Player Profile Modal ── */
 #playerProfileModal {
-  position:fixed;inset:0;z-index:350;display:none;
+  position:fixed;inset:0;z-index:500;display:none;
   align-items:center;justify-content:center;
-  background:rgba(0,0,0,0.85);backdrop-filter:blur(6px);padding:20px;
+  background:rgba(0,0,0,0.88);backdrop-filter:blur(8px);padding:20px;
 }
 #playerProfileModal.active{display:flex;}
+#playerProfileContent{ max-width:460px; width:100%; }
 
-/* ── Trade Modal ── */
-#tradeModal {
+/* ── Trade Confirmation Modal ── */
+#tradeConfirmModal {
+  position:fixed;inset:0;z-index:510;display:none;
+  align-items:center;justify-content:center;
+  background:rgba(0,0,0,0.92);backdrop-filter:blur(10px);padding:20px;
+}
+#tradeConfirmModal.active{display:flex;}
+.trade-confirm-box {
+  background:linear-gradient(135deg,var(--bg2),var(--bg3));
+  border:1px solid rgba(255,157,199,0.3);border-radius:24px;
+  max-width:460px;width:100%;padding:28px;
+  animation:modalIn 0.35s cubic-bezier(0.34,1.56,0.64,1);
+  box-shadow:0 0 60px rgba(255,157,199,0.12);
+}
+.trade-confirm-cards {
+  display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:12px;margin:20px 0;
+}
+.trade-confirm-card {
+  background:rgba(255,157,199,0.05);border:1px solid var(--border);
+  border-radius:14px;padding:12px;text-align:center;
+}
+.trade-confirm-card img { width:70px;height:98px;border-radius:9px;object-fit:cover;border:2px solid var(--border);margin-bottom:7px;display:block;margin-left:auto;margin-right:auto; }
+.trade-confirm-card-name { font-size:0.78em;font-weight:600;color:var(--text);line-height:1.3;margin-bottom:2px; }
+.trade-confirm-card-rarity { font-size:0.68em;color:var(--text-dim); }
+.trade-confirm-owner { font-size:0.65em;color:var(--pink);letter-spacing:0.06em;margin-bottom:6px;font-family:'JetBrains Mono',monospace; }
+.trade-confirm-arrow { font-size:1.4em;color:var(--pink);text-align:center; }
+/* Timer ring */
+.trade-timer-wrap { display:flex;flex-direction:column;align-items:center;margin:16px 0 20px; }
+.trade-timer-ring { position:relative;width:64px;height:64px; }
+.trade-timer-ring svg { transform:rotate(-90deg); }
+.trade-timer-ring circle { fill:none;stroke-width:5; }
+.trade-timer-ring .track { stroke:rgba(255,157,199,0.12); }
+.trade-timer-ring .prog  { stroke:var(--pink);stroke-linecap:round;transition:stroke-dashoffset 1s linear; }
+.trade-timer-num { position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:1.3em;font-weight:700;color:var(--pink); }
+.trade-timer-label { font-size:0.72em;color:var(--text-dim);margin-top:6px;letter-spacing:0.06em; }
+/* Both-accept status */
+.trade-accept-status { display:flex;gap:10px;margin-bottom:16px; }
+.trade-player-status {
+  flex:1;background:rgba(255,157,199,0.04);border:1px solid var(--border);
+  border-radius:10px;padding:10px 12px;display:flex;align-items:center;gap:8px;
+  font-size:0.78em;transition:all 0.3s;
+}
+.trade-player-status.accepted { border-color:rgba(46,204,113,0.4);background:rgba(46,204,113,0.07); }
+.trade-player-status-dot { width:8px;height:8px;border-radius:50%;background:var(--border);flex-shrink:0;transition:background 0.3s; }
+.trade-player-status.accepted .trade-player-status-dot { background:#2ecc71;box-shadow:0 0 6px #2ecc71; }
+.trade-player-status-name { flex:1;color:var(--text-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+.trade-player-status.accepted .trade-player-status-name { color:var(--text); }
+.trade-player-status-label { font-size:0.85em;color:var(--text-dim); }
+.trade-player-status.accepted .trade-player-status-label { color:#2ecc71; }
   position:fixed;inset:0;z-index:360;display:none;
   align-items:center;justify-content:center;
   background:rgba(0,0,0,0.88);backdrop-filter:blur(8px);padding:20px;
@@ -4106,6 +4063,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   <div class="page" id="page-social">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
       <div class="section-title" style="margin:0;">✦ Social Hub</div>
+      <div class="online-bar" id="onlineBar"><span class="online-dot"></span><span id="onlineCount">0 online</span></div>
     </div>
     <!-- Tab switcher -->
     <div style="display:flex;gap:6px;margin-bottom:18px;flex-wrap:wrap;">
@@ -4117,28 +4075,16 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
     <!-- CHAT TAB -->
     <div id="socialTab-chat">
       <div class="chat-layout">
-        <!-- Channel header -->
-        <div class="chat-header">
-          <div class="chat-header-left">
-            <span style="font-size:1.1em;">💬</span>
-            <div class="chat-channel-name"><span>#</span>global-chat</div>
-          </div>
-          <div class="online-bar"><span class="online-dot"></span><span id="onlineCount">0 online</span></div>
-        </div>
-        <!-- Feed -->
         <div class="chat-feed" id="chatFeed">
-          <div style="text-align:center;color:rgba(255,255,255,0.2);font-style:italic;font-size:0.82em;padding:28px 0;font-family:'JetBrains Mono',monospace;" data-placeholder>
+          <div style="text-align:center;color:var(--text-dim);font-style:italic;font-size:0.85em;padding:20px 0;">
             ✦ Connecting to global chat... ✦
           </div>
         </div>
-        <!-- Input bar -->
         <div class="chat-input-bar">
-          <div class="chat-input-wrap">
-            <button class="chat-flex-btn" onclick="openFlexPicker()" title="Flex a card">✨</button>
-            <input id="chatInput" placeholder="Message #global-chat" maxlength="300"
-              onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();submitChat();}"/>
-          </div>
-          <button class="chat-send-btn" onclick="submitChat()">Send ✦</button>
+          <input id="chatInput" placeholder="Say something... (max 300 chars)" maxlength="300"
+            onkeydown="if(event.key==='Enter')submitChat()"/>
+          <button class="chat-send-btn" onclick="submitChat()">✦ Send</button>
+          <button class="chat-flex-btn" onclick="openFlexPicker()">✨ Flex Card</button>
         </div>
       </div>
     </div>
@@ -10711,76 +10657,60 @@ function renderChatMsg(msg){
   if(placeholder) placeholder.remove();
 
   const isMe = msg.discord_id === state.discordId;
+  const el   = document.createElement('div');
+  el.className = 'chat-msg' + (isMe ? ' chat-me' : '');
+  el.style.alignSelf = isMe ? 'flex-end' : 'flex-start';
+
   const time = msg.created_at
     ? new Date(msg.created_at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})
     : '';
 
-  // Group detection — compact if same sender as last message
-  const lastMsg = feed.lastElementChild;
-  const lastId  = lastMsg?.dataset?.senderId;
-  const lastTs  = lastMsg?.dataset?.ts ? parseInt(lastMsg.dataset.ts) : 0;
-  const thisTs  = msg.created_at ? new Date(msg.created_at).getTime() : Date.now();
-  const isCompact = lastId === msg.discord_id && (thisTs - lastTs) < 5 * 60 * 1000;
+  let inner = `
+    <div class="chat-bubble">
+      <div class="chat-meta" onclick="viewPlayerProfile('${msg.discord_id}')">
+        <img class="chat-avatar" src="${msg.avatar_url||'https://cdn.discordapp.com/embed/avatars/0.png'}"
+          onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'"/>
+        <span class="chat-username">${escapeHtml(msg.username)}</span>
+      </div>`;
 
-  const el = document.createElement('div');
-  el.className = 'chat-msg' + (isMe ? ' chat-me' : '') + (isCompact ? ' chat-compact' : '');
-  el.dataset.senderId = msg.discord_id;
-  el.dataset.ts = thisTs;
-
-  // Avatar column
-  const avatarWrap = `
-    <div class="chat-avatar-wrap" data-time="${time}">
-      ${!isCompact ? `<img class="chat-avatar"
-        src="${msg.avatar_url||'https://cdn.discordapp.com/embed/avatars/0.png'}"
-        onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'"
-        onclick="viewPlayerProfile('${msg.discord_id}')" title="${escapeHtml(msg.username)}"/>` : ''}
-    </div>`;
-
-  // Message body
-  let body = '';
-
-  // Header (username + timestamp) — hidden in compact
-  if(!isCompact){
-    body += `<div class="chat-meta" onclick="viewPlayerProfile('${msg.discord_id}')">
-      <span class="chat-username">${escapeHtml(msg.username)}</span>
-      <span class="chat-time">${time}</span>
-    </div>`;
-  }
-
-  // Content by type
   if(msg.msg_type === 'flex' && msg.card_id){
     const card = (window.DEMO_CARDS||[]).find(c=>c.id===msg.card_id);
     if(card){
-      body += `<div class="chat-flex-card" onclick="openCardById('${card.id}')">
-        <img class="flex-thumb" src="${card.thumbnail||card.image}" onerror="this.style.display='none'"/>
-        <div>
-          <div class="flex-name">${escapeHtml(card.name)}</div>
-          <div class="flex-rarity">${escapeHtml(card.rarityName||'')} ${card.rarityStars||''}</div>
-        </div>
-      </div>`;
+      inner += `
+        <div class="chat-flex-card" onclick="openCardById('${card.id}')">
+          <img class="flex-thumb" src="${card.thumbnail||card.image}"
+            onerror="this.style.display='none'"/>
+          <div>
+            <div class="flex-name">${escapeHtml(card.name)}</div>
+            <div class="flex-rarity">${escapeHtml(card.rarityName||'')} ${card.rarityStars||''}</div>
+          </div>
+        </div>`;
     }
-    if(msg.content) body += `<div class="chat-text">${escapeHtml(msg.content)}</div>`;
-    if(!isMe){
-      body += `<div class="chat-action-btns">
+  }
+
+  inner += `<div class="chat-text">${escapeHtml(msg.content)}</div>`;
+
+  // Action buttons — only on others' flex/pvp_req messages
+  if(!isMe && msg.msg_type === 'flex' && msg.card_id){
+    inner += `
+      <div class="chat-action-btns">
         <button class="chat-action-btn" onclick="openTradeWithPlayer('${msg.discord_id}')">🔄 Trade</button>
         <button class="chat-action-btn" onclick="challengeToPvp('${msg.discord_id}')">⚔️ Challenge</button>
       </div>`;
-    }
-  } else if(msg.msg_type === 'pvp_req'){
+  }
+  if(!isMe && msg.msg_type === 'pvp_req'){
+    // Extract battle id from content
     const match = msg.content.match(/\[battleId:([\w-]+)\]/);
-    const cleanContent = msg.content.replace(/\[battleId:[\w-]+\]/,'').trim();
-    body += `<div class="chat-pvp-embed">
-      <div class="chat-pvp-embed-title">⚔️ Battle Challenge</div>
-      <div class="chat-pvp-embed-body">${escapeHtml(cleanContent)}</div>
-      ${(!isMe && match) ? `<div class="chat-action-btns">
-        <button class="chat-action-btn" onclick="acceptPvpChallenge('${match[1]}','${msg.discord_id}')">⚔️ Accept Battle</button>
-      </div>` : ''}
-    </div>`;
-  } else {
-    body += `<div class="chat-text">${escapeHtml(msg.content)}</div>`;
+    if(match){
+      inner += `
+        <div class="chat-action-btns">
+          <button class="chat-action-btn" onclick="acceptPvpChallenge('${match[1]}','${msg.discord_id}')">⚔️ Accept Battle</button>
+        </div>`;
+    }
   }
 
-  el.innerHTML = avatarWrap + `<div class="chat-bubble">${body}</div>`;
+  inner += `<div class="chat-time">${time}</div></div>`;
+  el.innerHTML = inner;
   feed.appendChild(el);
 
   // Cap DOM at 100 messages
@@ -10880,49 +10810,96 @@ function openPlayerModal(player){
   const wins     = player.pvp_wins   || 0;
   const losses   = player.pvp_losses || 0;
   const winRate  = (wins + losses) > 0 ? Math.round(wins/(wins+losses)*100) : 0;
-  const cardCount= Array.isArray(player.collection) ? player.collection.length : 0;
   const equip    = (window.DEMO_CARDS||[]).find(c=>c.id===player.equipped_card);
-  const name     = player.username || 'Summoner';
+  const name     = player.display_name || player.username || 'Summoner';
+  const bannerBg = player.profile_banner
+    ? `url('${player.profile_banner}')`
+    : 'linear-gradient(135deg, var(--pink-deep), var(--purple), #1a0a2e)';
 
   content.innerHTML = `
-    <div class="modal-box" style="max-width:480px;animation:modalIn 0.3s cubic-bezier(0.34,1.56,0.64,1);">
-      <div class="profile-banner" style="height:130px;">
-        ${player.profile_banner
-          ? `<img src="${player.profile_banner}" style="width:100%;height:100%;object-fit:cover;opacity:0.7;"/>`
-          : ''}
+    <div style="
+      background:linear-gradient(135deg,var(--bg2),var(--bg3));
+      border:1px solid var(--border); border-radius:24px;
+      max-width:460px; width:100%;
+      animation:modalIn 0.3s cubic-bezier(0.34,1.56,0.64,1);
+      overflow:hidden; position:relative;
+    ">
+      <!-- Banner -->
+      <div style="
+        height:120px; width:100%;
+        background:${bannerBg};
+        background-size:cover; background-position:center;
+        position:relative; flex-shrink:0;
+      ">
+        <div style="position:absolute;inset:0;background:linear-gradient(to bottom,transparent 40%,rgba(13,6,16,0.8) 100%);"></div>
+        <!-- Close button -->
+        <button onclick="closePlayerModal()" style="
+          position:absolute;top:10px;right:12px;
+          background:rgba(0,0,0,0.5);border:none;color:#fff;
+          width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:0.9em;
+          backdrop-filter:blur(4px); z-index:2;
+        ">✕</button>
       </div>
-      <div class="modal-body">
-        <div style="display:flex;align-items:flex-end;gap:14px;margin-top:-42px;margin-bottom:10px;">
-          <img src="${player.avatar||'https://cdn.discordapp.com/embed/avatars/0.png'}"
-            style="width:64px;height:64px;border-radius:50%;border:3px solid var(--pink);object-fit:cover;background:var(--bg2);"
-            onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'"/>
-          <div>
-            <div class="modal-name" style="font-size:1.1em;">${escapeHtml(name)}</div>
-            <div style="font-style:italic;color:var(--pink);font-size:0.85em;">${escapeHtml(player.active_title||'Summoner')}</div>
+
+      <!-- Avatar — overlaps banner -->
+      <div style="padding:0 22px 22px;">
+        <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-top:-36px;margin-bottom:12px;position:relative;z-index:2;">
+          <div style="position:relative;">
+            <img src="${player.avatar||'https://cdn.discordapp.com/embed/avatars/0.png'}"
+              style="width:72px;height:72px;border-radius:50%;border:3px solid var(--bg2);
+                     object-fit:cover;background:var(--bg2);display:block;
+                     box-shadow:0 4px 16px rgba(0,0,0,0.5);"
+              onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'"/>
+            <div style="position:absolute;bottom:2px;right:2px;width:14px;height:14px;
+              border-radius:50%;background:#3ba55d;border:2px solid var(--bg2);"></div>
+          </div>
+          <div style="display:flex;gap:7px;padding-bottom:4px;">
+            <button class="btn-primary" style="font-size:0.72em;padding:7px 14px;"
+              onclick="challengeToPvp('${player.discord_id}');closePlayerModal()">⚔️ Challenge</button>
+            <button class="btn-secondary" style="font-size:0.72em;padding:7px 14px;"
+              onclick="openTradeWithPlayer('${player.discord_id}');closePlayerModal()">🔄 Trade</button>
           </div>
         </div>
-        <div style="color:var(--text-dim);font-size:0.88em;margin-bottom:16px;line-height:1.5;">
-          ${escapeHtml(player.bio||'No bio yet...')}
+
+        <!-- Name & title -->
+        <div style="margin-bottom:4px;">
+          <div style="font-family:'Cinzel Decorative',serif;font-size:1.05em;color:var(--pink-pale);line-height:1.2;">${escapeHtml(name)}</div>
+          ${player.username && player.display_name ? `<div style="font-size:0.75em;color:var(--text-dim);font-family:'JetBrains Mono',monospace;margin-top:1px;">@${escapeHtml(player.username)}</div>` : ''}
         </div>
-        <div class="profile-stats" style="margin-bottom:16px;">
-          <div class="stat-box"><div class="stat-val">${cardCount}</div><div class="stat-lbl">Cards</div></div>
-          <div class="stat-box"><div class="stat-val">${wins}</div><div class="stat-lbl">PvP Wins</div></div>
-          <div class="stat-box"><div class="stat-val">${winRate}%</div><div class="stat-lbl">Win Rate</div></div>
+        <div style="font-size:0.82em;color:var(--pink);font-style:italic;margin-bottom:10px;">${escapeHtml(player.active_title||'Summoner')}</div>
+
+        <!-- Bio -->
+        ${player.bio ? `<div style="font-size:0.87em;color:var(--text-dim);line-height:1.55;margin-bottom:14px;padding:10px 12px;background:rgba(255,157,199,0.04);border-radius:10px;border:1px solid var(--border);">${escapeHtml(player.bio)}</div>` : ''}
+
+        <!-- Stats -->
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;">
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:11px 8px;text-align:center;">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:1.1em;font-weight:700;color:var(--pink);">${wins}</div>
+            <div style="font-size:0.65em;color:var(--text-dim);margin-top:2px;letter-spacing:0.04em;">PvP WINS</div>
+          </div>
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:11px 8px;text-align:center;">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:1.1em;font-weight:700;color:var(--gold);">${winRate}%</div>
+            <div style="font-size:0.65em;color:var(--text-dim);margin-top:2px;letter-spacing:0.04em;">WIN RATE</div>
+          </div>
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:11px 8px;text-align:center;">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:1.1em;font-weight:700;color:var(--purple);">${losses}</div>
+            <div style="font-size:0.65em;color:var(--text-dim);margin-top:2px;letter-spacing:0.04em;">LOSSES</div>
+          </div>
         </div>
+
+        <!-- Equipped card -->
         ${equip ? `
-        <div class="equipped-card-preview" style="margin-bottom:16px;">
-          <img src="${equip.thumbnail||equip.image}" class="equipped-thumb"
+        <div style="background:rgba(255,157,199,0.05);border:1px solid rgba(255,157,199,0.15);
+          border-radius:12px;padding:10px 12px;display:flex;gap:12px;align-items:center;">
+          <img src="${equip.thumbnail||equip.image}" style="width:44px;height:62px;border-radius:7px;
+            object-fit:cover;border:2px solid var(--pink);flex-shrink:0;"
             onerror="this.style.display='none'"/>
-          <div class="equipped-info">
-            <div class="equipped-name">${escapeHtml(equip.name)}</div>
-            <div class="equipped-rarity">${escapeHtml(equip.rarityName||'')} ${equip.rarityStars||''}</div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:0.65em;color:var(--text-dim);letter-spacing:0.08em;margin-bottom:3px;">EQUIPPED CARD</div>
+            <div style="font-weight:600;font-size:0.9em;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(equip.name)}</div>
+            <div style="font-size:0.75em;color:var(--text-dim);margin-top:2px;">${escapeHtml(equip.rarityName||'')} ${equip.rarityStars||''}</div>
           </div>
         </div>` : ''}
-        <div style="display:flex;gap:8px;flex-wrap:wrap;">
-          <button class="btn-primary" onclick="challengeToPvp('${player.discord_id}');closePlayerModal()">⚔️ Challenge</button>
-          <button class="btn-secondary" onclick="openTradeWithPlayer('${player.discord_id}');closePlayerModal()">🔄 Trade</button>
-          <button class="btn-secondary" onclick="closePlayerModal()">Close</button>
-        </div>
       </div>
     </div>`;
 
@@ -10952,14 +10929,12 @@ async function openTradeWithPlayer(targetDiscordId){
   // Fetch target's username
   let targetName = targetDiscordId;
   try {
-    const { data: pdata } = await rt.from('players').select('username').eq('discord_id',targetDiscordId).limit(1);
-    if(pdata && pdata[0]) targetName = pdata[0].username || targetDiscordId;
+    const { data } = await rt.from('players').select('username,collection').eq('discord_id',targetDiscordId).limit(1);
+    if(data && data[0]){
+      targetName = data[0].username || targetDiscordId;
+      tradeTargetCollection = Array.isArray(data[0].collection) ? data[0].collection : [];
+    }
   } catch(e){}
-  // Fetch target's collection from the collection table (not a column on players)
-  try {
-    const { data: cdata } = await rt.from('collection').select('card_id').eq('discord_id',targetDiscordId);
-    tradeTargetCollection = cdata ? [...new Set(cdata.map(r=>r.card_id))] : [];
-  } catch(e){ tradeTargetCollection = []; }
 
   document.getElementById('tradeTargetName').textContent = targetName;
 
@@ -11004,8 +10979,14 @@ function selectTradeCard(el, cardId, side){
   tradeOfferCard[side] = cardId;
 }
 
+function closeTradeModal(){
+  const el = document.getElementById('tradeModal');
+  if(el) el.classList.remove('active');
+  tradeTargetId = null; tradeOfferCard = null; tradeTargetCollection = [];
+}
+
 async function submitTradeOffer(){
-  if(!tradeOfferCard.offer){ showToast('Pick a card to offer first'); return; }
+  if(!tradeOfferCard || !tradeOfferCard.offer){ showToast('Pick a card to offer first'); return; }
   if(!tradeOfferCard.want){  showToast('Pick a card you want first');  return; }
   if(!tradeTargetId)         return;
 
@@ -11014,7 +10995,7 @@ async function submitTradeOffer(){
       method: 'POST',
       headers: {
         'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY,
-        'Content-Type': 'application/json', 'Prefer': 'return=minimal'
+        'Content-Type': 'application/json', 'Prefer': 'return=representation'
       },
       body: JSON.stringify({
         from_discord_id: state.discordId,
@@ -11025,25 +11006,29 @@ async function submitTradeOffer(){
       })
     });
     if(!res.ok){ const e = await res.json().catch(()=>{}); showToast('❌ Trade error: '+(e?.message||res.status)); return; }
+    const rows = await res.json().catch(()=>[]);
+    const newTrade = Array.isArray(rows) ? rows[0] : rows;
+
     showToast('🔄 Trade offer sent!');
     const offerCardId = tradeOfferCard.offer;
     const wantCardId  = tradeOfferCard.want;
     closeTradeModal();
+
+    // Show the confirmation screen for the SENDER immediately
+    if(newTrade && newTrade.id){
+      openTradeConfirm(newTrade, 'sender');
+      listenForTradeConfirm(newTrade.id);
+    }
+
     const offerCard = (window.DEMO_CARDS||[]).find(c=>c.id===offerCardId);
     const wantCard  = (window.DEMO_CARDS||[]).find(c=>c.id===wantCardId);
     if(offerCard && wantCard){
-      await sendChatMsg(`🔄 Trade offer sent: my ${offerCard.name} for ${wantCard.name}`, 'text', null);
+      await sendChatMsg(`🔄 Trade offer: my ${offerCard.name} for ${wantCard.name}`, 'text', null);
     }
   } catch(e){ showToast('❌ Trade error: '+(e.message||'')); }
 }
 
-function closeTradeModal(){
-  const el = document.getElementById('tradeModal');
-  if(el) el.classList.remove('active');
-  tradeTargetId = null; tradeOfferCard = null; tradeTargetCollection = [];
-}
-
-// Listen for incoming trade offers via Realtime
+// ── Listen for incoming trade offers via Realtime ──
 function listenForTrades(){
   if(!state.discordId || state.isGuest) return;
   const rt = getSupaRT();
@@ -11054,56 +11039,265 @@ function listenForTrades(){
       event: 'INSERT', schema: 'public', table: 'trade_offers',
       filter: `to_discord_id=eq.${state.discordId}`
     }, payload => {
-      showTradeNotification(payload.new);
+      openTradeConfirm(payload.new, 'receiver');
+      listenForTradeConfirm(payload.new.id);
     })
     .subscribe();
 }
 
-function showTradeNotification(trade){
+// ── Listen for changes to a specific trade (for both players) ──
+let _tradeConfirmChannel = null;
+let _tradeTimerInterval  = null;
+let _tradeTimerSecs      = 30;
+let _tradeConfirmId      = null;
+let _tradeMyRole         = null; // 'sender' | 'receiver'
+
+function listenForTradeConfirm(tradeId){
+  const rt = getSupaRT();
+  if(!rt) return;
+  if(_tradeConfirmChannel){ try{ rt.removeChannel(_tradeConfirmChannel); }catch(e){} }
+  _tradeConfirmChannel = rt
+    .channel('trade-confirm-'+tradeId)
+    .on('postgres_changes', {
+      event: 'UPDATE', schema: 'public', table: 'trade_offers',
+      filter: `id=eq.${tradeId}`
+    }, payload => {
+      const t = payload.new;
+      if(t.status === 'accepted'){
+        clearTradeConfirmTimer();
+        closeTradeConfirm();
+        showToast('✅ Trade complete! Check your collection.');
+        loadCollection(state.discordId).then(()=>renderCollection());
+      } else if(t.status === 'declined' || t.status === 'cancelled'){
+        clearTradeConfirmTimer();
+        closeTradeConfirm();
+        showToast(t.status === 'declined' ? '❌ Trade declined.' : '❌ Trade cancelled.');
+      } else if(t.status === 'confirming'){
+        // Update the UI to show who has confirmed
+        updateTradeConfirmUI(t);
+      }
+    })
+    .subscribe();
+}
+
+function openTradeConfirm(trade, role){
+  _tradeConfirmId = trade.id;
+  _tradeMyRole    = role;
+
   const offerCard = (window.DEMO_CARDS||[]).find(c=>c.id===trade.offer_card_id);
   const wantCard  = (window.DEMO_CARDS||[]).find(c=>c.id===trade.want_card_id);
 
-  const notif = document.createElement('div');
-  notif.className = 'mp-notification';
-  notif.innerHTML = `
-    <div class="mp-notif-title">🔄 Trade Offer!</div>
-    <div class="mp-notif-body">
-      <strong>${escapeHtml(trade.from_discord_id)}</strong> offers
-      <strong>${offerCard ? escapeHtml(offerCard.name) : '???'}</strong>
-      for your <strong>${wantCard ? escapeHtml(wantCard.name) : '???'}</strong>
+  // From sender POV: "you give offerCard, you get wantCard"
+  // From receiver POV: "you give wantCard, you get offerCard"
+  const myGiveCard  = role === 'sender' ? offerCard  : wantCard;
+  const myGetCard   = role === 'sender' ? wantCard   : offerCard;
+  const theirLabel  = role === 'sender' ? 'Their card' : 'Their card';
+
+  const content = document.getElementById('tradeConfirmContent');
+  content.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+      <div style="font-family:'Cinzel Decorative',serif;font-size:0.9em;color:var(--pink-pale);">🔄 Trade Offer</div>
+      <button onclick="cancelOrDeclineTrade()" style="background:none;border:none;color:var(--text-dim);font-size:1.1em;cursor:pointer;">✕</button>
     </div>
-    <div class="mp-notif-btns">
-      <button class="btn-primary" style="font-size:0.8em;padding:6px 16px;"
-        onclick="acceptTrade('${trade.id}',this.closest('.mp-notification'))">✅ Accept</button>
-      <button class="btn-secondary" style="font-size:0.8em;padding:6px 16px;"
-        onclick="declineTrade('${trade.id}',this.closest('.mp-notification'))">✕ Decline</button>
+    <div style="font-size:0.8em;color:var(--text-dim);margin-bottom:16px;">
+      ${role === 'sender' ? 'Waiting for the other player to respond...' : 'You received a trade offer!'}
+    </div>
+
+    <!-- Cards display -->
+    <div class="trade-confirm-cards">
+      <div class="trade-confirm-card">
+        <div class="trade-confirm-owner">YOU GIVE</div>
+        <img src="${myGiveCard ? (myGiveCard.thumbnail||myGiveCard.image) : ''}"
+          onerror="this.src='https://placehold.co/70x98/1c0f26/ff9dc7?text=?'"
+          ${!myGiveCard?'style="opacity:0.3"':''}/>
+        <div class="trade-confirm-card-name">${myGiveCard ? escapeHtml(myGiveCard.name) : '???'}</div>
+        <div class="trade-confirm-card-rarity">${myGiveCard ? (myGiveCard.rarityStars||'') : ''}</div>
+      </div>
+      <div class="trade-confirm-arrow">⇄</div>
+      <div class="trade-confirm-card">
+        <div class="trade-confirm-owner">YOU GET</div>
+        <img src="${myGetCard ? (myGetCard.thumbnail||myGetCard.image) : ''}"
+          onerror="this.src='https://placehold.co/70x98/1c0f26/ff9dc7?text=?'"
+          ${!myGetCard?'style="opacity:0.3"':''}/>
+        <div class="trade-confirm-card-name">${myGetCard ? escapeHtml(myGetCard.name) : '???'}</div>
+        <div class="trade-confirm-card-rarity">${myGetCard ? (myGetCard.rarityStars||'') : ''}</div>
+      </div>
+    </div>
+
+    <!-- Both-player accept status -->
+    <div class="trade-accept-status" id="tradeAcceptStatus">
+      <div class="trade-player-status" id="tradeStatus-sender">
+        <div class="trade-player-status-dot"></div>
+        <div class="trade-player-status-name">Sender</div>
+        <div class="trade-player-status-label">Waiting</div>
+      </div>
+      <div class="trade-player-status" id="tradeStatus-receiver">
+        <div class="trade-player-status-dot"></div>
+        <div class="trade-player-status-name">Receiver</div>
+        <div class="trade-player-status-label">Waiting</div>
+      </div>
+    </div>
+
+    <!-- Timer -->
+    <div class="trade-timer-wrap" id="tradeTimerWrap" style="display:none;">
+      <div class="trade-timer-ring">
+        <svg width="64" height="64" viewBox="0 0 64 64">
+          <circle class="track" cx="32" cy="32" r="28"/>
+          <circle class="prog" id="tradeTimerCircle" cx="32" cy="32" r="28"
+            stroke-dasharray="175.9" stroke-dashoffset="0"/>
+        </svg>
+        <div class="trade-timer-num" id="tradeTimerNum">5</div>
+      </div>
+      <div class="trade-timer-label">COMPLETING TRADE...</div>
+    </div>
+
+    <!-- Action buttons -->
+    <div style="display:flex;gap:10px;" id="tradeConfirmBtns">
+      ${role === 'receiver' ? `
+        <button class="btn-primary" style="flex:1;" id="tradeAcceptBtn" onclick="confirmAcceptTrade()">✅ Accept Trade</button>
+        <button class="btn-secondary" onclick="cancelOrDeclineTrade()">✕ Decline</button>
+      ` : `
+        <button class="btn-secondary" style="width:100%;" onclick="cancelOrDeclineTrade()">✕ Cancel Offer</button>
+      `}
     </div>`;
-  document.body.appendChild(notif);
-  // Auto-dismiss after 30s
-  setTimeout(()=>{ if(notif.parentNode) notif.remove(); }, 30000);
+
+  document.getElementById('tradeConfirmModal').classList.add('active');
+  startTradeExpiry(trade.id);
 }
 
-async function acceptTrade(tradeId, notifEl){
+function updateTradeConfirmUI(trade){
+  const senderEl   = document.getElementById('tradeStatus-sender');
+  const receiverEl = document.getElementById('tradeStatus-receiver');
+  if(!senderEl || !receiverEl) return;
+
+  const senderConfirmed   = trade.sender_confirmed;
+  const receiverConfirmed = trade.receiver_confirmed;
+
+  if(senderConfirmed){
+    senderEl.classList.add('accepted');
+    senderEl.querySelector('.trade-player-status-label').textContent = '✓ Ready';
+  }
+  if(receiverConfirmed){
+    receiverEl.classList.add('accepted');
+    receiverEl.querySelector('.trade-player-status-label').textContent = '✓ Ready';
+  }
+
+  // Both confirmed — show countdown
+  if(senderConfirmed && receiverConfirmed){
+    document.getElementById('tradeTimerWrap').style.display = 'flex';
+    document.getElementById('tradeConfirmBtns').style.display = 'none';
+    startTradeCountdown(trade.id);
+  }
+}
+
+async function confirmAcceptTrade(){
+  const btn = document.getElementById('tradeAcceptBtn');
+  if(btn){ btn.disabled = true; btn.textContent = '⏳ Confirming...'; }
+
+  const rt = getSupaRT();
+  try {
+    // Mark this player as confirmed in the trade row
+    const field = _tradeMyRole === 'sender' ? 'sender_confirmed' : 'receiver_confirmed';
+    const { data: trade } = await rt.from('trade_offers').select('*').eq('id',_tradeConfirmId).single();
+    if(!trade){ showToast('Trade not found'); return; }
+
+    const update = { [field]: true, status: 'confirming' };
+    // If the OTHER side already confirmed, both are ready
+    const otherField = _tradeMyRole === 'sender' ? 'receiver_confirmed' : 'sender_confirmed';
+    if(trade[otherField]){
+      update.sender_confirmed   = true;
+      update.receiver_confirmed = true;
+    }
+
+    await rt.from('trade_offers').update(update).eq('id', _tradeConfirmId);
+
+    // Optimistically update own status dot
+    const myEl = document.getElementById('tradeStatus-'+_tradeMyRole);
+    if(myEl){
+      myEl.classList.add('accepted');
+      myEl.querySelector('.trade-player-status-label').textContent = '✓ Ready';
+    }
+    if(btn){ btn.textContent = '✅ Waiting for other player...'; }
+
+  } catch(e){ showToast('❌ Error: '+(e.message||'')); if(btn){ btn.disabled=false; btn.textContent='✅ Accept Trade'; } }
+}
+
+let _tradeCountdownInterval = null;
+function startTradeCountdown(tradeId){
+  clearTradeConfirmTimer();
+  let secs = 5;
+  const numEl    = document.getElementById('tradeTimerNum');
+  const circleEl = document.getElementById('tradeTimerCircle');
+  const circumference = 175.9;
+
+  function tick(){
+    if(numEl) numEl.textContent = secs;
+    if(circleEl) circleEl.style.strokeDashoffset = circumference * (1 - secs/5);
+    if(secs <= 0){
+      clearInterval(_tradeCountdownInterval);
+      _tradeCountdownInterval = null;
+      finalizeAcceptTrade(tradeId);
+    }
+    secs--;
+  }
+  tick();
+  _tradeCountdownInterval = setInterval(tick, 1000);
+}
+
+async function finalizeAcceptTrade(tradeId){
   const rt = getSupaRT();
   try {
     const { error } = await rt.rpc('accept_trade', { trade_id: tradeId });
-    if(error){ showToast('❌ Trade failed: '+error.message); return; }
-    showToast('✅ Trade complete! Check your collection.');
-    if(notifEl) notifEl.remove();
-    // Reload collection
-    await loadCollection(state.discordId);
-    renderCollection();
-  } catch(e){ showToast('❌ Trade error: '+(e.message||'')); }
+    if(error){ showToast('❌ Trade failed: '+error.message); closeTradeConfirm(); return; }
+    // Realtime listener will catch status:'accepted' and handle toast + close
+  } catch(e){ showToast('❌ Trade error: '+(e.message||'')); closeTradeConfirm(); }
 }
 
-async function declineTrade(tradeId, notifEl){
+let _tradeExpiryTimer = null;
+function startTradeExpiry(tradeId){
+  clearTradeConfirmTimer();
+  // Auto-cancel after 60s if nobody accepts
+  _tradeExpiryTimer = setTimeout(async ()=>{
+    if(!_tradeConfirmId) return;
+    const rt = getSupaRT();
+    try { await rt.from('trade_offers').update({ status:'cancelled', resolved_at: new Date().toISOString() }).eq('id',tradeId).eq('status','pending'); }
+    catch(e){}
+    closeTradeConfirm();
+    showToast('⏱️ Trade offer expired.');
+  }, 60000);
+}
+
+function clearTradeConfirmTimer(){
+  if(_tradeExpiryTimer){ clearTimeout(_tradeExpiryTimer); _tradeExpiryTimer = null; }
+  if(_tradeCountdownInterval){ clearInterval(_tradeCountdownInterval); _tradeCountdownInterval = null; }
+}
+
+async function cancelOrDeclineTrade(){
   const rt = getSupaRT();
+  const id = _tradeConfirmId;
+  const role = _tradeMyRole;
+  closeTradeConfirm();
+  if(!id) return;
   try {
-    await rt.from('trade_offers').update({ status:'declined', resolved_at: new Date().toISOString() }).eq('id',tradeId);
-    showToast('Trade declined.');
-    if(notifEl) notifEl.remove();
+    const newStatus = role === 'sender' ? 'cancelled' : 'declined';
+    await rt.from('trade_offers').update({ status: newStatus, resolved_at: new Date().toISOString() }).eq('id', id);
+    showToast(role === 'sender' ? '🚫 Trade cancelled.' : '❌ Trade declined.');
   } catch(e){}
 }
+
+function closeTradeConfirm(){
+  clearTradeConfirmTimer();
+  const rt = getSupaRT();
+  if(_tradeConfirmChannel){ try{ rt.removeChannel(_tradeConfirmChannel); }catch(e){} _tradeConfirmChannel = null; }
+  _tradeConfirmId = null;
+  _tradeMyRole    = null;
+  document.getElementById('tradeConfirmModal').classList.remove('active');
+}
+
+// Legacy stubs — kept so old notification references don't break
+function showTradeNotification(trade){ openTradeConfirm(trade, 'receiver'); listenForTradeConfirm(trade.id); }
+async function acceptTrade(tradeId, notifEl){ if(notifEl) notifEl.remove(); }
+async function declineTrade(tradeId, notifEl){ if(notifEl) notifEl.remove(); await cancelOrDeclineTrade(); }
 
 async function loadMyTrades(){
   if(!state.discordId || state.isGuest){
@@ -11285,12 +11479,11 @@ function openPvpWaitingScreen(battleId, opponentId){
 
 function openPvpBattleScreen(battleId, battle){
   activePvpBattleId = battleId;
-  renderPvpState(battle, battleId);
+  renderPvpState(battle);
   document.getElementById('pvpBattleModal').classList.add('active');
 }
 
-function renderPvpState(battle, battleId){
-  if(!battleId) battleId = battle.id || activePvpBattleId;
+function renderPvpState(battle){
   const content = document.getElementById('pvpBattleContent');
   if(!content) return;
 
@@ -11458,7 +11651,7 @@ function listenToBattle(battleId){
       event: 'UPDATE', schema: 'public', table: 'pvp_battles',
       filter: `id=eq.${battleId}`
     }, payload => {
-      renderPvpState(payload.new, battleId);
+      renderPvpState(payload.new);
       if(payload.new.status === 'active' && payload.new.player2_id &&
          document.getElementById('pvpBattleModal').classList.contains('active') &&
          !document.getElementById('pvpBattleContent').querySelector('.battle-moves-grid') &&
@@ -11690,6 +11883,11 @@ window.loadPlayer = async function(discordId){
     <p style="color:var(--text-dim);font-size:0.85em;margin-bottom:14px;">Pick a card to show off in chat!</p>
     <div class="cards-grid" id="flexPickerGrid" style="max-height:340px;overflow-y:auto;"></div>
   </div>
+</div>
+
+<!-- TRADE CONFIRMATION MODAL -->
+<div id="tradeConfirmModal">
+  <div class="trade-confirm-box" id="tradeConfirmContent"></div>
 </div>
 
 </body>
