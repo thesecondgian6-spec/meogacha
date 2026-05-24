@@ -3259,8 +3259,8 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 /* ── Chat page layout ── */
 .chat-layout { display:flex; flex-direction:column; height:calc(100vh - 160px); min-height:400px; gap:0; }
 .chat-feed {
-  flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:2px;
-  padding:12px 0; background:rgba(255,157,199,0.015); border:1px solid var(--border);
+  flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:10px;
+  padding:16px; background:rgba(255,157,199,0.02); border:1px solid var(--border);
   border-radius:16px 16px 0 0; scroll-behavior:smooth;
 }
 .chat-feed::-webkit-scrollbar{width:4px;}
@@ -3271,90 +3271,67 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   border-radius:0 0 16px 16px; align-items:center; flex-wrap:wrap; gap:8px;
 }
 .chat-input-bar input {
-  flex:1; min-width:0; background:rgba(255,255,255,0.05); border:1px solid var(--border);
-  border-radius:8px; padding:10px 16px; color:var(--text);
+  flex:1; min-width:0; background:rgba(255,157,199,0.06); border:1px solid var(--border);
+  border-radius:20px; padding:9px 16px; color:var(--text);
   font-family:'Cormorant Garamond',serif; font-size:0.95em;
 }
 .chat-input-bar input:focus{outline:none;border-color:var(--pink);}
 .chat-send-btn {
   background:linear-gradient(135deg,var(--pink-deep),var(--purple));
-  border:none;color:#fff;padding:9px 20px;border-radius:8px;
+  border:none;color:#fff;padding:9px 20px;border-radius:20px;
   font-family:'Cinzel Decorative',serif;font-size:0.7em;cursor:pointer;
   white-space:nowrap; transition:all 0.2s; letter-spacing:0.04em;
 }
 .chat-send-btn:hover{transform:translateY(-1px);box-shadow:0 4px 16px var(--pink-glow);}
 .chat-flex-btn {
   background:rgba(241,196,15,0.1);border:1px solid rgba(241,196,15,0.3);
-  color:#f1c40f;padding:9px 16px;border-radius:8px;
+  color:#f1c40f;padding:9px 16px;border-radius:20px;
   font-family:'Cormorant Garamond',serif;font-size:0.9em;cursor:pointer;
   white-space:nowrap;transition:all 0.2s;
 }
 .chat-flex-btn:hover{background:rgba(241,196,15,0.18);}
 
-/* ── Discord-style chat messages ── */
-.chat-msg {
-  display:flex; flex-direction:row; gap:14px;
-  padding:3px 16px; max-width:100%;
-  animation:fadeIn 0.2s ease; border-radius:4px;
-  transition:background 0.1s;
+/* ── Chat messages ── */
+.chat-msg { display:flex; flex-direction:column; max-width:85%; animation:fadeIn 0.25s ease; }
+.chat-msg.chat-me { align-self:flex-end; }
+.chat-bubble {
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:14px; padding:10px 14px; position:relative;
 }
-.chat-msg:hover { background:rgba(255,255,255,0.03); }
-/* "me" messages get a faint pink left-accent */
-.chat-msg.chat-me { border-left:2px solid rgba(255,157,199,0.3); padding-left:14px; }
-/* Avatar column */
+.chat-me .chat-bubble {
+  background:rgba(255,157,199,0.1); border-color:rgba(255,157,199,0.25);
+}
+.chat-meta {
+  display:flex; align-items:center; gap:7px; margin-bottom:5px; cursor:pointer;
+}
+.chat-meta:hover .chat-username{color:var(--pink);}
 .chat-avatar {
-  width:40px; height:40px; border-radius:50%; object-fit:cover;
-  flex-shrink:0; cursor:pointer; margin-top:2px;
-  border:2px solid transparent; transition:border-color 0.2s;
+  width:22px; height:22px; border-radius:50%; object-fit:cover;
+  border:1px solid var(--border); flex-shrink:0;
 }
-.chat-avatar:hover { border-color:var(--pink); }
-/* Content column */
-.chat-content { flex:1; min-width:0; }
-.chat-header {
-  display:flex; align-items:baseline; gap:8px; margin-bottom:3px;
-}
-.chat-username {
-  font-size:0.88em; font-weight:700; color:var(--pink);
-  font-family:'JetBrains Mono',monospace; cursor:pointer; transition:color 0.15s;
-}
-.chat-username:hover { color:var(--pink-pale); text-decoration:underline; }
-.chat-msg.chat-me .chat-username { color:#9b7bdb; }
-.chat-time {
-  font-size:0.67em; color:var(--text-dim);
-  font-family:'JetBrains Mono',monospace;
-}
-.chat-bubble { background:none; border:none; padding:0; }
-.chat-text { font-size:0.9em; color:var(--text); line-height:1.55; word-break:break-word; }
-.chat-msg.chat-me .chat-text { color:#f0d8f0; }
+.chat-username { font-size:0.75em; color:var(--pink); font-weight:600; font-family:'JetBrains Mono',monospace; }
+.chat-text { font-size:0.9em; color:var(--text); line-height:1.5; word-break:break-word; }
+.chat-time { font-size:0.65em; color:var(--text-dim); margin-top:4px; font-family:'JetBrains Mono',monospace; }
 
 /* ── Flex card in chat ── */
 .chat-flex-card {
-  display:inline-flex; align-items:center; gap:10px;
+  display:flex; align-items:center; gap:10px;
   background:rgba(241,196,15,0.06); border:1px solid rgba(241,196,15,0.2);
-  border-radius:10px; padding:8px 12px; margin:5px 0; cursor:pointer;
-  transition:all 0.2s; max-width:280px;
+  border-radius:10px; padding:8px 12px; margin:6px 0; cursor:pointer;
+  transition:all 0.2s;
 }
-.chat-flex-card:hover{border-color:rgba(241,196,15,0.45);background:rgba(241,196,15,0.1);}
-.flex-thumb{width:34px;height:48px;border-radius:6px;object-fit:cover;border:1px solid var(--border);}
+.chat-flex-card:hover{border-color:rgba(241,196,15,0.4);background:rgba(241,196,15,0.1);}
+.flex-thumb{width:32px;height:44px;border-radius:6px;object-fit:cover;border:1px solid var(--border);}
 .flex-name{font-size:0.82em;font-weight:600;color:var(--text);}
 .flex-rarity{font-size:0.72em;color:var(--text-dim);margin-top:1px;}
-.chat-action-btns{display:flex;gap:6px;margin-top:7px;flex-wrap:wrap;}
+.chat-action-btns{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap;}
 .chat-action-btn{
-  background:rgba(255,157,199,0.08);border:1px solid rgba(255,157,199,0.25);
-  color:var(--pink);padding:5px 13px;border-radius:6px;
+  background:rgba(255,157,199,0.08);border:1px solid var(--border);
+  color:var(--pink);padding:4px 12px;border-radius:20px;
   font-size:0.75em;cursor:pointer;font-family:'Cormorant Garamond',serif;
   transition:all 0.2s;
 }
 .chat-action-btn:hover{background:rgba(255,157,199,0.18);border-color:var(--pink);}
-/* Date divider */
-.chat-date-divider {
-  text-align:center; font-size:0.7em; color:var(--text-dim);
-  font-family:'JetBrains Mono',monospace; margin:10px 0 8px;
-  display:flex;align-items:center;gap:10px;padding:0 16px;
-}
-.chat-date-divider::before,.chat-date-divider::after{
-  content:'';flex:1;height:1px;background:var(--border);
-}
 
 /* ── Online badge ── */
 .online-dot{width:8px;height:8px;border-radius:50%;background:#2ecc71;display:inline-block;box-shadow:0 0 6px #2ecc71;flex-shrink:0;}
@@ -3449,8 +3426,6 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 
 @media(max-width:700px){
   .chat-layout{height:calc(100vh - 200px);}
-  .chat-msg { padding:3px 10px; gap:10px; }
-  .chat-avatar { width:34px; height:34px; }
   .trade-card-grid{grid-template-columns:repeat(auto-fill,minmax(76px,1fr));}
 }
 </style>
@@ -10635,22 +10610,24 @@ function renderChatMsg(msg){
   const isMe = msg.discord_id === state.discordId;
   const el   = document.createElement('div');
   el.className = 'chat-msg' + (isMe ? ' chat-me' : '');
+  el.style.alignSelf = isMe ? 'flex-end' : 'flex-start';
 
   const time = msg.created_at
     ? new Date(msg.created_at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})
     : '';
 
-  const avatar = escapeHtml(msg.avatar_url||'https://cdn.discordapp.com/embed/avatars/0.png');
-  const username = escapeHtml(msg.username);
+  let inner = `
+    <div class="chat-bubble">
+      <div class="chat-meta" onclick="viewPlayerProfile('${msg.discord_id}')">
+        <img class="chat-avatar" src="${msg.avatar_url||'https://cdn.discordapp.com/embed/avatars/0.png'}"
+          onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'"/>
+        <span class="chat-username">${escapeHtml(msg.username)}</span>
+      </div>`;
 
-  // Build inner content
-  let content = '';
-
-  // Flex card embed
   if(msg.msg_type === 'flex' && msg.card_id){
     const card = (window.DEMO_CARDS||[]).find(c=>c.id===msg.card_id);
     if(card){
-      content += `
+      inner += `
         <div class="chat-flex-card" onclick="openCardById('${card.id}')">
           <img class="flex-thumb" src="${card.thumbnail||card.image}"
             onerror="this.style.display='none'"/>
@@ -10662,39 +10639,29 @@ function renderChatMsg(msg){
     }
   }
 
-  content += `<div class="chat-text">${escapeHtml(msg.content)}</div>`;
+  inner += `<div class="chat-text">${escapeHtml(msg.content)}</div>`;
 
-  // Action buttons — only on others' messages
+  // Action buttons — only on others' flex/pvp_req messages
   if(!isMe && msg.msg_type === 'flex' && msg.card_id){
-    content += `
+    inner += `
       <div class="chat-action-btns">
         <button class="chat-action-btn" onclick="openTradeWithPlayer('${msg.discord_id}')">🔄 Trade</button>
         <button class="chat-action-btn" onclick="challengeToPvp('${msg.discord_id}')">⚔️ Challenge</button>
       </div>`;
   }
   if(!isMe && msg.msg_type === 'pvp_req'){
+    // Extract battle id from content
     const match = msg.content.match(/\[battleId:([\w-]+)\]/);
     if(match){
-      content += `
+      inner += `
         <div class="chat-action-btns">
           <button class="chat-action-btn" onclick="acceptPvpChallenge('${match[1]}','${msg.discord_id}')">⚔️ Accept Battle</button>
         </div>`;
     }
   }
 
-  el.innerHTML = `
-    <img class="chat-avatar"
-      src="${avatar}"
-      onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'"
-      onclick="viewPlayerProfile('${msg.discord_id}')"/>
-    <div class="chat-content">
-      <div class="chat-header">
-        <span class="chat-username" onclick="viewPlayerProfile('${msg.discord_id}')">${username}</span>
-        <span class="chat-time">${time}</span>
-      </div>
-      <div class="chat-bubble">${content}</div>
-    </div>`;
-
+  inner += `<div class="chat-time">${time}</div></div>`;
+  el.innerHTML = inner;
   feed.appendChild(el);
 
   // Cap DOM at 100 messages
@@ -10869,9 +10836,7 @@ async function openTradeWithPlayer(targetDiscordId){
     const { data } = await rt.from('players').select('username,collection').eq('discord_id',targetDiscordId).limit(1);
     if(data && data[0]){
       targetName = data[0].username || targetDiscordId;
-      let rawColl = data[0].collection;
-      if(typeof rawColl === 'string'){ try{ rawColl = JSON.parse(rawColl); }catch(e){ rawColl = []; } }
-      tradeTargetCollection = Array.isArray(rawColl) ? rawColl : [];
+      tradeTargetCollection = Array.isArray(data[0].collection) ? data[0].collection : [];
     }
   } catch(e){}
 
@@ -10911,16 +10876,16 @@ function buildTradeCardGrid(gridId, cardIds, side){
 }
 
 function selectTradeCard(el, cardId, side){
-  if(!tradeOfferCard) tradeOfferCard = { offer: null, want: null };
   const grid = el.closest('.trade-card-grid');
   if(grid) grid.querySelectorAll('.trade-card-option').forEach(c=>c.classList.remove('selected'));
   el.classList.add('selected');
+  if(!tradeOfferCard || typeof tradeOfferCard !== 'object') tradeOfferCard = { offer: null, want: null };
   tradeOfferCard[side] = cardId;
 }
 
 async function submitTradeOffer(){
-  if(!tradeOfferCard || !tradeOfferCard.offer){ showToast('Pick a card to offer first'); return; }
-  if(!tradeOfferCard || !tradeOfferCard.want){  showToast('Pick a card you want first');  return; }
+  if(!tradeOfferCard.offer){ showToast('Pick a card to offer first'); return; }
+  if(!tradeOfferCard.want){  showToast('Pick a card you want first');  return; }
   if(!tradeTargetId)         return;
 
   try {
@@ -11197,11 +11162,12 @@ function openPvpWaitingScreen(battleId, opponentId){
 
 function openPvpBattleScreen(battleId, battle){
   activePvpBattleId = battleId;
-  renderPvpState(battle);
+  renderPvpState(battle, battleId);
   document.getElementById('pvpBattleModal').classList.add('active');
 }
 
-function renderPvpState(battle){
+function renderPvpState(battle, battleId){
+  if(!battleId) battleId = battle.id || activePvpBattleId;
   const content = document.getElementById('pvpBattleContent');
   if(!content) return;
 
@@ -11273,18 +11239,18 @@ function renderPvpState(battle){
 
     ${isMyTurn ? `
     <div class="battle-moves-grid">
-      <button class="battle-move-btn" onclick="takePvpTurn('attack','${battle.id}')">
+      <button class="battle-move-btn" onclick="takePvpTurn('attack','${battleId}')">
         ⚔️ Attack<br/><span style="font-size:0.75em;color:var(--text-dim);">Basic strike</span>
       </button>
-      <button class="battle-move-btn" onclick="takePvpTurn('heavy','${battle.id}')">
+      <button class="battle-move-btn" onclick="takePvpTurn('heavy','${battleId}')">
         💥 Heavy Hit<br/><span style="font-size:0.75em;color:var(--text-dim);">High dmg, can miss</span>
       </button>
       ${abilities.length ? `
-      <button class="battle-move-btn" onclick="takePvpTurn('ability','${battle.id}')">
+      <button class="battle-move-btn" onclick="takePvpTurn('ability','${battleId}')">
         ${abilities[0].icon||'✨'} ${escapeHtml(abilities[0].name)}<br/>
         <span style="font-size:0.75em;color:var(--text-dim);">${escapeHtml(abilities[0].desc||'Special move')}</span>
       </button>` : ''}
-      <button class="battle-move-btn" onclick="takePvpTurn('guard','${battle.id}')">
+      <button class="battle-move-btn" onclick="takePvpTurn('guard','${battleId}')">
         🛡️ Guard<br/><span style="font-size:0.75em;color:var(--text-dim);">Reduce incoming dmg</span>
       </button>
     </div>` : ''}
@@ -11369,7 +11335,7 @@ function listenToBattle(battleId){
       event: 'UPDATE', schema: 'public', table: 'pvp_battles',
       filter: `id=eq.${battleId}`
     }, payload => {
-      renderPvpState(payload.new);
+      renderPvpState(payload.new, battleId);
       if(payload.new.status === 'active' && payload.new.player2_id &&
          document.getElementById('pvpBattleModal').classList.contains('active') &&
          !document.getElementById('pvpBattleContent').querySelector('.battle-moves-grid') &&
