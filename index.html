@@ -7735,6 +7735,37 @@ function startBattle() {
 }
 
 // ══════════════════════════════════════════════
+// RENDER BATTLE MOVES — populates #battleMovesGrid
+// ══════════════════════════════════════════════
+function renderBattleMoves(){
+  const grid = document.getElementById('battleMovesGrid');
+  if(!grid) return;
+  if(!battleState || !battleState.playerCard){ grid.innerHTML=''; return; }
+
+  const moves   = getCardMoves(battleState.playerCard);
+  const locked  = battleState.movesCooldown || battleState.battleEnded;
+
+  grid.innerHTML = moves.map(m=>{
+    const isUlt    = m.type === 'ult';
+    const noMP     = m.mpCost > (battleState.playerMP||0);
+    const disabled = locked || noMP;
+    const borderClr = isUlt ? 'rgba(241,196,15,0.5)' :
+                      m.type === 'spc' ? 'rgba(255,157,199,0.4)' :
+                      m.type === 'def' ? 'rgba(93,173,226,0.35)' : 'var(--border)';
+    const mpBadge = m.mpCost > 0
+      ? `<span style="font-family:'JetBrains Mono',monospace;font-size:0.62em;color:#f1c40f;float:right;">${m.mpCost}MP</span>`
+      : '';
+    return `<button class="battle-move-btn" onclick="playerMove('${m.id}')"
+        ${disabled ? 'disabled' : ''}
+        style="border-color:${borderClr};">
+      <span class="move-name">${m.icon} ${m.name}${mpBadge}</span>
+      <span class="move-desc">${m.desc||''}</span>
+      ${m.power && m.type==='atk' ? `<span class="move-power">PWR ${m.power}</span>` : ''}
+    </button>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════════════
 // BUILD MOVE LIST — reads abilities for actives/ultimates
 // ══════════════════════════════════════════════
 function getCardMoves(card) {
@@ -10636,14 +10667,6 @@ async function initChat(){
     }, payload => {
       renderChatMsg(payload.new);
       scrollChatToBottom();
-      // Show popup if this is a PVP challenge directed at us
-      if(payload.new.msg_type === 'pvp_req' && payload.new.discord_id !== state.discordId){
-        const match = payload.new.content.match(/\[battleId:([\w-]+)\]/);
-        const mentionsMe = payload.new.content.includes('@'+state.discordId);
-        if(match && mentionsMe && !document.getElementById('pvpIncomingPopup')){
-          showIncomingPvpPopup({ id: match[1], player1_id: payload.new.discord_id, status:'waiting' });
-        }
-      }
     })
     .subscribe((status, err) => {
       console.log('[MP] Chat channel status:', status, err||'');
@@ -10669,11 +10692,8 @@ async function initChat(){
       }
     });
 
-  // 4. Listen for incoming trades + PVP challenges
-  if(state.discordId && !state.isGuest){
-    listenForTrades();
-    listenForPvpChallenges();
-  }
+  // 4. Listen for incoming trades
+  if(state.discordId && !state.isGuest) listenForTrades();
 }
 
 async function submitChat(){
@@ -11109,113 +11129,10 @@ function listenForTrades(){
       event: 'INSERT', schema: 'public', table: 'trade_offers',
       filter: `to_discord_id=eq.${state.discordId}`
     }, payload => {
-      showIncomingTradePopup(payload.new);
+      openTradeConfirm(payload.new, 'receiver');
+      listenForTradeConfirm(payload.new.id);
     })
     .subscribe();
-}
-
-// ── Listen for incoming PVP challenges via Realtime ──
-function listenForPvpChallenges(){
-  if(!state.discordId || state.isGuest) return;
-  const rt = getSupaRT();
-  if(!rt) return;
-  rt.channel('pvp-incoming-'+state.discordId)
-    .on('postgres_changes', {
-      event: 'INSERT', schema: 'public', table: 'pvp_battles',
-      filter: `player2_id=eq.${state.discordId}`
-    }, payload => {
-      // Only show popup if battle is still waiting (wasn't pre-filled)
-      if(payload.new.status === 'waiting') showIncomingPvpPopup(payload.new);
-    })
-    // Also catch when we're mentioned as the target via player1_id challenges
-    .subscribe();
-
-  // Listen on pvp_battles for rows where we are targeted (player2_id not yet set)
-  // We detect this from the chat pvp_req messages instead — see renderChatMsg
-}
-
-// ── Incoming trade popup ──
-function showIncomingTradePopup(trade){
-  // Don't show if we already have a trade confirm open
-  if(_tradeConfirmId) return;
-
-  const offerCard = (window.DEMO_CARDS||[]).find(c=>c.id===trade.offer_card_id);
-  const popup = document.createElement('div');
-  popup.className = 'mp-notification';
-  popup.id = 'tradeIncomingPopup';
-  popup.innerHTML = `
-    <div class="mp-notif-title">🔄 Incoming Trade Offer</div>
-    <div class="mp-notif-body">
-      <strong style="color:var(--pink);">Someone</strong> wants to trade with you!<br/>
-      ${offerCard ? `They're offering: <span style="color:var(--text);">${escapeHtml(offerCard.name)}</span>` : 'They sent you a trade offer.'}
-    </div>
-    <div class="mp-notif-btns">
-      <button class="btn-primary" style="flex:1;padding:8px 12px;font-size:0.8em;"
-        onclick="acceptIncomingTrade(${JSON.stringify(trade).replace(/"/g,'&quot;')})">✅ Accept</button>
-      <button class="btn-secondary" style="padding:8px 12px;font-size:0.8em;"
-        onclick="declineIncomingTrade('${trade.id}')">✕ Decline</button>
-    </div>`;
-  document.body.appendChild(popup);
-
-  // Auto-dismiss after 30s
-  setTimeout(()=>{ if(popup.parentNode) popup.remove(); }, 30000);
-}
-
-function acceptIncomingTrade(trade){
-  const popup = document.getElementById('tradeIncomingPopup');
-  if(popup) popup.remove();
-  openTradeConfirm(trade, 'receiver');
-  listenForTradeConfirm(trade.id);
-}
-
-async function declineIncomingTrade(tradeId){
-  const popup = document.getElementById('tradeIncomingPopup');
-  if(popup) popup.remove();
-  const rt = getSupaRT();
-  try {
-    await rt.from('trade_offers').update({ status:'declined', resolved_at: new Date().toISOString() }).eq('id', tradeId);
-    showToast('❌ Trade declined.');
-  } catch(e){}
-}
-
-// ── Incoming PVP challenge popup ──
-function showIncomingPvpPopup(battle){
-  // Don't stack popups
-  if(document.getElementById('pvpIncomingPopup')) return;
-
-  const popup = document.createElement('div');
-  popup.className = 'mp-notification';
-  popup.id = 'pvpIncomingPopup';
-  popup.innerHTML = `
-    <div class="mp-notif-title">⚔️ PvP Challenge!</div>
-    <div class="mp-notif-body">
-      A player is challenging you to a duel!<br/>
-      <span style="color:var(--text-dim);font-size:0.82em;">Make sure you have a card equipped.</span>
-    </div>
-    <div class="mp-notif-btns">
-      <button class="btn-primary" style="flex:1;padding:8px 12px;font-size:0.8em;"
-        onclick="acceptPvpFromPopup('${battle.id}','${battle.player1_id}')">⚔️ Fight!</button>
-      <button class="btn-secondary" style="padding:8px 12px;font-size:0.8em;"
-        onclick="declinePvpFromPopup('${battle.id}')">✕ Decline</button>
-    </div>`;
-  document.body.appendChild(popup);
-  setTimeout(()=>{ if(popup.parentNode) popup.remove(); }, 30000);
-}
-
-async function acceptPvpFromPopup(battleId, challengerId){
-  const popup = document.getElementById('pvpIncomingPopup');
-  if(popup) popup.remove();
-  await acceptPvpChallenge(battleId, challengerId);
-}
-
-async function declinePvpFromPopup(battleId){
-  const popup = document.getElementById('pvpIncomingPopup');
-  if(popup) popup.remove();
-  const rt = getSupaRT();
-  try {
-    await rt.from('pvp_battles').update({ status:'finished', winner_id: null }).eq('id', battleId).eq('status','waiting');
-    showToast('Challenge declined.');
-  } catch(e){}
 }
 
 // ── Listen for changes to a specific trade (for both players) ──
@@ -11329,7 +11246,7 @@ async function openTradeConfirm(trade, role){
       <div class="trade-player-status" id="tradeStatus-sender">
         <div class="trade-player-status-dot"></div>
         <div class="trade-player-status-name">Sender</div>
-        <div class="trade-player-status-label">Waiting</div>
+        <div class="trade-player-status-label">${role === 'sender' ? '✓ Ready' : 'Waiting'}</div>
       </div>
       <div class="trade-player-status" id="tradeStatus-receiver">
         <div class="trade-player-status-dot"></div>
@@ -11337,6 +11254,7 @@ async function openTradeConfirm(trade, role){
         <div class="trade-player-status-label">Waiting</div>
       </div>
     </div>
+    ${role === 'sender' ? `<script>document.getElementById('tradeStatus-sender').classList.add('accepted');<\/script>` : ''}
 
     <!-- Countdown timer (hidden until both ready) -->
     <div class="trade-timer-wrap" id="tradeTimerWrap" style="display:none;">
@@ -11396,21 +11314,6 @@ async function openTradeConfirm(trade, role){
   }
 
   startTradeExpiry(trade.id);
-
-  // Sender is implicitly ready the moment they open the confirm modal.
-  // Write sender_confirmed=true to DB immediately so the receiver's realtime
-  // listener sees it. Then update our own UI (realtime won't echo back to us).
-  if(role === 'sender'){
-    (async()=>{
-      try{
-        await rt.from('trade_offers')
-          .update({ sender_confirmed: true, status: 'confirming' })
-          .eq('id', trade.id);
-        // Update our own UI immediately — we won't get the realtime echo
-        updateTradeConfirmUI({ ...trade, sender_confirmed: true, receiver_confirmed: false, status: 'confirming' });
-      } catch(e){ console.warn('Could not auto-confirm sender:', e); }
-    })();
-  }
 }
 
 function updateTradeConfirmUI(trade){
@@ -11463,28 +11366,30 @@ async function confirmAcceptTrade(){
 
   const rt = getSupaRT();
   try {
-    // Fetch current state to preserve sender_confirmed
+    // Save the receiver's chosen card and mark confirmed
     const { data: trade } = await rt.from('trade_offers').select('*').eq('id',_tradeConfirmId).single();
     if(!trade){ showToast('Trade not found'); return; }
 
     const update = {
       receiver_confirmed: true,
       want_card_id: tradeOfferCard.want,
-      status: 'confirming',
-      sender_confirmed: trade.sender_confirmed || false  // always preserve, never overwrite
+      status: 'confirming'
     };
+    if(trade.sender_confirmed){
+      update.sender_confirmed = true;
+    }
 
     await rt.from('trade_offers').update(update).eq('id', _tradeConfirmId);
 
+    const myEl = document.getElementById('tradeStatus-receiver');
+    if(myEl){
+      myEl.classList.add('accepted');
+      myEl.querySelector('.trade-player-status-label').textContent = '✓ Ready';
+    }
     // Hide picker section
     const pickerSection = document.getElementById('tradeCardPickerSection');
     if(pickerSection) pickerSection.style.display = 'none';
-    if(btn){ btn.textContent = '✅ Waiting for other player...'; btn.disabled = true; }
-
-    // ⚠️ Supabase realtime does NOT echo the change back to the writer.
-    // We must update our own UI immediately without waiting for the event.
-    const localTrade = { ...trade, ...update };
-    updateTradeConfirmUI(localTrade);
+    if(btn){ btn.textContent = '✅ Waiting for other player...'; }
 
   } catch(e){ showToast('❌ Error: '+(e.message||'')); if(btn){ btn.disabled=false; btn.textContent='✅ Confirm Trade'; } }
 }
@@ -11527,7 +11432,7 @@ function startTradeExpiry(tradeId){
   _tradeExpiryTimer = setTimeout(async ()=>{
     if(!_tradeConfirmId) return;
     const rt = getSupaRT();
-    try { await rt.from('trade_offers').update({ status:'cancelled', resolved_at: new Date().toISOString() }).eq('id',tradeId).in('status',['pending','confirming']); }
+    try { await rt.from('trade_offers').update({ status:'cancelled', resolved_at: new Date().toISOString() }).eq('id',tradeId).eq('status','pending'); }
     catch(e){}
     closeTradeConfirm();
     showToast('⏱️ Trade offer expired.');
@@ -11824,19 +11729,30 @@ function renderPvpState(battle, battleId){
 
     ${isMyTurn ? `
     <div class="battle-moves-grid">
-      <button class="battle-move-btn" onclick="takePvpTurn('attack','${resolvedBattleId}')">
-        ⚔️ Attack<br/><span style="font-size:0.75em;color:var(--text-dim);">Basic strike</span>
+      <button class="battle-move-btn" onclick="takePvpTurn('attack','${resolvedBattleId}',null)">
+        <span class="move-name">⚔️ Attack</span>
+        <span class="move-desc">A swift basic strike</span>
       </button>
-      <button class="battle-move-btn" onclick="takePvpTurn('heavy','${resolvedBattleId}')">
-        💥 Heavy Hit<br/><span style="font-size:0.75em;color:var(--text-dim);">High dmg, can miss</span>
+      <button class="battle-move-btn" onclick="takePvpTurn('heavy','${resolvedBattleId}',null)">
+        <span class="move-name">💥 Heavy Hit</span>
+        <span class="move-desc">High damage, can miss</span>
       </button>
-      ${abilities.length ? `
-      <button class="battle-move-btn" onclick="takePvpTurn('ability','${resolvedBattleId}')">
-        ${abilities[0].icon||'✨'} ${escapeHtml(abilities[0].name)}<br/>
-        <span style="font-size:0.75em;color:var(--text-dim);">${escapeHtml(abilities[0].desc||'Special move')}</span>
-      </button>` : ''}
-      <button class="battle-move-btn" onclick="takePvpTurn('guard','${resolvedBattleId}')">
-        🛡️ Guard<br/><span style="font-size:0.75em;color:var(--text-dim);">Reduce incoming dmg</span>
+      ${abilities.map((ab,i) => {
+        const isUlt = ab.tier==='ultimate'||ab.tier==='secret';
+        const borderClr = isUlt ? 'rgba(241,196,15,0.5)' : 'rgba(255,157,199,0.4)';
+        const mpCost = ab.mp_cost||ab.mpCost||1;
+        return `<button class="battle-move-btn"
+          style="border-color:${borderClr};"
+          onclick="takePvpTurn('ability','${resolvedBattleId}','${ab.id}')">
+          <span class="move-name">${ab.icon||'✨'} ${escapeHtml(ab.name)}
+            <span style="font-family:'JetBrains Mono',monospace;font-size:0.62em;color:#f1c40f;float:right;">${mpCost}MP</span>
+          </span>
+          <span class="move-desc">${escapeHtml(ab.desc||'Special move')}</span>
+        </button>`;
+      }).join('')}
+      <button class="battle-move-btn" style="border-color:rgba(93,173,226,0.35);" onclick="takePvpTurn('guard','${resolvedBattleId}',null)">
+        <span class="move-name">🛡️ Guard</span>
+        <span class="move-desc">Reduce incoming damage</span>
       </button>
     </div>` : ''}
   `}`;
@@ -11846,15 +11762,15 @@ function renderPvpState(battle, battleId){
   if(resolvedBattleId) activePvpBattleId = resolvedBattleId;
 }
 
-async function takePvpTurn(action, battleId){
+async function takePvpTurn(action, battleId, abilityId){
   const rt = getSupaRT();
   try {
     const { data: battle } = await rt.from('pvp_battles').select('*').eq('id',battleId).single();
     if(!battle || battle.status !== 'active'){ showToast('Battle is no longer active.'); return; }
     if(battle.current_turn !== state.discordId){ showToast("It's not your turn!"); return; }
 
-    const isP1  = battle.player1_id === state.discordId;
-    const bs    = { ...battle.battle_state };
+    const isP1   = battle.player1_id === state.discordId;
+    const bs     = { ...battle.battle_state };
     const myCard = (window.DEMO_CARDS||[]).find(c=>c.id===(isP1?battle.card1_id:battle.card2_id));
     const opCard = (window.DEMO_CARDS||[]).find(c=>c.id===(isP1?battle.card2_id:battle.card1_id));
     const myName = isP1 ? (bs.p1_name||'You') : (bs.p2_name||'You');
@@ -11874,9 +11790,15 @@ async function takePvpTurn(action, battleId){
         logMsg = `${myName} lands a HEAVY HIT for ${dmg} damage!`;
       }
     } else if(action === 'ability'){
-      const ab = (window.DB_ABILITIES && myCard && window.DB_ABILITIES[myCard.id]||[])[0];
+      // Find the specific ability by id, or fall back to first
+      const cardAbils = (window.DB_ABILITIES && myCard && window.DB_ABILITIES[myCard.id]) || [];
+      const ab = (abilityId ? cardAbils.find(a=>a.id===abilityId) : null) || cardAbils[0];
       dmg = Math.floor((ab ? (ab.value||baseAtk) : baseAtk) * (0.9 + Math.random()*0.3));
-      logMsg = `${myName} uses ${ab?ab.name:'Special'} for ${dmg}!`;
+      logMsg = `${myName} uses ${ab ? ab.name : 'Special'} for ${dmg} damage!`;
+      // ✦ Play the ability cutscene before applying damage
+      if(ab && myCard){
+        await playAbilityCutscene(myCard.id, myCard.rarity, ab.id);
+      }
     } else if(action === 'guard'){
       logMsg = `${myName} takes a defensive stance!`;
       bs.guard = true;
