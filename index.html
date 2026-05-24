@@ -5625,6 +5625,8 @@ async function loadPlayer(discordId){
     const idx=typeof p.profile_color==='number'?p.profile_color:0;
     state.bannerColor=BANNER_COLORS_IDX[idx]??state.bannerColor;
     state.displayName=p.username??'';
+    state.pvpWins=p.pvp_wins??0;
+    state.pvpLosses=p.pvp_losses??0;
   } else {
     await sb.upsert('players',{
       discord_id:discordId,username:state.username,avatar:state.avatar||'',
@@ -6150,7 +6152,11 @@ function goTo(page,btn){ playNavSound();
   if(page==='activities'){renderBattleCardSelect();}
   if(page==='shop')renderShop();
   if(page==='profile')updateProfile();
-  if(page==='social'){ initChat(); loadLeaderboard('pvp'); }
+  if(page==='social'){
+    waitForSupabase()
+      .then(()=>{ initChat(); loadLeaderboard('pvp'); })
+      .catch(e=>{ console.error('[MP] Supabase not available:', e); });
+  }
 }
 
 // ══════════════════════════════════════════════
@@ -10521,13 +10527,30 @@ tryAutoLogin();
 // MULTIPLAYER — SUPABASE REALTIME CLIENT + CHAT + TRADES + PVP
 // ══════════════════════════════════════════════════════════════
 
-// ── Realtime client (separate from the REST sb wrapper) ──
+// ── Realtime client — single shared instance ──
 let _supaRT = null;
 function getSupaRT(){
-  if(!_supaRT && typeof supabase !== 'undefined'){
-    _supaRT = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  if(_supaRT) return _supaRT;
+  if(typeof supabase === 'undefined'){
+    console.warn('[MP] supabase-js not loaded yet');
+    return null;
   }
+  _supaRT = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+    realtime: { params: { eventsPerSecond: 10 } }
+  });
   return _supaRT;
+}
+
+// ── Wait for supabase-js CDN to be ready ──
+function waitForSupabase(maxMs=5000){
+  return new Promise((resolve, reject)=>{
+    if(typeof supabase !== 'undefined'){ resolve(); return; }
+    const start = Date.now();
+    const check = setInterval(()=>{
+      if(typeof supabase !== 'undefined'){ clearInterval(check); resolve(); return; }
+      if(Date.now()-start > maxMs){ clearInterval(check); reject(new Error('supabase-js timeout')); }
+    }, 100);
+  });
 }
 
 // ── State ──
@@ -10535,7 +10558,7 @@ let chatChannel      = null;
 let tradeChannel     = null;
 let pvpChannel       = null;
 let presenceChannel  = null;
-let chatInited       = false;
+// chatInited removed — channel.state check used instead
 let activePvpBattleId = null;
 let tradeOfferCard   = null;   // { offer: cardId, want: cardId }
 let tradeTargetId    = null;
@@ -10559,67 +10582,87 @@ function switchSocialTab(tab, btn){
 // CHAT SYSTEM
 // ══════════════════════════════════════════════
 async function initChat(){
+  // Reset lock so we can retry on CHANNEL_ERROR
   const rt = getSupaRT();
-  if(!rt){ console.error('[MP] Supabase RT client failed to init'); return; }
+  if(!rt){ console.error('[MP] supabase-js not ready'); return; }
 
-  // Resubscribe if channel dropped
-  if(chatInited && chatChannel) return;
-  chatInited = true;
+  // Only skip if channel is healthy
+  if(chatChannel && chatChannel.state === 'joined') return;
 
   const feed = document.getElementById('chatFeed');
-  if(feed) feed.innerHTML = '<div style="text-align:center;color:var(--text-dim);font-style:italic;font-size:0.85em;padding:20px;" data-placeholder>✦ Loading chat... ✦</div>';
+  if(feed) feed.innerHTML = '<div style="text-align:center;color:var(--text-dim);font-style:italic;font-size:0.85em;padding:20px;">✦ Loading chat... ✦</div>';
 
-  // 1. Load last 60 messages via REST (bypasses RLS issues with anon key)
+  // 1. Load history via REST
   try {
     const res = await fetch(
       `${SUPABASE_URL}/rest/v1/chat_messages?order=created_at.desc&limit=60`,
       { headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY } }
     );
-    if(!res.ok){ const err = await res.json().catch(()=>{}); console.error('[MP] Chat load HTTP error', res.status, err);
-      chatDebugError(`Load failed (${res.status}): ${err?.message||err?.hint||'check Supabase RLS / table exists'}`);
+    if(!res.ok){
+      const err = await res.json().catch(()=>({}));
+      console.error('[MP] Chat load HTTP error', res.status, err);
+      if(feed) feed.innerHTML = `<div style="text-align:center;color:var(--text-dim);font-style:italic;font-size:0.85em;padding:30px;">⚠️ Chat unavailable (${res.status})</div>`;
+      return;
     }
-    const data = res.ok ? await res.json() : [];
-    const history = (data || []).reverse();
+    const data = await res.json();
+    const history = (Array.isArray(data) ? data : []).reverse();
     if(feed) feed.innerHTML = '';
     if(!history.length){
-      if(feed) feed.innerHTML = '<div style="text-align:center;color:var(--text-dim);font-style:italic;font-size:0.85em;padding:30px;" data-placeholder>✦ No messages yet. Say hello! ✦</div>';
+      if(feed) feed.innerHTML = '<div style="text-align:center;color:var(--text-dim);font-style:italic;font-size:0.85em;padding:30px;">✦ No messages yet. Say hello! ✦</div>';
     }
     history.forEach(msg => renderChatMsg(msg));
     scrollChatToBottom();
-  } catch(e){ console.warn('[MP] Chat load error', e); }
+  } catch(e){
+    console.warn('[MP] Chat load error', e);
+    if(feed) feed.innerHTML = `<div style="text-align:center;color:var(--text-dim);font-style:italic;font-size:0.85em;padding:30px;">
+      ⚠️ Could not load chat<br>
+      <span style="font-size:0.8em;opacity:0.6;">${escapeHtml(e.message||String(e))}</span><br>
+      <button onclick="initChat()" style="margin-top:10px;background:var(--surface);border:1px solid var(--border);color:var(--text);border-radius:10px;padding:6px 16px;cursor:pointer;font-size:0.85em;">↺ Retry</button>
+    </div>`;
+  }
 
-  // 2. Subscribe to new messages via Realtime
-  if(chatChannel){ try{ rt.removeChannel(chatChannel); }catch(e){} }
-  chatChannel = rt.channel('public-chat')
-    .on('postgres_changes', {
-      event: 'INSERT', schema: 'public', table: 'chat_messages'
-    }, payload => {
-      renderChatMsg(payload.new);
-      scrollChatToBottom();
-    })
-    .subscribe((status, err) => {
-      console.log('[MP] Chat channel status:', status, err||'');
-    });
+  // 2. Realtime subscription — rebuild if dropped
+  try {
+    if(chatChannel){ try{ await rt.removeChannel(chatChannel); }catch(e){} chatChannel = null; }
+    chatChannel = rt.channel('public-chat', { config: { broadcast: { self: false } } })
+      .on('postgres_changes', {
+        event: 'INSERT', schema: 'public', table: 'chat_messages'
+      }, payload => {
+        renderChatMsg(payload.new);
+        scrollChatToBottom();
+      })
+      .subscribe((status, err) => {
+        console.log('[MP] Chat channel status:', status, err||'');
+        if(status === 'CHANNEL_ERROR' || status === 'TIMED_OUT'){
+          // Auto-retry after 3s
+          chatChannel = null;
+          setTimeout(()=>{ if(document.getElementById('socialTab-chat')?.style.display !== 'none') initChat(); }, 3000);
+        }
+      });
+  } catch(e){ console.warn('[MP] Realtime subscribe error', e); }
 
-  // 3. Presence — who's online
-  presenceChannel = rt.channel('online-users');
-  presenceChannel
-    .on('presence', { event: 'sync' }, () => {
-      const state_obj = presenceChannel.presenceState();
-      const count = Object.keys(state_obj).length;
-      const el = document.getElementById('onlineCount');
-      if(el) el.textContent = count + ' online';
-    })
-    .subscribe(async (status) => {
-      if(status !== 'SUBSCRIBED') return;
-      if(state.discordId && !state.isGuest){
-        await presenceChannel.track({
-          discord_id: state.discordId,
-          username:   state.username || 'Summoner',
-          avatar:     state.avatar   || ''
-        });
-      }
-    });
+  // 3. Presence
+  try {
+    if(presenceChannel){ try{ await rt.removeChannel(presenceChannel); }catch(e){} }
+    presenceChannel = rt.channel('online-users');
+    presenceChannel
+      .on('presence', { event: 'sync' }, () => {
+        const state_obj = presenceChannel.presenceState();
+        const count = Object.keys(state_obj).length;
+        const el = document.getElementById('onlineCount');
+        if(el) el.textContent = count + ' online';
+      })
+      .subscribe(async (status) => {
+        if(status !== 'SUBSCRIBED') return;
+        if(state.discordId && !state.isGuest){
+          await presenceChannel.track({
+            discord_id: state.discordId,
+            username:   state.username || 'Summoner',
+            avatar:     state.avatar   || ''
+          });
+        }
+      });
+  } catch(e){ console.warn('[MP] Presence error', e); }
 
   // 4. Listen for incoming trades
   if(state.discordId && !state.isGuest) listenForTrades();
@@ -12024,29 +12067,26 @@ async function loadLeaderboard(type='pvp'){
   if(!list) return;
   list.innerHTML = '<div style="color:var(--text-dim);font-style:italic;text-align:center;padding:20px;">Loading... ✦</div>';
   try {
-    // Fetch players — is_public may be null on old rows so we just fetch all and show top 50
-    let url, res, rows = [];
+    await waitForSupabase(4000);
+    const hdrs = { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY };
+    let rows = [];
 
-    if(type === 'pvp'){
-      url = `${SUPABASE_URL}/rest/v1/players?select=discord_id,username,avatar,pvp_wins,pvp_losses,equipped_card&order=pvp_wins.desc&limit=50`;
-    } else {
-      // For card count we need to count from collection table grouped by discord_id
-      url = `${SUPABASE_URL}/rest/v1/players?select=discord_id,username,avatar,pvp_wins,pvp_losses,equipped_card&order=pvp_wins.desc&limit=200`;
+    const pvpUrl = `${SUPABASE_URL}/rest/v1/players?select=discord_id,username,avatar,pvp_wins,pvp_losses,equipped_card&order=pvp_wins.desc&limit=50`;
+    const allUrl = `${SUPABASE_URL}/rest/v1/players?select=discord_id,username,avatar,pvp_wins,pvp_losses,equipped_card&limit=200`;
+    const res = await fetch(type === 'pvp' ? pvpUrl : allUrl, { headers: hdrs });
+
+    if(!res.ok){
+      const err = await res.json().catch(()=>({}));
+      throw new Error(`HTTP ${res.status}: ${err?.message||err?.hint||'check table exists'}`);
     }
-
-    res = await fetch(url, {
-      headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }
-    });
-    rows = res.ok ? await res.json() : [];
-    rows = rows || [];
+    rows = (await res.json()) || [];
 
     if(type === 'cards'){
-      // Fetch collection counts
       const collRes = await fetch(
         `${SUPABASE_URL}/rest/v1/collection?select=discord_id`,
-        { headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY } }
+        { headers: hdrs }
       );
-      const collRows = collRes.ok ? await collRes.json() : [];
+      const collRows = collRes.ok ? (await collRes.json()) : [];
       const countMap = {};
       (collRows||[]).forEach(r=>{ countMap[r.discord_id] = (countMap[r.discord_id]||0)+1; });
       rows = rows.map(r=>({ ...r, _cardCount: countMap[r.discord_id]||0 }))
@@ -12063,7 +12103,7 @@ async function loadLeaderboard(type='pvp'){
       const rankClass = i===0?'gold':i===1?'silver':i===2?'bronze':'';
       const rankLabel = i===0?'🥇':i===1?'🥈':i===2?'🥉':`#${i+1}`;
       const statVal   = type==='pvp'
-        ? `${p.pvp_wins||0} wins`
+        ? `${p.pvp_wins||0}W / ${p.pvp_losses||0}L`
         : `${p._cardCount||0} cards`;
       const equip = (window.DEMO_CARDS||[]).find(c=>c.id===p.equipped_card);
       const row   = document.createElement('div');
@@ -12081,7 +12121,11 @@ async function loadLeaderboard(type='pvp'){
     });
   } catch(e){
     console.error('[MP] Leaderboard error', e);
-    list.innerHTML = '<div style="color:var(--text-dim);font-style:italic;text-align:center;padding:20px;">Error loading leaderboard</div>';
+    list.innerHTML = `<div style="color:var(--text-dim);font-style:italic;text-align:center;padding:20px;">
+      ⚠️ Could not load leaderboard<br>
+      <span style="font-size:0.8em;opacity:0.7;">${escapeHtml(e.message||String(e))}</span><br>
+      <button onclick="loadLeaderboard('pvp')" style="margin-top:10px;background:var(--surface);border:1px solid var(--border);color:var(--text);border-radius:10px;padding:6px 16px;cursor:pointer;font-size:0.85em;">↺ Retry</button>
+    </div>`;
   }
 }
 
@@ -12091,17 +12135,7 @@ function openCardById(cardId){
   if(card && typeof openCard === 'function') openCard(card.id);
 }
 
-// ── Patch: also add pvp_wins / pvp_losses to state when loading player ──
-const _origLoadPlayer = loadPlayer;
-window.loadPlayer = async function(discordId){
-  await _origLoadPlayer(discordId);
-  // pvp stats (already in players table after migration)
-  const rows = await sb.get('players',{discord_id:discordId});
-  if(rows && rows[0]){
-    state.pvpWins   = rows[0].pvp_wins   || 0;
-    state.pvpLosses = rows[0].pvp_losses || 0;
-  }
-};
+// pvp_wins / pvp_losses now loaded in loadPlayer directly
 
 </script>
 
