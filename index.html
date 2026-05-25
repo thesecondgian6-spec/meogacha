@@ -12771,6 +12771,7 @@ async function submitSkinForm(){
   };
 
   const btn = document.getElementById('skinFormSubmitBtn');
+  const isEdit = !!(document.getElementById('skinEditId')?.value);
   if(btn){ btn.textContent = 'Saving...'; btn.disabled = true; }
 
   try {
@@ -12779,20 +12780,40 @@ async function submitSkinForm(){
     if(editId){
       ok = await sb.update('card_skins', skinData, { id: editId });
     } else {
-      ok = await sb.insert('card_skins', skinData);
+      // Use upsert so conflict on id doesn't silently fail
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/card_skins`,{
+        method:'POST',
+        headers:{
+          'apikey':SUPABASE_KEY,
+          'Authorization':'Bearer '+SUPABASE_KEY,
+          'Content-Type':'application/json',
+          'Prefer':'return=minimal'
+        },
+        body:JSON.stringify(skinData)
+      });
+      if(!res.ok){
+        const errBody = await res.json().catch(()=>null);
+        const detail = errBody?.message || errBody?.hint || errBody?.code || `HTTP ${res.status}`;
+        showToast(`❌ DB error: ${detail}`);
+        console.error('[skin insert]', errBody);
+        if(btn){ btn.textContent = isEdit ? '💾 Save Changes' : '🎨 Create Skin'; btn.disabled = false; }
+        return;
+      }
+      ok = true;
     }
-    if(ok !== false){
+    if(ok){
       showToast(`✅ Skin "${name}" saved!`);
       cancelSkinEdit();
       await loadAdminSkinList();
-      await loadSkins(); // refresh global cache
+      await loadSkins();
       renderCollection();
     } else {
-      showToast('❌ Save failed');
+      // sb.update returned false — sbLog already showed the DB error toast
+      // just re-enable button; don't show a second vague toast
     }
   } catch(e){ showToast('❌ Error: ' + e.message); }
 
-  if(btn){ btn.textContent = '🎨 Create Skin'; btn.disabled = false; }
+  if(btn){ btn.textContent = isEdit ? '💾 Save Changes' : '🎨 Create Skin'; btn.disabled = false; }
 }
 
 // ── Admin: edit skin ──
