@@ -185,11 +185,11 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .card-thumb-lvl{position:absolute;bottom:44px;left:8px;background:rgba(0,0,0,0.75);border-radius:6px;padding:2px 8px;font-size:0.7em;font-family:'JetBrains Mono',monospace;color:#f1c40f;backdrop-filter:blur(4px);}
 #cardModal{position:fixed;inset:0;z-index:300;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.85);backdrop-filter:blur(6px);padding:20px;}
 #cardModal.active{display:flex;}
-.modal-box{background:linear-gradient(135deg,var(--bg2),var(--bg3));border:1px solid var(--border);border-radius:24px;max-width:560px;width:100%;max-height:90vh;overflow:visible;animation:modalIn 0.3s cubic-bezier(0.34,1.56,0.64,1);position:relative;}
+.modal-box{background:linear-gradient(135deg,var(--bg2),var(--bg3));border:1px solid var(--border);border-radius:24px;max-width:560px;width:100%;max-height:90vh;overflow:hidden;display:flex;flex-direction:column;animation:modalIn 0.3s cubic-bezier(0.34,1.56,0.64,1);position:relative;}
 .modal-box-scroll{overflow-y:auto;max-height:90vh;border-radius:24px;}
 @keyframes modalIn{from{transform:scale(0.9);opacity:0;}to{transform:scale(1);opacity:1;}}
-.modal-art{width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:20px 20px 0 0;}
-.modal-body{padding:24px;}
+.modal-art{width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:20px 20px 0 0;flex-shrink:0;}
+.modal-body{padding:24px;overflow-y:auto;flex:1;}.modal-body{padding:24px;}
 .modal-rarity{font-size:0.82em;font-family:'JetBrains Mono',monospace;margin-bottom:4px;}
 .modal-name{font-family:'Cinzel Decorative',serif;font-size:1.5em;margin-bottom:4px;}
 .modal-series{font-style:italic;color:var(--text-dim);margin-bottom:16px;}
@@ -525,9 +525,21 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 
   /* ── Modals ── */
   .modal-box { max-height: 95vh; border-radius: 16px; }
+  .modal-body { padding: 16px; }
+  .modal-art { aspect-ratio: 16/10; }
+  .modal-actions { padding: 12px 16px 16px !important; gap: 8px; }
+  .modal-actions .btn-primary,
+  .modal-actions .btn-secondary { flex: 1; padding: 10px 8px; font-size: 0.82em; }
   .profile-edit-box { max-height: 95vh; border-radius: 16px; padding: 20px 16px; }
   .pool-modal-box { padding: 16px; }
   .pool-grid { grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 8px; }
+
+  /* ── Skin banner on mobile ── */
+  .skin-cards-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; }
+  .skin-card-item { max-width: none; border-radius: 12px; }
+  .skin-card-body { padding: 8px 10px 10px; }
+  .skin-card-name { font-size: 0.72em; }
+  .skin-card-btn { font-size: 0.65em; padding: 7px 6px; }
 
   /* ── Admin ── */
   .admin-grid { grid-template-columns: 1fr 1fr; }
@@ -2979,8 +2991,8 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .skin-banner-header{text-align:center;padding:12px 0 20px;}
 .skin-banner-title{font-family:'Cinzel Decorative',serif;font-size:1.4em;background:linear-gradient(135deg,#c084b8,#9b59b6,#c084b8);background-size:300%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:shimmer 5s linear infinite;margin-bottom:6px;}
 .skin-banner-desc{color:var(--text-dim);font-style:italic;font-size:0.88em;}
-.skin-cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:18px;margin-top:8px;}
-.skin-card-item{background:var(--surface);border:1px solid var(--border);border-radius:18px;overflow:hidden;position:relative;transition:all 0.25s;cursor:pointer;}
+.skin-cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:14px;margin-top:8px;}
+.skin-card-item{background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden;position:relative;transition:all 0.25s;cursor:pointer;max-width:240px;}
 .skin-card-item:hover{transform:translateY(-4px);box-shadow:0 12px 32px rgba(155,89,182,0.25);}
 .skin-card-item.owned-skin{border-color:rgba(155,89,182,0.5);background:rgba(155,89,182,0.06);}
 .skin-card-item.equipped-skin{border-color:#f1c40f;background:rgba(241,196,15,0.06);box-shadow:0 0 20px rgba(241,196,15,0.15);}
@@ -3809,11 +3821,12 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
           </div>
           <div class="xp-track"><div class="xp-fill" id="modalXpFill" style="width:0%"></div></div>
         </div>
-        <div class="modal-actions">
-          <button class="btn-primary" onclick="closeModal()">Close</button>
-          <button class="btn-secondary" id="modalEquipBtn" onclick="equipCard()">⚔️ Equip</button>
-          <button class="btn-secondary" id="modalCutsceneBtn" style="display:none;" onclick="viewCardCutscene(openCardId)">🎬 Cutscene</button>
-        </div>
+      </div>
+      <!-- Pinned action bar — always visible at the bottom -->
+      <div class="modal-actions" style="padding:14px 24px 20px;border-top:1px solid var(--border);background:linear-gradient(135deg,var(--bg2),var(--bg3));border-radius:0 0 24px 24px;flex-shrink:0;">
+        <button class="btn-primary" onclick="closeModal()">Close</button>
+        <button class="btn-secondary" id="modalEquipBtn" onclick="equipCard()">⚔️ Equip</button>
+        <button class="btn-secondary" id="modalCutsceneBtn" style="display:none;" onclick="viewCardCutscene(openCardId)">🎬 Cutscene</button>
       </div>
     </div>
   </div>
@@ -6311,7 +6324,7 @@ function updateProfile(){
     if(c){
       const color=RARITY_COLORS[c.rarity]||'#bdc3c7';
       const xp=state.xpMap[c.id]||0;
-      ep.innerHTML=`<img class="equipped-thumb" src="${c.image}" alt="${c.name}" style="border-color:${color}"/>
+      ep.innerHTML=`<img class="equipped-thumb" src="${getCardThumbnail(c)}" alt="${c.name}" style="border-color:${color}"/>
         <div class="equipped-info">
           <div class="equipped-name">${c.name}</div>
           <div class="equipped-rarity" style="color:${color}">${c.rarityStars} ${c.rarityName}</div>
@@ -6336,7 +6349,7 @@ function updateHomeSpotlight(){
     const color=RARITY_COLORS[c.rarity]||'#bdc3c7';
     const xp=state.xpMap[c.id]||0;
     return `<div style="text-align:center;cursor:pointer;" onclick="openCard('${c.id}')">
-      <img src="${c.thumbnail||c.image}" alt="${c.name}"
+      <img src="${getCardThumbnail(c)}" alt="${c.name}"
         style="width:72px;height:100px;object-fit:cover;border-radius:10px;border:2px solid ${color};box-shadow:0 0 14px ${color}44;display:block;margin:0 auto 6px;"/>
       <div style="font-size:0.7em;font-family:'Cinzel Decorative',serif;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:80px;">${c.name}</div>
       <div style="font-size:0.65em;color:${color};margin-top:2px;">Lv.${calcLevel(xp)}</div>
@@ -11016,7 +11029,7 @@ function renderChatMsg(msg){
     if(card){
       contentHtml += `
         <div class="chat-flex-card" onclick="openCardById('${card.id}')">
-          <img class="flex-thumb" src="${card.thumbnail||card.image}"
+          <img class="flex-thumb" src="${getCardThumbnail(card)}"
             onerror="this.style.display='none'"/>
           <div>
             <div class="flex-name">${escapeHtml(card.name)}</div>
@@ -11106,7 +11119,7 @@ function openFlexPicker(){
       const div = document.createElement('div');
       div.className = 'card-thumb';
       div.innerHTML = `
-        <img src="${card.thumbnail||card.image}" loading="lazy"
+        <img src="${getCardThumbnail(card)}" loading="lazy"
           onerror="this.src='https://placehold.co/150x200/1c0f26/ff9dc7?text=?'"/>
         <div class="card-thumb-info">
           <div class="card-thumb-name">${escapeHtml(card.name)}</div>
