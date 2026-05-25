@@ -220,15 +220,132 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .equipped-name{font-weight:600;margin-bottom:2px;}
 .equipped-rarity{font-size:0.8em;color:var(--text-dim);}
 .equipped-lvl{font-family:'JetBrains Mono',monospace;font-size:0.75em;color:var(--gold);margin-top:4px;}
-.shop-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;}
-.shop-item{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:18px;transition:all 0.25s;cursor:pointer;}
-.shop-item:hover{border-color:rgba(255,157,199,0.4);transform:translateY(-2px);}
-.shop-emoji{font-size:2em;margin-bottom:10px;}
-.shop-name{font-weight:600;margin-bottom:4px;}
-.shop-desc{font-size:0.82em;color:var(--text-dim);line-height:1.5;margin-bottom:14px;}
-.shop-price{font-family:'JetBrains Mono',monospace;font-size:0.88em;color:#f1c40f;display:flex;align-items:center;gap:4px;}
-.shop-buy{margin-top:10px;width:100%;padding:8px;border-radius:20px;background:linear-gradient(135deg,var(--pink-deep),var(--purple));border:none;color:#fff;font-family:'Cormorant Garamond',serif;font-size:0.9em;cursor:pointer;transition:all 0.2s;}
-.shop-buy:hover{opacity:0.85;}
+/* ══ REDESIGNED SHOP ══ */
+.shop-page-header{
+  display:flex;align-items:flex-start;justify-content:space-between;
+  gap:16px;margin-bottom:24px;flex-wrap:wrap;
+}
+.shop-page-title{
+  font-family:'Cinzel Decorative',serif;font-size:1.4em;
+  background:linear-gradient(135deg,var(--pink),var(--purple));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  margin-bottom:4px;
+}
+.shop-page-subtitle{ font-size:0.85em;color:var(--text-dim);font-style:italic; }
+.shop-wallet{
+  background:rgba(241,196,15,0.08);border:1px solid rgba(241,196,15,0.25);
+  border-radius:14px;padding:10px 18px;text-align:right;flex-shrink:0;
+}
+.shop-wallet-label{ font-size:0.7em;color:rgba(241,196,15,0.6);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:2px; }
+.shop-wallet-amount{ font-family:'JetBrains Mono',monospace;font-size:1.1em;color:#f1c40f;font-weight:700; }
+.shop-cat-tabs{
+  display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px;
+  padding:12px;
+  background:rgba(255,157,199,0.04);
+  border:1px solid var(--border);border-radius:16px;
+}
+.shop-cat-btn{
+  display:flex;align-items:center;gap:6px;
+  background:transparent;border:1px solid transparent;
+  border-radius:20px;padding:7px 14px;
+  font-family:'Cormorant Garamond',serif;font-size:0.88em;
+  cursor:pointer;transition:all 0.2s;color:var(--text-dim);white-space:nowrap;
+}
+.shop-cat-btn .sct-icon{ font-size:1em; }
+.shop-cat-btn .sct-label{ font-size:0.9em; }
+.shop-cat-btn:hover{ background:rgba(255,157,199,0.08);color:var(--text);border-color:var(--border); }
+.shop-cat-btn.active{
+  background:rgba(255,157,199,0.12);border-color:var(--pink);color:var(--pink);
+}
+.active-boosts-bar{
+  display:flex;align-items:center;gap:10px;
+  background:rgba(93,173,226,0.08);border:1px solid rgba(93,173,226,0.25);
+  border-radius:12px;padding:10px 16px;margin-bottom:16px;
+  font-size:0.82em;color:#5dade2;font-family:'JetBrains Mono',monospace;
+}
+.ab-icon{ font-size:1.1em; }
+.shop-items-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+  gap:14px;
+}
+.shop-new-item{
+  background:linear-gradient(135deg,var(--bg2),var(--bg3));
+  border:1px solid var(--item-border, var(--border));
+  border-radius:18px;overflow:hidden;
+  transition:all 0.25s;display:flex;flex-direction:column;
+  position:relative;
+}
+.shop-new-item:hover{
+  transform:translateY(-3px);
+  box-shadow:0 8px 28px rgba(0,0,0,0.3),0 0 0 1px var(--item-accent);
+  border-color:var(--item-accent);
+}
+.shop-item-thumb-wrap{
+  position:relative;height:120px;overflow:hidden;
+  background:var(--item-bg, rgba(255,157,199,0.06));
+  display:flex;align-items:center;justify-content:center;
+}
+.shop-item-thumb{
+  width:100%;height:100%;object-fit:cover;
+  transition:transform 0.4s ease;
+}
+.shop-new-item:hover .shop-item-thumb{ transform:scale(1.05); }
+.shop-item-emoji-big{
+  font-size:3.5em;
+  filter:drop-shadow(0 2px 8px rgba(0,0,0,0.4));
+}
+.shop-item-status{
+  position:absolute;top:8px;right:8px;
+  border-radius:20px;padding:3px 10px;font-size:0.68em;
+  font-family:'JetBrains Mono',monospace;backdrop-filter:blur(6px);
+  font-weight:700;letter-spacing:0.04em;
+}
+.owned-status{ background:rgba(46,204,113,0.18);border:1px solid rgba(46,204,113,0.35);color:#2ecc71; }
+.active-status{ background:rgba(93,173,226,0.18);border:1px solid rgba(93,173,226,0.35);color:#5dade2; }
+.shop-item-content{ padding:14px;display:flex;flex-direction:column;gap:8px;flex:1; }
+.shop-type-badge{
+  display:inline-flex;align-items:center;gap:5px;
+  border-radius:20px;padding:3px 10px;font-size:0.68em;
+  font-family:'JetBrains Mono',monospace;letter-spacing:0.04em;
+  width:fit-content;
+}
+.shop-item-name{
+  font-family:'Cinzel Decorative',serif;font-size:0.82em;
+  color:var(--text);line-height:1.3;
+}
+.shop-item-desc{
+  font-size:0.8em;color:var(--text-dim);line-height:1.55;
+  font-style:italic;flex:1;
+}
+.shop-item-footer{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:8px;margin-top:4px;flex-wrap:wrap;
+}
+.shop-item-price{
+  display:flex;align-items:center;gap:4px;
+  font-family:'JetBrains Mono',monospace;
+}
+.shop-price-coin{ font-size:1em; }
+.shop-price-num{ font-size:1.05em;color:#f1c40f;font-weight:700; }
+.shop-new-buy-btn{
+  background:linear-gradient(135deg,var(--pink-deep),var(--purple));
+  border:none;color:#fff;padding:8px 14px;border-radius:20px;
+  font-family:'Cormorant Garamond',serif;font-size:0.82em;
+  cursor:pointer;transition:all 0.2s;white-space:nowrap;
+  flex-shrink:0;
+}
+.shop-new-buy-btn:hover:not(:disabled){ transform:translateY(-1px);opacity:0.9; }
+.shop-new-buy-btn.disabled, .shop-new-buy-btn:disabled{
+  background:rgba(255,255,255,0.07);color:var(--text-dim);cursor:not-allowed;
+  border:1px solid var(--border);
+}
+@media(max-width:480px){
+  .shop-items-grid{ grid-template-columns:1fr; }
+  .shop-cat-tabs{ gap:5px; }
+  .shop-cat-btn .sct-label{ display:none; }
+  .shop-cat-btn{ padding:8px 10px; }
+}
 #toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:10px 24px;font-size:0.9em;z-index:500;transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1);white-space:nowrap;}
 #toast.show{transform:translateX(-50%) translateY(0);}
 #loginOverlay{position:fixed;inset:0;z-index:400;display:flex;align-items:center;justify-content:center;background:rgba(13,6,16,0.97);backdrop-filter:blur(20px);}
@@ -4023,8 +4140,59 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 
   <!-- SHOP -->
   <div class="page" id="page-shop">
-    <div class="section-title">Meo Shop</div>
-    <div class="shop-grid" id="shopGrid"></div>
+    <div class="shop-page-header">
+      <div class="shop-header-left">
+        <div class="shop-page-title">✦ Meo Shop</div>
+        <div class="shop-page-subtitle">Spend your coins on upgrades, cosmetics & more</div>
+      </div>
+      <div class="shop-wallet">
+        <div class="shop-wallet-label">Your Balance</div>
+        <div class="shop-wallet-amount">🪙 <span id="shopCoinDisplay">0</span></div>
+      </div>
+    </div>
+
+    <!-- Category Filter Tabs -->
+    <div class="shop-cat-tabs" id="shopCatTabs">
+      <button class="shop-cat-btn active" data-cat="all" onclick="filterShop('all',this)">
+        <span class="sct-icon">🏪</span><span class="sct-label">All</span>
+      </button>
+      <button class="shop-cat-btn" data-cat="coinboost" onclick="filterShop('coinboost',this)">
+        <span class="sct-icon">🪙</span><span class="sct-label">Coin Boosts</span>
+      </button>
+      <button class="shop-cat-btn" data-cat="xpboost" onclick="filterShop('xpboost',this)">
+        <span class="sct-icon">⚡</span><span class="sct-label">XP Boosts</span>
+      </button>
+      <button class="shop-cat-btn" data-cat="xp" onclick="filterShop('xp',this)">
+        <span class="sct-icon">📦</span><span class="sct-label">Items</span>
+      </button>
+      <button class="shop-cat-btn" data-cat="card" onclick="filterShop('card',this)">
+        <span class="sct-icon">🃏</span><span class="sct-label">Cards</span>
+      </button>
+      <button class="shop-cat-btn" data-cat="title" onclick="filterShop('title',this)">
+        <span class="sct-icon">🎀</span><span class="sct-label">Titles</span>
+      </button>
+      <button class="shop-cat-btn" data-cat="skin" onclick="filterShop('skin',this)">
+        <span class="sct-icon">🎨</span><span class="sct-label">Skins</span>
+      </button>
+    </div>
+
+    <!-- Active Boosts Banner -->
+    <div id="activeBoostsBanner" style="display:none;" class="active-boosts-bar">
+      <span class="ab-icon">⚡</span>
+      <span id="activeBoostsText">Boosts active</span>
+    </div>
+
+    <!-- Shop Grid -->
+    <div class="shop-items-grid" id="shopGrid">
+      <div style="grid-column:1/-1;text-align:center;color:var(--text-dim);font-style:italic;padding:40px;">Loading shop... ✦</div>
+    </div>
+
+    <!-- Empty state -->
+    <div id="shopEmpty" style="display:none;text-align:center;padding:60px 20px;color:var(--text-dim);">
+      <div style="font-size:3em;margin-bottom:12px;">🏪</div>
+      <div style="font-style:italic;">No items in this category yet.</div>
+      <div style="font-size:0.8em;margin-top:6px;">Check back later or browse another category!</div>
+    </div>
   </div>
 
   <!-- PROFILE -->
@@ -4221,6 +4389,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
       <button class="filter-btn active" id="atab-cards" onclick="switchAdminTab('cards',this)">🎴 Card Manager</button>
       <button class="filter-btn" id="atab-banners" onclick="switchAdminTab('banners',this)">🏮 Banner Manager</button>
       <button class="filter-btn" id="atab-skins" onclick="switchAdminTab('skins',this)">🎨 Skin Manager</button>
+      <button class="filter-btn" id="atab-shop" onclick="switchAdminTab('shop',this)">🛍️ Shop Manager</button>
       <button class="filter-btn" id="atab-tools" onclick="switchAdminTab('tools',this)">🔧 Tools</button>
     </div>
 
@@ -4602,6 +4771,99 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
       </div>
     </div>
 
+    <!-- SHOP MANAGER TAB -->
+    <div id="adminTab-shop" style="display:none;">
+
+      <!-- Shop Item Form -->
+      <div class="admin-panel" id="shopItemFormPanel">
+        <h3 id="shopItemFormTitle" style="margin-bottom:16px;">🛍️ Add Shop Item</h3>
+        <input type="hidden" id="shopItemEditId"/>
+
+        <div class="admin-section-label">Item Info</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
+          <div>
+            <label class="admin-label">Item Name *</label>
+            <input class="admin-input" id="shopItemForm_name" placeholder="e.g. Summer Frieren Skin"/>
+          </div>
+          <div>
+            <label class="admin-label">Category / Type *</label>
+            <select class="admin-input" id="shopItemForm_type">
+              <option value="coinboost">🪙 Coin Boost</option>
+              <option value="xpboost">⚡ XP Boost</option>
+              <option value="xp">📦 XP Potion</option>
+              <option value="card">🃏 Card</option>
+              <option value="title">🎀 Title</option>
+              <option value="skin">🎨 Skin</option>
+            </select>
+          </div>
+          <div>
+            <label class="admin-label">Emoji / Icon</label>
+            <input class="admin-input" id="shopItemForm_emoji" placeholder="🪙" value="🎁"/>
+          </div>
+          <div>
+            <label class="admin-label">Price (coins) *</label>
+            <input class="admin-input" id="shopItemForm_price" type="number" value="300" min="0"/>
+          </div>
+        </div>
+
+        <div style="margin-bottom:12px;">
+          <label class="admin-label">Description *</label>
+          <textarea class="admin-input" id="shopItemForm_desc" rows="2" placeholder="What does this item do?" style="resize:vertical;"></textarea>
+        </div>
+
+        <!-- Dynamic extra fields based on type -->
+        <div id="shopItemExtraFields">
+          <div class="admin-section-label" style="margin-top:8px;">Item Data <span class="admin-hint">(depends on type)</span></div>
+          <div style="margin-bottom:10px;" id="shopItemField_cardId" style="display:none;">
+            <label class="admin-label">Card ID <span class="admin-hint">(for card type — the card's id)</span></label>
+            <input class="admin-input" id="shopItemForm_cardId" placeholder="e.g. deku"/>
+          </div>
+          <div style="margin-bottom:10px;" id="shopItemField_skinId">
+            <label class="admin-label">Skin ID <span class="admin-hint">(for skin type — id from card_skins table)</span></label>
+            <input class="admin-input" id="shopItemForm_skinId" placeholder="Leave blank or paste skin UUID"/>
+          </div>
+          <div style="margin-bottom:10px;" id="shopItemField_titleText">
+            <label class="admin-label">Title Text <span class="admin-hint">(for title type — what appears on profile)</span></label>
+            <input class="admin-input" id="shopItemForm_titleText" placeholder="e.g. ✦ Shop Veteran ✦"/>
+          </div>
+          <div style="margin-bottom:10px;" id="shopItemField_boostDuration">
+            <label class="admin-label">Boost Duration (hours) <span class="admin-hint">(for boost types)</span></label>
+            <input class="admin-input" id="shopItemForm_boostDuration" type="number" value="1" min="1" max="168"/>
+          </div>
+          <div style="margin-bottom:10px;" id="shopItemField_xpAmount">
+            <label class="admin-label">XP Amount <span class="admin-hint">(for xp potion type)</span></label>
+            <input class="admin-input" id="shopItemForm_xpAmount" type="number" value="100" min="1"/>
+          </div>
+          <div style="margin-bottom:10px;" id="shopItemField_imageUrl">
+            <label class="admin-label">Item Image URL <span class="admin-hint">(optional — for skins/cards displayed in shop)</span></label>
+            <input class="admin-input" id="shopItemForm_imageUrl" placeholder="https://..."/>
+          </div>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
+          <input type="checkbox" id="shopItemForm_enabled" checked/>
+          <label style="font-size:0.85em;color:var(--text-dim);cursor:pointer;" for="shopItemForm_enabled">Visible in shop</label>
+        </div>
+
+        <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;">
+          <button class="admin-btn" id="shopItemFormSubmitBtn" onclick="submitShopItemForm()"
+            style="background:linear-gradient(135deg,var(--pink-deep),var(--purple));color:#fff;flex:1;">🛍️ Add Item</button>
+          <button class="admin-btn" id="shopItemFormCancelBtn" onclick="cancelShopItemEdit()" style="display:none;">✕ Cancel</button>
+        </div>
+      </div>
+
+      <!-- Shop Item List -->
+      <div class="admin-panel" style="margin-top:16px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;gap:8px;flex-wrap:wrap;">
+          <h3 style="margin:0;">🛍️ Shop Items <span id="adminShopItemCount" style="font-size:0.8em;color:var(--text-dim);font-family:'JetBrains Mono',monospace;"></span></h3>
+          <button class="admin-btn" onclick="loadAdminShopItems()" style="padding:6px 12px;font-size:0.82em;">🔄 Refresh</button>
+        </div>
+        <div id="adminShopItemList">
+          <div style="color:var(--text-dim);font-style:italic;font-size:0.85em;text-align:center;padding:20px;">Click 🔄 to load shop items</div>
+        </div>
+      </div>
+    </div>
+
     <!-- TOOLS TAB -->
     <div id="adminTab-tools" style="display:none;">
       <div class="admin-panel">
@@ -4872,15 +5134,295 @@ const DEMO_CARDS = [
   {id:'hakari',name:'Kinji Hakari',rarity:5,rarityName:'[UR]',rarityStars:'★★★★★',series:'Jujutsu Kaisen',quote:"Jackpot. My domain's on a winning streak — and luck? Luck doesn't run out.",desc:"Jujutsu Tech's most dangerous gambler. When his domain hits the jackpot, he becomes effectively immortal — an unstoppable force wrapped in a fever dream of pachinko and pure cursed energy.",image:'https://media1.tenor.com/m/YXN8SXrpWekAAAAC/hakari-kinji-hakari.gif',color:'#f1c40f',weight:5},
 ];
 
-const SHOP_ITEMS = [
-  {id:'boost_coin_s',emoji:'🪙',name:'Coin Boost (1h)',desc:'Double your pull and activity coin rewards for 1 hour.',price:150,type:'coinboost'},
-  {id:'boost_coin_l',emoji:'🪙',name:'Coin Boost (6h)',desc:'Double your coin rewards for 6 hours. Best value!',price:600,type:'coinboost'},
-  {id:'boost_xp_s',emoji:'⚡',name:'XP Boost (1h)',desc:'Double XP earned from all activities for 1 hour.',price:150,type:'xpboost'},
-  {id:'boost_xp_l',emoji:'⚡',name:'XP Boost (6h)',desc:'Double XP for 6 hours. Max out your cards fast!',price:600,type:'xpboost'},
-  {id:'xp_small',emoji:'📦',name:'XP Potion (Small)',desc:'Instantly grants 100 XP to your equipped card.',price:200,type:'xp'},
-  {id:'xp_big',emoji:'📦',name:'XP Potion (Large)',desc:'Instantly grants 500 XP to your equipped card.',price:800,type:'xp'},
-  {id:'title_founding',emoji:'🎀',name:'Founding Member',desc:'Exclusive first-release title. Show your legacy.',price:800,type:'title'},
+// Shop items are now loaded from DB (shop_items table)
+// Fallback static items shown when DB has no items yet
+const DEFAULT_SHOP_ITEMS = [
+  {id:'boost_coin_s',emoji:'🪙',name:'Coin Boost (1h)',desc:'Double your coin rewards from activities for 1 hour.',price:150,type:'coinboost',boost_duration:1,enabled:true},
+  {id:'boost_coin_l',emoji:'🪙',name:'Coin Boost (6h)',desc:'Double your coin rewards for 6 hours. Best value!',price:600,type:'coinboost',boost_duration:6,enabled:true},
+  {id:'boost_xp_s',emoji:'⚡',name:'XP Boost (1h)',desc:'Double XP earned from all activities for 1 hour.',price:150,type:'xpboost',boost_duration:1,enabled:true},
+  {id:'boost_xp_l',emoji:'⚡',name:'XP Boost (6h)',desc:'Double XP for 6 hours. Max out your cards fast!',price:600,type:'xpboost',boost_duration:6,enabled:true},
+  {id:'xp_small',emoji:'📦',name:'XP Potion (Small)',desc:'Instantly grants 100 XP to your equipped card.',price:200,type:'xp',xp_amount:100,enabled:true},
+  {id:'xp_big',emoji:'📦',name:'XP Potion (Large)',desc:'Instantly grants 500 XP to your equipped card.',price:800,type:'xp',xp_amount:500,enabled:true},
 ];
+
+window.SHOP_DB_ITEMS = [];  // loaded from DB
+
+async function loadShopItems(){
+  try {
+    const rows = await sb.getAll('shop_items');
+    if(rows && rows.length){
+      window.SHOP_DB_ITEMS = rows.filter(r=>r.enabled!==false);
+    } else {
+      window.SHOP_DB_ITEMS = [];
+    }
+  } catch(e){
+    window.SHOP_DB_ITEMS = [];
+    console.warn('shop_items table not found — using defaults.', e);
+  }
+}
+
+function getShopItems(){
+  const items = window.SHOP_DB_ITEMS.length ? window.SHOP_DB_ITEMS : DEFAULT_SHOP_ITEMS;
+  return items.filter(i=>i.enabled!==false);
+}
+
+let _shopCurrentFilter = 'all';
+
+function filterShop(cat, btn){
+  _shopCurrentFilter = cat;
+  document.querySelectorAll('.shop-cat-btn').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  renderShopGrid();
+}
+
+function renderShop(){
+  // update coin display
+  const cd = document.getElementById('shopCoinDisplay');
+  if(cd) cd.textContent = (state.coins||0).toLocaleString();
+  // render active boosts bar
+  renderActiveBoostsBar();
+  renderShopGrid();
+}
+
+function renderActiveBoostsBar(){
+  const bar = document.getElementById('activeBoostsBanner');
+  const txt = document.getElementById('activeBoostsText');
+  if(!bar||!txt) return;
+  const now = Date.now();
+  const boosts = state.activeBoosts||{};
+  const active = [];
+  if(boosts.coinboost && boosts.coinboost > now){
+    const mins = Math.ceil((boosts.coinboost - now)/60000);
+    active.push(`🪙 Coin Boost (${mins}m left)`);
+  }
+  if(boosts.xpboost && boosts.xpboost > now){
+    const mins = Math.ceil((boosts.xpboost - now)/60000);
+    active.push(`⚡ XP Boost (${mins}m left)`);
+  }
+  if(active.length){
+    bar.style.display='flex';
+    txt.textContent = active.join('  ·  ');
+  } else {
+    bar.style.display='none';
+  }
+}
+
+function renderShopGrid(){
+  const grid = document.getElementById('shopGrid');
+  const empty = document.getElementById('shopEmpty');
+  if(!grid) return;
+
+  let items = getShopItems();
+  if(_shopCurrentFilter && _shopCurrentFilter !== 'all'){
+    items = items.filter(i=>i.type===_shopCurrentFilter);
+  }
+
+  if(!items.length){
+    grid.innerHTML='';
+    if(empty) empty.style.display='block';
+    return;
+  }
+  if(empty) empty.style.display='none';
+
+  // Group by category for display
+  const CAT_META = {
+    coinboost: { label:'Coin Boosts',   color:'#f1c40f',   accent:'rgba(241,196,15,0.12)',  border:'rgba(241,196,15,0.3)'  },
+    xpboost:   { label:'XP Boosts',     color:'#5dade2',   accent:'rgba(93,173,226,0.12)',  border:'rgba(93,173,226,0.3)'  },
+    xp:        { label:'XP Items',      color:'#9b59b6',   accent:'rgba(155,89,182,0.12)',  border:'rgba(155,89,182,0.3)'  },
+    card:      { label:'Cards',         color:'#2ecc71',   accent:'rgba(46,204,113,0.12)',  border:'rgba(46,204,113,0.3)'  },
+    title:     { label:'Titles',        color:'#ff9dc7',   accent:'rgba(255,157,199,0.12)', border:'rgba(255,157,199,0.3)' },
+    skin:      { label:'Card Skins',    color:'#c084b8',   accent:'rgba(192,132,184,0.12)', border:'rgba(192,132,184,0.3)' },
+  };
+
+  const now = Date.now();
+
+  grid.innerHTML = items.map(item=>{
+    const meta = CAT_META[item.type] || { label:'Item', color:'var(--pink)', accent:'rgba(255,157,199,0.08)', border:'var(--border)' };
+    const price = parseInt(item.price)||0;
+    const canAfford = state.coins >= price;
+
+    // determine owned/active state
+    let statusTag = '';
+    let btnLabel = `🛍️ Buy — 🪙 ${price.toLocaleString()}`;
+    let btnDisabled = !canAfford;
+    let btnClass = canAfford ? 'shop-new-buy-btn' : 'shop-new-buy-btn disabled';
+
+    if(item.type === 'coinboost' || item.type === 'xpboost'){
+      const activeKey = item.type;
+      if(state.activeBoosts && state.activeBoosts[activeKey] && state.activeBoosts[activeKey] > now){
+        const mins = Math.ceil((state.activeBoosts[activeKey] - now)/60000);
+        statusTag = `<div class="shop-item-status active-status">⚡ Active — ${mins}m left</div>`;
+      }
+    }
+    if(item.type === 'title'){
+      const titleText = item.title_text || item.name;
+      if((state.ownedTitles||[]).includes(titleText)){
+        statusTag = `<div class="shop-item-status owned-status">✦ Owned</div>`;
+        btnLabel = '✓ Owned';
+        btnDisabled = true;
+        btnClass = 'shop-new-buy-btn disabled';
+      }
+    }
+    if(item.type === 'skin' && item.skin_id){
+      if(window.PLAYER_SKINS && window.PLAYER_SKINS[item.skin_id]){
+        statusTag = `<div class="shop-item-status owned-status">🎨 Owned</div>`;
+        btnLabel = '✓ Owned';
+        btnDisabled = true;
+        btnClass = 'shop-new-buy-btn disabled';
+      }
+    }
+    if(item.type === 'card' && item.card_id){
+      const owned = state.collection && state.collection.includes(item.card_id);
+      if(owned){
+        statusTag = `<div class="shop-item-status owned-status">🃏 In Collection</div>`;
+      }
+    }
+
+    const thumbHtml = item.image_url
+      ? `<img class="shop-item-thumb" src="${escapeHtml(item.image_url)}" onerror="this.style.display='none'" alt=""/>`
+      : `<div class="shop-item-emoji-big">${item.emoji||'🎁'}</div>`;
+
+    const typeBadge = `<div class="shop-type-badge" style="background:${meta.accent};border:1px solid ${meta.border};color:${meta.color};">${item.emoji||'🎁'} ${meta.label}</div>`;
+
+    return `<div class="shop-new-item" style="--item-accent:${meta.color};--item-bg:${meta.accent};--item-border:${meta.border}">
+      <div class="shop-item-thumb-wrap">
+        ${thumbHtml}
+        ${statusTag}
+      </div>
+      <div class="shop-item-content">
+        ${typeBadge}
+        <div class="shop-item-name">${escapeHtml(item.name)}</div>
+        <div class="shop-item-desc">${escapeHtml(item.desc||item.description||'')}</div>
+        <div class="shop-item-footer">
+          <div class="shop-item-price">
+            <span class="shop-price-coin">🪙</span>
+            <span class="shop-price-num">${price.toLocaleString()}</span>
+          </div>
+          <button class="${btnClass}" ${btnDisabled?'disabled':''} onclick="buyShopItem(${JSON.stringify(JSON.stringify(item))})">
+            ${btnLabel}
+          </button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function buyShopItem(itemJson){
+  let item;
+  try { item = JSON.parse(itemJson); } catch(e){ showToast('❌ Item error'); return; }
+  const price = parseInt(item.price)||0;
+  if(state.coins < price){ showToast('Not enough coins! 🪙'); playErrorSound(); return; }
+
+  const now = Date.now();
+
+  if(item.type === 'title'){
+    const titleText = item.title_text || item.name;
+    if((state.ownedTitles||[]).includes(titleText)){
+      showToast('You already own this title!'); return;
+    }
+    if(!confirm(`Buy title "${titleText}" for ${price} 🪙?`)) return;
+    state.coins -= price; updateCoins();
+    if(!state.ownedTitles) state.ownedTitles = [];
+    state.ownedTitles.push(titleText);
+    showToast(`🎀 Title "${titleText}" unlocked!`);
+    playShopSound(); playCoinSound();
+    if(state.discordId&&!state.isGuest) await savePlayer();
+    if(state.isGuest) saveGuestState();
+    renderShop();
+    return;
+  }
+
+  if(item.type === 'skin' && item.skin_id){
+    await buySkin(item.skin_id);
+    renderShop();
+    return;
+  }
+
+  if(item.type === 'coinboost'){
+    const hours = parseInt(item.boost_duration)||1;
+    if(!confirm(`Activate Coin Boost ×2 for ${hours}h? Cost: ${price} 🪙`)) return;
+    state.coins -= price; updateCoins();
+    if(!state.activeBoosts) state.activeBoosts = {};
+    const existing = state.activeBoosts.coinboost || 0;
+    state.activeBoosts.coinboost = Math.max(now, existing) + hours * 3600000;
+    showToast(`🪙 Coin Boost ×2 active for ${hours}h!`);
+    playShopSound(); playCoinSound();
+    if(state.discordId&&!state.isGuest) await savePlayer();
+    if(state.isGuest) saveGuestState();
+    renderShop();
+    return;
+  }
+
+  if(item.type === 'xpboost'){
+    const hours = parseInt(item.boost_duration)||1;
+    if(!confirm(`Activate XP Boost ×2 for ${hours}h? Cost: ${price} 🪙`)) return;
+    state.coins -= price; updateCoins();
+    if(!state.activeBoosts) state.activeBoosts = {};
+    const existing = state.activeBoosts.xpboost || 0;
+    state.activeBoosts.xpboost = Math.max(now, existing) + hours * 3600000;
+    showToast(`⚡ XP Boost ×2 active for ${hours}h!`);
+    playShopSound(); playCoinSound();
+    if(state.discordId&&!state.isGuest) await savePlayer();
+    if(state.isGuest) saveGuestState();
+    renderShop();
+    return;
+  }
+
+  if(item.type === 'xp'){
+    const xpAmt = parseInt(item.xp_amount)||100;
+    if(!state.equippedId){ showToast('Equip a card first to use XP potions!'); return; }
+    const card = (window.DEMO_CARDS||[]).find(c=>c.id===state.equippedId);
+    if(!confirm(`Use XP Potion (+${xpAmt} XP to ${card?card.name:'your card'})? Cost: ${price} 🪙`)) return;
+    state.coins -= price; updateCoins();
+    state.xpMap[state.equippedId] = (state.xpMap[state.equippedId]||0) + xpAmt;
+    showToast(`📦 +${xpAmt} XP added to ${card?card.name:'your card'}!`);
+    playShopSound(); playCoinSound();
+    if(state.discordId&&!state.isGuest){
+      await saveXp(state.discordId, state.equippedId, state.xpMap[state.equippedId]);
+      await savePlayer();
+    }
+    if(state.isGuest) saveGuestState();
+    renderCollection();
+    renderShop();
+    return;
+  }
+
+  if(item.type === 'card' && item.card_id){
+    const card = (window.DEMO_CARDS||[]).find(c=>c.id===item.card_id);
+    const cardName = card ? card.name : item.card_id;
+    if(!confirm(`Buy card "${cardName}" for ${price} 🪙?`)) return;
+    state.coins -= price; updateCoins();
+    state.collection.push(item.card_id);
+    showToast(`🃏 "${cardName}" added to your collection!`);
+    playShopSound(); playCoinSound();
+    if(state.discordId&&!state.isGuest){
+      await saveCardToCollection(state.discordId, item.card_id);
+      await savePlayer();
+    }
+    if(state.isGuest) saveGuestState();
+    renderCollection();
+    renderShop();
+    return;
+  }
+
+  // Generic fallback
+  if(!confirm(`Buy "${item.name}" for ${price} 🪙?`)) return;
+  state.coins -= price; updateCoins();
+  showToast(`✨ ${item.name} purchased!`);
+  playShopSound(); playCoinSound();
+  if(state.discordId&&!state.isGuest) await savePlayer();
+  if(state.isGuest) saveGuestState();
+  renderShop();
+}
+
+// Legacy buyItem kept for backwards compat
+async function buyItem(id,name,price){
+  if(state.coins<price){showToast('Not enough coins! 🪙');return;}
+  state.coins-=price;updateCoins();
+  showToast(`✨ ${name} purchased!`); playShopSound(); playCoinSound();
+  if(state.discordId&&!state.isGuest)await savePlayer();
+  if(state.isGuest)saveGuestState();
+}
 
 const FLAVOURS = ['A card stirs...','Something stirs...','A quiet presence...','A formidable existence...','The air goes still...']; // legacy
 
@@ -4914,8 +5456,10 @@ let state = {
   totalPulls:   0,
   // profile customization
   bio:          'your local card hoarder 🌸',
-  title:        '✦ Founding Member ✦',
+  title:        '',
   bannerColor:  'linear-gradient(135deg,#e0608a,#c084b8)',
+  ownedTitles:  [],
+  activeBoosts: {},  // { coinboost: expireTimestamp, xpboost: expireTimestamp }
 };
 let currentFilter = 'all';
 let openCardId = null;
@@ -5861,6 +6405,8 @@ async function loadPlayer(discordId){
     state.displayName=p.username??'';
     state.pvpWins=p.pvp_wins??0;
     state.pvpLosses=p.pvp_losses??0;
+    try{ state.ownedTitles=p.owned_titles?JSON.parse(p.owned_titles):[]; }catch(e){ state.ownedTitles=[]; }
+    try{ state.activeBoosts=p.active_boosts?JSON.parse(p.active_boosts):{};} catch(e){ state.activeBoosts={}; }
   } else {
     await sb.upsert('players',{
       discord_id:discordId,username:state.username,avatar:state.avatar||'',
@@ -5910,6 +6456,8 @@ async function savePlayer(){
     profile_color:colorIdx,
     profile_thumbnail:state.customAvatar,
     profile_banner:state.bannerImage,
+    owned_titles:JSON.stringify(state.ownedTitles||[]),
+    active_boosts:JSON.stringify(state.activeBoosts||{}),
   });
 }
 async function saveCardToCollection(discordId,cardId){
@@ -5970,7 +6518,7 @@ async function loadCards(){
 
 async function loadAll(discordId){
   showLoadingOverlay(true);
-  await Promise.all([loadCards(), loadCardCutscenes(), loadPlayer(discordId), loadCollection(discordId), loadXpMap(discordId), loadSkins(), loadPlayerSkins()]);
+  await Promise.all([loadCards(), loadCardCutscenes(), loadPlayer(discordId), loadCollection(discordId), loadXpMap(discordId), loadSkins(), loadPlayerSkins(), loadShopItems()]);
   showLoadingOverlay(false);
   updateCoins();updatePity();updateProfile();renderCollection();renderShop();
   await loadActiveBanner();
@@ -6361,24 +6909,7 @@ function updateHomeSpotlight(){
 // ══════════════════════════════════════════════
 // SHOP
 // ══════════════════════════════════════════════
-function renderShop(){
-  document.getElementById('shopGrid').innerHTML=SHOP_ITEMS.map(item=>`
-    <div class="shop-item">
-      <div class="shop-emoji">${item.emoji}</div>
-      <div class="shop-name">${item.name}</div>
-      <div class="shop-desc">${item.desc}</div>
-      <div class="shop-price">🪙 ${item.price.toLocaleString()}</div>
-      <button class="shop-buy" onclick="buyItem('${item.id}','${item.name}',${item.price})">Purchase</button>
-    </div>
-  `).join('');
-}
-async function buyItem(id,name,price){
-  if(state.coins<price){showToast('Not enough coins! 🪙');return;}
-  state.coins-=price;updateCoins();
-  showToast(`✨ ${name} purchased!`); playShopSound(); playCoinSound();
-  if(state.discordId&&!state.isGuest)await savePlayer();
-  if(state.isGuest)saveGuestState();
-}
+// (shop functions replaced by new dynamic shop system above)
 
 // ══════════════════════════════════════════════
 // NAV
@@ -6393,7 +6924,7 @@ function goTo(page,btn){ playNavSound();
   if(btn)btn.classList.add('active');
   if(page==='collection')renderCollection();
   if(page==='activities'){renderBattleCardSelect();}
-  if(page==='shop')renderShop();
+  if(page==='shop'){ renderShop(); }
   if(page==='profile')updateProfile();
   if(page==='social'){
     initChat();
@@ -6444,11 +6975,14 @@ async function guestLogin(){
       state.bannerColor=g.bannerColor??state.bannerColor;
       state.displayName=g.displayName??'';state.customAvatar=g.customAvatar??'';
       state.bannerImage=g.bannerImage??'';
+      state.ownedTitles=g.ownedTitles??[];
+      state.activeBoosts=g.activeBoosts??{};
     }catch(e){}
   }
   hideLoginOverlay();
   updateCoins();updatePity();updateProfile();renderCollection();renderShop();
   await loadSkins();
+  await loadShopItems();
   await loadActiveBanner();
   showToast('👤 Playing as Guest — progress saves locally ʚɞ');
 }
@@ -6460,7 +6994,8 @@ function saveGuestState(){
     totalPulls:state.totalPulls,equippedId:state.equippedId,
     collection:state.collection,xpMap:state.xpMap,
     bio:state.bio,title:state.title,bannerColor:state.bannerColor,
-    displayName:state.displayName,customAvatar:state.customAvatar,bannerImage:state.bannerImage
+    displayName:state.displayName,customAvatar:state.customAvatar,bannerImage:state.bannerImage,
+    ownedTitles:state.ownedTitles||[],activeBoosts:state.activeBoosts||{},
   }));
 }
 
@@ -6551,11 +7086,7 @@ const BANNER_COLORS = [
   {label:'Neon',v:'linear-gradient(135deg,#0d0d0d,#1a1a2e,#16213e)'},
   {label:'Candy',v:'linear-gradient(135deg,#ff9a9e,#fad0c4)'},
 ];
-const PROFILE_TITLES = [
-  '✦ Founding Member ✦','🌸 Petal Collector 🌸','⚔️ Veteran Summoner ⚔️',
-  '💜 SSR Hunter 💜','👑 Card Royalty 👑','🌙 Moonlit Wanderer 🌙',
-  '✨ Lucky Star ✨','🎴 Gacha Addict 🎴','🌺 Bloom Knight 🌺',
-];
+const PROFILE_TITLES = [];  // titles are unlocked via the shop
 
 let editBannerColor = null;
 let editTitle = null;
@@ -6588,11 +7119,19 @@ function openProfileEdit(){
     <div class="banner-color-opt${c.v===state.bannerColor?' selected':''}" style="background:${c.v}" title="${c.label}"
       onclick="selectBannerColor('${c.v}',this)"></div>
   `).join('');
-  // titles
+  // titles — only owned ones (from shop purchases + current equipped)
   const tp=document.getElementById('titlePicker');
-  tp.innerHTML=PROFILE_TITLES.map(t=>`
-    <div class="title-opt${t===state.title?' selected':''}" onclick="selectTitle('${t.replace(/'/g,"\\'")}',this)">${t}</div>
-  `).join('');
+  const ownedTitles = [...new Set([
+    ...(state.ownedTitles||[]),
+    ...(state.title ? [state.title] : [])
+  ])];
+  if(ownedTitles.length){
+    tp.innerHTML=ownedTitles.map(t=>`
+      <div class="title-opt${t===state.title?' selected':''}" onclick="selectTitle('${t.replace(/'/g,"\\'")}',this)">${t}</div>
+    `).join('');
+  } else {
+    tp.innerHTML='<div style="color:var(--text-dim);font-size:0.85em;font-style:italic;">No titles yet — buy them in the Shop! 🛍️</div>';
+  }
   document.getElementById('profileEditModal').classList.add('active');
 }
 
@@ -9078,7 +9617,7 @@ function showAdminNav(){
 }
 
 function switchAdminTab(tab, btn){
-  ['cards','banners','skins','tools'].forEach(t=>{
+  ['cards','banners','skins','shop','tools'].forEach(t=>{
     const el=document.getElementById('adminTab-'+t);
     const b=document.getElementById('atab-'+t);
     if(el)el.style.display=t===tab?'block':'none';
@@ -9086,6 +9625,7 @@ function switchAdminTab(tab, btn){
   });
   if(tab==='banners') loadAdminBannerList();
   if(tab==='skins') { populateSkinCardSelect(); loadAdminSkinList(); }
+  if(tab==='shop') { populateShopSkinSelect(); loadAdminShopItems(); }
 }
 
 // ── Upload file to Supabase Storage ──
@@ -12506,9 +13046,10 @@ async function buySkin(skinId){
   if(state.isGuest) saveGuestState();
 
   showToast(`✨ Skin "${skin.name}" acquired!`);
-  // Re-render whatever is currently visible
+  // Re-render
   renderSkinBanner();
   renderCollection();
+  renderShop();
 }
 
 // ── Equip a skin on a card ──
@@ -12862,6 +13403,179 @@ function cancelSkinEdit(){
   updateSkinCardPreview();
   document.getElementById('skinFormSubmitBtn').textContent = '🎨 Create Skin';
   document.getElementById('skinFormCancelBtn').style.display = 'none';
+}
+
+// ══════════════════════════════════════════════════════════════
+// ADMIN — SHOP MANAGER
+// ══════════════════════════════════════════════════════════════
+
+let _adminShopItemCache = [];
+
+function populateShopSkinSelect(){
+  // Nothing needed client-side — skin_id is typed manually
+}
+
+async function loadAdminShopItems(){
+  const el = document.getElementById('adminShopItemList');
+  if(!el) return;
+  el.innerHTML = '<div style="color:var(--text-dim);font-style:italic;font-size:0.85em;text-align:center;padding:20px;">Loading...</div>';
+  try {
+    _adminShopItemCache = await sb.getAll('shop_items') || [];
+  } catch(e){
+    _adminShopItemCache = [];
+    el.innerHTML = '<div style="color:#e74c3c;font-size:0.85em;text-align:center;padding:16px;">⚠️ Could not load shop items.<br><span style="color:var(--text-dim)">Make sure the <code>shop_items</code> table exists in Supabase.</span></div>';
+    return;
+  }
+  renderAdminShopItemList();
+}
+
+function renderAdminShopItemList(){
+  const el = document.getElementById('adminShopItemList');
+  if(!el) return;
+  const count = _adminShopItemCache.length;
+  const countEl = document.getElementById('adminShopItemCount');
+  if(countEl) countEl.textContent = count ? `(${count})` : '';
+  if(!count){
+    el.innerHTML = '<div style="color:var(--text-dim);font-style:italic;font-size:0.85em;text-align:center;padding:20px;">No shop items yet. Add one above!</div>';
+    return;
+  }
+  const TYPE_ICONS = {coinboost:'🪙',xpboost:'⚡',xp:'📦',card:'🃏',title:'🎀',skin:'🎨'};
+  el.innerHTML = _adminShopItemCache.map(item=>{
+    const icon = TYPE_ICONS[item.type]||'🎁';
+    const enabled = item.enabled !== false;
+    return `<div style="border:1px solid ${enabled?'rgba(255,157,199,0.25)':'var(--border)'};border-radius:12px;padding:12px 14px;margin-bottom:8px;background:${enabled?'rgba(255,157,199,0.03)':'transparent'};opacity:${enabled?1:0.55};">
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+        <span style="font-size:1.4em;">${item.emoji||icon}</span>
+        <div style="flex:1;min-width:0;">
+          <div style="font-weight:600;font-size:0.88em;">${escapeHtml(item.name)}</div>
+          <div style="font-size:0.72em;color:var(--text-dim);margin-top:2px;">
+            ${icon} ${escapeHtml(item.type||'item')} &nbsp;·&nbsp; 🪙 ${parseInt(item.price)||0}
+            ${!enabled?'&nbsp;·&nbsp;<span style="color:#e74c3c;">Hidden</span>':''}
+          </div>
+        </div>
+        <div style="display:flex;gap:6px;flex-shrink:0;">
+          <button class="admin-action-btn" onclick="editShopItem('${item.id}')">✏️ Edit</button>
+          <button class="admin-action-btn" onclick="toggleShopItemEnabled('${item.id}',${!enabled})">${enabled?'🙈 Hide':'👁️ Show'}</button>
+          <button class="admin-action-btn danger" onclick="deleteShopItem('${item.id}','${escapeHtml(item.name).replace(/'/g,"\\'")}')">🗑️</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function submitShopItemForm(){
+  if(!checkAdmin()) return;
+  const name  = (document.getElementById('shopItemForm_name')?.value||'').trim();
+  const type  = (document.getElementById('shopItemForm_type')?.value||'').trim();
+  const price = parseInt(document.getElementById('shopItemForm_price')?.value)||0;
+  const desc  = (document.getElementById('shopItemForm_desc')?.value||'').trim();
+  if(!name || !type || !desc){ showToast('Name, Type, and Description are required!'); return; }
+
+  const itemData = {
+    name, type, price, desc,
+    emoji:        (document.getElementById('shopItemForm_emoji')?.value||'🎁').trim(),
+    enabled:      document.getElementById('shopItemForm_enabled')?.checked ?? true,
+    card_id:      (document.getElementById('shopItemForm_cardId')?.value||'').trim()||null,
+    skin_id:      (document.getElementById('shopItemForm_skinId')?.value||'').trim()||null,
+    title_text:   (document.getElementById('shopItemForm_titleText')?.value||'').trim()||null,
+    boost_duration: parseInt(document.getElementById('shopItemForm_boostDuration')?.value)||1,
+    xp_amount:    parseInt(document.getElementById('shopItemForm_xpAmount')?.value)||100,
+    image_url:    (document.getElementById('shopItemForm_imageUrl')?.value||'').trim()||null,
+  };
+
+  const btn = document.getElementById('shopItemFormSubmitBtn');
+  if(btn){ btn.textContent='Saving...'; btn.disabled=true; }
+
+  try {
+    const editId = document.getElementById('shopItemEditId')?.value;
+    let ok;
+    if(editId){
+      ok = await sb.update('shop_items', itemData, { id: editId });
+    } else {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/shop_items`,{
+        method:'POST',
+        headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},
+        body:JSON.stringify(itemData)
+      });
+      if(!res.ok){
+        const errBody = await res.json().catch(()=>null);
+        const detail = errBody?.message||errBody?.hint||`HTTP ${res.status}`;
+        showToast(`❌ DB error: ${detail}`); console.error('[shop insert]', errBody);
+        if(btn){ btn.textContent='🛍️ Add Item'; btn.disabled=false; }
+        return;
+      }
+      ok = true;
+    }
+    if(ok !== false){
+      showToast(`✅ Shop item "${name}" saved!`);
+      cancelShopItemEdit();
+      await loadAdminShopItems();
+      await loadShopItems();
+      renderShop();
+    }
+  } catch(e){ showToast('❌ Error: ' + e.message); }
+  if(btn){ btn.textContent = document.getElementById('shopItemEditId')?.value ? '💾 Save Changes' : '🛍️ Add Item'; btn.disabled=false; }
+}
+
+function editShopItem(itemId){
+  const item = _adminShopItemCache.find(i=>i.id===itemId);
+  if(!item) return;
+  document.getElementById('shopItemFormTitle').textContent = '✏️ Edit Shop Item';
+  document.getElementById('shopItemEditId').value = item.id;
+  document.getElementById('shopItemForm_name').value = item.name||'';
+  document.getElementById('shopItemForm_type').value = item.type||'xp';
+  document.getElementById('shopItemForm_price').value = item.price||0;
+  document.getElementById('shopItemForm_desc').value = item.desc||item.description||'';
+  document.getElementById('shopItemForm_emoji').value = item.emoji||'🎁';
+  document.getElementById('shopItemForm_enabled').checked = item.enabled!==false;
+  document.getElementById('shopItemForm_cardId').value = item.card_id||'';
+  document.getElementById('shopItemForm_skinId').value = item.skin_id||'';
+  document.getElementById('shopItemForm_titleText').value = item.title_text||'';
+  document.getElementById('shopItemForm_boostDuration').value = item.boost_duration||1;
+  document.getElementById('shopItemForm_xpAmount').value = item.xp_amount||100;
+  document.getElementById('shopItemForm_imageUrl').value = item.image_url||'';
+  document.getElementById('shopItemFormSubmitBtn').textContent = '💾 Save Changes';
+  document.getElementById('shopItemFormCancelBtn').style.display = '';
+  document.getElementById('shopItemFormPanel').scrollIntoView({behavior:'smooth'});
+}
+
+function cancelShopItemEdit(){
+  document.getElementById('shopItemFormTitle').textContent = '🛍️ Add Shop Item';
+  document.getElementById('shopItemEditId').value = '';
+  ['name','desc','cardId','skinId','titleText','imageUrl'].forEach(f=>{
+    const el=document.getElementById('shopItemForm_'+f); if(el) el.value='';
+  });
+  document.getElementById('shopItemForm_type').value='coinboost';
+  document.getElementById('shopItemForm_price').value='300';
+  document.getElementById('shopItemForm_emoji').value='🎁';
+  document.getElementById('shopItemForm_boostDuration').value='1';
+  document.getElementById('shopItemForm_xpAmount').value='100';
+  document.getElementById('shopItemForm_enabled').checked=true;
+  document.getElementById('shopItemFormSubmitBtn').textContent='🛍️ Add Item';
+  document.getElementById('shopItemFormCancelBtn').style.display='none';
+}
+
+async function toggleShopItemEnabled(itemId, newState){
+  if(!checkAdmin()) return;
+  try {
+    await sb.update('shop_items', { enabled: newState }, { id: itemId });
+    showToast(newState ? '👁️ Item visible in shop' : '🙈 Item hidden from shop');
+    await loadAdminShopItems();
+    await loadShopItems();
+    renderShop();
+  } catch(e){ showToast('❌ ' + e.message); }
+}
+
+async function deleteShopItem(itemId, itemName){
+  if(!state.isAdmin) return;
+  if(!confirm(`Delete shop item "${itemName}"? This cannot be undone.`)) return;
+  try {
+    await sb.delete('shop_items', { id: itemId });
+    showToast(`🗑️ "${itemName}" deleted`);
+    await loadAdminShopItems();
+    await loadShopItems();
+    renderShop();
+  } catch(e){ showToast('❌ Delete failed: ' + e.message); }
 }
 
 // ── Admin: delete skin ──
