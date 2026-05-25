@@ -560,6 +560,48 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   .nav-coins { display: none; } /* very small phones — hide coins, keep avatar */
 }
 
+
+/* ══ MULTI-BANNER TABS ══ */
+.banner-tabs-wrap{
+  display:flex;gap:0;overflow-x:auto;scrollbar-width:none;
+  border-bottom:2px solid rgba(255,157,199,0.15);
+  margin-bottom:0;position:relative;
+}
+.banner-tabs-wrap::-webkit-scrollbar{display:none;}
+.banner-tab-btn{
+  flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:3px;
+  padding:10px 16px 9px;border:none;background:none;cursor:pointer;
+  border-bottom:3px solid transparent;margin-bottom:-2px;
+  transition:all 0.2s;position:relative;
+  font-family:'Cormorant Garamond',serif;
+}
+.banner-tab-btn .btb-icon{font-size:1.3em;line-height:1;}
+.banner-tab-btn .btb-label{font-size:0.72em;color:var(--text-dim);white-space:nowrap;letter-spacing:0.04em;transition:color 0.2s;}
+.banner-tab-btn .btb-type{font-family:'JetBrains Mono',monospace;font-size:0.58em;color:var(--text-dim);opacity:0.6;text-transform:uppercase;letter-spacing:0.06em;}
+.banner-tab-btn.active{border-bottom-color:var(--pink);}
+.banner-tab-btn.active .btb-label{color:var(--pink);}
+.banner-tab-btn .btb-new-dot{
+  position:absolute;top:6px;right:8px;width:7px;height:7px;
+  background:var(--pink);border-radius:50%;box-shadow:0 0 6px var(--pink);
+}
+/* Banner type badge on hero */
+.banner-type-badge{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:3px 10px;border-radius:20px;font-family:'JetBrains Mono',monospace;
+  font-size:0.65em;letter-spacing:0.06em;text-transform:uppercase;
+  margin-bottom:8px;border:1px solid;
+}
+.btb-standard{background:rgba(93,173,226,0.12);border-color:rgba(93,173,226,0.3);color:#5dade2;}
+.btb-character{background:rgba(255,157,199,0.12);border-color:rgba(255,157,199,0.35);color:var(--pink);}
+.btb-beginner{background:rgba(46,204,113,0.12);border-color:rgba(46,204,113,0.3);color:#2ecc71;}
+.btb-collab{background:rgba(241,196,15,0.12);border-color:rgba(241,196,15,0.3);color:#f1c40f;}
+.btb-skin{background:rgba(155,89,182,0.12);border-color:rgba(155,89,182,0.3);color:#9b59b6;}
+/* Pity bar per-banner */
+.banner-pity-section{
+  background:rgba(255,157,199,0.03);border:1px solid rgba(255,157,199,0.1);
+  border-radius:14px;padding:14px 16px;margin-top:14px;
+}
+
 /* ══ BANNER CARD SHOWCASE ══ */
 .featured-cards-showcase{display:flex;gap:16px;margin-bottom:20px;justify-content:center;flex-wrap:wrap;padding-bottom:4px;}
 .featured-card-visual{flex-shrink:0;width:clamp(100px,28%,150px);border-radius:12px;overflow:hidden;border:2px solid var(--border);position:relative;cursor:pointer;transition:transform 0.2s;}
@@ -3864,28 +3906,27 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 
   <!-- PULL PAGE -->
   <div class="page" id="page-pull">
-    <div id="pullBannerContainer"><!-- filled by renderActiveBanner() --></div>
 
+    <!-- Banner type tabs — filled by renderBannerTabs() -->
+    <div class="banner-tabs-wrap" id="bannerTabsWrap"></div>
+
+    <!-- Active banner content — filled by renderActiveBanner() -->
+    <div id="pullBannerContainer"></div>
+
+    <!-- Pull buttons -->
     <div class="banner-card" style="margin-top:4px;">
       <div style="width:100%;max-width:400px;">
         <div class="pull-btn-group">
           <button class="pull-big-btn" onclick="doPull(1)">🎴 Pull × 1<span>50 🪙</span></button>
           <button class="pull-big-btn" onclick="doPull(5)">🎴🎴 Pull × 5<span>200 🪙</span></button>
         </div>
-        <p style="color:var(--text-dim);font-size:0.8em;font-style:italic;margin-top:16px;text-align:center;">Pity carries across all pull types ʚɞ</p>
+        <p style="color:var(--text-dim);font-size:0.8em;font-style:italic;margin-top:10px;text-align:center;">Pity is tracked separately per banner ʚɞ</p>
       </div>
     </div>
-    <div class="section-title" style="margin-top:24px;">Your Pity Progress</div>
-    <div class="pity-section">
-      <div class="pity-row">
-        <div class="pity-label"><span>🩷 SSR Soft Pity</span><span><span id="pitySRVal">0</span> / 40</span></div>
-        <div class="pity-track"><div class="pity-fill sr" id="pitySRBar" style="width:0%"></div></div>
-      </div>
-      <div class="pity-row" style="margin-top:12px">
-        <div class="pity-label"><span>💜 UR Hard Pity</span><span><span id="pityURVal">0</span> / 80</span></div>
-        <div class="pity-track"><div class="pity-fill ur" id="pityURBar" style="width:0%"></div></div>
-      </div>
-    </div>
+
+    <!-- Per-banner pity — filled by renderActiveBanner() -->
+    <div id="bannerPitySection"></div>
+
   </div>
 
   <!-- COLLECTION -->
@@ -4306,6 +4347,16 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
             <input class="admin-input" id="bannerForm_name" placeholder="e.g. One Piece Banner"/>
           </div>
           <div>
+            <label class="admin-label">Banner Type</label>
+            <select class="admin-input" id="bannerForm_type">
+              <option value="character">⭐ Character Event</option>
+              <option value="standard">🌐 Standard / Permanent</option>
+              <option value="beginner">🌱 Beginner</option>
+              <option value="collab">✨ Collab</option>
+              <option value="skin">👗 Card Skin (coming soon)</option>
+            </select>
+          </div>
+          <div>
             <label class="admin-label">Status</label>
             <select class="admin-input" id="bannerForm_active">
               <option value="false">Inactive</option>
@@ -4688,6 +4739,7 @@ let state = {
   xpMap:        {},
   pitySR:       0,
   pityUR:       0,
+  pityMap:      {},
   equippedId:   null,
   totalPulls:   0,
   // profile customization
@@ -5627,6 +5679,7 @@ async function loadPlayer(discordId){
   if(rows&&rows.length>0){
     const p=rows[0];
     state.coins=p.coins??1000;state.pitySR=p.pity_sr??0;state.pityUR=p.pity_ur??0;
+    try{ state.pityMap=p.pity_map?JSON.parse(p.pity_map):{character:{sr:state.pitySR,ur:state.pityUR}}; }catch(e){ state.pityMap={}; }
     state.equippedId=p.equipped_card??null;state.totalPulls=p.total_pulls??0;
     state.username=p.username??state.username;state.avatar=p.avatar??'';
     state.bio=p.bio??state.bio;
@@ -5679,6 +5732,7 @@ async function savePlayer(){
     coins:state.coins,
     pity_sr:state.pitySR,
     pity_ur:state.pityUR,
+    pity_map:JSON.stringify(state.pityMap||{}),
     total_pulls:state.totalPulls,
     equipped_card:state.equippedId,
     bio:state.bio,
@@ -5831,8 +5885,8 @@ async function handlePullResult(cards){
     const isDupe=state.collection.includes(card.id);
     state.collection.push(card.id);
     if(!state.equippedId)state.equippedId=card.id;
-    if(card.rarity>=4)state.pitySR=0;else state.pitySR++;
-    if(card.rarity>=5)state.pityUR=0;else state.pityUR++;
+    const _btype = getActiveBanner()?.banner_type||'character';
+    addPity(_btype, card);
     if(isDupe){
       const dxp=[10,20,35,60,100,200,500][card.rarity-1]||10;
       state.xpMap[card.id]=(state.xpMap[card.id]||0)+dxp;
@@ -6205,7 +6259,7 @@ async function guestLogin(){
   if(saved){
     try{
       const g=JSON.parse(saved);
-      state.coins=g.coins??1000;state.pitySR=g.pitySR??0;state.pityUR=g.pityUR??0;
+      state.coins=g.coins??1000;state.pitySR=g.pitySR??0;state.pityUR=g.pityUR??0;state.pityMap=g.pityMap||{};
       state.totalPulls=g.totalPulls??0;state.equippedId=g.equippedId??null;
       state.collection=g.collection??[];state.xpMap=g.xpMap??{};
       state.bio=g.bio??state.bio;state.title=g.title??state.title;
@@ -6223,7 +6277,7 @@ async function guestLogin(){
 function saveGuestState(){
   if(!state.isGuest)return;
   localStorage.setItem('mg_guest_state',JSON.stringify({
-    coins:state.coins,pitySR:state.pitySR,pityUR:state.pityUR,
+    coins:state.coins,pitySR:state.pitySR,pityUR:state.pityUR,pityMap:state.pityMap||{},
     totalPulls:state.totalPulls,equippedId:state.equippedId,
     collection:state.collection,xpMap:state.xpMap,
     bio:state.bio,title:state.title,bannerColor:state.bannerColor,
@@ -7082,95 +7136,165 @@ function closePoolView(e){
 }
 
 // ══════════════════════════════════════════════
-// BANNER SYSTEM
+// BANNER SYSTEM — MULTI-BANNER TABS
 // ══════════════════════════════════════════════
-window.ACTIVE_BANNER = null;  // {id, name, description, image, featured_cards:[], series_filter:'', min_rarity:1, is_active:true}
-let _adminBannerCache = [];
+
+// ── Global state ──
+window.ALL_BANNERS      = [];   // all active banners loaded from DB
+window.ACTIVE_BANNER    = null; // currently selected banner object
+let activeBannerTab     = null; // banner id of selected tab
+let _adminBannerCache   = [];
 let _bannerFeaturedSlotCount = 0;
 
-// Safely parse featured_cards whether it's a JS array, JSON string, or postgres array string
+// ── Banner type meta ──
+const BANNER_TYPE_META = {
+  character: { icon: '⭐', label: 'Character Event', badgeClass: 'btb-character', pityKey: 'character' },
+  standard:  { icon: '🌐', label: 'Standard',        badgeClass: 'btb-standard',  pityKey: 'standard'  },
+  beginner:  { icon: '🌱', label: 'Beginner',        badgeClass: 'btb-beginner',  pityKey: 'beginner'  },
+  collab:    { icon: '✨', label: 'Collab',          badgeClass: 'btb-collab',    pityKey: 'collab'    },
+  skin:      { icon: '👗', label: 'Card Skin',       badgeClass: 'btb-skin',      pityKey: 'skin'      },
+};
+
+// ── Per-banner pity — stored as state.pityMap[bannerType] = {sr, ur} ──
+function getPity(type){
+  if(!state.pityMap) state.pityMap = {};
+  if(!state.pityMap[type]) state.pityMap[type] = {sr:0, ur:0};
+  return state.pityMap[type];
+}
+function addPity(type, card){
+  const p = getPity(type);
+  if(card.rarity>=4) p.sr=0; else p.sr++;
+  if(card.rarity>=5) p.ur=0; else p.ur++;
+  // keep legacy fields in sync for savePlayer
+  state.pitySR = p.sr; state.pityUR = p.ur;
+}
+
 function parseFeaturedCards(raw){
   if(!raw) return [];
   if(Array.isArray(raw)) return raw;
   if(typeof raw === 'string'){
     const t = raw.trim();
-    // JSON array string: ["a","b"]
     if(t.startsWith('[')){ try{ return JSON.parse(t); }catch(e){} }
-    // Postgres array literal: {a,b,c}
-    if(t.startsWith('{')){ return t.slice(1,-1).split(',').map(s=>s.replace(/^"|"$/g,'')).filter(Boolean); }
-    // Comma-separated fallback
+    if(t.startsWith('{')){ return t.slice(1,-1).split(',').map(s=>s.replace(/^\"|\"$/g,'')).filter(Boolean); }
     return t.split(',').map(s=>s.trim()).filter(Boolean);
   }
   return [];
 }
 
-// ── Load active banner from Supabase (or fall back to DEMO_CARDS) ──
+// ── Default banners shown when DB has none ──
+function getDefaultBanners(){
+  return [
+    {
+      id:'_character', name:'✦ Destiny Call ✦', banner_type:'character',
+      description:'Limited-time character event banner. Featured characters appear at increased rates!',
+      image:'https://media1.tenor.com/m/8fKXg5VL2tEAAAAC/purple-aesthetic.gif',
+      featured_cards:['deku','yuta'], series_filter:'', min_rarity:1, is_active:true,
+    },
+    {
+      id:'_standard', name:'First Bloom', banner_type:'standard',
+      description:'The permanent standard banner — always available. All non-limited cards included.',
+      image:'https://media1.tenor.com/m/8fKXg5VL2tEAAAAC/purple-aesthetic.gif',
+      featured_cards:['frieren','levi'], series_filter:'', min_rarity:1, is_active:true,
+    },
+    {
+      id:'_beginner', name:'🌱 Beginner\'s Path', banner_type:'beginner',
+      description:'New to MeoGacha? This banner guarantees at least one SR card in your first 10 pulls!',
+      image:'https://media1.tenor.com/m/8fKXg5VL2tEAAAAC/purple-aesthetic.gif',
+      featured_cards:['hinata','asta1'], series_filter:'', min_rarity:2, is_active:true,
+    },
+  ];
+}
+
+// ── Load all active banners ──
 async function loadActiveBanner(){
   try {
     const rows = await sb.getAll('banners');
     if(rows && rows.length){
-      const active = rows.find(b=>b.is_active) || rows[0];
-      // Normalise featured_cards to always be a plain JS array
-      active.featured_cards = parseFeaturedCards(active.featured_cards);
-      window.ACTIVE_BANNER = active;
+      window.ALL_BANNERS = rows
+        .map(b=>({ ...b, featured_cards: parseFeaturedCards(b.featured_cards) }))
+        .filter(b=>b.is_active);
     }
-  } catch(e) {
+  } catch(e){
     console.warn('Could not load banners:', e);
   }
+  if(!window.ALL_BANNERS.length) window.ALL_BANNERS = getDefaultBanners();
+
+  // Default to first tab (usually character event)
+  const order = ['character','collab','standard','beginner','skin'];
+  window.ALL_BANNERS.sort((a,b)=>{
+    const ai = order.indexOf(a.banner_type||'standard');
+    const bi = order.indexOf(b.banner_type||'standard');
+    return (ai<0?99:ai) - (bi<0?99:bi);
+  });
+  if(!activeBannerTab || !window.ALL_BANNERS.find(b=>b.id===activeBannerTab)){
+    activeBannerTab = window.ALL_BANNERS[0]?.id || null;
+  }
+  window.ACTIVE_BANNER = window.ALL_BANNERS.find(b=>b.id===activeBannerTab) || window.ALL_BANNERS[0] || null;
+
+  renderBannerTabs();
   renderActiveBanner();
   renderHomeBannerWidget();
 }
 
-// Default fallback banner using DEMO_CARDS
-function getDefaultBanner(){
-  return {
-    id: '_default',
-    name: '✦ First Bloom Banner ✦',
-    description: 'The inaugural banner — featuring iconic characters from across the anime universe.',
-    image: 'https://media1.tenor.com/m/8fKXg5VL2tEAAAAC/purple-aesthetic.gif',
-    featured_cards: ['deku','yuta','asta1'],
-    series_filter: '',
-    min_rarity: 1,
-    is_active: true,
-  };
+function getActiveBanner(){ return window.ACTIVE_BANNER || (window.ALL_BANNERS||[])[0] || getDefaultBanners()[0]; }
+
+// ── Switch banner tab ──
+function switchBannerTab(bannerId){
+  activeBannerTab = bannerId;
+  window.ACTIVE_BANNER = (window.ALL_BANNERS||[]).find(b=>b.id===bannerId) || null;
+  renderBannerTabs();
+  renderActiveBanner();
 }
 
-function getActiveBanner(){ return window.ACTIVE_BANNER || getDefaultBanner(); }
+// ── Render banner tab row ──
+function renderBannerTabs(){
+  const wrap = document.getElementById('bannerTabsWrap');
+  if(!wrap) return;
+  const banners = window.ALL_BANNERS || [];
+  if(banners.length <= 1){ wrap.style.display='none'; return; }
+  wrap.style.display='flex';
+  wrap.innerHTML = banners.map(b=>{
+    const meta = BANNER_TYPE_META[b.banner_type||'standard'] || BANNER_TYPE_META.standard;
+    const isActive = b.id === activeBannerTab;
+    const isNew = b.banner_type === 'character' || b.banner_type === 'collab';
+    return `<button class="banner-tab-btn${isActive?' active':''}" onclick="switchBannerTab('${b.id}')">
+      ${isNew && !isActive ? '<span class="btb-new-dot"></span>' : ''}
+      <span class="btb-icon">${meta.icon}</span>
+      <span class="btb-label">${b.name.length > 18 ? b.name.slice(0,16)+'…' : b.name}</span>
+      <span class="btb-type">${meta.label}</span>
+    </button>`;
+  }).join('');
+}
 
-// ── Build the gacha pool for the active banner ──
+// ── Build the gacha pool for the selected banner ──
 function buildPool(){
   const banner = getActiveBanner();
-  let source = (window.DEMO_CARDS||DEMO_CARDS).filter(c=>!c.limited);
+  const type   = banner.banner_type || 'standard';
+  const p      = getPity(type);
+  let source   = (window.DEMO_CARDS||DEMO_CARDS).filter(c=>!c.limited);
 
-  // Apply banner series filter
   if(banner.series_filter){
     const tags = banner.series_filter.split(',').map(s=>s.trim().toLowerCase()).filter(Boolean);
     if(tags.length){
       const filtered = source.filter(c=>tags.some(t=>c.series.toLowerCase().includes(t)));
-      if(filtered.length >= 3) source = filtered; // only apply filter if enough cards remain
+      if(filtered.length >= 3) source = filtered;
     }
   }
-
-  // Apply min rarity filter
   const minR = parseInt(banner.min_rarity)||1;
   if(minR > 1){
     const filtered = source.filter(c=>c.rarity >= minR);
     if(filtered.length >= 2) source = filtered;
   }
-
-  // Apply pity logic
   let pool = [...source];
-  if(state.pityUR>=80) pool = pool.filter(c=>c.rarity>=5);
-  else if(state.pitySR>=40) pool = pool.filter(c=>c.rarity>=4);
+  if(p.ur >= 80)      pool = pool.filter(c=>c.rarity>=5);
+  else if(p.sr >= 40) pool = pool.filter(c=>c.rarity>=4);
   if(!pool.length) pool=[...source];
 
-  // Rate-up: featured cards appear 3× more likely
   const featuredIds = parseFeaturedCards(banner.featured_cards);
   if(featuredIds.length){
-    const extraFeatured = pool.filter(c=>featuredIds.includes(c.id));
-    pool = [...pool, ...extraFeatured, ...extraFeatured]; // tripled
+    const extra = pool.filter(c=>featuredIds.includes(c.id));
+    pool = [...pool, ...extra, ...extra];
   }
-
   return pool;
 }
 
@@ -7178,15 +7302,21 @@ function buildPool(){
 function renderActiveBanner(){
   const el = document.getElementById('pullBannerContainer');
   if(!el) return;
-  const banner = getActiveBanner();
-  const allCards = window.DEMO_CARDS || DEMO_CARDS;
+  const banner      = getActiveBanner();
+  const type        = banner.banner_type || 'standard';
+  const meta        = BANNER_TYPE_META[type] || BANNER_TYPE_META.standard;
+  const allCards    = window.DEMO_CARDS || DEMO_CARDS;
   const featuredCards = parseFeaturedCards(banner.featured_cards).map(id=>allCards.find(c=>c.id===id)).filter(Boolean);
+  const p           = getPity(type);
 
   el.innerHTML = `
-    <div class="section-title">Current Banner</div>
+    <div class="section-title" style="margin-bottom:8px;">
+      ${window.ALL_BANNERS.length > 1 ? '' : 'Current Banner'}
+    </div>
     <div class="banner-hero">
       ${banner.image ? `<img class="banner-hero-media" src="${banner.image}" alt="" onerror="this.style.display='none'"/>` : ''}
       <div class="banner-hero-body">
+        <div class="banner-type-badge ${meta.badgeClass}">${meta.icon} ${meta.label}</div>
         <div class="banner-hero-title">${banner.name}</div>
         <div class="banner-hero-desc">${banner.description||''}</div>
 
@@ -7207,7 +7337,7 @@ function renderActiveBanner(){
             }).join('')}
           </div>
           <div class="rateup-explain">
-            ⬆️ <strong>Rate Up</strong> means these featured cards appear more frequently — their chance is boosted by 3× for this banner! You'll still see other cards from the pool too.
+            ⬆️ <strong>Rate Up</strong> — featured cards appear 3× more often on this banner!
           </div>
         ` : ''}
 
@@ -7216,30 +7346,67 @@ function renderActiveBanner(){
           <span class="cost-tag">5 Pull = 200 🪙</span>
         </div>
         <div style="margin-top:12px;">
-          <button class="pool-view-btn" onclick="openPoolView()">🃏 View All Cards in Pool</button>
+          <button class="pool-view-btn" onclick="openPoolView()">🃏 View Pool Cards</button>
         </div>
       </div>
     </div>
   `;
-  updatePity();
+
+  // Render per-banner pity
+  const pityEl = document.getElementById('bannerPitySection');
+  if(pityEl){
+    pityEl.innerHTML = `
+      <div class="section-title" style="margin-top:20px;">
+        ${meta.icon} ${meta.label} — Pity Progress
+      </div>
+      <div class="pity-section banner-pity-section">
+        <div class="pity-row">
+          <div class="pity-label"><span>🩷 SSR Soft Pity</span><span><span id="pitySRVal">${p.sr}</span> / 40</span></div>
+          <div class="pity-track"><div class="pity-fill sr" id="pitySRBar" style="width:${Math.min(p.sr/40*100,100)}%"></div></div>
+        </div>
+        <div class="pity-row" style="margin-top:12px">
+          <div class="pity-label"><span>💜 UR Hard Pity</span><span><span id="pityURVal">${p.ur}</span> / 80</span></div>
+          <div class="pity-track"><div class="pity-fill ur" id="pityURBar" style="width:${Math.min(p.ur/80*100,100)}%"></div></div>
+        </div>
+        <div style="margin-top:8px;font-size:0.72em;color:var(--text-dim);font-style:italic;font-family:'JetBrains Mono',monospace;">
+          Pity is tracked separately for each banner type ʚɞ
+        </div>
+      </div>
+    `;
+  }
 }
 
-// ── Render active banner on the Home page ──
+// ── Update pity display (called after pulls) ──
+function updatePity(){
+  const banner = getActiveBanner();
+  const type   = banner ? (banner.banner_type||'standard') : 'character';
+  const p      = getPity(type);
+  const sv=document.getElementById('pitySRVal'), sb2=document.getElementById('pitySRBar');
+  const uv=document.getElementById('pityURVal'), ub=document.getElementById('pityURBar');
+  if(sv) sv.textContent=p.sr;
+  if(sb2) sb2.style.width=Math.min(p.sr/40*100,100)+'%';
+  if(uv) uv.textContent=p.ur;
+  if(ub) ub.style.width=Math.min(p.ur/80*100,100)+'%';
+}
+
+// ── Render active banner on the Home page widget ──
 function renderHomeBannerWidget(){
   const el = document.getElementById('homeBannerWidget');
   if(!el) return;
-  const banner = getActiveBanner();
-  const allCards = window.DEMO_CARDS || DEMO_CARDS;
+  const banner      = getActiveBanner();
+  const allCards    = window.DEMO_CARDS || DEMO_CARDS;
   const featuredCards = parseFeaturedCards(banner.featured_cards).map(id=>allCards.find(c=>c.id===id)).filter(Boolean).slice(0,4);
+  const meta        = BANNER_TYPE_META[banner.banner_type||'standard'] || BANNER_TYPE_META.standard;
 
   el.innerHTML = `
     <div class="home-banner-card" onclick="goTo('pull')">
       ${banner.image ? `<img class="home-banner-card-media" src="${banner.image}" alt="" onerror="this.style.display='none'"/>` : ''}
       <div class="home-banner-card-body">
+        <div class="banner-type-badge ${meta.badgeClass}" style="font-size:0.58em;margin-bottom:4px;">${meta.icon} ${meta.label}</div>
         <div class="home-banner-card-title">${banner.name}</div>
         ${banner.description ? `<div class="home-banner-card-desc">${banner.description}</div>` : ''}
         ${featuredCards.length ? `
-          <div style="font-size:0.7em;color:var(--text-dim);font-style:italic;margin-bottom:6px;">✦ Featured Rate-Up Cards</div>
+          <div style="font-size:0.7em;color:var(--text-dim);font-style:italic;margin-bottom:6px;">✦ Rate-Up Characters</div>
           <div class="home-banner-featured-row">
             ${featuredCards.map(c=>{
               const color = RARITY_COLORS[c.rarity]||'#bdc3c7';
@@ -7253,37 +7420,28 @@ function renderHomeBannerWidget(){
             }).join('')}
           </div>
         ` : ''}
-        <button class="home-banner-pull-btn">✦ Pull Now</button>
+        <div style="margin-top:10px;display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:0.7em;color:var(--text-dim);">50🪙 per pull</span>
+          ${(window.ALL_BANNERS||[]).length > 1 ? `<span style="font-family:'JetBrains Mono',monospace;font-size:0.65em;color:var(--pink);opacity:0.8;">+${(window.ALL_BANNERS||[]).length - 1} more banners →</span>` : ''}
+        </div>
       </div>
     </div>
   `;
 }
 
-// Legacy alias — kept for compatibility with old call sites
-function renderFeaturedShowcase(){ renderActiveBanner(); renderHomeBannerWidget(); }
+// ═══════════════════════════════════════════════════════════
+// ADMIN BANNER MANAGEMENT
+// ═══════════════════════════════════════════════════════════
 
-// ── Admin: Load banners ──
 async function loadAdminBannerList(){
   const el = document.getElementById('adminBannerList');
   if(!el) return;
-  el.innerHTML = '<div style="color:var(--text-dim);font-style:italic;font-size:0.85em;text-align:center;padding:16px;">Loading...</div>';
+  el.innerHTML = '<div style="color:var(--text-dim);font-style:italic;font-size:0.85em;text-align:center;padding:20px;">Loading...</div>';
   try {
     _adminBannerCache = await sb.getAll('banners') || [];
   } catch(e) {
     _adminBannerCache = [];
-    el.innerHTML = '<div style="color:#e74c3c;font-size:0.85em;text-align:center;padding:16px;">⚠️ Could not load banners. Make sure the <code>banners</code> table exists in Supabase.<br/><span style="color:var(--text-dim)">See console for setup SQL.</span></div>';
-    console.log('%cCreate banners table SQL:\n', 'color:#f1c40f;font-weight:bold',
-      `CREATE TABLE banners (
-  id TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
-  name TEXT NOT NULL,
-  description TEXT,
-  image TEXT,
-  featured_cards TEXT[], -- array of card IDs
-  series_filter TEXT,
-  min_rarity INTEGER DEFAULT 1,
-  is_active BOOLEAN DEFAULT false,
-  created_at TIMESTAMPTZ DEFAULT now()
-);`);
+    el.innerHTML = '<div style="color:#e74c3c;font-size:0.85em;text-align:center;padding:16px;">⚠️ Could not load banners.<br><span style="color:var(--text-dim)">Make sure the banners table exists and has a <code>banner_type</code> column.</span></div>';
     return;
   }
   renderAdminBannerList();
@@ -7298,206 +7456,168 @@ function renderAdminBannerList(){
   }
   const allCards = window.DEMO_CARDS || DEMO_CARDS;
   el.innerHTML = _adminBannerCache.map(b=>{
-    const featNames = parseFeaturedCards(b.featured_cards).map(id=>{const c=allCards.find(x=>x.id===id);return c?c.name:id;}).join(', ');
-    return `<div class="banner-list-item${b.is_active?' active-banner':''}">
-      ${b.image ? `<img class="banner-list-item-media" src="${b.image}" alt="" onerror="this.src=''"/>` : '<div class="banner-list-item-media" style="background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:1.4em;">🏮</div>'}
-      <div class="banner-list-info">
-        <div class="banner-list-name">${b.name}</div>
-        <div class="banner-list-meta">${featNames ? `Featured: ${featNames}` : 'No featured cards'}</div>
-        ${b.series_filter ? `<div class="banner-list-meta">Pool filter: ${b.series_filter}</div>` : ''}
+    const featured = parseFeaturedCards(b.featured_cards).map(id=>allCards.find(c=>c.id===id)).filter(Boolean);
+    const meta = BANNER_TYPE_META[b.banner_type||'standard'] || BANNER_TYPE_META.standard;
+    return `<div style="border:1px solid ${b.is_active?'rgba(255,157,199,0.3)':'var(--border)'};border-radius:12px;padding:12px 14px;margin-bottom:10px;background:${b.is_active?'rgba(255,157,199,0.04)':'transparent'}">
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px;">
+        <span class="banner-type-badge ${meta.badgeClass}" style="font-size:0.6em;">${meta.icon} ${meta.label}</span>
+        ${b.is_active ? '<span style="background:rgba(46,204,113,0.15);border:1px solid rgba(46,204,113,0.3);border-radius:20px;padding:2px 8px;font-size:0.65em;color:#2ecc71;font-family:\'JetBrains Mono\',monospace;">● LIVE</span>' : '<span style="opacity:0.4;font-size:0.7em;font-family:\'JetBrains Mono\',monospace;">INACTIVE</span>'}
+        <strong style="flex:1;font-family:\'Cinzel Decorative\',serif;font-size:0.82em;">${escapeHtml(b.name)}</strong>
       </div>
-      ${b.is_active ? '<span class="banner-active-badge">⭐ LIVE</span>' : ''}
-      <div class="banner-list-actions">
-        ${!b.is_active ? `<button class="admin-btn" style="padding:5px 10px;font-size:0.78em;" onclick="setActiveBanner('${b.id}')">▶ Set Live</button>` : ''}
-        <button class="admin-action-btn" onclick="editBanner('${b.id}')">✏️</button>
-        <button class="admin-action-btn danger" onclick="deleteBanner('${b.id}','${b.name.replace(/'/g,"\\'")}')">🗑️</button>
+      ${featured.length ? `<div style="display:flex;gap:4px;margin-bottom:8px;flex-wrap:wrap;">
+        ${featured.map(c=>`<img src="${c.thumbnail||c.image}" style="width:28px;height:38px;border-radius:5px;object-fit:cover;border:1px solid var(--border);" title="${c.name}" onerror="this.style.display='none'"/>`).join('')}
+        <span style="color:var(--text-dim);font-size:0.72em;align-self:center;font-style:italic;margin-left:4px;">${featured.map(c=>c.name).join(', ')}</span>
+      </div>` : ''}
+      <div style="display:flex;gap:6px;flex-wrap:wrap;">
+        ${!b.is_active ? `<button class="admin-btn" onclick="setActiveBanner('${b.id}')" style="font-size:0.78em;padding:5px 12px;">⭐ Set Live</button>` : ''}
+        <button class="admin-btn" onclick="editBanner('${b.id}')" style="font-size:0.78em;padding:5px 12px;">✏️ Edit</button>
+        <button class="admin-btn" onclick="deleteBanner('${b.id}','${escapeHtml(b.name).replace(/'/g,"\\'")}')" style="font-size:0.78em;padding:5px 12px;background:rgba(231,76,60,0.15);border-color:rgba(231,76,60,0.3);color:#e74c3c;">🗑️ Delete</button>
       </div>
     </div>`;
   }).join('');
 }
 
-// ── Banner featured slots ──
 function addBannerFeaturedSlot(cardId=''){
   const container = document.getElementById('bannerFeaturedSlots');
   if(!container) return;
-  const currentSlots = container.querySelectorAll('.bfp-slot');
-  if(currentSlots.length >= 4){ showToast('Max 4 featured cards per banner'); return; }
+  if(_bannerFeaturedSlotCount >= 4){ showToast('Max 4 featured cards'); return; }
+  _bannerFeaturedSlotCount++;
+  const idx = _bannerFeaturedSlotCount;
   const allCards = window.DEMO_CARDS || DEMO_CARDS;
-  const idx = _bannerFeaturedSlotCount++;
-  const opts = allCards.map(c=>`<option value="${c.id}" ${c.id===cardId?'selected':''}>${c.name} [${c.series}] ${c.rarityName}</option>`).join('');
   const slot = document.createElement('div');
-  slot.className = 'bfp-slot';
-  slot.dataset.idx = idx;
-  const existingCard = allCards.find(c=>c.id===cardId);
+  slot.className = 'banner-featured-slot';
+  slot.id = `bfSlot_${idx}`;
   slot.innerHTML = `
-    <span class="bfp-slot-num">${container.querySelectorAll('.bfp-slot').length+1}</span>
-    <img class="bfp-img" id="bfpImg_${idx}" src="${existingCard?.thumbnail||existingCard?.image||''}" onerror="this.style.opacity=0"/>
-    <select class="bfp-select" id="bfpSel_${idx}" onchange="onBfpChange(${idx})">
-      <option value="">— Select Card —</option>
-      ${opts}
+    <select class="admin-input" id="bfCard_${idx}" style="flex:1;" onchange="previewBannerForm()">
+      <option value="">— pick a card —</option>
+      ${allCards.map(c=>`<option value="${c.id}" ${c.id===cardId?'selected':''}>[${c.rarityName}] ${c.name}</option>`).join('')}
     </select>
-    <button class="bfp-remove" onclick="removeBfpSlot(this)">✕</button>
-  `;
+    <button onclick="removeBannerFeaturedSlot(${idx})" style="background:none;border:none;color:#e74c3c;font-size:1.1em;cursor:pointer;padding:4px 8px;">✕</button>`;
   container.appendChild(slot);
-  // Renumber
-  renumberBfpSlots();
-}
-
-function onBfpChange(idx){
-  const sel = document.getElementById(`bfpSel_${idx}`);
-  const img = document.getElementById(`bfpImg_${idx}`);
-  if(!sel||!img) return;
-  const allCards = window.DEMO_CARDS || DEMO_CARDS;
-  const c = allCards.find(x=>x.id===sel.value);
-  img.src = c ? (c.thumbnail||c.image) : '';
-  img.style.opacity = c ? '1' : '0';
-}
-
-function removeBfpSlot(btn){
-  btn.closest('.bfp-slot').remove();
-  renumberBfpSlots();
-}
-
-function renumberBfpSlots(){
-  const container = document.getElementById('bannerFeaturedSlots');
-  if(!container) return;
-  container.querySelectorAll('.bfp-slot .bfp-slot-num').forEach((el,i)=>{ el.textContent = i+1; });
+  if(cardId){ previewBannerForm(); }
   const addBtn = document.getElementById('addBannerFeaturedBtn');
-  if(addBtn) addBtn.style.display = container.querySelectorAll('.bfp-slot').length >= 4 ? 'none' : '';
+  if(addBtn) addBtn.style.display = _bannerFeaturedSlotCount >= 4 ? 'none' : '';
 }
 
-function collectBannerFeaturedIds(){
-  const container = document.getElementById('bannerFeaturedSlots');
-  if(!container) return [];
-  return [...container.querySelectorAll('.bfp-slot')].map(slot=>{
-    const sel = slot.querySelector('.bfp-select');
-    return sel?.value || '';
-  }).filter(Boolean);
-}
-
-function clearBannerFeaturedSlots(){
-  const container = document.getElementById('bannerFeaturedSlots');
-  if(container) container.innerHTML = '';
-  _bannerFeaturedSlotCount = 0;
+function removeBannerFeaturedSlot(idx){
+  const slot = document.getElementById(`bfSlot_${idx}`);
+  if(slot){ slot.remove(); _bannerFeaturedSlotCount = Math.max(0,_bannerFeaturedSlotCount-1); }
   const addBtn = document.getElementById('addBannerFeaturedBtn');
   if(addBtn) addBtn.style.display = '';
+  previewBannerForm();
 }
 
 function previewBannerForm(){
-  const url = document.getElementById('bannerForm_image')?.value?.trim();
+  const imgUrl = document.getElementById('bannerForm_image')?.value?.trim()||'';
   const prev = document.getElementById('bannerFormImgPreview');
-  if(!prev) return;
-  if(url){ prev.src = url; prev.style.display = 'block'; }
-  else prev.style.display = 'none';
-}
-
-async function uploadBannerFile(input){
-  const file = input.files[0]; if(!file) return;
-  showToast('⬆️ Uploading...');
-  try {
-    const url = await uploadToStorage(file, 'banners');
-    document.getElementById('bannerForm_image').value = url;
-    previewBannerForm();
-    showToast('✅ Uploaded!');
-  } catch(e){ showToast('❌ Upload failed: '+e.message); }
-}
-
-// ── Submit banner form ──
-async function submitBannerForm(){
-  if(!state.isAdmin){ showToast('Admin only'); return; }
-  const name = (document.getElementById('bannerForm_name')?.value||'').trim();
-  if(!name){ showToast('Banner name is required!'); return; }
-
-  const isActive = document.getElementById('bannerForm_active')?.value === 'true';
-  const bannerData = {
-    name,
-    description: (document.getElementById('bannerForm_desc')?.value||'').trim(),
-    image:        (document.getElementById('bannerForm_image')?.value||'').trim(),
-    featured_cards: JSON.stringify(collectBannerFeaturedIds()),
-    series_filter: (document.getElementById('bannerForm_seriesFilter')?.value||'').trim(),
-    min_rarity:    parseInt(document.getElementById('bannerForm_minRarity')?.value)||1,
-    is_active:     isActive,
-  };
-
-  const editId = document.getElementById('bannerEditId')?.value||'';
-  if(editId) bannerData.id = editId;
-
-  const btn = document.getElementById('bannerFormSubmitBtn');
-  btn.textContent = 'Saving...'; btn.disabled = true;
-  try {
-    // If setting active, deactivate all others first
-    if(isActive && _adminBannerCache.length){
-      for(const b of _adminBannerCache){
-        if(b.id !== editId && b.is_active) await sb.update('banners',{is_active:false},{id:b.id});
-      }
-    }
-    let ok;
-    if(editId){
-      ok = await sb.upsert('banners', bannerData);
-    } else {
-      ok = await sb.insert('banners', bannerData);
-    }
-    if(!ok) throw new Error('Supabase rejected the request — check browser console (F12) for the exact error from the ⚠️ DB toast above');
-    showToast(editId ? '✅ Banner updated!' : '✅ Banner created!');
-    cancelBannerEdit();
-    await loadAdminBannerList();
-    await loadActiveBanner();
-  } catch(e){
-    showToast('❌ Error: '+e.message);
-    console.error(e);
-  }
-  btn.textContent = editId ? '💾 Save Changes' : '🏮 Create Banner';
-  btn.disabled = false;
+  if(prev){ prev.src=imgUrl; prev.style.display=imgUrl?'block':'none'; }
 }
 
 function cancelBannerEdit(){
+  document.getElementById('bannerFormTitle').textContent = '🏮 Create New Banner';
   document.getElementById('bannerEditId').value = '';
   document.getElementById('bannerForm_name').value = '';
   document.getElementById('bannerForm_desc').value = '';
   document.getElementById('bannerForm_image').value = '';
   document.getElementById('bannerForm_active').value = 'false';
+  document.getElementById('bannerForm_type').value = 'character';
   document.getElementById('bannerForm_seriesFilter').value = '';
   document.getElementById('bannerForm_minRarity').value = '1';
-  const prev = document.getElementById('bannerFormImgPreview');
-  if(prev){ prev.src=''; prev.style.display='none'; }
-  clearBannerFeaturedSlots();
-  document.getElementById('bannerFormTitle').textContent = '🏮 Create New Banner';
+  document.getElementById('bannerFeaturedSlots').innerHTML = '';
+  _bannerFeaturedSlotCount = 0;
   document.getElementById('bannerFormSubmitBtn').textContent = '🏮 Create Banner';
   document.getElementById('bannerFormCancelBtn').style.display = 'none';
+  const prev = document.getElementById('bannerFormImgPreview');
+  if(prev){ prev.src=''; prev.style.display='none'; }
+  const addBtn = document.getElementById('addBannerFeaturedBtn');
+  if(addBtn) addBtn.style.display='';
 }
 
 function editBanner(bannerId){
   const b = _adminBannerCache.find(x=>x.id===bannerId);
   if(!b) return;
+  document.getElementById('bannerFormTitle').textContent = '✏️ Edit Banner';
   document.getElementById('bannerEditId').value = b.id;
   document.getElementById('bannerForm_name').value = b.name||'';
   document.getElementById('bannerForm_desc').value = b.description||'';
   document.getElementById('bannerForm_image').value = b.image||'';
   document.getElementById('bannerForm_active').value = b.is_active?'true':'false';
+  document.getElementById('bannerForm_type').value = b.banner_type||'character';
   document.getElementById('bannerForm_seriesFilter').value = b.series_filter||'';
-  document.getElementById('bannerForm_minRarity').value = b.min_rarity||1;
+  document.getElementById('bannerForm_minRarity').value = String(b.min_rarity||1);
+  document.getElementById('bannerFeaturedSlots').innerHTML='';
+  _bannerFeaturedSlotCount=0;
+  const feats = parseFeaturedCards(b.featured_cards);
+  feats.forEach(id=>addBannerFeaturedSlot(id));
   previewBannerForm();
-  clearBannerFeaturedSlots();
-  parseFeaturedCards(b.featured_cards).forEach(id=>addBannerFeaturedSlot(id));
-  document.getElementById('bannerFormTitle').textContent = '✏️ Edit Banner — '+b.name;
-  document.getElementById('bannerFormSubmitBtn').textContent = '💾 Save Changes';
-  document.getElementById('bannerFormCancelBtn').style.display = '';
+  document.getElementById('bannerFormSubmitBtn').textContent='💾 Save Changes';
+  document.getElementById('bannerFormCancelBtn').style.display='';
   document.getElementById('bannerFormPanel').scrollIntoView({behavior:'smooth'});
+}
+
+async function uploadBannerFile(input){
+  const file = input?.files?.[0];
+  if(!file) return;
+  showToast('⏳ Uploading...');
+  const url = await uploadToStorage(file,'banners');
+  if(url){ document.getElementById('bannerForm_image').value=url; previewBannerForm(); showToast('✅ Uploaded!'); }
+  else showToast('❌ Upload failed');
+}
+
+async function submitBannerForm(){
+  if(!checkAdmin()) return;
+  const name = document.getElementById('bannerForm_name').value.trim();
+  if(!name){ showToast('Banner name is required'); return; }
+
+  const featuredCards = [];
+  document.querySelectorAll('[id^="bfCard_"]').forEach(sel=>{ if(sel.value) featuredCards.push(sel.value); });
+
+  const bannerData = {
+    name,
+    description: document.getElementById('bannerForm_desc').value.trim(),
+    image:        document.getElementById('bannerForm_image').value.trim(),
+    is_active:    document.getElementById('bannerForm_active').value === 'true',
+    banner_type:  document.getElementById('bannerForm_type').value || 'character',
+    series_filter:document.getElementById('bannerForm_seriesFilter').value.trim(),
+    min_rarity:   parseInt(document.getElementById('bannerForm_minRarity').value)||1,
+    featured_cards: JSON.stringify(featuredCards),
+  };
+
+  try {
+    const editId = document.getElementById('bannerEditId').value;
+    let ok;
+    if(editId){
+      // If setting active, deactivate others of SAME type
+      if(bannerData.is_active){
+        const sameType = _adminBannerCache.filter(b=>b.id!==editId && b.banner_type===bannerData.banner_type && b.is_active);
+        for(const b of sameType) await sb.update('banners',{is_active:false},{id:b.id});
+      }
+      ok = await sb.update('banners', bannerData, {id: editId});
+    } else {
+      if(bannerData.is_active){
+        const sameType = _adminBannerCache.filter(b=>b.banner_type===bannerData.banner_type && b.is_active);
+        for(const b of sameType) await sb.update('banners',{is_active:false},{id:b.id});
+      }
+      ok = await sb.insert('banners', bannerData);
+    }
+    if(ok !== false){ showToast(`✅ Banner "${name}" saved!`); cancelBannerEdit(); await loadAdminBannerList(); await loadActiveBanner(); }
+    else showToast('❌ Save failed');
+  } catch(e){ showToast('❌ Error: '+e.message); }
 }
 
 async function setActiveBanner(bannerId){
   if(!state.isAdmin) return;
   try {
-    // Deactivate all
-    for(const b of _adminBannerCache){
-      if(b.is_active) await sb.update('banners',{is_active:false},{id:b.id});
-    }
-    // Activate selected
+    const target = _adminBannerCache.find(b=>b.id===bannerId);
+    if(!target) return;
+    // Deactivate other banners of the SAME type
+    const sameType = _adminBannerCache.filter(b=>b.id!==bannerId && b.banner_type===target.banner_type && b.is_active);
+    for(const b of sameType) await sb.update('banners',{is_active:false},{id:b.id});
     await sb.update('banners',{is_active:true},{id:bannerId});
-    showToast('⭐ Banner set live!');
+    showToast(`⭐ "${target.name}" is now live!`);
     await loadAdminBannerList();
     await loadActiveBanner();
-  } catch(e){ showToast('❌ Error: '+e.message); }
+  } catch(e){ showToast('❌ '+e.message); }
 }
 
 async function deleteBanner(bannerId, bannerName){
@@ -7510,6 +7630,7 @@ async function deleteBanner(bannerId, bannerName){
     await loadActiveBanner();
   } catch(e){ showToast('❌ Delete failed: '+e.message); }
 }
+
 
 // ══════════════════════════════════════════════
 // INIT
