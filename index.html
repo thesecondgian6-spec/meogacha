@@ -2966,6 +2966,62 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 }
 
 /* ══════════════════════════════════════════
+   SKIN SYSTEM
+══════════════════════════════════════════ */
+:root {
+  --skin-common:    #bdc3c7;
+  --skin-rare:      #9b59b6;
+  --skin-epic:      #f1c40f;
+  --skin-legendary: #ff6b9d;
+}
+.skin-active-badge{position:absolute;bottom:42px;right:6px;background:rgba(155,89,182,0.85);border-radius:5px;padding:1px 5px;font-size:0.6em;font-family:'JetBrains Mono',monospace;color:#fff;backdrop-filter:blur(3px);letter-spacing:0.04em;}
+.skin-banner-wrap{max-width:680px;margin:0 auto;}
+.skin-banner-header{text-align:center;padding:12px 0 20px;}
+.skin-banner-title{font-family:'Cinzel Decorative',serif;font-size:1.4em;background:linear-gradient(135deg,#c084b8,#9b59b6,#c084b8);background-size:300%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:shimmer 5s linear infinite;margin-bottom:6px;}
+.skin-banner-desc{color:var(--text-dim);font-style:italic;font-size:0.88em;}
+.skin-cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:18px;margin-top:8px;}
+.skin-card-item{background:var(--surface);border:1px solid var(--border);border-radius:18px;overflow:hidden;position:relative;transition:all 0.25s;cursor:pointer;}
+.skin-card-item:hover{transform:translateY(-4px);box-shadow:0 12px 32px rgba(155,89,182,0.25);}
+.skin-card-item.owned-skin{border-color:rgba(155,89,182,0.5);background:rgba(155,89,182,0.06);}
+.skin-card-item.equipped-skin{border-color:#f1c40f;background:rgba(241,196,15,0.06);box-shadow:0 0 20px rgba(241,196,15,0.15);}
+.skin-card-thumb{width:100%;aspect-ratio:2/3;object-fit:cover;display:block;border-bottom:1px solid var(--border);}
+.skin-card-body{padding:10px 12px 12px;}
+.skin-card-for{font-size:0.65em;color:var(--text-dim);font-family:'JetBrains Mono',monospace;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:3px;}
+.skin-card-name{font-family:'Cinzel Decorative',serif;font-size:0.8em;color:var(--text);margin-bottom:5px;line-height:1.25;}
+.skin-card-rarity-badge{display:inline-flex;align-items:center;gap:4px;font-size:0.64em;font-family:'JetBrains Mono',monospace;padding:2px 7px;border-radius:10px;border:1px solid;margin-bottom:8px;}
+.skin-rarity-common{color:var(--skin-common);border-color:rgba(189,195,199,0.4);background:rgba(189,195,199,0.08);}
+.skin-rarity-rare{color:var(--skin-rare);border-color:rgba(155,89,182,0.4);background:rgba(155,89,182,0.08);}
+.skin-rarity-epic{color:var(--skin-epic);border-color:rgba(241,196,15,0.4);background:rgba(241,196,15,0.08);}
+.skin-rarity-legendary{color:var(--skin-legendary);border-color:rgba(255,107,157,0.4);background:rgba(255,107,157,0.08);}
+.skin-card-btn{width:100%;padding:8px;border-radius:10px;border:none;font-family:'Cinzel Decorative',serif;font-size:0.72em;cursor:pointer;transition:all 0.2s;letter-spacing:0.04em;}
+.skin-card-btn.buy-btn{background:linear-gradient(135deg,#9b59b6,#c084b8);color:#fff;}
+.skin-card-btn.buy-btn:hover{opacity:0.88;transform:translateY(-1px);}
+.skin-card-btn.equip-btn{background:rgba(155,89,182,0.15);border:1px solid rgba(155,89,182,0.4);color:#c084b8;}
+.skin-card-btn.equip-btn:hover{background:rgba(155,89,182,0.25);}
+.skin-card-btn.equipped-btn{background:rgba(241,196,15,0.12);border:1px solid rgba(241,196,15,0.4);color:#f1c40f;}
+.skin-card-btn.remove-btn{background:rgba(231,76,60,0.08);border:1px solid rgba(231,76,60,0.2);color:#e74c3c;margin-top:4px;}
+.skin-card-btn.remove-btn:hover{background:rgba(231,76,60,0.18);}
+.skin-owned-tag{position:absolute;top:8px;right:8px;background:rgba(155,89,182,0.85);color:#fff;font-size:0.56em;font-family:'JetBrains Mono',monospace;font-weight:700;padding:2px 6px;border-radius:6px;letter-spacing:0.06em;backdrop-filter:blur(4px);}
+.skin-equipped-tag{position:absolute;top:8px;left:8px;background:rgba(241,196,15,0.9);color:#000;font-size:0.56em;font-family:'JetBrains Mono',monospace;font-weight:700;padding:2px 6px;border-radius:6px;letter-spacing:0.06em;}
+.card-modal-skins{margin-top:16px;padding:14px 16px;background:rgba(155,89,182,0.06);border:1px solid rgba(155,89,182,0.2);border-radius:14px;}
+.card-modal-skins-title{font-family:'Cinzel Decorative',serif;font-size:0.78em;color:#c084b8;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:10px;}
+.card-modal-skin-row{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;border:1px solid var(--border);background:var(--surface);margin-bottom:6px;transition:all 0.2s;}
+.card-modal-skin-row:last-child{margin-bottom:0;}
+.card-modal-skin-row.active-skin-row{border-color:#f1c40f;background:rgba(241,196,15,0.06);}
+.card-modal-skin-thumb{width:32px;height:44px;border-radius:5px;object-fit:cover;border:1px solid var(--border);flex-shrink:0;}
+.card-modal-skin-info{flex:1;min-width:0;}
+.card-modal-skin-name{font-size:0.82em;color:var(--text);font-weight:600;}
+.card-modal-skin-rarity{font-size:0.7em;font-family:'JetBrains Mono',monospace;margin-top:1px;}
+.admin-skin-row{display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:10px 14px;margin-bottom:8px;transition:border-color 0.2s;}
+.admin-skin-row:hover{border-color:rgba(155,89,182,0.4);}
+.admin-skin-thumb{width:40px;height:56px;object-fit:cover;border-radius:7px;flex-shrink:0;border:2px solid rgba(155,89,182,0.3);}
+.admin-skin-info{flex:1;min-width:0;}
+.admin-skin-name{font-weight:600;font-size:0.88em;margin-bottom:2px;}
+.admin-skin-meta{font-size:0.72em;color:var(--text-dim);font-family:'JetBrains Mono',monospace;}
+.skin-empty-state{text-align:center;padding:50px 20px;color:var(--text-dim);font-style:italic;}
+.skin-empty-state .skin-empty-icon{font-size:2.5em;margin-bottom:12px;display:block;}
+
+/* ══════════════════════════════════════════
    BANNER SYSTEM — Admin & Display
 ══════════════════════════════════════════ */
 
@@ -4151,6 +4207,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
     <div style="display:flex;gap:8px;margin-bottom:24px;flex-wrap:wrap;">
       <button class="filter-btn active" id="atab-cards" onclick="switchAdminTab('cards',this)">🎴 Card Manager</button>
       <button class="filter-btn" id="atab-banners" onclick="switchAdminTab('banners',this)">🏮 Banner Manager</button>
+      <button class="filter-btn" id="atab-skins" onclick="switchAdminTab('skins',this)">🎨 Skin Manager</button>
       <button class="filter-btn" id="atab-tools" onclick="switchAdminTab('tools',this)">🔧 Tools</button>
     </div>
 
@@ -4353,7 +4410,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
               <option value="standard">🌐 Standard / Permanent</option>
               <option value="beginner">🌱 Beginner</option>
               <option value="collab">✨ Collab</option>
-              <option value="skin">👗 Card Skin (coming soon)</option>
+              <option value="skin">🎨 Card Skin Banner</option>
             </select>
           </div>
           <div>
@@ -4428,6 +4485,106 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
         </div>
         <div id="adminBannerList">
           <div style="color:var(--text-dim);font-style:italic;font-size:0.85em;text-align:center;padding:20px;">Click 🔄 to load banners</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SKIN MANAGER TAB -->
+    <div id="adminTab-skins" style="display:none;">
+
+      <!-- Skin Form -->
+      <div class="admin-panel" id="skinFormPanel">
+        <h3 id="skinFormTitle" style="margin-bottom:16px;">🎨 Create New Skin</h3>
+        <input type="hidden" id="skinEditId"/>
+
+        <div class="admin-section-label">Skin Info</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
+          <div>
+            <label class="admin-label">Skin Name *</label>
+            <input class="admin-input" id="skinForm_name" placeholder="e.g. Summer Frieren"/>
+          </div>
+          <div>
+            <label class="admin-label">Target Card *</label>
+            <select class="admin-input" id="skinForm_cardId" onchange="updateSkinCardPreview()">
+              <option value="">— pick a card —</option>
+            </select>
+          </div>
+          <div>
+            <label class="admin-label">Rarity / Tier</label>
+            <select class="admin-input" id="skinForm_rarity">
+              <option value="common">⚪ Common</option>
+              <option value="rare" selected>💜 Rare</option>
+              <option value="epic">🟡 Epic</option>
+              <option value="legendary">🌈 Legendary</option>
+            </select>
+          </div>
+          <div>
+            <label class="admin-label">Price (coins)</label>
+            <input class="admin-input" id="skinForm_price" type="number" value="300" min="0"/>
+          </div>
+        </div>
+
+        <div style="margin-bottom:12px;">
+          <label class="admin-label">Description <span class="admin-hint">(optional)</span></label>
+          <textarea class="admin-input" id="skinForm_desc" rows="2" placeholder="A limited seasonal skin..." style="resize:vertical;"></textarea>
+        </div>
+
+        <div class="admin-section-label" style="margin-top:8px;">Skin Art <span class="admin-hint">(replaces card thumbnail + main art)</span></div>
+        <div style="margin-bottom:10px;">
+          <label class="admin-label">Thumbnail URL * <span class="admin-hint">(collection view)</span></label>
+          <div style="display:flex;gap:8px;">
+            <input class="admin-input" id="skinForm_thumbnail" placeholder="Paste thumbnail URL or upload →" style="flex:1" oninput="updateSkinCardPreview()"/>
+            <label class="upload-btn" title="Upload thumbnail">
+              📁<input type="file" accept="image/*" style="display:none" onchange="uploadSkinFile(this,'skinForm_thumbnail')"/>
+            </label>
+          </div>
+        </div>
+        <div style="margin-bottom:14px;">
+          <label class="admin-label">Main Art URL * <span class="admin-hint">(pull/modal view)</span></label>
+          <div style="display:flex;gap:8px;">
+            <input class="admin-input" id="skinForm_image" placeholder="Paste main art URL or upload →" style="flex:1" oninput="updateSkinCardPreview()"/>
+            <label class="upload-btn" title="Upload main art">
+              📁<input type="file" accept="image/*,.gif" style="display:none" onchange="uploadSkinFile(this,'skinForm_image')"/>
+            </label>
+          </div>
+        </div>
+
+        <!-- Live preview -->
+        <div id="skinFormPreviewWrap" style="display:none;margin-bottom:14px;">
+          <div class="admin-section-label" style="margin-bottom:8px;">Preview</div>
+          <div style="display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap;">
+            <div>
+              <div style="font-size:0.7em;color:var(--text-dim);margin-bottom:4px;text-align:center;">Thumbnail</div>
+              <div style="width:80px;height:112px;border-radius:10px;overflow:hidden;border:2px solid var(--pink);background:var(--bg3);">
+                <img id="skinPreviewThumb" src="" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none'"/>
+              </div>
+            </div>
+            <div>
+              <div style="font-size:0.7em;color:var(--text-dim);margin-bottom:4px;text-align:center;">Main Art</div>
+              <div style="width:120px;height:168px;border-radius:10px;overflow:hidden;border:2px solid var(--pink);background:var(--bg3);">
+                <img id="skinPreviewMain" src="" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none'"/>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;">
+          <button class="admin-btn" id="skinFormSubmitBtn" onclick="submitSkinForm()"
+            style="background:linear-gradient(135deg,#9b59b6,#c084b8);color:#fff;flex:1;">
+            🎨 Create Skin
+          </button>
+          <button class="admin-btn" id="skinFormCancelBtn" onclick="cancelSkinEdit()" style="display:none;">✕ Cancel</button>
+        </div>
+      </div>
+
+      <!-- Skin List -->
+      <div class="admin-panel" style="margin-top:16px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;gap:8px;flex-wrap:wrap;">
+          <h3 style="margin:0;">🎨 All Skins <span id="adminSkinCount" style="font-size:0.8em;color:var(--text-dim);font-family:'JetBrains Mono',monospace;"></span></h3>
+          <button class="admin-btn" onclick="loadAdminSkinList()" style="padding:6px 12px;font-size:0.82em;">🔄 Refresh</button>
+        </div>
+        <div id="adminSkinList">
+          <div style="color:var(--text-dim);font-style:italic;font-size:0.85em;text-align:center;padding:20px;">Click 🔄 to load skins</div>
         </div>
       </div>
     </div>
@@ -5800,7 +5957,7 @@ async function loadCards(){
 
 async function loadAll(discordId){
   showLoadingOverlay(true);
-  await Promise.all([loadCards(), loadCardCutscenes(), loadPlayer(discordId), loadCollection(discordId), loadXpMap(discordId)]);
+  await Promise.all([loadCards(), loadCardCutscenes(), loadPlayer(discordId), loadCollection(discordId), loadXpMap(discordId), loadSkins(), loadPlayerSkins()]);
   showLoadingOverlay(false);
   updateCoins();updatePity();updateProfile();renderCollection();renderShop();
   await loadActiveBanner();
@@ -5987,6 +6144,8 @@ function renderCardThumb(id,counts){
   const color=RARITY_COLORS[c.rarity]||'#bdc3c7';
   const isEquipped=state.equippedId===id;
   const cnt=counts[id]||1;
+  const hasSkin = !!(window.EQUIPPED_SKINS && window.EQUIPPED_SKINS[id]);
+  const thumbSrc = getCardThumbnail(c);
   const xp=state.xpMap[id]||0;
   const lvl=calcLevel(xp);
   const isRainbow=c.rarity===7;
@@ -5998,9 +6157,10 @@ function renderCardThumb(id,counts){
     :`<span class="card-thumb-badge" style="color:${color}">${c.rarityName}</span>`;
   const borderStyle=isRainbow?`style="border-color:transparent;background-clip:padding-box;outline:2px solid;outline-color:transparent;animation:rainbowBorder 2.5s linear infinite;"`:'';
   return`<div class="card-thumb${isRainbow?' rainbow-card':''}" onclick="openCard('${id}')" ${isRainbow?`style="box-shadow:0 0 14px rgba(255,100,200,0.4)"`:''}">
-    <img src="${c.image}" alt="${c.name}" loading="lazy" onerror="this.style.background='#1c0f26'"/>
+    <img src="${thumbSrc}" alt="${c.name}" loading="lazy" onerror="this.style.background='#1c0f26'"/>
     ${badgeDisplay}
     <span class="card-thumb-lvl">Lv.${lvl}</span>
+    ${hasSkin ? '<span class="skin-active-badge">🎨 Skin</span>' : ''}
     <div class="card-thumb-info">
       <div class="card-thumb-name">${isEquipped?'⚔️ ':''}${c.name}</div>
       <div class="card-thumb-rarity">${rarityDisplay}</div>
@@ -6029,7 +6189,8 @@ function openCard(id){
   const nextXp=lvl<10?xpTable[lvl]:xpTable[9];
   const curFloor=xpTable[lvl-1];
   const pct=lvl>=10?100:Math.round(((xp-curFloor)/(nextXp-curFloor))*100);
-  document.getElementById('modalArt').src=c.image;
+  // Use skin image if equipped
+  document.getElementById('modalArt').src=getCardImage(c);
   document.getElementById('modalRarity').innerHTML=`<span style="color:${color};font-family:'JetBrains Mono',monospace">${c.rarityName} ${c.rarityStars}</span>`;
   document.getElementById('modalName').textContent=c.name;
   document.getElementById('modalSeries').textContent=c.series;
@@ -6039,6 +6200,10 @@ function openCard(id){
   let abEl = document.getElementById('modalAbilities');
   if(!abEl){ abEl=document.createElement('div'); abEl.id='modalAbilities'; document.getElementById('modalDesc').insertAdjacentElement('afterend',abEl); }
   abEl.innerHTML = renderAbilities(c.id, c.rarity);
+  // Render skin section
+  let skinEl = document.getElementById('modalSkins');
+  if(!skinEl){ skinEl=document.createElement('div'); skinEl.id='modalSkins'; abEl.insertAdjacentElement('afterend',skinEl); }
+  skinEl.innerHTML = renderCardModalSkins(id);
   document.getElementById('modalLvl').textContent=lvl>=10?'Lv.10 ✦ MAX':`Lv.${lvl}`;
   document.getElementById('modalXpText').textContent=lvl>=10?`${xp} XP`:`${xp} / ${nextXp} XP`;
   document.getElementById('modalXpFill').style.width=pct+'%';
@@ -6270,6 +6435,7 @@ async function guestLogin(){
   }
   hideLoginOverlay();
   updateCoins();updatePity();updateProfile();renderCollection();renderShop();
+  await loadSkins();
   await loadActiveBanner();
   showToast('👤 Playing as Guest — progress saves locally ʚɞ');
 }
@@ -7304,6 +7470,19 @@ function renderActiveBanner(){
   if(!el) return;
   const banner      = getActiveBanner();
   const type        = banner.banner_type || 'standard';
+
+  // Restore pull buttons (hidden by skin banner previously)
+  const pullBannerCard = document.querySelector('.pull-btn-group')?.closest?.('.banner-card');
+  if(pullBannerCard) pullBannerCard.style.display = '';
+  const pitySection = document.getElementById('bannerPitySection');
+  if(pitySection) pitySection.style.display = '';
+
+  // Skin banners get their own renderer
+  if(type === 'skin'){
+    renderSkinBanner();
+    return;
+  }
+
   const meta        = BANNER_TYPE_META[type] || BANNER_TYPE_META.standard;
   const allCards    = window.DEMO_CARDS || DEMO_CARDS;
   const featuredCards = parseFeaturedCards(banner.featured_cards).map(id=>allCards.find(c=>c.id===id)).filter(Boolean);
@@ -8886,13 +9065,14 @@ function showAdminNav(){
 }
 
 function switchAdminTab(tab, btn){
-  ['cards','banners','tools'].forEach(t=>{
+  ['cards','banners','skins','tools'].forEach(t=>{
     const el=document.getElementById('adminTab-'+t);
     const b=document.getElementById('atab-'+t);
     if(el)el.style.display=t===tab?'block':'none';
     if(b)b.classList.toggle('active',t===tab);
   });
   if(tab==='banners') loadAdminBannerList();
+  if(tab==='skins') { populateSkinCardSelect(); loadAdminSkinList(); }
 }
 
 // ── Upload file to Supabase Storage ──
@@ -12215,6 +12395,455 @@ function openCardById(cardId){
 }
 
 // pvp_wins / pvp_losses now loaded in loadPlayer directly
+
+// ══════════════════════════════════════════════════════════════
+// SKIN SYSTEM
+// ══════════════════════════════════════════════════════════════
+
+// ── In-memory skin caches ──
+window.ALL_SKINS = [];          // all skins from DB
+let _adminSkinCache = [];       // admin panel cache
+window.PLAYER_SKINS = {};       // { skinId: true } — skins the player owns
+window.EQUIPPED_SKINS = {};     // { cardId: skinId } — active skin per card
+
+const SKIN_RARITY_META = {
+  common:    { icon: '⚪', label: 'Common',    color: '#bdc3c7' },
+  rare:      { icon: '💜', label: 'Rare',      color: '#9b59b6' },
+  epic:      { icon: '🌟', label: 'Epic',      color: '#f1c40f' },
+  legendary: { icon: '🌸', label: 'Legendary', color: '#ff6b9d' },
+};
+
+// ── Load skins from DB ──
+async function loadSkins(){
+  try {
+    const rows = await sb.getAll('card_skins');
+    window.ALL_SKINS = rows || [];
+  } catch(e){
+    window.ALL_SKINS = [];
+    console.warn('card_skins table not found — run the SQL migration first.', e);
+  }
+}
+
+// ── Load player skin inventory + equipped map ──
+async function loadPlayerSkins(){
+  if(!state.discordId || state.isGuest){
+    // For guests keep in-memory only (already initialised as {})
+    return;
+  }
+  try {
+    const rows = await sb.get('player_skins', { discord_id: state.discordId });
+    window.PLAYER_SKINS  = {};
+    window.EQUIPPED_SKINS = {};
+    (rows||[]).forEach(r=>{
+      window.PLAYER_SKINS[r.skin_id] = true;
+      if(r.equipped) window.EQUIPPED_SKINS[r.card_id] = r.skin_id;
+    });
+  } catch(e){
+    window.PLAYER_SKINS  = {};
+    window.EQUIPPED_SKINS = {};
+    console.warn('player_skins table not found — run the SQL migration first.', e);
+  }
+}
+
+// ── Helper: get effective image/thumbnail for a card (respects active skin) ──
+function getCardImage(card){
+  const skinId = window.EQUIPPED_SKINS && window.EQUIPPED_SKINS[card.id];
+  if(skinId){
+    const skin = (window.ALL_SKINS||[]).find(s=>s.id===skinId);
+    if(skin) return skin.image || card.image;
+  }
+  return card.image;
+}
+function getCardThumbnail(card){
+  const skinId = window.EQUIPPED_SKINS && window.EQUIPPED_SKINS[card.id];
+  if(skinId){
+    const skin = (window.ALL_SKINS||[]).find(s=>s.id===skinId);
+    if(skin) return skin.thumbnail || skin.image || card.thumbnail || card.image;
+  }
+  return card.thumbnail || card.image;
+}
+
+// ── Buy a skin (gacha-free — direct purchase) ──
+async function buySkin(skinId){
+  const skin = (window.ALL_SKINS||[]).find(s=>s.id===skinId);
+  if(!skin){ showToast('Skin not found'); return; }
+  if(window.PLAYER_SKINS[skinId]){ showToast('You already own this skin!'); return; }
+  const price = parseInt(skin.price)||0;
+  if(state.coins < price){ showToast(`Not enough coins! Need ${price} 🪙`); return; }
+
+  if(!confirm(`Purchase "${skin.name}" for ${price} 🪙?`)) return;
+
+  state.coins -= price;
+  updateCoins();
+
+  // Persist to player_skins table
+  if(state.discordId && !state.isGuest){
+    try {
+      await sb.insert('player_skins', {
+        discord_id: state.discordId,
+        skin_id: skinId,
+        card_id: skin.card_id,
+        equipped: false,
+      });
+    } catch(e){ showToast('❌ Could not save skin: ' + e.message); state.coins += price; updateCoins(); return; }
+    await savePlayer();
+  }
+
+  window.PLAYER_SKINS[skinId] = true;
+  if(state.isGuest) saveGuestState();
+
+  showToast(`✨ Skin "${skin.name}" acquired!`);
+  // Re-render whatever is currently visible
+  renderSkinBanner();
+  renderCollection();
+}
+
+// ── Equip a skin on a card ──
+async function equipSkin(skinId, cardId){
+  if(!window.PLAYER_SKINS[skinId]){ showToast('You don\'t own this skin'); return; }
+  const prev = window.EQUIPPED_SKINS[cardId];
+
+  window.EQUIPPED_SKINS[cardId] = skinId;
+
+  if(state.discordId && !state.isGuest){
+    try {
+      // Unequip old skin for this card first
+      if(prev){
+        await sb.update('player_skins', { equipped: false }, { discord_id: state.discordId, skin_id: prev });
+      }
+      // Equip new skin
+      await sb.update('player_skins', { equipped: true }, { discord_id: state.discordId, skin_id: skinId });
+    } catch(e){ console.warn('Could not save equip state:', e); }
+  }
+
+  showToast('🎨 Skin equipped!');
+  renderCollection();
+  renderSkinBanner();
+  // Refresh open card modal if it's the same card
+  if(openCardId === cardId) openCard(cardId);
+}
+
+// ── Remove (unequip) skin from a card ──
+async function unequipSkin(cardId){
+  const prev = window.EQUIPPED_SKINS[cardId];
+  if(!prev) return;
+  delete window.EQUIPPED_SKINS[cardId];
+
+  if(state.discordId && !state.isGuest){
+    try {
+      await sb.update('player_skins', { equipped: false }, { discord_id: state.discordId, skin_id: prev });
+    } catch(e){ console.warn('Could not save unequip state:', e); }
+  }
+
+  showToast('✅ Skin removed');
+  renderCollection();
+  renderSkinBanner();
+  if(openCardId === cardId) openCard(cardId);
+}
+
+// ── Render the Skin Banner on the pull page ──
+function renderSkinBanner(){
+  const banner = getActiveBanner();
+  if(!banner || banner.banner_type !== 'skin') return;
+
+  const el = document.getElementById('pullBannerContainer');
+  if(!el) return;
+
+  const skinsForBanner = getSkinBannerPool(banner);
+
+  el.innerHTML = `
+    <div class="skin-banner-wrap">
+      <div class="banner-hero" style="margin-bottom:20px;">
+        ${banner.image ? `<img class="banner-hero-media" src="${banner.image}" alt="" onerror="this.style.display='none'"/>` : ''}
+        <div class="banner-hero-body">
+          <div class="banner-type-badge btb-skin">🎨 Card Skin Banner</div>
+          <div class="banner-hero-title">${escapeHtml(banner.name)}</div>
+          <div class="banner-hero-desc">${escapeHtml(banner.description||'Exclusive cosmetic skins for your cards. Own it forever — no gacha, just direct purchase!')}</div>
+        </div>
+      </div>
+      <div class="section-title" style="margin-bottom:16px;">🎨 Available Skins</div>
+      ${skinsForBanner.length ? `
+        <div class="skin-cards-grid" id="skinBannerGrid">
+          ${skinsForBanner.map(skin=>renderSkinCard(skin)).join('')}
+        </div>
+      ` : `
+        <div class="skin-empty-state">
+          <span class="skin-empty-icon">🎨</span>
+          <div>No skins available on this banner yet.</div>
+          <div style="font-size:0.8em;margin-top:6px;">Check back later or ask an admin to add skins!</div>
+        </div>
+      `}
+    </div>
+  `;
+
+  // Hide pull buttons for skin banner
+  const pullBtns = document.querySelector('.pull-btn-group');
+  if(pullBtns) pullBtns.closest('.banner-card').style.display = 'none';
+  const pitySection = document.getElementById('bannerPitySection');
+  if(pitySection) pitySection.style.display = 'none';
+}
+
+// ── Get skins that belong to this banner's featured card list ──
+function getSkinBannerPool(banner){
+  const all = window.ALL_SKINS || [];
+  // If banner has featured_cards, only show skins for those cards
+  const featured = parseFeaturedCards(banner.featured_cards);
+  if(featured.length){
+    return all.filter(s => featured.includes(s.card_id));
+  }
+  return all; // show all skins
+}
+
+// ── Render a single skin card tile ──
+function renderSkinCard(skin){
+  const meta = SKIN_RARITY_META[skin.rarity||'rare'] || SKIN_RARITY_META.rare;
+  const isOwned = !!(window.PLAYER_SKINS && window.PLAYER_SKINS[skin.id]);
+  const baseCard = (window.DEMO_CARDS||[]).find(c=>c.id===skin.card_id);
+  const cardName = baseCard ? baseCard.name : (skin.card_id||'Unknown');
+  const equippedSkinForCard = window.EQUIPPED_SKINS && window.EQUIPPED_SKINS[skin.card_id];
+  const isEquipped = equippedSkinForCard === skin.id;
+  const thumbSrc = skin.thumbnail || skin.image || '';
+  const price = parseInt(skin.price)||0;
+
+  let actionBtns = '';
+  if(!isOwned){
+    actionBtns = `<button class="skin-card-btn buy-btn" onclick="buySkin('${skin.id}')">🪙 ${price} — Buy Skin</button>`;
+  } else if(isEquipped){
+    actionBtns = `
+      <button class="skin-card-btn equipped-btn" disabled>✦ Equipped</button>
+      <button class="skin-card-btn remove-btn" onclick="unequipSkin('${skin.card_id}')">Remove Skin</button>`;
+  } else {
+    actionBtns = `<button class="skin-card-btn equip-btn" onclick="equipSkin('${skin.id}','${skin.card_id}')">🎨 Equip Skin</button>`;
+  }
+
+  return `<div class="skin-card-item ${isOwned?(isEquipped?'equipped-skin':'owned-skin'):''}">
+    ${isEquipped ? '<div class="skin-equipped-tag">✦ EQUIPPED</div>' : (isOwned ? '<div class="skin-owned-tag">OWNED</div>' : '')}
+    <img class="skin-card-thumb" src="${escapeHtml(thumbSrc)}" alt="${escapeHtml(skin.name)}" onerror="this.style.background='#1c0f26'"/>
+    <div class="skin-card-body">
+      <div class="skin-card-for">For: ${escapeHtml(cardName)}</div>
+      <div class="skin-card-name">${escapeHtml(skin.name)}</div>
+      <div class="skin-card-rarity-badge skin-rarity-${skin.rarity||'rare'}">${meta.icon} ${meta.label}</div>
+      <div style="margin-top:4px;">
+        ${actionBtns}
+      </div>
+    </div>
+  </div>`;
+}
+
+// ── Inject skin section into an open card modal ──
+function renderCardModalSkins(cardId){
+  const owned = (window.ALL_SKINS||[]).filter(s=> s.card_id === cardId && window.PLAYER_SKINS && window.PLAYER_SKINS[s.id]);
+  if(!owned.length) return '';
+
+  const equippedId = window.EQUIPPED_SKINS && window.EQUIPPED_SKINS[cardId];
+  const rows = owned.map(skin=>{
+    const isEq = skin.id === equippedId;
+    const meta = SKIN_RARITY_META[skin.rarity||'rare'] || SKIN_RARITY_META.rare;
+    const thumbSrc = skin.thumbnail || skin.image || '';
+    return `<div class="card-modal-skin-row ${isEq?'active-skin-row':''}">
+      <img class="card-modal-skin-thumb" src="${escapeHtml(thumbSrc)}" alt="${escapeHtml(skin.name)}" onerror="this.style.display='none'"/>
+      <div class="card-modal-skin-info">
+        <div class="card-modal-skin-name">${escapeHtml(skin.name)}</div>
+        <div class="card-modal-skin-rarity" style="color:${meta.color}">${meta.icon} ${meta.label}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:4px;">
+        ${isEq
+          ? `<button class="skin-card-btn remove-btn" style="padding:5px 12px;font-size:0.7em;" onclick="unequipSkin('${cardId}')">Remove</button>`
+          : `<button class="skin-card-btn equip-btn" style="padding:5px 12px;font-size:0.7em;" onclick="equipSkin('${skin.id}','${cardId}')">Equip</button>`
+        }
+      </div>
+    </div>`;
+  }).join('');
+
+  return `<div class="card-modal-skins">
+    <div class="card-modal-skins-title">🎨 Your Skins</div>
+    ${rows}
+  </div>`;
+}
+
+// ── Admin: populate card select in skin form ──
+function populateSkinCardSelect(){
+  const sel = document.getElementById('skinForm_cardId');
+  if(!sel) return;
+  const allCards = window.DEMO_CARDS || [];
+  sel.innerHTML = '<option value="">— pick a card —</option>' +
+    allCards.map(c=>`<option value="${c.id}">[${c.rarityName}] ${escapeHtml(c.name)}</option>`).join('');
+}
+
+// ── Admin: live preview of skin form ──
+function updateSkinCardPreview(){
+  const thumb = (document.getElementById('skinForm_thumbnail')?.value||'').trim();
+  const main  = (document.getElementById('skinForm_image')?.value||'').trim();
+  const wrap  = document.getElementById('skinFormPreviewWrap');
+  const tImg  = document.getElementById('skinPreviewThumb');
+  const mImg  = document.getElementById('skinPreviewMain');
+  if(!wrap) return;
+  const hasAny = thumb || main;
+  wrap.style.display = hasAny ? 'block' : 'none';
+  if(tImg){ tImg.src = thumb||main; tImg.style.display = (thumb||main) ? 'block' : 'none'; }
+  if(mImg){ mImg.src = main||thumb; mImg.style.display = (main||thumb) ? 'block' : 'none'; }
+}
+
+// ── Admin: upload skin file ──
+async function uploadSkinFile(input, targetId){
+  const file = input?.files?.[0];
+  if(!file) return;
+  showToast('⏳ Uploading...');
+  const url = await uploadToStorage(file, 'skins');
+  if(url){
+    const inp = document.getElementById(targetId);
+    if(inp) inp.value = url;
+    updateSkinCardPreview();
+    showToast('✅ Uploaded!');
+  } else {
+    showToast('❌ Upload failed');
+  }
+  input.value = '';
+}
+
+// ── Admin: load & render skin list ──
+async function loadAdminSkinList(){
+  const el = document.getElementById('adminSkinList');
+  if(!el) return;
+  el.innerHTML = '<div style="color:var(--text-dim);font-style:italic;font-size:0.85em;text-align:center;padding:20px;">Loading...</div>';
+  try {
+    _adminSkinCache = await sb.getAll('card_skins') || [];
+  } catch(e){
+    _adminSkinCache = [];
+    el.innerHTML = '<div style="color:#e74c3c;font-size:0.85em;text-align:center;padding:16px;">⚠️ Could not load skins.<br><span style="color:var(--text-dim)">Make sure the <code>card_skins</code> table exists (run the SQL migration).</span></div>';
+    return;
+  }
+  renderAdminSkinList();
+}
+
+function renderAdminSkinList(){
+  const el = document.getElementById('adminSkinList');
+  if(!el) return;
+  const count = _adminSkinCache.length;
+  const countEl = document.getElementById('adminSkinCount');
+  if(countEl) countEl.textContent = count ? `(${count})` : '';
+  if(!count){
+    el.innerHTML = '<div style="color:var(--text-dim);font-style:italic;font-size:0.85em;text-align:center;padding:20px;">No skins yet. Create one above!</div>';
+    return;
+  }
+  const allCards = window.DEMO_CARDS || [];
+  el.innerHTML = _adminSkinCache.map(skin=>{
+    const meta = SKIN_RARITY_META[skin.rarity||'rare'] || SKIN_RARITY_META.rare;
+    const baseCard = allCards.find(c=>c.id===skin.card_id);
+    const thumbSrc = skin.thumbnail || skin.image || '';
+    return `<div class="admin-skin-row">
+      <img class="admin-skin-thumb" src="${escapeHtml(thumbSrc)}" alt="${escapeHtml(skin.name)}" onerror="this.style.background='#1c0f26'"/>
+      <div class="admin-skin-info">
+        <div class="admin-skin-name">${escapeHtml(skin.name)}</div>
+        <div class="admin-skin-meta">
+          For: ${baseCard ? escapeHtml(baseCard.name) : (skin.card_id||'?')} &nbsp;·&nbsp;
+          <span style="color:${meta.color}">${meta.icon} ${meta.label}</span> &nbsp;·&nbsp;
+          🪙 ${parseInt(skin.price)||0}
+        </div>
+      </div>
+      <div class="admin-card-actions">
+        <button class="admin-action-btn" onclick="editSkin('${skin.id}')">✏️ Edit</button>
+        <button class="admin-action-btn danger" onclick="deleteSkin('${skin.id}','${escapeHtml(skin.name).replace(/'/g,"\\'")}')">🗑️</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── Admin: submit skin form ──
+async function submitSkinForm(){
+  if(!checkAdmin()) return;
+  const name   = (document.getElementById('skinForm_name')?.value||'').trim();
+  const cardId = (document.getElementById('skinForm_cardId')?.value||'').trim();
+  const image  = (document.getElementById('skinForm_image')?.value||'').trim();
+  const thumb  = (document.getElementById('skinForm_thumbnail')?.value||'').trim();
+  if(!name || !cardId || !image){
+    showToast('Name, Target Card, and Main Art are required!');
+    return;
+  }
+  const skinData = {
+    name,
+    card_id:   cardId,
+    rarity:    document.getElementById('skinForm_rarity')?.value || 'rare',
+    price:     parseInt(document.getElementById('skinForm_price')?.value)||300,
+    description: document.getElementById('skinForm_desc')?.value?.trim()||'',
+    image,
+    thumbnail: thumb||image,
+  };
+
+  const btn = document.getElementById('skinFormSubmitBtn');
+  if(btn){ btn.textContent = 'Saving...'; btn.disabled = true; }
+
+  try {
+    const editId = document.getElementById('skinEditId')?.value;
+    let ok;
+    if(editId){
+      ok = await sb.update('card_skins', skinData, { id: editId });
+    } else {
+      ok = await sb.insert('card_skins', skinData);
+    }
+    if(ok !== false){
+      showToast(`✅ Skin "${name}" saved!`);
+      cancelSkinEdit();
+      await loadAdminSkinList();
+      await loadSkins(); // refresh global cache
+      renderCollection();
+    } else {
+      showToast('❌ Save failed');
+    }
+  } catch(e){ showToast('❌ Error: ' + e.message); }
+
+  if(btn){ btn.textContent = '🎨 Create Skin'; btn.disabled = false; }
+}
+
+// ── Admin: edit skin ──
+function editSkin(skinId){
+  const skin = _adminSkinCache.find(s=>s.id===skinId);
+  if(!skin) return;
+  document.getElementById('skinFormTitle').textContent = '✏️ Edit Skin';
+  document.getElementById('skinEditId').value = skin.id;
+  document.getElementById('skinForm_name').value = skin.name||'';
+  document.getElementById('skinForm_cardId').value = skin.card_id||'';
+  document.getElementById('skinForm_rarity').value = skin.rarity||'rare';
+  document.getElementById('skinForm_price').value = skin.price||300;
+  document.getElementById('skinForm_desc').value = skin.description||'';
+  document.getElementById('skinForm_image').value = skin.image||'';
+  document.getElementById('skinForm_thumbnail').value = skin.thumbnail||'';
+  updateSkinCardPreview();
+  document.getElementById('skinFormSubmitBtn').textContent = '💾 Save Changes';
+  document.getElementById('skinFormCancelBtn').style.display = '';
+  document.getElementById('skinFormPanel').scrollIntoView({behavior:'smooth'});
+}
+
+// ── Admin: cancel skin edit ──
+function cancelSkinEdit(){
+  document.getElementById('skinFormTitle').textContent = '🎨 Create New Skin';
+  document.getElementById('skinEditId').value = '';
+  document.getElementById('skinForm_name').value = '';
+  document.getElementById('skinForm_cardId').value = '';
+  document.getElementById('skinForm_rarity').value = 'rare';
+  document.getElementById('skinForm_price').value = '300';
+  document.getElementById('skinForm_desc').value = '';
+  document.getElementById('skinForm_image').value = '';
+  document.getElementById('skinForm_thumbnail').value = '';
+  updateSkinCardPreview();
+  document.getElementById('skinFormSubmitBtn').textContent = '🎨 Create Skin';
+  document.getElementById('skinFormCancelBtn').style.display = 'none';
+}
+
+// ── Admin: delete skin ──
+async function deleteSkin(skinId, skinName){
+  if(!state.isAdmin) return;
+  if(!confirm(`Delete skin "${skinName}"? This cannot be undone.`)) return;
+  try {
+    await sb.delete('card_skins', { id: skinId });
+    showToast(`🗑️ "${skinName}" deleted`);
+    await loadAdminSkinList();
+    await loadSkins();
+    renderCollection();
+  } catch(e){ showToast('❌ Delete failed: ' + e.message); }
+}
+
+
 
 </script>
 
