@@ -5388,17 +5388,43 @@ function renderShopGrid(){
       }
     }
 
-    const thumbHtml = imageUrl
-      ? `<img class="shop-item-thumb" src="${escapeHtml(imageUrl)}" onerror="this.style.display='none'" alt=""/>`
-      : `<div class="shop-item-emoji-big">${item.emoji||'🎁'}</div>`;
+    // ── Resolve thumbnail: prefer admin-set image_url, then look up card/skin art ──
+    let thumbHtml;
+    let isArtThumb = false;
+    if(imageUrl){
+      thumbHtml = `<img class="shop-item-thumb" src="${escapeHtml(imageUrl)}" onerror="this.style.display='none'" alt=""/>`;
+      isArtThumb = true;
+    } else if(type === 'card' && refId){
+      const refCard = (window.DEMO_CARDS||DEMO_CARDS).find(c=>c.id===refId);
+      if(refCard){
+        thumbHtml = `<img class="shop-item-thumb" src="${escapeHtml(refCard.thumbnail||refCard.image)}" onerror="this.style.display='none'" alt=""/>`;
+        isArtThumb = true;
+      } else {
+        thumbHtml = `<div class="shop-item-emoji-big">${item.emoji||'🎁'}</div>`;
+      }
+    } else if(type === 'skin' && refId){
+      const refSkin = (window.ALL_SKINS||[]).find(s=>s.id===refId);
+      const skinImg = refSkin ? (refSkin.thumbnail||refSkin.image||refSkin.image_url||refSkin.preview_url||'') : '';
+      if(skinImg){
+        thumbHtml = `<img class="shop-item-thumb" src="${escapeHtml(skinImg)}" onerror="this.style.display='none'" alt=""/>`;
+        isArtThumb = true;
+      } else {
+        thumbHtml = `<div class="shop-item-emoji-big">${item.emoji||'🎁'}</div>`;
+      }
+    } else {
+      thumbHtml = `<div class="shop-item-emoji-big">${item.emoji||'🎁'}</div>`;
+    }
 
     const typeBadge = `<div class="shop-type-badge" style="background:${meta.accent};border:1px solid ${meta.border};color:${meta.color};">${item.emoji||'🎁'} ${typeLabel}</div>`;
 
     // Encode item as JSON for the buy handler
     const itemEncoded = JSON.stringify(JSON.stringify(item));
 
+    // Taller thumb for card/skin art (portrait aspect ratio looks better)
+    const thumbStyle = isArtThumb ? 'style="height:160px;"' : '';
+
     return `<div class="shop-new-item" style="--item-accent:${meta.color};--item-bg:${meta.accent};--item-border:${meta.border}">
-      <div class="shop-item-thumb-wrap">
+      <div class="shop-item-thumb-wrap" ${thumbStyle}>
         ${thumbHtml}
         ${statusTag}
       </div>
@@ -6623,6 +6649,8 @@ async function loadAll(discordId){
   updateCoins();updatePity();updateProfile();renderCollection();renderShop();
   await loadActiveBanner();
   if(state.isAdmin) showAdminNav();
+  // Show daily reward popup if unclaimed
+  setTimeout(()=>checkAndShowDailyPopup(), 900);
 }
 
 // ══════════════════════════════════════════════
@@ -7085,6 +7113,8 @@ async function guestLogin(){
   await loadShopItems();
   await loadActiveBanner();
   showToast('👤 Playing as Guest — progress saves locally ʚɞ');
+  // Show daily reward popup if unclaimed
+  setTimeout(()=>checkAndShowDailyPopup(), 900);
 }
 
 function saveGuestState(){
@@ -7439,6 +7469,81 @@ async function claimDailyReward(){
   showToast(`🎉 Day ${d.streak} reward! +${reward.coins} 🪙`); playClaimSound();
   spawnParticles(3,'#f1c40f');
   renderDailyCalendar();
+}
+
+// ══════════════════════════════════════════════
+// DAILY LOGIN POPUP — shows on login when reward is ready
+// ══════════════════════════════════════════════
+function checkAndShowDailyPopup(){
+  // Only show once per browser session
+  if(sessionStorage.getItem('mg_daily_popup_shown')) return;
+
+  const d = loadDailyState();
+  const today = new Date();
+
+  // If already claimed today, don't show
+  if(d.lastClaim && isSameDay(d.lastClaim, today)) return;
+
+  sessionStorage.setItem('mg_daily_popup_shown', '1');
+
+  const slot = d.streak % 7;
+  const reward = DAILY_REWARDS[slot];
+  const streakDay = slot + 1;
+
+  const calStrip = DAILY_REWARDS.map((r,i)=>{
+    const isPast   = i < slot;
+    const isToday  = i === slot;
+    const bg     = isPast  ? 'rgba(46,204,113,0.15)' : isToday ? 'rgba(241,196,15,0.18)' : 'rgba(255,255,255,0.04)';
+    const border = isPast  ? 'rgba(46,204,113,0.35)'  : isToday ? 'rgba(241,196,15,0.5)'  : 'rgba(255,255,255,0.1)';
+    const col    = isPast  ? '#2ecc71' : isToday ? '#f1c40f' : 'var(--text-dim)';
+    return `<div style="flex:1;max-width:42px;background:${bg};border:1px solid ${border};border-radius:9px;padding:5px 2px;text-align:center;min-width:0;">
+      <div style="font-size:0.55em;color:${col};font-family:'JetBrains Mono',monospace;margin-bottom:2px;font-weight:700;">D${i+1}</div>
+      <div style="font-size:1.05em;line-height:1;">${isPast?'&#10003;':'&#128B0;'}</div>
+      <div style="font-size:0.5em;color:${col};font-family:'JetBrains Mono',monospace;margin-top:2px;">${r.coins}</div>
+    </div>`;
+  }).join('');
+
+  const modal = document.createElement('div');
+  modal.id = 'dailyPopupModal';
+  modal.style.cssText = 'position:fixed;inset:0;z-index:450;display:flex;align-items:center;justify-content:center;background:rgba(13,6,16,0.88);backdrop-filter:blur(14px);padding:20px;';
+  modal.innerHTML = `
+    <div style="background:linear-gradient(145deg,var(--bg2),var(--bg3));border:1px solid rgba(241,196,15,0.25);border-radius:28px;max-width:400px;width:100%;padding:36px 28px 28px;text-align:center;animation:modalIn 0.4s cubic-bezier(0.34,1.56,0.64,1);position:relative;overflow:hidden;box-shadow:0 0 80px rgba(241,196,15,0.08);">
+      <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 50% -10%,rgba(241,196,15,0.1),transparent 60%);pointer-events:none;"></div>
+      <div style="font-size:3em;margin-bottom:10px;filter:drop-shadow(0 0 18px rgba(241,196,15,0.55));animation:decoDrift 2.5s ease-in-out infinite;">&#127775;</div>
+      <div style="font-family:'Cinzel Decorative',serif;font-size:1.1em;color:var(--pink-pale);margin-bottom:3px;letter-spacing:0.05em;">Daily Reward!</div>
+      <div style="font-size:0.82em;color:var(--text-dim);font-style:italic;margin-bottom:22px;">Day ${streakDay} &middot; ${d.streak} day streak</div>
+      <div style="display:flex;gap:5px;justify-content:center;margin-bottom:22px;">
+        ${calStrip}
+      </div>
+      <div style="background:rgba(241,196,15,0.09);border:1px solid rgba(241,196,15,0.28);border-radius:18px;padding:18px 20px;margin-bottom:22px;">
+        <div style="font-size:0.7em;color:rgba(241,196,15,0.65);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px;">Today's Reward</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:2.2em;color:#f1c40f;font-weight:700;letter-spacing:0.02em;">+${reward.coins} &#128176;</div>
+      </div>
+      <button id="dailyPopClaimBtn" onclick="claimDailyAndClosePop()" style="width:100%;background:linear-gradient(135deg,#c9900a,#f1c40f);border:none;color:#0d0610;padding:15px;border-radius:22px;font-family:'Cinzel Decorative',serif;font-size:0.9em;font-weight:700;cursor:pointer;letter-spacing:0.05em;margin-bottom:10px;transition:all 0.2s;box-shadow:0 4px 24px rgba(241,196,15,0.25);">
+        &#10022; Claim Reward
+      </button>
+      <button onclick="closeDailyPopup()" style="width:100%;background:none;border:1px solid var(--border);color:var(--text-dim);padding:10px;border-radius:16px;font-family:'Cormorant Garamond',serif;font-size:0.92em;cursor:pointer;transition:all 0.18s;" onmouseover="this.style.borderColor='var(--pink)';this.style.color='var(--pink)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-dim)'">
+        Maybe Later
+      </button>
+    </div>
+  `;
+  document.body.appendChild(modal);
+}
+
+async function claimDailyAndClosePop(){
+  const btn = document.getElementById('dailyPopClaimBtn');
+  if(btn){ btn.disabled = true; btn.textContent = 'Claiming...'; }
+  closeDailyPopup();
+  await claimDailyReward();
+  renderDailyCalendar();
+}
+
+function closeDailyPopup(){
+  const modal = document.getElementById('dailyPopupModal');
+  if(!modal) return;
+  modal.style.transition = 'opacity 0.3s ease';
+  modal.style.opacity = '0';
+  setTimeout(()=>{ if(modal.parentNode) modal.remove(); }, 320);
 }
 
 // ══════════════════════════════════════════════
