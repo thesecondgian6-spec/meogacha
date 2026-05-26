@@ -6905,6 +6905,7 @@ function openCard(id){
   const csBtn=document.getElementById('modalCutsceneBtn');
   if(csBtn)csBtn.style.display=cardHasCutscene(id)?'':'none';
   document.getElementById('cardModal').classList.add('active');
+  _injectEvolveButton(id); 
 }
 function closeModal(e){
   if(!e||e.target===document.getElementById('cardModal'))
