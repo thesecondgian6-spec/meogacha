@@ -2712,6 +2712,15 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 /* ── Admin section labels ── */
 .admin-section-label{font-size:0.72em;font-family:'JetBrains Mono',monospace;letter-spacing:0.12em;text-transform:uppercase;color:var(--pink);margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid rgba(255,157,199,0.15);}
 .admin-hint{font-size:0.85em;color:var(--text-dim);text-transform:none;letter-spacing:0;font-family:'Cormorant Garamond',serif;}
+/* ── Admin Shop Form ── */
+.shop-type-picker{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:4px;}
+.stp-opt{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 14px;border-radius:14px;cursor:pointer;background:rgba(255,157,199,0.04);border:1px solid var(--border);font-size:0.78em;color:var(--text-dim);transition:all 0.2s;min-width:64px;flex:1;}
+.stp-opt span:first-child{font-size:1.8em;}
+.stp-opt:hover{border-color:var(--pink);color:var(--pink);background:rgba(255,157,199,0.08);}
+.stp-opt.active{border-color:var(--pink);background:rgba(255,157,199,0.12);color:var(--pink);font-weight:600;}
+.shop-type-fields{animation:fadeInUp 0.2s ease;}
+.shop-img-upload-row{display:flex;gap:12px;align-items:flex-start;}
+.shop-img-preview-wrap{width:80px;height:80px;flex-shrink:0;border:1px solid var(--border);border-radius:10px;background:rgba(255,157,199,0.04);display:flex;align-items:center;justify-content:center;overflow:hidden;}
 .admin-label{display:block;font-size:0.78em;color:var(--text-dim);font-family:'JetBrains Mono',monospace;margin-bottom:5px;letter-spacing:0.05em;}
 .admin-input{width:100%;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-family:'Cormorant Garamond',serif;font-size:0.92em;outline:none;transition:border-color 0.2s;box-sizing:border-box;}
 .admin-input:focus{border-color:var(--pink);}
@@ -4151,7 +4160,6 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
       </div>
     </div>
 
-    <!-- Category Filter Tabs -->
     <div class="shop-cat-tabs" id="shopCatTabs">
       <button class="shop-cat-btn active" data-cat="all" onclick="filterShop('all',this)">
         <span class="sct-icon">🏪</span><span class="sct-label">All</span>
@@ -4163,7 +4171,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
         <span class="sct-icon">⚡</span><span class="sct-label">XP Boosts</span>
       </button>
       <button class="shop-cat-btn" data-cat="xp" onclick="filterShop('xp',this)">
-        <span class="sct-icon">📦</span><span class="sct-label">Items</span>
+        <span class="sct-icon">📦</span><span class="sct-label">XP Potions</span>
       </button>
       <button class="shop-cat-btn" data-cat="card" onclick="filterShop('card',this)">
         <span class="sct-icon">🃏</span><span class="sct-label">Cards</span>
@@ -4776,29 +4784,26 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 
       <!-- Shop Item Form -->
       <div class="admin-panel" id="shopItemFormPanel">
-        <h3 id="shopItemFormTitle" style="margin-bottom:16px;">🛍️ Add Shop Item</h3>
+        <h3 id="shopItemFormTitle" style="margin-bottom:4px;">🛍️ Add Shop Item</h3>
+        <p style="font-size:0.78em;color:var(--text-dim);margin-bottom:16px;">Fields change based on the type you pick.</p>
         <input type="hidden" id="shopItemEditId"/>
 
-        <div class="admin-section-label">Item Info</div>
+        <!-- Step 1: Pick a type -->
+        <div class="admin-section-label">Step 1 — Choose Type</div>
+        <div class="shop-type-picker" id="shopTypePicker">
+          <div class="stp-opt active" data-type="boost" onclick="setShopFormType('boost',this)"><span>🚀</span><span>Boost</span></div>
+          <div class="stp-opt" data-type="xp" onclick="setShopFormType('xp',this)"><span>📦</span><span>XP Potion</span></div>
+          <div class="stp-opt" data-type="card" onclick="setShopFormType('card',this)"><span>🃏</span><span>Card</span></div>
+          <div class="stp-opt" data-type="title" onclick="setShopFormType('title',this)"><span>🎀</span><span>Title</span></div>
+          <div class="stp-opt" data-type="skin" onclick="setShopFormType('skin',this)"><span>🎨</span><span>Skin</span></div>
+        </div>
+
+        <!-- Always-visible fields -->
+        <div class="admin-section-label" style="margin-top:16px;">Step 2 — Fill Details</div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
           <div>
             <label class="admin-label">Item Name *</label>
-            <input class="admin-input" id="shopItemForm_name" placeholder="e.g. Summer Frieren Skin"/>
-          </div>
-          <div>
-            <label class="admin-label">Category / Type *</label>
-            <select class="admin-input" id="shopItemForm_type">
-              <option value="coinboost">🪙 Coin Boost</option>
-              <option value="xpboost">⚡ XP Boost</option>
-              <option value="xp">📦 XP Potion</option>
-              <option value="card">🃏 Card</option>
-              <option value="title">🎀 Title</option>
-              <option value="skin">🎨 Skin</option>
-            </select>
-          </div>
-          <div>
-            <label class="admin-label">Emoji / Icon</label>
-            <input class="admin-input" id="shopItemForm_emoji" placeholder="🪙" value="🎁"/>
+            <input class="admin-input" id="shopItemForm_name" placeholder="e.g. Summer Skin" oninput="shopAutoDesc()"/>
           </div>
           <div>
             <label class="admin-label">Price (coins) *</label>
@@ -4806,46 +4811,96 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
           </div>
         </div>
 
+        <!-- Type-specific fields: Boost -->
+        <div id="shopFields_boost" class="shop-type-fields">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
+            <div>
+              <label class="admin-label">Boost Type</label>
+              <select class="admin-input" id="shopItemForm_subtype" onchange="shopAutoDesc()">
+                <option value="coin">🪙 Coin Boost ×2</option>
+                <option value="xp">⚡ XP Boost ×2</option>
+              </select>
+            </div>
+            <div>
+              <label class="admin-label">Duration (minutes)</label>
+              <input class="admin-input" id="shopItemForm_duration_mins" type="number" value="60" min="1" oninput="shopAutoDesc()"/>
+            </div>
+          </div>
+        </div>
+
+        <!-- Type-specific: XP Potion -->
+        <div id="shopFields_xp" class="shop-type-fields" style="display:none;">
+          <div style="margin-bottom:12px;">
+            <label class="admin-label">XP Amount</label>
+            <input class="admin-input" id="shopItemForm_xp_value" type="number" value="100" min="1" oninput="shopAutoDesc()"/>
+          </div>
+        </div>
+
+        <!-- Type-specific: Card -->
+        <div id="shopFields_card" class="shop-type-fields" style="display:none;">
+          <div style="margin-bottom:12px;">
+            <label class="admin-label">Card ID <span class="admin-hint">(the card's id field from the cards table)</span></label>
+            <input class="admin-input" id="shopItemForm_cardId" placeholder="e.g. frieren" oninput="shopAutoDesc()"/>
+          </div>
+        </div>
+
+        <!-- Type-specific: Title -->
+        <div id="shopFields_title" class="shop-type-fields" style="display:none;">
+          <div style="margin-bottom:12px;">
+            <label class="admin-label">Title Text <span class="admin-hint">(what shows on the player profile)</span></label>
+            <input class="admin-input" id="shopItemForm_titleText" placeholder="✦ Shop Legend ✦" oninput="shopAutoDesc()"/>
+          </div>
+        </div>
+
+        <!-- Type-specific: Skin -->
+        <div id="shopFields_skin" class="shop-type-fields" style="display:none;">
+          <div style="margin-bottom:12px;">
+            <label class="admin-label">Skin ID <span class="admin-hint">(UUID from card_skins table)</span></label>
+            <input class="admin-input" id="shopItemForm_skinId" placeholder="paste skin UUID" oninput="shopAutoDesc()"/>
+          </div>
+        </div>
+
+        <!-- Image upload -->
         <div style="margin-bottom:12px;">
-          <label class="admin-label">Description *</label>
-          <textarea class="admin-input" id="shopItemForm_desc" rows="2" placeholder="What does this item do?" style="resize:vertical;"></textarea>
-        </div>
-
-        <!-- Dynamic extra fields based on type -->
-        <div id="shopItemExtraFields">
-          <div class="admin-section-label" style="margin-top:8px;">Item Data <span class="admin-hint">(depends on type)</span></div>
-          <div style="margin-bottom:10px;" id="shopItemField_cardId" style="display:none;">
-            <label class="admin-label">Card ID <span class="admin-hint">(for card type — the card's id)</span></label>
-            <input class="admin-input" id="shopItemForm_cardId" placeholder="e.g. deku"/>
-          </div>
-          <div style="margin-bottom:10px;" id="shopItemField_skinId">
-            <label class="admin-label">Skin ID <span class="admin-hint">(for skin type — id from card_skins table)</span></label>
-            <input class="admin-input" id="shopItemForm_skinId" placeholder="Leave blank or paste skin UUID"/>
-          </div>
-          <div style="margin-bottom:10px;" id="shopItemField_titleText">
-            <label class="admin-label">Title Text <span class="admin-hint">(for title type — what appears on profile)</span></label>
-            <input class="admin-input" id="shopItemForm_titleText" placeholder="e.g. ✦ Shop Veteran ✦"/>
-          </div>
-          <div style="margin-bottom:10px;" id="shopItemField_boostDuration">
-            <label class="admin-label">Boost Duration (hours) <span class="admin-hint">(for boost types)</span></label>
-            <input class="admin-input" id="shopItemForm_boostDuration" type="number" value="1" min="1" max="168"/>
-          </div>
-          <div style="margin-bottom:10px;" id="shopItemField_xpAmount">
-            <label class="admin-label">XP Amount <span class="admin-hint">(for xp potion type)</span></label>
-            <input class="admin-input" id="shopItemForm_xpAmount" type="number" value="100" min="1"/>
-          </div>
-          <div style="margin-bottom:10px;" id="shopItemField_imageUrl">
-            <label class="admin-label">Item Image URL <span class="admin-hint">(optional — for skins/cards displayed in shop)</span></label>
-            <input class="admin-input" id="shopItemForm_imageUrl" placeholder="https://..."/>
+          <label class="admin-label">Item Image <span class="admin-hint">(optional — shown in shop card)</span></label>
+          <div class="shop-img-upload-row">
+            <div class="shop-img-preview-wrap" id="shopImgPreviewWrap">
+              <img id="shopImgPreview" src="" alt="" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:8px;"/>
+              <div id="shopImgPlaceholder" style="color:var(--text-dim);font-size:0.75em;text-align:center;">No image</div>
+            </div>
+            <div style="flex:1;display:flex;flex-direction:column;gap:8px;">
+              <label class="admin-btn" style="cursor:pointer;text-align:center;font-size:0.82em;padding:9px 12px;" for="shopImgFileInput">
+                📷 Choose from Gallery
+              </label>
+              <input type="file" id="shopImgFileInput" accept="image/*" style="display:none;" onchange="uploadShopItemImage(this)"/>
+              <input class="admin-input" id="shopItemForm_image_url" placeholder="...or paste URL" style="font-size:0.78em;" oninput="previewShopImg(this.value)"/>
+              <div id="shopImgUploadProgress" style="display:none;font-size:0.75em;color:var(--pink);text-align:center;">Uploading... ✦</div>
+            </div>
           </div>
         </div>
 
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
-          <input type="checkbox" id="shopItemForm_enabled" checked/>
-          <label style="font-size:0.85em;color:var(--text-dim);cursor:pointer;" for="shopItemForm_enabled">Visible in shop</label>
+        <!-- Auto description -->
+        <div style="margin-bottom:12px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+            <label class="admin-label" style="margin:0;">Description</label>
+            <button onclick="shopAutoDesc(true)" style="background:none;border:none;font-size:0.72em;color:var(--pink);cursor:pointer;padding:2px 6px;">✨ Re-generate</button>
+          </div>
+          <textarea class="admin-input" id="shopItemForm_desc" rows="2" placeholder="Auto-fills when you fill in the fields above..." style="resize:vertical;font-size:0.85em;" oninput="this.dataset.userEdited='true'"></textarea>
         </div>
 
-        <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;">
+        <!-- Emoji + visibility -->
+        <div style="display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center;margin-bottom:16px;">
+          <div>
+            <label class="admin-label">Emoji</label>
+            <input class="admin-input" id="shopItemForm_emoji" value="🎁" style="width:60px;text-align:center;font-size:1.2em;"/>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;padding-top:18px;">
+            <input type="checkbox" id="shopItemForm_enabled" checked/>
+            <label style="font-size:0.85em;color:var(--text-dim);cursor:pointer;" for="shopItemForm_enabled">Visible in shop</label>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
           <button class="admin-btn" id="shopItemFormSubmitBtn" onclick="submitShopItemForm()"
             style="background:linear-gradient(135deg,var(--pink-deep),var(--purple));color:#fff;flex:1;">🛍️ Add Item</button>
           <button class="admin-btn" id="shopItemFormCancelBtn" onclick="cancelShopItemEdit()" style="display:none;">✕ Cancel</button>
@@ -5137,12 +5192,12 @@ const DEMO_CARDS = [
 // Shop items are now loaded from DB (shop_items table)
 // Fallback static items shown when DB has no items yet
 const DEFAULT_SHOP_ITEMS = [
-  {id:'boost_coin_s',emoji:'🪙',name:'Coin Boost (1h)',desc:'Double your coin rewards from activities for 1 hour.',price:150,type:'coinboost',boost_duration:1,enabled:true},
-  {id:'boost_coin_l',emoji:'🪙',name:'Coin Boost (6h)',desc:'Double your coin rewards for 6 hours. Best value!',price:600,type:'coinboost',boost_duration:6,enabled:true},
-  {id:'boost_xp_s',emoji:'⚡',name:'XP Boost (1h)',desc:'Double XP earned from all activities for 1 hour.',price:150,type:'xpboost',boost_duration:1,enabled:true},
-  {id:'boost_xp_l',emoji:'⚡',name:'XP Boost (6h)',desc:'Double XP for 6 hours. Max out your cards fast!',price:600,type:'xpboost',boost_duration:6,enabled:true},
-  {id:'xp_small',emoji:'📦',name:'XP Potion (Small)',desc:'Instantly grants 100 XP to your equipped card.',price:200,type:'xp',xp_amount:100,enabled:true},
-  {id:'xp_big',emoji:'📦',name:'XP Potion (Large)',desc:'Instantly grants 500 XP to your equipped card.',price:800,type:'xp',xp_amount:500,enabled:true},
+  {id:'boost_coin_s',emoji:'🪙',name:'Coin Boost (1h)',description:'Double coin rewards from all activities for 1 hour.',price:150,type:'boost',subtype:'coin',duration_mins:60,is_active:true},
+  {id:'boost_coin_l',emoji:'🪙',name:'Coin Boost (6h)',description:'Double coin rewards for 6 hours. Best value!',price:600,type:'boost',subtype:'coin',duration_mins:360,is_active:true},
+  {id:'boost_xp_s',emoji:'⚡',name:'XP Boost (1h)',description:'Double XP earned from all activities for 1 hour.',price:150,type:'boost',subtype:'xp',duration_mins:60,is_active:true},
+  {id:'boost_xp_l',emoji:'⚡',name:'XP Boost (6h)',description:'Double XP for 6 hours. Max out your cards fast!',price:600,type:'boost',subtype:'xp',duration_mins:360,is_active:true},
+  {id:'xp_small',emoji:'📦',name:'XP Potion (Small)',description:'Instantly grants 100 XP to your equipped card.',price:200,type:'xp',value:100,is_active:true},
+  {id:'xp_big',emoji:'📦',name:'XP Potion (Large)',description:'Instantly grants 500 XP to your equipped card.',price:800,type:'xp',value:500,is_active:true},
 ];
 
 window.SHOP_DB_ITEMS = [];  // loaded from DB
@@ -5163,7 +5218,7 @@ async function loadShopItems(){
 
 function getShopItems(){
   const items = window.SHOP_DB_ITEMS.length ? window.SHOP_DB_ITEMS : DEFAULT_SHOP_ITEMS;
-  return items.filter(i=>i.enabled!==false);
+  return items.filter(i=>i.is_active!==false && i.enabled!==false);
 }
 
 let _shopCurrentFilter = 'all';
@@ -5213,8 +5268,16 @@ function renderShopGrid(){
   if(!grid) return;
 
   let items = getShopItems();
+
+  // Normalize type for filtering: boost items have subtype coin/xp
   if(_shopCurrentFilter && _shopCurrentFilter !== 'all'){
-    items = items.filter(i=>i.type===_shopCurrentFilter);
+    if(_shopCurrentFilter === 'coinboost'){
+      items = items.filter(i=>i.type==='boost' && i.subtype==='coin');
+    } else if(_shopCurrentFilter === 'xpboost'){
+      items = items.filter(i=>i.type==='boost' && i.subtype==='xp');
+    } else {
+      items = items.filter(i=>i.type===_shopCurrentFilter);
+    }
   }
 
   if(!items.length){
@@ -5224,65 +5287,75 @@ function renderShopGrid(){
   }
   if(empty) empty.style.display='none';
 
-  // Group by category for display
   const CAT_META = {
-    coinboost: { label:'Coin Boosts',   color:'#f1c40f',   accent:'rgba(241,196,15,0.12)',  border:'rgba(241,196,15,0.3)'  },
-    xpboost:   { label:'XP Boosts',     color:'#5dade2',   accent:'rgba(93,173,226,0.12)',  border:'rgba(93,173,226,0.3)'  },
-    xp:        { label:'XP Items',      color:'#9b59b6',   accent:'rgba(155,89,182,0.12)',  border:'rgba(155,89,182,0.3)'  },
-    card:      { label:'Cards',         color:'#2ecc71',   accent:'rgba(46,204,113,0.12)',  border:'rgba(46,204,113,0.3)'  },
-    title:     { label:'Titles',        color:'#ff9dc7',   accent:'rgba(255,157,199,0.12)', border:'rgba(255,157,199,0.3)' },
-    skin:      { label:'Card Skins',    color:'#c084b8',   accent:'rgba(192,132,184,0.12)', border:'rgba(192,132,184,0.3)' },
+    boost:     { label:'Boost',        color:'#f1c40f',   accent:'rgba(241,196,15,0.12)',  border:'rgba(241,196,15,0.3)'  },
+    xp:        { label:'XP Item',      color:'#9b59b6',   accent:'rgba(155,89,182,0.12)',  border:'rgba(155,89,182,0.3)'  },
+    card:      { label:'Card',         color:'#2ecc71',   accent:'rgba(46,204,113,0.12)',  border:'rgba(46,204,113,0.3)'  },
+    title:     { label:'Title',        color:'#ff9dc7',   accent:'rgba(255,157,199,0.12)', border:'rgba(255,157,199,0.3)' },
+    skin:      { label:'Card Skin',    color:'#c084b8',   accent:'rgba(192,132,184,0.12)', border:'rgba(192,132,184,0.3)' },
   };
 
   const now = Date.now();
 
   grid.innerHTML = items.map(item=>{
-    const meta = CAT_META[item.type] || { label:'Item', color:'var(--pink)', accent:'rgba(255,157,199,0.08)', border:'var(--border)' };
-    const price = parseInt(item.price)||0;
+    // Normalize: support both DB schema and fallback items
+    const type        = item.type || 'item';
+    const itemDesc    = item.description || item.desc || '';
+    const imageUrl    = item.image_url || '';
+    const refId       = item.ref_id || item.card_id || item.skin_id || item.title_text || '';
+    const subtype     = item.subtype || '';
+    const durMins     = item.duration_mins || (item.boost_duration ? item.boost_duration*60 : 0);
+    const xpVal       = item.value || item.xp_amount || 0;
+    const price       = parseInt(item.price)||0;
+
+    const meta = CAT_META[type] || { label:'Item', color:'var(--pink)', accent:'rgba(255,157,199,0.08)', border:'var(--border)' };
+
+    // Sub-label for boosts
+    let typeLabel = meta.label;
+    if(type==='boost' && subtype==='coin') typeLabel = 'Coin Boost';
+    if(type==='boost' && subtype==='xp')   typeLabel = 'XP Boost';
+
     const canAfford = state.coins >= price;
 
-    // determine owned/active state
     let statusTag = '';
     let btnLabel = `🛍️ Buy — 🪙 ${price.toLocaleString()}`;
     let btnDisabled = !canAfford;
     let btnClass = canAfford ? 'shop-new-buy-btn' : 'shop-new-buy-btn disabled';
 
-    if(item.type === 'coinboost' || item.type === 'xpboost'){
-      const activeKey = item.type;
-      if(state.activeBoosts && state.activeBoosts[activeKey] && state.activeBoosts[activeKey] > now){
-        const mins = Math.ceil((state.activeBoosts[activeKey] - now)/60000);
+    // Active boost check
+    if(type === 'boost'){
+      const boostKey = subtype==='coin' ? 'coinboost' : 'xpboost';
+      if(state.activeBoosts && state.activeBoosts[boostKey] && state.activeBoosts[boostKey] > now){
+        const mins = Math.ceil((state.activeBoosts[boostKey] - now)/60000);
         statusTag = `<div class="shop-item-status active-status">⚡ Active — ${mins}m left</div>`;
       }
     }
-    if(item.type === 'title'){
-      const titleText = item.title_text || item.name;
-      if((state.ownedTitles||[]).includes(titleText)){
+    if(type === 'title' && refId){
+      if((state.ownedTitles||[]).includes(refId)){
         statusTag = `<div class="shop-item-status owned-status">✦ Owned</div>`;
-        btnLabel = '✓ Owned';
-        btnDisabled = true;
-        btnClass = 'shop-new-buy-btn disabled';
+        btnLabel = '✓ Owned'; btnDisabled=true; btnClass='shop-new-buy-btn disabled';
       }
     }
-    if(item.type === 'skin' && item.skin_id){
-      if(window.PLAYER_SKINS && window.PLAYER_SKINS[item.skin_id]){
+    if(type === 'skin' && refId){
+      if(window.PLAYER_SKINS && window.PLAYER_SKINS[refId]){
         statusTag = `<div class="shop-item-status owned-status">🎨 Owned</div>`;
-        btnLabel = '✓ Owned';
-        btnDisabled = true;
-        btnClass = 'shop-new-buy-btn disabled';
+        btnLabel = '✓ Owned'; btnDisabled=true; btnClass='shop-new-buy-btn disabled';
       }
     }
-    if(item.type === 'card' && item.card_id){
-      const owned = state.collection && state.collection.includes(item.card_id);
-      if(owned){
+    if(type === 'card' && refId){
+      if(state.collection && state.collection.includes(refId)){
         statusTag = `<div class="shop-item-status owned-status">🃏 In Collection</div>`;
       }
     }
 
-    const thumbHtml = item.image_url
-      ? `<img class="shop-item-thumb" src="${escapeHtml(item.image_url)}" onerror="this.style.display='none'" alt=""/>`
+    const thumbHtml = imageUrl
+      ? `<img class="shop-item-thumb" src="${escapeHtml(imageUrl)}" onerror="this.style.display='none'" alt=""/>`
       : `<div class="shop-item-emoji-big">${item.emoji||'🎁'}</div>`;
 
-    const typeBadge = `<div class="shop-type-badge" style="background:${meta.accent};border:1px solid ${meta.border};color:${meta.color};">${item.emoji||'🎁'} ${meta.label}</div>`;
+    const typeBadge = `<div class="shop-type-badge" style="background:${meta.accent};border:1px solid ${meta.border};color:${meta.color};">${item.emoji||'🎁'} ${typeLabel}</div>`;
+
+    // Encode item as JSON for the buy handler
+    const itemEncoded = JSON.stringify(JSON.stringify(item));
 
     return `<div class="shop-new-item" style="--item-accent:${meta.color};--item-bg:${meta.accent};--item-border:${meta.border}">
       <div class="shop-item-thumb-wrap">
@@ -5292,13 +5365,13 @@ function renderShopGrid(){
       <div class="shop-item-content">
         ${typeBadge}
         <div class="shop-item-name">${escapeHtml(item.name)}</div>
-        <div class="shop-item-desc">${escapeHtml(item.desc||item.description||'')}</div>
+        <div class="shop-item-desc">${escapeHtml(itemDesc)}</div>
         <div class="shop-item-footer">
           <div class="shop-item-price">
             <span class="shop-price-coin">🪙</span>
             <span class="shop-price-num">${price.toLocaleString()}</span>
           </div>
-          <button class="${btnClass}" ${btnDisabled?'disabled':''} onclick="buyShopItem(${JSON.stringify(JSON.stringify(item))})">
+          <button class="${btnClass}" ${btnDisabled?'disabled':''} onclick="buyShopItem(${itemEncoded})">
             ${btnLabel}
           </button>
         </div>
@@ -5310,102 +5383,89 @@ function renderShopGrid(){
 async function buyShopItem(itemJson){
   let item;
   try { item = JSON.parse(itemJson); } catch(e){ showToast('❌ Item error'); return; }
-  const price = parseInt(item.price)||0;
+  const price   = parseInt(item.price)||0;
+  const type    = item.type || '';
+  const subtype = item.subtype || '';
+  const refId   = item.ref_id || item.card_id || item.skin_id || item.title_text || '';
+  const durMins = item.duration_mins || (item.boost_duration ? item.boost_duration*60 : 60);
+  const xpVal   = item.value || item.xp_amount || 100;
+
   if(state.coins < price){ showToast('Not enough coins! 🪙'); playErrorSound(); return; }
 
   const now = Date.now();
 
-  if(item.type === 'title'){
-    const titleText = item.title_text || item.name;
-    if((state.ownedTitles||[]).includes(titleText)){
-      showToast('You already own this title!'); return;
-    }
+  if(type === 'title'){
+    const titleText = refId || item.name;
+    if((state.ownedTitles||[]).includes(titleText)){ showToast('You already own this title!'); return; }
     if(!confirm(`Buy title "${titleText}" for ${price} 🪙?`)) return;
     state.coins -= price; updateCoins();
     if(!state.ownedTitles) state.ownedTitles = [];
     state.ownedTitles.push(titleText);
     showToast(`🎀 Title "${titleText}" unlocked!`);
     playShopSound(); playCoinSound();
-    if(state.discordId&&!state.isGuest) await savePlayer();
+    // Also write to player_titles table for clean tracking
+    if(state.discordId && !state.isGuest){
+      await sb.insert('player_titles', { discord_id: state.discordId, title: titleText }).catch(()=>{});
+      await savePlayer();
+    }
     if(state.isGuest) saveGuestState();
-    renderShop();
-    return;
+    renderShop(); return;
   }
 
-  if(item.type === 'skin' && item.skin_id){
-    await buySkin(item.skin_id);
-    renderShop();
-    return;
+  if(type === 'skin' && refId){
+    await buySkin(refId);
+    renderShop(); return;
   }
 
-  if(item.type === 'coinboost'){
-    const hours = parseInt(item.boost_duration)||1;
-    if(!confirm(`Activate Coin Boost ×2 for ${hours}h? Cost: ${price} 🪙`)) return;
+  if(type === 'boost'){
+    const hrs = Math.round(durMins/60) || 1;
+    const boostLabel = subtype==='coin' ? 'Coin Boost ×2' : 'XP Boost ×2';
+    const boostKey   = subtype==='coin' ? 'coinboost' : 'xpboost';
+    if(!confirm(`Activate ${boostLabel} for ${durMins}min? Cost: ${price} 🪙`)) return;
     state.coins -= price; updateCoins();
     if(!state.activeBoosts) state.activeBoosts = {};
-    const existing = state.activeBoosts.coinboost || 0;
-    state.activeBoosts.coinboost = Math.max(now, existing) + hours * 3600000;
-    showToast(`🪙 Coin Boost ×2 active for ${hours}h!`);
+    const existing = state.activeBoosts[boostKey] || 0;
+    state.activeBoosts[boostKey] = Math.max(now, existing) + durMins * 60000;
+    showToast(`${subtype==='coin'?'🪙':'⚡'} ${boostLabel} active for ${durMins >= 60 ? hrs+'h' : durMins+'min'}!`);
     playShopSound(); playCoinSound();
     if(state.discordId&&!state.isGuest) await savePlayer();
     if(state.isGuest) saveGuestState();
-    renderShop();
-    return;
+    renderShop(); return;
   }
 
-  if(item.type === 'xpboost'){
-    const hours = parseInt(item.boost_duration)||1;
-    if(!confirm(`Activate XP Boost ×2 for ${hours}h? Cost: ${price} 🪙`)) return;
-    state.coins -= price; updateCoins();
-    if(!state.activeBoosts) state.activeBoosts = {};
-    const existing = state.activeBoosts.xpboost || 0;
-    state.activeBoosts.xpboost = Math.max(now, existing) + hours * 3600000;
-    showToast(`⚡ XP Boost ×2 active for ${hours}h!`);
-    playShopSound(); playCoinSound();
-    if(state.discordId&&!state.isGuest) await savePlayer();
-    if(state.isGuest) saveGuestState();
-    renderShop();
-    return;
-  }
-
-  if(item.type === 'xp'){
-    const xpAmt = parseInt(item.xp_amount)||100;
+  if(type === 'xp'){
     if(!state.equippedId){ showToast('Equip a card first to use XP potions!'); return; }
     const card = (window.DEMO_CARDS||[]).find(c=>c.id===state.equippedId);
-    if(!confirm(`Use XP Potion (+${xpAmt} XP to ${card?card.name:'your card'})? Cost: ${price} 🪙`)) return;
+    if(!confirm(`Use XP Potion (+${xpVal} XP to ${card?card.name:'your card'})? Cost: ${price} 🪙`)) return;
     state.coins -= price; updateCoins();
-    state.xpMap[state.equippedId] = (state.xpMap[state.equippedId]||0) + xpAmt;
-    showToast(`📦 +${xpAmt} XP added to ${card?card.name:'your card'}!`);
+    state.xpMap[state.equippedId] = (state.xpMap[state.equippedId]||0) + xpVal;
+    showToast(`📦 +${xpVal} XP added to ${card?card.name:'your card'}!`);
     playShopSound(); playCoinSound();
     if(state.discordId&&!state.isGuest){
       await saveXp(state.discordId, state.equippedId, state.xpMap[state.equippedId]);
       await savePlayer();
     }
     if(state.isGuest) saveGuestState();
-    renderCollection();
-    renderShop();
-    return;
+    renderCollection(); renderShop(); return;
   }
 
-  if(item.type === 'card' && item.card_id){
-    const card = (window.DEMO_CARDS||[]).find(c=>c.id===item.card_id);
-    const cardName = card ? card.name : item.card_id;
+  if(type === 'card' && refId){
+    const card = (window.DEMO_CARDS||[]).find(c=>c.id===refId);
+    const cardName = card ? card.name : refId;
     if(!confirm(`Buy card "${cardName}" for ${price} 🪙?`)) return;
     state.coins -= price; updateCoins();
-    state.collection.push(item.card_id);
+    state.collection.push(refId);
     showToast(`🃏 "${cardName}" added to your collection!`);
     playShopSound(); playCoinSound();
     if(state.discordId&&!state.isGuest){
-      await saveCardToCollection(state.discordId, item.card_id);
+      await saveCardToCollection(state.discordId, refId);
       await savePlayer();
     }
     if(state.isGuest) saveGuestState();
-    renderCollection();
-    renderShop();
-    return;
+    renderCollection(); renderShop(); return;
   }
 
-  // Generic fallback
+  // Fallback
   if(!confirm(`Buy "${item.name}" for ${price} 🪙?`)) return;
   state.coins -= price; updateCoins();
   showToast(`✨ ${item.name} purchased!`);
@@ -13410,9 +13470,99 @@ function cancelSkinEdit(){
 // ══════════════════════════════════════════════════════════════
 
 let _adminShopItemCache = [];
+let _shopFormCurrentType = 'boost';
 
-function populateShopSkinSelect(){
-  // Nothing needed client-side — skin_id is typed manually
+function populateShopSkinSelect(){ /* skin id typed manually */ }
+
+// Switch the visible type fields panel
+function setShopFormType(type, el){
+  _shopFormCurrentType = type;
+  document.querySelectorAll('.stp-opt').forEach(o=>o.classList.toggle('active', o.dataset.type===type));
+  ['boost','xp','card','title','skin'].forEach(t=>{
+    const p = document.getElementById('shopFields_'+t);
+    if(p) p.style.display = t===type ? 'block' : 'none';
+  });
+  // Set sensible default emoji
+  const emojiMap = {boost:'🚀',xp:'📦',card:'🃏',title:'🎀',skin:'🎨'};
+  const emojiEl = document.getElementById('shopItemForm_emoji');
+  if(emojiEl && (!emojiEl.value || emojiEl.value === '🎁' || Object.values(emojiMap).includes(emojiEl.value))){
+    emojiEl.value = emojiMap[type]||'🎁';
+  }
+  shopAutoDesc();
+}
+
+// Auto-generate description
+function shopAutoDesc(force){
+  const descEl = document.getElementById('shopItemForm_desc');
+  if(!descEl) return;
+  // Don't overwrite if the user has typed something (unless forced)
+  if(!force && descEl.dataset.userEdited === 'true') return;
+
+  const name   = (document.getElementById('shopItemForm_name')?.value||'').trim();
+  const type   = _shopFormCurrentType;
+  let desc = '';
+
+  if(type === 'boost'){
+    const sub  = document.getElementById('shopItemForm_subtype')?.value || 'coin';
+    const mins = parseInt(document.getElementById('shopItemForm_duration_mins')?.value)||60;
+    const hrs  = mins >= 60 ? (mins/60) + 'h' : mins + 'min';
+    if(sub === 'coin') desc = `Double your coin rewards from all activities for ${hrs}.${mins>=360?' Best value!':''}`;
+    else               desc = `Double XP earned from all activities for ${hrs}.${mins>=360?' Max out your cards fast!':''}`;
+  } else if(type === 'xp'){
+    const amt = parseInt(document.getElementById('shopItemForm_xp_value')?.value)||100;
+    desc = `Instantly grants ${amt.toLocaleString()} XP to your currently equipped card.`;
+  } else if(type === 'card'){
+    const cardId = (document.getElementById('shopItemForm_cardId')?.value||'').trim();
+    desc = name
+      ? `Add ${name} directly to your card collection.`
+      : 'Add this card directly to your collection.';
+    if(cardId) desc += ` (Card ID: ${cardId})`;
+  } else if(type === 'title'){
+    const txt = (document.getElementById('shopItemForm_titleText')?.value||'').trim();
+    desc = txt
+      ? `Unlock the exclusive profile title: "${txt}". Shown on your public profile.`
+      : 'Unlock an exclusive profile title displayed on your public profile.';
+  } else if(type === 'skin'){
+    desc = name
+      ? `Apply the ${name} cosmetic skin to the matching card. Purely visual — no stat changes.`
+      : 'Apply a cosmetic skin to a card. Purely visual — no stat changes.';
+  }
+
+  if(desc) descEl.value = desc;
+  descEl.dataset.userEdited = 'false';
+}
+
+// Image upload via gallery
+async function uploadShopItemImage(input){
+  const file = input.files[0];
+  if(!file) return;
+  const prog = document.getElementById('shopImgUploadProgress');
+  if(prog) prog.style.display = '';
+  try {
+    const url = await uploadToStorage(file, 'shop');
+    document.getElementById('shopItemForm_image_url').value = url;
+    previewShopImg(url);
+    showToast('✅ Image uploaded!');
+  } catch(e){
+    showToast('❌ Upload failed: ' + e.message);
+  } finally {
+    if(prog) prog.style.display = 'none';
+    input.value = '';
+  }
+}
+
+function previewShopImg(url){
+  const img = document.getElementById('shopImgPreview');
+  const ph  = document.getElementById('shopImgPlaceholder');
+  if(!img) return;
+  if(url){
+    img.src = url;
+    img.style.display = 'block';
+    if(ph) ph.style.display = 'none';
+  } else {
+    img.style.display = 'none';
+    if(ph) ph.style.display = '';
+  }
 }
 
 async function loadAdminShopItems(){
@@ -13421,6 +13571,7 @@ async function loadAdminShopItems(){
   el.innerHTML = '<div style="color:var(--text-dim);font-style:italic;font-size:0.85em;text-align:center;padding:20px;">Loading...</div>';
   try {
     _adminShopItemCache = await sb.getAll('shop_items') || [];
+    _adminShopItemCache.sort((a,b)=>(a.sort_order||0)-(b.sort_order||0));
   } catch(e){
     _adminShopItemCache = [];
     el.innerHTML = '<div style="color:#e74c3c;font-size:0.85em;text-align:center;padding:16px;">⚠️ Could not load shop items.<br><span style="color:var(--text-dim)">Make sure the <code>shop_items</code> table exists in Supabase.</span></div>';
@@ -13439,23 +13590,25 @@ function renderAdminShopItemList(){
     el.innerHTML = '<div style="color:var(--text-dim);font-style:italic;font-size:0.85em;text-align:center;padding:20px;">No shop items yet. Add one above!</div>';
     return;
   }
-  const TYPE_ICONS = {coinboost:'🪙',xpboost:'⚡',xp:'📦',card:'🃏',title:'🎀',skin:'🎨'};
+  const TYPE_ICONS = {boost:'🚀',xp:'📦',card:'🃏',title:'🎀',skin:'🎨'};
   el.innerHTML = _adminShopItemCache.map(item=>{
-    const icon = TYPE_ICONS[item.type]||'🎁';
-    const enabled = item.enabled !== false;
-    return `<div style="border:1px solid ${enabled?'rgba(255,157,199,0.25)':'var(--border)'};border-radius:12px;padding:12px 14px;margin-bottom:8px;background:${enabled?'rgba(255,157,199,0.03)':'transparent'};opacity:${enabled?1:0.55};">
+    const icon    = item.emoji || TYPE_ICONS[item.type] || '🎁';
+    const active  = item.is_active !== false;
+    const subInfo = item.subtype ? ` · ${item.subtype}` : '';
+    const valInfo = item.duration_mins ? ` · ${item.duration_mins}min` : (item.value ? ` · ${item.value} XP` : '');
+    return `<div style="border:1px solid ${active?'rgba(255,157,199,0.22)':'var(--border)'};border-radius:12px;padding:11px 14px;margin-bottom:8px;background:${active?'rgba(255,157,199,0.03)':'transparent'};opacity:${active?1:0.52};">
       <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-        <span style="font-size:1.4em;">${item.emoji||icon}</span>
+        ${item.image_url ? `<img src="${escapeHtml(item.image_url)}" style="width:42px;height:42px;object-fit:cover;border-radius:8px;border:1px solid var(--border);" onerror="this.style.display='none'"/>` : `<span style="font-size:1.7em;">${icon}</span>`}
         <div style="flex:1;min-width:0;">
           <div style="font-weight:600;font-size:0.88em;">${escapeHtml(item.name)}</div>
           <div style="font-size:0.72em;color:var(--text-dim);margin-top:2px;">
-            ${icon} ${escapeHtml(item.type||'item')} &nbsp;·&nbsp; 🪙 ${parseInt(item.price)||0}
-            ${!enabled?'&nbsp;·&nbsp;<span style="color:#e74c3c;">Hidden</span>':''}
+            ${icon} ${item.type||'item'}${subInfo}${valInfo} &nbsp;·&nbsp; 🪙 ${parseInt(item.price)||0}
+            ${!active?'&nbsp;·&nbsp;<span style="color:#e74c3c;">Hidden</span>':''}
           </div>
         </div>
         <div style="display:flex;gap:6px;flex-shrink:0;">
           <button class="admin-action-btn" onclick="editShopItem('${item.id}')">✏️ Edit</button>
-          <button class="admin-action-btn" onclick="toggleShopItemEnabled('${item.id}',${!enabled})">${enabled?'🙈 Hide':'👁️ Show'}</button>
+          <button class="admin-action-btn" onclick="toggleShopItemEnabled('${item.id}',${!active})">${active?'🙈 Hide':'👁️ Show'}</button>
           <button class="admin-action-btn danger" onclick="deleteShopItem('${item.id}','${escapeHtml(item.name).replace(/'/g,"\\'")}')">🗑️</button>
         </div>
       </div>
@@ -13466,21 +13619,30 @@ function renderAdminShopItemList(){
 async function submitShopItemForm(){
   if(!checkAdmin()) return;
   const name  = (document.getElementById('shopItemForm_name')?.value||'').trim();
-  const type  = (document.getElementById('shopItemForm_type')?.value||'').trim();
   const price = parseInt(document.getElementById('shopItemForm_price')?.value)||0;
   const desc  = (document.getElementById('shopItemForm_desc')?.value||'').trim();
-  if(!name || !type || !desc){ showToast('Name, Type, and Description are required!'); return; }
+  const type  = _shopFormCurrentType;
+  if(!name){ showToast('Item name is required!'); return; }
+  if(!desc){ shopAutoDesc(true); }
 
+  // Map to actual SQL schema columns
   const itemData = {
-    name, type, price, desc,
+    name,
+    type,
+    price,
+    description: (document.getElementById('shopItemForm_desc')?.value||'').trim(),
     emoji:        (document.getElementById('shopItemForm_emoji')?.value||'🎁').trim(),
-    enabled:      document.getElementById('shopItemForm_enabled')?.checked ?? true,
-    card_id:      (document.getElementById('shopItemForm_cardId')?.value||'').trim()||null,
-    skin_id:      (document.getElementById('shopItemForm_skinId')?.value||'').trim()||null,
-    title_text:   (document.getElementById('shopItemForm_titleText')?.value||'').trim()||null,
-    boost_duration: parseInt(document.getElementById('shopItemForm_boostDuration')?.value)||1,
-    xp_amount:    parseInt(document.getElementById('shopItemForm_xpAmount')?.value)||100,
-    image_url:    (document.getElementById('shopItemForm_imageUrl')?.value||'').trim()||null,
+    is_active:    document.getElementById('shopItemForm_enabled')?.checked ?? true,
+    image_url:    (document.getElementById('shopItemForm_image_url')?.value||'').trim() || '',
+    // type-specific
+    subtype:      type==='boost' ? (document.getElementById('shopItemForm_subtype')?.value||'coin') : null,
+    duration_mins:type==='boost' ? (parseInt(document.getElementById('shopItemForm_duration_mins')?.value)||60) : null,
+    value:        type==='xp'    ? (parseInt(document.getElementById('shopItemForm_xp_value')?.value)||100) : null,
+    ref_id:       type==='card'  ? (document.getElementById('shopItemForm_cardId')?.value||'').trim()||null
+                : type==='skin'  ? (document.getElementById('shopItemForm_skinId')?.value||'').trim()||null
+                : type==='title' ? (document.getElementById('shopItemForm_titleText')?.value||'').trim()||null
+                : null,
+    one_per_player: ['skin','title','card'].includes(type),
   };
 
   const btn = document.getElementById('shopItemFormSubmitBtn');
@@ -13488,9 +13650,8 @@ async function submitShopItemForm(){
 
   try {
     const editId = document.getElementById('shopItemEditId')?.value;
-    let ok;
     if(editId){
-      ok = await sb.update('shop_items', itemData, { id: editId });
+      await sb.update('shop_items', itemData, { id: editId });
     } else {
       const res = await fetch(`${SUPABASE_URL}/rest/v1/shop_items`,{
         method:'POST',
@@ -13500,40 +13661,60 @@ async function submitShopItemForm(){
       if(!res.ok){
         const errBody = await res.json().catch(()=>null);
         const detail = errBody?.message||errBody?.hint||`HTTP ${res.status}`;
-        showToast(`❌ DB error: ${detail}`); console.error('[shop insert]', errBody);
+        showToast(`❌ DB error: ${detail}`);
+        console.error('[shop insert]', errBody);
         if(btn){ btn.textContent='🛍️ Add Item'; btn.disabled=false; }
         return;
       }
-      ok = true;
     }
-    if(ok !== false){
-      showToast(`✅ Shop item "${name}" saved!`);
-      cancelShopItemEdit();
-      await loadAdminShopItems();
-      await loadShopItems();
-      renderShop();
-    }
+    showToast(`✅ "${name}" saved!`);
+    cancelShopItemEdit();
+    await loadAdminShopItems();
+    await loadShopItems();
+    renderShop();
   } catch(e){ showToast('❌ Error: ' + e.message); }
-  if(btn){ btn.textContent = document.getElementById('shopItemEditId')?.value ? '💾 Save Changes' : '🛍️ Add Item'; btn.disabled=false; }
+  finally { if(btn){ btn.textContent = document.getElementById('shopItemEditId')?.value ? '💾 Save Changes' : '🛍️ Add Item'; btn.disabled=false; } }
 }
 
 function editShopItem(itemId){
   const item = _adminShopItemCache.find(i=>i.id===itemId);
   if(!item) return;
+
   document.getElementById('shopItemFormTitle').textContent = '✏️ Edit Shop Item';
   document.getElementById('shopItemEditId').value = item.id;
-  document.getElementById('shopItemForm_name').value = item.name||'';
-  document.getElementById('shopItemForm_type').value = item.type||'xp';
+  document.getElementById('shopItemForm_name').value  = item.name||'';
   document.getElementById('shopItemForm_price').value = item.price||0;
-  document.getElementById('shopItemForm_desc').value = item.desc||item.description||'';
   document.getElementById('shopItemForm_emoji').value = item.emoji||'🎁';
-  document.getElementById('shopItemForm_enabled').checked = item.enabled!==false;
-  document.getElementById('shopItemForm_cardId').value = item.card_id||'';
-  document.getElementById('shopItemForm_skinId').value = item.skin_id||'';
-  document.getElementById('shopItemForm_titleText').value = item.title_text||'';
-  document.getElementById('shopItemForm_boostDuration').value = item.boost_duration||1;
-  document.getElementById('shopItemForm_xpAmount').value = item.xp_amount||100;
-  document.getElementById('shopItemForm_imageUrl').value = item.image_url||'';
+  document.getElementById('shopItemForm_enabled').checked = item.is_active !== false;
+
+  // Set type
+  setShopFormType(item.type||'boost',
+    document.querySelector(`.stp-opt[data-type="${item.type||'boost'}"]`));
+
+  // Type-specific
+  if(item.type==='boost'){
+    if(document.getElementById('shopItemForm_subtype')) document.getElementById('shopItemForm_subtype').value = item.subtype||'coin';
+    if(document.getElementById('shopItemForm_duration_mins')) document.getElementById('shopItemForm_duration_mins').value = item.duration_mins||60;
+  }
+  if(item.type==='xp' && document.getElementById('shopItemForm_xp_value'))
+    document.getElementById('shopItemForm_xp_value').value = item.value||100;
+  if(item.type==='card' && document.getElementById('shopItemForm_cardId'))
+    document.getElementById('shopItemForm_cardId').value = item.ref_id||'';
+  if(item.type==='skin' && document.getElementById('shopItemForm_skinId'))
+    document.getElementById('shopItemForm_skinId').value = item.ref_id||'';
+  if(item.type==='title' && document.getElementById('shopItemForm_titleText'))
+    document.getElementById('shopItemForm_titleText').value = item.ref_id||'';
+
+  // Image
+  const imgUrl = item.image_url||'';
+  document.getElementById('shopItemForm_image_url').value = imgUrl;
+  previewShopImg(imgUrl);
+
+  // Description — mark as user-edited so auto-desc doesn't wipe it
+  const descEl = document.getElementById('shopItemForm_desc');
+  descEl.value = item.description||'';
+  descEl.dataset.userEdited = 'true';
+
   document.getElementById('shopItemFormSubmitBtn').textContent = '💾 Save Changes';
   document.getElementById('shopItemFormCancelBtn').style.display = '';
   document.getElementById('shopItemFormPanel').scrollIntoView({behavior:'smooth'});
@@ -13542,27 +13723,30 @@ function editShopItem(itemId){
 function cancelShopItemEdit(){
   document.getElementById('shopItemFormTitle').textContent = '🛍️ Add Shop Item';
   document.getElementById('shopItemEditId').value = '';
-  ['name','desc','cardId','skinId','titleText','imageUrl'].forEach(f=>{
-    const el=document.getElementById('shopItemForm_'+f); if(el) el.value='';
-  });
-  document.getElementById('shopItemForm_type').value='coinboost';
-  document.getElementById('shopItemForm_price').value='300';
-  document.getElementById('shopItemForm_emoji').value='🎁';
-  document.getElementById('shopItemForm_boostDuration').value='1';
-  document.getElementById('shopItemForm_xpAmount').value='100';
-  document.getElementById('shopItemForm_enabled').checked=true;
-  document.getElementById('shopItemFormSubmitBtn').textContent='🛍️ Add Item';
-  document.getElementById('shopItemFormCancelBtn').style.display='none';
+  document.getElementById('shopItemForm_name').value = '';
+  document.getElementById('shopItemForm_price').value = '300';
+  document.getElementById('shopItemForm_emoji').value = '🚀';
+  document.getElementById('shopItemForm_enabled').checked = true;
+  document.getElementById('shopItemForm_image_url').value = '';
+  document.getElementById('shopItemForm_duration_mins').value = '60';
+  document.getElementById('shopItemForm_xp_value').value = '100';
+  document.getElementById('shopItemForm_cardId').value = '';
+  document.getElementById('shopItemForm_skinId').value = '';
+  document.getElementById('shopItemForm_titleText').value = '';
+  const descEl = document.getElementById('shopItemForm_desc');
+  descEl.value = ''; descEl.dataset.userEdited = 'false';
+  previewShopImg('');
+  document.getElementById('shopItemFormSubmitBtn').textContent = '🛍️ Add Item';
+  document.getElementById('shopItemFormCancelBtn').style.display = 'none';
+  setShopFormType('boost', document.querySelector('.stp-opt[data-type="boost"]'));
 }
 
 async function toggleShopItemEnabled(itemId, newState){
   if(!checkAdmin()) return;
   try {
-    await sb.update('shop_items', { enabled: newState }, { id: itemId });
+    await sb.update('shop_items', { is_active: newState }, { id: itemId });
     showToast(newState ? '👁️ Item visible in shop' : '🙈 Item hidden from shop');
-    await loadAdminShopItems();
-    await loadShopItems();
-    renderShop();
+    await loadAdminShopItems(); await loadShopItems(); renderShop();
   } catch(e){ showToast('❌ ' + e.message); }
 }
 
@@ -13572,9 +13756,7 @@ async function deleteShopItem(itemId, itemName){
   try {
     await sb.delete('shop_items', { id: itemId });
     showToast(`🗑️ "${itemName}" deleted`);
-    await loadAdminShopItems();
-    await loadShopItems();
-    renderShop();
+    await loadAdminShopItems(); await loadShopItems(); renderShop();
   } catch(e){ showToast('❌ Delete failed: ' + e.message); }
 }
 
