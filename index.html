@@ -3995,6 +3995,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
       <button class="nav-btn active" onclick="goTo('home',this)">🏠 Home</button>
       <button class="nav-btn" onclick="goTo('pull',this)">🎴 Pull</button>
       <button class="nav-btn" onclick="goTo('collection',this)">🃏 Cards</button>
+      <button class="nav-btn" onclick="goTo('inventory',null)">🎒 Inventory</button>
       <button class="nav-btn" onclick="goTo('shop',this)">🛍️ Shop</button>
       <button class="nav-btn" onclick="goTo('activities',this)">⚔️ Activities</button>
       <button class="nav-btn" onclick="goTo('social',this)">💬 Social</button>
@@ -4017,6 +4018,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
       <button class="mobile-nav-btn active" id="mnav-home" onclick="goTo('home',null);setMobileNav('home')"><span class="mob-icon">🏠</span>Home</button>
       <button class="mobile-nav-btn" id="mnav-pull" onclick="goTo('pull',null);setMobileNav('pull')"><span class="mob-icon">🎴</span>Pull</button>
       <button class="mobile-nav-btn" id="mnav-collection" onclick="goTo('collection',null);setMobileNav('collection')"><span class="mob-icon">🃏</span>Cards</button>
+      <button class="mobile-nav-btn" id="mnav-inventory" onclick="goTo('inventory',null);setMobileNav('inventory')"><span class="mob-icon">🎒</span>Bag</button>
       <button class="mobile-nav-btn" id="mnav-shop" onclick="goTo('shop',null);setMobileNav('shop')"><span class="mob-icon">🛍️</span>Shop</button>
       <button class="mobile-nav-btn" id="mnav-activities" onclick="goTo('activities',null);setMobileNav('activities')"><span class="mob-icon">⚔️</span>Battle</button>
       <button class="mobile-nav-btn" id="mnav-social" onclick="goTo('social',null);setMobileNav('social')"><span class="mob-icon">💬</span>Social</button>
@@ -4353,6 +4355,25 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   </div>
 </div><!-- end page-activities -->
 
+<!-- INVENTORY PAGE -->
+<div class="page" id="page-inventory">
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:20px;">
+    <div>
+      <div style="font-family:'Cinzel Decorative',serif;font-size:1.1em;background:linear-gradient(135deg,var(--pink),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;">🎒 Item Inventory</div>
+      <div style="font-size:0.78em;color:var(--text-dim);margin-top:2px;font-style:italic;">Items collected from activities &amp; the shop</div>
+    </div>
+    <button class="btn-secondary" style="font-size:0.8em;padding:6px 16px;" onclick="renderInventoryPage()">🔄 Refresh</button>
+  </div>
+  <div id="inventoryGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;">
+    <div style="grid-column:1/-1;text-align:center;color:var(--text-dim);font-style:italic;padding:40px;">Loading inventory... ✦</div>
+  </div>
+  <div id="inventoryEmpty" style="display:none;text-align:center;padding:60px 20px;color:var(--text-dim);">
+    <div style="font-size:3em;margin-bottom:12px;">🎒</div>
+    <div style="font-style:italic;">Your bag is empty!</div>
+    <div style="font-size:0.82em;margin-top:6px;">Complete Work, Train, or Quest activities to find items. Quests have the best drop rates!</div>
+  </div>
+</div>
+
   <!-- SOCIAL PAGE -->
   <div class="page" id="page-social">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
@@ -4426,8 +4447,190 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
       <button class="filter-btn" id="atab-banners" onclick="switchAdminTab('banners',this)">🏮 Banner Manager</button>
       <button class="filter-btn" id="atab-skins" onclick="switchAdminTab('skins',this)">🎨 Skin Manager</button>
       <button class="filter-btn" id="atab-shop" onclick="switchAdminTab('shop',this)">🛍️ Shop Manager</button>
+      <button class="filter-btn" id="atab-items"     onclick="switchAdminTab('items',this)">🎁 Items</button>
+      <button class="filter-btn" id="atab-evolution" onclick="switchAdminTab('evolution',this)">🔮 Evolution</button>
       <button class="filter-btn" id="atab-tools" onclick="switchAdminTab('tools',this)">🔧 Tools</button>
     </div>
+
+<!-- ITEMS MANAGER TAB -->
+<div id="adminTab-items" style="display:none;">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start;">
+
+    <!-- Left: Item Form -->
+    <div class="admin-panel">
+      <h3 id="itemFormTitle" style="margin-bottom:16px;font-family:'Cinzel Decorative',serif;font-size:0.88em;">🎁 Create Item</h3>
+      <input type="hidden" id="itemEditId"/>
+
+      <label class="admin-label">Item Key * <span class="admin-hint">(unique, no spaces, e.g. pochita_heart)</span></label>
+      <input class="admin-input" id="itemForm_key" placeholder="pochita_heart" style="margin-bottom:8px;"/>
+
+      <label class="admin-label">Display Name *</label>
+      <input class="admin-input" id="itemForm_name" placeholder="Pochita's Heart" style="margin-bottom:8px;"/>
+
+      <label class="admin-label">Description</label>
+      <textarea class="admin-input" id="itemForm_desc" placeholder="A mysterious item that resonates with Denji..." style="min-height:60px;margin-bottom:8px;resize:vertical;"></textarea>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+        <div>
+          <label class="admin-label">Emoji</label>
+          <input class="admin-input" id="itemForm_emoji" placeholder="🔮" value="🔮"/>
+        </div>
+        <div>
+          <label class="admin-label">Rarity <span class="admin-hint">(affects drop rate)</span></label>
+          <select class="admin-input" id="itemForm_rarity" onchange="autoFillItemDropChance()">
+            <option value="common">⚪ Common</option>
+            <option value="uncommon">🟢 Uncommon</option>
+            <option value="rare">🔵 Rare</option>
+            <option value="epic">🟣 Epic</option>
+            <option value="legendary">🟡 Legendary</option>
+          </select>
+        </div>
+      </div>
+
+      <label class="admin-label">Drop Chance (%) <span class="admin-hint">(auto-set by rarity, tweak if needed)</span></label>
+      <input class="admin-input" id="itemForm_dropChance" type="number" min="0" max="100" step="0.1" value="8" style="margin-bottom:8px;"/>
+
+      <label class="admin-label">Image URL <span class="admin-hint">(optional)</span></label>
+      <input class="admin-input" id="itemForm_image" placeholder="https://..." style="margin-bottom:12px;"/>
+
+      <label style="display:flex;align-items:center;gap:8px;margin-bottom:14px;cursor:pointer;">
+        <input type="checkbox" id="itemForm_active" checked style="accent-color:var(--pink);width:16px;height:16px;"/>
+        <span class="admin-label" style="margin:0;">Active (can drop)</span>
+      </label>
+
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn-primary" style="flex:1;font-size:0.8em;" onclick="submitItemForm()">🎁 Save Item</button>
+        <button class="btn-secondary" id="itemCancelBtn" style="display:none;font-size:0.8em;" onclick="cancelItemEdit()">✕ Cancel</button>
+      </div>
+
+      <!-- Shop listing section -->
+      <div style="border-top:1px solid var(--border);margin-top:16px;padding-top:14px;">
+        <div class="admin-section-label" style="margin-bottom:10px;">🛍️ Add to Shop</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+          <div>
+            <label class="admin-label">Item Key</label>
+            <input class="admin-input" id="shopListItem_key" placeholder="pochita_heart"/>
+          </div>
+          <div>
+            <label class="admin-label">Price (🪙)</label>
+            <input class="admin-input" id="shopListItem_price" type="number" value="500" min="1"/>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
+          <div>
+            <label class="admin-label">Stock (-1 = ∞)</label>
+            <input class="admin-input" id="shopListItem_stock" type="number" value="-1"/>
+          </div>
+          <div style="display:flex;align-items:flex-end;padding-bottom:2px;">
+            <button class="btn-secondary" style="width:100%;font-size:0.8em;" onclick="addItemShopListing()">🛍️ List in Shop</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Admin Give Item -->
+      <div style="border-top:1px solid var(--border);margin-top:14px;padding-top:14px;">
+        <div class="admin-section-label" style="margin-bottom:10px;">👑 Give Item to Player</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+          <div>
+            <label class="admin-label">Discord ID</label>
+            <input class="admin-input" id="giveItem_discordId" placeholder="123456789"/>
+          </div>
+          <div>
+            <label class="admin-label">Item Key</label>
+            <input class="admin-input" id="giveItem_key" placeholder="pochita_heart"/>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <div>
+            <label class="admin-label">Quantity</label>
+            <input class="admin-input" id="giveItem_qty" type="number" value="1" min="1"/>
+          </div>
+          <div style="display:flex;align-items:flex-end;padding-bottom:2px;">
+            <button class="btn-secondary" style="width:100%;font-size:0.8em;" onclick="adminGiveItem()">👑 Give</button>
+          </div>
+        </div>
+        <div style="margin-top:4px;">
+          <button class="btn-secondary" style="width:100%;font-size:0.75em;padding:5px;" onclick="adminGiveItemToSelf()">Give to myself (test)</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: Item list -->
+    <div class="admin-panel">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <h3 style="font-family:'Cinzel Decorative',serif;font-size:0.85em;">All Items <span id="adminItemCount" style="color:var(--text-dim);font-size:0.8em;"></span></h3>
+        <button class="btn-secondary" style="font-size:0.75em;padding:4px 12px;" onclick="loadAdminItemList()">↺ Refresh</button>
+      </div>
+      <div id="adminItemList">
+        <div style="color:var(--text-dim);font-style:italic;font-size:0.85em;text-align:center;padding:20px;">No items yet.</div>
+      </div>
+      <div style="border-top:1px solid var(--border);margin-top:14px;padding-top:12px;">
+        <div class="admin-section-label" style="margin-bottom:8px;">Shop Listings <span id="adminShopListingCount" style="color:var(--text-dim);font-size:0.78em;"></span></div>
+        <div id="adminShopListingList">
+          <div style="color:var(--text-dim);font-style:italic;font-size:0.82em;text-align:center;padding:14px;">None listed yet.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- EVOLUTION MANAGER TAB -->
+<div id="adminTab-evolution" style="display:none;">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start;">
+
+    <!-- Left: Evolution Form -->
+    <div class="admin-panel">
+      <h3 style="font-family:'Cinzel Decorative',serif;font-size:0.88em;margin-bottom:16px;">🔮 Set Card Evolution</h3>
+      <input type="hidden" id="evoEditId"/>
+
+      <label class="admin-label">Base Card ID * <span class="admin-hint">(the card that evolves)</span></label>
+      <input class="admin-input" id="evoForm_baseCard" placeholder="denji" style="margin-bottom:8px;" oninput="updateEvoPreview()"/>
+
+      <label class="admin-label">Target Card ID * <span class="admin-hint">(the card it becomes)</span></label>
+      <input class="admin-input" id="evoForm_targetCard" placeholder="pochita_hero" style="margin-bottom:8px;" oninput="updateEvoPreview()"/>
+
+      <label class="admin-label">Evolution Type</label>
+      <select class="admin-input" id="evoForm_type" onchange="toggleEvoFields()" style="margin-bottom:8px;">
+        <option value="none">None (disable evolution)</option>
+        <option value="level">Level Only</option>
+        <option value="level_item">Level + Item</option>
+      </select>
+
+      <div id="evoLevelWrap" style="display:none;margin-bottom:8px;">
+        <label class="admin-label">Required Level (1–10)</label>
+        <input class="admin-input" id="evoForm_level" type="number" min="1" max="10" value="5" placeholder="5"/>
+      </div>
+
+      <div id="evoItemWrap" style="display:none;margin-bottom:8px;">
+        <label class="admin-label">Required Item Key</label>
+        <input class="admin-input" id="evoForm_item" placeholder="pochita_heart"/>
+        <div style="font-size:0.72em;color:var(--text-dim);margin-top:3px;">Must match an item_key from the Items tab</div>
+      </div>
+
+      <!-- Visual preview -->
+      <div id="evoPreviewBox" style="background:rgba(255,157,199,0.05);border:1px solid var(--border);border-radius:12px;padding:12px;margin:10px 0;display:none;text-align:center;">
+        <div style="font-size:0.75em;color:var(--text-dim);margin-bottom:6px;">Preview</div>
+        <div id="evoPreviewContent" style="display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;"></div>
+      </div>
+
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;">
+        <button class="btn-primary" style="flex:1;font-size:0.8em;" onclick="submitEvolutionForm()">🔮 Save Evolution</button>
+        <button class="btn-secondary" id="evoCancelBtn" style="display:none;font-size:0.8em;" onclick="cancelEvoEdit()">✕ Cancel</button>
+      </div>
+    </div>
+
+    <!-- Right: Evolution list -->
+    <div class="admin-panel">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <h3 style="font-family:'Cinzel Decorative',serif;font-size:0.85em;">Configured Evolutions <span id="adminEvoCount" style="color:var(--text-dim);font-size:0.8em;"></span></h3>
+        <button class="btn-secondary" style="font-size:0.75em;padding:4px 12px;" onclick="loadAdminEvoList()">↺ Refresh</button>
+      </div>
+      <div id="adminEvoList">
+        <div style="color:var(--text-dim);font-style:italic;font-size:0.85em;text-align:center;padding:20px;">No evolutions set yet.</div>
+      </div>
+    </div>
+  </div>
+</div>
 
     <!-- CARD MANAGER TAB -->
     <div id="adminTab-cards">
@@ -7974,6 +8177,22 @@ async function _finishMinigame(type, ratio) {
   if(state.isGuest) saveGuestState();
   setLastAct(type); updateActivityCooldowns();
 
+  // ── Roll item drops ──
+  const droppedItems = await rollItemDrops(type);
+  setTimeout(() => {
+    droppedItems.forEach((item, i) => setTimeout(() => showItemDropToast(item), i * 700));
+  }, 600);
+
+  // ── Check if equipped card can now evolve ──
+  if(state.equippedId) {
+    const status = getEvolutionStatus(state.equippedId);
+    if(status && status.canEvolve) {
+      setTimeout(() => {
+        showToast(`🔮 ${(window.DEMO_CARDS||DEMO_CARDS).find(c=>c.id===state.equippedId)?.name||state.equippedId} is ready to evolve!`);
+      }, droppedItems.length * 700 + 800);
+    }
+  }
+
   const gradeEmoji={S:'🌟',A:'⭐',B:'👍',C:'😅'}[grade];
   const msgs={
     S:'Flawless! A true anime protagonist moment! 🔥',
@@ -7990,8 +8209,10 @@ async function _finishMinigame(type, ratio) {
     <div class="act-result-rewards">
       <span class="reward-tag">+${coins} 🪙</span>
       ${state.equippedId?`<span class="reward-tag xp">+${xp} XP</span>`:''}
+      ${droppedItems.length?`<span class="reward-tag" style="background:rgba(192,132,184,0.12);border-color:rgba(192,132,184,0.3);color:#c084b8;">+${droppedItems.length} item${droppedItems.length>1?'s':''}! 🎁</span>`:''}
     </div>
-    <div style="font-size:0.8em;color:var(--text-dim);font-style:italic;margin-top:8px;">${state.equippedId?'XP added to your equipped card':'Equip a card to earn XP!'}</div>`;
+    <div style="font-size:0.8em;color:var(--text-dim);font-style:italic;margin-top:8px;">${state.equippedId?'XP added to your equipped card':'Equip a card to earn XP!'}</div>
+    ${droppedItems.length?`<div style="font-size:0.75em;color:#c084b8;margin-top:4px;font-style:italic;">${droppedItems.map(i=>i.emoji+' '+i.name).join(' · ')}</div>`:''}`;
   document.getElementById('actCloseBtn').style.display='block';
   spawnParticles(ratio>=0.7?4:2,'#f1c40f'); playGradeSound(grade);
 }
@@ -9839,7 +10060,7 @@ function showAdminNav(){
 }
 
 function switchAdminTab(tab, btn){
-  ['cards','banners','skins','shop','tools'].forEach(t=>{
+  ['cards','banners','skins','shop','tools','items','evolution'].forEach(t=>{
     const el=document.getElementById('adminTab-'+t);
     const b=document.getElementById('atab-'+t);
     if(el)el.style.display=t===tab?'block':'none';
@@ -9848,6 +10069,8 @@ function switchAdminTab(tab, btn){
   if(tab==='banners') loadAdminBannerList();
   if(tab==='skins') { populateSkinCardSelect(); loadAdminSkinList(); }
   if(tab==='shop') { populateShopSkinSelect(); loadAdminShopItems(); }
+  if(tab==='items') { loadAdminItemList(); }
+  if(tab==='evolution') { loadAdminEvoList(); toggleEvoFields(); }
 }
 
 // ── Upload file to Supabase Storage ──
@@ -14200,6 +14423,721 @@ async function deleteSkin(skinId, skinName){
 }
 
 
+// ══════════════════════════════════════════════════════════════
+// ITEM SYSTEM — Drop Rates, Inventory, Shop
+// ══════════════════════════════════════════════════════════════
+
+// Base drop chance multipliers by rarity
+const ITEM_RARITY_META = {
+  common:    { icon:'⚪', color:'#bdc3c7', baseChance:15  },
+  uncommon:  { icon:'🟢', color:'#2ecc71', baseChance:8   },
+  rare:      { icon:'🔵', color:'#3498db', baseChance:4   },
+  epic:      { icon:'🟣', color:'#9b59b6', baseChance:1.5 },
+  legendary: { icon:'🟡', color:'#f1c40f', baseChance:0.5 },
+};
+
+// Activity drop chance multipliers (quest is 2x)
+const ACTIVITY_DROP_MULT = { work:1, train:1, quest:2 };
+
+// In-memory item cache
+window.GAME_ITEMS       = [];   // all items from DB
+window.ITEM_SHOP_LIST   = [];   // shop listings from DB
+window.PLAYER_INVENTORY = {};   // { item_key: quantity }
+
+// ── Load all items from DB ──
+async function loadGameItems() {
+  try {
+    const rows = await sb.getAll('items');
+    window.GAME_ITEMS = (rows||[]).filter(r => r.is_active !== false);
+  } catch(e) {
+    window.GAME_ITEMS = [];
+    console.warn('[items] Table not found — run evolution_migration.sql first.', e);
+  }
+  try {
+    const rows = await sb.getAll('item_shop_listings');
+    window.ITEM_SHOP_LIST = (rows||[]).filter(r => r.is_active !== false);
+  } catch(e) { window.ITEM_SHOP_LIST = []; }
+}
+
+// ── Load player inventory ──
+async function loadPlayerInventory() {
+  if(!state.discordId || state.isGuest) { window.PLAYER_INVENTORY = {}; return; }
+  try {
+    const rows = await sb.get('player_inventory', { discord_id: state.discordId });
+    window.PLAYER_INVENTORY = {};
+    (rows||[]).forEach(r => { window.PLAYER_INVENTORY[r.item_key] = r.quantity; });
+  } catch(e) { window.PLAYER_INVENTORY = {}; }
+}
+
+// ── Award item to player (DB + memory) ──
+async function giveItemToPlayer(discordId, itemKey, qty = 1) {
+  if(!discordId) return;
+  const current = window.PLAYER_INVENTORY[itemKey] || 0;
+  const newQty  = current + qty;
+  window.PLAYER_INVENTORY[itemKey] = newQty;
+  try {
+    // upsert: increment if exists
+    const existing = await sb.get('player_inventory', { discord_id: discordId, item_key: itemKey });
+    if(existing && existing.length) {
+      await sb.update('player_inventory', { quantity: newQty }, { discord_id: discordId, item_key: itemKey });
+    } else {
+      await sb.insert('player_inventory', { discord_id: discordId, item_key: itemKey, quantity: qty });
+    }
+  } catch(e) { console.error('[inventory] give error', e); }
+}
+
+// ── Roll item drops after an activity ──
+async function rollItemDrops(activityType) {
+  if(!state.discordId || state.isGuest) return [];
+  if(!window.GAME_ITEMS.length) return [];
+
+  const mult = ACTIVITY_DROP_MULT[activityType] || 1;
+  const dropped = [];
+
+  for(const item of window.GAME_ITEMS) {
+    const chance = (item.drop_chance || 5) * mult;
+    if(Math.random() * 100 < chance) {
+      dropped.push(item);
+      await giveItemToPlayer(state.discordId, item.item_key, 1);
+    }
+  }
+  return dropped;
+}
+
+// ── Show item drop toast ──
+let _itemToastQueue = [];
+let _itemToastBusy = false;
+
+function showItemDropToast(item) {
+  _itemToastQueue.push(item);
+  if(!_itemToastBusy) _processItemToastQueue();
+}
+
+function _processItemToastQueue() {
+  if(!_itemToastQueue.length) { _itemToastBusy = false; return; }
+  _itemToastBusy = true;
+  const item = _itemToastQueue.shift();
+  const toast = document.getElementById('itemDropToast');
+  const meta  = ITEM_RARITY_META[item.rarity] || ITEM_RARITY_META.common;
+  document.getElementById('itemDropIcon').textContent = item.emoji || '🎁';
+  document.getElementById('itemDropName').textContent = item.name;
+  document.getElementById('itemDropName').style.color = meta.color;
+  document.getElementById('itemDropDesc').textContent = `${meta.icon} ${item.rarity} item obtained!`;
+  toast.style.opacity = '1';
+  toast.style.transform = 'translateX(-50%) translateY(0)';
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateX(-50%) translateY(20px)';
+    setTimeout(() => _processItemToastQueue(), 400);
+  }, 2400);
+}
+
+// ── Inventory page renderer ──
+async function renderInventoryPage() {
+  const grid  = document.getElementById('inventoryGrid');
+  const empty = document.getElementById('inventoryEmpty');
+  if(!grid) return;
+
+  if(!state.loggedIn) {
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--text-dim);padding:40px;font-style:italic;">Log in to see your inventory ʚɞ</div>';
+    return;
+  }
+
+  if(state.isGuest) {
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--text-dim);padding:40px;font-style:italic;">Guest mode — inventory not saved. Log in with Discord to keep items!</div>';
+    return;
+  }
+
+  await loadPlayerInventory();
+
+  const keys = Object.keys(window.PLAYER_INVENTORY).filter(k => window.PLAYER_INVENTORY[k] > 0);
+
+  if(!keys.length) {
+    grid.innerHTML = '';
+    if(empty) empty.style.display = 'block';
+    return;
+  }
+  if(empty) empty.style.display = 'none';
+
+  // Merge with GAME_ITEMS for display info
+  grid.innerHTML = keys.map(key => {
+    const item = window.GAME_ITEMS.find(i => i.item_key === key);
+    const qty  = window.PLAYER_INVENTORY[key];
+    const meta = ITEM_RARITY_META[(item&&item.rarity)||'common'] || ITEM_RARITY_META.common;
+    const name = item ? item.name : key;
+    const emoji = item ? (item.emoji || '🎁') : '🎁';
+    const desc  = item ? (item.description || '') : '';
+    return `<div style="background:var(--bg2);border:1px solid ${meta.color}44;border-radius:14px;overflow:hidden;display:flex;flex-direction:column;transition:border-color 0.2s;" onmouseover="this.style.borderColor='${meta.color}'" onmouseout="this.style.borderColor='${meta.color}44'">
+      <div style="background:${meta.color}11;height:80px;display:flex;align-items:center;justify-content:center;font-size:2.5em;position:relative;">
+        ${item && item.image_url ? `<img src="${escapeHtml(item.image_url)}" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none'"/>` : emoji}
+        <div style="position:absolute;top:6px;right:6px;background:rgba(0,0,0,0.7);border-radius:8px;padding:2px 7px;font-size:0.6em;font-family:'JetBrains Mono',monospace;color:${meta.color};">×${qty}</div>
+      </div>
+      <div style="padding:8px 10px;flex:1;">
+        <div style="font-size:0.8em;font-weight:600;color:var(--text);margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(name)}</div>
+        <div style="font-size:0.68em;color:${meta.color};">${meta.icon} ${item ? item.rarity : ''}</div>
+        ${desc ? `<div style="font-size:0.68em;color:var(--text-dim);margin-top:3px;line-height:1.4;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;">${escapeHtml(desc)}</div>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── Buy item from shop (item type in shop) ──
+async function buyShopItem_GameItem(listingId) {
+  const listing = window.ITEM_SHOP_LIST.find(l => l.id === listingId);
+  if(!listing) return;
+  const item = window.GAME_ITEMS.find(i => i.item_key === listing.item_key);
+  if(!item) { showToast('Item not found'); return; }
+  if(state.coins < listing.price) { showToast('❌ Not enough coins!'); playErrorSound(); return; }
+
+  state.coins -= listing.price;
+  updateCoins();
+  await giveItemToPlayer(state.discordId, listing.item_key, 1);
+  if(state.discordId && !state.isGuest) await savePlayer();
+  showToast(`✨ ${item.name} purchased!`); playShopSound(); playCoinSound();
+
+  // Decrease stock if limited
+  if(listing.stock > 0) {
+    const newStock = listing.stock - 1;
+    listing.stock = newStock;
+    await sb.update('item_shop_listings', { stock: newStock }, { id: listingId });
+    if(newStock === 0) {
+      await sb.update('item_shop_listings', { is_active: false }, { id: listingId });
+      window.ITEM_SHOP_LIST = window.ITEM_SHOP_LIST.filter(l => l.id !== listingId);
+    }
+  }
+}
+
+
+// ══════════════════════════════════════════════════════════════
+// EVOLUTION SYSTEM
+// ══════════════════════════════════════════════════════════════
+
+window.CARD_EVOLUTIONS = {};  // { base_card_id: evolutionRow }
+
+// ── Load all evolutions ──
+async function loadEvolutions() {
+  try {
+    const rows = await sb.getAll('card_evolutions');
+    window.CARD_EVOLUTIONS = {};
+    (rows||[]).filter(r => r.is_active && r.evolution_type !== 'none').forEach(r => {
+      window.CARD_EVOLUTIONS[r.base_card_id] = r;
+    });
+  } catch(e) {
+    window.CARD_EVOLUTIONS = {};
+    console.warn('[evolutions] Table not found — run evolution_migration.sql first.', e);
+  }
+}
+
+// ── Check if a card can be evolved ──
+function getEvolutionStatus(cardId) {
+  const evo = window.CARD_EVOLUTIONS[cardId];
+  if(!evo) return null;
+
+  const xp    = state.xpMap[cardId] || 0;
+  const level = calcLevel(xp);
+  const target = (window.DEMO_CARDS||DEMO_CARDS).find(c => c.id === evo.target_card_id);
+
+  const levelMet = level >= (evo.required_level || 1);
+  let itemMet    = true;
+  let itemInfo   = null;
+
+  if(evo.evolution_type === 'level_item' && evo.required_item) {
+    const qty = window.PLAYER_INVENTORY[evo.required_item] || 0;
+    itemMet   = qty > 0;
+    const itemDef = window.GAME_ITEMS.find(i => i.item_key === evo.required_item);
+    itemInfo  = itemDef;
+  }
+
+  return { evo, target, level, levelMet, itemMet, itemInfo, canEvolve: levelMet && itemMet };
+}
+
+// ── Open evolution modal from card detail ──
+let _pendingEvoCardId = null;
+
+function openEvolutionModal(cardId) {
+  const status = getEvolutionStatus(cardId);
+  if(!status) return;
+  _pendingEvoCardId = cardId;
+
+  const { evo, target, level, levelMet, itemMet, itemInfo, canEvolve } = status;
+  const baseCard = (window.DEMO_CARDS||DEMO_CARDS).find(c => c.id === cardId);
+  if(!baseCard || !target) return;
+
+  const baseColor   = RARITY_COLORS[baseCard.rarity] || '#bdc3c7';
+  const targetColor = RARITY_COLORS[target.rarity]   || '#ff9dc7';
+
+  // Glow color = target rarity
+  const glow = document.getElementById('evoModalGlow');
+  if(glow) glow.style.background = `radial-gradient(ellipse at 50% 40%,${targetColor}30,transparent 65%)`;
+
+  document.getElementById('evoFromCard').innerHTML = `
+    <img src="${baseCard.image}" alt="${baseCard.name}"
+      style="width:90px;height:126px;object-fit:cover;border-radius:10px;border:2px solid ${baseColor};box-shadow:0 0 14px ${baseColor}55;display:block;margin:0 auto 6px;"/>
+    <div style="font-size:0.72em;font-family:'Cinzel Decorative',serif;color:var(--text);">${baseCard.name}</div>
+    <div style="font-size:0.65em;color:${baseColor};">Lv.${level}</div>`;
+
+  document.getElementById('evoToCard').innerHTML = `
+    <img src="${target.image}" alt="${target.name}"
+      style="width:90px;height:126px;object-fit:cover;border-radius:10px;border:2px solid ${targetColor};box-shadow:0 0 20px ${targetColor}66;display:block;margin:0 auto 6px;"/>
+    <div style="font-size:0.72em;font-family:'Cinzel Decorative',serif;color:var(--pink-pale);">${target.name}</div>
+    <div style="font-size:0.65em;color:${targetColor};">${target.rarityName}</div>`;
+
+  document.getElementById('evoModalTitle').textContent = `${baseCard.name} → ${target.name}`;
+  document.getElementById('evoModalSub').textContent   = `${baseCard.series}`;
+
+  // Requirements
+  let reqHtml = '';
+  reqHtml += `<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+    <span style="font-size:1.2em;">${levelMet ? '✅' : '❌'}</span>
+    <span style="color:${levelMet ? '#2ecc71' : '#e74c3c'};">Level ${evo.required_level} required — you are Lv.${level}</span>
+  </div>`;
+  if(evo.evolution_type === 'level_item' && evo.required_item) {
+    const qty = window.PLAYER_INVENTORY[evo.required_item] || 0;
+    const iName = itemInfo ? itemInfo.name : evo.required_item;
+    const iEmoji = itemInfo ? (itemInfo.emoji || '🎁') : '🎁';
+    reqHtml += `<div style="display:flex;align-items:center;gap:8px;">
+      <span style="font-size:1.2em;">${itemMet ? '✅' : '❌'}</span>
+      <span style="color:${itemMet ? '#2ecc71' : '#e74c3c'};">${iEmoji} ${iName} required — you have ×${qty}</span>
+    </div>`;
+  }
+  document.getElementById('evoModalRequirements').innerHTML = reqHtml;
+
+  const btn = document.getElementById('evoConfirmBtn');
+  btn.disabled = !canEvolve;
+  btn.style.opacity = canEvolve ? '1' : '0.4';
+
+  const modal = document.getElementById('evolutionModal');
+  modal.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+
+function closeEvolutionModal() {
+  document.getElementById('evolutionModal').style.display = 'none';
+  document.body.style.overflow = '';
+  _pendingEvoCardId = null;
+}
+
+async function confirmEvolve() {
+  const cardId = _pendingEvoCardId;
+  if(!cardId) return;
+  const status = getEvolutionStatus(cardId);
+  if(!status || !status.canEvolve) return;
+
+  const { evo } = status;
+  const btn = document.getElementById('evoConfirmBtn');
+  if(btn) { btn.disabled = true; btn.textContent = 'Evolving...'; }
+
+  try {
+    // 1. Give target card to player
+    const already = state.collection.includes(evo.target_card_id);
+    state.collection.push(evo.target_card_id);
+    if(!already && state.discordId && !state.isGuest) {
+      await saveCardToCollection(state.discordId, evo.target_card_id);
+    }
+
+    // 2. Transfer XP from base to target
+    const xp = state.xpMap[cardId] || 0;
+    state.xpMap[evo.target_card_id] = xp;
+    if(state.discordId && !state.isGuest) {
+      await saveXp(state.discordId, evo.target_card_id, xp);
+    }
+
+    // 3. Remove base card from collection (keep one if duped, remove one copy)
+    const idx = state.collection.indexOf(cardId);
+    if(idx !== -1) state.collection.splice(idx, 1);
+
+    // 4. Consume item if required
+    if(evo.evolution_type === 'level_item' && evo.required_item) {
+      const current = window.PLAYER_INVENTORY[evo.required_item] || 0;
+      const newQty  = Math.max(0, current - 1);
+      window.PLAYER_INVENTORY[evo.required_item] = newQty;
+      try {
+        await sb.update('player_inventory', { quantity: newQty },
+          { discord_id: state.discordId, item_key: evo.required_item });
+      } catch(e) {}
+    }
+
+    // 5. Log evolution
+    try {
+      await sb.insert('evolution_log', {
+        discord_id:     state.discordId,
+        base_card_id:   cardId,
+        target_card_id: evo.target_card_id,
+      });
+    } catch(e) {}
+
+    // 6. Save player state
+    if(state.discordId && !state.isGuest) await savePlayer();
+    if(state.isGuest) saveGuestState();
+
+    // 7. Close modal, refresh UI
+    closeEvolutionModal();
+    renderCollection();
+    updateProfile();
+    document.getElementById('cardModal')?.classList.remove('active');
+
+    // 8. Victory toast + particles
+    const target = (window.DEMO_CARDS||DEMO_CARDS).find(c => c.id === evo.target_card_id);
+    const targetColor = RARITY_COLORS[target?.rarity||4] || '#ff9dc7';
+    showToast(`🔮 ${cardId} evolved into ${target?.name||evo.target_card_id}!`);
+    spawnParticles(target?.rarity||4, targetColor);
+
+  } catch(e) {
+    showToast('❌ Evolution failed: ' + (e.message||e));
+    if(btn) { btn.disabled = false; btn.textContent = '🔮 Evolve!'; }
+  }
+}
+
+
+// ══════════════════════════════════════════════════════════════
+// ADMIN — ITEM MANAGER
+// ══════════════════════════════════════════════════════════════
+
+let _adminItemCache       = [];
+let _adminShopListingCache = [];
+
+function autoFillItemDropChance() {
+  const rarity  = document.getElementById('itemForm_rarity').value;
+  const meta    = ITEM_RARITY_META[rarity] || ITEM_RARITY_META.common;
+  document.getElementById('itemForm_dropChance').value = meta.baseChance;
+}
+
+async function submitItemForm() {
+  if(!checkAdmin()) return;
+  const key    = (document.getElementById('itemForm_key')?.value||'').trim().replace(/\s+/g,'_');
+  const name   = (document.getElementById('itemForm_name')?.value||'').trim();
+  if(!key || !name) { showToast('Item key and name are required!'); return; }
+
+  const data = {
+    item_key:     key,
+    name,
+    description:  document.getElementById('itemForm_desc')?.value||'',
+    emoji:        document.getElementById('itemForm_emoji')?.value||'🎁',
+    rarity:       document.getElementById('itemForm_rarity')?.value||'common',
+    drop_chance:  parseFloat(document.getElementById('itemForm_dropChance')?.value)||5,
+    image_url:    document.getElementById('itemForm_image')?.value||'',
+    is_active:    document.getElementById('itemForm_active')?.checked ?? true,
+  };
+
+  try {
+    const editId = document.getElementById('itemEditId')?.value;
+    if(editId) {
+      await sb.update('items', data, { id: editId });
+    } else {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/items`, {
+        method: 'POST',
+        headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer '+SUPABASE_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+        body: JSON.stringify(data)
+      });
+      if(!res.ok) { const b = await res.json().catch(()=>null); showToast('❌ ' + (b?.message||`HTTP ${res.status}`)); return; }
+    }
+    showToast(`✅ Item "${name}" saved!`);
+    cancelItemEdit();
+    await loadAdminItemList();
+    await loadGameItems();
+  } catch(e) { showToast('❌ ' + e.message); }
+}
+
+function cancelItemEdit() {
+  document.getElementById('itemEditId').value        = '';
+  document.getElementById('itemForm_key').value      = '';
+  document.getElementById('itemForm_name').value     = '';
+  document.getElementById('itemForm_desc').value     = '';
+  document.getElementById('itemForm_emoji').value    = '🔮';
+  document.getElementById('itemForm_rarity').value   = 'common';
+  document.getElementById('itemForm_dropChance').value = '8';
+  document.getElementById('itemForm_image').value    = '';
+  document.getElementById('itemForm_active').checked = true;
+  document.getElementById('itemFormTitle').textContent = '🎁 Create Item';
+  const cb = document.getElementById('itemCancelBtn');
+  if(cb) cb.style.display = 'none';
+}
+
+async function loadAdminItemList() {
+  const el = document.getElementById('adminItemList');
+  if(!el) return;
+  try {
+    _adminItemCache = await sb.getAll('items') || [];
+    const cnt = document.getElementById('adminItemCount');
+    if(cnt) cnt.textContent = `(${_adminItemCache.length})`;
+  } catch(e) {
+    el.innerHTML = '<div style="color:#e74c3c;font-size:0.82em;text-align:center;padding:14px;">⚠️ Run evolution_migration.sql first.</div>';
+    return;
+  }
+  if(!_adminItemCache.length) {
+    el.innerHTML = '<div style="color:var(--text-dim);font-style:italic;font-size:0.82em;text-align:center;padding:14px;">No items yet.</div>';
+    return;
+  }
+  el.innerHTML = _adminItemCache.map(item => {
+    const meta = ITEM_RARITY_META[item.rarity] || ITEM_RARITY_META.common;
+    return `<div style="border:1px solid ${item.is_active?meta.color+'44':'var(--border)'};border-radius:10px;padding:9px 12px;margin-bottom:7px;opacity:${item.is_active?1:0.5};">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span style="font-size:1.5em;">${item.emoji||'🎁'}</span>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:0.84em;font-weight:600;">${escapeHtml(item.name)}</div>
+          <div style="font-size:0.68em;color:${meta.color};">${meta.icon} ${item.rarity} · drop: ${item.drop_chance}% · key: <code>${item.item_key}</code></div>
+        </div>
+        <div style="display:flex;gap:5px;flex-shrink:0;">
+          <button class="admin-action-btn" onclick="editAdminItem('${item.id}')">✏️</button>
+          <button class="admin-action-btn danger" onclick="deleteAdminItem('${item.id}','${escapeHtml(item.name).replace(/'/g,"\\'")}')">🗑️</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  // Also reload shop listings
+  await loadAdminShopListings();
+}
+
+function editAdminItem(itemId) {
+  const item = _adminItemCache.find(i => i.id === itemId);
+  if(!item) return;
+  document.getElementById('itemEditId').value        = item.id;
+  document.getElementById('itemForm_key').value      = item.item_key;
+  document.getElementById('itemForm_name').value     = item.name;
+  document.getElementById('itemForm_desc').value     = item.description||'';
+  document.getElementById('itemForm_emoji').value    = item.emoji||'🎁';
+  document.getElementById('itemForm_rarity').value   = item.rarity||'common';
+  document.getElementById('itemForm_dropChance').value = item.drop_chance||5;
+  document.getElementById('itemForm_image').value    = item.image_url||'';
+  document.getElementById('itemForm_active').checked = item.is_active !== false;
+  document.getElementById('itemFormTitle').textContent = '✏️ Edit Item';
+  const cb = document.getElementById('itemCancelBtn');
+  if(cb) cb.style.display = '';
+  document.getElementById('itemFormTitle').scrollIntoView({behavior:'smooth'});
+}
+
+async function deleteAdminItem(itemId, itemName) {
+  if(!state.isAdmin) return;
+  if(!confirm(`Delete item "${itemName}"?`)) return;
+  await sb.delete('items', { id: itemId });
+  showToast(`🗑️ "${itemName}" deleted`);
+  await loadAdminItemList();
+  await loadGameItems();
+}
+
+async function addItemShopListing() {
+  if(!checkAdmin()) return;
+  const key   = (document.getElementById('shopListItem_key')?.value||'').trim();
+  const price = parseInt(document.getElementById('shopListItem_price')?.value)||500;
+  const stock = parseInt(document.getElementById('shopListItem_stock')?.value);
+  if(!key) { showToast('Enter an item key first!'); return; }
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/item_shop_listings`, {
+      method: 'POST',
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer '+SUPABASE_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+      body: JSON.stringify({ item_key: key, price, stock: isNaN(stock)?-1:stock, is_active: true })
+    });
+    if(res.ok) { showToast('🛍️ Listed in shop!'); await loadAdminShopListings(); await loadGameItems(); }
+    else { const b = await res.json().catch(()=>null); showToast('❌ ' + (b?.message||'Failed')); }
+  } catch(e) { showToast('❌ ' + e.message); }
+}
+
+async function loadAdminShopListings() {
+  const el = document.getElementById('adminShopListingList');
+  if(!el) return;
+  try {
+    _adminShopListingCache = await sb.getAll('item_shop_listings') || [];
+    const cnt = document.getElementById('adminShopListingCount');
+    if(cnt) cnt.textContent = `(${_adminShopListingCache.length})`;
+  } catch(e) { return; }
+  if(!_adminShopListingCache.length) {
+    el.innerHTML = '<div style="color:var(--text-dim);font-style:italic;font-size:0.78em;text-align:center;padding:10px;">None listed yet.</div>';
+    return;
+  }
+  el.innerHTML = _adminShopListingCache.map(l => {
+    const item = _adminItemCache.find(i => i.item_key === l.item_key);
+    return `<div style="border:1px solid var(--border);border-radius:9px;padding:8px 10px;margin-bottom:6px;display:flex;align-items:center;gap:8px;font-size:0.78em;">
+      <span>${item?.emoji||'🎁'}</span>
+      <div style="flex:1;"><strong>${escapeHtml(item?.name||l.item_key)}</strong> · 🪙${l.price} · stock: ${l.stock<0?'∞':l.stock}</div>
+      <button class="admin-action-btn danger" onclick="deleteShopListing('${l.id}')">🗑️</button>
+    </div>`;
+  }).join('');
+}
+
+async function deleteShopListing(listingId) {
+  if(!checkAdmin()) return;
+  await sb.delete('item_shop_listings', { id: listingId });
+  showToast('🗑️ Listing removed');
+  await loadAdminShopListings();
+  await loadGameItems();
+}
+
+async function adminGiveItem() {
+  if(!checkAdmin()) return;
+  const discordId = (document.getElementById('giveItem_discordId')?.value||'').trim();
+  const key       = (document.getElementById('giveItem_key')?.value||'').trim();
+  const qty       = parseInt(document.getElementById('giveItem_qty')?.value)||1;
+  if(!discordId || !key) { showToast('Fill in Discord ID and item key'); return; }
+  const origId = state.discordId;
+  // Temporarily set state.discordId to target so giveItemToPlayer writes to correct row
+  state.discordId = discordId;
+  await giveItemToPlayer(discordId, key, qty);
+  state.discordId = origId;
+  showToast(`👑 Gave ×${qty} ${key} to ${discordId}`);
+}
+
+async function adminGiveItemToSelf() {
+  const key = (document.getElementById('giveItem_key')?.value||'').trim();
+  const qty = parseInt(document.getElementById('giveItem_qty')?.value)||1;
+  if(!key) { showToast('Enter an item key first'); return; }
+  await giveItemToPlayer(state.discordId, key, qty);
+  showToast(`👑 Gave ×${qty} ${key} to yourself`);
+  renderInventoryPage();
+}
+
+
+// ══════════════════════════════════════════════════════════════
+// ADMIN — EVOLUTION MANAGER
+// ══════════════════════════════════════════════════════════════
+
+let _adminEvoCache = [];
+
+function toggleEvoFields() {
+  const type = document.getElementById('evoForm_type')?.value;
+  const lw = document.getElementById('evoLevelWrap');
+  const iw = document.getElementById('evoItemWrap');
+  if(lw) lw.style.display = (type === 'level' || type === 'level_item') ? '' : 'none';
+  if(iw) iw.style.display = (type === 'level_item') ? '' : 'none';
+  updateEvoPreview();
+}
+
+function updateEvoPreview() {
+  const baseId   = (document.getElementById('evoForm_baseCard')?.value||'').trim();
+  const targetId = (document.getElementById('evoForm_targetCard')?.value||'').trim();
+  const box      = document.getElementById('evoPreviewBox');
+  const content  = document.getElementById('evoPreviewContent');
+  if(!box || !content) return;
+
+  const base   = (window.DEMO_CARDS||DEMO_CARDS).find(c => c.id === baseId);
+  const target = (window.DEMO_CARDS||DEMO_CARDS).find(c => c.id === targetId);
+
+  if(base || target) {
+    box.style.display = '';
+    const makeThumb = (c, label) => c
+      ? `<div style="text-align:center;"><img src="${c.image}" style="width:56px;height:80px;object-fit:cover;border-radius:8px;border:2px solid ${RARITY_COLORS[c.rarity]||'#bdc3c7'};display:block;margin:0 auto 4px;" onerror="this.style.display='none'"/><div style="font-size:0.68em;color:var(--text-dim);">${c.name}</div></div>`
+      : `<div style="width:56px;height:80px;border:2px dashed var(--border);border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--text-dim);font-size:0.7em;">${label}</div>`;
+    content.innerHTML = makeThumb(base,'base') + '<span style="font-size:1.5em;color:var(--pink);">→</span>' + makeThumb(target,'target');
+  } else {
+    box.style.display = 'none';
+  }
+}
+
+async function submitEvolutionForm() {
+  if(!checkAdmin()) return;
+  const baseId   = (document.getElementById('evoForm_baseCard')?.value||'').trim();
+  const targetId = (document.getElementById('evoForm_targetCard')?.value||'').trim();
+  const type     = document.getElementById('evoForm_type')?.value || 'none';
+  if(!baseId || !targetId) { showToast('Base and target card IDs are required!'); return; }
+
+  const data = {
+    base_card_id:   baseId,
+    target_card_id: targetId,
+    evolution_type: type,
+    required_level: type !== 'none' ? (parseInt(document.getElementById('evoForm_level')?.value)||1) : 1,
+    required_item:  type === 'level_item' ? ((document.getElementById('evoForm_item')?.value||'').trim()||null) : null,
+    is_active: true,
+  };
+
+  try {
+    const editId = document.getElementById('evoEditId')?.value;
+    if(editId) {
+      await sb.update('card_evolutions', data, { id: editId });
+    } else {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/card_evolutions`, {
+        method: 'POST',
+        headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer '+SUPABASE_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+        body: JSON.stringify(data)
+      });
+      if(!res.ok) { const b = await res.json().catch(()=>null); showToast('❌ ' + (b?.message||`HTTP ${res.status}`)); return; }
+    }
+    showToast(`✅ Evolution for "${baseId}" saved!`);
+    cancelEvoEdit();
+    await loadAdminEvoList();
+    await loadEvolutions();
+  } catch(e) { showToast('❌ ' + e.message); }
+}
+
+function cancelEvoEdit() {
+  document.getElementById('evoEditId').value       = '';
+  document.getElementById('evoForm_baseCard').value  = '';
+  document.getElementById('evoForm_targetCard').value = '';
+  document.getElementById('evoForm_type').value    = 'none';
+  document.getElementById('evoForm_level').value   = '5';
+  document.getElementById('evoForm_item').value    = '';
+  toggleEvoFields();
+  document.getElementById('evoPreviewBox').style.display = 'none';
+  const cb = document.getElementById('evoCancelBtn');
+  if(cb) cb.style.display = 'none';
+}
+
+async function loadAdminEvoList() {
+  const el = document.getElementById('adminEvoList');
+  if(!el) return;
+  try {
+    _adminEvoCache = await sb.getAll('card_evolutions') || [];
+    const cnt = document.getElementById('adminEvoCount');
+    if(cnt) cnt.textContent = `(${_adminEvoCache.length})`;
+  } catch(e) {
+    el.innerHTML = '<div style="color:#e74c3c;font-size:0.82em;padding:14px;text-align:center;">⚠️ Run evolution_migration.sql first.</div>';
+    return;
+  }
+  if(!_adminEvoCache.length) {
+    el.innerHTML = '<div style="color:var(--text-dim);font-style:italic;font-size:0.82em;text-align:center;padding:14px;">No evolutions configured yet.</div>';
+    return;
+  }
+  const TYPE_LABELS = { none:'🚫 None', level:'📈 Level', level_item:'📈+🎁 Level+Item' };
+  el.innerHTML = _adminEvoCache.map(evo => {
+    const base   = (window.DEMO_CARDS||DEMO_CARDS).find(c => c.id === evo.base_card_id);
+    const target = (window.DEMO_CARDS||DEMO_CARDS).find(c => c.id === evo.target_card_id);
+    const active = evo.is_active && evo.evolution_type !== 'none';
+    return `<div style="border:1px solid ${active?'rgba(192,132,184,0.3)':'var(--border)'};border-radius:10px;padding:10px 12px;margin-bottom:8px;opacity:${active?1:0.5};">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap;">
+        ${base ? `<img src="${base.image}" style="width:32px;height:44px;object-fit:cover;border-radius:5px;border:1px solid ${RARITY_COLORS[base.rarity]||'#ccc'}" onerror="this.style.display='none'"/>` : ''}
+        <span style="color:var(--pink);">→</span>
+        ${target ? `<img src="${target.image}" style="width:32px;height:44px;object-fit:cover;border-radius:5px;border:1px solid ${RARITY_COLORS[target.rarity]||'#ccc'}" onerror="this.style.display='none'"/>` : ''}
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:0.82em;font-weight:600;"><code>${evo.base_card_id}</code> → <code>${evo.target_card_id}</code></div>
+          <div style="font-size:0.68em;color:var(--text-dim);">${TYPE_LABELS[evo.evolution_type]||evo.evolution_type}
+            ${evo.evolution_type!=='none'?` · Lv.${evo.required_level}+`:''}
+            ${evo.required_item?` · 🎁 ${evo.required_item}`:''}
+          </div>
+        </div>
+        <div style="display:flex;gap:5px;flex-shrink:0;">
+          <button class="admin-action-btn" onclick="editAdminEvo('${evo.id}')">✏️</button>
+          <button class="admin-action-btn danger" onclick="deleteAdminEvo('${evo.id}','${evo.base_card_id}')">🗑️</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function editAdminEvo(evoId) {
+  const evo = _adminEvoCache.find(e => e.id === evoId);
+  if(!evo) return;
+  document.getElementById('evoEditId').value          = evo.id;
+  document.getElementById('evoForm_baseCard').value   = evo.base_card_id;
+  document.getElementById('evoForm_targetCard').value = evo.target_card_id;
+  document.getElementById('evoForm_type').value       = evo.evolution_type;
+  document.getElementById('evoForm_level').value      = evo.required_level||1;
+  document.getElementById('evoForm_item').value       = evo.required_item||'';
+  toggleEvoFields();
+  updateEvoPreview();
+  const cb = document.getElementById('evoCancelBtn');
+  if(cb) cb.style.display = '';
+  document.getElementById('evoForm_baseCard').scrollIntoView({behavior:'smooth'});
+}
+
+async function deleteAdminEvo(evoId, baseCardId) {
+  if(!checkAdmin()) return;
+  if(!confirm(`Delete evolution for "${baseCardId}"?`)) return;
+  await sb.delete('card_evolutions', { id: evoId });
+  showToast(`🗑️ Evolution for "${baseCardId}" deleted`);
+  await loadAdminEvoList();
+  await loadEvolutions();
+}
+
+
 
 </script>
 
@@ -14319,6 +15257,37 @@ async function deleteSkin(skinId, skinName){
     </div>
     <p style="color:var(--text-dim);font-size:0.85em;margin-bottom:14px;">Pick a card to show off in chat!</p>
     <div class="cards-grid" id="flexPickerGrid" style="max-height:340px;overflow-y:auto;"></div>
+  </div>
+</div>
+
+<!-- EVOLUTION MODAL --> 
+<div id="evolutionModal" style="position:fixed;inset:0;z-index:500;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.96);backdrop-filter:blur(12px);">
+  <div style="text-align:center;max-width:480px;width:92%;padding:20px;animation:pullIn 0.5s cubic-bezier(0.34,1.56,0.64,1);">
+    <div id="evoModalGlow" style="position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 50% 40%,rgba(192,132,184,0.25),transparent 65%);"></div>
+    <div style="position:relative;z-index:2;">
+      <div style="font-family:'Cinzel Decorative',serif;font-size:0.72em;letter-spacing:0.15em;color:var(--purple);margin-bottom:8px;opacity:0.8;">✦ EVOLUTION ✦</div>
+      <div style="display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:20px;flex-wrap:wrap;">
+        <div id="evoFromCard" style="text-align:center;"></div>
+        <div style="font-size:2em;color:var(--pink);animation:decoDrift 1.5s ease-in-out infinite;">→</div>
+        <div id="evoToCard" style="text-align:center;"></div>
+      </div>
+      <div id="evoModalTitle" style="font-family:'Cinzel Decorative',serif;font-size:1.3em;color:var(--pink-pale);margin-bottom:6px;"></div>
+      <div id="evoModalSub" style="color:var(--text-dim);font-style:italic;font-size:0.88em;margin-bottom:20px;"></div>
+      <div id="evoModalRequirements" style="background:rgba(255,157,199,0.06);border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:18px;font-size:0.82em;"></div>
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+        <button id="evoConfirmBtn" class="btn-primary" onclick="confirmEvolve()">🔮 Evolve!</button>
+        <button class="btn-secondary" onclick="closeEvolutionModal()">Not yet</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Item Drop Toast (separate from main toast — shows item drops) -->
+<div id="itemDropToast" style="position:fixed;bottom:100px;left:50%;transform:translateX(-50%) translateY(20px);z-index:450;background:linear-gradient(135deg,rgba(19,10,26,0.95),rgba(28,15,38,0.95));border:1px solid rgba(192,132,184,0.4);border-radius:14px;padding:10px 18px;display:flex;align-items:center;gap:10px;font-size:0.82em;opacity:0;transition:all 0.35s cubic-bezier(0.34,1.2,0.64,1);pointer-events:none;max-width:280px;text-align:left;backdrop-filter:blur(10px);">
+  <span id="itemDropIcon" style="font-size:1.5em;"></span>
+  <div>
+    <div id="itemDropName" style="color:var(--pink-pale);font-weight:600;"></div>
+    <div id="itemDropDesc" style="color:var(--text-dim);font-size:0.88em;"></div>
   </div>
 </div>
 
