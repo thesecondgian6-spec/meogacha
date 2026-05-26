@@ -11742,7 +11742,7 @@ async function sendChatMsg(content, type='text', cardId=null){
     const ok = await sb.insert('chat_messages', {
       discord_id: state.discordId,
       username:   state.username || 'Summoner',
-      avatar_url: state.customAvatar || state.avatar || '',
+      avatar_url: state.avatar   || '',
       content:    safe,
       msg_type:   type,
       card_id:    cardId || null
@@ -11953,7 +11953,7 @@ function openPlayerModal(player){
       <div style="padding:0 22px 22px;">
         <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-top:-36px;margin-bottom:12px;position:relative;z-index:2;">
           <div style="position:relative;">
-            <img src="${player.avatar||'https://cdn.discordapp.com/embed/avatars/0.png'}"
+            <img src="${player.profile_thumbnail||player.avatar||'https://cdn.discordapp.com/embed/avatars/0.png'}"
               style="width:72px;height:72px;border-radius:50%;border:3px solid var(--bg2);
                      object-fit:cover;background:var(--bg2);display:block;
                      box-shadow:0 4px 16px rgba(0,0,0,0.5);"
