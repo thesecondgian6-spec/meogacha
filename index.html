@@ -5082,11 +5082,12 @@ const sb = {
   },
   async getAll(table) {
     const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?limit=1000`,{
-      headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Prefer':'count=none'}
+      headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Accept':'application/json','Prefer':'count=none'}
     });
     const body = await res.json().catch(()=>null);
     sbLog('GETALL', table, res.status, body);
-    return res.ok ? body : [];
+    if(!res.ok) throw new Error(`[SB] GETALL ${table} failed ${res.status}: ${body?.message||body?.hint||JSON.stringify(body)}`);
+    return body || [];
   }
 };
 
@@ -5246,7 +5247,7 @@ async function loadShopItems(){
   try {
     const rows = await sb.getAll('shop_items');
     if(rows && rows.length){
-      window.SHOP_DB_ITEMS = rows.filter(r=>r.enabled!==false);
+      window.SHOP_DB_ITEMS = rows.filter(r=>r.enabled!==false && r.is_active!==false);
     } else {
       window.SHOP_DB_ITEMS = [];
     }
@@ -5418,7 +5419,7 @@ function renderShopGrid(){
     const typeBadge = `<div class="shop-type-badge" style="background:${meta.accent};border:1px solid ${meta.border};color:${meta.color};">${item.emoji||'🎁'} ${typeLabel}</div>`;
 
     // Encode item as JSON for the buy handler
-    const itemEncoded = JSON.stringify(JSON.stringify(item));
+    const itemEncoded = JSON.stringify(item).replace(/'/g,"&#39;");
 
     // Taller thumb for card/skin art (portrait aspect ratio looks better)
     const thumbStyle = isArtThumb ? 'style="height:160px;"' : '';
@@ -5437,7 +5438,7 @@ function renderShopGrid(){
             <span class="shop-price-coin">🪙</span>
             <span class="shop-price-num">${price.toLocaleString()}</span>
           </div>
-          <button class="${btnClass}" ${btnDisabled?'disabled':''} onclick="buyShopItem(${itemEncoded})">
+          <button class="${btnClass}" ${btnDisabled?'disabled':''} onclick='buyShopItem(this.dataset.item)' data-item='${itemEncoded}'>
             ${btnLabel}
           </button>
         </div>
