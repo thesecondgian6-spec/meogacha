@@ -220,132 +220,160 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .equipped-name{font-weight:600;margin-bottom:2px;}
 .equipped-rarity{font-size:0.8em;color:var(--text-dim);}
 .equipped-lvl{font-family:'JetBrains Mono',monospace;font-size:0.75em;color:var(--gold);margin-top:4px;}
-/* ══ REDESIGNED SHOP ══ */
+/* ══ REDESIGNED SHOP — mobile-first ══ */
 .shop-page-header{
-  display:flex;align-items:flex-start;justify-content:space-between;
-  gap:16px;margin-bottom:24px;flex-wrap:wrap;
+  display:flex;align-items:center;justify-content:space-between;
+  gap:10px;margin-bottom:14px;flex-wrap:wrap;
 }
 .shop-page-title{
-  font-family:'Cinzel Decorative',serif;font-size:1.4em;
+  font-family:'Cinzel Decorative',serif;font-size:1.05em;
   background:linear-gradient(135deg,var(--pink),var(--purple));
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;
-  margin-bottom:4px;
+  margin-bottom:2px;
 }
-.shop-page-subtitle{ font-size:0.85em;color:var(--text-dim);font-style:italic; }
+.shop-page-subtitle{ font-size:0.75em;color:var(--text-dim);font-style:italic; }
 .shop-wallet{
   background:rgba(241,196,15,0.08);border:1px solid rgba(241,196,15,0.25);
-  border-radius:14px;padding:10px 18px;text-align:right;flex-shrink:0;
+  border-radius:12px;padding:7px 14px;text-align:right;flex-shrink:0;
 }
-.shop-wallet-label{ font-size:0.7em;color:rgba(241,196,15,0.6);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:2px; }
-.shop-wallet-amount{ font-family:'JetBrains Mono',monospace;font-size:1.1em;color:#f1c40f;font-weight:700; }
+.shop-wallet-label{ font-size:0.62em;color:rgba(241,196,15,0.6);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:1px; }
+.shop-wallet-amount{ font-family:'JetBrains Mono',monospace;font-size:0.95em;color:#f1c40f;font-weight:700; }
+/* Category strip — horizontal scroll on mobile */
 .shop-cat-tabs{
-  display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px;
-  padding:12px;
-  background:rgba(255,157,199,0.04);
-  border:1px solid var(--border);border-radius:16px;
+  display:flex;gap:5px;
+  overflow-x:auto;overflow-y:hidden;
+  -webkit-overflow-scrolling:touch;
+  scrollbar-width:none;
+  margin-bottom:14px;
+  padding:2px 0 6px;
 }
+.shop-cat-tabs::-webkit-scrollbar{ display:none; }
 .shop-cat-btn{
-  display:flex;align-items:center;gap:6px;
-  background:transparent;border:1px solid transparent;
-  border-radius:20px;padding:7px 14px;
-  font-family:'Cormorant Garamond',serif;font-size:0.88em;
-  cursor:pointer;transition:all 0.2s;color:var(--text-dim);white-space:nowrap;
+  display:flex;align-items:center;gap:5px;
+  background:rgba(255,255,255,0.04);border:1px solid var(--border);
+  border-radius:20px;padding:5px 12px;
+  font-family:'Cormorant Garamond',serif;font-size:0.8em;
+  cursor:pointer;transition:all 0.18s;color:var(--text-dim);
+  white-space:nowrap;flex-shrink:0;
 }
-.shop-cat-btn .sct-icon{ font-size:1em; }
-.shop-cat-btn .sct-label{ font-size:0.9em; }
-.shop-cat-btn:hover{ background:rgba(255,157,199,0.08);color:var(--text);border-color:var(--border); }
+.shop-cat-btn .sct-icon{ font-size:1em; line-height:1; }
+.shop-cat-btn .sct-label{ font-size:1em; }
+.shop-cat-btn:hover{ border-color:var(--pink);color:var(--pink);background:rgba(255,157,199,0.06); }
 .shop-cat-btn.active{
-  background:rgba(255,157,199,0.12);border-color:var(--pink);color:var(--pink);
+  background:rgba(255,157,199,0.12);border-color:var(--pink);color:var(--pink);font-weight:600;
 }
 .active-boosts-bar{
-  display:flex;align-items:center;gap:10px;
-  background:rgba(93,173,226,0.08);border:1px solid rgba(93,173,226,0.25);
-  border-radius:12px;padding:10px 16px;margin-bottom:16px;
-  font-size:0.82em;color:#5dade2;font-family:'JetBrains Mono',monospace;
+  display:flex;align-items:center;gap:8px;
+  background:rgba(93,173,226,0.07);border:1px solid rgba(93,173,226,0.22);
+  border-radius:10px;padding:8px 12px;margin-bottom:12px;
+  font-size:0.75em;color:#5dade2;font-family:'JetBrains Mono',monospace;
 }
-.ab-icon{ font-size:1.1em; }
+/* Shop grid — 2 col on mobile, 3+ on desktop */
 .shop-items-grid{
   display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
-  gap:14px;
+  grid-template-columns:repeat(2,1fr);
+  gap:10px;
 }
+/* Shop card */
 .shop-new-item{
-  background:linear-gradient(135deg,var(--bg2),var(--bg3));
-  border:1px solid var(--item-border, var(--border));
-  border-radius:18px;overflow:hidden;
-  transition:all 0.25s;display:flex;flex-direction:column;
-  position:relative;
+  background:var(--bg2);
+  border:1px solid var(--item-border,var(--border));
+  border-radius:14px;overflow:hidden;
+  transition:border-color 0.2s,box-shadow 0.2s;
+  display:flex;flex-direction:column;
 }
 .shop-new-item:hover{
-  transform:translateY(-3px);
-  box-shadow:0 8px 28px rgba(0,0,0,0.3),0 0 0 1px var(--item-accent);
   border-color:var(--item-accent);
+  box-shadow:0 4px 20px rgba(0,0,0,0.25);
 }
 .shop-item-thumb-wrap{
-  position:relative;height:120px;overflow:hidden;
-  background:var(--item-bg, rgba(255,157,199,0.06));
+  position:relative;height:90px;overflow:hidden;
+  background:var(--item-bg,rgba(255,157,199,0.06));
   display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
 }
-.shop-item-thumb{
-  width:100%;height:100%;object-fit:cover;
-  transition:transform 0.4s ease;
-}
-.shop-new-item:hover .shop-item-thumb{ transform:scale(1.05); }
-.shop-item-emoji-big{
-  font-size:3.5em;
-  filter:drop-shadow(0 2px 8px rgba(0,0,0,0.4));
-}
+.shop-item-thumb{ width:100%;height:100%;object-fit:cover; }
+.shop-item-emoji-big{ font-size:2.6em;filter:drop-shadow(0 2px 6px rgba(0,0,0,0.4)); }
 .shop-item-status{
-  position:absolute;top:8px;right:8px;
-  border-radius:20px;padding:3px 10px;font-size:0.68em;
+  position:absolute;top:6px;right:6px;
+  border-radius:20px;padding:2px 8px;font-size:0.6em;
   font-family:'JetBrains Mono',monospace;backdrop-filter:blur(6px);
-  font-weight:700;letter-spacing:0.04em;
+  font-weight:700;letter-spacing:0.03em;
 }
-.owned-status{ background:rgba(46,204,113,0.18);border:1px solid rgba(46,204,113,0.35);color:#2ecc71; }
-.active-status{ background:rgba(93,173,226,0.18);border:1px solid rgba(93,173,226,0.35);color:#5dade2; }
-.shop-item-content{ padding:14px;display:flex;flex-direction:column;gap:8px;flex:1; }
+.owned-status{ background:rgba(46,204,113,0.18);border:1px solid rgba(46,204,113,0.3);color:#2ecc71; }
+.active-status{ background:rgba(93,173,226,0.18);border:1px solid rgba(93,173,226,0.3);color:#5dade2; }
+.shop-item-content{ padding:10px;display:flex;flex-direction:column;gap:6px;flex:1; }
 .shop-type-badge{
-  display:inline-flex;align-items:center;gap:5px;
-  border-radius:20px;padding:3px 10px;font-size:0.68em;
-  font-family:'JetBrains Mono',monospace;letter-spacing:0.04em;
-  width:fit-content;
+  display:inline-flex;align-items:center;gap:4px;
+  border-radius:20px;padding:2px 8px;font-size:0.6em;
+  font-family:'JetBrains Mono',monospace;width:fit-content;
 }
 .shop-item-name{
-  font-family:'Cinzel Decorative',serif;font-size:0.82em;
+  font-family:'Cinzel Decorative',serif;font-size:0.7em;
   color:var(--text);line-height:1.3;
 }
 .shop-item-desc{
-  font-size:0.8em;color:var(--text-dim);line-height:1.55;
+  font-size:0.72em;color:var(--text-dim);line-height:1.5;
   font-style:italic;flex:1;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
 }
 .shop-item-footer{
   display:flex;align-items:center;justify-content:space-between;
-  gap:8px;margin-top:4px;flex-wrap:wrap;
+  gap:6px;margin-top:2px;
 }
 .shop-item-price{
-  display:flex;align-items:center;gap:4px;
-  font-family:'JetBrains Mono',monospace;
+  display:flex;align-items:center;gap:3px;
+  font-family:'JetBrains Mono',monospace;flex-shrink:0;
 }
-.shop-price-coin{ font-size:1em; }
-.shop-price-num{ font-size:1.05em;color:#f1c40f;font-weight:700; }
+.shop-price-num{ font-size:0.88em;color:#f1c40f;font-weight:700; }
 .shop-new-buy-btn{
   background:linear-gradient(135deg,var(--pink-deep),var(--purple));
-  border:none;color:#fff;padding:8px 14px;border-radius:20px;
-  font-family:'Cormorant Garamond',serif;font-size:0.82em;
-  cursor:pointer;transition:all 0.2s;white-space:nowrap;
-  flex-shrink:0;
+  border:none;color:#fff;padding:6px 10px;border-radius:16px;
+  font-family:'Cormorant Garamond',serif;font-size:0.72em;
+  cursor:pointer;transition:opacity 0.15s;white-space:nowrap;
+  flex-shrink:0;min-width:0;
 }
-.shop-new-buy-btn:hover:not(:disabled){ transform:translateY(-1px);opacity:0.9; }
-.shop-new-buy-btn.disabled, .shop-new-buy-btn:disabled{
-  background:rgba(255,255,255,0.07);color:var(--text-dim);cursor:not-allowed;
-  border:1px solid var(--border);
+.shop-new-buy-btn:active{ opacity:0.75; }
+.shop-new-buy-btn.disabled,.shop-new-buy-btn:disabled{
+  background:rgba(255,255,255,0.06);color:var(--text-dim);
+  cursor:not-allowed;border:1px solid var(--border);
 }
-@media(max-width:480px){
-  .shop-items-grid{ grid-template-columns:1fr; }
-  .shop-cat-tabs{ gap:5px; }
-  .shop-cat-btn .sct-label{ display:none; }
-  .shop-cat-btn{ padding:8px 10px; }
+/* Desktop */
+@media(min-width:600px){
+  .shop-items-grid{ grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px; }
+  .shop-item-thumb-wrap{ height:110px; }
+  .shop-item-name{ font-size:0.78em; }
+  .shop-item-desc{ font-size:0.78em;-webkit-line-clamp:3; }
+  .shop-new-buy-btn{ font-size:0.8em;padding:7px 12px; }
+  .shop-page-title{ font-size:1.25em; }
 }
+@media(min-width:900px){
+  .shop-items-grid{ grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); }
+}
+/* Ref picker (card/skin chooser in admin) */
+.ref-picker-row{ display:flex;gap:8px;align-items:stretch;margin-bottom:0; }
+.ref-picker-display{
+  flex:1;background:rgba(255,157,199,0.04);border:1px solid var(--border);
+  border-radius:10px;padding:8px 12px;font-size:0.82em;
+  display:flex;align-items:center;gap:10px;min-height:44px;
+}
+.rpd-empty{ color:var(--text-dim);font-style:italic;font-size:0.9em; }
+.rpd-img{ width:32px;height:32px;border-radius:6px;object-fit:cover;flex-shrink:0; }
+.rpd-info{ display:flex;flex-direction:column;gap:2px;min-width:0; }
+.rpd-name{ font-weight:600;font-size:0.9em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+.rpd-sub{ font-size:0.75em;color:var(--text-dim); }
+/* Picker grid item */
+.spk-item{
+  background:rgba(255,157,199,0.04);border:1px solid var(--border);
+  border-radius:12px;padding:10px 8px;cursor:pointer;
+  transition:all 0.18s;text-align:center;display:flex;flex-direction:column;align-items:center;gap:6px;
+}
+.spk-item:hover{ border-color:var(--pink);background:rgba(255,157,199,0.1); }
+.spk-item.selected{ border-color:var(--pink);background:rgba(255,157,199,0.15);box-shadow:0 0 0 2px var(--pink); }
+.spk-item img{ width:60px;height:60px;object-fit:cover;border-radius:8px;display:block; }
+.spk-item-emoji{ font-size:2em; }
+.spk-item-name{ font-size:0.72em;font-weight:600;line-height:1.2;word-break:break-word; }
+.spk-item-sub{ font-size:0.65em;color:var(--text-dim); }
 #toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:10px 24px;font-size:0.9em;z-index:500;transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1);white-space:nowrap;}
 #toast.show{transform:translateX(-50%) translateY(0);}
 #loginOverlay{position:fixed;inset:0;z-index:400;display:flex;align-items:center;justify-content:center;background:rgba(13,6,16,0.97);backdrop-filter:blur(20px);}
@@ -4839,8 +4867,14 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
         <!-- Type-specific: Card -->
         <div id="shopFields_card" class="shop-type-fields" style="display:none;">
           <div style="margin-bottom:12px;">
-            <label class="admin-label">Card ID <span class="admin-hint">(the card's id field from the cards table)</span></label>
-            <input class="admin-input" id="shopItemForm_cardId" placeholder="e.g. frieren" oninput="shopAutoDesc()"/>
+            <label class="admin-label">Select Card</label>
+            <div class="ref-picker-row">
+              <div class="ref-picker-display" id="shopCardPickerDisplay">
+                <span class="rpd-empty">No card selected</span>
+              </div>
+              <button class="admin-btn" onclick="openShopPicker('card')" style="padding:8px 14px;font-size:0.82em;flex-shrink:0;">🃏 Choose Card</button>
+            </div>
+            <input type="hidden" id="shopItemForm_cardId"/>
           </div>
         </div>
 
@@ -4855,8 +4889,14 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
         <!-- Type-specific: Skin -->
         <div id="shopFields_skin" class="shop-type-fields" style="display:none;">
           <div style="margin-bottom:12px;">
-            <label class="admin-label">Skin ID <span class="admin-hint">(UUID from card_skins table)</span></label>
-            <input class="admin-input" id="shopItemForm_skinId" placeholder="paste skin UUID" oninput="shopAutoDesc()"/>
+            <label class="admin-label">Select Skin</label>
+            <div class="ref-picker-row">
+              <div class="ref-picker-display" id="shopSkinPickerDisplay">
+                <span class="rpd-empty">No skin selected</span>
+              </div>
+              <button class="admin-btn" onclick="openShopPicker('skin')" style="padding:8px 14px;font-size:0.82em;flex-shrink:0;">🎨 Choose Skin</button>
+            </div>
+            <input type="hidden" id="shopItemForm_skinId"/>
           </div>
         </div>
 
@@ -13698,10 +13738,25 @@ function editShopItem(itemId){
   }
   if(item.type==='xp' && document.getElementById('shopItemForm_xp_value'))
     document.getElementById('shopItemForm_xp_value').value = item.value||100;
-  if(item.type==='card' && document.getElementById('shopItemForm_cardId'))
+  if(item.type==='card' && document.getElementById('shopItemForm_cardId')){
     document.getElementById('shopItemForm_cardId').value = item.ref_id||'';
-  if(item.type==='skin' && document.getElementById('shopItemForm_skinId'))
+    // Populate display
+    const card = (window.DEMO_CARDS||[]).find(c=>c.id===item.ref_id);
+    const disp = document.getElementById('shopCardPickerDisplay');
+    if(disp && card){
+      disp.innerHTML = `${card.thumbnail||card.image?`<img class="rpd-img" src="${escapeHtml(card.thumbnail||card.image)}" onerror="this.style.display='none'"/>`:'<span style="font-size:1.5em;">🃏</span>'}
+        <div class="rpd-info"><div class="rpd-name">${escapeHtml(card.name)}</div><div class="rpd-sub">${escapeHtml(card.rarityName||'')}</div></div>`;
+    } else if(disp){ disp.innerHTML = '<span class="rpd-empty">No card selected</span>'; }
+  }
+  if(item.type==='skin' && document.getElementById('shopItemForm_skinId')){
     document.getElementById('shopItemForm_skinId').value = item.ref_id||'';
+    const skin = (window.ALL_SKINS||[]).find(s=>s.id===item.ref_id);
+    const disp = document.getElementById('shopSkinPickerDisplay');
+    if(disp && skin){
+      disp.innerHTML = `${skin.image_url||skin.preview_url?`<img class="rpd-img" src="${escapeHtml(skin.image_url||skin.preview_url)}" onerror="this.style.display='none'"/>`:'<span style="font-size:1.5em;">🎨</span>'}
+        <div class="rpd-info"><div class="rpd-name">${escapeHtml(skin.name)}</div><div class="rpd-sub">${escapeHtml(skin.card_name||skin.card_id||'')}</div></div>`;
+    } else if(disp){ disp.innerHTML = '<span class="rpd-empty">No skin selected</span>'; }
+  }
   if(item.type==='title' && document.getElementById('shopItemForm_titleText'))
     document.getElementById('shopItemForm_titleText').value = item.ref_id||'';
 
@@ -13732,6 +13787,10 @@ function cancelShopItemEdit(){
   document.getElementById('shopItemForm_xp_value').value = '100';
   document.getElementById('shopItemForm_cardId').value = '';
   document.getElementById('shopItemForm_skinId').value = '';
+  const cd = document.getElementById('shopCardPickerDisplay');
+  if(cd) cd.innerHTML = '<span class="rpd-empty">No card selected</span>';
+  const sd = document.getElementById('shopSkinPickerDisplay');
+  if(sd) sd.innerHTML = '<span class="rpd-empty">No skin selected</span>';
   document.getElementById('shopItemForm_titleText').value = '';
   const descEl = document.getElementById('shopItemForm_desc');
   descEl.value = ''; descEl.dataset.userEdited = 'false';
@@ -13759,6 +13818,122 @@ async function deleteShopItem(itemId, itemName){
     await loadAdminShopItems(); await loadShopItems(); renderShop();
   } catch(e){ showToast('❌ Delete failed: ' + e.message); }
 }
+
+// ── Shop Admin: Card / Skin Picker ──
+let _shopPickerMode = 'card'; // 'card' or 'skin'
+let _shopPickerAllItems = [];
+
+function openShopPicker(mode){
+  _shopPickerMode = mode;
+  const modal = document.getElementById('shopPickerModal');
+  const title = document.getElementById('shopPickerTitle');
+  const search = document.getElementById('shopPickerSearch');
+  if(!modal) return;
+  title.textContent = mode === 'card' ? '🃏 Choose a Card' : '🎨 Choose a Skin';
+  search.value = '';
+  modal.style.display = 'block';
+  document.body.style.overflow = 'hidden';
+
+  if(mode === 'card'){
+    _shopPickerAllItems = (window.DEMO_CARDS || []).map(c=>({
+      id: c.id,
+      name: c.name,
+      sub: c.rarityName || '',
+      img: c.thumbnail || c.image || '',
+    }));
+  } else {
+    _shopPickerAllItems = (window.ALL_SKINS || []).map(s=>({
+      id: s.id,
+      name: s.name,
+      sub: s.card_name || s.card_id || '',
+      img: s.image_url || s.preview_url || '',
+    }));
+  }
+
+  const currentId = mode === 'card'
+    ? document.getElementById('shopItemForm_cardId')?.value
+    : document.getElementById('shopItemForm_skinId')?.value;
+
+  renderShopPickerGrid(_shopPickerAllItems, currentId);
+}
+
+function closeShopPicker(){
+  const modal = document.getElementById('shopPickerModal');
+  if(modal) modal.style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+function filterShopPicker(q){
+  const lower = q.toLowerCase();
+  const filtered = _shopPickerAllItems.filter(i=>
+    i.name.toLowerCase().includes(lower) || i.sub.toLowerCase().includes(lower)
+  );
+  const currentId = _shopPickerMode === 'card'
+    ? document.getElementById('shopItemForm_cardId')?.value
+    : document.getElementById('shopItemForm_skinId')?.value;
+  renderShopPickerGrid(filtered, currentId);
+}
+
+function renderShopPickerGrid(items, selectedId){
+  const grid = document.getElementById('shopPickerGrid');
+  if(!grid) return;
+  if(!items.length){
+    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;color:var(--text-dim);font-style:italic;padding:30px;">
+      ${_shopPickerMode==='card' ? 'No cards loaded.' : 'No skins found. Add skins in the Skin Manager first.'}
+    </div>`;
+    return;
+  }
+  grid.innerHTML = items.map(item=>{
+    const sel = item.id === selectedId ? ' selected' : '';
+    const thumb = item.img
+      ? `<img src="${escapeHtml(item.img)}" onerror="this.style.display='none'" alt=""/>`
+      : `<div class="spk-item-emoji">🎴</div>`;
+    return `<div class="spk-item${sel}" onclick="selectShopPickerItem('${item.id}')">
+      ${thumb}
+      <div class="spk-item-name">${escapeHtml(item.name)}</div>
+      ${item.sub ? `<div class="spk-item-sub">${escapeHtml(item.sub)}</div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+function selectShopPickerItem(id){
+  const item = _shopPickerAllItems.find(i=>i.id===id);
+  if(!item) return;
+
+  if(_shopPickerMode === 'card'){
+    document.getElementById('shopItemForm_cardId').value = id;
+    // Update display
+    const disp = document.getElementById('shopCardPickerDisplay');
+    disp.innerHTML = `
+      ${item.img ? `<img class="rpd-img" src="${escapeHtml(item.img)}" onerror="this.style.display='none'"/>` : '<span style="font-size:1.5em;">🃏</span>'}
+      <div class="rpd-info">
+        <div class="rpd-name">${escapeHtml(item.name)}</div>
+        <div class="rpd-sub">${escapeHtml(item.sub)}</div>
+      </div>`;
+    // Auto-fill name if empty
+    const nameEl = document.getElementById('shopItemForm_name');
+    if(nameEl && !nameEl.value.trim()) nameEl.value = item.name;
+  } else {
+    document.getElementById('shopItemForm_skinId').value = id;
+    const disp = document.getElementById('shopSkinPickerDisplay');
+    disp.innerHTML = `
+      ${item.img ? `<img class="rpd-img" src="${escapeHtml(item.img)}" onerror="this.style.display='none'"/>` : '<span style="font-size:1.5em;">🎨</span>'}
+      <div class="rpd-info">
+        <div class="rpd-name">${escapeHtml(item.name)}</div>
+        <div class="rpd-sub">${escapeHtml(item.sub)}</div>
+      </div>`;
+    const nameEl = document.getElementById('shopItemForm_name');
+    if(nameEl && !nameEl.value.trim()) nameEl.value = item.name;
+  }
+
+  shopAutoDesc();
+  closeShopPicker();
+}
+
+// Close picker on overlay click
+document.getElementById('shopPickerModal')?.addEventListener('click', function(e){
+  if(e.target === this) closeShopPicker();
+});
 
 // ── Admin: delete skin ──
 async function deleteSkin(skinId, skinName){
@@ -13899,6 +14074,28 @@ async function deleteSkin(skinId, skinName){
 <!-- TRADE CONFIRMATION MODAL -->
 <div id="tradeConfirmModal">
   <div class="trade-confirm-box" id="tradeConfirmContent"></div>
+</div>
+
+<!-- ══ SHOP ADMIN PICKER MODAL ══ -->
+<div id="shopPickerModal" style="display:none;position:fixed;inset:0;z-index:600;background:rgba(13,6,16,0.92);backdrop-filter:blur(12px);overflow-y:auto;">
+  <div style="max-width:600px;margin:40px auto;padding:16px;">
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:20px;overflow:hidden;">
+      <!-- Header -->
+      <div style="padding:18px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:12px;">
+        <div>
+          <div id="shopPickerTitle" style="font-family:'Cinzel Decorative',serif;font-size:0.95em;color:var(--pink);">Choose Card</div>
+          <div style="font-size:0.75em;color:var(--text-dim);margin-top:2px;">Click one to select it</div>
+        </div>
+        <button onclick="closeShopPicker()" style="background:rgba(255,255,255,0.07);border:1px solid var(--border);color:var(--text);width:34px;height:34px;border-radius:50%;font-size:1.1em;cursor:pointer;flex-shrink:0;">✕</button>
+      </div>
+      <!-- Search -->
+      <div style="padding:12px 16px;border-bottom:1px solid var(--border);">
+        <input class="admin-input" id="shopPickerSearch" placeholder="Search..." oninput="filterShopPicker(this.value)" style="width:100%;box-sizing:border-box;"/>
+      </div>
+      <!-- Grid -->
+      <div id="shopPickerGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;padding:16px;max-height:55vh;overflow-y:auto;"></div>
+    </div>
+  </div>
 </div>
 
 </body>
