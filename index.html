@@ -4991,6 +4991,12 @@ let _shopTab   = 'all';     // current filter tab
 
 // ── Load shop items from Supabase ──
 async function loadShopItems(){
+  // Guard: don't fire before Supabase or state is ready
+  if(typeof sb === 'undefined' || typeof state === 'undefined') {
+    _shopItems = _defaultShopItems();
+    renderShop();
+    return;
+  }
   try {
     const rows = await sb.get('shop_items', {}, { select: '*', order: 'sort_order.asc,created_at.asc' });
     _shopItems = (rows||[]).filter(r => r.is_active !== false);
@@ -5024,7 +5030,11 @@ function switchShopTab(tab, btn){
 function renderShop(){
   const grid = document.getElementById('shopGrid');
   if(!grid) return;
-  if(!_shopItems.length){ loadShopItems(); return; }
+  // Don't try to load if state/sb isn't ready yet (called too early)
+  if(!_shopItems.length){
+    if(typeof state !== 'undefined' && typeof sb !== 'undefined') loadShopItems();
+    return;
+  }
 
   const filtered = _shopTab === 'all'
     ? _shopItems
@@ -9654,7 +9664,6 @@ function closeCutsceneEditor(){
   _cutsceneEditorCardId=null;_csStepCount=0;
 }
 
-loadShopItems();
 // ══════════════════════════════════════════════
 // ADMIN — SHOP MANAGER
 // ══════════════════════════════════════════════
@@ -11600,6 +11609,14 @@ async function deleteSkin(skinId, skinName){
 
 
 
+
+
+// ══════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════
+renderActiveBanner();
+renderHomeBannerWidget();
+tryAutoLogin();
 </script>
 
 <!-- ABILITY CUTSCENE OVERLAY -->
