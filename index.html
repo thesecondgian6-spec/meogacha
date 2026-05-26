@@ -220,34 +220,15 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .equipped-name{font-weight:600;margin-bottom:2px;}
 .equipped-rarity{font-size:0.8em;color:var(--text-dim);}
 .equipped-lvl{font-family:'JetBrains Mono',monospace;font-size:0.75em;color:var(--gold);margin-top:4px;}
-/* ══ SHOP ══ */
-.shop-tabs{display:flex;gap:6px;margin-bottom:20px;flex-wrap:wrap;}
-.shop-tab-btn{padding:7px 16px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--text-dim);font-family:'Cormorant Garamond',serif;font-size:0.9em;cursor:pointer;transition:all 0.2s;}
-.shop-tab-btn.active{background:linear-gradient(135deg,var(--pink-deep),var(--purple));border-color:transparent;color:#fff;box-shadow:0 2px 12px var(--pink-glow);}
-.shop-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;}
-.shop-item{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:18px 16px;transition:all 0.25s;display:flex;flex-direction:column;position:relative;overflow:hidden;}
-.shop-item:hover{border-color:rgba(255,157,199,0.45);transform:translateY(-3px);box-shadow:0 8px 30px rgba(255,157,199,0.08);}
-.shop-item.owned{border-color:rgba(46,204,113,0.35);background:rgba(46,204,113,0.04);}
-.shop-item.owned::after{content:'OWNED';position:absolute;top:10px;right:10px;font-family:'JetBrains Mono',monospace;font-size:0.55em;padding:2px 7px;border-radius:10px;background:rgba(46,204,113,0.15);border:1px solid rgba(46,204,113,0.35);color:#2ecc71;letter-spacing:0.08em;}
-.shop-item-type-badge{font-family:'JetBrains Mono',monospace;font-size:0.58em;text-transform:uppercase;letter-spacing:0.1em;padding:2px 8px;border-radius:10px;margin-bottom:10px;display:inline-block;width:fit-content;}
-.stype-boost{background:rgba(241,196,15,0.1);border:1px solid rgba(241,196,15,0.3);color:#f1c40f;}
-.stype-xp{background:rgba(52,152,219,0.1);border:1px solid rgba(52,152,219,0.3);color:#5dade2;}
-.stype-skin{background:rgba(155,89,182,0.1);border:1px solid rgba(155,89,182,0.3);color:#c39bd3;}
-.stype-card{background:rgba(255,157,199,0.1);border:1px solid rgba(255,157,199,0.3);color:var(--pink);}
-.stype-title{background:rgba(243,156,18,0.1);border:1px solid rgba(243,156,18,0.3);color:#f39c12;}
-.stype-item{background:rgba(149,165,166,0.1);border:1px solid rgba(149,165,166,0.3);color:#95a5a6;}
-.shop-item-icon{font-size:2.2em;margin-bottom:8px;line-height:1;}
-.shop-item-thumb{width:100%;aspect-ratio:3/4;border-radius:12px;object-fit:cover;margin-bottom:10px;border:1px solid var(--border);}
-.shop-name{font-family:'Cinzel Decorative',serif;font-size:0.82em;font-weight:700;margin-bottom:5px;line-height:1.3;}
-.shop-desc{font-size:0.78em;color:var(--text-dim);line-height:1.55;margin-bottom:auto;padding-bottom:12px;flex:1;}
-.shop-footer{margin-top:12px;display:flex;align-items:center;justify-content:space-between;gap:8px;}
-.shop-price{font-family:'JetBrains Mono',monospace;font-size:0.82em;color:#f1c40f;font-weight:700;}
-.shop-price.free{color:#2ecc71;}
-.shop-buy{padding:7px 14px;border-radius:20px;background:linear-gradient(135deg,var(--pink-deep),var(--purple));border:none;color:#fff;font-family:'Cormorant Garamond',serif;font-size:0.85em;cursor:pointer;transition:all 0.2s;white-space:nowrap;}
-.shop-buy:hover{opacity:0.85;transform:scale(1.04);}
-.shop-buy:disabled{opacity:0.35;cursor:not-allowed;transform:none;}
-.shop-empty{text-align:center;padding:60px 20px;color:var(--text-dim);font-style:italic;grid-column:1/-1;}
-.shop-section-label{font-family:'JetBrains Mono',monospace;font-size:0.68em;text-transform:uppercase;letter-spacing:0.12em;color:var(--text-dim);margin-bottom:12px;opacity:0.7;}
+.shop-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;}
+.shop-item{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:18px;transition:all 0.25s;cursor:pointer;}
+.shop-item:hover{border-color:rgba(255,157,199,0.4);transform:translateY(-2px);}
+.shop-emoji{font-size:2em;margin-bottom:10px;}
+.shop-name{font-weight:600;margin-bottom:4px;}
+.shop-desc{font-size:0.82em;color:var(--text-dim);line-height:1.5;margin-bottom:14px;}
+.shop-price{font-family:'JetBrains Mono',monospace;font-size:0.88em;color:#f1c40f;display:flex;align-items:center;gap:4px;}
+.shop-buy{margin-top:10px;width:100%;padding:8px;border-radius:20px;background:linear-gradient(135deg,var(--pink-deep),var(--purple));border:none;color:#fff;font-family:'Cormorant Garamond',serif;font-size:0.9em;cursor:pointer;transition:all 0.2s;}
+.shop-buy:hover{opacity:0.85;}
 #toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:10px 24px;font-size:0.9em;z-index:500;transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1);white-space:nowrap;}
 #toast.show{transform:translateX(-50%) translateY(0);}
 #loginOverlay{position:fixed;inset:0;z-index:400;display:flex;align-items:center;justify-content:center;background:rgba(13,6,16,0.97);backdrop-filter:blur(20px);}
@@ -517,7 +498,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   .cards-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; }
 
   /* ── Shop ── */
-  .shop-grid { grid-template-columns: repeat(2,1fr); }
+  .shop-grid { grid-template-columns: 1fr 1fr; }
 
   /* ── Collection filter ── */
   .coll-filter { gap: 5px; }
@@ -4042,21 +4023,8 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 
   <!-- SHOP -->
   <div class="page" id="page-shop">
-    <div class="section-title">✦ Meo Shop</div>
-    <p style="color:var(--text-dim);font-size:0.82em;font-style:italic;margin-bottom:18px;text-align:center;">Spend your coins on boosts, skins, cards &amp; more ʚɞ</p>
-
-    <div class="shop-tabs" id="shopTabs">
-      <button class="shop-tab-btn active" onclick="switchShopTab('all',this)">🛒 All</button>
-      <button class="shop-tab-btn" onclick="switchShopTab('boost',this)">⚡ Boosts</button>
-      <button class="shop-tab-btn" onclick="switchShopTab('skin',this)">🎨 Skins</button>
-      <button class="shop-tab-btn" onclick="switchShopTab('card',this)">🎴 Cards</button>
-      <button class="shop-tab-btn" onclick="switchShopTab('title',this)">🏷️ Titles</button>
-      <button class="shop-tab-btn" onclick="switchShopTab('item',this)">📦 Items</button>
-    </div>
-
-    <div class="shop-grid" id="shopGrid">
-      <div class="shop-empty">Loading shop... ✦</div>
-    </div>
+    <div class="section-title">Meo Shop</div>
+    <div class="shop-grid" id="shopGrid"></div>
   </div>
 
   <!-- PROFILE -->
@@ -4253,7 +4221,6 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
       <button class="filter-btn active" id="atab-cards" onclick="switchAdminTab('cards',this)">🎴 Card Manager</button>
       <button class="filter-btn" id="atab-banners" onclick="switchAdminTab('banners',this)">🏮 Banner Manager</button>
       <button class="filter-btn" id="atab-skins" onclick="switchAdminTab('skins',this)">🎨 Skin Manager</button>
-      <button class="filter-btn" id="atab-shop" onclick="switchAdminTab('shop',this)">🛒 Shop Manager</button>
       <button class="filter-btn" id="atab-tools" onclick="switchAdminTab('tools',this)">🔧 Tools</button>
     </div>
 
@@ -4635,83 +4602,6 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
       </div>
     </div>
 
-    <!-- SHOP MANAGER TAB -->
-    <div id="adminTab-shop" style="display:none;">
-
-      <!-- Create / Edit Item Form -->
-      <div class="admin-panel" id="shopItemFormPanel">
-        <h3 id="shopItemFormTitle" style="margin-bottom:16px;">➕ Add Shop Item</h3>
-        <input type="hidden" id="shopItemEditId"/>
-
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
-          <div>
-            <label class="admin-label">Item Name *</label>
-            <input class="admin-input" id="shopItemForm_name" placeholder="e.g. XP Potion (Large)"/>
-          </div>
-          <div>
-            <label class="admin-label">Type *</label>
-            <select class="admin-input" id="shopItemForm_type" onchange="onShopItemTypeChange()">
-              <option value="boost">⚡ Boost (coin/xp multiplier)</option>
-              <option value="xp">📦 XP Potion</option>
-              <option value="skin">🎨 Skin</option>
-              <option value="card">🎴 Card</option>
-              <option value="title">🏷️ Title</option>
-              <option value="item">📦 Generic Item</option>
-            </select>
-          </div>
-          <div>
-            <label class="admin-label">Emoji / Icon</label>
-            <input class="admin-input" id="shopItemForm_emoji" placeholder="e.g. ⚡" maxlength="4" value="📦"/>
-          </div>
-          <div>
-            <label class="admin-label">Price (coins) *</label>
-            <input class="admin-input" id="shopItemForm_price" type="number" value="200" min="0"/>
-          </div>
-        </div>
-
-        <div style="margin-bottom:10px;">
-          <label class="admin-label">Description *</label>
-          <textarea class="admin-input" id="shopItemForm_desc" rows="2" placeholder="What does this item do?" style="resize:vertical;"></textarea>
-        </div>
-
-        <!-- Type-specific fields -->
-        <div id="shopItemTypeFields">
-          <!-- Filled dynamically by onShopItemTypeChange() -->
-        </div>
-
-        <div style="margin-bottom:10px;">
-          <label class="admin-label">Image / Thumbnail URL <span class="admin-hint">(optional — for skins/cards)</span></label>
-          <input class="admin-input" id="shopItemForm_image" placeholder="https://..."/>
-        </div>
-
-        <div style="display:flex;gap:8px;margin-bottom:10px;align-items:center;">
-          <label style="display:flex;align-items:center;gap:6px;font-size:0.85em;color:var(--text-dim);cursor:pointer;">
-            <input type="checkbox" id="shopItemForm_active" checked/> Active (visible in shop)
-          </label>
-          <label style="display:flex;align-items:center;gap:6px;font-size:0.85em;color:var(--text-dim);cursor:pointer;">
-            <input type="checkbox" id="shopItemForm_limitedOne"/> One per player
-          </label>
-        </div>
-
-        <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;">
-          <button class="admin-btn" id="shopItemFormSubmitBtn" onclick="submitShopItemForm()"
-            style="background:linear-gradient(135deg,var(--pink-deep),var(--purple));color:#fff;flex:1;">➕ Add Item</button>
-          <button class="admin-btn" id="shopItemFormCancelBtn" onclick="cancelShopItemEdit()" style="display:none;">✕ Cancel</button>
-        </div>
-      </div>
-
-      <!-- Item List -->
-      <div class="admin-panel" style="margin-top:16px;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;gap:8px;flex-wrap:wrap;">
-          <h3 style="margin:0;">🛒 Shop Items</h3>
-          <button class="admin-btn" onclick="loadAdminShopItems()" style="padding:6px 12px;font-size:0.82em;">🔄 Refresh</button>
-        </div>
-        <div id="adminShopItemList">
-          <div style="color:var(--text-dim);font-style:italic;font-size:0.85em;text-align:center;padding:20px;">Click 🔄 to load items</div>
-        </div>
-      </div>
-    </div>
-
     <!-- TOOLS TAB -->
     <div id="adminTab-tools" style="display:none;">
       <div class="admin-panel">
@@ -4982,220 +4872,1512 @@ const DEMO_CARDS = [
   {id:'hakari',name:'Kinji Hakari',rarity:5,rarityName:'[UR]',rarityStars:'★★★★★',series:'Jujutsu Kaisen',quote:"Jackpot. My domain's on a winning streak — and luck? Luck doesn't run out.",desc:"Jujutsu Tech's most dangerous gambler. When his domain hits the jackpot, he becomes effectively immortal — an unstoppable force wrapped in a fever dream of pachinko and pure cursed energy.",image:'https://media1.tenor.com/m/YXN8SXrpWekAAAAC/hakari-kinji-hakari.gif',color:'#f1c40f',weight:5},
 ];
 
+const SHOP_ITEMS = [
+  {id:'boost_coin_s',emoji:'🪙',name:'Coin Boost (1h)',desc:'Double your pull and activity coin rewards for 1 hour.',price:150,type:'coinboost'},
+  {id:'boost_coin_l',emoji:'🪙',name:'Coin Boost (6h)',desc:'Double your coin rewards for 6 hours. Best value!',price:600,type:'coinboost'},
+  {id:'boost_xp_s',emoji:'⚡',name:'XP Boost (1h)',desc:'Double XP earned from all activities for 1 hour.',price:150,type:'xpboost'},
+  {id:'boost_xp_l',emoji:'⚡',name:'XP Boost (6h)',desc:'Double XP for 6 hours. Max out your cards fast!',price:600,type:'xpboost'},
+  {id:'xp_small',emoji:'📦',name:'XP Potion (Small)',desc:'Instantly grants 100 XP to your equipped card.',price:200,type:'xp'},
+  {id:'xp_big',emoji:'📦',name:'XP Potion (Large)',desc:'Instantly grants 500 XP to your equipped card.',price:800,type:'xp'},
+  {id:'title_founding',emoji:'🎀',name:'Founding Member',desc:'Exclusive first-release title. Show your legacy.',price:800,type:'title'},
+];
+
+const FLAVOURS = ['A card stirs...','Something stirs...','A quiet presence...','A formidable existence...','The air goes still...']; // legacy
+
+const RARITY_COLORS = {1:'#bdc3c7',2:'#2ecc71',3:'#3498db',4:'#9b59b6',5:'#f1c40f',6:'#ff6b9d',7:'#1abc9c'};
+
 // ══════════════════════════════════════════════
-// SHOP SYSTEM
+// ADMIN — add your Discord ID here
 // ══════════════════════════════════════════════
+const ADMIN_IDS = ['1475627573437534442'];
 
-let _shopItems = [];        // loaded from DB
-let _shopTab   = 'all';     // current filter tab
+// ══════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════
+let state = {
+  loggedIn:     false,
+  isGuest:      false,
+  isAdmin:      false,
+  discordId:    null,
+  username:     'Summoner',   // from Discord, never overwritten
+  displayName:  '',           // user-set display name (empty = use username)
+  avatar:       '',           // Discord avatar URL
+  customAvatar: '',           // user-set custom avatar URL
+  bannerImage:  '',           // user-set banner image URL
+  coins:        1000,
+  collection:   [],
+  xpMap:        {},
+  pitySR:       0,
+  pityUR:       0,
+  pityMap:      {},
+  equippedId:   null,
+  totalPulls:   0,
+  // profile customization
+  bio:          'your local card hoarder 🌸',
+  title:        '✦ Founding Member ✦',
+  bannerColor:  'linear-gradient(135deg,#e0608a,#c084b8)',
+};
+let currentFilter = 'all';
+let openCardId = null;
 
-// ── Load shop items from Supabase ──
-async function loadShopItems(){
-  // Guard: don't fire before Supabase or state is ready
-  if(typeof sb === 'undefined' || typeof state === 'undefined') {
-    _shopItems = _defaultShopItems();
-    renderShop();
-    return;
-  }
-  try {
-    const rows = await sb.get('shop_items', {}, { select: '*', order: 'sort_order.asc,created_at.asc' });
-    _shopItems = (rows||[]).filter(r => r.is_active !== false);
-  } catch(e){
-    console.warn('shop_items not found, using defaults:', e);
-    _shopItems = _defaultShopItems();
-  }
-  renderShop();
-}
+// ══════════════════════════════════════════════
+// STARFIELD
+// ══════════════════════════════════════════════
+(function(){
+  const c=document.getElementById('stars');
+  const ctx=c.getContext('2d');
+  c.width=window.innerWidth;c.height=window.innerHeight;
+  const stars=Array.from({length:120},()=>({x:Math.random()*c.width,y:Math.random()*c.height,r:Math.random()*1.5+0.3,a:Math.random(),da:Math.random()*0.008+0.002}));
+  function draw(){ctx.clearRect(0,0,c.width,c.height);stars.forEach(s=>{s.a+=s.da;if(s.a>1||s.a<0)s.da*=-1;ctx.globalAlpha=s.a*0.8;ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fill();});requestAnimationFrame(draw);}
+  draw();
+  window.addEventListener('resize',()=>{c.width=window.innerWidth;c.height=window.innerHeight;});
+})();
 
-function _defaultShopItems(){
-  return [
-    {id:'boost_coin_s',  emoji:'🪙', name:'Coin Boost (1h)',    description:'Double coin rewards from all activities for 1 hour.',        price:150,  type:'boost', subtype:'coin',  duration_mins:60,   is_active:true, one_per_player:false},
-    {id:'boost_coin_l',  emoji:'🪙', name:'Coin Boost (6h)',    description:'Double coin rewards for 6 hours. Best value!',               price:600,  type:'boost', subtype:'coin',  duration_mins:360,  is_active:true, one_per_player:false},
-    {id:'boost_xp_s',   emoji:'⚡', name:'XP Boost (1h)',      description:'Double XP earned from all activities for 1 hour.',            price:150,  type:'boost', subtype:'xp',    duration_mins:60,   is_active:true, one_per_player:false},
-    {id:'boost_xp_l',   emoji:'⚡', name:'XP Boost (6h)',      description:'Double XP for 6 hours. Max out your cards fast!',            price:600,  type:'boost', subtype:'xp',    duration_mins:360,  is_active:true, one_per_player:false},
-    {id:'xp_small',     emoji:'📦', name:'XP Potion (Small)',  description:'Instantly grants 100 XP to your currently equipped card.',   price:200,  type:'xp',    value:100,                           is_active:true, one_per_player:false},
-    {id:'xp_big',       emoji:'📦', name:'XP Potion (Large)',  description:'Instantly grants 500 XP to your currently equipped card.',   price:800,  type:'xp',    value:500,                           is_active:true, one_per_player:false},
+// ══════════════════════════════════════════════
+// SAKURA PETALS
+// ══════════════════════════════════════════════
+(function(){
+  const p=document.getElementById('petals');
+  if(!p)return;
+  const pinkShades=['#ffb7ce','#ffd6ea','#f9a8c4','#ffc0d9','#ffadd5','#f7c5db','#ffe0ee'];
+  const petalClips=[
+    'ellipse(48% 38% at 50% 50%)',
+    'polygon(50% 0%,80% 20%,95% 60%,70% 90%,30% 90%,5% 60%,20% 20%)',
+    'polygon(50% 0%,100% 38%,82% 100%,18% 100%,0% 38%)',
+    'ellipse(40% 50% at 50% 50%)',
+    'polygon(50% 0%,90% 25%,100% 75%,50% 100%,0% 75%,10% 25%)',
   ];
-}
-
-// ── Switch shop tab ──
-function switchShopTab(tab, btn){
-  _shopTab = tab;
-  document.querySelectorAll('.shop-tab-btn').forEach(b=>b.classList.remove('active'));
-  if(btn) btn.classList.add('active');
-  renderShop();
-}
-
-// ── Render shop grid ──
-function renderShop(){
-  const grid = document.getElementById('shopGrid');
-  if(!grid) return;
-  // Don't try to load if state/sb isn't ready yet (called too early)
-  if(!_shopItems.length){
-    if(typeof state !== 'undefined' && typeof sb !== 'undefined') loadShopItems();
-    return;
+  for(let i=0;i<22;i++){
+    const el=document.createElement('div');
+    el.className='petal';
+    const s=10+Math.random()*12;
+    const col=pinkShades[Math.floor(Math.random()*pinkShades.length)];
+    const clip=petalClips[Math.floor(Math.random()*petalClips.length)];
+    const animIdx=Math.floor(Math.random()*5);
+    const dur=9+Math.random()*13;
+    const delay=Math.random()*18;
+    el.style.cssText='left:'+(Math.random()*108-4)+'%;top:-'+(s*2+10)+'px;width:'+s+'px;height:'+Math.round(s*1.3)+'px;background:'+col+';clip-path:'+clip+';border-radius:50% 40% 50% 40%;opacity:0;animation:sakuraFall'+animIdx+' '+dur+'s linear '+delay+'s infinite;box-shadow:inset 0 0 3px rgba(255,255,255,0.4);';
+    p.appendChild(el);
   }
+})();
 
-  const filtered = _shopTab === 'all'
-    ? _shopItems
-    : _shopItems.filter(i => i.type === _shopTab);
-
-  if(!filtered.length){
-    grid.innerHTML = '<div class="shop-empty">No items in this category yet ʚɞ</div>';
-    return;
-  }
-
-  grid.innerHTML = filtered.map(item => renderShopItem(item)).join('');
+// ══════════════════════════════════════════════
+// AUDIO
+// ══════════════════════════════════════════════
+// ══════════════════════════════════════════════
+// AUDIO ENGINE — Full Web Audio API Sound System
+// ══════════════════════════════════════════════
+let audioCtx;
+function getAudio(){
+  if(!audioCtx) audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+  if(audioCtx.state==='suspended') audioCtx.resume();
+  return audioCtx;
 }
 
-function renderShopItem(item){
-  const type     = item.type || 'item';
-  const typeMeta = {
-    boost: {badge:'⚡ Boost',   cls:'stype-boost'},
-    xp:    {badge:'📦 XP',      cls:'stype-xp'},
-    skin:  {badge:'🎨 Skin',    cls:'stype-skin'},
-    card:  {badge:'🎴 Card',    cls:'stype-card'},
-    title: {badge:'🏷️ Title',   cls:'stype-title'},
-    item:  {badge:'📦 Item',    cls:'stype-item'},
-  }[type] || {badge:'📦 Item', cls:'stype-item'};
-
-  const owned   = isItemOwned(item);
-  const canBuy  = !owned || !item.one_per_player;
-  const hasSkin = type === 'skin' && item.ref_id;
-  const skinObj = hasSkin ? (window.ALL_SKINS||[]).find(s=>s.id===item.ref_id) : null;
-  const hasCard = type === 'card' && item.ref_id;
-  const cardObj = hasCard ? (window.DEMO_CARDS||[]).find(c=>c.id===item.ref_id) : null;
-
-  const imgHtml = (skinObj || cardObj)
-    ? `<img class="shop-item-thumb" src="${(skinObj||cardObj).thumbnail||(skinObj||cardObj).image}" alt="" onerror="this.style.display='none'"/>`
-    : '';
-
-  return `<div class="shop-item${owned && item.one_per_player ? ' owned' : ''}">
-    <div class="shop-item-type-badge ${typeMeta.cls}">${typeMeta.badge}</div>
-    ${imgHtml || `<div class="shop-item-icon">${item.emoji||'📦'}</div>`}
-    <div class="shop-name">${escapeHtml(item.name)}</div>
-    <div class="shop-desc">${escapeHtml(item.description||item.desc||'')}</div>
-    <div class="shop-footer">
-      <div class="shop-price${item.price===0?' free':''}">
-        ${item.price===0 ? 'FREE' : `🪙 ${Number(item.price).toLocaleString()}`}
-      </div>
-      ${canBuy
-        ? `<button class="shop-buy" onclick="buyShopItem('${item.id}')">${owned && item.one_per_player ? 'Owned' : 'Purchase'}</button>`
-        : `<button class="shop-buy" disabled>Owned</button>`
-      }
-    </div>
-  </div>`;
+// ── Core helpers ──
+function makeOsc(ctx, type, freq, startGain, endGain, dur, startTime=0){
+  const o=ctx.createOscillator(), g=ctx.createGain();
+  o.connect(g); g.connect(ctx.destination);
+  o.type=type; o.frequency.setValueAtTime(freq, ctx.currentTime+startTime);
+  g.gain.setValueAtTime(startGain, ctx.currentTime+startTime);
+  g.gain.exponentialRampToValueAtTime(Math.max(endGain,0.0001), ctx.currentTime+startTime+dur);
+  o.start(ctx.currentTime+startTime); o.stop(ctx.currentTime+startTime+dur);
+  return {o,g};
 }
-
-// ── Check if player already owns a one-per-player item ──
-function isItemOwned(item){
-  if(!item.one_per_player) return false;
-  if(item.type === 'skin'  && item.ref_id) return !!(window.PLAYER_SKINS && window.PLAYER_SKINS[item.ref_id]);
-  if(item.type === 'title' && item.ref_id) return (state.ownedTitles||[]).includes(item.ref_id);
-  if(item.type === 'card'  && item.ref_id) return (state.collection||[]).includes(item.ref_id);
-  return false;
+function makeNoise(ctx, gain, dur, startTime=0){
+  const buf=ctx.createBuffer(1,ctx.sampleRate*dur,ctx.sampleRate);
+  const d=buf.getChannelData(0);
+  for(let i=0;i<d.length;i++) d[i]=Math.random()*2-1;
+  const src=ctx.createBufferSource(), g=ctx.createGain();
+  const filt=ctx.createBiquadFilter(); filt.type='bandpass'; filt.frequency.value=300; filt.Q.value=0.5;
+  src.buffer=buf; src.connect(filt); filt.connect(g); g.connect(ctx.destination);
+  g.gain.setValueAtTime(gain, ctx.currentTime+startTime);
+  g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime+startTime+dur);
+  src.start(ctx.currentTime+startTime); src.stop(ctx.currentTime+startTime+dur);
 }
-
-// ── Buy a shop item ──
-async function buyShopItem(itemId){
-  const item = _shopItems.find(i=>i.id===itemId);
-  if(!item){ showToast('Item not found'); return; }
-
-  const price = Number(item.price)||0;
-  if(state.coins < price){ showToast(`Not enough coins! Need ${price.toLocaleString()} 🪙`); return; }
-  if(item.one_per_player && isItemOwned(item)){ showToast('You already own this!'); return; }
-
-  if(!confirm(`Purchase "${item.name}" for ${price > 0 ? price.toLocaleString()+' 🪙' : 'FREE'}?`)) return;
-
-  state.coins -= price;
-  updateCoins();
-
+function addReverb(ctx, node, mix=0.3){
   try {
-    await _applyShopItem(item);
-    showToast(`✨ ${item.name} purchased!`);
-    playShopSound(); playCoinSound();
-    if(state.discordId && !state.isGuest) await savePlayer();
-    if(state.isGuest) saveGuestState();
-    renderShop();
+    const conv=ctx.createConvolver();
+    const len=ctx.sampleRate*1.5, buf=ctx.createBuffer(2,len,ctx.sampleRate);
+    for(let c=0;c<2;c++){const d=buf.getChannelData(c);for(let i=0;i<len;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/len,2);}
+    conv.buffer=buf;
+    const wet=ctx.createGain(), dry=ctx.createGain();
+    wet.gain.value=mix; dry.gain.value=1-mix;
+    node.connect(dry); node.connect(conv); conv.connect(wet);
+    dry.connect(ctx.destination); wet.connect(ctx.destination);
+  } catch(e){}
+}
+
+// ── NAV TAB CLICK ──
+function playNavSound(){
+  try{
+    const ctx=getAudio();
+    makeOsc(ctx,'sine',880,0.12,0.001,0.12);
+    makeOsc(ctx,'sine',1320,0.06,0.001,0.08,0.04);
+  }catch(e){}
+}
+
+// ── BUTTON CLICK (generic soft) ──
+function playClickSound(){
+  try{
+    const ctx=getAudio();
+    makeOsc(ctx,'sine',600,0.1,0.001,0.09);
+  }catch(e){}
+}
+
+// ── PULL SOUND (rarity-scaled) ──
+function playPullSound(rarity){
+  try{
+    const ctx=getAudio();
+    const freqs={1:440,2:523,3:587,4:659,5:784,6:880,7:1047};
+    const freq=freqs[rarity]||440;
+    makeOsc(ctx,'triangle',freq,0.3,0.001,0.8);
+    if(rarity>=4) makeOsc(ctx,'sine',freq*1.5,0.15,0.001,0.5,0.3);
+    if(rarity>=5){
+      makeOsc(ctx,'sine',freq*2,0.2,0.001,0.5,0.3);
+      makeOsc(ctx,'sine',freq*3,0.08,0.001,0.4,0.5);
+    }
+    if(rarity>=6){
+      // LR: chord sweep
+      [1,1.26,1.5,2].forEach((m,i)=>makeOsc(ctx,'sine',freq*m,0.18,0.001,0.7,i*0.08));
+      makeNoise(ctx,0.04,0.3);
+    }
+    if(rarity===7){
+      // ??? Secret: alien shimmer
+      for(let i=0;i<8;i++) makeOsc(ctx,'sine',200+Math.random()*1800,0.06,0.001,0.6,i*0.05);
+    }
+  }catch(e){}
+}
+
+// ── COIN SOUND ──
+function playCoinSound(){
+  try{
+    const ctx=getAudio();
+    makeOsc(ctx,'sine',1200,0.15,0.001,0.12);
+    makeOsc(ctx,'sine',1600,0.08,0.001,0.08,0.05);
+  }catch(e){}
+}
+
+// ── DAILY CLAIM ──
+function playClaimSound(){
+  try{
+    const ctx=getAudio();
+    const melody=[523,659,784,1047];
+    melody.forEach((f,i)=>makeOsc(ctx,'sine',f,0.2,0.001,0.25,i*0.12));
+    makeOsc(ctx,'triangle',261,0.15,0.001,0.5,0);
+    makeNoise(ctx,0.03,0.3,0.1);
+  }catch(e){}
+}
+
+// ── ACTIVITY START ──
+function playActivitySound(type){
+  try{
+    const ctx=getAudio();
+    if(type==='quest'){
+      // Adventure horn
+      makeOsc(ctx,'sawtooth',220,0.2,0.001,0.6);
+      makeOsc(ctx,'sawtooth',330,0.15,0.001,0.5,0.1);
+      makeOsc(ctx,'sine',440,0.12,0.001,0.4,0.25);
+    } else if(type==='train'){
+      // Power-up charge
+      const o=ctx.createOscillator(), g=ctx.createGain();
+      o.connect(g); g.connect(ctx.destination);
+      o.type='sawtooth';
+      o.frequency.setValueAtTime(200,ctx.currentTime);
+      o.frequency.exponentialRampToValueAtTime(800,ctx.currentTime+0.5);
+      g.gain.setValueAtTime(0.25,ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.5);
+      o.start(); o.stop(ctx.currentTime+0.5);
+      makeNoise(ctx,0.05,0.3,0.2);
+    } else {
+      // Work: city beep
+      makeOsc(ctx,'square',440,0.15,0.001,0.1);
+      makeOsc(ctx,'square',880,0.1,0.001,0.1,0.15);
+    }
+  }catch(e){}
+}
+
+// ── ACTIVITY CHOICE PICK ──
+function playChoiceSound(score){
+  try{
+    const ctx=getAudio();
+    if(score===2){
+      makeOsc(ctx,'sine',523,0.15,0.001,0.15);
+      makeOsc(ctx,'sine',784,0.12,0.001,0.15,0.1);
+    } else if(score===1){
+      makeOsc(ctx,'sine',440,0.12,0.001,0.15);
+    } else {
+      makeOsc(ctx,'triangle',220,0.1,0.001,0.25);
+      makeOsc(ctx,'triangle',196,0.08,0.001,0.2,0.1);
+    }
+  }catch(e){}
+}
+
+// ── ACTIVITY RESULT GRADE ──
+function playGradeSound(grade){
+  try{
+    const ctx=getAudio();
+    const sequences={
+      S:[[523,0],[659,0.1],[784,0.2],[1047,0.3],[1319,0.4]],
+      A:[[523,0],[659,0.12],[784,0.24]],
+      B:[[440,0],[523,0.12]],
+      C:[[330,0],[294,0.15]],
+    };
+    (sequences[grade]||sequences.B).forEach(([f,t])=>makeOsc(ctx,'sine',f,0.2,0.001,0.2,t));
+    if(grade==='S') makeNoise(ctx,0.04,0.4,0.1);
+  }catch(e){}
+}
+
+// ── BATTLE SOUNDS ──
+function playBattleStartSound(){
+  try{
+    const ctx=getAudio();
+    // Dramatic boom
+    makeNoise(ctx,0.2,0.4);
+    makeOsc(ctx,'sawtooth',80,0.3,0.001,0.5);
+    makeOsc(ctx,'sawtooth',120,0.2,0.001,0.4,0.1);
+    // Rising string
+    setTimeout(()=>{
+      makeOsc(ctx,'sine',440,0.15,0.001,0.3);
+      makeOsc(ctx,'sine',550,0.12,0.001,0.3,0.1);
+      makeOsc(ctx,'sine',660,0.1,0.001,0.3,0.2);
+    },400);
+  }catch(e){}
+}
+
+function playAttackSound(type){
+  try{
+    const ctx=getAudio();
+    if(type==='ult'){
+      // Ultimate — big shockwave
+      makeNoise(ctx,0.3,0.5);
+      makeOsc(ctx,'sawtooth',60,0.4,0.001,0.6);
+      makeOsc(ctx,'sawtooth',120,0.25,0.001,0.5,0.05);
+      makeOsc(ctx,'sine',880,0.2,0.001,0.4,0.2);
+      makeOsc(ctx,'sine',1760,0.1,0.001,0.3,0.3);
+    } else if(type==='spc'){
+      // Special — magical shimmer
+      [440,554,659,880].forEach((f,i)=>makeOsc(ctx,'sine',f,0.15,0.001,0.3,i*0.06));
+      makeNoise(ctx,0.05,0.2,0.1);
+    } else if(type==='def'){
+      // Defense/heal — soft chime
+      makeOsc(ctx,'sine',660,0.15,0.001,0.3);
+      makeOsc(ctx,'sine',990,0.1,0.001,0.25,0.08);
+    } else {
+      // Normal attack — slash
+      makeNoise(ctx,0.15,0.15);
+      makeOsc(ctx,'sawtooth',200,0.2,0.001,0.25);
+      makeOsc(ctx,'sawtooth',400,0.1,0.001,0.15,0.05);
+    }
+  }catch(e){}
+}
+
+function playHitSound(isCrit){
+  try{
+    const ctx=getAudio();
+    if(isCrit){
+      makeNoise(ctx,0.25,0.2);
+      makeOsc(ctx,'sawtooth',150,0.3,0.001,0.3);
+      makeOsc(ctx,'sine',300,0.2,0.001,0.2,0.05);
+      makeOsc(ctx,'sine',600,0.15,0.001,0.15,0.1);
+    } else {
+      makeNoise(ctx,0.12,0.12);
+      makeOsc(ctx,'triangle',180,0.18,0.001,0.2);
+    }
+  }catch(e){}
+}
+
+function playDefendSound(){
+  try{
+    const ctx=getAudio();
+    makeOsc(ctx,'sine',440,0.2,0.001,0.15);
+    makeOsc(ctx,'sine',330,0.15,0.001,0.2,0.08);
+    makeNoise(ctx,0.08,0.15);
+  }catch(e){}
+}
+
+function playVictorySound(){
+  try{
+    const ctx=getAudio();
+    const melody=[[523,0],[659,0.1],[784,0.2],[659,0.35],[784,0.45],[1047,0.55],[880,0.7],[1047,0.85]];
+    melody.forEach(([f,t])=>makeOsc(ctx,'sine',f,0.22,0.001,0.25,t));
+    makeOsc(ctx,'triangle',261,0.15,0.001,1.1,0);
+    makeNoise(ctx,0.04,0.5,0.1);
+  }catch(e){}
+}
+
+function playDefeatSound(){
+  try{
+    const ctx=getAudio();
+    makeOsc(ctx,'sawtooth',330,0.2,0.001,0.4);
+    makeOsc(ctx,'sawtooth',220,0.18,0.001,0.5,0.2);
+    makeOsc(ctx,'sawtooth',147,0.15,0.001,0.6,0.4);
+    makeNoise(ctx,0.06,0.4);
+  }catch(e){}
+}
+
+function playEnemyHitSound(){
+  try{
+    const ctx=getAudio();
+    makeNoise(ctx,0.1,0.1);
+    makeOsc(ctx,'sawtooth',250,0.15,0.001,0.18);
+  }catch(e){}
+}
+
+// ── MODAL OPEN ──
+function playModalSound(){
+  try{
+    const ctx=getAudio();
+    makeOsc(ctx,'sine',440,0.1,0.001,0.12);
+    makeOsc(ctx,'sine',660,0.07,0.001,0.1,0.07);
+  }catch(e){}
+}
+
+// ── EQUIP CARD ──
+function playEquipSound(){
+  try{
+    const ctx=getAudio();
+    makeOsc(ctx,'sine',330,0.15,0.001,0.12);
+    makeOsc(ctx,'sine',495,0.12,0.001,0.12,0.08);
+    makeOsc(ctx,'sine',660,0.1,0.001,0.15,0.16);
+    makeNoise(ctx,0.04,0.15,0.1);
+  }catch(e){}
+}
+
+// ── SHOP BUY ──
+function playShopSound(){
+  try{
+    const ctx=getAudio();
+    makeOsc(ctx,'sine',880,0.15,0.001,0.1);
+    makeOsc(ctx,'sine',1100,0.12,0.001,0.1,0.08);
+    makeOsc(ctx,'sine',1320,0.1,0.001,0.15,0.16);
+  }catch(e){}
+}
+
+// ── ERROR / COOLDOWN ──
+function playErrorSound(){
+  try{
+    const ctx=getAudio();
+    makeOsc(ctx,'square',200,0.12,0.001,0.15);
+    makeOsc(ctx,'square',180,0.1,0.001,0.12,0.12);
+  }catch(e){}
+}
+
+// ══════════════════════════════════════════════
+// ABILITY CUTSCENE ENGINE
+// ══════════════════════════════════════════════
+
+// ── Play an external MP3 / audio file URL ──
+// Uses plain HTMLAudioElement — no AudioContext routing needed,
+// which avoids CORS issues and the one-source-per-element restriction.
+let _activeMp3 = null;
+function playMp3Sound(url){
+  stopMp3Sound();
+  try {
+    const a = new Audio(url);
+    a.volume = 0.8;
+    const p = a.play();
+    if(p && typeof p.catch === 'function'){
+      p.catch(err => console.warn('[MeoGacha] audio blocked:', err));
+    }
+    _activeMp3 = a;
+    return a;
   } catch(e){
-    state.coins += price; updateCoins();
-    showToast('❌ Purchase failed: ' + (e.message||e));
+    console.warn('[MeoGacha] audio error:', e);
+  }
+}
+function stopMp3Sound(){
+  if(_activeMp3){
+    try { _activeMp3.pause(); _activeMp3.currentTime = 0; } catch(e){}
+    _activeMp3 = null;
   }
 }
 
-async function _applyShopItem(item){
-  const type = item.type;
-
-  // ── XP Potion ──
-  if(type === 'xp'){
-    const xpAmt = Number(item.value)||100;
-    if(!state.equippedId){ showToast('Equip a card first!'); throw new Error('no card'); }
-    state.xpMap[state.equippedId] = (state.xpMap[state.equippedId]||0) + xpAmt;
-    if(state.discordId && !state.isGuest) await saveXp(state.discordId, state.equippedId, state.xpMap[state.equippedId]);
-    showToast(`⚡ +${xpAmt} XP added to ${state.equippedId}!`);
-    return;
-  }
-
-  // ── Boost ──
-  if(type === 'boost'){
-    const mins = Number(item.duration_mins)||60;
-    const expires = Date.now() + mins*60*1000;
-    const sub  = item.subtype || (item.id.includes('xp') ? 'xp' : 'coin');
-    const key  = `mg_boost_${sub}_${state.discordId||'guest'}`;
-    localStorage.setItem(key, String(expires));
-    showToast(`🚀 ${item.name} activated for ${mins < 60 ? mins+'m' : (mins/60)+'h'}!`);
-    return;
-  }
-
-  // ── Skin ──
-  if(type === 'skin' && item.ref_id){
-    await buySkin(item.ref_id);
-    return;
-  }
-
-  // ── Card ──
-  if(type === 'card' && item.ref_id){
-    const cardId = item.ref_id;
-    if(!(state.collection||[]).includes(cardId)){
-      state.collection.push(cardId);
-      if(state.discordId && !state.isGuest) await saveCardToCollection(state.discordId, cardId);
-      renderCollection();
+function playAbilityCutsceneSound(tier){
+  try{
+    const ctx=getAudio();
+    if(tier==='ultimate'){
+      // Epic orchestral hit
+      makeNoise(ctx,0.35,0.6);
+      makeOsc(ctx,'sawtooth',55,0.4,0.001,0.8);
+      makeOsc(ctx,'sawtooth',110,0.3,0.001,0.7,0.05);
+      makeOsc(ctx,'sawtooth',220,0.2,0.001,0.6,0.1);
+      // Rising sweep
+      const o=ctx.createOscillator(),g=ctx.createGain();
+      o.connect(g);g.connect(ctx.destination);
+      o.type='sine';
+      o.frequency.setValueAtTime(220,ctx.currentTime+0.2);
+      o.frequency.exponentialRampToValueAtTime(1760,ctx.currentTime+0.9);
+      g.gain.setValueAtTime(0.25,ctx.currentTime+0.2);
+      g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+1.0);
+      o.start(ctx.currentTime+0.2); o.stop(ctx.currentTime+1.0);
+      // Bell overtones
+      setTimeout(()=>[880,1100,1320,1760].forEach((f,i)=>makeOsc(ctx,'sine',f,0.15,0.001,0.4,i*0.05)),700);
+    } else if(tier==='secret'){
+      // Ethereal alien shimmer
+      for(let i=0;i<10;i++) setTimeout(()=>{
+        makeOsc(ctx,'sine',200+Math.random()*2000,0.08,0.001,0.3);
+      },i*60);
+      makeNoise(ctx,0.1,0.8);
+      makeOsc(ctx,'sine',55,0.2,0.001,1.0);
+    } else if(tier==='active'){
+      // Sharp power burst
+      makeNoise(ctx,0.2,0.3);
+      makeOsc(ctx,'sawtooth',120,0.25,0.001,0.4);
+      makeOsc(ctx,'sine',440,0.18,0.001,0.35,0.1);
+      makeOsc(ctx,'sine',660,0.12,0.001,0.25,0.2);
+    } else {
+      // Passive: soft shimmer
+      [330,440,550,660].forEach((f,i)=>makeOsc(ctx,'sine',f,0.12,0.001,0.3,i*0.07));
     }
-    return;
+  }catch(e){}
+}
+
+function spawnCutsceneLines(color){
+  const container=document.getElementById('cutsceneLines');
+  container.innerHTML='';
+  for(let i=0;i<20;i++){
+    const line=document.createElement('div');
+    const angle=Math.random()*360;
+    const len=100+Math.random()*400;
+    const x=Math.random()*100, y=Math.random()*100;
+    line.style.cssText=`position:absolute;left:${x}%;top:${y}%;width:${len}px;height:2px;background:${color};transform:rotate(${angle}deg);transform-origin:left center;opacity:0;animation:lineShot ${0.3+Math.random()*0.4}s ease forwards ${Math.random()*0.3}s;`;
+    container.appendChild(line);
+  }
+}
+
+// ── Detect GIF playback duration by parsing raw GIF frame delays ──
+function detectGifDuration(url){
+  return new Promise(resolve=>{
+    const timeout = setTimeout(()=>resolve(0), 4000);
+    fetch(url, {mode:'cors', cache:'force-cache'})
+      .then(r=>r.arrayBuffer())
+      .then(buf=>{
+        clearTimeout(timeout);
+        const data = new Uint8Array(buf);
+        if(data[0]!==0x47||data[1]!==0x49||data[2]!==0x46){ resolve(0); return; }
+        let totalDelay = 0;
+        const flags = data[10];
+        const hasGct = (flags >> 7) & 1;
+        const gctSize = flags & 0x07;
+        let i = 13 + (hasGct ? 3 * Math.pow(2, gctSize + 1) : 0);
+        while(i < data.length - 1){
+          if(data[i] === 0x3B) break;
+          if(data[i] === 0x21){
+            i++;
+            const label = data[i++];
+            if(label === 0xF9 && data[i] === 4){
+              i++;
+              i++;
+              const delay = data[i] | (data[i+1] << 8);
+              totalDelay += (delay === 0 ? 10 : delay);
+              i += 2; i++; i++;
+            } else {
+              let sz = data[i++];
+              while(sz > 0 && i < data.length){ i += sz; sz = data[i++]; }
+            }
+          } else if(data[i] === 0x2C){
+            i++;
+            const localFlags = data[i + 8];
+            const hasLct = (localFlags >> 7) & 1;
+            const lctSize = localFlags & 0x07;
+            i += 9 + (hasLct ? 3 * Math.pow(2, lctSize + 1) : 0);
+            i++;
+            let sz = data[i++];
+            while(sz > 0 && i < data.length){ i += sz; sz = data[i++]; }
+          } else { i++; }
+        }
+        resolve(totalDelay > 0 ? totalDelay * 10 : 0);
+      })
+      .catch(()=>{ clearTimeout(timeout); resolve(0); });
+  });
+}
+
+// Helper: convert hex color to R,G,B for CSS custom property
+function hexToRgb(hex){
+  const r = parseInt(hex.slice(1,3),16);
+  const g = parseInt(hex.slice(3,5),16);
+  const b = parseInt(hex.slice(5,7),16);
+  return isNaN(r) ? '255,157,199' : `${r},${g},${b}`;
+}
+
+async function playAbilityCutscene(cardId, rarity, abilityId){
+  const abilities = getCardAbilities(cardId, rarity);
+  const ability = abilities.find(a=>a.id===abilityId) || abilities[0];
+  if(!ability) return;
+  const card = (window.DEMO_CARDS||DEMO_CARDS).find(c=>c.id===cardId);
+  if(!card) return;
+
+  const tierColors = {
+    passive:'#5dade2', active:'#ff9dc7', ultimate:'#f1c40f', secret:'#c39bd3'
+  };
+  const tierLabels = {
+    passive:'◈ PASSIVE', active:'◆ ACTIVE', ultimate:'✦ ULTIMATE', secret:'??? SECRET'
+  };
+  const color      = tierColors[ability.tier] || '#fff';
+  const rarityColor= RARITY_COLORS[rarity] || '#fff';
+  const tierLabel  = tierLabels[ability.tier] || ability.tier.toUpperCase();
+  const tierDuration = ability.tier==='ultimate'?3000 : ability.tier==='secret'?3500 : 2200;
+
+  const gifSrc = (ability.gifUrl && ability.gifUrl.trim()) ? ability.gifUrl.trim() : card.image;
+
+  // Start GIF duration detection in parallel
+  const gifDurationPromise = detectGifDuration(gifSrc);
+
+  // ── Grab elements ──
+  const overlay  = document.getElementById('abilityCutscene');
+  const img      = document.getElementById('cutsceneCardImg');
+  const bgGif    = document.getElementById('cutsceneBgGif');
+  const halo     = document.getElementById('cutsceneCardGlow');
+  const glow     = document.getElementById('cutsceneGlow');
+  const nameEl   = document.getElementById('cutsceneAbilityName');
+  const descEl   = document.getElementById('cutsceneAbilityDesc');
+  const tierEl   = document.getElementById('cutsceneTierBadge');
+  const statsEl  = document.getElementById('cutsceneStats');
+  const impactEl = document.getElementById('cutsceneImpactText');
+
+  // ── Set CSS custom properties for the theme color ──
+  overlay.style.setProperty('--cs-color', color);
+  overlay.style.setProperty('--cs-rgb',   hexToRgb(color));
+
+  // ── Populate content (before showing) ──
+  img.src = gifSrc;
+  if(bgGif) bgGif.src = gifSrc;  // blurred background matches foreground GIF
+  img.style.boxShadow = `0 0 0 1px rgba(255,255,255,0.08), 0 8px 40px rgba(0,0,0,0.7), 0 0 60px ${color}66`;
+  img.style.borderColor = rarityColor + '88';
+
+  halo.style.background = `radial-gradient(ellipse at 50% 50%, ${color}77, transparent 70%)`;
+  halo.style.opacity = '0';
+
+  glow.style.background = `radial-gradient(ellipse at 50% 50%, ${color}44, transparent 70%)`;
+  glow.style.opacity = '0';
+
+  tierEl.textContent = tierLabel;
+
+  nameEl.textContent = ability.icon + ' ' + ability.name;
+  nameEl.style.color = color;
+  nameEl.style.textShadow = `0 0 30px ${color}cc, 0 0 60px ${color}44`;
+
+  descEl.textContent = ability.desc || '';
+
+  // Build stat pills: rarity + tier
+  const rarityName = card.rarityName || '';
+  statsEl.innerHTML = `
+    <span class="cs-stat-pill">${rarityName} ${card.rarityStars||''}</span>
+    <span class="cs-stat-pill">${card.series||''}</span>
+    ${ability.value ? `<span class="cs-stat-pill highlight">PWR ${ability.value}</span>` : ''}
+  `.trim();
+
+  impactEl.style.opacity = '0';
+  impactEl.style.animation = '';
+
+  // ── Show overlay, then trigger CSS transition class ──
+  overlay.style.opacity = '0';
+  overlay.style.display = 'flex';
+  overlay.style.transition = 'opacity 0.3s ease';
+
+  // ── Audio: prefer MP3 url, fall back to synthesized ──
+  const audioUrl = (ability.audioUrl && ability.audioUrl.trim()) ? ability.audioUrl.trim() : '';
+  if(audioUrl){
+    playMp3Sound(audioUrl);
+  } else {
+    playAbilityCutsceneSound(ability.tier);
+  }
+  spawnCutsceneLines(color);
+
+  requestAnimationFrame(()=>{
+    overlay.style.opacity = '1';
+    // A tiny delay lets the browser paint the initial state before the class is added
+    setTimeout(()=>{
+      overlay.classList.add('cs-open');
+      halo.style.opacity = '0.7';
+      glow.style.opacity = '1';
+    }, 40);
+  });
+
+  // ── ULTIMATE / SECRET: impact stamp ──
+  if(ability.tier === 'ultimate' || ability.tier === 'secret'){
+    setTimeout(()=>{
+      impactEl.textContent = ability.tier === 'ultimate' ? 'ULTIMATE!' : '— ??? —';
+      impactEl.style.color = color;
+      impactEl.style.opacity = '1';
+      impactEl.style.animation = 'csImpact 0.55s cubic-bezier(0.34,1.3,0.64,1) forwards';
+      setTimeout(()=>{
+        impactEl.style.transition = 'opacity 0.4s ease';
+        impactEl.style.opacity = '0';
+        setTimeout(()=>{ impactEl.style.transition=''; impactEl.style.animation=''; }, 420);
+      }, 900);
+    }, 680);
+
+    setTimeout(()=>{
+      overlay.style.animation = 'cutsceneShake 0.45s cubic-bezier(.36,.07,.19,.97)';
+      setTimeout(()=>overlay.style.animation = '', 450);
+    }, 740);
+
+    setTimeout(()=>spawnParticles(rarity, color), 720);
   }
 
-  // ── Title ──
-  if(type === 'title' && item.ref_id){
-    if(!state.ownedTitles) state.ownedTitles = [];
-    if(!state.ownedTitles.includes(item.ref_id)){
-      state.ownedTitles.push(item.ref_id);
-      if(state.discordId && !state.isGuest){
-        await sb.insert('player_titles', { discord_id: state.discordId, title: item.ref_id });
-      }
-    }
-    // Auto-equip the title
-    state.title = item.ref_id;
-    updateProfile();
-    return;
+  if(ability.tier === 'secret'){
+    setTimeout(()=>{
+      for(let i=0;i<5;i++)
+        setTimeout(()=>spawnCutsceneLines(['#ff9dc7','#c39bd3','#f1c40f','#5dade2'][i%4]), i*130);
+    }, 850);
   }
 
-  // ── Generic item — add to inventory ──
-  if(state.discordId && !state.isGuest){
-    await sb.upsert('inventory', {
-      discord_id: state.discordId,
-      item_id: item.id,
-      item_name: item.name,
-      item_emoji: item.emoji||'📦',
-      count: 1,
+  // ── Wait for GIF duration, then close ──
+  const detectedMs = await gifDurationPromise;
+  const duration   = detectedMs > 500 ? detectedMs + 600 : tierDuration;
+
+  return new Promise(resolve=>{
+    setTimeout(()=>{
+      // Fade out
+      overlay.classList.remove('cs-open');
+      overlay.style.transition = 'opacity 0.45s ease';
+      overlay.style.opacity    = '0';
+      halo.style.opacity = '0';
+      glow.style.opacity = '0';
+      stopMp3Sound();   // stop any playing MP3
+      setTimeout(()=>{
+        overlay.style.display     = 'none';
+        overlay.style.opacity     = '1';
+        overlay.style.transition  = '';
+        img.src = '';
+        if(bgGif) bgGif.src = '';
+        resolve();
+      }, 460);
+    }, duration);
+  });
+}
+
+
+// ══════════════════════════════════════════════
+// CARD PULL DIALOGUES — anime scene quotes
+// ══════════════════════════════════════════════
+const CARD_DIALOGUES = {
+  // SSR+
+  asta1: {
+    speaker: 'Asta',
+    lines: [
+      "I can't use magic — but that never stopped me. And it never will!",
+      "Everyone kept telling me to give up. But giving up... is the one thing I'll never do!"
+    ],
+    color: '#9b59b6'
+  },
+  levi: {
+    speaker: 'Captain Levi',
+    lines: [
+      "The only thing we're allowed to do is believe that we won't regret the choice we made.",
+      "...Don't misunderstand me. I just want to see you die a better death, that's all."
+    ],
+    color: '#bdc3c7'
+  },
+  megumin: {
+    speaker: 'Megumin',
+    lines: [
+      "EXPLOSION!! ...I shall now require someone to carry me home.",
+      "My name is Megumin, the greatest mage of the Crimson Demon Clan!"
+    ],
+    color: '#e74c3c'
+  },
+  zero2: {
+    speaker: 'Zero Two',
+    lines: [
+      "Darling~ You'll be my partner forever, won't you?",
+      "I'm a monster. But with you... I think I could become something more."
+    ],
+    color: '#ff6b9d'
+  },
+  // UR
+  yuta: {
+    speaker: 'Yuta Okkotsu',
+    lines: [
+      "I want to become strong enough... to protect the people I love.",
+      "Rika... lend me your power one more time."
+    ],
+    color: '#3498db'
+  },
+  frieren: {
+    speaker: 'Frieren',
+    lines: [
+      "I have been traveling for over a thousand years. And yet... I still don't understand humans.",
+      "Himmel would have enjoyed this view. I wish I had paid more attention back then."
+    ],
+    color: '#2ecc71'
+  },
+  // LR
+  deku: {
+    speaker: 'Deku',
+    lines: [
+      "...I am not just your tool, All Might. I will become the next Symbol of Peace!",
+      "Everyone has something they can't give up on. For me... it's this dream!"
+    ],
+    color: '#2ecc71'
+  },
+};
+
+// Rarity-specific flavour texts
+const PULL_FLAVOURS = {
+  1: "A faint presence drifts forward...",
+  2: "Something stirs just beyond the veil...",
+  3: "The atmosphere shifts. A notable power awakens.",
+  4: "The air grows heavy. A formidable existence steps forward.",
+  5: "Time slows. An overwhelming presence fills the space around you.",
+  6: "The world goes silent. A legendary being descends.",
+  7: "Reality fractures. Something beyond classification emerges from the void...",
+};
+
+// ══════════════════════════════════════════════
+// ENHANCED PULL SCREEN
+// ══════════════════════════════════════════════
+let pullSpeedAnim = null;
+
+function startSpeedLines(canvas, color, speed=1) {
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  const cx = canvas.width/2, cy = canvas.height/2;
+  const lines = Array.from({length:80},()=>({
+    angle: Math.random()*Math.PI*2,
+    len: 40+Math.random()*200,
+    speed: (1+Math.random()*3)*speed,
+    dist: Math.random()*Math.max(cx,cy),
+    alpha: 0.3+Math.random()*0.5,
+    width: 0.5+Math.random()*1.5,
+  }));
+  let frame;
+  function draw(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    lines.forEach(l=>{
+      l.dist += l.speed*2;
+      if(l.dist > Math.max(cx,cy)*1.6) l.dist = 10;
+      const x1 = cx + Math.cos(l.angle)*l.dist;
+      const y1 = cy + Math.sin(l.angle)*l.dist;
+      const x2 = cx + Math.cos(l.angle)*(l.dist+l.len);
+      const y2 = cy + Math.sin(l.angle)*(l.dist+l.len);
+      ctx.beginPath();
+      ctx.moveTo(x1,y1);
+      ctx.lineTo(x2,y2);
+      ctx.strokeStyle = color + Math.floor(l.alpha*255).toString(16).padStart(2,'0');
+      ctx.lineWidth = l.width;
+      ctx.stroke();
+    });
+    frame = requestAnimationFrame(draw);
+  }
+  draw();
+  return () => cancelAnimationFrame(frame);
+}
+
+function spawnPullStarfield(container, color) {
+  container.innerHTML = '';
+  for(let i=0;i<120;i++){
+    const s = document.createElement('div');
+    const size = 1+Math.random()*3;
+    s.style.cssText = `position:absolute;width:${size}px;height:${size}px;border-radius:50%;background:${color};left:${Math.random()*100}%;top:${Math.random()*100}%;opacity:${0.2+Math.random()*0.7};animation:particleBurst ${0.8+Math.random()*1.2}s ease-out ${Math.random()*0.5}s both;--tx:${(Math.random()-0.5)*400}px;--ty:${(Math.random()-0.5)*400}px;`;
+    container.appendChild(s);
+  }
+}
+
+function buildStarHTML(count, color) {
+  return Array.from({length:count},(_,i)=>`<span class="pull-star-item" style="color:${color};animation-delay:${0.4+i*0.08}s">★</span>`).join('');
+}
+
+function showPullScreen(card) {
+  window._lastPulledCard = card; // store for cutscene on collect
+  const isDupe = state.collection.filter(x=>x===card.id).length > 1;
+  const color = RARITY_COLORS[card.rarity] || '#ff9dc7';
+  const rarity = card.rarity;
+  const cinematic = document.getElementById('pullCinematic');
+
+  // ── Clear previous state ──
+  if(pullSpeedAnim){ pullSpeedAnim(); pullSpeedAnim=null; }
+  const canvas = document.getElementById('pullSpeedCanvas');
+  canvas.style.opacity = '0';
+  document.getElementById('pullBgBeams').style.opacity = '0';
+  document.getElementById('pullBgAura').style.opacity = '0';
+  document.getElementById('pullBgStars').style.opacity = '0';
+  document.getElementById('pullHaloOuter').style.opacity = '0';
+  document.getElementById('pullHaloInner').style.opacity = '0';
+  document.getElementById('pullCrown').style.display = 'none';
+  document.getElementById('pullDialogue').style.display = 'none';
+
+  // ── Set base class for card animation ──
+  cinematic.className = 'pull-cinematic';
+  const revealClass = rarity<=2?'reveal-n':rarity===3?'reveal-sr':rarity===4?'reveal-ssr':rarity===5?'reveal-ur':rarity===6?'reveal-lr':'reveal-secret';
+
+  // ── Rarity flash ──
+  const flash = document.getElementById('rarityFlash');
+  flash.style.background = `radial-gradient(circle at center, ${color}66, transparent 60%)`;
+  flash.classList.remove('visible'); void flash.offsetWidth; flash.classList.add('visible');
+
+  // ── Flavour text ──
+  document.getElementById('pullFlavour').textContent = PULL_FLAVOURS[rarity] || PULL_FLAVOURS[1];
+
+  // ── Rarity-specific BG setup ──
+  if(rarity >= 4) {
+    // SR+: aura radial
+    document.getElementById('pullBgAura').style.background = `radial-gradient(ellipse at 50% 60%, ${color}22, transparent 65%)`;
+    document.getElementById('pullBgAura').style.opacity = '1';
+  }
+  if(rarity >= 5) {
+    // UR+: speed lines
+    pullSpeedAnim = startSpeedLines(canvas, color, rarity===7?2.5:rarity===6?2:1.4);
+    canvas.style.opacity = rarity===7?'0.5':rarity===6?'0.35':'0.22';
+    // halos
+    document.getElementById('pullHaloOuter').style.borderColor = color;
+    document.getElementById('pullHaloOuter').style.opacity = '0.4';
+    document.getElementById('pullHaloInner').style.borderColor = color;
+    document.getElementById('pullHaloInner').style.opacity = '0.25';
+  }
+  if(rarity >= 6) {
+    // LR+: beams
+    document.getElementById('pullBgBeams').style.background = `conic-gradient(from 0deg, transparent 0%, ${color}18 5%, transparent 10%, transparent 45%, ${color}12 50%, transparent 55%)`;
+    document.getElementById('pullBgBeams').style.animation = 'beamSweep 4s linear infinite';
+    document.getElementById('pullBgBeams').style.opacity = '1';
+    // starfield
+    spawnPullStarfield(document.getElementById('pullBgStars'), color);
+    document.getElementById('pullBgStars').style.opacity = '1';
+    // crown
+    const crown = document.getElementById('pullCrown');
+    crown.textContent = rarity===7 ? '👁️' : '👑';
+    crown.style.display = 'block';
+    crown.className = 'pull-crown';
+    crown.style.filter = `drop-shadow(0 0 14px ${color})`;
+  }
+
+  // ── Card image ──
+  const artEl = document.getElementById('pullCardArt');
+  artEl.src = card.image;
+  artEl.style.borderColor = color;
+  artEl.style.boxShadow = `0 0 ${rarity*12}px ${color}99, 0 0 ${rarity*24}px ${color}44`;
+  // force reflow so animation replays
+  void artEl.offsetWidth;
+  cinematic.classList.add(revealClass);
+
+  // ── Stars ──
+  document.getElementById('pullStars').innerHTML = buildStarHTML(rarity, color);
+
+  // ── Rarity label ──
+  const rarLabel = document.getElementById('pullRarityLabel');
+  rarLabel.textContent = card.rarityName;
+  rarLabel.style.color = color;
+
+  // ── Name with rarity styling ──
+  const nameEl = document.getElementById('pullCardName');
+  nameEl.textContent = card.name;
+  nameEl.className = 'pull-name' + (rarity>=7?' name-secret':rarity>=6?' name-lr':rarity>=5?' name-ur':'');
+  if(rarity<5) nameEl.style.color = '#fff';
+
+  // ── Series ──
+  document.getElementById('pullCardSeries').textContent = card.series;
+
+  // ── Dialogue (SSR+) ──
+  const dlgData = CARD_DIALOGUES[card.id];
+  if(rarity >= 4 && dlgData) {
+    const line = dlgData.lines[Math.floor(Math.random()*dlgData.lines.length)];
+    document.getElementById('pullDialogueSpeaker').textContent = dlgData.speaker;
+    document.getElementById('pullDialogueSpeaker').style.color = dlgData.color;
+    document.getElementById('pullDialogueText').textContent = '"' + line + '"';
+    document.getElementById('pullDialogue').style.display = 'block';
+    // hide old quote if dialogue shown
+    document.getElementById('pullCardQuote').style.display = 'none';
+  } else {
+    document.getElementById('pullCardQuote').style.display = 'block';
+    document.getElementById('pullCardQuote').textContent = `"${card.quote}"`;
+  }
+
+  // ── Dupe ──
+  document.getElementById('pullDupe').style.display = isDupe ? 'inline-block' : 'none';
+
+  // ── Show screen ──
+  document.getElementById('pullScreen').classList.add('active');
+
+  // ── Sounds & particles ──
+  playPullSound(rarity);
+  playCoinSound();
+  spawnParticles(rarity, color);
+  // Extra burst for UR+
+  if(rarity >= 5) {
+    setTimeout(()=>spawnParticles(rarity, color), 400);
+    spawnPullStarBurst(color, rarity);
+  }
+  if(rarity >= 6) {
+    setTimeout(()=>{ spawnParticles(rarity, color); spawnPullStarBurst(color, rarity); }, 700);
+  }
+}
+
+function spawnPullStarBurst(color, rarity) {
+  const count = rarity * 8;
+  for(let i=0;i<count;i++){
+    const el = document.createElement('div');
+    const angle = (i/count)*Math.PI*2 + Math.random()*0.5;
+    const dist = 80+Math.random()*300;
+    const size = 3+Math.random()*8;
+    el.style.cssText = `position:fixed;width:${size}px;height:${size}px;border-radius:50%;background:${color};left:50%;top:50%;z-index:302;pointer-events:none;--tx:${Math.cos(angle)*dist}px;--ty:${Math.sin(angle)*dist-60}px;--dur:${0.7+Math.random()*0.6}s;animation:particleBurst var(--dur) ease-out ${Math.random()*0.25}s both;`;
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(),1400);
+  }
+}
+
+// closePull replaced
+
+// ══════════════════════════════════════════════
+// GACHA LOGIC
+// ══════════════════════════════════════════════
+function weightedPick(pool){
+  const total=pool.reduce((s,c)=>s+c.weight,0);
+  let r=Math.random()*total,cum=0;
+  for(const c of pool){cum+=c.weight;if(cum>=r)return c;}
+  return pool[pool.length-1];
+}
+// buildPool() is defined in the BANNER SYSTEM section above
+
+// ══════════════════════════════════════════════
+// DB OPERATIONS
+// ══════════════════════════════════════════════
+async function loadPlayer(discordId){
+  const BANNER_COLORS_IDX=[
+    'linear-gradient(135deg,#e0608a,#c084b8)',
+    'linear-gradient(135deg,#1a0533,#3a1060)',
+    'linear-gradient(135deg,#0a3d62,#1e6091)',
+    'linear-gradient(135deg,#1a4731,#2d7a4f)',
+    'linear-gradient(135deg,#7d5a00,#c9990a)',
+    'linear-gradient(135deg,#7b0000,#c0392b)',
+    'linear-gradient(135deg,#0d0d0d,#1a1a2e,#16213e)',
+    'linear-gradient(135deg,#ff9a9e,#fad0c4)',
+  ];
+  const rows=await sb.get('players',{discord_id:discordId});
+  if(rows&&rows.length>0){
+    const p=rows[0];
+    state.coins=p.coins??1000;state.pitySR=p.pity_sr??0;state.pityUR=p.pity_ur??0;
+    try{ state.pityMap=p.pity_map?JSON.parse(p.pity_map):{character:{sr:state.pitySR,ur:state.pityUR}}; }catch(e){ state.pityMap={}; }
+    state.equippedId=p.equipped_card??null;state.totalPulls=p.total_pulls??0;
+    state.username=p.username??state.username;state.avatar=p.avatar??'';
+    state.bio=p.bio??state.bio;
+    state.title=p.active_title??state.title;
+    state.customAvatar=p.profile_thumbnail??'';
+    state.bannerImage=p.profile_banner??'';
+    const idx=typeof p.profile_color==='number'?p.profile_color:0;
+    state.bannerColor=BANNER_COLORS_IDX[idx]??state.bannerColor;
+    state.displayName=p.username??'';
+    state.pvpWins=p.pvp_wins??0;
+    state.pvpLosses=p.pvp_losses??0;
+  } else {
+    await sb.upsert('players',{
+      discord_id:discordId,username:state.username,avatar:state.avatar||'',
+      coins:1000,total_pulls:0,pity_sr:0,pity_ur:0,
+      bio:state.bio,active_title:state.title,profile_color:0,
+      profile_thumbnail:'',profile_banner:'',
+    });
+  }
+  localStorage.setItem('mg_coins_'+discordId, state.coins);
+  state.isAdmin = ADMIN_IDS.includes(discordId);
+}
+async function loadCollection(discordId){
+  const rows=await sb.get('collection',{discord_id:discordId});
+  state.collection=rows?rows.map(r=>r.card_id):[];
+}
+async function loadXpMap(discordId){
+  const rows=await sb.get('card_xp',{discord_id:discordId});
+  state.xpMap={};
+  if(rows)rows.forEach(r=>{state.xpMap[r.card_id]=r.xp;});
+}
+async function savePlayer(){
+  if(!state.discordId||state.isGuest)return;
+  localStorage.setItem('mg_coins_'+state.discordId, state.coins);
+  const BANNER_COLORS_IDX=[
+    'linear-gradient(135deg,#e0608a,#c084b8)',
+    'linear-gradient(135deg,#1a0533,#3a1060)',
+    'linear-gradient(135deg,#0a3d62,#1e6091)',
+    'linear-gradient(135deg,#1a4731,#2d7a4f)',
+    'linear-gradient(135deg,#7d5a00,#c9990a)',
+    'linear-gradient(135deg,#7b0000,#c0392b)',
+    'linear-gradient(135deg,#0d0d0d,#1a1a2e,#16213e)',
+    'linear-gradient(135deg,#ff9a9e,#fad0c4)',
+  ];
+  const colorIdx=Math.max(0,BANNER_COLORS_IDX.indexOf(state.bannerColor));
+  await sb.upsert('players',{
+    discord_id:state.discordId,
+    username:state.username,
+    avatar:state.avatar||'',
+    coins:state.coins,
+    pity_sr:state.pitySR,
+    pity_ur:state.pityUR,
+    pity_map:JSON.stringify(state.pityMap||{}),
+    total_pulls:state.totalPulls,
+    equipped_card:state.equippedId,
+    bio:state.bio,
+    active_title:state.title,
+    profile_color:colorIdx,
+    profile_thumbnail:state.customAvatar,
+    profile_banner:state.bannerImage,
+  });
+}
+async function saveCardToCollection(discordId,cardId){
+  await sb.insert('collection',{discord_id:discordId,card_id:cardId});
+}
+async function saveXp(discordId,cardId,xp){
+  await sb.upsert('card_xp',{discord_id:discordId,card_id:cardId,xp});
+}
+async function loadCards(){
+  const rows = await sb.get('cards', {enabled:'true'});
+  if(rows && rows.length > 0){
+    // Map DB columns to the DEMO_CARDS format the rest of the game expects
+    window.DEMO_CARDS = rows.map(r=>({
+      id:          r.id,
+      name:        r.name,
+      rarity:      r.rarity,
+      rarityName:  r.rarity_name,
+      rarityStars: r.rarity_stars,
+      series:      r.series,
+      quote:       r.quote,
+      desc:        r.description,
+      image:       r.image,
+      thumbnail:   r.thumbnail || r.image,
+      color:       r.color,
+      weight:      r.weight,
+      enabled:     r.enabled,
+      limited:     r.limited,
+      limitedFor:  r.limited_for,
+    }));
+    console.log(`Loaded ${window.DEMO_CARDS.length} cards from DB`);
+  }
+  // Load abilities for all cards
+  const abRows = await sb.getAll('card_abilities');
+  if(abRows && abRows.length > 0){
+    window.DB_ABILITIES = {};
+    abRows.forEach(ab=>{
+      if(!window.DB_ABILITIES[ab.card_id]) window.DB_ABILITIES[ab.card_id]=[];
+      window.DB_ABILITIES[ab.card_id].push({
+        id:           ab.ability_id,
+        name:         ab.name,
+        icon:         ab.icon,
+        tier:         ab.tier,
+        type:         ab.tier,
+        desc:         ab.description,
+        battleEffect: ab.battle_effect,
+        value:        ab.value,
+        mp_cost:      ab.mp_cost || 0,
+        mpCost:       ab.mp_cost || 0,
+        chance:       ab.chance  || 100,
+        gifUrl:       ab.gif_url || '',
+        audioUrl:     ab.audio_url || '',
+      });
+      // Sort by sort_order
+      window.DB_ABILITIES[ab.card_id].sort((a,b)=>(a.sort_order||0)-(b.sort_order||0));
     });
   }
 }
 
-// ── Boost active check (used by activity/pull handlers) ──
-function getBoostMultiplier(type){
-  const key = `mg_boost_${type}_${state.discordId||'guest'}`;
-  const exp = parseInt(localStorage.getItem(key)||'0');
-  return exp > Date.now() ? 2 : 1;
+async function loadAll(discordId){
+  showLoadingOverlay(true);
+  await Promise.all([loadCards(), loadCardCutscenes(), loadPlayer(discordId), loadCollection(discordId), loadXpMap(discordId), loadSkins(), loadPlayerSkins()]);
+  showLoadingOverlay(false);
+  updateCoins();updatePity();updateProfile();renderCollection();renderShop();
+  await loadActiveBanner();
+  if(state.isAdmin) showAdminNav();
+}
+
+// ══════════════════════════════════════════════
+// LOADING OVERLAY
+// ══════════════════════════════════════════════
+function showLoadingOverlay(show){
+  let el=document.getElementById('loadingOverlay');
+  if(!el){
+    el=document.createElement('div');
+    el.id='loadingOverlay';
+    el.style.cssText='position:fixed;inset:0;z-index:600;background:rgba(13,6,16,0.92);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;backdrop-filter:blur(8px);transition:opacity 0.3s;';
+    el.innerHTML='<div style="font-size:2.5em;animation:orbPulse 1s ease-in-out infinite">🌸</div><div style="font-family:\'Cinzel Decorative\',serif;color:var(--pink);font-size:0.9em;letter-spacing:0.1em">Loading your data...</div>';
+    document.body.appendChild(el);
+  }
+  if(show){el.style.display='flex';el.style.opacity='1';}
+  else{el.style.opacity='0';setTimeout(()=>el.style.display='none',300);}
+}
+
+// ══════════════════════════════════════════════
+// PULL
+// ══════════════════════════════════════════════
+async function doPull(count){
+  if(state.coins<(count===1?50:200)){showToast('Not enough Meo Coins! 🪙');return;}
+  state.coins-=count===1?50:200;
+  state.totalPulls+=count;
+  updateCoins();
+  if(count===1){
+    const card=weightedPick(buildPool());
+    await handlePullResult([card]);
+    // Play cutscene first if card has one, THEN show the pull screen
+    if(cardHasCutscene(card.id)){
+      await playCardCutscene(card, /*fromPull=*/true);
+    }
+    showPullScreen(card);
+  } else {
+    const results=[];
+    for(let i=0;i<count;i++)results.push(weightedPick(buildPool()));
+    await handlePullResult(results);
+    showMultiPullScreen(results);
+  }
+}
+
+function showMultiPullScreen(cards){
+  window._lastMultiPulledCards = cards; // store for cutscenes on collect
+  const row=document.getElementById('multiCardsRow');
+  row.innerHTML='';
+  cards.forEach((card,i)=>{
+    const color=RARITY_COLORS[card.rarity]||'#ff9dc7';
+    const isDupe=state.collection.filter(x=>x===card.id).length>1;
+    const el=document.createElement('div');
+    el.className='multi-card-item'+(isDupe?'':' new-card');
+    el.innerHTML=`
+      <img class="multi-card-img" src="${card.image}" alt="${card.name}" style="border-color:${color};box-shadow:0 0 16px ${color}55;"/>
+      <div class="multi-card-rarity" style="color:${color}">${card.rarityName}</div>
+      <div class="multi-card-stars" style="color:${color}">${card.rarityStars}</div>
+      <div class="multi-card-name">${card.name}</div>
+      ${isDupe?'<div class="multi-dupe-tag">♻️ dupe</div>':''}
+    `;
+    row.appendChild(el);
+    // stagger reveal with sound
+    setTimeout(()=>{
+      el.classList.add('revealed');
+      playPullSound(card.rarity);
+      spawnParticles(card.rarity,color);
+    },i*320+100);
+  });
+  document.getElementById('multiPullScreen').classList.add('active');
+}
+
+function closeMultiPull(){
+  document.getElementById('multiPullScreen').classList.remove('active');
+  renderCollection();
+  ccFadeOutGlobalAudio();
+}
+
+async function handlePullResult(cards){
+  for(const card of cards){
+    const isDupe=state.collection.includes(card.id);
+    state.collection.push(card.id);
+    if(!state.equippedId)state.equippedId=card.id;
+    const _btype = getActiveBanner()?.banner_type||'character';
+    addPity(_btype, card);
+    if(isDupe){
+      const dxp=[10,20,35,60,100,200,500][card.rarity-1]||10;
+      state.xpMap[card.id]=(state.xpMap[card.id]||0)+dxp;
+      if(state.discordId&&!state.isGuest)await saveXp(state.discordId,card.id,state.xpMap[card.id]);
+    }
+    if(state.discordId&&!state.isGuest)await saveCardToCollection(state.discordId,card.id);
+  }
+  if(state.discordId&&!state.isGuest)await savePlayer();
+  if(state.isGuest)saveGuestState();
+  updatePity();updateProfile();
+}
+
+// showPullScreen replaced by enhanced version above
+
+function closePull(){
+  document.getElementById('pullScreen').classList.remove('active');
+  renderCollection();
+  // Fade out cutscene BGM now that user has collected
+  ccFadeOutGlobalAudio();
+}
+function pullAgain(){
+  document.getElementById('pullScreen').classList.remove('active');
+  // Stop any lingering cutscene BGM before the next pull
+  ccFadeOutGlobalAudio();
+  setTimeout(()=>doPull(1),100);
+}
+
+// ══════════════════════════════════════════════
+// PARTICLES
+// ══════════════════════════════════════════════
+function spawnParticles(rarity,color){
+  const count=rarity>=5?40:rarity>=3?20:8;
+  for(let i=0;i<count;i++){
+    const p=document.createElement('div');p.className='particle';
+    const size=3+Math.random()*6,angle=Math.random()*Math.PI*2,dist=80+Math.random()*200;
+    p.style.cssText=`width:${size}px;height:${size}px;background:${color};left:50%;top:50%;--tx:${Math.cos(angle)*dist}px;--ty:${Math.sin(angle)*dist-100}px;--dur:${0.6+Math.random()*0.8}s;animation-delay:${Math.random()*0.2}s;`;
+    document.body.appendChild(p);setTimeout(()=>p.remove(),(1+Math.random())*1000);
+  }
+}
+
+// ══════════════════════════════════════════════
+// COLLECTION
+// ══════════════════════════════════════════════
+const RARITY_ORDER = [
+  {key:'S',  r:7, label:'[???]',  rainbow:true},
+  {key:'LR', r:6, label:'[LR]',   rainbow:false},
+  {key:'UR', r:5, label:'[UR]',   rainbow:false},
+  {key:'SSR',r:4, label:'[SSR]',  rainbow:false},
+  {key:'SR', r:3, label:'[SR]',   rainbow:false},
+  {key:'R',  r:2, label:'[R]',    rainbow:false},
+  {key:'N',  r:1, label:'[N]',    rainbow:false},
+];
+function renderCollection(){
+  const grid=document.getElementById('cardsGrid');
+  const empty=document.getElementById('emptyCollection');
+  const owned=[...new Set(state.collection)];
+  const counts={};state.collection.forEach(id=>{counts[id]=(counts[id]||0)+1;});
+  let filtered=owned;
+  if(currentFilter!=='all'){
+    const rMap={N:1,R:2,SR:3,SSR:4,UR:5,LR:6,S:7};
+    const r=rMap[currentFilter];
+    filtered=owned.filter(id=>{const c=(window.DEMO_CARDS||DEMO_CARDS).find(x=>x.id===id);return c&&c.rarity===r;});
+  }
+  document.getElementById('collTotal').textContent=`${state.collection.length} pulls`;
+  document.getElementById('collUniq').textContent=`${owned.length} unique`;
+  if(!filtered.length){grid.innerHTML='';empty.style.display='block';return;}
+  empty.style.display='none';
+
+  if(currentFilter==='all'){
+    // Build sections outside the grid — each rarity gets a header + its own card grid
+    let html='';
+    const sections=[];
+    RARITY_ORDER.forEach(({r,label,rainbow})=>{
+      const group=filtered.filter(id=>{const c=(window.DEMO_CARDS||DEMO_CARDS).find(x=>x.id===id);return c&&c.rarity===r;});
+      if(!group.length)return;
+      sections.push({r,label,rainbow,group});
+    });
+    sections.forEach(({r,label,rainbow,group},idx)=>{
+      const color=RARITY_COLORS[r]||'#bdc3c7';
+      const headerLabel=rainbow
+        ?`<span class="rarity-rainbow">${label}</span>`
+        :`<span style="color:${color}">${label}</span>`;
+      if(idx>0) html+=`<div class="rarity-divider"></div>`;
+      html+=`<div class="rarity-group">
+        <div class="rarity-group-header">${headerLabel}<span class="rarity-group-count">${group.length}</span></div>
+        <div class="cards-grid">${group.map(id=>renderCardThumb(id,counts)).join('')}</div>
+      </div>`;
+    });
+    grid.innerHTML=html;
+    grid.className=''; // remove cards-grid from wrapper when grouped
+  } else {
+    grid.className='cards-grid';
+    grid.innerHTML=filtered.map(id=>renderCardThumb(id,counts)).join('');
+  }
+}
+function renderCardThumb(id,counts){
+  const c=(window.DEMO_CARDS||DEMO_CARDS).find(x=>x.id===id);if(!c)return'';
+  const color=RARITY_COLORS[c.rarity]||'#bdc3c7';
+  const isEquipped=state.equippedId===id;
+  const cnt=counts[id]||1;
+  const hasSkin = !!(window.EQUIPPED_SKINS && window.EQUIPPED_SKINS[id]);
+  const thumbSrc = getCardThumbnail(c);
+  const xp=state.xpMap[id]||0;
+  const lvl=calcLevel(xp);
+  const isRainbow=c.rarity===7;
+  const rarityDisplay=isRainbow
+    ?`<span class="rarity-rainbow">${c.rarityName}</span>`
+    :`<span style="color:${color}">${c.rarityStars}${cnt>1?` ×${cnt}`:''}</span>`;
+  const badgeDisplay=isRainbow
+    ?`<span class="card-thumb-badge"><span class="rarity-rainbow">${c.rarityName}</span></span>`
+    :`<span class="card-thumb-badge" style="color:${color}">${c.rarityName}</span>`;
+  const borderStyle=isRainbow?`style="border-color:transparent;background-clip:padding-box;outline:2px solid;outline-color:transparent;animation:rainbowBorder 2.5s linear infinite;"`:'';
+  return`<div class="card-thumb${isRainbow?' rainbow-card':''}" onclick="openCard('${id}')" ${isRainbow?`style="box-shadow:0 0 14px rgba(255,100,200,0.4)"`:''}">
+    <img src="${thumbSrc}" alt="${c.name}" loading="lazy" onerror="this.style.background='#1c0f26'"/>
+    ${badgeDisplay}
+    <span class="card-thumb-lvl">Lv.${lvl}</span>
+    ${hasSkin ? '<span class="skin-active-badge">🎨 Skin</span>' : ''}
+    <div class="card-thumb-info">
+      <div class="card-thumb-name">${isEquipped?'⚔️ ':''}${c.name}</div>
+      <div class="card-thumb-rarity">${rarityDisplay}</div>
+    </div>
+  </div>`;
+}
+
+function filterCards(f,btn){
+  currentFilter=f;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderCollection();
+}
+
+// ══════════════════════════════════════════════
+// CARD MODAL
+// ══════════════════════════════════════════════
+function openCard(id){
+  const c=(window.DEMO_CARDS||DEMO_CARDS).find(x=>x.id===id);if(!c)return;
+  playModalSound();
+  openCardId=id;
+  const color=RARITY_COLORS[c.rarity]||'#bdc3c7';
+  const xp=state.xpMap[id]||0;
+  const lvl=calcLevel(xp);
+  const xpTable=[0,100,300,600,1000,1500,2100,2800,3600,4500];
+  const nextXp=lvl<10?xpTable[lvl]:xpTable[9];
+  const curFloor=xpTable[lvl-1];
+  const pct=lvl>=10?100:Math.round(((xp-curFloor)/(nextXp-curFloor))*100);
+  // Use skin image if equipped
+  document.getElementById('modalArt').src=getCardImage(c);
+  document.getElementById('modalRarity').innerHTML=`<span style="color:${color};font-family:'JetBrains Mono',monospace">${c.rarityName} ${c.rarityStars}</span>`;
+  document.getElementById('modalName').textContent=c.name;
+  document.getElementById('modalSeries').textContent=c.series;
+  document.getElementById('modalQuote').textContent=`"${c.quote}"`;
+  document.getElementById('modalDesc').textContent=c.desc;
+  // Render abilities
+  let abEl = document.getElementById('modalAbilities');
+  if(!abEl){ abEl=document.createElement('div'); abEl.id='modalAbilities'; document.getElementById('modalDesc').insertAdjacentElement('afterend',abEl); }
+  abEl.innerHTML = renderAbilities(c.id, c.rarity);
+  // Render skin section
+  let skinEl = document.getElementById('modalSkins');
+  if(!skinEl){ skinEl=document.createElement('div'); skinEl.id='modalSkins'; abEl.insertAdjacentElement('afterend',skinEl); }
+  skinEl.innerHTML = renderCardModalSkins(id);
+  document.getElementById('modalLvl').textContent=lvl>=10?'Lv.10 ✦ MAX':`Lv.${lvl}`;
+  document.getElementById('modalXpText').textContent=lvl>=10?`${xp} XP`:`${xp} / ${nextXp} XP`;
+  document.getElementById('modalXpFill').style.width=pct+'%';
+  document.getElementById('modalXpFill').style.background=`linear-gradient(90deg,${c.color||'var(--pink-deep)'},${color})`;
+  // Show equip button only if the card is in the player's collection
+  const isOwned=state.collection.includes(id);
+  const equipBtn=document.getElementById('modalEquipBtn');
+  if(equipBtn)equipBtn.style.display=isOwned?'':'none';
+  const csBtn=document.getElementById('modalCutsceneBtn');
+  if(csBtn)csBtn.style.display=cardHasCutscene(id)?'':'none';
+  document.getElementById('cardModal').classList.add('active');
+}
+function closeModal(e){
+  if(!e||e.target===document.getElementById('cardModal'))
+    document.getElementById('cardModal').classList.remove('active');
+}
+async function equipCard(){
+  if(openCardId){
+    state.equippedId=openCardId;
+    showToast(`⚔️ ${(window.DEMO_CARDS||DEMO_CARDS).find(x=>x.id===openCardId)?.name} equipped!`); playEquipSound();
+    document.getElementById('cardModal').classList.remove('active');
+    updateProfile();renderCollection();
+    if(state.discordId&&!state.isGuest)await savePlayer();
+    if(state.isGuest)saveGuestState();
+  }
+}
+
+// ══════════════════════════════════════════════
+// XP / LEVEL
+// ══════════════════════════════════════════════
+function calcLevel(xp){
+  const t=[0,100,300,600,1000,1500,2100,2800,3600,4500];
+  let lvl=1;t.forEach((r,i)=>{if(xp>=r)lvl=i+1;});
+  return Math.min(lvl,10);
+}
+
+// ══════════════════════════════════════════════
+// PITY / COINS / PROFILE
+// ══════════════════════════════════════════════
+function updatePity(){
+  ['','2'].forEach(s=>{
+    const sv=document.getElementById('pitySRVal'+s),sb2=document.getElementById('pitySRBar'+s);
+    const uv=document.getElementById('pityURVal'+s),ub=document.getElementById('pityURBar'+s);
+    if(sv){sv.textContent=state.pitySR;sb2.style.width=Math.min(state.pitySR/40*100,100)+'%';}
+    if(uv){uv.textContent=state.pityUR;ub.style.width=Math.min(state.pityUR/80*100,100)+'%';}
+  });
+}
+function updateCoins(){
+  const v=state.coins.toLocaleString();
+  document.getElementById('coinDisplay').textContent=v;
+  document.getElementById('statCoins').textContent=v;
+  const mob=document.getElementById('coinDisplayMobile');
+  if(mob)mob.textContent=v;
+  // Always keep local cache in sync
+  if(state.discordId&&!state.isGuest) localStorage.setItem('mg_coins_'+state.discordId,state.coins);
+}
+function updateProfile(){
+  const owned=[...new Set(state.collection)];
+  document.getElementById('statPulls').textContent=state.totalPulls;
+  document.getElementById('statUnique').textContent=owned.length;
+  document.getElementById('statCoins').textContent=state.coins.toLocaleString();
+  // Display name: use custom if set, else Discord username
+  const shownName=(state.displayName||state.username)+(state.isGuest?' (Guest)':'');
+  document.getElementById('profileName').textContent=shownName;
+  document.getElementById('profileTitle').textContent=state.title;
+  document.getElementById('profileBio').textContent=state.bio;
+  // Avatar: custom > Discord avatar > placeholder
+  const avatarSrc=state.customAvatar||state.avatar||'https://cdn.discordapp.com/embed/avatars/0.png';
+  document.getElementById('profileAvatar').src=avatarSrc;
+  // Sync nav profile avatar button
+  const navAvatar=document.getElementById('navProfileAvatar');
+  if(navAvatar)navAvatar.src=avatarSrc;
+  // Update home quick stats
+  const hsc=document.getElementById('homeStatCoins');
+  if(hsc)hsc.textContent=state.coins.toLocaleString();
+  const hsp=document.getElementById('homeStatPulls');
+  if(hsp)hsp.textContent=state.totalPulls;
+  const hsu=document.getElementById('homeStatUnique');
+  if(hsu)hsu.textContent=owned.length;
+  const hsw=document.getElementById('homeStatWins');
+  if(hsw)hsw.textContent=state.battleWins||0;
+  // Update home banner widget when cards load
+  renderHomeBannerWidget();
+  // Banner: image overrides gradient color
+  const bannerEl=document.getElementById('profileBannerEl');
+  const bannerImgEl=document.getElementById('profileBannerImg');
+  if(state.bannerImage){
+    bannerEl.style.background='none';
+    bannerImgEl.src=state.bannerImage;bannerImgEl.style.display='block';
+  } else {
+    bannerEl.style.background=state.bannerColor;
+    bannerImgEl.style.display='none';
+  }
+  // admin badge
+  const ab=document.getElementById('adminProfileBadge');
+  if(ab)ab.style.display=state.isAdmin?'flex':'none';
+  // admin nav button
+  const anb=document.getElementById('adminNavBtn');
+  if(anb)anb.style.display=state.isAdmin?'':'none';
+  const mAdminNav=document.getElementById('mnav-admin');
+  if(mAdminNav)mAdminNav.style.display=state.isAdmin?'flex':'none';
+  const ep=document.getElementById('equippedPreview');
+  if(state.equippedId){
+    const c=(window.DEMO_CARDS||DEMO_CARDS).find(x=>x.id===state.equippedId);
+    if(c){
+      const color=RARITY_COLORS[c.rarity]||'#bdc3c7';
+      const xp=state.xpMap[c.id]||0;
+      ep.innerHTML=`<img class="equipped-thumb" src="${getCardThumbnail(c)}" alt="${c.name}" style="border-color:${color}"/>
+        <div class="equipped-info">
+          <div class="equipped-name">${c.name}</div>
+          <div class="equipped-rarity" style="color:${color}">${c.rarityStars} ${c.rarityName}</div>
+          <div class="equipped-lvl">Lv.${calcLevel(xp)} · ${xp} XP</div>
+        </div>`;
+    }
+  }
+}
+
+function updateHomeSpotlight(){
+  const el=document.getElementById('homeSpotlight');
+  if(!el)return;
+  const owned=[...new Set(state.collection)];
+  if(!owned.length){
+    el.innerHTML=`<div style="color:var(--text-dim);font-style:italic;text-align:center;padding:20px;">Pull cards to see your best ones here! ʚɞ</div>`;
+    return;
+  }
+  // Show top 3 highest rarity cards
+  const sorted=owned.map(id=>(window.DEMO_CARDS||DEMO_CARDS).find(c=>c.id===id)).filter(Boolean)
+    .sort((a,b)=>b.rarity-a.rarity).slice(0,3);
+  el.innerHTML=sorted.map(c=>{
+    const color=RARITY_COLORS[c.rarity]||'#bdc3c7';
+    const xp=state.xpMap[c.id]||0;
+    return `<div style="text-align:center;cursor:pointer;" onclick="openCard('${c.id}')">
+      <img src="${getCardThumbnail(c)}" alt="${c.name}"
+        style="width:72px;height:100px;object-fit:cover;border-radius:10px;border:2px solid ${color};box-shadow:0 0 14px ${color}44;display:block;margin:0 auto 6px;"/>
+      <div style="font-size:0.7em;font-family:'Cinzel Decorative',serif;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:80px;">${c.name}</div>
+      <div style="font-size:0.65em;color:${color};margin-top:2px;">Lv.${calcLevel(xp)}</div>
+    </div>`;
+  }).join('');
+}
+
+
+// ══════════════════════════════════════════════
+// SHOP
+// ══════════════════════════════════════════════
+function renderShop(){
+  document.getElementById('shopGrid').innerHTML=SHOP_ITEMS.map(item=>`
+    <div class="shop-item">
+      <div class="shop-emoji">${item.emoji}</div>
+      <div class="shop-name">${item.name}</div>
+      <div class="shop-desc">${item.desc}</div>
+      <div class="shop-price">🪙 ${item.price.toLocaleString()}</div>
+      <button class="shop-buy" onclick="buyItem('${item.id}','${item.name}',${item.price})">Purchase</button>
+    </div>
+  `).join('');
+}
+async function buyItem(id,name,price){
+  if(state.coins<price){showToast('Not enough coins! 🪙');return;}
+  state.coins-=price;updateCoins();
+  showToast(`✨ ${name} purchased!`); playShopSound(); playCoinSound();
+  if(state.discordId&&!state.isGuest)await savePlayer();
+  if(state.isGuest)saveGuestState();
 }
 
 // ══════════════════════════════════════════════
@@ -5211,7 +6393,7 @@ function goTo(page,btn){ playNavSound();
   if(btn)btn.classList.add('active');
   if(page==='collection')renderCollection();
   if(page==='activities'){renderBattleCardSelect();}
-  if(page==='shop')loadShopItems();
+  if(page==='shop')renderShop();
   if(page==='profile')updateProfile();
   if(page==='social'){
     initChat();
@@ -5258,7 +6440,7 @@ async function guestLogin(){
       state.coins=g.coins??1000;state.pitySR=g.pitySR??0;state.pityUR=g.pityUR??0;state.pityMap=g.pityMap||{};
       state.totalPulls=g.totalPulls??0;state.equippedId=g.equippedId??null;
       state.collection=g.collection??[];state.xpMap=g.xpMap??{};
-      state.bio=g.bio??state.bio;state.title=g.title??state.title;state.ownedTitles=g.ownedTitles||[];
+      state.bio=g.bio??state.bio;state.title=g.title??state.title;
       state.bannerColor=g.bannerColor??state.bannerColor;
       state.displayName=g.displayName??'';state.customAvatar=g.customAvatar??'';
       state.bannerImage=g.bannerImage??'';
@@ -5267,7 +6449,7 @@ async function guestLogin(){
   hideLoginOverlay();
   updateCoins();updatePity();updateProfile();renderCollection();renderShop();
   await loadSkins();
-  await Promise.all([loadActiveBanner(), loadShopItems()]);
+  await loadActiveBanner();
   showToast('👤 Playing as Guest — progress saves locally ʚɞ');
 }
 
@@ -5277,7 +6459,7 @@ function saveGuestState(){
     coins:state.coins,pitySR:state.pitySR,pityUR:state.pityUR,pityMap:state.pityMap||{},
     totalPulls:state.totalPulls,equippedId:state.equippedId,
     collection:state.collection,xpMap:state.xpMap,
-    bio:state.bio,title:state.title,ownedTitles:state.ownedTitles||[],bannerColor:state.bannerColor,
+    bio:state.bio,title:state.title,bannerColor:state.bannerColor,
     displayName:state.displayName,customAvatar:state.customAvatar,bannerImage:state.bannerImage
   }));
 }
@@ -5369,13 +6551,11 @@ const BANNER_COLORS = [
   {label:'Neon',v:'linear-gradient(135deg,#0d0d0d,#1a1a2e,#16213e)'},
   {label:'Candy',v:'linear-gradient(135deg,#ff9a9e,#fad0c4)'},
 ];
-// PROFILE_TITLES is now dynamic — built from player's owned titles + defaults
-const DEFAULT_TITLE = '✦ Summoner ✦';
-function getOwnedTitles(){
-  const base = [state.title || DEFAULT_TITLE];
-  const owned = state.ownedTitles || [];
-  return [...new Set([...base, ...owned])].filter(Boolean);
-}
+const PROFILE_TITLES = [
+  '✦ Founding Member ✦','🌸 Petal Collector 🌸','⚔️ Veteran Summoner ⚔️',
+  '💜 SSR Hunter 💜','👑 Card Royalty 👑','🌙 Moonlit Wanderer 🌙',
+  '✨ Lucky Star ✨','🎴 Gacha Addict 🎴','🌺 Bloom Knight 🌺',
+];
 
 let editBannerColor = null;
 let editTitle = null;
@@ -5408,12 +6588,11 @@ function openProfileEdit(){
     <div class="banner-color-opt${c.v===state.bannerColor?' selected':''}" style="background:${c.v}" title="${c.label}"
       onclick="selectBannerColor('${c.v}',this)"></div>
   `).join('');
-  // titles — only show owned titles
+  // titles
   const tp=document.getElementById('titlePicker');
-  const myTitles = getOwnedTitles();
-  tp.innerHTML = myTitles.length
-    ? myTitles.map(t=>`<div class="title-opt${t===state.title?' selected':''}" onclick="selectTitle('${t.replace(/'/g,"\\'")}',this)">${t}</div>`).join('')
-    : '<div style="color:var(--text-dim);font-style:italic;font-size:0.82em;padding:8px;">No titles yet — buy some in the Shop! ʚɞ</div>';
+  tp.innerHTML=PROFILE_TITLES.map(t=>`
+    <div class="title-opt${t===state.title?' selected':''}" onclick="selectTitle('${t.replace(/'/g,"\\'")}',this)">${t}</div>
+  `).join('');
   document.getElementById('profileEditModal').classList.add('active');
 }
 
@@ -5628,7 +6807,7 @@ async function claimDailyReward(){
 // ══════════════════════════════════════════════
 const COOLDOWNS = { work: 30*60*1000, train: 20*60*1000, quest: 45*60*1000 };
 
-function getActKey(type){ return state.discordId ? `mg_act_${type}_${state.discordId}` : `mg_act_${type}_guest`; }
+function getActKey(type){ const did = (typeof state!=='undefined' && state.discordId) ? state.discordId : 'guest'; return `mg_act_${type}_${did}`; }
 function getLastAct(type){ const v=localStorage.getItem(getActKey(type)); return v?parseInt(v):0; }
 function setLastAct(type){ localStorage.setItem(getActKey(type), Date.now().toString()); }
 function getCooldownLeft(type){ const cd=COOLDOWNS[type]; const last=getLastAct(type); const left=cd-(Date.now()-last); return left>0?left:0; }
@@ -5639,6 +6818,7 @@ function fmtTime(ms){
 }
 
 function updateActivityCooldowns(){
+  if(typeof state === 'undefined') return;
   ['work','train','quest'].forEach(type=>{
     const left=getCooldownLeft(type);
     const cd=document.getElementById(type+'Cooldown');
@@ -7899,7 +9079,7 @@ function showAdminNav(){
 }
 
 function switchAdminTab(tab, btn){
-  ['cards','banners','skins','shop','tools'].forEach(t=>{
+  ['cards','banners','skins','tools'].forEach(t=>{
     const el=document.getElementById('adminTab-'+t);
     const b=document.getElementById('atab-'+t);
     if(el)el.style.display=t===tab?'block':'none';
@@ -7907,7 +9087,6 @@ function switchAdminTab(tab, btn){
   });
   if(tab==='banners') loadAdminBannerList();
   if(tab==='skins') { populateSkinCardSelect(); loadAdminSkinList(); }
-  if(tab==='shop') loadAdminShopItems();
 }
 
 // ── Upload file to Supabase Storage ──
@@ -9664,110 +10843,202 @@ function closeCutsceneEditor(){
   _cutsceneEditorCardId=null;_csStepCount=0;
 }
 
-// ══════════════════════════════════════════════
-// ADMIN — SHOP MANAGER
-// ══════════════════════════════════════════════
+renderShop();
+renderActiveBanner();
+renderHomeBannerWidget();
+tryAutoLogin();
 
-let _adminShopCache = [];
+// ══════════════════════════════════════════════════════════════
+// MULTIPLAYER — SUPABASE REALTIME CLIENT + CHAT + TRADES + PVP
+// ══════════════════════════════════════════════════════════════
 
-// Type-specific extra fields shown in the form
-function onShopItemTypeChange(){
-  const type = document.getElementById('shopItemForm_type').value;
-  const wrap = document.getElementById('shopItemTypeFields');
-  const allCards = window.DEMO_CARDS || [];
-  const allSkins = window.ALL_SKINS || [];
-
-  if(type === 'boost'){
-    wrap.innerHTML = `
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
-        <div>
-          <label class="admin-label">Boost Subtype</label>
-          <select class="admin-input" id="shopItemForm_subtype">
-            <option value="coin">🪙 Coin Boost</option>
-            <option value="xp">⚡ XP Boost</option>
-          </select>
-        </div>
-        <div>
-          <label class="admin-label">Duration (minutes)</label>
-          <input class="admin-input" id="shopItemForm_duration" type="number" value="60" min="1"/>
-        </div>
-      </div>`;
-  } else if(type === 'xp'){
-    wrap.innerHTML = `
-      <div style="margin-bottom:10px;">
-        <label class="admin-label">XP Amount granted</label>
-        <input class="admin-input" id="shopItemForm_value" type="number" value="100" min="1"/>
-      </div>`;
-  } else if(type === 'skin'){
-    wrap.innerHTML = `
-      <div style="margin-bottom:10px;">
-        <label class="admin-label">Skin (ref_id) <span class="admin-hint">— must exist in card_skins table</span></label>
-        <select class="admin-input" id="shopItemForm_refid">
-          <option value="">— pick a skin —</option>
-          ${allSkins.map(s=>`<option value="${s.id}">${s.name} (${s.card_id})</option>`).join('')}
-        </select>
-      </div>`;
-  } else if(type === 'card'){
-    wrap.innerHTML = `
-      <div style="margin-bottom:10px;">
-        <label class="admin-label">Card (ref_id)</label>
-        <select class="admin-input" id="shopItemForm_refid">
-          <option value="">— pick a card —</option>
-          ${allCards.map(c=>`<option value="${c.id}">[${c.rarityName||'N'}] ${c.name}</option>`).join('')}
-        </select>
-      </div>`;
-  } else if(type === 'title'){
-    wrap.innerHTML = `
-      <div style="margin-bottom:10px;">
-        <label class="admin-label">Title text (ref_id) <span class="admin-hint">— this exact string will be given to the player</span></label>
-        <input class="admin-input" id="shopItemForm_refid" placeholder="e.g. 👑 Card Royalty 👑"/>
-      </div>`;
-  } else {
-    wrap.innerHTML = '';
+// ── Realtime client — single shared instance ──
+let _supaRT = null;
+function getSupaRT(){
+  if(_supaRT) return _supaRT;
+  if(typeof supabase === 'undefined'){
+    console.warn('[MP] supabase-js not loaded yet');
+    return null;
   }
+  _supaRT = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+    realtime: { params: { eventsPerSecond: 10 } }
+  });
+  return _supaRT;
 }
 
-function _getShopFormRefId(){
-  const el = document.getElementById('shopItemForm_refid');
-  return el ? el.value.trim() : '';
+// ── Wait for supabase-js CDN to be ready ──
+function waitForSupabase(maxMs=5000){
+  return new Promise((resolve, reject)=>{
+    if(typeof supabase !== 'undefined'){ resolve(); return; }
+    const start = Date.now();
+    const check = setInterval(()=>{
+      if(typeof supabase !== 'undefined'){ clearInterval(check); resolve(); return; }
+      if(Date.now()-start > maxMs){ clearInterval(check); reject(new Error('supabase-js timeout')); }
+    }, 100);
+  });
 }
 
-async function loadAdminShopItems(){
-  const el = document.getElementById('adminShopItemList');
-  if(!el) return;
-  el.innerHTML = '<div style="color:var(--text-dim);font-style:italic;font-size:0.85em;text-align:center;padding:20px;">Loading...</div>';
+// ── State ──
+let chatChannel      = null;
+let tradeChannel     = null;
+let pvpChannel       = null;
+let presenceChannel  = null;
+// chatInited removed — channel.state check used instead
+let activePvpBattleId = null;
+let tradeOfferCard   = null;   // { offer: cardId, want: cardId }
+let tradeTargetId    = null;
+let tradeTargetCollection = [];
+
+// ══════════════════════════════════════════════
+// SOCIAL TAB SWITCHER
+// ══════════════════════════════════════════════
+function switchSocialTab(tab, btn){
+  ['chat','trades','leaderboard'].forEach(t=>{
+    const el = document.getElementById('socialTab-'+t);
+    const b  = document.getElementById('stab-'+t);
+    if(el) el.style.display = t===tab ? '' : 'none';
+    if(b)  b.classList.toggle('active', t===tab);
+  });
+  if(tab==='trades') loadMyTrades();
+  if(tab==='leaderboard') loadLeaderboard(document.getElementById('lbf-pvp')?.classList.contains('active') ? 'pvp' : 'cards');
+}
+
+// ══════════════════════════════════════════════
+// CHAT SYSTEM
+// ══════════════════════════════════════════════
+async function initChat(){
+  const feed = document.getElementById('chatFeed');
+  if(feed) feed.innerHTML = '<div style="text-align:center;color:var(--text-dim);font-style:italic;font-size:0.85em;padding:20px;">✦ Loading chat... ✦</div>';
+
+  // 1. Load history — pure REST, no realtime client needed
   try {
-    _adminShopCache = await sb.get('shop_items',{},{order:'sort_order.asc,created_at.asc'}) || [];
+    const data = await sb.get('chat_messages', {}, { order: 'created_at.desc', limit: 60 });
+    const history = (Array.isArray(data) ? data : []).reverse();
+    if(feed) feed.innerHTML = '';
+    if(!history.length){
+      if(feed) feed.innerHTML = '<div style="text-align:center;color:var(--text-dim);font-style:italic;font-size:0.85em;padding:30px;">✦ No messages yet. Say hello! ✦</div>';
+    } else {
+      history.forEach(msg => renderChatMsg(msg));
+      scrollChatToBottom();
+    }
   } catch(e){
-    _adminShopCache = [];
-    el.innerHTML = `<div style="color:#e74c3c;font-size:0.85em;padding:16px;text-align:center;">
-      ⚠️ shop_items table not found.<br>
-      <span style="color:var(--text-dim);font-size:0.9em;">Run the SQL migration first.</span>
+    console.warn('[MP] Chat load error', e);
+    if(feed) feed.innerHTML = `<div style="text-align:center;color:var(--text-dim);font-style:italic;font-size:0.85em;padding:30px;">
+      ⚠️ Chat error: ${escapeHtml(e.message||String(e))}<br>
+      <button onclick="initChat()" style="margin-top:10px;background:var(--surface);border:1px solid var(--border);color:var(--text);border-radius:10px;padding:6px 16px;cursor:pointer;font-size:0.85em;">↺ Retry</button>
     </div>`;
-    return;
   }
-  if(!_adminShopCache.length){
-    el.innerHTML = '<div style="color:var(--text-dim);font-style:italic;font-size:0.85em;text-align:center;padding:20px;">No items yet. Add one above!</div>';
-    return;
+
+  // 2. Realtime subscription — only if supabase-js CDN loaded
+  const rt = getSupaRT();
+  if(rt){
+    try {
+      if(chatChannel && chatChannel.state === 'joined') return;
+      if(chatChannel){ try{ await rt.removeChannel(chatChannel); }catch(_){} chatChannel = null; }
+      chatChannel = rt.channel('public-chat')
+        .on('postgres_changes', {
+          event: 'INSERT', schema: 'public', table: 'chat_messages'
+        }, payload => {
+          renderChatMsg(payload.new);
+          scrollChatToBottom();
+        })
+        .subscribe((status, err) => {
+          console.log('[MP] Chat channel status:', status, err||'');
+          if(status === 'CHANNEL_ERROR' || status === 'TIMED_OUT'){
+            chatChannel = null;
+            setTimeout(()=>{ if(document.getElementById('socialTab-chat')?.style.display !== 'none') initChat(); }, 4000);
+          }
+        });
+    } catch(e){ console.warn('[MP] Realtime subscribe error', e); }
+
+    // 3. Presence
+    try {
+      if(presenceChannel){ try{ await rt.removeChannel(presenceChannel); }catch(_){} }
+      presenceChannel = rt.channel('online-users');
+      presenceChannel
+        .on('presence', { event: 'sync' }, () => {
+          const ps = presenceChannel.presenceState();
+          const el = document.getElementById('onlineCount');
+          if(el) el.textContent = Object.keys(ps).length + ' online';
+        })
+        .subscribe(async (status) => {
+          if(status !== 'SUBSCRIBED') return;
+          if(state.discordId && !state.isGuest){
+            await presenceChannel.track({
+              discord_id: state.discordId,
+              username:   state.username || 'Summoner',
+              avatar:     state.avatar   || ''
+            });
+          }
+        });
+    } catch(e){ console.warn('[MP] Presence error', e); }
+  } // end if(rt)
+
+  // 4. Listen for incoming trades
+  if(state.discordId && !state.isGuest) listenForTrades();
+}
+
+async function submitChat(){
+  const input = document.getElementById('chatInput');
+  if(!input) return;
+  const content = input.value.trim();
+  if(!content) return;
+  input.value = '';
+  await sendChatMsg(content, 'text', null);
+}
+
+async function sendChatMsg(content, type='text', cardId=null){
+  if(!state.discordId || state.isGuest){
+    showToast('❌ Login with Discord to chat'); return;
   }
-  el.innerHTML = _adminShopCache.map(item => {
-    const typeCls = ({boost:'stype-boost',xp:'stype-xp',skin:'stype-skin',card:'stype-card',title:'stype-title',item:'stype-item'})[item.type]||'stype-item';
-    return `<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);">
-      <span style="font-size:1.4em;">${item.emoji||'📦'}</span>
-      <div style="flex:1;min-width:0;">
-        <div style="font-size:0.85em;font-weight:600;">${escapeHtml(item.name)}</div>
-        <div style="display:flex;gap:6px;align-items:center;margin-top:2px;flex-wrap:wrap;">
-          <span class="shop-item-type-badge ${typeCls}" style="margin:0;">${item.type}</span>
-          <span style="font-family:'JetBrains Mono',monospace;font-size:0.7em;color:#f1c40f;">🪙 ${item.price}</span>
-          ${item.is_active===false ? '<span style="font-size:0.65em;color:#e74c3c;">HIDDEN</span>' : '<span style="font-size:0.65em;color:#2ecc71;">LIVE</span>'}
-        </div>
-      </div>
-      <div style="display:flex;gap:5px;">
-        <button class="admin-btn" onclick="editShopItem('${item.id}')" style="padding:4px 10px;font-size:0.78em;">✏️</button>
-        <button class="admin-btn" onclick="deleteShopItem('${item.id}',this.dataset.n)" data-n="${escapeHtml(item.name)}"          style="padding:4px 10px;font-size:0.78em;background:rgba(231,76,60,0.12);border-color:rgba(231,76,60,0.3);color:#e74c3c;">🗑️</button>
-      </div>
-    </div>`;
-  }).join('');
+  if(!content.trim()) return;
+  const safe = content.replace(/<[^>]*>/g,'').slice(0,300);
+
+  try {
+    const ok = await sb.insert('chat_messages', {
+      discord_id: state.discordId,
+      username:   state.username || 'Summoner',
+      avatar_url: state.avatar   || '',
+      content:    safe,
+      msg_type:   type,
+      card_id:    cardId || null
+    });
+    if(!ok) chatDebugError('Send failed — check Supabase');
+  } catch(e){ showToast('❌ Chat error: ' + (e.message||'')); }
+}
+
+function renderChatMsg(msg){
+  const feed = document.getElementById('chatFeed');
+  if(!feed) return;
+
+  // Remove placeholder
+  const placeholder = feed.querySelector('[data-placeholder]');
+  if(placeholder) placeholder.remove();
+
+  const isMe = msg.discord_id === state.discordId;
+  const el   = document.createElement('div');
+  el.className = 'chat-msg' + (isMe ? ' chat-me' : '');
+
+  const time = msg.created_at
+    ? new Date(msg.created_at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})
+    : '';
+
+  let contentHtml = '';
+
+  if(msg.msg_type === 'flex' && msg.card_id){
+    const card = (window.DEMO_CARDS||[]).find(c=>c.id===msg.card_id);
+    if(card){
+      contentHtml += `
+        <div class="chat-flex-card" onclick="openCardById('${card.id}')">
+          <img class="flex-thumb" src="${getCardThumbnail(card)}"
+            onerror="this.style.display='none'"/>
+          <div>
+            <div class="flex-name">${escapeHtml(card.name)}</div>
+            <div class="flex-rarity">${escapeHtml(card.rarityName||'')} ${card.rarityStars||''}</div>
+          </div>
+        </div>`;
+    }
+  }
 
   contentHtml += `<div class="chat-text">${escapeHtml(msg.content)}</div>`;
 
@@ -11609,14 +12880,6 @@ async function deleteSkin(skinId, skinName){
 
 
 
-
-
-// ══════════════════════════════════════════════
-// INIT
-// ══════════════════════════════════════════════
-renderActiveBanner();
-renderHomeBannerWidget();
-tryAutoLogin();
 </script>
 
 <!-- ABILITY CUTSCENE OVERLAY -->
