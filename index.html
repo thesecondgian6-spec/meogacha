@@ -7234,7 +7234,7 @@ function openProfileEdit(){
   const avatarEl=document.getElementById('editAvatarUrl');
   if(avatarEl) avatarEl.value=state.customAvatar||'';
   const avatarPrev=document.getElementById('avatarPreview');
-  if(avatarPrev) avatarPrev.src=state.customAvatar||state.avatar||'https://cdn.discordapp.com/embed/avatars/0.png';
+  if(avatarPrev) avatarPrev.src=state.customAvatar||'';
 
   const bannerUrlEl=document.getElementById('editBannerUrl');
   if(bannerUrlEl) bannerUrlEl.value=state.bannerImage||'';
@@ -7274,8 +7274,7 @@ function updateNameCount(){
 function previewAvatar(){
   const url=document.getElementById('editAvatarUrl').value.trim();
   const prev=document.getElementById('avatarPreview');
-  prev.src=url||state.avatar||'https://cdn.discordapp.com/embed/avatars/0.png';
-  prev.style.display='block';
+  if(url){prev.src=url;prev.style.display='block';}
 }
 
 function previewBannerImg(){
@@ -7323,9 +7322,9 @@ async function saveProfileCustom(){
   // Display name
   const newName=(document.getElementById('editDisplayName')?.value||'').trim();
   state.displayName=newName; // empty = use Discord username
-  // Custom avatar — empty string means "use Discord avatar"
+  // Custom avatar
   const newAvatar=(document.getElementById('editAvatarUrl')?.value||'').trim();
-  state.customAvatar=newAvatar; // empty = fall back to state.avatar at render time
+  state.customAvatar=newAvatar;
   // Banner image
   const newBannerImg=(document.getElementById('editBannerUrl')?.value||'').trim();
   state.bannerImage=newBannerImg;
@@ -11743,7 +11742,7 @@ async function sendChatMsg(content, type='text', cardId=null){
     const ok = await sb.insert('chat_messages', {
       discord_id: state.discordId,
       username:   state.username || 'Summoner',
-      avatar_url: state.avatar   || '',
+      avatar_url: state.customAvatar || state.avatar || '',
       content:    safe,
       msg_type:   type,
       card_id:    cardId || null
