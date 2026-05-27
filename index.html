@@ -7110,7 +7110,7 @@ async function loadCards(){
 
 async function loadAll(discordId){
   showLoadingOverlay(true);
-  await Promise.all([loadCards(), loadCardCutscenes(), loadPlayer(discordId), loadCollection(discordId), loadXpMap(discordId), loadSkins(), loadPlayerSkins(), loadShopItems()]);
+  await Promise.all([loadCards(), loadCardCutscenes(), loadPlayer(discordId), loadCollection(discordId), loadXpMap(discordId), loadSkins(), loadPlayerSkins(), loadShopItems(), loadGameItems()]);
   showLoadingOverlay(false);
   updateCoins();updatePity();updateProfile();renderCollection();renderShop();
   await loadActiveBanner();
@@ -7535,8 +7535,16 @@ function goTo(page,btn){ playNavSound();
     loadLeaderboard('pvp');
   }
   if(page==='admin'){
-    // Only load on first visit — avoids flicker on return visits
-    if(!window._adminCardCache||!window._adminCardCache.length) loadAdminCardList();
+    // Full admin init on first visit — load cards + evo list + populate all dropdowns
+    if(!window._adminCardCache||!window._adminCardCache.length){
+      loadAdminCardList();   // async — calls ceEvoPopulateCardDropdowns() when done
+    } else {
+      ceEvoPopulateCardDropdowns();  // cache already warm, just refresh dropdowns
+    }
+    ceEvoPopulateItemDropdown();
+    populateShopItemDropdown();
+    loadAdminEvoList();
+    toggleEvoFields();
   }
 }
 
@@ -10345,7 +10353,13 @@ function switchAdminTab(tab, btn){
   if(tab==='skins') { populateSkinCardSelect(); loadAdminSkinList(); }
   if(tab==='shop') { populateShopSkinSelect(); loadAdminShopItems(); populateShopItemDropdown(); loadAdminShopListings(); }
   if(tab==='items') { loadAdminItemList(); }
-  if(tab==='cards') { if(!_adminCardCache||!_adminCardCache.length) loadAdminCardList(); else ceEvoPopulateCardDropdowns(); loadAdminEvoList(); toggleEvoFields(); populateEvoItemDropdown(); }
+  if(tab==='cards') {
+    if(!_adminCardCache||!_adminCardCache.length) loadAdminCardList();
+    else ceEvoPopulateCardDropdowns();
+    loadAdminEvoList();
+    toggleEvoFields();
+    populateEvoItemDropdown();
+  }
   if(tab==='anime') { loadAdminAnimeList(); }
 }
 
