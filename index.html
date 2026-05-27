@@ -15790,22 +15790,10 @@ function switchCollectionTab(tab, btn) {
 
 // ── Populate the card dropdowns in the evolution panel ──
 function ceEvoPopulateCardDropdowns() {
-  // Prefer _adminCardCache (all cards incl. disabled) for admin dropdowns;
-  // fall back to DEMO_CARDS (enabled-only) for non-admin contexts.
-  let cards;
-  if (typeof _adminCardCache !== 'undefined' && _adminCardCache && _adminCardCache.length > 0) {
-    // _adminCardCache rows use DB column names; normalise to id/name/rarity/series
-    cards = _adminCardCache.map(r => ({
-      id:     r.id,
-      name:   r.name,
-      rarity: r.rarity,
-      series: r.series || '',
-    }));
-  } else {
-    cards = window.DEMO_CARDS || (typeof DEMO_CARDS !== 'undefined' ? DEMO_CARDS : []);
-  }
+  // Use window.DEMO_CARDS — same source the skin editor uses, always populated after login
+  const allCards = window.DEMO_CARDS || [];
   const RARITY_LABELS = {1:'[N]',2:'[R]',3:'[SR]',4:'[SSR]',5:'[UR]',6:'[LR]',7:'[???]'};
-  const opts = cards.map(c => `<option value="${c.id}">${c.name} ${RARITY_LABELS[c.rarity]||''} · ${c.series}</option>`).join('');
+  const opts = allCards.map(c => `<option value="${c.id}">[${RARITY_LABELS[c.rarity]||'?'}] ${c.name} · ${c.series||''}</option>`).join('');
   const blank = '<option value="">— select card —</option>';
   ['ce_evo_baseCard','ce_evo_targetCard'].forEach(id => {
     const el = document.getElementById(id);
