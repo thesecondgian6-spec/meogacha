@@ -665,7 +665,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   .filter-btn { padding: 3px 8px; font-size: 0.72em; }
 
   /* ── Anime collection folders ── */
-  #animeCollGrid { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 9px; }
+  #animeCollGrid { grid-template-columns: repeat(3, 1fr) !important; gap: 9px !important; }
   .anime-folder { border-radius: 12px; }
   .anime-folder-logo { width: 52px; max-height: 32px; top: 6px; left: 6px; }
   .anime-folder-badge { font-size: 0.6em; padding: 2px 6px; top: 6px; right: 6px; }
@@ -738,7 +738,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   .rates-grid { grid-template-columns: repeat(3, 1fr); }
   .profile-stats { gap: 5px; }
   .stat-val { font-size: 0.88em; }
-  #animeCollGrid { grid-template-columns: repeat(3, 1fr); gap: 7px; }
+  #animeCollGrid { grid-template-columns: repeat(3, 1fr) !important; gap: 7px !important; }
   .anime-folder-logo { width: 40px; max-height: 24px; }
   .anime-folder-info { padding: 5px 6px; }
   .anime-folder-name { font-size: 0.65em; }
@@ -3676,6 +3676,87 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .online-dot { width: 8px; height: 8px; border-radius: 50%; background: #3ba55d; display: inline-block; box-shadow: 0 0 6px #3ba55d; flex-shrink: 0; }
 .online-bar { display: flex; align-items: center; gap: 8px; font-size: 0.78em; color: var(--text-dim); padding: 8px 0 12px; font-family: 'JetBrains Mono', monospace; }
 
+/* ── Chat reply bar (above input) ── */
+.chat-reply-bar {
+  display: none; align-items: center; gap: 8px;
+  padding: 6px 14px; background: rgba(255,157,199,0.07);
+  border-top: 1px solid rgba(255,157,199,0.18);
+  font-size: 0.78em; color: var(--text-dim);
+  font-family: 'JetBrains Mono', monospace; flex-shrink: 0;
+}
+.chat-reply-bar.active { display: flex; }
+.chat-reply-icon { opacity: 0.6; font-size: 0.9em; flex-shrink: 0; }
+.chat-reply-bar-name { color: var(--pink); font-weight: 700; flex-shrink: 0; }
+.chat-reply-bar-excerpt { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; opacity: 0.65; }
+.chat-reply-bar-close {
+  background: none; border: none; color: var(--text-dim);
+  cursor: pointer; font-size: 1.15em; padding: 0 2px;
+  line-height: 1; transition: color 0.15s; flex-shrink: 0;
+}
+.chat-reply-bar-close:hover { color: var(--pink); }
+
+/* ── Chat message inline reply preview ── */
+.chat-reply-preview {
+  background: rgba(255,157,199,0.05); border-left: 2px solid rgba(255,157,199,0.45);
+  border-radius: 0 6px 6px 0; padding: 3px 9px; margin-bottom: 4px;
+  font-size: 0.78em; cursor: pointer; transition: background 0.15s;
+  max-width: 100%; overflow: hidden; display: flex; align-items: baseline; gap: 6px;
+}
+.chat-reply-preview:hover { background: rgba(255,157,199,0.1); }
+.chat-reply-preview-name { color: var(--pink); font-weight: 700; font-family: 'JetBrains Mono', monospace; flex-shrink: 0; }
+.chat-reply-preview-text { opacity: 0.6; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* ── Chat hover action buttons ── */
+.chat-msg { position: relative; }
+.chat-msg-actions {
+  display: none; position: absolute; right: 10px; top: 2px;
+  align-items: center; gap: 2px;
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 8px; padding: 2px 4px; z-index: 10;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.4);
+}
+.chat-msg:hover .chat-msg-actions { display: flex; }
+.chat-msg-action-btn {
+  background: none; border: none; cursor: pointer;
+  color: var(--text-dim); font-size: 0.88em; padding: 3px 6px;
+  border-radius: 5px; transition: all 0.15s; line-height: 1;
+}
+.chat-msg-action-btn:hover { background: rgba(255,157,199,0.12); color: var(--pink); }
+.chat-msg-action-btn.danger:hover { background: rgba(231,76,60,0.1); color: #e74c3c; }
+
+/* ── Mention tag in chat text ── */
+.chat-mention { color: var(--pink); font-weight: 700; background: rgba(255,157,199,0.1); border-radius: 3px; padding: 0 2px; }
+
+/* ── Deleted message ── */
+.chat-text.deleted { font-style: italic; color: var(--text-dim); opacity: 0.45; }
+
+/* ── Mention autocomplete dropdown ── */
+.chat-input-wrap { position: relative; }
+.mention-dropdown {
+  display: none; position: absolute; bottom: calc(100% + 6px); left: 0; right: 0;
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 10px; overflow: hidden; z-index: 50;
+  max-height: 180px; overflow-y: auto;
+  box-shadow: 0 -4px 20px rgba(0,0,0,0.4);
+}
+.mention-dropdown.open { display: block; }
+.mention-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 12px; cursor: pointer; transition: background 0.15s;
+  font-size: 0.84em; color: var(--text);
+}
+.mention-item:hover, .mention-item.highlighted { background: rgba(255,157,199,0.12); color: var(--pink); }
+.mention-item img { width: 22px; height: 22px; border-radius: 50%; object-fit: cover; flex-shrink: 0; border: 1px solid rgba(255,157,199,0.2); }
+.mention-item-name { font-family: 'JetBrains Mono', monospace; font-size: 0.9em; }
+
+/* ── Admin crown badge in chat ── */
+.chat-admin-badge { font-size: 0.65em; background: linear-gradient(135deg,#f1c40f,#ff6b9d); color:#000; font-family:'JetBrains Mono',monospace; font-weight:700; padding:1px 5px; border-radius:6px; letter-spacing:0.04em; margin-left:4px; vertical-align:middle; }
+
+@media(max-width:700px){
+  .chat-msg-actions { right: 4px; }
+  .chat-msg-action-btn { font-size: 0.82em; padding: 3px 5px; }
+}
+
 /* ── Player Profile Modal ── */
 #playerProfileModal {
   position:fixed;inset:0;z-index:500;display:none;
@@ -4467,11 +4548,20 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
             ✦ Connecting to global chat... ✦
           </div>
         </div>
+        <!-- Reply bar (shown when replying) -->
+        <div class="chat-reply-bar" id="chatReplyBar">
+          <span class="chat-reply-icon">↩️</span>
+          <span class="chat-reply-bar-name" id="chatReplyName"></span>
+          <span class="chat-reply-bar-excerpt" id="chatReplyExcerpt"></span>
+          <button class="chat-reply-bar-close" onclick="clearChatReply()" title="Cancel reply">✕</button>
+        </div>
         <!-- Input -->
         <div class="chat-input-bar">
           <div class="chat-input-wrap">
+            <div class="mention-dropdown" id="mentionDropdown"></div>
             <input id="chatInput" placeholder="Message #global-chat" maxlength="300"
-              onkeydown="if(event.key==='Enter')submitChat()"/>
+              onkeydown="chatInputKeydown(event)"
+              oninput="chatInputChange(this)"/>
             <button class="chat-flex-btn" title="Flex a card" onclick="openFlexPicker()">✨</button>
           </div>
           <button class="chat-send-btn" onclick="submitChat()">Send ✦</button>
@@ -12103,6 +12193,13 @@ function switchSocialTab(tab, btn){
 // ══════════════════════════════════════════════
 // CHAT SYSTEM
 // ══════════════════════════════════════════════
+
+// ── Reply state ──
+let chatReplyTo = null; // { id, username, excerpt }
+
+// ── Known chat users for @mention ──
+let chatKnownUsers = {}; // { username → avatar_url }
+
 async function initChat(){
   const feed = document.getElementById('chatFeed');
   if(feed) feed.innerHTML = '<div style="text-align:center;color:var(--text-dim);font-style:italic;font-size:0.85em;padding:20px;">✦ Loading chat... ✦</div>';
@@ -12113,7 +12210,7 @@ async function initChat(){
     const history = (Array.isArray(data) ? data : []).reverse();
     if(feed) feed.innerHTML = '';
     if(!history.length){
-      if(feed) feed.innerHTML = '<div style="text-align:center;color:var(--text-dim);font-style:italic;font-size:0.85em;padding:30px;">✦ No messages yet. Say hello! ✦</div>';
+      if(feed) feed.innerHTML = '<div data-placeholder style="text-align:center;color:var(--text-dim);font-style:italic;font-size:0.85em;padding:30px;">✦ No messages yet. Say hello! ✦</div>';
     } else {
       history.forEach(msg => renderChatMsg(msg));
       scrollChatToBottom();
@@ -12138,6 +12235,12 @@ async function initChat(){
         }, payload => {
           renderChatMsg(payload.new);
           scrollChatToBottom();
+        })
+        .on('postgres_changes', {
+          event: 'DELETE', schema: 'public', table: 'chat_messages'
+        }, payload => {
+          const el = document.getElementById('chatmsg-' + payload.old.id);
+          if(el) el.remove();
         })
         .subscribe((status, err) => {
           console.log('[MP] Chat channel status:', status, err||'');
@@ -12178,16 +12281,103 @@ async function initChat(){
   }
 }
 
+// ── Reply helpers ──
+function setChatReply(msgId, username, excerpt){
+  chatReplyTo = { id: msgId, username, excerpt };
+  const bar = document.getElementById('chatReplyBar');
+  if(bar) bar.classList.add('active');
+  const nameEl = document.getElementById('chatReplyName');
+  if(nameEl) nameEl.textContent = '@' + username;
+  const excEl = document.getElementById('chatReplyExcerpt');
+  if(excEl) excEl.textContent = excerpt;
+  document.getElementById('chatInput')?.focus();
+}
+
+function clearChatReply(){
+  chatReplyTo = null;
+  const bar = document.getElementById('chatReplyBar');
+  if(bar) bar.classList.remove('active');
+}
+
+// ── @Mention autocomplete ──
+function chatInputKeydown(e){
+  const dd = document.getElementById('mentionDropdown');
+  if(dd && dd.classList.contains('open')){
+    const items = dd.querySelectorAll('.mention-item');
+    let hi = [...items].findIndex(i=>i.classList.contains('highlighted'));
+    if(e.key === 'ArrowDown'){ e.preventDefault(); hi = Math.min(hi+1, items.length-1); items.forEach((i,x)=>i.classList.toggle('highlighted',x===hi)); return; }
+    if(e.key === 'ArrowUp'){ e.preventDefault(); hi = Math.max(hi-1, 0); items.forEach((i,x)=>i.classList.toggle('highlighted',x===hi)); return; }
+    if(e.key === 'Enter' || e.key === 'Tab'){
+      const hiItem = dd.querySelector('.highlighted') || items[0];
+      if(hiItem){ e.preventDefault(); hiItem.click(); return; }
+    }
+    if(e.key === 'Escape'){ closeMentionDropdown(); return; }
+  }
+  if(e.key === 'Enter') submitChat();
+}
+
+function chatInputChange(input){
+  const val = input.value;
+  const pos = input.selectionStart;
+  // Find the @ trigger before cursor
+  const before = val.slice(0, pos);
+  const match = before.match(/@(\w*)$/);
+  if(match){
+    const q = match[1].toLowerCase();
+    const users = Object.entries(chatKnownUsers)
+      .filter(([u])=> u.toLowerCase().includes(q) && u !== (state.username||''))
+      .slice(0,8);
+    if(users.length){
+      showMentionDropdown(users, match[1]);
+      return;
+    }
+  }
+  closeMentionDropdown();
+}
+
+function showMentionDropdown(users, partial){
+  const dd = document.getElementById('mentionDropdown');
+  if(!dd) return;
+  dd.innerHTML = users.map(([username, avatar], i)=>`
+    <div class="mention-item${i===0?' highlighted':''}" onclick="insertMention('${escapeHtml(username)}')">
+      <img src="${escapeHtml(avatar||'https://cdn.discordapp.com/embed/avatars/0.png')}" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'"/>
+      <span class="mention-item-name">@${escapeHtml(username)}</span>
+    </div>`).join('');
+  dd.classList.add('open');
+}
+
+function closeMentionDropdown(){
+  const dd = document.getElementById('mentionDropdown');
+  if(dd) dd.classList.remove('open');
+}
+
+function insertMention(username){
+  const input = document.getElementById('chatInput');
+  if(!input) return;
+  const pos = input.selectionStart;
+  const val = input.value;
+  const before = val.slice(0, pos);
+  const after = val.slice(pos);
+  const replaced = before.replace(/@\w*$/, '@' + username + ' ');
+  input.value = replaced + after;
+  input.selectionStart = input.selectionEnd = replaced.length;
+  input.focus();
+  closeMentionDropdown();
+}
+
 async function submitChat(){
   const input = document.getElementById('chatInput');
   if(!input) return;
   const content = input.value.trim();
   if(!content) return;
+  closeMentionDropdown();
   input.value = '';
-  await sendChatMsg(content, 'text', null);
+  const reply = chatReplyTo;
+  clearChatReply();
+  await sendChatMsg(content, 'text', null, reply);
 }
 
-async function sendChatMsg(content, type='text', cardId=null){
+async function sendChatMsg(content, type='text', cardId=null, replyTo=null){
   if(!state.discordId || state.isGuest){
     showToast('❌ Login with Discord to chat'); return;
   }
@@ -12195,16 +12385,45 @@ async function sendChatMsg(content, type='text', cardId=null){
   const safe = content.replace(/<[^>]*>/g,'').slice(0,300);
 
   try {
-    const ok = await sb.insert('chat_messages', {
+    const payload = {
       discord_id: state.discordId,
       username:   state.username || 'Summoner',
       avatar_url: state.customAvatar || state.avatar || '',
       content:    safe,
       msg_type:   type,
       card_id:    cardId || null
-    });
+    };
+    // Include reply fields if they exist (requires DB columns — see SQL comment below)
+    if(replyTo){
+      payload.reply_to_id       = replyTo.id       || null;
+      payload.reply_to_username = replyTo.username  || '';
+      payload.reply_to_excerpt  = replyTo.excerpt   || '';
+    }
+    const ok = await sb.insert('chat_messages', payload);
     if(!ok) chatDebugError('Send failed — check Supabase');
   } catch(e){ showToast('❌ Chat error: ' + (e.message||'')); }
+}
+
+// ── Delete chat message ──
+async function deleteChatMsg(msgId, el){
+  if(!confirm('Delete this message?')) return;
+  try {
+    // Try REST delete
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/chat_messages?id=eq.${msgId}`, {
+      method: 'DELETE',
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }
+    });
+    if(res.ok || res.status === 204){
+      el.remove();
+    } else {
+      showToast('❌ Could not delete message');
+    }
+  } catch(e){ showToast('❌ ' + (e.message||'Delete failed')); }
+}
+
+// ── Format chat text with @mention highlighting ──
+function formatChatText(text){
+  return escapeHtml(text).replace(/@(\w+)/g, '<span class="chat-mention">@$1</span>');
 }
 
 function renderChatMsg(msg){
@@ -12215,15 +12434,31 @@ function renderChatMsg(msg){
   const placeholder = feed.querySelector('[data-placeholder]');
   if(placeholder) placeholder.remove();
 
-  const isMe = msg.discord_id === state.discordId;
-  const el   = document.createElement('div');
-  el.className = 'chat-msg' + (isMe ? ' chat-me' : '');
+  // Track known users for @mention
+  if(msg.username && msg.avatar_url !== undefined){
+    chatKnownUsers[msg.username] = msg.avatar_url || '';
+  }
+
+  const isMe    = msg.discord_id === state.discordId;
+  const isAdmin = ADMIN_IDS.includes(msg.discord_id);
+  const el      = document.createElement('div');
+  el.className  = 'chat-msg' + (isMe ? ' chat-me' : '');
+  if(msg.id) el.id = 'chatmsg-' + msg.id;
 
   const time = msg.created_at
     ? new Date(msg.created_at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})
     : '';
 
-  let contentHtml = '';
+  // Reply preview
+  let replyHtml = '';
+  if(msg.reply_to_username && msg.reply_to_excerpt){
+    replyHtml = `<div class="chat-reply-preview" onclick="scrollToMsg('${escapeHtml(msg.reply_to_id||'')}')">
+      <span class="chat-reply-preview-name">@${escapeHtml(msg.reply_to_username)}</span>
+      <span class="chat-reply-preview-text">${escapeHtml(msg.reply_to_excerpt)}</span>
+    </div>`;
+  }
+
+  let contentHtml = replyHtml;
 
   if(msg.msg_type === 'flex' && msg.card_id){
     const card = (window.DEMO_CARDS||[]).find(c=>c.id===msg.card_id);
@@ -12240,9 +12475,9 @@ function renderChatMsg(msg){
     }
   }
 
-  contentHtml += `<div class="chat-text">${escapeHtml(msg.content)}</div>`;
+  contentHtml += `<div class="chat-text">${formatChatText(msg.content)}</div>`;
 
-  // Action buttons — only on others' flex/pvp_req messages
+  // Action buttons — trade/challenge on others' flex messages
   if(!isMe && msg.msg_type === 'flex' && msg.card_id){
     contentHtml += `
       <div class="chat-action-btns">
@@ -12260,7 +12495,20 @@ function renderChatMsg(msg){
     }
   }
 
+  // Hover action buttons (reply, delete, admin-delete)
+  const msgExcerpt = (msg.content||'').slice(0,60);
+  const msgIdSafe = msg.id ? String(msg.id).replace(/['"]/g,'') : '';
+  let actionBtns = `<button class="chat-msg-action-btn" title="Reply" onclick="setChatReply('${msgIdSafe}','${escapeHtml(msg.username).replace(/'/g,"\\'")}','${escapeHtml(msgExcerpt).replace(/'/g,"\\'")}')">↩️</button>`;
+  actionBtns += `<button class="chat-msg-action-btn" title="Mention" onclick="insertMention('${escapeHtml(msg.username).replace(/'/g,"\\'")}')">@</button>`;
+  if(isMe){
+    actionBtns += `<button class="chat-msg-action-btn danger" title="Delete" onclick="deleteChatMsg('${msgIdSafe}', this.closest('.chat-msg'))">🗑️</button>`;
+  }
+  if(state.isAdmin && !isMe){
+    actionBtns += `<button class="chat-msg-action-btn danger" title="Admin: Delete" onclick="deleteChatMsg('${msgIdSafe}', this.closest('.chat-msg'))">🛡️🗑️</button>`;
+  }
+
   el.innerHTML = `
+    <div class="chat-msg-actions">${actionBtns}</div>
     <div class="chat-avatar-col">
       <img class="chat-avatar"
         src="${msg.avatar_url||'https://cdn.discordapp.com/embed/avatars/0.png'}"
@@ -12270,6 +12518,7 @@ function renderChatMsg(msg){
     <div class="chat-content-col">
       <div class="chat-meta" onclick="viewPlayerProfile('${msg.discord_id}')">
         <span class="chat-username">${escapeHtml(msg.username)}</span>
+        ${isAdmin ? '<span class="chat-admin-badge">👑 ADMIN</span>' : ''}
         <span class="chat-time">${time}</span>
       </div>
       ${contentHtml}
@@ -12279,6 +12528,12 @@ function renderChatMsg(msg){
 
   // Cap DOM at 100 messages
   while(feed.children.length > 100) feed.removeChild(feed.firstChild);
+}
+
+function scrollToMsg(msgId){
+  if(!msgId) return;
+  const el = document.getElementById('chatmsg-' + msgId);
+  if(el){ el.scrollIntoView({behavior:'smooth', block:'center'}); el.style.background='rgba(255,157,199,0.12)'; setTimeout(()=>el.style.background='',1200); }
 }
 
 function scrollChatToBottom(){
@@ -15971,6 +16226,18 @@ document.addEventListener('DOMContentLoaded', () => {
   setTimeout(() => loadAnimeCollections(), 800);
 });
 </script>
+
+<!-- CHAT REPLY / DELETE SQL MIGRATION (run once in Supabase SQL Editor):
+ALTER TABLE chat_messages
+  ADD COLUMN IF NOT EXISTS reply_to_id       uuid,
+  ADD COLUMN IF NOT EXISTS reply_to_username  text DEFAULT '',
+  ADD COLUMN IF NOT EXISTS reply_to_excerpt   text DEFAULT '';
+
+-- Allow users to delete their own messages, and admin to delete any:
+CREATE POLICY "users_delete_own_chat" ON chat_messages
+  FOR DELETE USING (auth.uid()::text = discord_id OR discord_id = ANY(ARRAY['1475627573437534442']));
+-- (add your admin discord_id above if using service_role key anon delete already works)
+-->
 
 <!-- ANIME COLLECTIONS SQL MIGRATION (run once in Supabase SQL Editor):
 CREATE TABLE IF NOT EXISTS anime_collections (
