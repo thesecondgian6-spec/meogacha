@@ -7535,7 +7535,8 @@ function goTo(page,btn){ playNavSound();
     loadLeaderboard('pvp');
   }
   if(page==='admin'){
-    loadAdminCardList();
+    // Only load on first visit — avoids flicker on return visits
+    if(!window._adminCardCache||!window._adminCardCache.length) loadAdminCardList();
   }
 }
 
@@ -10344,7 +10345,7 @@ function switchAdminTab(tab, btn){
   if(tab==='skins') { populateSkinCardSelect(); loadAdminSkinList(); }
   if(tab==='shop') { populateShopSkinSelect(); loadAdminShopItems(); populateShopItemDropdown(); loadAdminShopListings(); }
   if(tab==='items') { loadAdminItemList(); }
-  if(tab==='cards') { loadAdminCardList(); loadAdminEvoList(); toggleEvoFields(); populateEvoItemDropdown(); }
+  if(tab==='cards') { if(!_adminCardCache||!_adminCardCache.length) loadAdminCardList(); else ceEvoPopulateCardDropdowns(); loadAdminEvoList(); toggleEvoFields(); populateEvoItemDropdown(); }
   if(tab==='anime') { loadAdminAnimeList(); }
 }
 
@@ -11216,8 +11217,14 @@ function renderAdminCardList(){
 
 async function editCard(cardId){
   const c=_adminCardCache.find(x=>x.id===cardId);
-  if(!c)return;
-  switchAdminTab('cards',document.getElementById('atab-cards'));
+  if(!c){ showToast('⚠️ Card not found — click 🔄 to reload the list'); return; }
+  // Show the cards tab WITHOUT triggering a list reload (which causes flicker)
+  ['cards','banners','skins','shop','tools','items','anime'].forEach(t=>{
+    const el=document.getElementById('adminTab-'+t);
+    const b=document.getElementById('atab-'+t);
+    if(el)el.style.display=t==='cards'?'block':'none';
+    if(b)b.classList.toggle('active',t==='cards');
+  });
   document.getElementById('cardFormTitle').textContent='✏️ Edit — '+c.name;
   document.getElementById('cardFormSubmitBtn').textContent='💾 Save Changes';
   document.getElementById('cardFormCancelBtn').style.display='';
