@@ -7376,7 +7376,49 @@ function _injectEvolveButton(cardId) {
   }
   const panel = document.createElement('div');
   panel.id = 'modalEvoPanel';
-  panel.innerHTML = '<div style="margin:12px 0 4px;background:'+(canEvolve?'linear-gradient(135deg,rgba(155,89,182,0.18),rgba(255,157,199,0.1))':'rgba(255,157,199,0.04)')+';border:1px solid '+(canEvolve?'rgba(192,132,184,0.55)':'var(--border)')+';border-radius:14px;padding:12px 14px;overflow:hidden;position:relative;">'+(canEvolve?'<div style="position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(192,132,184,0.18),transparent 70%);pointer-events:none;"></div>':'')+'<div style="position:relative;z-index:1;"><div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;"><span style="font-size:1em;">'+( canEvolve ? '🔮' : '🔒' )+'</span><span style="font-family:Cinzel Decorative,serif;font-size:0.7em;letter-spacing:0.08em;color:'+(canEvolve?'var(--purple)':'var(--text-dim)')+';">'+( canEvolve ? '✦ READY TO EVOLVE ✦' : 'Evolution Path' )+'</span></div><div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;"><img src="'+( target.image||target.thumbnail||'' )+'" alt="'+target.name+'" style="width:48px;height:68px;object-fit:cover;border-radius:8px;border:2px solid '+targetColor+';box-shadow:0 0 12px '+targetColor+'44;flex-shrink:0;" onerror="this.style.display=none"/><div style="flex:1;min-width:0;"><div style="font-family:Cinzel Decorative,serif;font-size:0.72em;color:var(--pink-pale);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+target.name+'</div><div style="font-size:0.68em;color:'+targetColor+';margin-top:2px;">'+( target.rarityName||'' )+' '+( target.rarityStars||'' )+'</div><div style="font-size:0.68em;margin-top:5px;display:flex;gap:6px;flex-wrap:wrap;">'+reqHtml+'</div></div></div><button onclick="openEvolutionModal(\''+cardId+'\')'" style="width:100%;padding:9px;border-radius:10px;border:1px solid '+(canEvolve?'rgba(192,132,184,0.65)':'var(--border)')+';background:'+(canEvolve?'linear-gradient(135deg,rgba(155,89,182,0.4),rgba(224,96,138,0.3))':'rgba(255,255,255,0.03)')+';color:'+(canEvolve?'#e8c6ff':'var(--text-dim)')+';font-family:Cinzel Decorative,serif;font-size:0.72em;letter-spacing:0.06em;cursor:'+(canEvolve?'pointer':'default')+';transition:all 0.2s;'+(canEvolve?'box-shadow:0 0 14px rgba(155,89,182,0.3);':'opacity:0.55;')+'">'+( canEvolve ? '✦ Evolve Now ✦' : '🔒 Requirements Not Met' )+'</button></div></div>';
+    // Build panel using DOM for safety
+  const outer = document.createElement('div');
+  outer.style.cssText = 'margin:12px 0 4px;background:'+(canEvolve?'linear-gradient(135deg,rgba(155,89,182,0.18),rgba(255,157,199,0.1))':'rgba(255,157,199,0.04)')+';border:1px solid '+(canEvolve?'rgba(192,132,184,0.55)':'var(--border)')+';border-radius:14px;padding:12px 14px;overflow:hidden;position:relative;';
+  if(canEvolve) {
+    const glow = document.createElement('div');
+    glow.style.cssText = 'position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(192,132,184,0.18),transparent 70%);pointer-events:none;';
+    outer.appendChild(glow);
+  }
+  const inner = document.createElement('div');
+  inner.style.cssText = 'position:relative;z-index:1;';
+  // Header row
+  const hdr = document.createElement('div');
+  hdr.style.cssText = 'display:flex;align-items:center;gap:8px;margin-bottom:8px;';
+  hdr.innerHTML = '<span style="font-size:1em;">'+(canEvolve?'🔮':'🔒')+'</span>'
+    +'<span style="font-family:\'Cinzel Decorative\',serif;font-size:0.7em;letter-spacing:0.08em;color:'+(canEvolve?'var(--purple)':'var(--text-dim)')+';">'+(canEvolve?'✦ READY TO EVOLVE ✦':'Evolution Path')+'</span>';
+  inner.appendChild(hdr);
+  // Card row
+  const row = document.createElement('div');
+  row.style.cssText = 'display:flex;align-items:center;gap:10px;margin-bottom:10px;';
+  const img = document.createElement('img');
+  img.src = target.image||target.thumbnail||'';
+  img.alt = target.name;
+  img.style.cssText = 'width:48px;height:68px;object-fit:cover;border-radius:8px;border:2px solid '+targetColor+';box-shadow:0 0 12px '+targetColor+'44;flex-shrink:0;';
+  img.onerror = function(){ this.style.display='none'; };
+  const info = document.createElement('div');
+  info.style.cssText = 'flex:1;min-width:0;';
+  info.innerHTML = '<div style="font-family:\'Cinzel Decorative\',serif;font-size:0.72em;color:var(--pink-pale);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+target.name+'</div>'
+    +'<div style="font-size:0.68em;color:'+targetColor+';margin-top:2px;">'+(target.rarityName||'')+' '+(target.rarityStars||'')+'</div>'
+    +'<div style="font-size:0.68em;margin-top:5px;display:flex;gap:6px;flex-wrap:wrap;">'+reqHtml+'</div>';
+  row.appendChild(img); row.appendChild(info);
+  inner.appendChild(row);
+  // Evolve button
+  const btn2 = document.createElement('button');
+  btn2.textContent = canEvolve ? '✦ Evolve Now ✦' : '🔒 Requirements Not Met';
+  btn2.style.cssText = 'width:100%;padding:9px;border-radius:10px;border:1px solid '+(canEvolve?'rgba(192,132,184,0.65)':'var(--border)')+';background:'+(canEvolve?'linear-gradient(135deg,rgba(155,89,182,0.4),rgba(224,96,138,0.3))':'rgba(255,255,255,0.03)')+';color:'+(canEvolve?'#e8c6ff':'var(--text-dim)')+';font-family:\'Cinzel Decorative\',serif;font-size:0.72em;letter-spacing:0.06em;cursor:'+(canEvolve?'pointer':'default')+';transition:all 0.2s;'+(canEvolve?'box-shadow:0 0 14px rgba(155,89,182,0.3);':'opacity:0.55;');
+  if(canEvolve) {
+    btn2.addEventListener('click', function(){ openEvolutionModal(cardId); });
+    btn2.addEventListener('mouseover', function(){ this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 18px rgba(155,89,182,0.5)'; });
+    btn2.addEventListener('mouseout',  function(){ this.style.transform=''; this.style.boxShadow='0 0 14px rgba(155,89,182,0.3)'; });
+  }
+  inner.appendChild(btn2);
+  outer.appendChild(inner);
+  panel.appendChild(outer);
   const xpWrap = document.querySelector('.xp-bar-wrap');
   if(xpWrap) { xpWrap.insertAdjacentElement('afterend', panel); }
   else { const mb = document.querySelector('.modal-body'); if(mb) mb.appendChild(panel); }
