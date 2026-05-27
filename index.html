@@ -172,6 +172,21 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .coll-stats{display:flex;gap:10px;font-family:'JetBrains Mono',monospace;font-size:0.8em;}
 .coll-stat{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:4px 12px;color:var(--text-dim);}
 .coll-filter{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px;}
+
+/* ── Anime Collection Folders ── */
+.anime-folder{background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden;cursor:pointer;transition:all 0.25s;position:relative;}
+.anime-folder:hover{border-color:var(--pink);transform:translateY(-3px);box-shadow:0 8px 24px rgba(255,157,199,0.15);}
+.anime-folder.locked{filter:grayscale(0.85);opacity:0.55;}
+.anime-folder.locked:hover{filter:grayscale(0.6);opacity:0.75;border-color:var(--border);}
+.anime-folder-poster{width:100%;aspect-ratio:3/4;object-fit:cover;display:block;background:#1c0f26;}
+.anime-folder-logo{position:absolute;top:8px;left:8px;width:36px;height:36px;border-radius:8px;object-fit:contain;background:rgba(13,6,16,0.7);padding:3px;border:1px solid rgba(255,255,255,0.12);}
+.anime-folder-badge{position:absolute;top:8px;right:8px;background:rgba(13,6,16,0.85);border:1px solid rgba(255,157,199,0.3);border-radius:20px;padding:2px 8px;font-family:'JetBrains Mono',monospace;font-size:0.68em;color:var(--pink);}
+.anime-folder-locked-icon{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:2em;background:rgba(0,0,0,0.4);}
+.anime-folder-info{padding:9px 10px;}
+.anime-folder-name{font-size:0.8em;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:2px;}
+.anime-folder-sub{font-size:0.68em;color:var(--text-dim);}
+.anime-folder-progress{height:3px;background:rgba(255,157,199,0.1);border-radius:2px;margin-top:6px;}
+.anime-folder-progress-fill{height:100%;background:linear-gradient(90deg,var(--pink),var(--purple));border-radius:2px;transition:width 0.4s;}
 .filter-btn{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:4px 12px;font-family:'JetBrains Mono',monospace;font-size:0.78em;cursor:pointer;transition:all 0.2s;color:var(--text-dim);}
 .filter-btn:hover,.filter-btn.active{border-color:var(--pink);color:var(--pink);}
 .cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px;}
@@ -4158,6 +4173,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
     <div style="display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap;align-items:center;justify-content:space-between;">
       <div style="display:flex;gap:6px;">
         <button class="filter-btn active" id="ctab-cards" onclick="switchCollectionTab('cards',this)">🃏 Cards</button>
+        <button class="filter-btn" id="ctab-anime" onclick="switchCollectionTab('anime',this)">📁 Collections</button>
         <button class="filter-btn" id="ctab-inventory" onclick="switchCollectionTab('inventory',this)">🎒 Bag</button>
       </div>
       <div id="collTabStats" style="display:flex;gap:8px;">
@@ -4168,6 +4184,9 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 
     <!-- CARDS TAB -->
     <div id="collPanel-cards">
+      <div style="display:flex;gap:8px;margin-bottom:12px;align-items:center;flex-wrap:wrap;">
+        <input id="cardSearchInput_coll" class="admin-input" placeholder="🔍 Search cards..." style="flex:1;min-width:160px;padding:7px 14px;font-size:0.85em;" oninput="renderCollection()"/>
+      </div>
       <div class="coll-filter">
         <button class="filter-btn active" onclick="filterCards('all',this)">All</button>
         <button class="filter-btn" onclick="filterCards('N',this)" style="color:var(--rN);">[N]</button>
@@ -4182,11 +4201,35 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
       <div id="emptyCollection" style="text-align:center;padding:60px 20px;color:var(--text-dim);font-style:italic;">No cards yet! Head to the Pull tab to start your collection ʚɞ</div>
     </div>
 
+    <!-- ANIME COLLECTIONS TAB -->
+    <div id="collPanel-anime" style="display:none;">
+      <!-- Search -->
+      <div style="display:flex;gap:8px;margin-bottom:16px;align-items:center;">
+        <input id="animeSearchInput" class="admin-input" placeholder="🔍 Search anime..." style="flex:1;padding:7px 14px;font-size:0.85em;" oninput="renderAnimeCollections()"/>
+      </div>
+      <!-- Folders grid -->
+      <div id="animeCollGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px;">
+        <div style="grid-column:1/-1;text-align:center;color:var(--text-dim);font-style:italic;padding:40px;">Loading collections... ✦</div>
+      </div>
+      <!-- Anime detail overlay (inside the tab) -->
+      <div id="animeDetailView" style="display:none;margin-top:4px;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px;flex-wrap:wrap;">
+          <button class="btn-secondary" style="padding:7px 18px;font-size:0.82em;" onclick="closeAnimeDetail()">← Back</button>
+          <div>
+            <div id="animeDetailTitle" style="font-family:'Cinzel Decorative',serif;font-size:1em;color:var(--pink-pale);"></div>
+            <div id="animeDetailSub" style="font-size:0.75em;color:var(--text-dim);margin-top:2px;"></div>
+          </div>
+        </div>
+        <div id="animeDetailGrid" class="cards-grid"></div>
+        <div id="animeDetailEmpty" style="display:none;text-align:center;padding:40px;color:var(--text-dim);font-style:italic;">No cards from this series yet — keep pulling!</div>
+      </div>
+    </div>
+
     <!-- INVENTORY TAB -->
     <div id="collPanel-inventory" style="display:none;">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px;">
-        <div style="font-size:0.78em;color:var(--text-dim);font-style:italic;">Items collected from activities &amp; the shop</div>
-        <button class="btn-secondary" style="font-size:0.8em;padding:6px 16px;" onclick="renderInventoryPage()">🔄 Refresh</button>
+      <div style="display:flex;gap:8px;margin-bottom:12px;align-items:center;flex-wrap:wrap;">
+        <input id="inventorySearchInput" class="admin-input" placeholder="🔍 Search items..." style="flex:1;min-width:160px;padding:7px 14px;font-size:0.85em;" oninput="renderInventoryPage()"/>
+        <button class="btn-secondary" style="font-size:0.8em;padding:7px 16px;flex-shrink:0;" onclick="renderInventoryPage()">🔄</button>
       </div>
       <div id="inventoryGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;">
         <div style="grid-column:1/-1;text-align:center;color:var(--text-dim);font-style:italic;padding:40px;">Loading inventory... ✦</div>
@@ -4453,8 +4496,89 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
       <button class="filter-btn" id="atab-skins" onclick="switchAdminTab('skins',this)">🎨 Skin Manager</button>
       <button class="filter-btn" id="atab-shop" onclick="switchAdminTab('shop',this)">🛍️ Shop Manager</button>
       <button class="filter-btn" id="atab-items"     onclick="switchAdminTab('items',this)">🎁 Items</button>
+      <button class="filter-btn" id="atab-anime"     onclick="switchAdminTab('anime',this)">📁 Anime Manager</button>
       <button class="filter-btn" id="atab-tools" onclick="switchAdminTab('tools',this)">🔧 Tools</button>
     </div>
+
+<!-- ANIME MANAGER TAB -->
+<div id="adminTab-anime" style="display:none;">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start;">
+
+    <!-- Left: Anime Form -->
+    <div class="admin-panel">
+      <h3 id="animeFormTitle" style="font-family:'Cinzel Decorative',serif;font-size:0.88em;margin-bottom:16px;">📁 Add Anime Collection</h3>
+      <input type="hidden" id="animeEditId"/>
+
+      <label class="admin-label">Series Name * <span class="admin-hint">(must match exactly the series field on cards)</span></label>
+      <input class="admin-input" id="animeForm_name" placeholder="e.g. Jujutsu Kaisen" style="margin-bottom:8px;"/>
+
+      <label class="admin-label">Poster Image * <span class="admin-hint">(tall format, e.g. 3:4)</span></label>
+      <div style="display:flex;gap:8px;margin-bottom:8px;">
+        <input class="admin-input" id="animeForm_poster" placeholder="Paste URL or upload →" style="flex:1;" oninput="previewAnimeForm()"/>
+        <label class="upload-btn" title="Upload poster image" style="cursor:pointer;">
+          📁
+          <input type="file" accept="image/*" style="display:none" onchange="uploadAnimeFile(this,'animeForm_poster')"/>
+        </label>
+      </div>
+      <!-- Poster preview -->
+      <div id="animePosterPreview" style="display:none;margin-bottom:10px;width:100px;border-radius:10px;overflow:hidden;border:1px solid var(--border);">
+        <img id="animePosterImg" src="" style="width:100%;display:block;" onerror="this.parentElement.style.display='none'"/>
+      </div>
+
+      <label class="admin-label">Logo Image <span class="admin-hint">(small square icon, shown on folder)</span></label>
+      <div style="display:flex;gap:8px;margin-bottom:8px;">
+        <input class="admin-input" id="animeForm_logo" placeholder="Paste URL or upload →" style="flex:1;" oninput="previewAnimeForm()"/>
+        <label class="upload-btn" title="Upload logo" style="cursor:pointer;">
+          📁
+          <input type="file" accept="image/*" style="display:none" onchange="uploadAnimeFile(this,'animeForm_logo')"/>
+        </label>
+      </div>
+      <!-- Logo preview -->
+      <div id="animeLogoPreview" style="display:none;margin-bottom:10px;width:48px;height:48px;border-radius:8px;overflow:hidden;border:1px solid var(--border);background:#1c0f26;">
+        <img id="animeLogoImg" src="" style="width:100%;height:100%;object-fit:contain;" onerror="this.parentElement.style.display='none'"/>
+      </div>
+
+      <label class="admin-label">Sort Order <span class="admin-hint">(lower = first)</span></label>
+      <input class="admin-input" id="animeForm_sort" type="number" value="0" style="margin-bottom:14px;"/>
+
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn-primary" style="flex:1;font-size:0.8em;" onclick="submitAnimeForm()">📁 Save</button>
+        <button class="btn-secondary" id="animeCancelBtn" style="display:none;font-size:0.8em;" onclick="cancelAnimeEdit()">✕ Cancel</button>
+      </div>
+
+      <!-- Live folder preview -->
+      <div style="border-top:1px solid var(--border);margin-top:16px;padding-top:14px;">
+        <div class="admin-section-label" style="margin-bottom:10px;">Folder Preview</div>
+        <div id="animeFolderPreview" style="width:160px;">
+          <div class="anime-folder" style="pointer-events:none;">
+            <div style="position:relative;">
+              <img id="prevPosterImg" src="" alt="" class="anime-folder-poster" style="display:none;"/>
+              <div id="prevPosterPlaceholder" style="width:100%;aspect-ratio:3/4;background:linear-gradient(135deg,rgba(255,157,199,0.08),rgba(192,132,184,0.08));display:flex;align-items:center;justify-content:center;color:var(--text-dim);font-size:0.78em;">poster</div>
+              <img id="prevLogoImg" src="" alt="" class="anime-folder-logo" style="display:none;"/>
+              <div class="anime-folder-badge" id="prevBadge">0/0</div>
+            </div>
+            <div class="anime-folder-info">
+              <div class="anime-folder-name" id="prevFolderName">Series Name</div>
+              <div class="anime-folder-sub" id="prevFolderSub">0 total cards</div>
+              <div class="anime-folder-progress"><div class="anime-folder-progress-fill" id="prevProgress" style="width:0%"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: Anime list -->
+    <div class="admin-panel">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <h3 style="font-family:'Cinzel Decorative',serif;font-size:0.85em;">All Collections <span id="adminAnimeCount" style="color:var(--text-dim);font-size:0.8em;"></span></h3>
+        <button class="btn-secondary" style="font-size:0.75em;padding:4px 12px;" onclick="loadAdminAnimeList()">↺ Refresh</button>
+      </div>
+      <div id="adminAnimeList">
+        <div style="color:var(--text-dim);font-style:italic;font-size:0.85em;text-align:center;padding:20px;">No anime collections yet.</div>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- ITEMS MANAGER TAB -->
 <div id="adminTab-items" style="display:none;">
@@ -7058,11 +7182,18 @@ function renderCollection(){
   const empty=document.getElementById('emptyCollection');
   const owned=[...new Set(state.collection)];
   const counts={};state.collection.forEach(id=>{counts[id]=(counts[id]||0)+1;});
+  const searchQ=(document.getElementById('cardSearchInput_coll')?.value||'').toLowerCase().trim();
   let filtered=owned;
   if(currentFilter!=='all'){
     const rMap={N:1,R:2,SR:3,SSR:4,UR:5,LR:6,S:7};
     const r=rMap[currentFilter];
     filtered=owned.filter(id=>{const c=(window.DEMO_CARDS||DEMO_CARDS).find(x=>x.id===id);return c&&c.rarity===r;});
+  }
+  if(searchQ){
+    filtered=filtered.filter(id=>{
+      const c=(window.DEMO_CARDS||DEMO_CARDS).find(x=>x.id===id);
+      return c&&(c.name.toLowerCase().includes(searchQ)||c.series.toLowerCase().includes(searchQ));
+    });
   }
   document.getElementById('collTotal').textContent=`${state.collection.length} pulls`;
   document.getElementById('collUniq').textContent=`${owned.length} unique`;
@@ -10126,7 +10257,7 @@ function showAdminNav(){
 }
 
 function switchAdminTab(tab, btn){
-  ['cards','banners','skins','shop','tools','items','evolution'].forEach(t=>{
+  ['cards','banners','skins','shop','tools','items','evolution','anime'].forEach(t=>{
     const el=document.getElementById('adminTab-'+t);
     const b=document.getElementById('atab-'+t);
     if(el)el.style.display=t===tab?'block':'none';
@@ -10137,6 +10268,7 @@ function switchAdminTab(tab, btn){
   if(tab==='shop') { populateShopSkinSelect(); loadAdminShopItems(); populateShopItemDropdown(); loadAdminShopListings(); }
   if(tab==='items') { loadAdminItemList(); }
   if(tab==='cards') { loadAdminEvoList(); toggleEvoFields(); populateEvoCardDropdowns(); populateEvoItemDropdown(); }
+  if(tab==='anime') { loadAdminAnimeList(); }
 }
 
 // ── Upload file to Supabase Storage ──
@@ -14616,7 +14748,14 @@ async function renderInventoryPage() {
 
   await loadPlayerInventory();
 
-  const keys = Object.keys(window.PLAYER_INVENTORY).filter(k => window.PLAYER_INVENTORY[k] > 0);
+  const searchQ = (document.getElementById('inventorySearchInput')?.value||'').toLowerCase().trim();
+  let keys = Object.keys(window.PLAYER_INVENTORY).filter(k => window.PLAYER_INVENTORY[k] > 0);
+  if(searchQ) {
+    keys = keys.filter(key => {
+      const item = window.GAME_ITEMS.find(i => i.item_key === key);
+      return key.toLowerCase().includes(searchQ) || (item && item.name.toLowerCase().includes(searchQ));
+    });
+  }
 
   if(!keys.length) {
     grid.innerHTML = '';
@@ -15389,7 +15528,7 @@ async function deleteAdminEvo(evoId, baseCardId) {
 <script>
 // ── Collection page tab switcher ──
 function switchCollectionTab(tab, btn) {
-  ['cards','inventory'].forEach(t => {
+  ['cards','anime','inventory'].forEach(t => {
     const panel = document.getElementById('collPanel-' + t);
     const tabBtn = document.getElementById('ctab-' + t);
     if(panel) panel.style.display = t === tab ? '' : 'none';
@@ -15398,6 +15537,7 @@ function switchCollectionTab(tab, btn) {
   const stats = document.getElementById('collTabStats');
   if(stats) stats.style.display = tab === 'cards' ? 'flex' : 'none';
   if(tab === 'inventory') renderInventoryPage();
+  if(tab === 'anime') renderAnimeCollections();
 }
 
 // ── Populate card dropdowns in the Evolution panel ──
@@ -15487,3 +15627,346 @@ document.addEventListener('DOMContentLoaded', () => {
   }, 1200);
 });
 </script>
+<script>
+// ══════════════════════════════════════════════════════════════
+// ANIME COLLECTIONS SYSTEM
+// ══════════════════════════════════════════════════════════════
+
+window.ANIME_COLLECTIONS = [];   // loaded from DB
+
+// ── Load anime collections from DB ──
+async function loadAnimeCollections() {
+  try {
+    const rows = await sb.getAll('anime_collections');
+    window.ANIME_COLLECTIONS = (rows||[]).sort((a,b)=>(a.sort_order||0)-(b.sort_order||0));
+  } catch(e) {
+    window.ANIME_COLLECTIONS = [];
+    console.warn('[anime] Table not found — run the anime SQL migration first.', e);
+  }
+}
+
+// ── Render the anime folder grid ──
+function renderAnimeCollections() {
+  const grid  = document.getElementById('animeCollGrid');
+  const detail = document.getElementById('animeDetailView');
+  if(!grid) return;
+  if(detail) detail.style.display = 'none';
+  grid.style.display = '';
+
+  const searchQ = (document.getElementById('animeSearchInput')?.value||'').toLowerCase().trim();
+  const allCards = window.DEMO_CARDS || DEMO_CARDS || [];
+  const owned = new Set(state.collection);
+
+  // Build from DB collections
+  let collections = window.ANIME_COLLECTIONS;
+
+  // Also auto-detect series from cards not in any collection
+  const definedSeries = new Set(collections.map(a => a.name.toLowerCase()));
+  const extraSeries = {};
+  allCards.forEach(c => {
+    if(c.series && !definedSeries.has(c.series.toLowerCase())) {
+      extraSeries[c.series] = extraSeries[c.series] || { name: c.series, poster_url:'', logo_url:'', sort_order: 999, _auto: true };
+    }
+  });
+  const allCollections = [...collections, ...Object.values(extraSeries)];
+
+  let filtered = allCollections;
+  if(searchQ) filtered = allCollections.filter(a => a.name.toLowerCase().includes(searchQ));
+
+  if(!filtered.length) {
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--text-dim);font-style:italic;padding:40px;">No anime collections found ʚɞ</div>';
+    return;
+  }
+
+  grid.innerHTML = filtered.map(anime => {
+    const seriesCards = allCards.filter(c => c.series && c.series.toLowerCase() === anime.name.toLowerCase());
+    const totalCards  = seriesCards.length;
+    const ownedCards  = seriesCards.filter(c => owned.has(c.id)).length;
+    const isLocked    = ownedCards === 0;
+    const pct         = totalCards ? Math.round((ownedCards/totalCards)*100) : 0;
+    const safeName    = escapeHtml(anime.name);
+
+    return `<div class="anime-folder${isLocked?' locked':''}" onclick="openAnimeDetail('${safeName}')">
+      <div style="position:relative;">
+        ${anime.poster_url
+          ? `<img src="${escapeHtml(anime.poster_url)}" class="anime-folder-poster" alt="${safeName}" loading="lazy" onerror="this.style.background='#1c0f26'"/>`
+          : `<div class="anime-folder-poster" style="display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,rgba(255,157,199,0.06),rgba(192,132,184,0.08));"><span style="font-size:2.5em;opacity:0.3;">📺</span></div>`
+        }
+        ${anime.logo_url ? `<img src="${escapeHtml(anime.logo_url)}" class="anime-folder-logo" alt="logo" onerror="this.style.display='none'"/>` : ''}
+        <div class="anime-folder-badge">${ownedCards}/${totalCards}</div>
+        ${isLocked ? `<div class="anime-folder-locked-icon">🔒</div>` : ''}
+      </div>
+      <div class="anime-folder-info">
+        <div class="anime-folder-name">${safeName}</div>
+        <div class="anime-folder-sub">${isLocked ? 'Not started' : `${pct}% complete`}</div>
+        <div class="anime-folder-progress">
+          <div class="anime-folder-progress-fill" style="width:${pct}%"></div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── Open a specific anime's card detail ──
+function openAnimeDetail(seriesName) {
+  const grid   = document.getElementById('animeCollGrid');
+  const detail = document.getElementById('animeDetailView');
+  const dGrid  = document.getElementById('animeDetailGrid');
+  const dEmpty = document.getElementById('animeDetailEmpty');
+  if(!detail || !dGrid) return;
+
+  const allCards = window.DEMO_CARDS || DEMO_CARDS || [];
+  const owned    = new Set(state.collection);
+  const counts   = {};
+  state.collection.forEach(id => { counts[id] = (counts[id]||0)+1; });
+
+  const seriesCards = allCards.filter(c => c.series && c.series.toLowerCase() === seriesName.toLowerCase());
+  const ownedCount  = seriesCards.filter(c => owned.has(c.id)).length;
+
+  document.getElementById('animeDetailTitle').textContent = seriesName;
+  document.getElementById('animeDetailSub').textContent   = `${ownedCount} / ${seriesCards.length} cards collected`;
+
+  if(grid) grid.style.display = 'none';
+  detail.style.display = '';
+
+  if(!seriesCards.length) {
+    dGrid.innerHTML = '';
+    dEmpty.style.display = 'block';
+    return;
+  }
+  dEmpty.style.display = 'none';
+
+  // Sort: owned first, then locked
+  const sorted = [...seriesCards].sort((a,b) => {
+    const aO = owned.has(a.id) ? 0 : 1;
+    const bO = owned.has(b.id) ? 0 : 1;
+    if(aO !== bO) return aO - bO;
+    return (b.rarity||0) - (a.rarity||0);
+  });
+
+  dGrid.innerHTML = sorted.map(c => {
+    const isOwned  = owned.has(c.id);
+    const color    = RARITY_COLORS[c.rarity] || '#bdc3c7';
+    const thumbSrc = getCardThumbnail(c);
+    const xp       = state.xpMap[c.id]||0;
+    const lvl      = calcLevel(xp);
+    const cnt      = counts[c.id]||0;
+
+    if(!isOwned) {
+      // Locked card — greyed silhouette
+      return `<div class="card-thumb" style="opacity:0.35;filter:grayscale(1);cursor:default;pointer-events:none;">
+        <img src="${thumbSrc}" alt="${escapeHtml(c.name)}" loading="lazy" style="filter:brightness(0.3);"/>
+        <span class="card-thumb-badge" style="color:${color};">${c.rarityName}</span>
+        <div class="card-thumb-info">
+          <div class="card-thumb-name">???</div>
+          <div class="card-thumb-rarity" style="color:${color};">🔒 ${c.rarityName}</div>
+        </div>
+      </div>`;
+    }
+
+    // Owned card — normal thumb
+    const isEquipped = state.equippedId === c.id;
+    const isRainbow  = c.rarity === 7;
+    const rarityDisplay = isRainbow
+      ? `<span class="rarity-rainbow">${c.rarityStars}${cnt>1?` ×${cnt}`:''}</span>`
+      : `<span style="color:${color}">${c.rarityStars}${cnt>1?` ×${cnt}`:''}</span>`;
+    return `<div class="card-thumb${isRainbow?' rainbow-card':''}" onclick="openCard('${c.id}')">
+      <img src="${thumbSrc}" alt="${escapeHtml(c.name)}" loading="lazy" onerror="this.style.background='#1c0f26'"/>
+      <span class="card-thumb-badge" style="color:${color};">${c.rarityName}</span>
+      <span class="card-thumb-lvl">Lv.${lvl}</span>
+      <div class="card-thumb-info">
+        <div class="card-thumb-name">${isEquipped?'⚔️ ':''}${escapeHtml(c.name)}</div>
+        <div class="card-thumb-rarity">${rarityDisplay}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function closeAnimeDetail() {
+  document.getElementById('animeDetailView').style.display = 'none';
+  document.getElementById('animeCollGrid').style.display = '';
+}
+
+
+// ══════════════════════════════════════════════════════════════
+// ADMIN — ANIME MANAGER
+// ══════════════════════════════════════════════════════════════
+
+let _adminAnimeCache = [];
+
+function previewAnimeForm() {
+  const poster = document.getElementById('animeForm_poster')?.value||'';
+  const logo   = document.getElementById('animeForm_logo')?.value||'';
+  const name   = document.getElementById('animeForm_name')?.value||'Series Name';
+
+  // Poster preview
+  const pp = document.getElementById('animePosterPreview');
+  const pi = document.getElementById('animePosterImg');
+  if(poster && pp && pi) { pi.src=poster; pp.style.display=''; }
+  else if(pp) pp.style.display='none';
+
+  // Logo preview
+  const lp = document.getElementById('animeLogoPreview');
+  const li = document.getElementById('animeLogoImg');
+  if(logo && lp && li) { li.src=logo; lp.style.display=''; }
+  else if(lp) lp.style.display='none';
+
+  // Folder preview
+  const prevPoster = document.getElementById('prevPosterImg');
+  const prevPlaceholder = document.getElementById('prevPosterPlaceholder');
+  const prevLogo   = document.getElementById('prevLogoImg');
+  const prevName   = document.getElementById('prevFolderName');
+  const prevSub    = document.getElementById('prevFolderSub');
+
+  if(prevPoster) { prevPoster.src=poster; prevPoster.style.display=poster?'':'none'; }
+  if(prevPlaceholder) prevPlaceholder.style.display=poster?'none':'';
+  if(prevLogo) { prevLogo.src=logo; prevLogo.style.display=logo?'':'none'; }
+  if(prevName) prevName.textContent=name;
+
+  // Count total cards for this series
+  const allCards = window.DEMO_CARDS||DEMO_CARDS||[];
+  const total = allCards.filter(c=>c.series&&c.series.toLowerCase()===name.toLowerCase()).length;
+  if(prevSub) prevSub.textContent=`${total} total cards`;
+  const badge=document.getElementById('prevBadge');
+  if(badge) badge.textContent=`0/${total}`;
+}
+
+async function uploadAnimeFile(input, targetId) {
+  const file = input.files[0];
+  if(!file) return;
+  try {
+    const url = await uploadToStorage(file, 'anime');
+    const el = document.getElementById(targetId);
+    if(el) { el.value = url; previewAnimeForm(); }
+  } catch(e) { showToast('❌ Upload failed: ' + e.message); }
+}
+
+async function submitAnimeForm() {
+  if(!checkAdmin()) return;
+  const name = (document.getElementById('animeForm_name')?.value||'').trim();
+  if(!name) { showToast('Series name is required!'); return; }
+
+  const data = {
+    name,
+    poster_url:  document.getElementById('animeForm_poster')?.value||'',
+    logo_url:    document.getElementById('animeForm_logo')?.value||'',
+    sort_order:  parseInt(document.getElementById('animeForm_sort')?.value)||0,
+  };
+
+  try {
+    const editId = document.getElementById('animeEditId')?.value;
+    if(editId) {
+      await sb.update('anime_collections', data, { id: editId });
+    } else {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/anime_collections`, {
+        method: 'POST',
+        headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer '+SUPABASE_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+        body: JSON.stringify(data)
+      });
+      if(!res.ok) { const b=await res.json().catch(()=>null); showToast('❌ '+(b?.message||`HTTP ${res.status}`)); return; }
+    }
+    showToast(`✅ "${name}" saved!`);
+    cancelAnimeEdit();
+    await loadAdminAnimeList();
+    await loadAnimeCollections();
+  } catch(e) { showToast('❌ '+e.message); }
+}
+
+function cancelAnimeEdit() {
+  document.getElementById('animeEditId').value    = '';
+  document.getElementById('animeForm_name').value = '';
+  document.getElementById('animeForm_poster').value = '';
+  document.getElementById('animeForm_logo').value   = '';
+  document.getElementById('animeForm_sort').value   = '0';
+  document.getElementById('animeFormTitle').textContent = '📁 Add Anime Collection';
+  const cb = document.getElementById('animeCancelBtn');
+  if(cb) cb.style.display = 'none';
+  previewAnimeForm();
+}
+
+async function loadAdminAnimeList() {
+  const el = document.getElementById('adminAnimeList');
+  if(!el) return;
+  try {
+    _adminAnimeCache = await sb.getAll('anime_collections') || [];
+    _adminAnimeCache.sort((a,b)=>(a.sort_order||0)-(b.sort_order||0));
+    const cnt = document.getElementById('adminAnimeCount');
+    if(cnt) cnt.textContent = `(${_adminAnimeCache.length})`;
+  } catch(e) {
+    el.innerHTML = '<div style="color:#e74c3c;font-size:0.82em;padding:14px;text-align:center;">⚠️ Run the anime SQL migration first.</div>';
+    return;
+  }
+  if(!_adminAnimeCache.length) {
+    el.innerHTML = '<div style="color:var(--text-dim);font-style:italic;font-size:0.82em;text-align:center;padding:14px;">No collections yet.</div>';
+    return;
+  }
+  const allCards = window.DEMO_CARDS||DEMO_CARDS||[];
+  el.innerHTML = _adminAnimeCache.map(anime => {
+    const total = allCards.filter(c=>c.series&&c.series.toLowerCase()===anime.name.toLowerCase()).length;
+    return `<div style="border:1px solid var(--border);border-radius:10px;padding:9px 12px;margin-bottom:7px;display:flex;align-items:center;gap:10px;">
+      ${anime.poster_url ? `<img src="${escapeHtml(anime.poster_url)}" style="width:36px;height:50px;object-fit:cover;border-radius:6px;flex-shrink:0;" onerror="this.style.display='none'"/>` : '<div style="width:36px;height:50px;background:rgba(255,157,199,0.08);border-radius:6px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1.2em;">📺</div>'}
+      ${anime.logo_url ? `<img src="${escapeHtml(anime.logo_url)}" style="width:28px;height:28px;object-fit:contain;border-radius:5px;background:#1c0f26;flex-shrink:0;" onerror="this.style.display='none'"/>` : ''}
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:0.84em;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(anime.name)}</div>
+        <div style="font-size:0.68em;color:var(--text-dim);">Sort: ${anime.sort_order||0} · ${total} card${total!==1?'s':''} linked</div>
+      </div>
+      <div style="display:flex;gap:5px;flex-shrink:0;">
+        <button class="admin-action-btn" onclick="editAdminAnime('${anime.id}')">✏️</button>
+        <button class="admin-action-btn danger" onclick="deleteAdminAnime('${anime.id}','${escapeHtml(anime.name).replace(/'/g,"\\'")}')">🗑️</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function editAdminAnime(animeId) {
+  const anime = _adminAnimeCache.find(a => a.id === animeId);
+  if(!anime) return;
+  document.getElementById('animeEditId').value      = anime.id;
+  document.getElementById('animeForm_name').value   = anime.name;
+  document.getElementById('animeForm_poster').value = anime.poster_url||'';
+  document.getElementById('animeForm_logo').value   = anime.logo_url||'';
+  document.getElementById('animeForm_sort').value   = anime.sort_order||0;
+  document.getElementById('animeFormTitle').textContent = '✏️ Edit Collection';
+  const cb = document.getElementById('animeCancelBtn');
+  if(cb) cb.style.display = '';
+  previewAnimeForm();
+  document.getElementById('animeFormTitle').scrollIntoView({behavior:'smooth'});
+}
+
+async function deleteAdminAnime(animeId, animeName) {
+  if(!checkAdmin()) return;
+  if(!confirm(`Delete collection "${animeName}"?`)) return;
+  await sb.delete('anime_collections', { id: animeId });
+  showToast(`🗑️ "${animeName}" deleted`);
+  await loadAdminAnimeList();
+  await loadAnimeCollections();
+}
+
+// ── Extend loadAll to also load anime collections ──
+const _origLoadAll_anime = typeof loadAll === 'function' ? loadAll : null;
+if(_origLoadAll_anime) {
+  window.loadAll = async function(discordId) {
+    await _origLoadAll_anime(discordId);
+    await loadAnimeCollections();
+  };
+}
+
+// Pre-load on page startup
+document.addEventListener('DOMContentLoaded', () => {
+  setTimeout(() => loadAnimeCollections(), 800);
+});
+</script>
+
+<!-- ANIME COLLECTIONS SQL MIGRATION (run once in Supabase SQL Editor):
+CREATE TABLE IF NOT EXISTS anime_collections (
+  id          uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  name        text UNIQUE NOT NULL,
+  poster_url  text DEFAULT '',
+  logo_url    text DEFAULT '',
+  sort_order  int DEFAULT 0,
+  created_at  timestamptz DEFAULT now()
+);
+ALTER TABLE anime_collections ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "anon_read_anime"  ON anime_collections FOR SELECT USING (true);
+CREATE POLICY "anon_write_anime" ON anime_collections FOR ALL    USING (true);
+-->
