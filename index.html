@@ -4797,69 +4797,6 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   </div>
 </div>
 
-<!-- EVOLUTION MANAGER TAB -->
-<div id="adminTab-evolution" style="display:none;">
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start;">
-
-    <!-- Left: Evolution Form -->
-    <div class="admin-panel">
-      <h3 style="font-family:'Cinzel Decorative',serif;font-size:0.88em;margin-bottom:16px;">🔮 Set Card Evolution</h3>
-      <input type="hidden" id="evoEditId"/>
-
-      <label class="admin-label">Base Card <span class="admin-hint">(the card that evolves)</span></label>
-      <select class="admin-input" id="evoForm_baseCard" onchange="updateEvoPreview()" style="margin-bottom:8px;">
-        <option value="">— select base card —</option>
-      </select>
-
-      <label class="admin-label">Target Card <span class="admin-hint">(the card it becomes)</span></label>
-      <select class="admin-input" id="evoForm_targetCard" onchange="updateEvoPreview()" style="margin-bottom:8px;">
-        <option value="">— select target card —</option>
-      </select>
-
-      <label class="admin-label">Evolution Type</label>
-      <select class="admin-input" id="evoForm_type" onchange="toggleEvoFields()" style="margin-bottom:8px;">
-        <option value="none">None (disable evolution)</option>
-        <option value="level">Level Only</option>
-        <option value="level_item">Level + Item</option>
-      </select>
-
-      <div id="evoLevelWrap" style="display:none;margin-bottom:8px;">
-        <label class="admin-label">Required Level (1–10)</label>
-        <input class="admin-input" id="evoForm_level" type="number" min="1" max="10" value="5" placeholder="5"/>
-      </div>
-
-      <div id="evoItemWrap" style="display:none;margin-bottom:8px;">
-        <label class="admin-label">Required Item</label>
-        <select class="admin-input" id="evoForm_item">
-          <option value="">— select item —</option>
-        </select>
-      </div>
-
-      <!-- Visual preview -->
-      <div id="evoPreviewBox" style="background:rgba(255,157,199,0.05);border:1px solid var(--border);border-radius:12px;padding:12px;margin:10px 0;display:none;text-align:center;">
-        <div style="font-size:0.75em;color:var(--text-dim);margin-bottom:6px;">Preview</div>
-        <div id="evoPreviewContent" style="display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;"></div>
-      </div>
-
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;">
-        <button class="btn-primary" style="flex:1;font-size:0.8em;" onclick="submitEvolutionForm()">🔮 Save Evolution</button>
-        <button class="btn-secondary" id="evoCancelBtn" style="display:none;font-size:0.8em;" onclick="cancelEvoEdit()">✕ Cancel</button>
-      </div>
-    </div>
-
-    <!-- Right: Evolution list -->
-    <div class="admin-panel">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-        <h3 style="font-family:'Cinzel Decorative',serif;font-size:0.85em;">Configured Evolutions <span id="adminEvoCount" style="color:var(--text-dim);font-size:0.8em;"></span></h3>
-        <button class="btn-secondary" style="font-size:0.75em;padding:4px 12px;" onclick="loadAdminEvoList()">↺ Refresh</button>
-      </div>
-      <div id="adminEvoList">
-        <div style="color:var(--text-dim);font-style:italic;font-size:0.85em;text-align:center;padding:20px;">No evolutions set yet.</div>
-      </div>
-    </div>
-  </div>
-</div>
-
     <!-- CARD MANAGER TAB -->
     <div id="adminTab-cards">
       <div class="admin-card-editor-grid">
@@ -4999,55 +4936,66 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
             </div>
           </div>
 
-          <!-- EVOLUTION PANEL (embedded in Card Manager) -->
-          <div class="admin-panel" style="margin-top:16px;border-color:rgba(192,132,184,0.3);">
-            <h3 style="font-family:'Cinzel Decorative',serif;font-size:0.85em;margin-bottom:14px;color:#c084b8;">🔮 Card Evolution</h3>
+          <!-- EVOLUTION PANEL (embedded in Card Manager — unique IDs: ce_evo_*) -->
+          <div class="admin-panel" style="margin-top:16px;border-color:rgba(192,132,184,0.35);background:rgba(192,132,184,0.03);">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
+              <h3 style="font-family:'Cinzel Decorative',serif;font-size:0.85em;color:#c084b8;margin:0;">🔮 Evolution Setup</h3>
+              <span id="ce_evo_currentCard" style="font-size:0.72em;font-family:'JetBrains Mono',monospace;color:var(--text-dim);background:rgba(192,132,184,0.1);border:1px solid rgba(192,132,184,0.2);border-radius:20px;padding:2px 10px;">no card selected</span>
+            </div>
+            <input type="hidden" id="ce_evo_editId"/>
+
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
               <div>
-                <label class="admin-label">Base Card</label>
-                <select class="admin-input" id="evoForm_baseCard" onchange="updateEvoPreview()">
-                  <option value="">— select —</option>
+                <label class="admin-label">Base Card <span class="admin-hint">(evolves from)</span></label>
+                <select class="admin-input" id="ce_evo_baseCard" onchange="ceEvoUpdatePreview()">
+                  <option value="">— select card —</option>
                 </select>
               </div>
               <div>
                 <label class="admin-label">Evolves Into</label>
-                <select class="admin-input" id="evoForm_targetCard" onchange="updateEvoPreview()">
-                  <option value="">— select —</option>
+                <select class="admin-input" id="ce_evo_targetCard" onchange="ceEvoUpdatePreview()">
+                  <option value="">— select card —</option>
                 </select>
               </div>
             </div>
-            <input type="hidden" id="evoEditId"/>
-            <label class="admin-label">Type</label>
-            <select class="admin-input" id="evoForm_type" onchange="toggleEvoFields()" style="margin-bottom:8px;">
-              <option value="none">None (disabled)</option>
-              <option value="level">Level Only</option>
-              <option value="level_item">Level + Item</option>
+
+            <label class="admin-label">Evolution Condition</label>
+            <select class="admin-input" id="ce_evo_type" onchange="ceEvoToggleFields()" style="margin-bottom:8px;">
+              <option value="none">❌ None (no evolution)</option>
+              <option value="level">📈 Level Only — reach a certain level</option>
+              <option value="level_item">📈+🎁 Level + Item — level AND use an item</option>
             </select>
-            <div id="evoLevelWrap" style="display:none;margin-bottom:8px;">
-              <label class="admin-label">Required Level (1–10)</label>
-              <input class="admin-input" id="evoForm_level" type="number" min="1" max="10" value="5"/>
+
+            <div id="ce_evo_levelWrap" style="display:none;margin-bottom:8px;">
+              <label class="admin-label">Required Level <span class="admin-hint">(1–10)</span></label>
+              <input class="admin-input" id="ce_evo_level" type="number" min="1" max="10" value="5"/>
             </div>
-            <div id="evoItemWrap" style="display:none;margin-bottom:8px;">
+            <div id="ce_evo_itemWrap" style="display:none;margin-bottom:8px;">
               <label class="admin-label">Required Item</label>
-              <select class="admin-input" id="evoForm_item">
+              <select class="admin-input" id="ce_evo_item">
                 <option value="">— select item —</option>
               </select>
             </div>
-            <div id="evoPreviewBox" style="background:rgba(192,132,184,0.05);border:1px solid var(--border);border-radius:10px;padding:10px;margin:8px 0;display:none;text-align:center;">
-              <div style="font-size:0.72em;color:var(--text-dim);margin-bottom:5px;">Preview</div>
-              <div id="evoPreviewContent" style="display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;"></div>
+
+            <!-- Visual preview -->
+            <div id="ce_evo_previewBox" style="background:rgba(192,132,184,0.05);border:1px solid rgba(192,132,184,0.2);border-radius:10px;padding:10px;margin:8px 0;display:none;text-align:center;">
+              <div style="font-size:0.7em;color:var(--text-dim);margin-bottom:6px;">Evolution Preview</div>
+              <div id="ce_evo_previewContent" style="display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;"></div>
             </div>
-            <div style="display:flex;gap:8px;margin-top:8px;">
-              <button class="btn-primary" style="flex:1;font-size:0.8em;" onclick="submitEvolutionForm()">🔮 Save</button>
-              <button class="btn-secondary" id="evoCancelBtn" style="display:none;font-size:0.8em;" onclick="cancelEvoEdit()">✕</button>
+
+            <div style="display:flex;gap:8px;margin-top:10px;">
+              <button class="btn-primary" style="flex:1;font-size:0.8em;" onclick="ceEvoSubmit()">🔮 Save Evolution</button>
+              <button class="btn-secondary" id="ce_evo_cancelBtn" style="display:none;font-size:0.8em;" onclick="ceEvoCancel()">✕ Clear</button>
             </div>
-            <div style="border-top:1px solid var(--border);margin-top:12px;padding-top:10px;">
+
+            <!-- Configured evolutions list -->
+            <div style="border-top:1px solid rgba(192,132,184,0.2);margin-top:14px;padding-top:12px;">
               <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-                <div class="admin-section-label" style="margin:0;">Configured <span id="adminEvoCount" style="color:var(--text-dim);font-size:0.85em;"></span></div>
-                <button class="btn-secondary" style="font-size:0.7em;padding:3px 10px;" onclick="loadAdminEvoList()">↺</button>
+                <div class="admin-section-label" style="margin:0;color:#c084b8;">All Evolutions <span id="ce_evo_count" style="color:var(--text-dim);font-size:0.85em;"></span></div>
+                <button class="btn-secondary" style="font-size:0.7em;padding:3px 10px;" onclick="ceEvoLoadList()">↺ Refresh</button>
               </div>
-              <div id="adminEvoList">
-                <div style="color:var(--text-dim);font-style:italic;font-size:0.82em;text-align:center;padding:12px;">None yet.</div>
+              <div id="ce_evo_list">
+                <div style="color:var(--text-dim);font-style:italic;font-size:0.82em;text-align:center;padding:12px;">Click ↺ to load</div>
               </div>
             </div>
           </div>
@@ -10382,7 +10330,7 @@ function showAdminNav(){
 }
 
 function switchAdminTab(tab, btn){
-  ['cards','banners','skins','shop','tools','items','evolution','anime'].forEach(t=>{
+  ['cards','banners','skins','shop','tools','items','anime'].forEach(t=>{
     const el=document.getElementById('adminTab-'+t);
     const b=document.getElementById('atab-'+t);
     if(el)el.style.display=t===tab?'block':'none';
@@ -15590,154 +15538,11 @@ async function adminGiveItemToSelf() {
 
 
 // ══════════════════════════════════════════════════════════════
-// ADMIN — EVOLUTION MANAGER
+// ADMIN — EVOLUTION MANAGER (legacy stubs — real logic in ceEvo* below)
 // ══════════════════════════════════════════════════════════════
-
+// All old functions replaced by ceEvo* aliases defined later in this file.
+// These stubs are here to avoid any reference errors on load order.
 let _adminEvoCache = [];
-
-function toggleEvoFields() {
-  const type = document.getElementById('evoForm_type')?.value;
-  const lw = document.getElementById('evoLevelWrap');
-  const iw = document.getElementById('evoItemWrap');
-  if(lw) lw.style.display = (type === 'level' || type === 'level_item') ? '' : 'none';
-  if(iw) iw.style.display = (type === 'level_item') ? '' : 'none';
-  updateEvoPreview();
-}
-
-function updateEvoPreview() {
-  const baseId   = (document.getElementById('evoForm_baseCard')?.value||'').trim();
-  const targetId = (document.getElementById('evoForm_targetCard')?.value||'').trim();
-  const box      = document.getElementById('evoPreviewBox');
-  const content  = document.getElementById('evoPreviewContent');
-  if(!box || !content) return;
-
-  const base   = (window.DEMO_CARDS||DEMO_CARDS).find(c => c.id === baseId);
-  const target = (window.DEMO_CARDS||DEMO_CARDS).find(c => c.id === targetId);
-
-  if(base || target) {
-    box.style.display = '';
-    const makeThumb = (c, label) => c
-      ? `<div style="text-align:center;"><img src="${c.image}" style="width:56px;height:80px;object-fit:cover;border-radius:8px;border:2px solid ${RARITY_COLORS[c.rarity]||'#bdc3c7'};display:block;margin:0 auto 4px;" onerror="this.style.display='none'"/><div style="font-size:0.68em;color:var(--text-dim);">${c.name}</div></div>`
-      : `<div style="width:56px;height:80px;border:2px dashed var(--border);border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--text-dim);font-size:0.7em;">${label}</div>`;
-    content.innerHTML = makeThumb(base,'base') + '<span style="font-size:1.5em;color:var(--pink);">→</span>' + makeThumb(target,'target');
-  } else {
-    box.style.display = 'none';
-  }
-}
-
-async function submitEvolutionForm() {
-  if(!checkAdmin()) return;
-  const baseId   = (document.getElementById('evoForm_baseCard')?.value||'').trim();
-  const targetId = (document.getElementById('evoForm_targetCard')?.value||'').trim();
-  const type     = document.getElementById('evoForm_type')?.value || 'none';
-  if(!baseId || !targetId) { showToast('Base and target card IDs are required!'); return; }
-
-  const data = {
-    base_card_id:   baseId,
-    target_card_id: targetId,
-    evolution_type: type,
-    required_level: type !== 'none' ? (parseInt(document.getElementById('evoForm_level')?.value)||1) : 1,
-    required_item:  type === 'level_item' ? ((document.getElementById('evoForm_item')?.value||'').trim()||null) : null,
-    is_active: true,
-  };
-
-  try {
-    const editId = document.getElementById('evoEditId')?.value;
-    if(editId) {
-      await sb.update('card_evolutions', data, { id: editId });
-    } else {
-      const res = await fetch(`${SUPABASE_URL}/rest/v1/card_evolutions`, {
-        method: 'POST',
-        headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer '+SUPABASE_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
-        body: JSON.stringify(data)
-      });
-      if(!res.ok) { const b = await res.json().catch(()=>null); showToast('❌ ' + (b?.message||`HTTP ${res.status}`)); return; }
-    }
-    showToast(`✅ Evolution for "${baseId}" saved!`);
-    cancelEvoEdit();
-    await loadAdminEvoList();
-    await loadEvolutions();
-  } catch(e) { showToast('❌ ' + e.message); }
-}
-
-function cancelEvoEdit() {
-  document.getElementById('evoEditId').value       = '';
-  document.getElementById('evoForm_baseCard').value  = '';
-  document.getElementById('evoForm_targetCard').value = '';
-  document.getElementById('evoForm_type').value    = 'none';
-  document.getElementById('evoForm_level').value   = '5';
-  document.getElementById('evoForm_item').value    = '';
-  toggleEvoFields();
-  document.getElementById('evoPreviewBox').style.display = 'none';
-  const cb = document.getElementById('evoCancelBtn');
-  if(cb) cb.style.display = 'none';
-}
-
-async function loadAdminEvoList() {
-  const el = document.getElementById('adminEvoList');
-  if(!el) return;
-  try {
-    _adminEvoCache = await sb.getAll('card_evolutions') || [];
-    const cnt = document.getElementById('adminEvoCount');
-    if(cnt) cnt.textContent = `(${_adminEvoCache.length})`;
-  } catch(e) {
-    el.innerHTML = '<div style="color:#e74c3c;font-size:0.82em;padding:14px;text-align:center;">⚠️ Run evolution_migration.sql first.</div>';
-    return;
-  }
-  if(!_adminEvoCache.length) {
-    el.innerHTML = '<div style="color:var(--text-dim);font-style:italic;font-size:0.82em;text-align:center;padding:14px;">No evolutions configured yet.</div>';
-    return;
-  }
-  const TYPE_LABELS = { none:'🚫 None', level:'📈 Level', level_item:'📈+🎁 Level+Item' };
-  el.innerHTML = _adminEvoCache.map(evo => {
-    const base   = (window.DEMO_CARDS||DEMO_CARDS).find(c => c.id === evo.base_card_id);
-    const target = (window.DEMO_CARDS||DEMO_CARDS).find(c => c.id === evo.target_card_id);
-    const active = evo.is_active && evo.evolution_type !== 'none';
-    return `<div style="border:1px solid ${active?'rgba(192,132,184,0.3)':'var(--border)'};border-radius:10px;padding:10px 12px;margin-bottom:8px;opacity:${active?1:0.5};">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap;">
-        ${base ? `<img src="${base.image}" style="width:32px;height:44px;object-fit:cover;border-radius:5px;border:1px solid ${RARITY_COLORS[base.rarity]||'#ccc'}" onerror="this.style.display='none'"/>` : ''}
-        <span style="color:var(--pink);">→</span>
-        ${target ? `<img src="${target.image}" style="width:32px;height:44px;object-fit:cover;border-radius:5px;border:1px solid ${RARITY_COLORS[target.rarity]||'#ccc'}" onerror="this.style.display='none'"/>` : ''}
-        <div style="flex:1;min-width:0;">
-          <div style="font-size:0.82em;font-weight:600;"><code>${evo.base_card_id}</code> → <code>${evo.target_card_id}</code></div>
-          <div style="font-size:0.68em;color:var(--text-dim);">${TYPE_LABELS[evo.evolution_type]||evo.evolution_type}
-            ${evo.evolution_type!=='none'?` · Lv.${evo.required_level}+`:''}
-            ${evo.required_item?` · 🎁 ${evo.required_item}`:''}
-          </div>
-        </div>
-        <div style="display:flex;gap:5px;flex-shrink:0;">
-          <button class="admin-action-btn" onclick="editAdminEvo('${evo.id}')">✏️</button>
-          <button class="admin-action-btn danger" onclick="deleteAdminEvo('${evo.id}','${evo.base_card_id}')">🗑️</button>
-        </div>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-function editAdminEvo(evoId) {
-  const evo = _adminEvoCache.find(e => e.id === evoId);
-  if(!evo) return;
-  document.getElementById('evoEditId').value          = evo.id;
-  document.getElementById('evoForm_baseCard').value   = evo.base_card_id;
-  document.getElementById('evoForm_targetCard').value = evo.target_card_id;
-  document.getElementById('evoForm_type').value       = evo.evolution_type;
-  document.getElementById('evoForm_level').value      = evo.required_level||1;
-  document.getElementById('evoForm_item').value       = evo.required_item||'';
-  toggleEvoFields();
-  updateEvoPreview();
-  const cb = document.getElementById('evoCancelBtn');
-  if(cb) cb.style.display = '';
-  document.getElementById('evoForm_baseCard').scrollIntoView({behavior:'smooth'});
-}
-
-async function deleteAdminEvo(evoId, baseCardId) {
-  if(!checkAdmin()) return;
-  if(!confirm(`Delete evolution for "${baseCardId}"?`)) return;
-  await sb.delete('card_evolutions', { id: evoId });
-  showToast(`🗑️ Evolution for "${baseCardId}" deleted`);
-  await loadAdminEvoList();
-  await loadEvolutions();
-}
 
 
 
@@ -15952,13 +15757,17 @@ function switchCollectionTab(tab, btn) {
   if(tab === 'anime') renderAnimeCollections();
 }
 
-// ── Populate card dropdowns in the Evolution panel ──
-function populateEvoCardDropdowns() {
+// ══════════════════════════════════════════════════════════════
+// CARD EDITOR — EVOLUTION PANEL (ce_evo_* prefix — unique IDs)
+// ══════════════════════════════════════════════════════════════
+
+// ── Populate the card dropdowns in the evolution panel ──
+function ceEvoPopulateCardDropdowns() {
   const cards = window.DEMO_CARDS || (typeof DEMO_CARDS !== 'undefined' ? DEMO_CARDS : []);
   const RARITY_LABELS = {1:'[N]',2:'[R]',3:'[SR]',4:'[SSR]',5:'[UR]',6:'[LR]',7:'[???]'};
   const opts = cards.map(c => `<option value="${c.id}">${c.name} ${RARITY_LABELS[c.rarity]||''} · ${c.series}</option>`).join('');
-  const blank = '<option value="">— select —</option>';
-  ['evoForm_baseCard','evoForm_targetCard'].forEach(id => {
+  const blank = '<option value="">— select card —</option>';
+  ['ce_evo_baseCard','ce_evo_targetCard'].forEach(id => {
     const el = document.getElementById(id);
     if(!el) return;
     const cur = el.value;
@@ -15967,10 +15776,10 @@ function populateEvoCardDropdowns() {
   });
 }
 
-// ── Populate item dropdown in the Evolution panel ──
-function populateEvoItemDropdown() {
+// ── Populate item dropdown ──
+function ceEvoPopulateItemDropdown() {
   const items = window.GAME_ITEMS || [];
-  const el = document.getElementById('evoForm_item');
+  const el = document.getElementById('ce_evo_item');
   if(!el) return;
   const cur = el.value;
   el.innerHTML = '<option value="">— select item —</option>' +
@@ -15989,55 +15798,262 @@ function populateShopItemDropdown() {
   if(cur) el.value = cur;
 }
 
-// ── Re-populate dropdowns after items load ──
-const _origLoadGameItems = loadGameItems;
-window.loadGameItems = async function() {
-  await _origLoadGameItems();
-  populateEvoItemDropdown();
-  populateShopItemDropdown();
-};
-
-// ── Re-populate card dropdowns after cards load ──
-const _origLoadCards = typeof loadCards === 'function' ? loadCards : null;
-if(_origLoadCards) {
-  window.loadCards = async function() {
-    await _origLoadCards();
-    populateEvoCardDropdowns();
-  };
+// ── Show/hide level + item fields based on type ──
+function ceEvoToggleFields() {
+  const type = document.getElementById('ce_evo_type')?.value;
+  const lw = document.getElementById('ce_evo_levelWrap');
+  const iw = document.getElementById('ce_evo_itemWrap');
+  if(lw) lw.style.display = (type === 'level' || type === 'level_item') ? '' : 'none';
+  if(iw) iw.style.display = (type === 'level_item') ? '' : 'none';
+  ceEvoUpdatePreview();
 }
 
-// ── Patch submitEvolutionForm to read value from select ──
-// (select already returns the value string, so no changes needed — the
-//  existing submitEvolutionForm reads .value from the elements which works
-//  for both <input> and <select>)
+// ── Visual preview of base → target ──
+function ceEvoUpdatePreview() {
+  const baseId   = (document.getElementById('ce_evo_baseCard')?.value||''). trim();
+  const targetId = (document.getElementById('ce_evo_targetCard')?.value||''). trim();
+  const box      = document.getElementById('ce_evo_previewBox');
+  const content  = document.getElementById('ce_evo_previewContent');
+  if(!box || !content) return;
 
-// ── Patch cancelEvoEdit to reset selects properly ──
-const _origCancelEvoEdit = cancelEvoEdit;
-window.cancelEvoEdit = function() {
-  _origCancelEvoEdit();
-  // Re-select blank options
-  ['evoForm_baseCard','evoForm_targetCard','evoForm_item'].forEach(id => {
-    const el = document.getElementById(id);
-    if(el && el.tagName === 'SELECT') el.value = '';
-  });
-};
+  const cards = window.DEMO_CARDS || DEMO_CARDS || [];
+  const base   = cards.find(c => c.id === baseId);
+  const target = cards.find(c => c.id === targetId);
 
-// ── Patch editAdminEvo to set select values ──
-const _origEditAdminEvo = editAdminEvo;
-window.editAdminEvo = function(evoId) {
-  _origEditAdminEvo(evoId);
-  // selects are set by value assignment which works if options are loaded
-};
+  if(base || target) {
+    box.style.display = '';
+    const makeThumb = (c, label) => c
+      ? `<div style="text-align:center;">
+           <img src="${c.image}" style="width:56px;height:80px;object-fit:cover;border-radius:8px;border:2px solid ${RARITY_COLORS[c.rarity]||'#bdc3c7'};display:block;margin:0 auto 4px;" onerror="this.style.display='none'"/>
+           <div style="font-size:0.68em;color:var(--text-dim);max-width:64px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${c.name}</div>
+         </div>`
+      : `<div style="width:56px;height:80px;border:2px dashed var(--border);border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--text-dim);font-size:0.7em;">${label}</div>`;
+    const type  = document.getElementById('ce_evo_type')?.value || 'none';
+    const level = document.getElementById('ce_evo_level')?.value || '?';
+    const arrow = type === 'none'
+      ? '<span style="font-size:1.2em;color:var(--text-dim);">✕</span>'
+      : `<div style="text-align:center;"><span style="font-size:1.5em;color:#c084b8;">→</span><div style="font-size:0.65em;color:var(--text-dim);margin-top:2px;">Lv.${level}${type==='level_item'?' + 🎁':''}</div></div>`;
+    content.innerHTML = makeThumb(base, 'base') + arrow + makeThumb(target, 'target');
+  } else {
+    box.style.display = 'none';
+  }
+}
 
-// ── On DOMContentLoaded: populate dropdowns once cards/items are ready ──
+// ── Set base card badge when a card is selected in the editor ──
+function ceEvoSyncToEditingCard(cardId) {
+  const badge = document.getElementById('ce_evo_currentCard');
+  if(badge) badge.textContent = cardId ? `editing: ${cardId}` : 'no card selected';
+  // Auto-fill base card field if it's empty or matches a previously edited card
+  const baseEl = document.getElementById('ce_evo_baseCard');
+  if(baseEl && (!baseEl.value || baseEl.value === window._ceEvoLastAutoCard)) {
+    baseEl.value = cardId || '';
+    window._ceEvoLastAutoCard = cardId;
+    ceEvoUpdatePreview();
+    // Also load existing evolution for this card if any
+    if(cardId) ceEvoLoadExistingForCard(cardId);
+  }
+}
+
+// ── When editing a card, auto-load its evolution config if it exists ──
+async function ceEvoLoadExistingForCard(cardId) {
+  if(!window.CARD_EVOLUTIONS) return;
+  const evo = window.CARD_EVOLUTIONS[cardId];
+  if(evo) {
+    document.getElementById('ce_evo_editId').value        = evo.id || '';
+    document.getElementById('ce_evo_baseCard').value      = evo.base_card_id || '';
+    document.getElementById('ce_evo_targetCard').value    = evo.target_card_id || '';
+    document.getElementById('ce_evo_type').value          = evo.evolution_type || 'none';
+    document.getElementById('ce_evo_level').value         = evo.required_level || 5;
+    const itemEl = document.getElementById('ce_evo_item');
+    if(itemEl) itemEl.value = evo.required_item || '';
+    const cb = document.getElementById('ce_evo_cancelBtn');
+    if(cb) cb.style.display = '';
+    ceEvoToggleFields();
+  } else {
+    ceEvoCancel();
+    // Keep base card set to current editing card
+    const baseEl = document.getElementById('ce_evo_baseCard');
+    if(baseEl) { baseEl.value = cardId; ceEvoUpdatePreview(); }
+  }
+}
+
+// ── Submit (save) evolution ──
+async function ceEvoSubmit() {
+  if(!checkAdmin()) return;
+  const baseId   = (document.getElementById('ce_evo_baseCard')?.value||''). trim();
+  const targetId = (document.getElementById('ce_evo_targetCard')?.value||''). trim();
+  const type     = document.getElementById('ce_evo_type')?.value || 'none';
+  if(!baseId || !targetId) { showToast('⚠️ Select both a Base Card and a Target Card!'); return; }
+  if(baseId === targetId)  { showToast('⚠️ Base and target card must be different!'); return; }
+
+  const data = {
+    base_card_id:   baseId,
+    target_card_id: targetId,
+    evolution_type: type,
+    required_level: (type !== 'none') ? (parseInt(document.getElementById('ce_evo_level')?.value)||1) : 1,
+    required_item:  (type === 'level_item') ? ((document.getElementById('ce_evo_item')?.value||''). trim()||null) : null,
+    is_active: true,
+  };
+
+  try {
+    const editId = document.getElementById('ce_evo_editId')?.value;
+    if(editId) {
+      await sb.update('card_evolutions', data, { id: editId });
+    } else {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/card_evolutions`, {
+        method: 'POST',
+        headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer '+SUPABASE_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+        body: JSON.stringify(data)
+      });
+      if(!res.ok) { const b = await res.json().catch(()=>null); showToast('❌ '+(b?.message||`HTTP ${res.status}`)); return; }
+    }
+    showToast(`✅ Evolution saved: ${baseId} → ${targetId}`);
+    await ceEvoLoadList();
+    await loadEvolutions();
+    // Refresh cancel button
+    const cb = document.getElementById('ce_evo_cancelBtn');
+    if(cb) cb.style.display = '';
+  } catch(e) { showToast('❌ ' + e.message); }
+}
+
+// ── Cancel / clear the evolution form ──
+function ceEvoCancel() {
+  document.getElementById('ce_evo_editId').value       = '';
+  document.getElementById('ce_evo_baseCard').value     = '';
+  document.getElementById('ce_evo_targetCard').value   = '';
+  document.getElementById('ce_evo_type').value         = 'none';
+  document.getElementById('ce_evo_level').value        = '5';
+  const itemEl = document.getElementById('ce_evo_item');
+  if(itemEl) itemEl.value = '';
+  ceEvoToggleFields();
+  const box = document.getElementById('ce_evo_previewBox');
+  if(box) box.style.display = 'none';
+  const cb = document.getElementById('ce_evo_cancelBtn');
+  if(cb) cb.style.display = 'none';
+  window._ceEvoLastAutoCard = null;
+}
+
+// ── Load and render the evolution list ──
+async function ceEvoLoadList() {
+  const el = document.getElementById('ce_evo_list');
+  if(!el) return;
+  let rows = [];
+  try {
+    rows = await sb.getAll('card_evolutions') || [];
+    window._ceEvoCache = rows;
+    const cnt = document.getElementById('ce_evo_count');
+    if(cnt) cnt.textContent = `(${rows.length})`;
+  } catch(e) {
+    el.innerHTML = '<div style="color:#e74c3c;font-size:0.8em;padding:12px;text-align:center;">⚠️ Run evolution_migration.sql first.</div>';
+    return;
+  }
+  if(!rows.length) {
+    el.innerHTML = '<div style="color:var(--text-dim);font-style:italic;font-size:0.82em;text-align:center;padding:12px;">No evolutions configured yet.</div>';
+    return;
+  }
+  const TYPE_LABELS = { none:'🚫 None', level:'📈 Level', level_item:'📈+🎁 Level+Item' };
+  const cards = window.DEMO_CARDS || DEMO_CARDS || [];
+  el.innerHTML = rows.map(evo => {
+    const base   = cards.find(c => c.id === evo.base_card_id);
+    const target = cards.find(c => c.id === evo.target_card_id);
+    const active = evo.is_active && evo.evolution_type !== 'none';
+    return `<div style="border:1px solid ${active?'rgba(192,132,184,0.35)':'var(--border)'};border-radius:10px;padding:9px 12px;margin-bottom:7px;opacity:${active?1:0.5};">
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+        ${base   ? `<img src="${base.image}"   style="width:28px;height:40px;object-fit:cover;border-radius:5px;border:1px solid ${RARITY_COLORS[base.rarity]||'#ccc'}" onerror="this.style.display='none'"/>` : ''}
+        <span style="color:#c084b8;font-size:1.1em;">→</span>
+        ${target ? `<img src="${target.image}" style="width:28px;height:40px;object-fit:cover;border-radius:5px;border:1px solid ${RARITY_COLORS[target.rarity]||'#ccc'}" onerror="this.style.display='none'"/>` : ''}
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:0.78em;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+            ${base?base.name:`<code>${evo.base_card_id}</code>`} → ${target?target.name:`<code>${evo.target_card_id}</code>`}
+          </div>
+          <div style="font-size:0.66em;color:var(--text-dim);">${TYPE_LABELS[evo.evolution_type]||evo.evolution_type}${evo.evolution_type!=='none'?\` · Lv.${evo.required_level}+\`:''}${evo.required_item?\` · 🎁 ${evo.required_item}\`:''}</div>
+        </div>
+        <div style="display:flex;gap:4px;flex-shrink:0;">
+          <button class="admin-action-btn" onclick="ceEvoEdit('${evo.id}')">✏️</button>
+          <button class="admin-action-btn danger" onclick="ceEvoDelete('${evo.id}','${evo.base_card_id}')">🗑️</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── Load a row into the form for editing ──
+function ceEvoEdit(evoId) {
+  const evo = (window._ceEvoCache||[]).find(e => e.id === evoId);
+  if(!evo) return;
+  document.getElementById('ce_evo_editId').value        = evo.id;
+  document.getElementById('ce_evo_baseCard').value      = evo.base_card_id;
+  document.getElementById('ce_evo_targetCard').value    = evo.target_card_id;
+  document.getElementById('ce_evo_type').value          = evo.evolution_type;
+  document.getElementById('ce_evo_level').value         = evo.required_level||5;
+  const itemEl = document.getElementById('ce_evo_item');
+  if(itemEl) itemEl.value = evo.required_item||''  ;
+  const cb = document.getElementById('ce_evo_cancelBtn');
+  if(cb) cb.style.display = '';
+  ceEvoToggleFields();
+  document.getElementById('ce_evo_baseCard').closest('.admin-panel').scrollIntoView({behavior:'smooth'});
+}
+
+// ── Delete an evolution row ──
+async function ceEvoDelete(evoId, baseCardId) {
+  if(!checkAdmin()) return;
+  if(!confirm(`Delete evolution for "${baseCardId}"?`)) return;
+  await sb.delete('card_evolutions', { id: evoId });
+  showToast(`🗑️ Evolution for "${baseCardId}" deleted`);
+  await ceEvoLoadList();
+  await loadEvolutions();
+}
+
+// ── Wire up: re-populate dropdowns when cards/items load ──
+(function() {
+  const _origLoadGameItems2 = typeof loadGameItems === 'function' ? loadGameItems : null;
+  if(_origLoadGameItems2) {
+    window.loadGameItems = async function() {
+      await _origLoadGameItems2();
+      ceEvoPopulateItemDropdown();
+      populateShopItemDropdown();
+    };
+  }
+  const _origLoadCards2 = typeof loadCards === 'function' ? loadCards : null;
+  if(_origLoadCards2) {
+    window.loadCards = async function() {
+      await _origLoadCards2();
+      ceEvoPopulateCardDropdowns();
+    };
+  }
+})();
+
+// ── Also wire into editCard so base card auto-fills when editing ──
+(function() {
+  const _origEditCard = typeof editCard === 'function' ? editCard : null;
+  if(_origEditCard) {
+    window.editCard = function(cardId) {
+      _origEditCard(cardId);
+      setTimeout(() => ceEvoSyncToEditingCard(cardId), 100);
+    };
+  }
+})();
+
+// ── DOMContentLoaded — init dropdowns ──
 document.addEventListener('DOMContentLoaded', () => {
-  // Delay slightly to let DEMO_CARDS and game items initialise
   setTimeout(() => {
-    populateEvoCardDropdowns();
-    populateEvoItemDropdown();
+    ceEvoPopulateCardDropdowns();
+    ceEvoPopulateItemDropdown();
     populateShopItemDropdown();
-  }, 1200);
+    ceEvoLoadList();
+  }, 1400);
 });
+
+// ── Keep old function names as aliases so any remaining legacy calls don't crash ──
+function populateEvoCardDropdowns() { ceEvoPopulateCardDropdowns(); }
+function populateEvoItemDropdown()  { ceEvoPopulateItemDropdown();  }
+function toggleEvoFields()          { ceEvoToggleFields();          }
+function updateEvoPreview()         { ceEvoUpdatePreview();         }
+function submitEvolutionForm()      { ceEvoSubmit();                }
+function cancelEvoEdit()            { ceEvoCancel();                }
+function loadAdminEvoList()         { ceEvoLoadList();              }
+function editAdminEvo(id)           { ceEvoEdit(id);                }
+function deleteAdminEvo(id, base)   { ceEvoDelete(id, base);        }
 </script>
 <script>
 // ══════════════════════════════════════════════════════════════
