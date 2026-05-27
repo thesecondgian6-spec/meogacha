@@ -173,6 +173,13 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .coll-stat{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:4px 12px;color:var(--text-dim);}
 .coll-filter{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px;}
 
+/* ── Anime Collection Grid ── */
+#animeCollGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 14px;
+}
+
 /* ── Anime Collection Folders ── */
 .anime-folder{background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden;cursor:pointer;transition:all 0.25s;position:relative;}
 .anime-folder:hover{border-color:var(--pink);transform:translateY(-3px);box-shadow:0 8px 24px rgba(255,157,199,0.15);}
@@ -3752,9 +3759,22 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 /* ── Admin crown badge in chat ── */
 .chat-admin-badge { font-size: 0.65em; background: linear-gradient(135deg,#f1c40f,#ff6b9d); color:#000; font-family:'JetBrains Mono',monospace; font-weight:700; padding:1px 5px; border-radius:6px; letter-spacing:0.04em; margin-left:4px; vertical-align:middle; }
 
-@media(max-width:700px){
-  .chat-msg-actions { right: 4px; }
-  .chat-msg-action-btn { font-size: 0.82em; padding: 3px 5px; }
+/* ── Chat context panel action rows ── */
+.ctx-action {
+  display: flex; align-items: center; gap: 14px;
+  padding: 13px 16px; border-radius: 12px; cursor: pointer;
+  transition: background 0.15s; font-size: 0.95em; color: var(--text);
+  font-family: 'Cormorant Garamond', serif; font-weight: 600;
+}
+.ctx-action:hover, .ctx-action:active { background: rgba(255,157,199,0.1); }
+.ctx-action.danger { color: #e74c3c; }
+.ctx-action.danger:hover, .ctx-action.danger:active { background: rgba(231,76,60,0.1); }
+.ctx-action-icon { font-size: 1.2em; width: 28px; text-align: center; flex-shrink: 0; }
+/* Long-press visual feedback */
+.chat-msg.pressing { background: rgba(255,157,199,0.1) !important; border-radius: 8px; }
+/* Hide hover desktop buttons on touch devices */
+@media (hover: none) {
+  .chat-msg-actions { display: none !important; }
 }
 
 /* ── Player Profile Modal ── */
@@ -4304,7 +4324,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
         <input id="animeSearchInput" class="admin-input" placeholder="🔍 Search anime..." style="flex:1;padding:7px 14px;font-size:0.85em;" oninput="renderAnimeCollections()"/>
       </div>
       <!-- Folders grid -->
-      <div id="animeCollGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px;">
+      <div id="animeCollGrid">
         <div style="grid-column:1/-1;text-align:center;color:var(--text-dim);font-style:italic;padding:40px;">Loading collections... ✦</div>
       </div>
       <!-- Anime detail overlay (inside the tab) -->
@@ -12526,6 +12546,14 @@ function renderChatMsg(msg){
 
   feed.appendChild(el);
 
+  // Attach long-press / right-click context panel
+  attachLongPress(el, {
+    id:         msg.id,
+    discord_id: msg.discord_id,
+    username:   msg.username || '',
+    content:    msg.content  || ''
+  });
+
   // Cap DOM at 100 messages
   while(feed.children.length > 100) feed.removeChild(feed.firstChild);
 }
@@ -12534,6 +12562,88 @@ function scrollToMsg(msgId){
   if(!msgId) return;
   const el = document.getElementById('chatmsg-' + msgId);
   if(el){ el.scrollIntoView({behavior:'smooth', block:'center'}); el.style.background='rgba(255,157,199,0.12)'; setTimeout(()=>el.style.background='',1200); }
+}
+
+// ══════════════════════════════════════════════
+// CHAT CONTEXT PANEL (Discord-style long press)
+// ══════════════════════════════════════════════
+let _ctxMsg = null;      // current context message data
+let _longPressTimer = null;
+let _longPressMoved = false;
+
+function openChatContext(msgData){
+  _ctxMsg = msgData;
+  const panel    = document.getElementById('chatContextPanel');
+  const backdrop = document.getElementById('chatContextBackdrop');
+  const preview  = document.getElementById('chatCtxPreview');
+  const actions  = document.getElementById('chatCtxActions');
+  if(!panel) return;
+
+  // Build preview text
+  preview.textContent = (msgData.username ? '@' + msgData.username + ': ' : '') + (msgData.content || '');
+
+  // Build action rows
+  const isMe    = msgData.discord_id === state.discordId;
+  const isAdmin = state.isAdmin;
+  const rows = [];
+
+  rows.push({ icon:'↩️', label:'Reply', fn:`setChatReply('${msgData.id}','${esc(msgData.username)}','${esc((msgData.content||'').slice(0,80))}');closeChatContext()` });
+  rows.push({ icon:'@',  label:'Mention @' + msgData.username, fn:`insertMention('${esc(msgData.username)}');closeChatContext()` });
+
+  if(isMe){
+    rows.push({ icon:'🗑️', label:'Delete Message', danger:true, fn:`deleteChatMsg('${msgData.id}', document.getElementById('chatmsg-${msgData.id}'));closeChatContext()` });
+  }
+  if(isAdmin && !isMe){
+    rows.push({ icon:'🛡️', label:'Admin · Delete', danger:true, fn:`deleteChatMsg('${msgData.id}', document.getElementById('chatmsg-${msgData.id}'));closeChatContext()` });
+  }
+  if(isAdmin){
+    rows.push({ icon:'📋', label:'Copy User ID', fn:`navigator.clipboard?.writeText('${msgData.discord_id}').then(()=>showToast('📋 Copied!'));closeChatContext()` });
+  }
+
+  actions.innerHTML = rows.map(r=>`
+    <div class="ctx-action${r.danger?' danger':''}" onclick="${r.fn}">
+      <span class="ctx-action-icon">${r.icon}</span>
+      <span>${r.label}</span>
+    </div>`).join('');
+
+  // Show
+  backdrop.style.display = 'block';
+  panel.style.display = 'block';
+  requestAnimationFrame(()=>{ panel.style.transform = 'translateY(0)'; });
+}
+
+function closeChatContext(){
+  const panel    = document.getElementById('chatContextPanel');
+  const backdrop = document.getElementById('chatContextBackdrop');
+  if(!panel) return;
+  panel.style.transform = 'translateY(100%)';
+  setTimeout(()=>{ panel.style.display='none'; backdrop.style.display='none'; }, 280);
+  _ctxMsg = null;
+}
+
+function esc(s){ return String(s||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'"); }
+
+// Attach long-press listeners to a chat message element
+function attachLongPress(el, msgData){
+  const start = (e)=>{
+    _longPressMoved = false;
+    _longPressTimer = setTimeout(()=>{
+      if(_longPressMoved) return;
+      el.classList.add('pressing');
+      // Haptic on supporting devices
+      if(navigator.vibrate) navigator.vibrate(40);
+      openChatContext(msgData);
+      el.classList.remove('pressing');
+    }, 480);
+  };
+  const cancel = ()=>{ clearTimeout(_longPressTimer); el.classList.remove('pressing'); };
+  const move = ()=>{ _longPressMoved = true; cancel(); };
+
+  el.addEventListener('touchstart', start, { passive: true });
+  el.addEventListener('touchend',   cancel);
+  el.addEventListener('touchmove',  move, { passive: true });
+  // Right-click on desktop as fallback
+  el.addEventListener('contextmenu', (e)=>{ e.preventDefault(); openChatContext(msgData); });
 }
 
 function scrollChatToBottom(){
@@ -15793,6 +15903,21 @@ async function deleteAdminEvo(evoId, baseCardId) {
   </div>
 </div>
 
+<!-- ═══════════════════════════════════════════
+     CHAT CONTEXT PANEL (Discord-style long press)
+═══════════════════════════════════════════ -->
+<div id="chatContextBackdrop" style="display:none;position:fixed;inset:0;z-index:600;background:rgba(0,0,0,0.5);backdrop-filter:blur(3px);" onclick="closeChatContext()"></div>
+<div id="chatContextPanel" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:601;background:var(--bg2);border-top:1px solid var(--border);border-radius:20px 20px 0 0;padding:0 0 env(safe-area-inset-bottom);transform:translateY(100%);transition:transform 0.3s cubic-bezier(0.34,1.2,0.64,1);">
+  <!-- drag handle -->
+  <div style="display:flex;justify-content:center;padding:10px 0 4px;">
+    <div style="width:36px;height:4px;border-radius:2px;background:rgba(255,157,199,0.25);"></div>
+  </div>
+  <!-- Message preview -->
+  <div id="chatCtxPreview" style="margin:0 16px 10px;padding:10px 12px;background:rgba(255,157,199,0.04);border:1px solid var(--border);border-radius:10px;font-size:0.82em;color:var(--text-dim);max-height:60px;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;"></div>
+  <!-- Actions list -->
+  <div id="chatCtxActions" style="padding:0 8px 16px;display:flex;flex-direction:column;gap:2px;"></div>
+</div>
+
 </body>
 </html>
 <script>
@@ -15921,7 +16046,7 @@ function renderAnimeCollections() {
   const detail = document.getElementById('animeDetailView');
   if(!grid) return;
   if(detail) detail.style.display = 'none';
-  grid.style.display = '';
+  grid.style.display = 'grid';
 
   const searchQ = (document.getElementById('animeSearchInput')?.value||'').toLowerCase().trim();
   const allCards = window.DEMO_CARDS || DEMO_CARDS || [];
@@ -16054,7 +16179,7 @@ function openAnimeDetail(seriesName) {
 
 function closeAnimeDetail() {
   document.getElementById('animeDetailView').style.display = 'none';
-  document.getElementById('animeCollGrid').style.display = '';
+  document.getElementById('animeCollGrid').style.display = 'grid';
 }
 
 
