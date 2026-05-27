@@ -13580,9 +13580,14 @@ function buildPvpInitState(){
 
 function getCardHp(card){
   if(!card) return 100;
-  // Base HP on rarity — matches your battle engine logic
-  const baseHp = [0,80,100,130,160,200,250,300][card.rarity] || 100;
-  return baseHp;
+  // Base HP scales strongly with rarity: higher rarity = much more HP
+  const rarityBaseHp = [0, 80, 100, 130, 165, 210, 265, 330][card.rarity] || 100;
+  // Bonus HP per level — higher rarity cards gain more HP per level
+  const rarityLvlBonus = [0, 4, 6, 8, 11, 14, 18, 22][card.rarity] || 5;
+  const xp  = (state && state.xpMap && card.id) ? (state.xpMap[card.id] || 0) : 0;
+  const lvl = (typeof calcLevel === 'function') ? calcLevel(xp) : 1;
+  const lvlBonus = (lvl - 1) * rarityLvlBonus;
+  return rarityBaseHp + lvlBonus;
 }
 
 function openPvpWaitingScreen(battleId, opponentId){
@@ -13843,7 +13848,8 @@ async function takePvpTurn(action, battleId, abilityId){
         logMsg = `💨 ${myName}'s heavy hit missed!`;
       } else {
         isCrit = Math.random() < 0.2;
-        dmg = Math.floor(baseAtk * (isCrit ? 2.8 : 1.8) * (0.9 + Math.random()*0.3));
+        // Capped to ~1.4x normal attack (non-crit) or ~1.9x on crit — prevents one-shots
+        dmg = Math.floor(baseAtk * (isCrit ? 1.9 : 1.4) * (0.9 + Math.random()*0.2));
         logMsg = isCrit
           ? `🔥 ${myName} hits a DEVASTATING blow — ${dmg} damage!`
           : `💥 ${myName} lands a HEAVY HIT for ${dmg} damage!`;
@@ -13859,19 +13865,27 @@ async function takePvpTurn(action, battleId, abilityId){
       dmg = Math.floor((ab ? (ab.value||baseAtk) : baseAtk) * (0.9 + Math.random()*0.3));
       logMsg = `${ab ? ab.icon||'✨' : '✨'} ${myName} uses ${ab ? ab.name : 'Special'} for ${dmg} damage!`;
 
-      // ── Broadcast cutscene so opponent sees it too ──
-      bs.last_cutscene = ab ? { cardId: myCard.id, rarity: myCard.rarity, abilityId: ab.id, ts: Date.now() } : null;
-      // Write cutscene trigger first so opponent sees it immediately
-      await rt.from('pvp_battles').update({ battle_state: bs, updated_at: new Date().toISOString() }).eq('id', battleId);
+      // ── Broadcast cutscene FIRST so BOTH players see it simultaneously ──
+      // Write last_cutscene with current_turn unchanged — opponent's listener will
+      // fire on ANY update, so they see the cutscene trigger right away.
+      if(ab && myCard){
+        const csPayload = { cardId: myCard.id, rarity: myCard.rarity, abilityId: ab.id, ts: Date.now() };
+        bs.last_cutscene = csPayload;
+        // Push ONLY the cutscene trigger — do NOT flip current_turn yet
+        await rt.from('pvp_battles').update({
+          battle_state: { ...bs, cutscene_playing: true },
+          updated_at: new Date().toISOString()
+        }).eq('id', battleId);
+        // Both players now play the cutscene concurrently (opponent's listenToBattle fires simultaneously)
+        await playAbilityCutscene(myCard.id, myCard.rarity, ab.id);
+      }
 
-      // Play locally + wait
-      await playAbilityCutscene(myCard.id, myCard.rarity, ab.id);
-
-      // Re-fetch fresh state after cutscene
+      // Re-fetch fresh state after cutscene (in case opponent did something)
       const { data: freshBattle } = await rt.from('pvp_battles').select('*').eq('id',battleId).single();
       if(!freshBattle || freshBattle.status !== 'active'){ return; }
       if(freshBattle.current_turn !== state.discordId){ showToast("It's not your turn!"); return; }
       Object.assign(bs, freshBattle.battle_state);
+      bs.cutscene_playing = false; // clear flag before committing turn
 
     } else if(action === 'guard'){
       logMsg = `🛡️ ${myName} braces for impact!`;
@@ -13965,18 +13979,21 @@ function listenToBattle(battleId){
       const data = payload.new;
       const bs   = data.battle_state || {};
 
-      // ── Show opponent's ability cutscene ──
+      // ── Show opponent's ability cutscene simultaneously ──
+      // Fire as soon as last_cutscene appears (cutscene_playing=true), regardless of whose turn it is.
+      // This way both players watch the animation at the same time.
       const cs = bs.last_cutscene;
-      if(cs && cs.ts && cs.ts !== lastCutsceneTs && data.current_turn === state.discordId){
-        // It's now MY turn — meaning opponent just moved and triggered cutscene
+      if(cs && cs.ts && cs.ts !== lastCutsceneTs && bs.cutscene_playing && data.current_turn !== state.discordId){
+        // Opponent just activated an ability — show the cutscene RIGHT NOW (same time as them)
         lastCutsceneTs = cs.ts;
-        // VFX: I was hit
-        pvpFlashDamage('me');
-        pvpShakeCard('me');
-        // Play their cutscene so I can see it
         if(cs.cardId && cs.abilityId){
           await playAbilityCutscene(cs.cardId, cs.rarity||1, cs.abilityId);
         }
+      } else if(cs && cs.ts && cs.ts !== lastCutsceneTs && !bs.cutscene_playing && data.current_turn === state.discordId){
+        // Fallback: cutscene_playing flag already cleared, show VFX + damage number
+        lastCutsceneTs = cs.ts;
+        pvpFlashDamage('me');
+        pvpShakeCard('me');
       } else if(data.current_turn === state.discordId && lastCutsceneTs !== (cs&&cs.ts)){
         // Opponent did a normal attack — flash me
         pvpFlashDamage('me');
