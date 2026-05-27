@@ -11177,6 +11177,8 @@ async function loadAdminCardList(){
   _adminCardCache=await sb.getAll('cards')||[];
   document.getElementById('adminCardCount').textContent='('+_adminCardCache.length+')';
   renderAdminCardList();
+  // Refresh evo dropdowns now that _adminCardCache is populated (includes disabled cards)
+  if(typeof ceEvoPopulateCardDropdowns === 'function') ceEvoPopulateCardDropdowns();
 }
 
 function renderAdminCardList(){
@@ -15763,7 +15765,20 @@ function switchCollectionTab(tab, btn) {
 
 // ── Populate the card dropdowns in the evolution panel ──
 function ceEvoPopulateCardDropdowns() {
-  const cards = window.DEMO_CARDS || (typeof DEMO_CARDS !== 'undefined' ? DEMO_CARDS : []);
+  // Prefer _adminCardCache (all cards incl. disabled) for admin dropdowns;
+  // fall back to DEMO_CARDS (enabled-only) for non-admin contexts.
+  let cards;
+  if (typeof _adminCardCache !== 'undefined' && _adminCardCache && _adminCardCache.length > 0) {
+    // _adminCardCache rows use DB column names; normalise to id/name/rarity/series
+    cards = _adminCardCache.map(r => ({
+      id:     r.id,
+      name:   r.name,
+      rarity: r.rarity,
+      series: r.series || '',
+    }));
+  } else {
+    cards = window.DEMO_CARDS || (typeof DEMO_CARDS !== 'undefined' ? DEMO_CARDS : []);
+  }
   const RARITY_LABELS = {1:'[N]',2:'[R]',3:'[SR]',4:'[SSR]',5:'[UR]',6:'[LR]',7:'[???]'};
   const opts = cards.map(c => `<option value="${c.id}">${c.name} ${RARITY_LABELS[c.rarity]||''} · ${c.series}</option>`).join('');
   const blank = '<option value="">— select card —</option>';
@@ -16027,9 +16042,11 @@ async function ceEvoDelete(evoId, baseCardId) {
 (function() {
   const _origEditCard = typeof editCard === 'function' ? editCard : null;
   if(_origEditCard) {
-    window.editCard = function(cardId) {
-      _origEditCard(cardId);
-      setTimeout(() => ceEvoSyncToEditingCard(cardId), 100);
+    window.editCard = async function(cardId) {
+      await _origEditCard(cardId);
+      // Re-populate dropdowns in case cards loaded after initial DOMContentLoaded
+      ceEvoPopulateCardDropdowns();
+      setTimeout(() => ceEvoSyncToEditingCard(cardId), 150);
     };
   }
 })();
