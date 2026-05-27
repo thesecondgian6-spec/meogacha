@@ -167,6 +167,11 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .pull-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
 .particle{position:fixed;pointer-events:none;border-radius:50%;animation:particleBurst var(--dur,1s) ease-out forwards;z-index:201;}
 @keyframes particleBurst{0%{transform:translate(0,0) scale(1);opacity:1;}100%{transform:translate(var(--tx,0),var(--ty,-100px)) scale(0);opacity:0;}}
+@keyframes evoPulse{0%,100%{box-shadow:0 0 14px rgba(155,89,182,0.3);}50%{box-shadow:0 0 28px rgba(192,132,184,0.6),0 0 50px rgba(155,89,182,0.3);}}
+@keyframes evoFlash{0%{opacity:0;}10%{opacity:1;}100%{opacity:0;transform:scale(2.5);}}
+@keyframes evoRingExpand{0%{transform:scale(0.5);opacity:0.9;}100%{transform:scale(3.5);opacity:0;}}
+.evo-full-flash{position:fixed;inset:0;z-index:490;pointer-events:none;background:radial-gradient(ellipse at 50% 50%,rgba(192,132,184,0.7),rgba(155,89,182,0.4),transparent 70%);animation:evoFlash 1.4s ease-out forwards;}
+.evo-ring{position:fixed;border-radius:50%;border:3px solid rgba(192,132,184,0.8);pointer-events:none;z-index:491;animation:evoRingExpand 1s ease-out forwards;}
 .coll-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px;}
 .coll-header h2{font-family:'Cinzel Decorative',serif;font-size:1.3em;color:var(--pink-pale);}
 .coll-stats{display:flex;gap:10px;font-family:'JetBrains Mono',monospace;font-size:0.8em;}
@@ -7351,6 +7356,32 @@ function closeModal(e){
   if(!e||e.target===document.getElementById('cardModal'))
     document.getElementById('cardModal').classList.remove('active');
 }
+
+// Inject evolution info + Evolve button into the card modal
+function _injectEvolveButton(cardId) {
+  const old = document.getElementById('modalEvoPanel');
+  if(old) old.remove();
+  const status = getEvolutionStatus(cardId);
+  const isOwned = state.collection.includes(cardId);
+  if(!isOwned || !status) return;
+  const { evo, target, level, levelMet, itemMet, itemInfo, canEvolve } = status;
+  if(!target) return;
+  const targetColor = RARITY_COLORS[target.rarity] || '#c084b8';
+  let reqHtml = '';
+  reqHtml += '<span style="color:' + (levelMet?'#2ecc71':'#e74c3c') + '">'+(levelMet?'✅':'❌')+' Lv.'+evo.required_level+'</span>';
+  if(evo.evolution_type === 'level_item' && evo.required_item) {
+    const qty = (window.PLAYER_INVENTORY||{})[evo.required_item] || 0;
+    const iEmoji = itemInfo ? (itemInfo.emoji || '🎁') : '🎁';
+    reqHtml += '<span style="margin-left:8px;color:' + (itemMet?'#2ecc71':'#e74c3c') + '">'+(itemMet?'✅':'❌')+' '+iEmoji+' ×'+qty+'</span>';
+  }
+  const panel = document.createElement('div');
+  panel.id = 'modalEvoPanel';
+  panel.innerHTML = '<div style="margin:12px 0 4px;background:'+(canEvolve?'linear-gradient(135deg,rgba(155,89,182,0.18),rgba(255,157,199,0.1))':'rgba(255,157,199,0.04)')+';border:1px solid '+(canEvolve?'rgba(192,132,184,0.55)':'var(--border)')+';border-radius:14px;padding:12px 14px;overflow:hidden;position:relative;">'+(canEvolve?'<div style="position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(192,132,184,0.18),transparent 70%);pointer-events:none;"></div>':'')+'<div style="position:relative;z-index:1;"><div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;"><span style="font-size:1em;">'+( canEvolve ? '🔮' : '🔒' )+'</span><span style="font-family:Cinzel Decorative,serif;font-size:0.7em;letter-spacing:0.08em;color:'+(canEvolve?'var(--purple)':'var(--text-dim)')+';">'+( canEvolve ? '✦ READY TO EVOLVE ✦' : 'Evolution Path' )+'</span></div><div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;"><img src="'+( target.image||target.thumbnail||'' )+'" alt="'+target.name+'" style="width:48px;height:68px;object-fit:cover;border-radius:8px;border:2px solid '+targetColor+';box-shadow:0 0 12px '+targetColor+'44;flex-shrink:0;" onerror="this.style.display=none"/><div style="flex:1;min-width:0;"><div style="font-family:Cinzel Decorative,serif;font-size:0.72em;color:var(--pink-pale);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+target.name+'</div><div style="font-size:0.68em;color:'+targetColor+';margin-top:2px;">'+( target.rarityName||'' )+' '+( target.rarityStars||'' )+'</div><div style="font-size:0.68em;margin-top:5px;display:flex;gap:6px;flex-wrap:wrap;">'+reqHtml+'</div></div></div><button onclick="openEvolutionModal(\''+cardId+'\')'" style="width:100%;padding:9px;border-radius:10px;border:1px solid '+(canEvolve?'rgba(192,132,184,0.65)':'var(--border)')+';background:'+(canEvolve?'linear-gradient(135deg,rgba(155,89,182,0.4),rgba(224,96,138,0.3))':'rgba(255,255,255,0.03)')+';color:'+(canEvolve?'#e8c6ff':'var(--text-dim)')+';font-family:Cinzel Decorative,serif;font-size:0.72em;letter-spacing:0.06em;cursor:'+(canEvolve?'pointer':'default')+';transition:all 0.2s;'+(canEvolve?'box-shadow:0 0 14px rgba(155,89,182,0.3);':'opacity:0.55;')+'">'+( canEvolve ? '✦ Evolve Now ✦' : '🔒 Requirements Not Met' )+'</button></div></div>';
+  const xpWrap = document.querySelector('.xp-bar-wrap');
+  if(xpWrap) { xpWrap.insertAdjacentElement('afterend', panel); }
+  else { const mb = document.querySelector('.modal-body'); if(mb) mb.appendChild(panel); }
+}
+
 async function equipCard(){
   if(openCardId){
     state.equippedId=openCardId;
@@ -11121,7 +11152,7 @@ async function submitCardForm(){
 
     showToast(isEdit?`✅ "${name}" updated!`:`✅ "${name}" added!`);
     await loadCards();
-    renderCollection();renderFeaturedShowcase();
+    renderCollection();renderHomeBannerWidget();
     cancelCardEdit();
     loadAdminCardList();
   }catch(e){
@@ -11243,7 +11274,7 @@ async function deleteCard(cardId,cardName){
   if(!confirm(`Delete "${cardName}" (${cardId})? This cannot be undone.`))return;
   await sb.delete('card_abilities',{card_id:cardId});
   const ok=await sb.delete('cards',{id:cardId});
-  if(ok){showToast(`🗑️ "${cardName}" deleted`);await loadCards();renderCollection();renderFeaturedShowcase();loadAdminCardList();}
+  if(ok){showToast(`🗑️ "${cardName}" deleted`);await loadCards();renderCollection();renderHomeBannerWidget();loadAdminCardList();}
   else showToast('❌ Delete failed');
 }
 
@@ -15320,11 +15351,29 @@ async function confirmEvolve() {
     updateProfile();
     document.getElementById('cardModal')?.classList.remove('active');
 
-    // 8. Victory toast + particles
+    // 8. Victory flash + particles + toast
     const target = (window.DEMO_CARDS||DEMO_CARDS).find(c => c.id === evo.target_card_id);
     const targetColor = RARITY_COLORS[target?.rarity||4] || '#ff9dc7';
-    showToast(`🔮 ${cardId} evolved into ${target?.name||evo.target_card_id}!`);
+    // Full-screen glow flash
+    const flash = document.createElement('div');
+    flash.className = 'evo-full-flash';
+    flash.style.background = 'radial-gradient(ellipse at 50% 50%,' + targetColor + '88,rgba(155,89,182,0.5),transparent 70%)';
+    document.body.appendChild(flash);
+    setTimeout(()=>flash.remove(), 1500);
+    // Expanding ring bursts
+    [0,1,2].forEach(r => {
+      setTimeout(()=>{
+        const ring = document.createElement('div');
+        ring.className = 'evo-ring';
+        const sz = 60 + r*40;
+        ring.style.cssText = 'width:'+sz+'px;height:'+sz+'px;left:calc(50% - '+Math.floor(sz/2)+'px);top:calc(50% - '+Math.floor(sz/2)+'px);border-color:'+targetColor+';animation-delay:'+(r*0.15)+'s;';
+        document.body.appendChild(ring);
+        setTimeout(()=>ring.remove(), 1200);
+      }, r*140);
+    });
+    showToast(`🔮 ${target?.name||evo.target_card_id} has awakened!`);
     spawnParticles(target?.rarity||4, targetColor);
+    setTimeout(()=>spawnParticles(target?.rarity||4, targetColor), 350);
 
   } catch(e) {
     showToast('❌ Evolution failed: ' + (e.message||e));
