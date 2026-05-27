@@ -5495,7 +5495,8 @@ const sb = {
                         table==='inventory'? 'discord_id,item_id' :
                         table==='cooldowns'? 'discord_id,action' :
                         table==='banners'  ? 'id' :
-                        table==='cards'    ? 'id' : '';
+                        table==='cards'    ? 'id' :
+                        table==='card_abilities' ? 'id' : '';
     const payload = table==='players' ? {id: data.discord_id, ...data} : data;
     const url = conflictCol
       ? `${SUPABASE_URL}/rest/v1/${table}?on_conflict=${encodeURIComponent(conflictCol)}`
@@ -7532,6 +7533,9 @@ function goTo(page,btn){ playNavSound();
   if(page==='social'){
     initChat();
     loadLeaderboard('pvp');
+  }
+  if(page==='admin'){
+    loadAdminCardList();
   }
 }
 
@@ -10340,7 +10344,7 @@ function switchAdminTab(tab, btn){
   if(tab==='skins') { populateSkinCardSelect(); loadAdminSkinList(); }
   if(tab==='shop') { populateShopSkinSelect(); loadAdminShopItems(); populateShopItemDropdown(); loadAdminShopListings(); }
   if(tab==='items') { loadAdminItemList(); }
-  if(tab==='cards') { loadAdminEvoList(); toggleEvoFields(); populateEvoCardDropdowns(); populateEvoItemDropdown(); }
+  if(tab==='cards') { loadAdminCardList(); loadAdminEvoList(); toggleEvoFields(); populateEvoItemDropdown(); }
   if(tab==='anime') { loadAdminAnimeList(); }
 }
 
