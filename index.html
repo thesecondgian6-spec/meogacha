@@ -179,7 +179,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .anime-folder.locked{filter:grayscale(0.85);opacity:0.55;}
 .anime-folder.locked:hover{filter:grayscale(0.6);opacity:0.75;border-color:var(--border);}
 .anime-folder-poster{width:100%;aspect-ratio:3/4;object-fit:cover;display:block;background:#1c0f26;}
-.anime-folder-logo{position:absolute;top:8px;left:8px;width:36px;height:36px;border-radius:8px;object-fit:contain;background:rgba(13,6,16,0.7);padding:3px;border:1px solid rgba(255,255,255,0.12);}
+.anime-folder-logo{position:absolute;top:8px;left:8px;width:72px;height:auto;max-height:44px;object-fit:contain;filter:drop-shadow(0 2px 6px rgba(0,0,0,0.7));}
 .anime-folder-badge{position:absolute;top:8px;right:8px;background:rgba(13,6,16,0.85);border:1px solid rgba(255,157,199,0.3);border-radius:20px;padding:2px 8px;font-family:'JetBrains Mono',monospace;font-size:0.68em;color:var(--pink);}
 .anime-folder-locked-icon{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:2em;background:rgba(0,0,0,0.4);}
 .anime-folder-info{padding:9px 10px;}
@@ -664,6 +664,16 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   .coll-filter { gap: 5px; }
   .filter-btn { padding: 3px 8px; font-size: 0.72em; }
 
+  /* ── Anime collection folders ── */
+  #animeCollGrid { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 9px; }
+  .anime-folder { border-radius: 12px; }
+  .anime-folder-logo { width: 52px; max-height: 32px; top: 6px; left: 6px; }
+  .anime-folder-badge { font-size: 0.6em; padding: 2px 6px; top: 6px; right: 6px; }
+  .anime-folder-info { padding: 6px 8px; }
+  .anime-folder-name { font-size: 0.72em; }
+  .anime-folder-sub { font-size: 0.62em; }
+  .anime-folder-locked-icon { font-size: 1.5em; }
+
   /* ── Profile ── */
   .profile-banner-area { height: 120px; }
   .profile-avatar-row { margin-top: -36px; padding: 0 16px; }
@@ -728,6 +738,11 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   .rates-grid { grid-template-columns: repeat(3, 1fr); }
   .profile-stats { gap: 5px; }
   .stat-val { font-size: 0.88em; }
+  #animeCollGrid { grid-template-columns: repeat(3, 1fr); gap: 7px; }
+  .anime-folder-logo { width: 40px; max-height: 24px; }
+  .anime-folder-info { padding: 5px 6px; }
+  .anime-folder-name { font-size: 0.65em; }
+  .anime-folder-sub { display: none; }
   .home-action-grid { grid-template-columns: repeat(3, 1fr); }
   .nav-coins { display: none; } /* very small phones — hide coins, keep avatar */
 }
