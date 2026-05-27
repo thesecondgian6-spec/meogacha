@@ -3995,7 +3995,6 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
       <button class="nav-btn active" onclick="goTo('home',this)">🏠 Home</button>
       <button class="nav-btn" onclick="goTo('pull',this)">🎴 Pull</button>
       <button class="nav-btn" onclick="goTo('collection',this)">🃏 Cards</button>
-      <button class="nav-btn" onclick="goTo('inventory',null)">🎒 Inventory</button>
       <button class="nav-btn" onclick="goTo('shop',this)">🛍️ Shop</button>
       <button class="nav-btn" onclick="goTo('activities',this)">⚔️ Activities</button>
       <button class="nav-btn" onclick="goTo('social',this)">💬 Social</button>
@@ -4018,7 +4017,6 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
       <button class="mobile-nav-btn active" id="mnav-home" onclick="goTo('home',null);setMobileNav('home')"><span class="mob-icon">🏠</span>Home</button>
       <button class="mobile-nav-btn" id="mnav-pull" onclick="goTo('pull',null);setMobileNav('pull')"><span class="mob-icon">🎴</span>Pull</button>
       <button class="mobile-nav-btn" id="mnav-collection" onclick="goTo('collection',null);setMobileNav('collection')"><span class="mob-icon">🃏</span>Cards</button>
-      <button class="mobile-nav-btn" id="mnav-inventory" onclick="goTo('inventory',null);setMobileNav('inventory')"><span class="mob-icon">🎒</span>Bag</button>
       <button class="mobile-nav-btn" id="mnav-shop" onclick="goTo('shop',null);setMobileNav('shop')"><span class="mob-icon">🛍️</span>Shop</button>
       <button class="mobile-nav-btn" id="mnav-activities" onclick="goTo('activities',null);setMobileNav('activities')"><span class="mob-icon">⚔️</span>Battle</button>
       <button class="mobile-nav-btn" id="mnav-social" onclick="goTo('social',null);setMobileNav('social')"><span class="mob-icon">💬</span>Social</button>
@@ -4156,25 +4154,49 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 
   <!-- COLLECTION -->
   <div class="page" id="page-collection">
-    <div class="coll-header">
-      <h2>🃏 My Collection</h2>
-      <div class="coll-stats">
+    <!-- Tab switcher -->
+    <div style="display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap;align-items:center;justify-content:space-between;">
+      <div style="display:flex;gap:6px;">
+        <button class="filter-btn active" id="ctab-cards" onclick="switchCollectionTab('cards',this)">🃏 Cards</button>
+        <button class="filter-btn" id="ctab-inventory" onclick="switchCollectionTab('inventory',this)">🎒 Bag</button>
+      </div>
+      <div id="collTabStats" style="display:flex;gap:8px;">
         <span class="coll-stat" id="collTotal">0 cards</span>
         <span class="coll-stat" id="collUniq">0 unique</span>
       </div>
     </div>
-    <div class="coll-filter">
-      <button class="filter-btn active" onclick="filterCards('all',this)">All</button>
-      <button class="filter-btn" onclick="filterCards('N',this)" style="color:var(--rN);">[N]</button>
-      <button class="filter-btn" onclick="filterCards('R',this)" style="color:var(--rR);">[R]</button>
-      <button class="filter-btn" onclick="filterCards('SR',this)" style="color:var(--rSR);">[SR]</button>
-      <button class="filter-btn" onclick="filterCards('SSR',this)" style="color:var(--rSSR);">[SSR]</button>
-      <button class="filter-btn" onclick="filterCards('UR',this)" style="color:var(--rUR);">[UR]</button>
-      <button class="filter-btn" onclick="filterCards('LR',this)" style="color:var(--rLR);">[LR]</button>
-      <button class="filter-btn" onclick="filterCards('S',this)" style="background:var(--rainbow);background-size:200%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:rainbowShift 2.5s linear infinite;border-color:rgba(255,100,200,0.4);">[???]</button>
+
+    <!-- CARDS TAB -->
+    <div id="collPanel-cards">
+      <div class="coll-filter">
+        <button class="filter-btn active" onclick="filterCards('all',this)">All</button>
+        <button class="filter-btn" onclick="filterCards('N',this)" style="color:var(--rN);">[N]</button>
+        <button class="filter-btn" onclick="filterCards('R',this)" style="color:var(--rR);">[R]</button>
+        <button class="filter-btn" onclick="filterCards('SR',this)" style="color:var(--rSR);">[SR]</button>
+        <button class="filter-btn" onclick="filterCards('SSR',this)" style="color:var(--rSSR);">[SSR]</button>
+        <button class="filter-btn" onclick="filterCards('UR',this)" style="color:var(--rUR);">[UR]</button>
+        <button class="filter-btn" onclick="filterCards('LR',this)" style="color:var(--rLR);">[LR]</button>
+        <button class="filter-btn" onclick="filterCards('S',this)" style="background:var(--rainbow);background-size:200%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:rainbowShift 2.5s linear infinite;border-color:rgba(255,100,200,0.4);">[???]</button>
+      </div>
+      <div class="cards-grid" id="cardsGrid"></div>
+      <div id="emptyCollection" style="text-align:center;padding:60px 20px;color:var(--text-dim);font-style:italic;">No cards yet! Head to the Pull tab to start your collection ʚɞ</div>
     </div>
-    <div class="cards-grid" id="cardsGrid"></div>
-    <div id="emptyCollection" style="text-align:center;padding:60px 20px;color:var(--text-dim);font-style:italic;">No cards yet! Head to the Pull tab to start your collection ʚɞ</div>
+
+    <!-- INVENTORY TAB -->
+    <div id="collPanel-inventory" style="display:none;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px;">
+        <div style="font-size:0.78em;color:var(--text-dim);font-style:italic;">Items collected from activities &amp; the shop</div>
+        <button class="btn-secondary" style="font-size:0.8em;padding:6px 16px;" onclick="renderInventoryPage()">🔄 Refresh</button>
+      </div>
+      <div id="inventoryGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;">
+        <div style="grid-column:1/-1;text-align:center;color:var(--text-dim);font-style:italic;padding:40px;">Loading inventory... ✦</div>
+      </div>
+      <div id="inventoryEmpty" style="display:none;text-align:center;padding:60px 20px;color:var(--text-dim);">
+        <div style="font-size:3em;margin-bottom:12px;">🎒</div>
+        <div style="font-style:italic;">Your bag is empty!</div>
+        <div style="font-size:0.82em;margin-top:6px;">Complete Work, Train, or Quest activities to find items. Quests have the best drop rates!</div>
+      </div>
+    </div>
   </div>
 
   <!-- SHOP -->
@@ -4356,23 +4378,6 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 </div><!-- end page-activities -->
 
 <!-- INVENTORY PAGE -->
-<div class="page" id="page-inventory">
-  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:20px;">
-    <div>
-      <div style="font-family:'Cinzel Decorative',serif;font-size:1.1em;background:linear-gradient(135deg,var(--pink),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;">🎒 Item Inventory</div>
-      <div style="font-size:0.78em;color:var(--text-dim);margin-top:2px;font-style:italic;">Items collected from activities &amp; the shop</div>
-    </div>
-    <button class="btn-secondary" style="font-size:0.8em;padding:6px 16px;" onclick="renderInventoryPage()">🔄 Refresh</button>
-  </div>
-  <div id="inventoryGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;">
-    <div style="grid-column:1/-1;text-align:center;color:var(--text-dim);font-style:italic;padding:40px;">Loading inventory... ✦</div>
-  </div>
-  <div id="inventoryEmpty" style="display:none;text-align:center;padding:60px 20px;color:var(--text-dim);">
-    <div style="font-size:3em;margin-bottom:12px;">🎒</div>
-    <div style="font-style:italic;">Your bag is empty!</div>
-    <div style="font-size:0.82em;margin-top:6px;">Complete Work, Train, or Quest activities to find items. Quests have the best drop rates!</div>
-  </div>
-</div>
 
   <!-- SOCIAL PAGE -->
   <div class="page" id="page-social">
@@ -4448,7 +4453,6 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
       <button class="filter-btn" id="atab-skins" onclick="switchAdminTab('skins',this)">🎨 Skin Manager</button>
       <button class="filter-btn" id="atab-shop" onclick="switchAdminTab('shop',this)">🛍️ Shop Manager</button>
       <button class="filter-btn" id="atab-items"     onclick="switchAdminTab('items',this)">🎁 Items</button>
-      <button class="filter-btn" id="atab-evolution" onclick="switchAdminTab('evolution',this)">🔮 Evolution</button>
       <button class="filter-btn" id="atab-tools" onclick="switchAdminTab('tools',this)">🔧 Tools</button>
     </div>
 
@@ -4503,30 +4507,6 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
         <button class="btn-secondary" id="itemCancelBtn" style="display:none;font-size:0.8em;" onclick="cancelItemEdit()">✕ Cancel</button>
       </div>
 
-      <!-- Shop listing section -->
-      <div style="border-top:1px solid var(--border);margin-top:16px;padding-top:14px;">
-        <div class="admin-section-label" style="margin-bottom:10px;">🛍️ Add to Shop</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
-          <div>
-            <label class="admin-label">Item Key</label>
-            <input class="admin-input" id="shopListItem_key" placeholder="pochita_heart"/>
-          </div>
-          <div>
-            <label class="admin-label">Price (🪙)</label>
-            <input class="admin-input" id="shopListItem_price" type="number" value="500" min="1"/>
-          </div>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
-          <div>
-            <label class="admin-label">Stock (-1 = ∞)</label>
-            <input class="admin-input" id="shopListItem_stock" type="number" value="-1"/>
-          </div>
-          <div style="display:flex;align-items:flex-end;padding-bottom:2px;">
-            <button class="btn-secondary" style="width:100%;font-size:0.8em;" onclick="addItemShopListing()">🛍️ List in Shop</button>
-          </div>
-        </div>
-      </div>
-
       <!-- Admin Give Item -->
       <div style="border-top:1px solid var(--border);margin-top:14px;padding-top:14px;">
         <div class="admin-section-label" style="margin-bottom:10px;">👑 Give Item to Player</div>
@@ -4564,12 +4544,6 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
       <div id="adminItemList">
         <div style="color:var(--text-dim);font-style:italic;font-size:0.85em;text-align:center;padding:20px;">No items yet.</div>
       </div>
-      <div style="border-top:1px solid var(--border);margin-top:14px;padding-top:12px;">
-        <div class="admin-section-label" style="margin-bottom:8px;">Shop Listings <span id="adminShopListingCount" style="color:var(--text-dim);font-size:0.78em;"></span></div>
-        <div id="adminShopListingList">
-          <div style="color:var(--text-dim);font-style:italic;font-size:0.82em;text-align:center;padding:14px;">None listed yet.</div>
-        </div>
-      </div>
     </div>
   </div>
 </div>
@@ -4583,11 +4557,15 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
       <h3 style="font-family:'Cinzel Decorative',serif;font-size:0.88em;margin-bottom:16px;">🔮 Set Card Evolution</h3>
       <input type="hidden" id="evoEditId"/>
 
-      <label class="admin-label">Base Card ID * <span class="admin-hint">(the card that evolves)</span></label>
-      <input class="admin-input" id="evoForm_baseCard" placeholder="denji" style="margin-bottom:8px;" oninput="updateEvoPreview()"/>
+      <label class="admin-label">Base Card <span class="admin-hint">(the card that evolves)</span></label>
+      <select class="admin-input" id="evoForm_baseCard" onchange="updateEvoPreview()" style="margin-bottom:8px;">
+        <option value="">— select base card —</option>
+      </select>
 
-      <label class="admin-label">Target Card ID * <span class="admin-hint">(the card it becomes)</span></label>
-      <input class="admin-input" id="evoForm_targetCard" placeholder="pochita_hero" style="margin-bottom:8px;" oninput="updateEvoPreview()"/>
+      <label class="admin-label">Target Card <span class="admin-hint">(the card it becomes)</span></label>
+      <select class="admin-input" id="evoForm_targetCard" onchange="updateEvoPreview()" style="margin-bottom:8px;">
+        <option value="">— select target card —</option>
+      </select>
 
       <label class="admin-label">Evolution Type</label>
       <select class="admin-input" id="evoForm_type" onchange="toggleEvoFields()" style="margin-bottom:8px;">
@@ -4602,9 +4580,10 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
       </div>
 
       <div id="evoItemWrap" style="display:none;margin-bottom:8px;">
-        <label class="admin-label">Required Item Key</label>
-        <input class="admin-input" id="evoForm_item" placeholder="pochita_heart"/>
-        <div style="font-size:0.72em;color:var(--text-dim);margin-top:3px;">Must match an item_key from the Items tab</div>
+        <label class="admin-label">Required Item</label>
+        <select class="admin-input" id="evoForm_item">
+          <option value="">— select item —</option>
+        </select>
       </div>
 
       <!-- Visual preview -->
@@ -4768,6 +4747,59 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
             </div>
             <div id="adminCardList">
               <div style="color:var(--text-dim);font-style:italic;font-size:0.85em;text-align:center;padding:20px;">Click 🔄 to load cards</div>
+            </div>
+          </div>
+
+          <!-- EVOLUTION PANEL (embedded in Card Manager) -->
+          <div class="admin-panel" style="margin-top:16px;border-color:rgba(192,132,184,0.3);">
+            <h3 style="font-family:'Cinzel Decorative',serif;font-size:0.85em;margin-bottom:14px;color:#c084b8;">🔮 Card Evolution</h3>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+              <div>
+                <label class="admin-label">Base Card</label>
+                <select class="admin-input" id="evoForm_baseCard" onchange="updateEvoPreview()">
+                  <option value="">— select —</option>
+                </select>
+              </div>
+              <div>
+                <label class="admin-label">Evolves Into</label>
+                <select class="admin-input" id="evoForm_targetCard" onchange="updateEvoPreview()">
+                  <option value="">— select —</option>
+                </select>
+              </div>
+            </div>
+            <input type="hidden" id="evoEditId"/>
+            <label class="admin-label">Type</label>
+            <select class="admin-input" id="evoForm_type" onchange="toggleEvoFields()" style="margin-bottom:8px;">
+              <option value="none">None (disabled)</option>
+              <option value="level">Level Only</option>
+              <option value="level_item">Level + Item</option>
+            </select>
+            <div id="evoLevelWrap" style="display:none;margin-bottom:8px;">
+              <label class="admin-label">Required Level (1–10)</label>
+              <input class="admin-input" id="evoForm_level" type="number" min="1" max="10" value="5"/>
+            </div>
+            <div id="evoItemWrap" style="display:none;margin-bottom:8px;">
+              <label class="admin-label">Required Item</label>
+              <select class="admin-input" id="evoForm_item">
+                <option value="">— select item —</option>
+              </select>
+            </div>
+            <div id="evoPreviewBox" style="background:rgba(192,132,184,0.05);border:1px solid var(--border);border-radius:10px;padding:10px;margin:8px 0;display:none;text-align:center;">
+              <div style="font-size:0.72em;color:var(--text-dim);margin-bottom:5px;">Preview</div>
+              <div id="evoPreviewContent" style="display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;"></div>
+            </div>
+            <div style="display:flex;gap:8px;margin-top:8px;">
+              <button class="btn-primary" style="flex:1;font-size:0.8em;" onclick="submitEvolutionForm()">🔮 Save</button>
+              <button class="btn-secondary" id="evoCancelBtn" style="display:none;font-size:0.8em;" onclick="cancelEvoEdit()">✕</button>
+            </div>
+            <div style="border-top:1px solid var(--border);margin-top:12px;padding-top:10px;">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                <div class="admin-section-label" style="margin:0;">Configured <span id="adminEvoCount" style="color:var(--text-dim);font-size:0.85em;"></span></div>
+                <button class="btn-secondary" style="font-size:0.7em;padding:3px 10px;" onclick="loadAdminEvoList()">↺</button>
+              </div>
+              <div id="adminEvoList">
+                <div style="color:var(--text-dim);font-style:italic;font-size:0.82em;text-align:center;padding:12px;">None yet.</div>
+              </div>
             </div>
           </div>
         </div>
@@ -5158,6 +5190,38 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
         </div>
         <div id="adminShopItemList">
           <div style="color:var(--text-dim);font-style:italic;font-size:0.85em;text-align:center;padding:20px;">Click 🔄 to load shop items</div>
+        </div>
+      </div>
+
+      <!-- Game Item Shop Listings -->
+      <div class="admin-panel" style="margin-top:16px;">
+        <h3 style="font-family:'Cinzel Decorative',serif;font-size:0.88em;margin-bottom:14px;">🎁 List Game Item in Shop</h3>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+          <div>
+            <label class="admin-label">Item</label>
+            <select class="admin-input" id="shopListItem_key">
+              <option value="">— select item —</option>
+            </select>
+          </div>
+          <div>
+            <label class="admin-label">Price (🪙)</label>
+            <input class="admin-input" id="shopListItem_price" type="number" value="500" min="1"/>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
+          <div>
+            <label class="admin-label">Stock (-1 = ∞)</label>
+            <input class="admin-input" id="shopListItem_stock" type="number" value="-1"/>
+          </div>
+          <div style="display:flex;align-items:flex-end;padding-bottom:2px;">
+            <button class="btn-secondary" style="width:100%;font-size:0.8em;" onclick="addItemShopListing()">🛍️ List in Shop</button>
+          </div>
+        </div>
+        <div style="border-top:1px solid var(--border);margin-top:10px;padding-top:10px;">
+          <div class="admin-section-label" style="margin-bottom:8px;">Listed Game Items <span id="adminShopListingCount" style="color:var(--text-dim);font-size:0.78em;"></span></div>
+          <div id="adminShopListingList">
+            <div style="color:var(--text-dim);font-style:italic;font-size:0.82em;text-align:center;padding:14px;">None listed yet.</div>
+          </div>
         </div>
       </div>
     </div>
@@ -7250,6 +7314,8 @@ function updateHomeSpotlight(){
 function goTo(page,btn){ playNavSound();
   // battle is now embedded in activities
   if(page==='battle')page='activities';
+  // inventory is now the Bag tab inside collection
+  if(page==='inventory'){ goTo('collection',btn); switchCollectionTab('inventory',null); return; }
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
   const pageEl=document.getElementById('page-'+page);
@@ -10068,9 +10134,9 @@ function switchAdminTab(tab, btn){
   });
   if(tab==='banners') loadAdminBannerList();
   if(tab==='skins') { populateSkinCardSelect(); loadAdminSkinList(); }
-  if(tab==='shop') { populateShopSkinSelect(); loadAdminShopItems(); }
+  if(tab==='shop') { populateShopSkinSelect(); loadAdminShopItems(); populateShopItemDropdown(); loadAdminShopListings(); }
   if(tab==='items') { loadAdminItemList(); }
-  if(tab==='evolution') { loadAdminEvoList(); toggleEvoFields(); }
+  if(tab==='cards') { loadAdminEvoList(); toggleEvoFields(); populateEvoCardDropdowns(); populateEvoItemDropdown(); }
 }
 
 // ── Upload file to Supabase Storage ──
@@ -15320,3 +15386,104 @@ async function deleteAdminEvo(evoId, baseCardId) {
 
 </body>
 </html>
+<script>
+// ── Collection page tab switcher ──
+function switchCollectionTab(tab, btn) {
+  ['cards','inventory'].forEach(t => {
+    const panel = document.getElementById('collPanel-' + t);
+    const tabBtn = document.getElementById('ctab-' + t);
+    if(panel) panel.style.display = t === tab ? '' : 'none';
+    if(tabBtn) tabBtn.classList.toggle('active', t === tab);
+  });
+  const stats = document.getElementById('collTabStats');
+  if(stats) stats.style.display = tab === 'cards' ? 'flex' : 'none';
+  if(tab === 'inventory') renderInventoryPage();
+}
+
+// ── Populate card dropdowns in the Evolution panel ──
+function populateEvoCardDropdowns() {
+  const cards = window.DEMO_CARDS || (typeof DEMO_CARDS !== 'undefined' ? DEMO_CARDS : []);
+  const RARITY_LABELS = {1:'[N]',2:'[R]',3:'[SR]',4:'[SSR]',5:'[UR]',6:'[LR]',7:'[???]'};
+  const opts = cards.map(c => `<option value="${c.id}">${c.name} ${RARITY_LABELS[c.rarity]||''} · ${c.series}</option>`).join('');
+  const blank = '<option value="">— select —</option>';
+  ['evoForm_baseCard','evoForm_targetCard'].forEach(id => {
+    const el = document.getElementById(id);
+    if(!el) return;
+    const cur = el.value;
+    el.innerHTML = blank + opts;
+    if(cur) el.value = cur;
+  });
+}
+
+// ── Populate item dropdown in the Evolution panel ──
+function populateEvoItemDropdown() {
+  const items = window.GAME_ITEMS || [];
+  const el = document.getElementById('evoForm_item');
+  if(!el) return;
+  const cur = el.value;
+  el.innerHTML = '<option value="">— select item —</option>' +
+    items.map(i => `<option value="${i.item_key}">${i.emoji||'🎁'} ${i.name} (${i.item_key})</option>`).join('');
+  if(cur) el.value = cur;
+}
+
+// ── Populate item dropdown in Shop Manager ──
+function populateShopItemDropdown() {
+  const items = window.GAME_ITEMS || [];
+  const el = document.getElementById('shopListItem_key');
+  if(!el) return;
+  const cur = el.value;
+  el.innerHTML = '<option value="">— select item —</option>' +
+    items.map(i => `<option value="${i.item_key}">${i.emoji||'🎁'} ${i.name}</option>`).join('');
+  if(cur) el.value = cur;
+}
+
+// ── Re-populate dropdowns after items load ──
+const _origLoadGameItems = loadGameItems;
+window.loadGameItems = async function() {
+  await _origLoadGameItems();
+  populateEvoItemDropdown();
+  populateShopItemDropdown();
+};
+
+// ── Re-populate card dropdowns after cards load ──
+const _origLoadCards = typeof loadCards === 'function' ? loadCards : null;
+if(_origLoadCards) {
+  window.loadCards = async function() {
+    await _origLoadCards();
+    populateEvoCardDropdowns();
+  };
+}
+
+// ── Patch submitEvolutionForm to read value from select ──
+// (select already returns the value string, so no changes needed — the
+//  existing submitEvolutionForm reads .value from the elements which works
+//  for both <input> and <select>)
+
+// ── Patch cancelEvoEdit to reset selects properly ──
+const _origCancelEvoEdit = cancelEvoEdit;
+window.cancelEvoEdit = function() {
+  _origCancelEvoEdit();
+  // Re-select blank options
+  ['evoForm_baseCard','evoForm_targetCard','evoForm_item'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el && el.tagName === 'SELECT') el.value = '';
+  });
+};
+
+// ── Patch editAdminEvo to set select values ──
+const _origEditAdminEvo = editAdminEvo;
+window.editAdminEvo = function(evoId) {
+  _origEditAdminEvo(evoId);
+  // selects are set by value assignment which works if options are loaded
+};
+
+// ── On DOMContentLoaded: populate dropdowns once cards/items are ready ──
+document.addEventListener('DOMContentLoaded', () => {
+  // Delay slightly to let DEMO_CARDS and game items initialise
+  setTimeout(() => {
+    populateEvoCardDropdowns();
+    populateEvoItemDropdown();
+    populateShopItemDropdown();
+  }, 1200);
+});
+</script>
