@@ -4,6 +4,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>MeoGacha ✦</title>
+<link rel="stylesheet" href="meo-center.css">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <style>
@@ -4132,6 +4133,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
       <button class="nav-btn active" onclick="goTo('home',this)">🏠 Home</button>
       <button class="nav-btn" onclick="goTo('pull',this)">🎴 Pull</button>
       <button class="nav-btn" onclick="goTo('collection',this)">🃏 Cards</button>
+      <button class="nav-btn" onclick="showPage('meo-center'); meoNavigate('lobby');">🏙️ Meo Center</button>
       <button class="nav-btn" onclick="goTo('shop',this)">🛍️ Shop</button>
       <button class="nav-btn" onclick="goTo('activities',this)">⚔️ Activities</button>
       <button class="nav-btn" onclick="goTo('social',this)">💬 Social</button>
@@ -4154,8 +4156,9 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
       <button class="mobile-nav-btn active" id="mnav-home" onclick="goTo('home',null);setMobileNav('home')"><span class="mob-icon">🏠</span>Home</button>
       <button class="mobile-nav-btn" id="mnav-pull" onclick="goTo('pull',null);setMobileNav('pull')"><span class="mob-icon">🎴</span>Pull</button>
       <button class="mobile-nav-btn" id="mnav-collection" onclick="goTo('collection',null);setMobileNav('collection')"><span class="mob-icon">🃏</span>Cards</button>
+      <button class="mobile-nav-btn" id="mnav-meo" onclick="goTo('meo-center',null);meoNavigate('lobby');setMobileNav('meo')"><span class="mob-icon">🏙️</span>Meo Center</button>
       <button class="mobile-nav-btn" id="mnav-shop" onclick="goTo('shop',null);setMobileNav('shop')"><span class="mob-icon">🛍️</span>Shop</button>
-      <button class="mobile-nav-btn" id="mnav-activities" onclick="goTo('activities',null);setMobileNav('activities')"><span class="mob-icon">⚔️</span>Battle</button>
+      <button class="mobile-nav-btn" id="mnav-activities" onclick="goTo('activities',null);setMobileNav('activities')"><span class="mob-icon">⚔️</span>Activities</button>
       <button class="mobile-nav-btn" id="mnav-social" onclick="goTo('social',null);setMobileNav('social')"><span class="mob-icon">💬</span>Social</button>
       <button class="mobile-nav-btn" id="mnav-profile" style="display:none" onclick="goTo('profile',null);setMobileNav('profile')"><span class="mob-icon">👤</span>Profile</button>
       <button class="mobile-nav-btn" id="mnav-admin" style="display:none" onclick="goTo('admin',null);setMobileNav('admin')"><span class="mob-icon">⚙️</span>Admin</button>
@@ -4363,6 +4366,261 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
       </div>
     </div>
   </div>
+
+<div id="page-meo-center" class="page">
+
+  <!-- Header -->
+  <div class="meo-header">
+    <div class="meo-header-title">✦ Meo Center ✦</div>
+    <div class="meo-header-sub">the social heart of MeoGacha</div>
+  </div>
+
+  <!-- Tab Navigation -->
+  <div class="meo-tabs">
+    <button class="meo-tab active" data-tab="lobby" onclick="meoNavigate('lobby')">
+      💬 Lobby Plaza
+    </button>
+    <button class="meo-tab" data-tab="rooms" onclick="meoNavigate('rooms')">
+      🚪 Player Rooms
+    </button>
+    <button class="meo-tab" data-tab="shops" onclick="meoNavigate('shops')">
+      🛍️ Shops District
+    </button>
+    <button class="meo-tab" data-tab="cinema" onclick="meoNavigate('cinema')">
+      🎬 Cinema Hall
+    </button>
+    <button class="meo-tab" data-tab="arcade" onclick="meoNavigate('arcade')">
+      🕹️ Arcade Floor
+    </button>
+  </div>
+
+  <!-- ─── 1. LOBBY PLAZA ─────────────────────────────────────── -->
+  <div class="meo-section" data-section="lobby">
+    <div class="meo-section-header">
+      <div>
+        <div class="meo-section-title">Global Lobby</div>
+        <div class="meo-section-desc">Chat, flex cards, find trades & battles</div>
+      </div>
+      <div style="display:flex;gap:6px;align-items:center;">
+        <div id="meo-lobby-online" style="font-size:0.76em;color:var(--text-dim);font-family:'JetBrains Mono',monospace;">
+          <span style="color:#2ecc71;">●</span> Live
+        </div>
+      </div>
+    </div>
+
+    <!-- Message type quick-select -->
+    <div class="meo-msg-types" id="meo-msg-type-row">
+      <button class="meo-msg-type-btn active" data-type="chat" onclick="meoSelectMsgType(this,'chat')">💬 Chat</button>
+      <button class="meo-msg-type-btn" data-type="flex" onclick="meoSelectMsgType(this,'flex')">✨ Flex</button>
+      <button class="meo-msg-type-btn" data-type="trade" onclick="meoSelectMsgType(this,'trade')">🔄 Trade</button>
+      <button class="meo-msg-type-btn" data-type="battle" onclick="meoSelectMsgType(this,'battle')">⚔️ Battle</button>
+      <button class="meo-msg-type-btn" data-type="status" onclick="meoSelectMsgType(this,'status')">🌟 Status</button>
+    </div>
+
+    <div class="meo-chat-wrap" style="margin-top:10px;">
+      <div class="meo-chat-messages" id="meo-chat-messages">
+        <div class="meo-empty">Connecting to lobby...</div>
+      </div>
+      <div class="meo-chat-input-row">
+        <input
+          class="meo-chat-input"
+          id="meo-lobby-input"
+          type="text"
+          placeholder="Say something in the plaza..."
+          maxlength="300"
+          autocomplete="off"
+        >
+        <button class="meo-btn meo-btn-sm" id="meo-lobby-send-btn"
+          onclick="meoLobbySend()">Send</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── 2. PLAYER ROOMS ────────────────────────────────────── -->
+  <div class="meo-section" data-section="rooms" style="display:none;">
+
+    <!-- Room Lobby (list view) -->
+    <div id="meo-room-lobby">
+      <!-- Create Room Form -->
+      <div class="meo-create-room meo-glass" style="margin-bottom:16px;">
+        <div class="meo-section-title" style="margin-bottom:10px;">Create a Room</div>
+        <input type="text" id="meo-room-name-input" placeholder="Room name (e.g. Oshi No Ko fans 🌸)" maxlength="40">
+        <div style="display:flex;gap:8px;align-items:center;">
+          <label style="font-size:0.8em;color:var(--text-dim);display:flex;align-items:center;gap:6px;cursor:pointer;">
+            <input type="checkbox" id="meo-room-public" checked>
+            Public room
+          </label>
+          <button class="meo-btn meo-btn-sm" onclick="meoCreateRoom(
+            document.getElementById('meo-room-name-input').value,
+            document.getElementById('meo-room-public').checked
+          )">Create Room ✦</button>
+        </div>
+      </div>
+
+      <!-- Room List -->
+      <div class="meo-section-header">
+        <div>
+          <div class="meo-section-title">Open Rooms</div>
+          <div class="meo-section-desc">Join a room to chat with other players</div>
+        </div>
+        <button class="meo-btn meo-btn-sm meo-btn-ghost" onclick="meoLoadRoomList()">↻ Refresh</button>
+      </div>
+      <div class="meo-room-list" id="meo-room-list">
+        <div class="meo-empty">Loading rooms...</div>
+      </div>
+    </div>
+
+    <!-- Active Room View -->
+    <div id="meo-room-active" style="display:none;">
+      <div class="meo-section-header">
+        <div>
+          <div class="meo-section-title" id="meo-room-title">Room Name</div>
+          <div class="meo-section-desc">Private hangout</div>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button class="meo-btn meo-btn-sm meo-btn-ghost" onclick="meoLeaveRoom()">← Leave Room</button>
+        </div>
+      </div>
+
+      <div class="meo-chat-wrap">
+        <div class="meo-chat-messages" id="meo-chat-messages">
+          <!-- Room messages load here -->
+        </div>
+        <div class="meo-chat-input-row">
+          <input class="meo-chat-input" id="meo-room-input" type="text"
+            placeholder="Chat with room members..." maxlength="300" autocomplete="off"
+            onkeydown="if(event.key==='Enter')meoRoomSend()">
+          <button class="meo-btn meo-btn-sm" onclick="meoRoomSend()">Send</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── 3. SHOPS DISTRICT ─────────────────────────────────── -->
+  <div class="meo-section" data-section="shops" style="display:none;">
+    <div class="meo-section-header">
+      <div>
+        <div class="meo-section-title">Shops District</div>
+        <div class="meo-section-desc">Spend coins on items for your cards</div>
+      </div>
+    </div>
+
+    <!-- Shop Tabs -->
+    <div class="meo-shop-tabs">
+      <button class="meo-tab active" onclick="meoSelectShop(this,'ramen')">🍜 Ramen Shop</button>
+      <button class="meo-tab" onclick="meoSelectShop(this,'dessert')">🍰 Dessert Shop</button>
+      <button class="meo-tab" onclick="meoSelectShop(this,'black_market')">⚗️ Black Market</button>
+    </div>
+
+    <!-- Shop Items -->
+    <div class="meo-shop-items" id="meo-shop-items">
+      <div class="meo-empty">Loading items...</div>
+    </div>
+  </div>
+
+  <!-- ─── 4. CINEMA HALL ────────────────────────────────────── -->
+  <div class="meo-section" data-section="cinema" style="display:none;">
+
+    <!-- Browser View -->
+    <div id="meo-cinema-browser">
+      <div class="meo-section-header">
+        <div>
+          <div class="meo-section-title">Cinema Hall</div>
+          <div class="meo-section-desc">Watch anime openings & clips with live chat</div>
+        </div>
+      </div>
+      <div class="meo-cinema-grid" id="meo-cinema-list">
+        <div class="meo-empty">Loading screening schedule...</div>
+      </div>
+    </div>
+
+    <!-- Player View -->
+    <div id="meo-cinema-view" style="display:none;">
+      <div class="meo-section-header">
+        <div>
+          <div class="meo-section-title" id="meo-cinema-now-playing">Now Playing</div>
+        </div>
+        <button class="meo-btn meo-btn-sm meo-btn-ghost" onclick="meoCloseCinema()">← Back to Cinema</button>
+      </div>
+
+      <div class="meo-cinema-view-layout">
+        <div class="meo-cinema-player" id="meo-cinema-player"></div>
+        <div style="display:flex;flex-direction:column;height:100%;">
+          <div style="font-size:0.78em;color:var(--text-dim);margin-bottom:6px;">Live Chat</div>
+          <div class="meo-chat-wrap" style="flex:1;height:auto;">
+            <div class="meo-chat-messages" id="meo-chat-messages" style="flex:1;"></div>
+            <div class="meo-chat-input-row">
+              <input class="meo-chat-input" id="meo-cinema-input" type="text"
+                placeholder="React to the video..." maxlength="200" autocomplete="off"
+                onkeydown="if(event.key==='Enter')meoCinemaSend()">
+              <button class="meo-btn meo-btn-sm" onclick="meoCinemaSend()">→</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── 5. ARCADE FLOOR ───────────────────────────────────── -->
+  <div class="meo-section" data-section="arcade" style="display:none;">
+
+    <!-- Game Select -->
+    <div id="meo-arcade-select">
+      <div class="meo-section-header">
+        <div>
+          <div class="meo-section-title">Arcade Floor</div>
+          <div class="meo-section-desc">Play minigames to earn coins & XP</div>
+        </div>
+      </div>
+
+      <div class="meo-arcade-grid">
+        <div class="meo-arcade-card" onclick="meoStartGame('memory')">
+          <div class="meo-arcade-icon">🃏</div>
+          <div class="meo-arcade-name">Memory Match</div>
+          <div class="meo-arcade-desc">Flip cards to find pairs. Up to 50 coins.</div>
+        </div>
+        <div class="meo-arcade-card" onclick="meoStartGame('rhythm')">
+          <div class="meo-arcade-icon">🎵</div>
+          <div class="meo-arcade-name">Rhythm Tap</div>
+          <div class="meo-arcade-desc">Tap to the beat. Coming soon!</div>
+        </div>
+      </div>
+
+      <!-- Leaderboard preview -->
+      <div style="margin-top:24px;">
+        <div class="meo-section-title" style="margin-bottom:10px;">🏆 Top Scores — Memory Match</div>
+        <div id="meo-leaderboard">
+          <div class="meo-empty" style="padding:20px;">Loading scores...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Active Game Area -->
+    <div id="meo-arcade-game" style="display:none;">
+      <div class="meo-section-header">
+        <div class="meo-section-title" id="meo-game-title">Memory Match</div>
+        <button class="meo-btn meo-btn-sm meo-btn-ghost" onclick="meoExitGame()">← Arcade</button>
+      </div>
+
+      <!-- Game stats -->
+      <div class="meo-game-stats">
+        Moves: <span id="meo-memory-moves">0</span>
+        &nbsp;|&nbsp;
+        <span id="meo-memory-status"></span>
+      </div>
+
+      <!-- Memory board renders here -->
+      <div class="meo-memory-board" id="meo-memory-board"></div>
+
+      <div style="text-align:center;margin-top:16px;">
+        <button class="meo-btn meo-btn-sm meo-btn-ghost" onclick="meoStartMemoryGame()">↻ New Game</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+<!-- END MEO CENTER PAGE -->
+
 
   <!-- SHOP -->
   <div class="page" id="page-shop">
@@ -16102,8 +16360,8 @@ let _adminEvoCache = [];
   <div id="chatCtxActions" style="padding:0 8px 16px;display:flex;flex-direction:column;gap:2px;"></div>
 </div>
 
-</body>
-</html>
+
+
 <script>
 // ── Collection page tab switcher ──
 function switchCollectionTab(tab, btn) {
@@ -16117,6 +16375,59 @@ function switchCollectionTab(tab, btn) {
   if(stats) stats.style.display = tab === 'cards' ? 'flex' : 'none';
   if(tab === 'inventory') renderInventoryPage();
   if(tab === 'anime') renderAnimeCollections();
+}
+
+// Active msg type tracker
+let _meoMsgType = 'chat';
+
+function meoSelectMsgType(btn, type) {
+  _meoMsgType = type;
+  document.querySelectorAll('.meo-msg-type-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function meoLobbySend() {
+  const input = document.getElementById('meo-lobby-input');
+  if (!input) return;
+  meoSendMessage('lobby', input.value, _meoMsgType);
+  input.value = '';
+}
+
+function meoRoomSend() {
+  const input = document.getElementById('meo-room-input');
+  if (!meoState?.currentRoom || !input) return;
+  meoSendMessage(`room:${meoState.currentRoom.id}`, input.value);
+  input.value = '';
+}
+
+function meoCinemaSend() {
+  const input = document.getElementById('meo-cinema-input');
+  const player = document.getElementById('meo-cinema-player');
+  const iframe = player?.querySelector('iframe');
+  if (!iframe || !input) return;
+  const ytId = iframe.src.match(/embed\/([^?]+)/)?.[1] || 'unknown';
+  meoSendMessage(`cinema:${ytId}`, input.value);
+  input.value = '';
+}
+
+function meoSelectShop(btn, shopId) {
+  document.querySelectorAll('.meo-shop-tabs .meo-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  meoLoadShop(shopId);
+}
+
+// Hook into your existing showPage to init the first section
+const _origShowPage = typeof showPage === 'function' ? showPage : null;
+if (_origShowPage) {
+  window.showPage = function(pageId) {
+    _origShowPage(pageId);
+    if (pageId === 'meo-center') {
+      setTimeout(() => {
+        meoNavigate('lobby');
+        meoLoadLeaderboard('memory');
+      }, 100);
+    }
+  };
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -16603,33 +16914,10 @@ if(_origLoadAll_anime) {
 document.addEventListener('DOMContentLoaded', () => {
   setTimeout(() => loadAnimeCollections(), 800);
 });
+
+
 </script>
 
-<!-- CHAT REPLY / DELETE SQL MIGRATION (run once in Supabase SQL Editor):
-ALTER TABLE chat_messages
-  ADD COLUMN IF NOT EXISTS reply_to_id       uuid,
-  ADD COLUMN IF NOT EXISTS reply_to_username  text DEFAULT '',
-  ADD COLUMN IF NOT EXISTS reply_to_excerpt   text DEFAULT '',
-  ADD COLUMN IF NOT EXISTS skin_id            text DEFAULT NULL;
--- skin_id stores the equipped skin of the sender when flexing a card,
--- so all viewers see the correct skin art in the chat flex card.
-
--- Allow users to delete their own messages, and admin to delete any:
-CREATE POLICY "users_delete_own_chat" ON chat_messages
-  FOR DELETE USING (auth.uid()::text = discord_id OR discord_id = ANY(ARRAY['1475627573437534442']));
--- (add your admin discord_id above if using service_role key anon delete already works)
--->
-
-<!-- ANIME COLLECTIONS SQL MIGRATION (run once in Supabase SQL Editor):
-CREATE TABLE IF NOT EXISTS anime_collections (
-  id          uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  name        text UNIQUE NOT NULL,
-  poster_url  text DEFAULT '',
-  logo_url    text DEFAULT '',
-  sort_order  int DEFAULT 0,
-  created_at  timestamptz DEFAULT now()
-);
-ALTER TABLE anime_collections ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "anon_read_anime"  ON anime_collections FOR SELECT USING (true);
-CREATE POLICY "anon_write_anime" ON anime_collections FOR ALL    USING (true);
--->
+<script src="meo-center.js"></script>
+</body>
+</html>
