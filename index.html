@@ -12706,8 +12706,10 @@ function getSupaRT(){
   _supaRT = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
     realtime: { params: { eventsPerSecond: 10 } }
   });
+  window.supabaseClient = _supaRT;
   return _supaRT;
 }
+
 
 // ── Wait for supabase-js CDN to be ready ──
 function waitForSupabase(maxMs=5000){
