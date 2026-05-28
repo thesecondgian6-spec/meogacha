@@ -123,7 +123,7 @@ async function meoLoadMessages(channel) {
   if (!el) return;
 
   try {
-    const { data, error } = await meoGetSupabase()
+    const { data, error } = (await meoGetSupabase())
       .from('chat_messages')
       .select('*')
       .eq('channel', channel)
@@ -175,7 +175,7 @@ async function meoSubscribeChat(channel) {
   const el = document.getElementById('meo-chat-messages');
   if (!el) return;
 
-  meoState.lobbyChannel = await meoGetSupabase()
+  meoState.lobbyChannel = (await meoGetSupabase())
     .channel(`meo-chat-${channel}`)
     .on('postgres_changes', {
       event: 'INSERT',
@@ -218,7 +218,7 @@ async function meoSendMessage(channel, messageText, msgType = 'chat') {
   meoState.chatCooldownUntil = now + MEO.CHAT_COOLDOWN_MS;
 
   try {
-    const { error } = await meoGetSupabase()
+    const { error } = (await meoGetSupabase())
       .from('chat_messages')
       .insert({
         discord_id: user.id,
@@ -248,7 +248,7 @@ async function meoLoadRoomList() {
   if (!el) return;
 
   try {
-    const { data, error } = await meoGetSupabase()
+    const { data, error } = (await meoGetSupabase())
       .from('meo_rooms')
       .select('*')
       .eq('is_public', true)
@@ -279,7 +279,7 @@ async function meoLoadRoomList() {
 }
 
 async function meoSubscribeRoomList() {
-  await meoGetSupabase()
+  (await meoGetSupabase())
     .channel('meo-rooms-list')
     .on('postgres_changes', {
       event: '*',
@@ -295,7 +295,7 @@ async function meoCreateRoom(name, isPublic = true) {
   if (!name.trim()) { meoShowToast('❌ Room name is required.'); return; }
 
   try {
-    const { data, error } = await meoGetSupabase()
+    const { data, error } = (await meoGetSupabase())
       .from('meo_rooms')
       .insert({
         name: name.trim().slice(0, 40),
@@ -324,7 +324,7 @@ async function meoJoinRoom(roomId, roomName) {
   meoState.currentRoom = { id: roomId, name: roomName };
 
   // Upsert member presence
-  await meoGetSupabase().from('meo_room_members').upsert({
+  (await meoGetSupabase()).from('meo_room_members').upsert({
     room_id: roomId,
     discord_id: user.id,
     username: user.name,
@@ -346,7 +346,7 @@ async function meoLeaveRoom() {
   if (!meoState.currentRoom) return;
   const user = meoGetUser();
   if (user.id) {
-    await meoGetSupabase()
+    (await meoGetSupabase())
       .from('meo_room_members')
       .delete()
       .match({ room_id: meoState.currentRoom.id, discord_id: user.id });
@@ -362,7 +362,7 @@ async function meoDeleteRoom(roomId) {
   if (!user.id) return;
   if (!confirm('Delete this room?')) return;
 
-  const { error } = await meoGetSupabase()
+  const { error } = (await meoGetSupabase())
     .from('meo_rooms')
     .delete()
     .match({ id: roomId, owner_id: user.id });
@@ -384,7 +384,7 @@ async function meoLoadShop(shopId) {
   if (!el) return;
 
   try {
-    const { data, error } = await meoGetSupabase()
+    const { data, error } = (await meoGetSupabase())
       .from('meo_shop_items')
       .select('*')
       .eq('shop_id', shopId)
@@ -440,26 +440,26 @@ async function meoPurchaseItem(itemId, itemName, price) {
     // await deductCoins(price);  // ← call your existing function
 
     // Record purchase
-    await meoGetSupabase().from('meo_purchases').insert({
+    (await meoGetSupabase()).from('meo_purchases').insert({
       discord_id: user.id,
       item_id: itemId,
       coins_spent: price,
     });
 
     // Update inventory
-    const { data: existing } = await meoGetSupabase()
+    const { data: existing } = (await meoGetSupabase())
       .from('meo_inventory')
       .select('id, quantity')
       .match({ discord_id: user.id, item_id: itemId })
       .single();
 
     if (existing) {
-      await meoGetSupabase()
+      (await meoGetSupabase())
         .from('meo_inventory')
         .update({ quantity: existing.quantity + 1 })
         .eq('id', existing.id);
     } else {
-      await meoGetSupabase().from('meo_inventory').insert({
+      (await meoGetSupabase()).from('meo_inventory').insert({
         discord_id: user.id,
         item_id: itemId,
         quantity: 1,
@@ -485,7 +485,7 @@ async function meoLoadCinemaSlots() {
   if (!el) return;
 
   try {
-    const { data, error } = await meoGetSupabase()
+    const { data, error } = (await meoGetSupabase())
       .from('meo_cinema_slots')
       .select('*')
       .eq('is_active', true)
@@ -650,7 +650,7 @@ async function meoMemoryComplete() {
     try {
       // Check daily limit
       const today = new Date().toISOString().slice(0, 10);
-      const { data: daily } = await meoGetSupabase()
+      const { data: daily } = (await meoGetSupabase())
         .from('meo_arcade_daily')
         .select('play_count, coins_today')
         .match({ discord_id: user.id, game_id: 'memory', play_date: today })
@@ -662,7 +662,7 @@ async function meoMemoryComplete() {
       if (playCount < MEO.ARCADE_DAILY_LIMIT && coinsToday < MEO.ARCADE_DAILY_COIN_CAP) {
         const actualCoins = Math.min(coins, MEO.ARCADE_DAILY_COIN_CAP - coinsToday);
 
-        await meoGetSupabase().from('meo_arcade_scores').insert({
+        (await meoGetSupabase()).from('meo_arcade_scores').insert({
           discord_id: user.id,
           username: user.name,
           game_id: 'memory',
@@ -670,7 +670,7 @@ async function meoMemoryComplete() {
           coins_earned: actualCoins,
         });
 
-        await meoGetSupabase().from('meo_arcade_daily').upsert({
+        (await meoGetSupabase()).from('meo_arcade_daily').upsert({
           discord_id: user.id,
           game_id: 'memory',
           play_date: today,
@@ -716,7 +716,7 @@ async function meoLoadLeaderboard(gameId) {
   const el = document.getElementById('meo-leaderboard');
   if (!el) return;
 
-  const { data } = await meoGetSupabase()
+  const { data } = (await meoGetSupabase())
     .from('meo_arcade_scores')
     .select('username, score, played_at')
     .eq('game_id', gameId)
