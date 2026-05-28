@@ -7391,21 +7391,17 @@ function openSellCardModal(){
   const c = cards.find(x=>x.id===id);
   if(!c || !state.collection.includes(id)) return;
 
-  // Duplicate check: only sellable if owned more than once
   const copies = state.collection.filter(x=>x===id).length;
-
-  // Cooldown check
   const now = Date.now();
   if(_sellCooldownUntil > now){
     const mins = Math.ceil((_sellCooldownUntil - now)/60000);
-    showToast(`⏳ Sell cooldown — wait ${mins} more min`);
+    showToast('\u23f3 Sell cooldown \u2014 wait '+mins+' more min');
     return;
   }
 
   const price = SELL_PRICES_MAP[c.rarity]||10;
-  const color  = RARITY_COLORS[c.rarity]||'#bdc3c7';
+  const color = RARITY_COLORS[c.rarity]||'#bdc3c7';
 
-  // Build or reuse a lightweight sell confirm overlay
   let box = document.getElementById('sellConfirmBox');
   if(!box){
     box = document.createElement('div');
@@ -7414,26 +7410,80 @@ function openSellCardModal(){
     document.body.appendChild(box);
   }
 
-  const dupeWarn = copies > 1
-    ? ''
-    : '<div style="background:rgba(231,76,60,0.12);border:1px solid rgba(231,76,60,0.35);border-radius:8px;padding:8px 12px;font-size:0.78em;color:#e74c3c;margin-bottom:12px;">⚠️ You only own 1 copy — selling will remove it from your collection!</div>';
-
-  box.innerHTML = '<div style="background:linear-gradient(135deg,var(--bg2),var(--bg3));border:1px solid '+color+'44;border-radius:20px;max-width:380px;width:100%;padding:24px;text-align:center;animation:modalIn 0.25s cubic-bezier(0.34,1.56,0.64,1);">'
-    +'<div style="font-family:'Cinzel Decorative',serif;font-size:0.72em;letter-spacing:0.12em;color:'+color+';margin-bottom:12px;">✦ SELL CARD ✦</div>'
-    +'<img src="'+(c.thumbnail||c.image)+'" alt="'+c.name+'" style="width:80px;height:112px;object-fit:cover;border-radius:10px;border:2px solid '+color+';box-shadow:0 0 16px '+color+'44;margin-bottom:12px;" onerror="this.style.display='none'"/>'
-    +'<div style="font-family:'Cinzel Decorative',serif;font-size:0.95em;color:var(--text);margin-bottom:4px;">'+c.name+'</div>'
-    +'<div style="font-size:0.8em;color:'+color+';margin-bottom:16px;">'+c.rarityName+' '+c.rarityStars+'</div>'
-    +dupeWarn
-    +'<div style="background:rgba(241,196,15,0.08);border:1px solid rgba(241,196,15,0.25);border-radius:10px;padding:10px;margin-bottom:16px;">'
-    +'<div style="font-family:'JetBrains Mono',monospace;font-size:1.2em;color:#f1c40f;">+'+price+' 🪙</div>'
-    +'<div style="font-size:0.72em;color:var(--text-dim);margin-top:2px;">One copy will be removed</div>'
-    +'</div>'
-    +'<div style="display:flex;gap:10px;">'
-    +'<button onclick="confirmSellCard(''+id+'','+price+')" style="flex:1;padding:10px;border-radius:12px;border:1px solid rgba(231,76,60,0.5);background:rgba(231,76,60,0.15);color:#e74c3c;font-family:'Cinzel Decorative',serif;font-size:0.75em;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.background='rgba(231,76,60,0.28)'" onmouseout="this.style.background='rgba(231,76,60,0.15)'">Confirm Sell</button>'
-    +'<button onclick="document.getElementById('sellConfirmBox').style.display='none'" style="flex:1;padding:10px;border-radius:12px;border:1px solid var(--border);background:var(--surface);color:var(--text-dim);font-family:'Cinzel Decorative',serif;font-size:0.75em;cursor:pointer;">Cancel</button>'
-    +'</div>'
-    +'</div>';
+  // Build entirely with DOM — no innerHTML string quoting issues
+  box.innerHTML = '';
   box.style.display = 'flex';
+
+  const wrap = document.createElement('div');
+  wrap.style.cssText = 'background:linear-gradient(135deg,var(--bg2),var(--bg3));border:1px solid '+color+'44;border-radius:20px;max-width:380px;width:100%;padding:24px;text-align:center;animation:modalIn 0.25s cubic-bezier(0.34,1.56,0.64,1);';
+
+  // Title
+  const title = document.createElement('div');
+  title.style.cssText = "font-family:'Cinzel Decorative',serif;font-size:0.72em;letter-spacing:0.12em;color:"+color+";margin-bottom:12px;";
+  title.textContent = '\u2736 SELL CARD \u2736';
+  wrap.appendChild(title);
+
+  // Art
+  const img = document.createElement('img');
+  img.src = c.thumbnail||c.image||'';
+  img.alt = c.name;
+  img.style.cssText = 'width:80px;height:112px;object-fit:cover;border-radius:10px;border:2px solid '+color+';box-shadow:0 0 16px '+color+'44;margin-bottom:12px;display:block;margin-left:auto;margin-right:auto;';
+  img.onerror = function(){ this.style.display='none'; };
+  wrap.appendChild(img);
+
+  // Name
+  const nameEl = document.createElement('div');
+  nameEl.style.cssText = "font-family:'Cinzel Decorative',serif;font-size:0.95em;color:var(--text);margin-bottom:4px;";
+  nameEl.textContent = c.name;
+  wrap.appendChild(nameEl);
+
+  // Rarity
+  const rarEl = document.createElement('div');
+  rarEl.style.cssText = 'font-size:0.8em;color:'+color+';margin-bottom:16px;';
+  rarEl.textContent = (c.rarityName||'')+' '+(c.rarityStars||'');
+  wrap.appendChild(rarEl);
+
+  // Warning if only 1 copy
+  if(copies <= 1){
+    const warn = document.createElement('div');
+    warn.style.cssText = 'background:rgba(231,76,60,0.12);border:1px solid rgba(231,76,60,0.35);border-radius:8px;padding:8px 12px;font-size:0.78em;color:#e74c3c;margin-bottom:12px;';
+    warn.textContent = '\u26a0\ufe0f You only own 1 copy \u2014 selling will remove it from your collection!';
+    wrap.appendChild(warn);
+  }
+
+  // Price box
+  const priceBox = document.createElement('div');
+  priceBox.style.cssText = 'background:rgba(241,196,15,0.08);border:1px solid rgba(241,196,15,0.25);border-radius:10px;padding:10px;margin-bottom:16px;';
+  const priceVal = document.createElement('div');
+  priceVal.style.cssText = "font-family:'JetBrains Mono',monospace;font-size:1.2em;color:#f1c40f;";
+  priceVal.textContent = '+'+price+' \uD83E\uDE99';
+  const priceSub = document.createElement('div');
+  priceSub.style.cssText = 'font-size:0.72em;color:var(--text-dim);margin-top:2px;';
+  priceSub.textContent = 'One copy will be removed';
+  priceBox.appendChild(priceVal);
+  priceBox.appendChild(priceSub);
+  wrap.appendChild(priceBox);
+
+  // Buttons row
+  const btnRow = document.createElement('div');
+  btnRow.style.cssText = 'display:flex;gap:10px;';
+
+  const confirmBtn = document.createElement('button');
+  confirmBtn.textContent = 'Confirm Sell';
+  confirmBtn.style.cssText = 'flex:1;padding:10px;border-radius:12px;border:1px solid rgba(231,76,60,0.5);background:rgba(231,76,60,0.15);color:#e74c3c;font-family:inherit;font-size:0.82em;cursor:pointer;transition:background 0.2s;';
+  confirmBtn.addEventListener('mouseover', function(){ this.style.background='rgba(231,76,60,0.28)'; });
+  confirmBtn.addEventListener('mouseout',  function(){ this.style.background='rgba(231,76,60,0.15)'; });
+  confirmBtn.addEventListener('click', function(){ confirmSellCard(id, price); });
+
+  const cancelBtn = document.createElement('button');
+  cancelBtn.textContent = 'Cancel';
+  cancelBtn.style.cssText = 'flex:1;padding:10px;border-radius:12px;border:1px solid var(--border);background:var(--surface);color:var(--text-dim);font-family:inherit;font-size:0.82em;cursor:pointer;';
+  cancelBtn.addEventListener('click', function(){ box.style.display='none'; });
+
+  btnRow.appendChild(confirmBtn);
+  btnRow.appendChild(cancelBtn);
+  wrap.appendChild(btnRow);
+  box.appendChild(wrap);
 }
 
 async function confirmSellCard(cardId, price){
