@@ -50,6 +50,7 @@ const meoState = {
   currentRoom: null,
   lobbyChannel: null,
   roomChannel: null,
+  roomListChannel: null,
   chatCooldownUntil: 0,
   activeGame: null,
 };
@@ -76,10 +77,12 @@ function meoTimestamp(iso) {
 }
 
 function meoGetUser() {
+  // `state` is a plain `let` in index.html's global scope — not on window
+  const s = (typeof state !== 'undefined' ? state : window.state);
   return {
-    id:     window.state?.discordId || null,
-    name:   window.state?.username  || 'Anon',
-    avatar: window.state?.avatar    || null,
+    id:     s?.discordId || null,
+    name:   s?.username  || 'Anon',
+    avatar: s?.avatar    || null,
   };
 }
 
@@ -279,7 +282,13 @@ async function meoLoadRoomList() {
 }
 
 async function meoSubscribeRoomList() {
-  (await meoGetSupabase())
+  // Unsubscribe any existing channel before creating a new one
+  if (meoState.roomListChannel) {
+    await meoState.roomListChannel.unsubscribe();
+    meoState.roomListChannel = null;
+  }
+  const sb = await meoGetSupabase();
+  meoState.roomListChannel = sb
     .channel('meo-rooms-list')
     .on('postgres_changes', {
       event: '*',
