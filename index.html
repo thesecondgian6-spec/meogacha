@@ -4117,6 +4117,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
         <button class="btn-primary" onclick="closeModal()">Close</button>
         <button class="btn-secondary" id="modalEquipBtn" onclick="equipCard()">⚔️ Equip</button>
         <button class="btn-secondary" id="modalCutsceneBtn" style="display:none;" onclick="viewCardCutscene(openCardId)">🎬 Cutscene</button>
+        <button class="btn-secondary" id="modalSellBtn" style="display:none;color:#e74c3c;border-color:rgba(231,76,60,0.4);" onclick="openSellCardModal()">🪙 Sell</button>
       </div>
     </div>
   </div>
@@ -5088,6 +5089,16 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
             <option value="3">SR and above</option>
             <option value="4">SSR and above</option>
             <option value="5">UR and above</option>
+          </select>
+        </div>
+
+        <div style="margin-bottom:8px;">
+          <label class="admin-label">Rate-Up Multiplier <span class="admin-hint">(for featured cards — 1 = no boost, 2 = default 2×, 3 = 3×)</span></label>
+          <select class="admin-input" id="bannerForm_rateMulti">
+            <option value="1">1× — No boost (featured display only)</option>
+            <option value="2" selected>2× — Standard rate-up</option>
+            <option value="3">3× — Strong rate-up</option>
+            <option value="5">5× — Mega rate-up</option>
           </select>
         </div>
 
@@ -7349,12 +7360,122 @@ function openCard(id){
   if(equipBtn)equipBtn.style.display=isOwned?'':'none';
   const csBtn=document.getElementById('modalCutsceneBtn');
   if(csBtn)csBtn.style.display=cardHasCutscene(id)?'':'none';
+  // Show sell button only for owned cards (not equipped, as safety UX)
+  const sellBtn=document.getElementById('modalSellBtn');
+  const SELL_PRICES={1:5,2:10,3:20,4:50,5:120,6:300,7:500};
+  if(sellBtn){
+    if(isOwned){
+      const sp=SELL_PRICES[c.rarity]||10;
+      sellBtn.style.display='';
+      sellBtn.title='Sell for '+sp+' 🪙';
+    } else { sellBtn.style.display='none'; }
+  }
   document.getElementById('cardModal').classList.add('active');
   _injectEvolveButton(id); 
 }
 function closeModal(e){
   if(!e||e.target===document.getElementById('cardModal'))
     document.getElementById('cardModal').classList.remove('active');
+}
+
+// ── Sell Card ──
+const SELL_PRICES_MAP = {1:5,2:10,3:20,4:50,5:120,6:300,7:500};
+const SELL_COOLDOWN_MS = 10 * 60 * 1000; // 10 min cooldown per sell session
+let _sellSessionCount  = 0;
+const SELL_SESSION_LIMIT = 5; // max sells before a cooldown kicks in
+let _sellCooldownUntil = 0;
+
+function openSellCardModal(){
+  const id = openCardId;
+  const cards = window.DEMO_CARDS||DEMO_CARDS;
+  const c = cards.find(x=>x.id===id);
+  if(!c || !state.collection.includes(id)) return;
+
+  // Duplicate check: only sellable if owned more than once
+  const copies = state.collection.filter(x=>x===id).length;
+
+  // Cooldown check
+  const now = Date.now();
+  if(_sellCooldownUntil > now){
+    const mins = Math.ceil((_sellCooldownUntil - now)/60000);
+    showToast(`⏳ Sell cooldown — wait ${mins} more min`);
+    return;
+  }
+
+  const price = SELL_PRICES_MAP[c.rarity]||10;
+  const color  = RARITY_COLORS[c.rarity]||'#bdc3c7';
+
+  // Build or reuse a lightweight sell confirm overlay
+  let box = document.getElementById('sellConfirmBox');
+  if(!box){
+    box = document.createElement('div');
+    box.id = 'sellConfirmBox';
+    box.style.cssText = 'position:fixed;inset:0;z-index:600;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.88);backdrop-filter:blur(6px);padding:20px;';
+    document.body.appendChild(box);
+  }
+
+  const dupeWarn = copies > 1
+    ? ''
+    : '<div style="background:rgba(231,76,60,0.12);border:1px solid rgba(231,76,60,0.35);border-radius:8px;padding:8px 12px;font-size:0.78em;color:#e74c3c;margin-bottom:12px;">⚠️ You only own 1 copy — selling will remove it from your collection!</div>';
+
+  box.innerHTML = '<div style="background:linear-gradient(135deg,var(--bg2),var(--bg3));border:1px solid '+color+'44;border-radius:20px;max-width:380px;width:100%;padding:24px;text-align:center;animation:modalIn 0.25s cubic-bezier(0.34,1.56,0.64,1);">'
+    +'<div style="font-family:'Cinzel Decorative',serif;font-size:0.72em;letter-spacing:0.12em;color:'+color+';margin-bottom:12px;">✦ SELL CARD ✦</div>'
+    +'<img src="'+(c.thumbnail||c.image)+'" alt="'+c.name+'" style="width:80px;height:112px;object-fit:cover;border-radius:10px;border:2px solid '+color+';box-shadow:0 0 16px '+color+'44;margin-bottom:12px;" onerror="this.style.display='none'"/>'
+    +'<div style="font-family:'Cinzel Decorative',serif;font-size:0.95em;color:var(--text);margin-bottom:4px;">'+c.name+'</div>'
+    +'<div style="font-size:0.8em;color:'+color+';margin-bottom:16px;">'+c.rarityName+' '+c.rarityStars+'</div>'
+    +dupeWarn
+    +'<div style="background:rgba(241,196,15,0.08);border:1px solid rgba(241,196,15,0.25);border-radius:10px;padding:10px;margin-bottom:16px;">'
+    +'<div style="font-family:'JetBrains Mono',monospace;font-size:1.2em;color:#f1c40f;">+'+price+' 🪙</div>'
+    +'<div style="font-size:0.72em;color:var(--text-dim);margin-top:2px;">One copy will be removed</div>'
+    +'</div>'
+    +'<div style="display:flex;gap:10px;">'
+    +'<button onclick="confirmSellCard(''+id+'','+price+')" style="flex:1;padding:10px;border-radius:12px;border:1px solid rgba(231,76,60,0.5);background:rgba(231,76,60,0.15);color:#e74c3c;font-family:'Cinzel Decorative',serif;font-size:0.75em;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.background='rgba(231,76,60,0.28)'" onmouseout="this.style.background='rgba(231,76,60,0.15)'">Confirm Sell</button>'
+    +'<button onclick="document.getElementById('sellConfirmBox').style.display='none'" style="flex:1;padding:10px;border-radius:12px;border:1px solid var(--border);background:var(--surface);color:var(--text-dim);font-family:'Cinzel Decorative',serif;font-size:0.75em;cursor:pointer;">Cancel</button>'
+    +'</div>'
+    +'</div>';
+  box.style.display = 'flex';
+}
+
+async function confirmSellCard(cardId, price){
+  const box = document.getElementById('sellConfirmBox');
+  if(box) box.style.display = 'none';
+
+  // Remove ONE copy from state
+  const idx = state.collection.indexOf(cardId);
+  if(idx === -1) return;
+  state.collection.splice(idx, 1);
+
+  // Remove from DB (one row) — Supabase REST: delete with limit 1 via raw fetch
+  try {
+    const res = await fetch(SUPABASE_URL+'/rest/v1/collection?discord_id=eq.'+encodeURIComponent(state.discordId)+'&card_id=eq.'+encodeURIComponent(cardId)+'&limit=1', {
+      method:'DELETE',
+      headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json','Prefer':'return=minimal'}
+    });
+    if(!res.ok) console.warn('Sell DB remove HTTP',res.status);
+  } catch(e){ console.warn('Sell DB remove failed',e); }
+
+  // Give coins
+  state.coins += price;
+  updateCoins();
+
+  // Track sell rate-limiting
+  _sellSessionCount++;
+  if(_sellSessionCount >= SELL_SESSION_LIMIT){
+    _sellCooldownUntil = Date.now() + SELL_COOLDOWN_MS;
+    _sellSessionCount = 0;
+  }
+
+  // Close card modal, refresh
+  document.getElementById('cardModal')?.classList.remove('active');
+  renderCollection();
+  updateProfile();
+  if(state.discordId && !state.isGuest) await savePlayer();
+  if(state.isGuest) saveGuestState();
+
+  const cards = window.DEMO_CARDS||DEMO_CARDS;
+  const c = cards.find(x=>x.id===cardId);
+  showToast('🪙 Sold '+(c?.name||cardId)+' for '+price+' coins!');
+  spawnParticles(2,'#f1c40f');
 }
 
 // Inject evolution info + Evolve button into the card modal
@@ -7902,11 +8023,16 @@ async function adminMaxXp(){
   for(const id of owned){ await saveXp(state.discordId,id,maxXp); }
   renderCollection();showToast('👑 All cards maxed out!');
 }
-function adminClearCollection(){
+async function adminClearCollection(){
   if(!checkAdmin())return;
   if(!confirm('Clear your entire collection? This cannot be undone.'))return;
+  // Delete from DB so it doesn't reload on refresh
+  try {
+    await sb.delete('collection',{discord_id:state.discordId});
+    await sb.delete('card_xp',{discord_id:state.discordId});
+  } catch(e){ console.warn('DB clear failed',e); }
   state.collection=[];state.xpMap={};state.equippedId=null;
-  renderCollection();updateProfile();savePlayer();showToast('👑 Collection cleared.');
+  renderCollection();updateProfile();await savePlayer();showToast('👑 Collection cleared.');
 }
 
 // ══════════════════════════════════════════════
@@ -8772,7 +8898,8 @@ function buildPool(){
   const featuredIds = parseFeaturedCards(banner.featured_cards);
   if(featuredIds.length){
     const extra = pool.filter(c=>featuredIds.includes(c.id));
-    pool = [...pool, ...extra, ...extra];
+    const multi = Math.max(1, (banner.rate_multiplier||2)) - 1; // extra copies beyond base
+    for(let _m=0;_m<multi;_m++) pool = [...pool, ...extra];
   }
   return pool;
 }
@@ -8829,7 +8956,7 @@ function renderActiveBanner(){
             }).join('')}
           </div>
           <div class="rateup-explain">
-            ⬆️ <strong>Rate Up</strong> — featured cards appear 3× more often on this banner!
+            ⬆️ <strong>Rate Up</strong> — featured cards appear 2× more often on this banner!
           </div>
         ` : ''}
 
@@ -9015,6 +9142,8 @@ function cancelBannerEdit(){
   document.getElementById('bannerForm_type').value = 'character';
   document.getElementById('bannerForm_seriesFilter').value = '';
   document.getElementById('bannerForm_minRarity').value = '1';
+  const _rmElC = document.getElementById('bannerForm_rateMulti');
+  if(_rmElC) _rmElC.value = '2';
   document.getElementById('bannerFeaturedSlots').innerHTML = '';
   _bannerFeaturedSlotCount = 0;
   document.getElementById('bannerFormSubmitBtn').textContent = '🏮 Create Banner';
@@ -9037,6 +9166,8 @@ function editBanner(bannerId){
   document.getElementById('bannerForm_type').value = b.banner_type||'character';
   document.getElementById('bannerForm_seriesFilter').value = b.series_filter||'';
   document.getElementById('bannerForm_minRarity').value = String(b.min_rarity||1);
+  const _rmEl = document.getElementById('bannerForm_rateMulti');
+  if(_rmEl) _rmEl.value = String(b.rate_multiplier||2);
   document.getElementById('bannerFeaturedSlots').innerHTML='';
   _bannerFeaturedSlotCount=0;
   const feats = parseFeaturedCards(b.featured_cards);
@@ -9073,6 +9204,7 @@ async function submitBannerForm(){
     series_filter:document.getElementById('bannerForm_seriesFilter').value.trim(),
     min_rarity:   parseInt(document.getElementById('bannerForm_minRarity').value)||1,
     featured_cards: JSON.stringify(featuredCards),
+    rate_multiplier: parseInt(document.getElementById('bannerForm_rateMulti')?.value)||2,
   };
 
   try {
