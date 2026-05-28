@@ -145,13 +145,14 @@ async function meoLoadMessages(channel) {
 
 function meoBuildMessageHTML(msg) {
   const user = meoEscape(msg.username || 'Anon');
-  const text = meoEscape(msg.message || '');
+  const text = meoEscape(msg.content || msg.message || '');
   const time = meoTimestamp(msg.created_at);
   const avatar = msg.avatar_url
     ? `<img src="${meoEscape(msg.avatar_url)}" class="meo-avatar" onerror="this.style.display='none'">`
     : `<div class="meo-avatar-placeholder">${user.charAt(0).toUpperCase()}</div>`;
 
-  const typeTag = msg.msg_type && msg.msg_type !== 'chat'
+  const plainTypes = ['chat', 'text', null, undefined, ''];
+  const typeTag = !plainTypes.includes(msg.msg_type)
     ? `<span class="meo-msg-type meo-type-${meoEscape(msg.msg_type)}">${meoEscape(msg.msg_type)}</span>`
     : '';
 
@@ -227,7 +228,7 @@ async function meoSendMessage(channel, messageText, msgType = 'chat') {
         discord_id: user.id,
         username: user.name,
         avatar_url: user.avatar,
-        message: text,
+        content: text,
         channel: channel,
         msg_type: msgType,
       });
@@ -468,7 +469,7 @@ async function meoPurchaseItem(itemId, itemName, price) {
       .from('meo_inventory')
       .select('id, quantity')
       .match({ discord_id: user.id, item_id: itemId })
-      .single();
+      .maybeSingle();
 
     if (existing) {
       await (await meoGetSupabase())
@@ -671,7 +672,7 @@ async function meoMemoryComplete() {
         .from('meo_arcade_daily')
         .select('play_count, coins_today')
         .match({ discord_id: user.id, game_id: 'memory', play_date: today })
-        .single();
+        .maybeSingle();
 
       const playCount = daily?.play_count ?? 0;
       const coinsToday = daily?.coins_today ?? 0;
