@@ -49,11 +49,10 @@ function meoTimestamp(iso) {
 }
 
 function meoGetUser() {
-  // Reads your existing auth globals — adjust if needed
   return {
-    id: window.currentUser?.discord_id || window.DISCORD_ID || null,
-    name: window.currentUser?.username || window.USERNAME || 'Anon',
-    avatar: window.currentUser?.avatar_url || null,
+    id:     window.state?.discordId || null,
+    name:   window.state?.username  || 'Anon',
+    avatar: window.state?.avatar    || null,
   };
 }
 
