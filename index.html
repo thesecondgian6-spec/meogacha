@@ -7094,7 +7094,7 @@ async function loadCards(){
 
 async function loadAll(discordId){
   showLoadingOverlay(true);
-  await Promise.all([loadCards(), loadCardCutscenes(), loadPlayer(discordId), loadCollection(discordId), loadXpMap(discordId), loadSkins(), loadPlayerSkins(), loadShopItems(), loadGameItems()]);
+  await Promise.all([loadCards(), loadCardCutscenes(), loadEvolutions(), loadPlayer(discordId), loadCollection(discordId), loadXpMap(discordId), loadSkins(), loadPlayerSkins(), loadShopItems(), loadGameItems()]);
   showLoadingOverlay(false);
   updateCoins();updatePity();updateProfile();renderCollection();renderShop();
   await loadActiveBanner();
