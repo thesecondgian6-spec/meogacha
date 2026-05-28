@@ -12706,7 +12706,7 @@ function getSupaRT(){
   _supaRT = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
     realtime: { params: { eventsPerSecond: 10 } }
   });
-  window.supabaseClient = _supaRT;
+  window.supabaseClient = _supaRT;   // ← ADD THIS
   return _supaRT;
 }
 
