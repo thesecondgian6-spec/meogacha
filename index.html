@@ -7409,13 +7409,11 @@ function openSellCardModal(){
     box.style.cssText = 'position:fixed;inset:0;z-index:600;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.88);backdrop-filter:blur(6px);padding:20px;';
     document.body.appendChild(box);
   }
-
-  // Build entirely with DOM — no innerHTML string quoting issues
   box.innerHTML = '';
   box.style.display = 'flex';
 
   const wrap = document.createElement('div');
-  wrap.style.cssText = 'background:linear-gradient(135deg,var(--bg2),var(--bg3));border:1px solid '+color+'44;border-radius:20px;max-width:380px;width:100%;padding:24px;text-align:center;animation:modalIn 0.25s cubic-bezier(0.34,1.56,0.64,1);';
+  wrap.style.cssText = 'background:linear-gradient(135deg,var(--bg2),var(--bg3));border:1px solid '+color+'44;border-radius:20px;max-width:400px;width:100%;padding:24px;text-align:center;animation:modalIn 0.25s cubic-bezier(0.34,1.56,0.64,1);';
 
   // Title
   const title = document.createElement('div');
@@ -7437,11 +7435,61 @@ function openSellCardModal(){
   nameEl.textContent = c.name;
   wrap.appendChild(nameEl);
 
-  // Rarity
+  // Rarity + copy count
   const rarEl = document.createElement('div');
-  rarEl.style.cssText = 'font-size:0.8em;color:'+color+';margin-bottom:16px;';
-  rarEl.textContent = (c.rarityName||'')+' '+(c.rarityStars||'');
+  rarEl.style.cssText = 'font-size:0.8em;color:'+color+';margin-bottom:14px;';
+  rarEl.textContent = (c.rarityName||'')+' '+(c.rarityStars||'')+' · You own '+copies+' cop'+(copies===1?'y':'ies');
   wrap.appendChild(rarEl);
+
+  // ── Quantity row (only if more than 1 copy) ──
+  if(copies > 1){
+    const qtySection = document.createElement('div');
+    qtySection.style.cssText = 'background:rgba(255,157,199,0.05);border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin-bottom:12px;text-align:left;';
+
+    const qtyLabel = document.createElement('div');
+    qtyLabel.style.cssText = 'font-size:0.75em;color:var(--text-dim);margin-bottom:7px;letter-spacing:0.04em;';
+    qtyLabel.textContent = 'How many to sell?';
+    qtySection.appendChild(qtyLabel);
+
+    const qtyRow = document.createElement('div');
+    qtyRow.style.cssText = 'display:flex;align-items:center;gap:8px;';
+
+    // Minus button
+    const minusBtn = document.createElement('button');
+    minusBtn.textContent = '−';
+    minusBtn.style.cssText = 'width:32px;height:32px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:1.1em;cursor:pointer;flex-shrink:0;';
+
+    // Input
+    const qtyInput = document.createElement('input');
+    qtyInput.type = 'number';
+    qtyInput.id = 'sellQtyInput';
+    qtyInput.min = 1;
+    qtyInput.max = copies;
+    qtyInput.value = 1;
+    qtyInput.style.cssText = "width:60px;text-align:center;border-radius:8px;border:1px solid var(--border);background:rgba(255,255,255,0.06);color:var(--text);padding:5px 4px;font-family:'JetBrains Mono',monospace;font-size:0.9em;";
+
+    // Plus button
+    const plusBtn = document.createElement('button');
+    plusBtn.textContent = '+';
+    plusBtn.style.cssText = 'width:32px;height:32px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:1.1em;cursor:pointer;flex-shrink:0;';
+
+    // Sell All button
+    const sellAllBtn = document.createElement('button');
+    sellAllBtn.textContent = 'Sell All ('+copies+')';
+    sellAllBtn.style.cssText = "margin-left:auto;padding:5px 10px;border-radius:8px;border:1px solid rgba(231,76,60,0.4);background:rgba(231,76,60,0.1);color:#e74c3c;font-family:'JetBrains Mono',monospace;font-size:0.72em;cursor:pointer;white-space:nowrap;flex-shrink:0;";
+    sellAllBtn.addEventListener('click', function(){ qtyInput.value = copies; updateSellPreview(); });
+
+    minusBtn.addEventListener('click', function(){ qtyInput.value = Math.max(1, parseInt(qtyInput.value||1)-1); updateSellPreview(); });
+    plusBtn.addEventListener('click', function(){ qtyInput.value = Math.min(copies, parseInt(qtyInput.value||1)+1); updateSellPreview(); });
+    qtyInput.addEventListener('input', updateSellPreview);
+
+    qtyRow.appendChild(minusBtn);
+    qtyRow.appendChild(qtyInput);
+    qtyRow.appendChild(plusBtn);
+    qtyRow.appendChild(sellAllBtn);
+    qtySection.appendChild(qtyRow);
+    wrap.appendChild(qtySection);
+  }
 
   // Warning if only 1 copy
   if(copies <= 1){
@@ -7451,29 +7499,48 @@ function openSellCardModal(){
     wrap.appendChild(warn);
   }
 
-  // Price box
+  // Price box (dynamic)
   const priceBox = document.createElement('div');
+  priceBox.id = 'sellPriceBox';
   priceBox.style.cssText = 'background:rgba(241,196,15,0.08);border:1px solid rgba(241,196,15,0.25);border-radius:10px;padding:10px;margin-bottom:16px;';
   const priceVal = document.createElement('div');
+  priceVal.id = 'sellPriceVal';
   priceVal.style.cssText = "font-family:'JetBrains Mono',monospace;font-size:1.2em;color:#f1c40f;";
   priceVal.textContent = '+'+price+' \uD83E\uDE99';
   const priceSub = document.createElement('div');
+  priceSub.id = 'sellPriceSub';
   priceSub.style.cssText = 'font-size:0.72em;color:var(--text-dim);margin-top:2px;';
-  priceSub.textContent = 'One copy will be removed';
+  priceSub.textContent = '1 copy will be removed';
   priceBox.appendChild(priceVal);
   priceBox.appendChild(priceSub);
   wrap.appendChild(priceBox);
+
+  // Helper to update price display when quantity changes
+  function updateSellPreview(){
+    const qty = Math.max(1, Math.min(copies, parseInt(document.getElementById('sellQtyInput')?.value||1)));
+    const total = price * qty;
+    const priceValEl = document.getElementById('sellPriceVal');
+    const priceSubEl = document.getElementById('sellPriceSub');
+    if(priceValEl) priceValEl.textContent = '+'+total+' \uD83E\uDE99'+(qty>1?' ('+price+' × '+qty+')':'')+'';
+    if(priceSubEl) priceSubEl.textContent = qty+' cop'+(qty===1?'y':'ies')+' will be removed';
+    const confirmEl = document.getElementById('sellConfirmBtn');
+    if(confirmEl) confirmEl.textContent = 'Confirm Sell'+(qty>1?' ('+qty+')':'')+'';
+  }
 
   // Buttons row
   const btnRow = document.createElement('div');
   btnRow.style.cssText = 'display:flex;gap:10px;';
 
   const confirmBtn = document.createElement('button');
+  confirmBtn.id = 'sellConfirmBtn';
   confirmBtn.textContent = 'Confirm Sell';
   confirmBtn.style.cssText = 'flex:1;padding:10px;border-radius:12px;border:1px solid rgba(231,76,60,0.5);background:rgba(231,76,60,0.15);color:#e74c3c;font-family:inherit;font-size:0.82em;cursor:pointer;transition:background 0.2s;';
   confirmBtn.addEventListener('mouseover', function(){ this.style.background='rgba(231,76,60,0.28)'; });
   confirmBtn.addEventListener('mouseout',  function(){ this.style.background='rgba(231,76,60,0.15)'; });
-  confirmBtn.addEventListener('click', function(){ confirmSellCard(id, price); });
+  confirmBtn.addEventListener('click', function(){
+    const qty = Math.max(1, Math.min(copies, parseInt(document.getElementById('sellQtyInput')?.value||1)));
+    confirmSellCard(id, price, qty);
+  });
 
   const cancelBtn = document.createElement('button');
   cancelBtn.textContent = 'Cancel';
@@ -7486,26 +7553,39 @@ function openSellCardModal(){
   box.appendChild(wrap);
 }
 
-async function confirmSellCard(cardId, price){
+async function confirmSellCard(cardId, price, qty){
+  qty = Math.max(1, parseInt(qty)||1);
   const box = document.getElementById('sellConfirmBox');
   if(box) box.style.display = 'none';
 
-  // Remove ONE copy from state
-  const idx = state.collection.indexOf(cardId);
-  if(idx === -1) return;
-  state.collection.splice(idx, 1);
+  // Clamp qty to how many we actually own
+  const owned = state.collection.filter(x=>x===cardId).length;
+  qty = Math.min(qty, owned);
+  if(qty < 1) return;
 
-  // Remove from DB (one row) — Supabase REST: delete with limit 1 via raw fetch
-  try {
-    const res = await fetch(SUPABASE_URL+'/rest/v1/collection?discord_id=eq.'+encodeURIComponent(state.discordId)+'&card_id=eq.'+encodeURIComponent(cardId)+'&limit=1', {
-      method:'DELETE',
-      headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json','Prefer':'return=minimal'}
-    });
-    if(!res.ok) console.warn('Sell DB remove HTTP',res.status);
-  } catch(e){ console.warn('Sell DB remove failed',e); }
+  // Remove qty copies from state
+  for(let i=0; i<qty; i++){
+    const idx = state.collection.indexOf(cardId);
+    if(idx === -1) break;
+    state.collection.splice(idx, 1);
+  }
 
-  // Give coins
-  state.coins += price;
+  // Remove from DB — delete qty rows one at a time (Supabase REST limit=1 per DELETE)
+  if(state.discordId && !state.isGuest){
+    for(let i=0; i<qty; i++){
+      try {
+        const res = await fetch(SUPABASE_URL+'/rest/v1/collection?discord_id=eq.'+encodeURIComponent(state.discordId)+'&card_id=eq.'+encodeURIComponent(cardId)+'&limit=1', {
+          method:'DELETE',
+          headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json','Prefer':'return=minimal'}
+        });
+        if(!res.ok) console.warn('Sell DB remove HTTP',res.status);
+      } catch(e){ console.warn('Sell DB remove failed',e); }
+    }
+  }
+
+  // Give coins (price per copy × quantity)
+  const total = price * qty;
+  state.coins += total;
   updateCoins();
 
   // Track sell rate-limiting
@@ -7524,8 +7604,9 @@ async function confirmSellCard(cardId, price){
 
   const cards = window.DEMO_CARDS||DEMO_CARDS;
   const c = cards.find(x=>x.id===cardId);
-  showToast('🪙 Sold '+(c?.name||cardId)+' for '+price+' coins!');
-  spawnParticles(2,'#f1c40f');
+  const label = qty > 1 ? qty+'× '+(c?.name||cardId) : (c?.name||cardId);
+  showToast('🪙 Sold '+label+' for '+total+' coins!');
+  spawnParticles(qty > 1 ? 5 : 2, '#f1c40f');
 }
 
 // Inject evolution info + Evolve button into the card modal
@@ -12594,7 +12675,7 @@ async function submitChat(){
   await sendChatMsg(content, 'text', null, reply);
 }
 
-async function sendChatMsg(content, type='text', cardId=null, replyTo=null){
+async function sendChatMsg(content, type='text', cardId=null, replyTo=null, skinId=null){
   if(!state.discordId || state.isGuest){
     showToast('❌ Login with Discord to chat'); return;
   }
@@ -12608,7 +12689,8 @@ async function sendChatMsg(content, type='text', cardId=null, replyTo=null){
       avatar_url: state.customAvatar || state.avatar || '',
       content:    safe,
       msg_type:   type,
-      card_id:    cardId || null
+      card_id:    cardId || null,
+      skin_id:    skinId || null
     };
     // Include reply fields if they exist (requires DB columns — see SQL comment below)
     if(replyTo){
@@ -12680,12 +12762,20 @@ function renderChatMsg(msg){
   if(msg.msg_type === 'flex' && msg.card_id){
     const card = (window.DEMO_CARDS||[]).find(c=>c.id===msg.card_id);
     if(card){
+      // Resolve thumbnail: prefer skin stored in the message (sender's skin), fall back to base art
+      let flexThumb = card.thumbnail || card.image || '';
+      if(msg.skin_id){
+        const msgSkin = (window.ALL_SKINS||[]).find(s=>s.id===msg.skin_id);
+        if(msgSkin) flexThumb = msgSkin.thumbnail || msgSkin.image || flexThumb;
+      }
+      // Show a small skin badge if the sender had a skin equipped
+      const skinBadge = msg.skin_id ? '<span style="font-size:0.6em;background:rgba(155,89,182,0.85);color:#fff;border-radius:4px;padding:1px 5px;margin-left:5px;font-family:\'JetBrains Mono\',monospace;vertical-align:middle;">🎨 Skin</span>' : '';
       contentHtml += `
         <div class="chat-flex-card" onclick="openCardById('${card.id}')">
-          <img class="flex-thumb" src="${getCardThumbnail(card)}"
+          <img class="flex-thumb" src="${flexThumb}"
             onerror="this.style.display='none'"/>
           <div>
-            <div class="flex-name">${escapeHtml(card.name)}</div>
+            <div class="flex-name">${escapeHtml(card.name)}${skinBadge}</div>
             <div class="flex-rarity">${escapeHtml(card.rarityName||'')} ${card.rarityStars||''}</div>
           </div>
         </div>`;
@@ -12903,7 +12993,9 @@ function closeFlexPicker(){
 async function flexCardInChat(cardId){
   const card = (window.DEMO_CARDS||[]).find(c=>c.id===cardId);
   if(!card) return;
-  await sendChatMsg(`Look what I pulled! ✨ ${card.rarityName} card`, 'flex', cardId);
+  // Pass the currently equipped skin so other players can see it in the flex
+  const equippedSkinId = (window.EQUIPPED_SKINS && window.EQUIPPED_SKINS[cardId]) || null;
+  await sendChatMsg(`Look what I pulled! ✨ ${card.rarityName} card`, 'flex', cardId, null, equippedSkinId);
 }
 
 // ══════════════════════════════════════════════
@@ -14552,6 +14644,9 @@ function renderSkinCard(skin){
 
 // ── Inject skin section into an open card modal ──
 function renderCardModalSkins(cardId){
+  // Only show the skin panel if the viewer actually owns this card.
+  // Prevents equip buttons from appearing when viewing someone else's flexed card.
+  if(!state.collection.includes(cardId)) return '';
   const owned = (window.ALL_SKINS||[]).filter(s=> s.card_id === cardId && window.PLAYER_SKINS && window.PLAYER_SKINS[s.id]);
   if(!owned.length) return '';
 
@@ -16514,7 +16609,10 @@ document.addEventListener('DOMContentLoaded', () => {
 ALTER TABLE chat_messages
   ADD COLUMN IF NOT EXISTS reply_to_id       uuid,
   ADD COLUMN IF NOT EXISTS reply_to_username  text DEFAULT '',
-  ADD COLUMN IF NOT EXISTS reply_to_excerpt   text DEFAULT '';
+  ADD COLUMN IF NOT EXISTS reply_to_excerpt   text DEFAULT '',
+  ADD COLUMN IF NOT EXISTS skin_id            text DEFAULT NULL;
+-- skin_id stores the equipped skin of the sender when flexing a card,
+-- so all viewers see the correct skin art in the chat flex card.
 
 -- Allow users to delete their own messages, and admin to delete any:
 CREATE POLICY "users_delete_own_chat" ON chat_messages
