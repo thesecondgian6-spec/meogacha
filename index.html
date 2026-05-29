@@ -5683,6 +5683,12 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
               <div style="text-align:center;color:var(--text-dim);font-style:italic;font-size:0.85em;padding:20px;">Connecting to room...</div>
             </div>
             <div class="lobby-input-area" style="padding:10px;">
+              <div class="chat-reply-bar" id="roomReplyBar">
+                <span class="chat-reply-icon">↩️</span>
+                <span class="chat-reply-bar-name" id="roomReplyName"></span>
+                <span class="chat-reply-bar-excerpt" id="roomReplyExcerpt"></span>
+                <button class="chat-reply-bar-close" onclick="clearRoomReply()" title="Cancel reply">✕</button>
+              </div>
               <div class="chat-input-wrap">
                 <input id="roomChatInput" placeholder="Chat in the room..." maxlength="300"
                   onkeydown="if(event.key==='Enter')submitRoomChat()"/>
@@ -5822,11 +5828,25 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
               </div>
             </div>
             <div class="cinema-chat-input-area">
+              <div class="chat-reply-bar" id="cinemaReplyBar">
+                <span class="chat-reply-icon">↩️</span>
+                <span class="chat-reply-bar-name" id="cinemaReplyName"></span>
+                <span class="chat-reply-bar-excerpt" id="cinemaReplyExcerpt"></span>
+                <button class="chat-reply-bar-close" onclick="clearCinemaReply()" title="Cancel reply">✕</button>
+              </div>
               <div class="chat-input-wrap">
                 <input id="cinemaChatInput" placeholder="React to the video..." maxlength="200"
                   onkeydown="if(event.key==='Enter')submitCinemaChat()"/>
               </div>
               <button class="chat-send-btn" style="padding:8px 14px;font-size:0.8em;" onclick="submitCinemaChat()">✦</button>
+            </div>
+            <!-- Admin showing controls -->
+            <div id="cinemaAdminControls" style="display:none;padding:6px 10px;border-top:1px solid var(--border);background:rgba(241,196,15,0.04);">
+              <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+                <span style="font-size:0.7em;color:#f1c40f;font-family:'JetBrains Mono',monospace;">👑 Admin</span>
+                <button id="cinemaToggleShowingBtn" onclick="toggleCinemaShowing()" style="background:rgba(241,196,15,0.12);border:1px solid rgba(241,196,15,0.3);color:#f1c40f;border-radius:10px;padding:3px 12px;font-size:0.75em;cursor:pointer;">📡 Start Showing</button>
+                <span id="cinemaShowingBadge" style="display:none;background:rgba(231,76,60,0.15);border:1px solid rgba(231,76,60,0.3);color:#e74c3c;border-radius:10px;padding:2px 10px;font-size:0.72em;font-family:'JetBrains Mono',monospace;">🔴 LIVE</span>
+              </div>
             </div>
             <!-- Quick reaction emojis -->
             <div class="cinema-reactions">
@@ -14018,22 +14038,70 @@ async function joinRoom(roomId, roomName, isPublic){
     .subscribe();
 }
 
+// Room reply state
+let _roomReply=null;
+function setRoomReply(id,username,excerpt){
+  _roomReply={id,username,excerpt};
+  const bar=document.getElementById('roomReplyBar');
+  if(bar){
+    bar.classList.add('active');
+    const n=document.getElementById('roomReplyName'); if(n) n.textContent=username;
+    const e=document.getElementById('roomReplyExcerpt'); if(e) e.textContent=excerpt;
+  }
+  document.getElementById('roomChatInput')?.focus();
+}
+function clearRoomReply(){
+  _roomReply=null;
+  const bar=document.getElementById('roomReplyBar');
+  if(bar) bar.classList.remove('active');
+}
+
 function renderRoomChatMsg(msg){
   const feed=document.getElementById('roomChatFeed');
   if(!feed) return;
-  const isMe = state.discordId && msg.user_id===state.discordId;
+  const isMe=state.discordId&&msg.user_id===state.discordId;
+  const isAdmin=ADMIN_IDS.includes(msg.user_id||'');
   const div=document.createElement('div');
   div.className='chat-msg'+(isMe?' chat-me':'');
-  const av=msg.avatar_url||'https://api.dicebear.com/7.x/pixel-art/svg?seed='+encodeURIComponent(msg.username||'u');
+  if(msg.id) div.id='roommsg-'+msg.id;
+  const av=msg.avatar_url||`https://api.dicebear.com/7.x/pixel-art/svg?seed=${encodeURIComponent(msg.username||'u')}`;
   const time=msg.created_at?new Date(msg.created_at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):'';
-  div.innerHTML=`<div class="chat-avatar-col"><img class="chat-avatar" src="${escapeHtml(av)}" onerror="this.src='https://api.dicebear.com/7.x/pixel-art/svg?seed=u'"/></div>
+  const msgExcerpt=(msg.content||'').slice(0,60).replace(/'/g,"\\'");
+  const idSafe=msg.id?String(msg.id).replace(/['"]/g,''):'';
+  const actionBtns=`
+    <button class="chat-msg-action-btn" title="Reply" onclick="setRoomReply('${idSafe}','${escapeHtml(msg.username||'').replace(/'/g,"\\'")}','${msgExcerpt}')">↩️</button>
+    ${isMe||state.isAdmin ? `<button class="chat-msg-action-btn danger" title="Delete" onclick="deleteRoomMsg('${idSafe}',this.closest('.chat-msg'))">🗑️</button>` : ''}
+  `;
+  let replyHtml='';
+  if(msg.reply_to_username&&msg.reply_to_excerpt){
+    replyHtml=`<div class="chat-reply-preview"><span class="chat-reply-preview-name">@${escapeHtml(msg.reply_to_username)}</span><span class="chat-reply-preview-text">${escapeHtml(msg.reply_to_excerpt)}</span></div>`;
+  }
+  div.innerHTML=`
+    <div class="chat-msg-actions">${actionBtns}</div>
+    <div class="chat-avatar-col"><img class="chat-avatar" src="${escapeHtml(av)}" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'"/></div>
     <div class="chat-content-col">
-      <div class="chat-meta"><span class="chat-username">${escapeHtml(msg.username||'Player')}</span><span class="chat-time">${time}</span></div>
+      <div class="chat-meta">
+        <span class="chat-username">${escapeHtml(msg.username||'Player')}</span>
+        ${isAdmin?'<span class="chat-admin-badge">👑 ADMIN</span>':''}
+        <span class="chat-time">${time}</span>
+      </div>
+      ${replyHtml}
       <div class="chat-text">${escapeHtml(msg.content||'')}</div>
     </div>`;
   const ph=feed.querySelector('[data-placeholder]');
   if(ph) ph.remove();
   feed.appendChild(div);
+  while(feed.children.length>100) feed.removeChild(feed.firstChild);
+}
+
+async function deleteRoomMsg(id, el){
+  if(!id) return;
+  try {
+    await fetch(`${SUPABASE_URL}/rest/v1/hub_room_messages?id=eq.${id}`,{
+      method:'DELETE', headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY}
+    });
+    el?.remove();
+  } catch(e){ showToast('Could not delete'); }
 }
 
 async function submitRoomChat(){
@@ -14043,15 +14111,21 @@ async function submitRoomChat(){
   const content=inp.value.trim();
   if(!content) return;
   inp.value='';
-  try {
-    await sb.insert(ROOM_CHAT_TABLE,{
-      room_id:_currentRoomId,
-      user_id:state.discordId,
-      username:state.username||'Player',
-      avatar_url:state.avatar||'',
-      content
-    });
-  } catch(e){ showToast('Could not send: '+(e.message||'error')); }
+  const payload={
+    room_id:_currentRoomId,
+    user_id:state.discordId,
+    username:state.username||'Player',
+    avatar_url:state.avatar||'',
+    content
+  };
+  if(_roomReply){
+    payload.reply_to_id=_roomReply.id;
+    payload.reply_to_username=_roomReply.username;
+    payload.reply_to_excerpt=_roomReply.excerpt;
+    clearRoomReply();
+  }
+  try { await sb.insert(ROOM_CHAT_TABLE, payload); }
+  catch(e){ showToast('Could not send: '+(e.message||'error')); }
 }
 
 function leaveCurrentRoom(silent=false){
@@ -14149,31 +14223,51 @@ async function buyFoodItem(shopKey, idx){
 // ══════════════════════════════════════════════
 // MEO CINEMA
 // ══════════════════════════════════════════════
+// ── Playlist (admin-curated, players cannot change in scheduled mode) ──
 const CINEMA_PLAYLIST = [
-  { title:'Gurenge',       series:'Demon Slayer',    ytId:'CwkzK-F0Y0I', emoji:'🌸' },
-  { title:'Unravel',       series:'Tokyo Ghoul',     ytId:'sVZpHFXcNkA', emoji:'🔥' },
-  { title:'Silhouette',    series:'Naruto Shippuden',ytId:'7GJUo_CTBGY', emoji:'⭐' },
-  { title:'My Hero',       series:'Boku no Hero',    ytId:'OHgMq5MsoAI', emoji:'💪' },
-  { title:'Seishun Kyosokyoku', series:'Naruto',     ytId:'9rYdXMjLoNE', emoji:'🍃' },
-  { title:'Shinzou wo Sasageyo', series:'Attack on Titan', ytId:'CID-sYQNCew', emoji:'⚔️' },
-  { title:'Hana no Iro',   series:'Anohana',         ytId:'Y7yM_vUlELo', emoji:'💐' },
-  { title:'We Are!',       series:'One Piece',       ytId:'rGKfBRZMoHQ', emoji:'⚓' },
+  { title:'SPECIALZ',              series:'Jujutsu Kaisen',           ytId:'5yb2N3pnztU', emoji:'💙' },
+  { title:'Bling-Bang-Bang-Born',  series:'Mashle',                   ytId:'mLW35YMzELE', emoji:'✨' },
+  { title:'Idol',                  series:'Oshi no Ko',               ytId:'ZRtdQ81jPUQ', emoji:'⭐' },
+  { title:'Gotoubun no Kimochi',   series:'The Quintessential Quintuplets', ytId:'FKIT6G_lw7c', emoji:'💕' },
+  { title:'KICK BACK',             series:'Chainsaw Man',             ytId:'dFlDRhvM4L0', emoji:'🔥' },
+  { title:'Unravel',               series:'Tokyo Ghoul',              ytId:'7aMOurgDB-o', emoji:'🖤' },
+  { title:'Red Swan',              series:'Attack on Titan',          ytId:'MWSR17vEVBw', emoji:'🦢' },
+  { title:'Renai Circulation',     series:'Monogatari',               ytId:'uKxyLmbOc0Q', emoji:'🍩' },
+  { title:'We Are!',               series:'One Piece',                ytId:'xPyJ2XhSKOI', emoji:'⚓' },
+  { title:'FICTION',               series:'Wotakoi',                  ytId:'XjHqfhOcK_0', emoji:'💻' },
+  { title:'Crazy Noisy Bizarre Town', series:"JoJo's Bizarre Adventure", ytId:'20m00ohYASw', emoji:'🕺' },
 ];
+
+// ── Scheduled Showing System ──
+// When a showing is active, only admins can change the video.
+// Schedule: just store { ytIdx, scheduledBy, active } in Supabase cinema_state table.
 let _cinemaIdx = 0;
 let _cinemaChatChannel = null;
+let _cinemaStateChannel = null;
+let _cinemaScheduled = false; // true = locked to scheduled video, non-admins can't change
+let _cinemaViewerSet = new Set();
 
 function renderCinemaPlaylist(){
   const grid = document.getElementById('cinemaPlaylist');
   if(!grid) return;
   grid.innerHTML = CINEMA_PLAYLIST.map((v,i)=>`
-    <div class="cinema-playlist-item ${i===_cinemaIdx?'playing':''}" onclick="playVideo(${i})">
+    <div class="cinema-playlist-item ${i===_cinemaIdx?'playing':''}"
+      onclick="${_cinemaScheduled && !state.isAdmin ? "showToast('🎬 A scheduled showing is active — only admins can change the video!')" : 'playVideo('+i+')'}">
       <div class="cinema-pi-thumb">${v.emoji}</div>
       <div class="cinema-pi-title">${escapeHtml(v.title)}</div>
       <div class="cinema-pi-series">${escapeHtml(v.series)}</div>
+      ${_cinemaScheduled && i===_cinemaIdx ? '<div style="font-size:0.6em;color:#f1c40f;margin-top:2px;">📡 LIVE</div>' : ''}
     </div>`).join('');
+  // Show/hide admin showing controls
+  const ctrl = document.getElementById('cinemaAdminControls');
+  if(ctrl) ctrl.style.display = state.isAdmin ? '' : 'none';
 }
 
-function playVideo(idx){
+function playVideo(idx, fromSchedule=false){
+  if(_cinemaScheduled && !state.isAdmin && !fromSchedule){
+    showToast('🎬 A scheduled showing is active — only admins can change the video!');
+    return;
+  }
   _cinemaIdx = idx;
   const v = CINEMA_PLAYLIST[idx];
   if(!v) return;
@@ -14184,56 +14278,186 @@ function playVideo(idx){
   if(ph) ph.style.display='none';
   if(yw) yw.style.display='block';
   if(fr) fr.src=`https://www.youtube.com/embed/${v.ytId}?autoplay=1&rel=0`;
-  if(np) np.textContent=`${v.emoji} ${v.title} — ${v.series}`;
+  if(np) np.textContent=`${_cinemaScheduled?'📡 ':'' }${v.emoji} ${v.title} — ${v.series}`;
   renderCinemaPlaylist();
 }
 
 function cinemaNext(){
+  if(_cinemaScheduled && !state.isAdmin){ showToast('🎬 Showing is active — admin only!'); return; }
   _cinemaIdx=(_cinemaIdx+1)%CINEMA_PLAYLIST.length;
   playVideo(_cinemaIdx);
 }
 function cinemaPrev(){
+  if(_cinemaScheduled && !state.isAdmin){ showToast('🎬 Showing is active — admin only!'); return; }
   _cinemaIdx=(_cinemaIdx-1+CINEMA_PLAYLIST.length)%CINEMA_PLAYLIST.length;
   playVideo(_cinemaIdx);
+}
+
+// Admin: start/stop scheduled showing
+async function toggleCinemaShowing(){
+  if(!state.isAdmin){ showToast('Admin only!'); return; }
+  try {
+    if(_cinemaScheduled){
+      // End showing
+      await sb.update('cinema_state',{active:false,scheduled_by:null},{id:1});
+      _cinemaScheduled=false;
+      showToast('📡 Showing ended');
+    } else {
+      // Start showing at current video
+      await sb.upsert('cinema_state',{id:1,active:true,video_idx:_cinemaIdx,scheduled_by:state.discordId});
+      _cinemaScheduled=true;
+      showToast(`📡 Showing started: ${CINEMA_PLAYLIST[_cinemaIdx].title}`);
+    }
+    renderCinemaPlaylist();
+    updateCinemaShowingBadge();
+  } catch(e){ showToast('Could not update showing: '+(e.message||'error')); }
+}
+
+async function adminSetCinemaVideo(idx){
+  if(!state.isAdmin) return;
+  try {
+    await sb.update('cinema_state',{video_idx:idx},{id:1});
+    playVideo(idx, true);
+    showToast(`📡 Now showing: ${CINEMA_PLAYLIST[idx].title}`);
+  } catch(e){}
+}
+
+function updateCinemaShowingBadge(){
+  const badge = document.getElementById('cinemaShowingBadge');
+  const btn   = document.getElementById('cinemaToggleShowingBtn');
+  if(badge) badge.style.display = _cinemaScheduled ? '' : 'none';
+  if(btn)   btn.textContent     = _cinemaScheduled ? '📡 End Showing' : '📡 Start Showing';
 }
 
 async function initCinemaChat(){
   const feed = document.getElementById('cinemaChatFeed');
   if(!feed) return;
+
+  // Load recent messages
   try {
     const data = await sb.get('cinema_chat',{},{ order:'created_at.desc', limit:40 });
     feed.innerHTML='';
     (Array.isArray(data)?data:[]).reverse().forEach(m=>renderCinemaMsg(m));
     feed.scrollTop=feed.scrollHeight;
-  } catch(e){ /* table might not exist yet */ }
-  if(_cinemaChatChannel) { try{_cinemaChatChannel.unsubscribe();}catch(_){} }
+  } catch(e){}
+
+  // Subscribe realtime chat
+  if(_cinemaChatChannel){ try{_cinemaChatChannel.unsubscribe();}catch(_){} }
   try {
     const rt=getSupaRT();
-    _cinemaChatChannel=rt.channel('cinema-chat')
+    _cinemaChatChannel=rt.channel('cinema-chat-rt')
       .on('postgres_changes',{event:'INSERT',schema:'public',table:'cinema_chat'},({new:msg})=>{
         renderCinemaMsg(msg);
         const f=document.getElementById('cinemaChatFeed');
         if(f) f.scrollTop=f.scrollHeight;
+        // Count unique viewers
+        if(msg.user_id){ _cinemaViewerSet.add(msg.user_id); updateCinemaViewers(); }
       }).subscribe();
   } catch(_){}
+
+  // Subscribe to cinema_state for scheduled showings
+  if(_cinemaStateChannel){ try{_cinemaStateChannel.unsubscribe();}catch(_){} }
+  try {
+    const rt2=getSupaRT();
+    _cinemaStateChannel=rt2.channel('cinema-state-rt')
+      .on('postgres_changes',{event:'*',schema:'public',table:'cinema_state'},({new:s})=>{
+        if(!s) return;
+        _cinemaScheduled = !!s.active;
+        if(s.active && typeof s.video_idx==='number' && s.video_idx!==_cinemaIdx){
+          playVideo(s.video_idx, true);
+          showToast(`📡 Now showing: ${CINEMA_PLAYLIST[s.video_idx]?.title||''}`);
+        }
+        renderCinemaPlaylist();
+        updateCinemaShowingBadge();
+      }).subscribe();
+  } catch(_){}
+
+  // Load current showing state
+  try {
+    const stateData = await sb.get('cinema_state',{id:1});
+    const s = Array.isArray(stateData)?stateData[0]:stateData;
+    if(s){
+      _cinemaScheduled=!!s.active;
+      if(s.active && typeof s.video_idx==='number') playVideo(s.video_idx, true);
+    }
+    updateCinemaShowingBadge();
+    renderCinemaPlaylist();
+  } catch(_){}
+
+  // Track self as viewer
+  if(state.discordId){ _cinemaViewerSet.add(state.discordId); updateCinemaViewers(); }
+}
+
+function updateCinemaViewers(){
+  const el=document.getElementById('cinemaChatViewers');
+  if(el) el.textContent=`${_cinemaViewerSet.size} watching`;
 }
 
 function renderCinemaMsg(msg){
   const feed=document.getElementById('cinemaChatFeed');
   if(!feed) return;
   const isMe=state.discordId&&msg.user_id===state.discordId;
+  const isAdmin=ADMIN_IDS.includes(msg.user_id||'');
   const div=document.createElement('div');
   div.className='chat-msg'+(isMe?' chat-me':'');
-  const av=msg.avatar_url||'https://api.dicebear.com/7.x/pixel-art/svg?seed='+encodeURIComponent(msg.username||'u');
+  if(msg.id) div.id='cinemamsg-'+msg.id;
+  // Use discord avatar if available, otherwise dicebear
+  const av=msg.avatar_url||`https://api.dicebear.com/7.x/pixel-art/svg?seed=${encodeURIComponent(msg.username||'u')}`;
   const time=msg.created_at?new Date(msg.created_at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):'';
-  div.innerHTML=`<div class="chat-avatar-col"><img class="chat-avatar" src="${escapeHtml(av)}" onerror="this.src='https://api.dicebear.com/7.x/pixel-art/svg?seed=u'"/></div>
+  const msgExcerpt=(msg.content||'').slice(0,60).replace(/'/g,"\\'");
+  const idSafe=msg.id?String(msg.id).replace(/['"]/g,''):'';
+  const actionBtns=`
+    <button class="chat-msg-action-btn" title="Reply" onclick="setCinemaReply('${idSafe}','${escapeHtml(msg.username||'').replace(/'/g,"\\'")}','${msgExcerpt}')">↩️</button>
+    ${isMe||state.isAdmin ? `<button class="chat-msg-action-btn danger" title="Delete" onclick="deleteCinemaMsg('${idSafe}',this.closest('.chat-msg'))">🗑️</button>` : ''}
+  `;
+  let replyHtml='';
+  if(msg.reply_to_username&&msg.reply_to_excerpt){
+    replyHtml=`<div class="chat-reply-preview"><span class="chat-reply-preview-name">@${escapeHtml(msg.reply_to_username)}</span><span class="chat-reply-preview-text">${escapeHtml(msg.reply_to_excerpt)}</span></div>`;
+  }
+  div.innerHTML=`
+    <div class="chat-msg-actions">${actionBtns}</div>
+    <div class="chat-avatar-col"><img class="chat-avatar" src="${escapeHtml(av)}" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'"/></div>
     <div class="chat-content-col">
-      <div class="chat-meta"><span class="chat-username">${escapeHtml(msg.username||'Guest')}</span><span class="chat-time">${time}</span></div>
+      <div class="chat-meta">
+        <span class="chat-username">${escapeHtml(msg.username||'Viewer')}</span>
+        ${isAdmin?'<span class="chat-admin-badge">👑 ADMIN</span>':''}
+        <span class="chat-time">${time}</span>
+      </div>
+      ${replyHtml}
       <div class="chat-text">${escapeHtml(msg.content||'')}</div>
     </div>`;
   const ph=feed.querySelector('[data-placeholder]');
-  if(ph)ph.remove();
+  if(ph) ph.remove();
   feed.appendChild(div);
+  while(feed.children.length>100) feed.removeChild(feed.firstChild);
+}
+
+// Cinema reply state
+let _cinemaReply=null;
+function setCinemaReply(id,username,excerpt){
+  _cinemaReply={id,username,excerpt};
+  const bar=document.getElementById('cinemaReplyBar');
+  if(bar){
+    bar.classList.add('active');
+    const n=document.getElementById('cinemaReplyName'); if(n) n.textContent=username;
+    const e=document.getElementById('cinemaReplyExcerpt'); if(e) e.textContent=excerpt;
+  }
+  document.getElementById('cinemaChatInput')?.focus();
+}
+function clearCinemaReply(){
+  _cinemaReply=null;
+  const bar=document.getElementById('cinemaReplyBar');
+  if(bar) bar.classList.remove('active');
+}
+
+async function deleteCinemaMsg(id, el){
+  if(!id) return;
+  try {
+    await fetch(`${SUPABASE_URL}/rest/v1/cinema_chat?id=eq.${id}`,{
+      method:'DELETE', headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY}
+    });
+    el?.remove();
+  } catch(e){ showToast('Could not delete'); }
 }
 
 async function submitCinemaChat(){
@@ -14242,14 +14466,22 @@ async function submitCinemaChat(){
   const content=inp.value.trim();
   if(!content) return;
   inp.value='';
-  try {
-    await sb.insert('cinema_chat',{
-      user_id:state.discordId,
-      username:state.username||'Viewer',
-      avatar_url:state.avatar||'',
-      content
-    });
-  } catch(e){ showToast('Could not send'); }
+  const payload={
+    user_id:state.discordId,
+    username:state.username||'Viewer',
+    avatar_url:state.avatar||'',
+    content
+  };
+  if(_cinemaReply){
+    payload.reply_to_id=_cinemaReply.id;
+    payload.reply_to_username=_cinemaReply.username;
+    payload.reply_to_excerpt=_cinemaReply.excerpt;
+    clearCinemaReply();
+  }
+  _cinemaViewerSet.add(state.discordId);
+  updateCinemaViewers();
+  try { await sb.insert('cinema_chat', payload); }
+  catch(e){ showToast('Could not send'); }
 }
 
 function sendCinemaReaction(emoji){
