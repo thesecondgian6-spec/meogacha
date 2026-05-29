@@ -4028,51 +4028,233 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .hub-deco-3 { bottom: 16px; left: 14%; animation-delay: 1.6s; }
 .hub-deco-4 { top: 30px; right: 18%; animation-delay: 2.2s; }
 
-/* ── Hub Zone Nav ── */
-.hub-zone-nav {
+/* ── Hub Breadcrumb ── */
+.hub-breadcrumb {
   display: flex;
-  gap: 4px;
-  padding: 12px 20px;
-  overflow-x: auto;
-  overflow-y: hidden;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-  background: rgba(13,6,16,0.6);
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: rgba(13,6,16,0.7);
   backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border);
   position: sticky;
   top: 53px;
   z-index: 50;
 }
-.hub-zone-nav::-webkit-scrollbar { display: none; }
-.hub-zone-btn {
+.hub-back-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255,157,199,0.08);
+  border: 1px solid rgba(255,157,199,0.2);
+  border-radius: 20px;
+  padding: 5px 14px;
+  color: var(--pink);
+  font-size: 0.82em;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: 'Cormorant Garamond', serif;
+}
+.hub-back-btn:hover { background: rgba(255,157,199,0.15); transform: translateX(-2px); }
+.hub-breadcrumb-sep { color: var(--text-dim); font-size: 0.9em; }
+.hub-breadcrumb-zone { font-family: 'Cinzel Decorative', serif; font-size: 0.78em; color: var(--pink-pale); }
+
+/* ── Hub Map ── */
+.hub-map-view {
+  padding: 20px;
+  background: linear-gradient(180deg, rgba(10,4,18,0.9) 0%, rgba(5,2,8,0.95) 100%);
+}
+.hub-map-wrap {
+  position: relative;
+  width: 100%;
+  max-width: 860px;
+  margin: 0 auto;
+  aspect-ratio: 16/9;
+  border-radius: 24px;
+  overflow: hidden;
+  border: 1px solid rgba(255,157,199,0.15);
+  box-shadow: 0 0 60px rgba(255,157,199,0.06), 0 0 120px rgba(192,132,184,0.04);
+  min-height: 320px;
+}
+@media(max-width:600px){
+  .hub-map-wrap { aspect-ratio: 3/4; min-height: 480px; }
+}
+/* Sky gradient */
+.hub-map-sky {
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg,
+    #080318 0%,
+    #130830 30%,
+    #1a0a3a 55%,
+    #0d1a2e 75%,
+    #0a2218 100%);
+  z-index: 0;
+}
+/* Stars */
+.hub-map-sky::before {
+  content: '';
+  position: absolute; inset: 0;
+  background-image:
+    radial-gradient(1px 1px at 10% 15%, rgba(255,255,255,0.7) 0%, transparent 100%),
+    radial-gradient(1px 1px at 25% 8%, rgba(255,255,255,0.5) 0%, transparent 100%),
+    radial-gradient(1px 1px at 40% 20%, rgba(255,255,255,0.6) 0%, transparent 100%),
+    radial-gradient(1px 1px at 60% 12%, rgba(255,255,255,0.4) 0%, transparent 100%),
+    radial-gradient(1px 1px at 75% 18%, rgba(255,255,255,0.7) 0%, transparent 100%),
+    radial-gradient(1px 1px at 88% 9%, rgba(255,255,255,0.5) 0%, transparent 100%),
+    radial-gradient(1px 1px at 15% 35%, rgba(255,255,255,0.3) 0%, transparent 100%),
+    radial-gradient(1px 1px at 55% 28%, rgba(255,255,255,0.4) 0%, transparent 100%),
+    radial-gradient(2px 2px at 33% 5%, rgba(255,200,255,0.8) 0%, transparent 100%),
+    radial-gradient(2px 2px at 70% 7%, rgba(200,200,255,0.7) 0%, transparent 100%);
+}
+/* Ground */
+.hub-map-ground {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 35%;
+  background: linear-gradient(180deg, #0a1f10 0%, #061408 100%);
+  z-index: 1;
+  border-top: 1px solid rgba(46,204,113,0.12);
+}
+.hub-map-ground::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, rgba(46,204,113,0.3), rgba(255,157,199,0.2), rgba(46,204,113,0.3), transparent);
+}
+.hub-map-hint {
+  position: absolute;
+  top: 10px; left: 50%; transform: translateX(-50%);
+  font-family: 'Cinzel Decorative', serif;
+  font-size: clamp(0.5em, 1.5vw, 0.72em);
+  color: rgba(255,157,199,0.5);
+  white-space: nowrap;
+  z-index: 10;
+  letter-spacing: 0.06em;
+}
+/* SVG paths */
+.hub-map-paths {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  z-index: 2;
+  pointer-events: none;
+}
+/* Trees / decorations */
+.hub-map-tree {
+  position: absolute;
+  font-size: clamp(0.9em, 2vw, 1.4em);
+  z-index: 3;
+  opacity: 0.7;
+  pointer-events: none;
+  animation: decoDrift 5s ease-in-out infinite;
+}
+.hub-map-tree:nth-child(odd) { animation-delay: 1.2s; }
+
+/* Map pin (building + label) */
+.hub-map-pin {
+  position: absolute;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 3px;
-  background: rgba(255,255,255,0.03);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 8px 16px;
+  gap: 4px;
+  cursor: pointer;
+  z-index: 10;
+  transform: translate(-50%, -50%);
+  transition: transform 0.2s;
+}
+.hub-map-pin:hover { transform: translate(-50%, -50%) scale(1.12); }
+.hub-map-pin:hover .hub-map-building { box-shadow: 0 0 20px rgba(255,157,199,0.5); }
+
+/* Building base */
+.hub-map-building {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-radius: 10px;
+  overflow: hidden;
+  transition: box-shadow 0.2s;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+}
+.hmb-roof {
+  font-size: clamp(1.4em, 3.5vw, 2em);
+  padding: clamp(4px,1.2vw,8px) clamp(6px,1.5vw,12px);
+  border-radius: 10px 10px 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+.hmb-body {
+  width: 100%;
+  padding: clamp(3px,0.8vw,6px) clamp(6px,1.5vw,10px);
+  border-radius: 0 0 8px 8px;
+}
+.hmb-windows {
+  display: flex;
+  gap: clamp(2px,0.6vw,5px);
+  justify-content: center;
+}
+.hmb-windows span {
+  width: clamp(5px,1.2vw,9px);
+  height: clamp(5px,1.2vw,9px);
+  border-radius: 2px;
+  background: rgba(255,255,220,0.7);
+  box-shadow: 0 0 4px rgba(255,255,180,0.8);
+  animation: windowBlink 3s ease-in-out infinite;
+}
+.hmb-windows span:nth-child(2) { animation-delay: 1.5s; }
+.hmb-windows span:nth-child(3) { animation-delay: 0.7s; }
+@keyframes windowBlink { 0%,100%{opacity:1;} 50%{opacity:0.4;} }
+
+/* Building color themes */
+.hub-map-lobby .hmb-roof   { background: linear-gradient(135deg,#6c2b8a,#9b59b6); }
+.hub-map-lobby .hmb-body   { background: linear-gradient(180deg,#2d1545,#1a0d2e); border:1px solid rgba(155,89,182,0.3); }
+.hub-map-food .hmb-roof    { background: linear-gradient(135deg,#c0392b,#e74c3c); }
+.hub-map-food .hmb-body    { background: linear-gradient(180deg,#3d0f0a,#200806); border:1px solid rgba(231,76,60,0.3); }
+.hub-map-cinema .hmb-roof  { background: linear-gradient(135deg,#7d3c00,#d35400); }
+.hub-map-cinema .hmb-body  { background: linear-gradient(180deg,#2a1500,#140a00); border:1px solid rgba(211,84,0,0.3); }
+.hub-map-arcade .hmb-roof  { background: linear-gradient(135deg,#0a3d62,#2980b9); }
+.hub-map-arcade .hmb-body  { background: linear-gradient(180deg,#051e30,#020e18); border:1px solid rgba(41,128,185,0.3); }
+.hub-map-rooms .hmb-roof   { background: linear-gradient(135deg,#145a32,#27ae60); }
+.hub-map-rooms .hmb-body   { background: linear-gradient(180deg,#082515,#04120a); border:1px solid rgba(39,174,96,0.3); }
+.hub-map-trades .hmb-roof  { background: linear-gradient(135deg,#7d6608,#d4ac0d); }
+.hub-map-trades .hmb-body  { background: linear-gradient(180deg,#2a2200,#141100); border:1px solid rgba(212,172,13,0.3); }
+.hub-map-lb .hmb-roof      { background: linear-gradient(135deg,#7b241c,#e74c3c); }
+.hub-map-lb .hmb-body      { background: linear-gradient(180deg,#2c0e09,#160706); border:1px solid rgba(231,76,60,0.3); }
+
+/* Map label */
+.hub-map-label {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: clamp(0.42em, 1vw, 0.68em);
+  color: #fff;
+  white-space: nowrap;
+  text-shadow: 0 1px 6px rgba(0,0,0,0.9), 0 0 10px rgba(255,157,199,0.4);
+  letter-spacing: 0.03em;
+  background: rgba(0,0,0,0.5);
+  padding: 1px 6px;
+  border-radius: 6px;
+}
+
+/* Cinema playlist toggle (admin dropdown) */
+.cinema-playlist-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  background: rgba(241,196,15,0.06);
+  border: 1px solid rgba(241,196,15,0.2);
+  border-radius: 10px;
+  padding: 8px 14px;
+  color: #f1c40f;
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 0.72em;
   cursor: pointer;
   transition: all 0.2s;
-  flex-shrink: 0;
-  min-width: 70px;
-  color: var(--text-dim);
+  margin-bottom: 2px;
 }
-.hub-zone-btn:hover {
-  background: rgba(255,157,199,0.08);
-  border-color: rgba(255,157,199,0.3);
-  color: var(--text);
-}
-.hub-zone-btn.active {
-  background: rgba(255,157,199,0.14);
-  border-color: var(--pink);
-  color: var(--pink);
-  box-shadow: 0 0 14px rgba(255,157,199,0.1);
-}
-.hzb-icon { font-size: 1.25em; line-height: 1; }
-.hzb-label { font-size: 0.65em; font-family: 'Cormorant Garamond', serif; white-space: nowrap; }
+.cinema-playlist-toggle:hover { background: rgba(241,196,15,0.1); }
+.cinema-playlist-arrow { transition: transform 0.25s; font-size: 0.8em; }
+.cinema-playlist-arrow.open { transform: rotate(180deg); }
 
 /* ══ LOBBY ══ */
 .lobby-layout {
@@ -5504,8 +5686,8 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   <!-- ═══════════════════════════════════════════════════════ -->
   <div class="page" id="page-social">
 
-    <!-- ── Hub Hero Banner ── -->
-    <div class="hub-hero">
+    <!-- ── Hub Hero Banner (shown on map view) ── -->
+    <div class="hub-hero" id="hubHeroMap">
       <div class="hub-hero-bg"></div>
       <div class="hub-hero-content">
         <div class="hub-hero-title">
@@ -5519,43 +5701,124 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
           <span id="hubOnlineCount">0 online</span>
         </div>
       </div>
-      <!-- Floating deco icons -->
       <div class="hub-deco hub-deco-1">🌸</div>
       <div class="hub-deco hub-deco-2">⭐</div>
       <div class="hub-deco hub-deco-3">🎌</div>
       <div class="hub-deco hub-deco-4">🌙</div>
     </div>
 
-    <!-- ── Hub Zone Nav ── -->
-    <div class="hub-zone-nav">
-      <button class="hub-zone-btn active" id="hztab-lobby" onclick="switchHubZone('lobby',this)">
-        <span class="hzb-icon">💬</span>
-        <span class="hzb-label">Lobby</span>
+    <!-- ── Interactive Map ── -->
+    <div class="hub-map-view" id="hubMapView">
+      <div class="hub-map-wrap">
+        <!-- Background sky/ground layers -->
+        <div class="hub-map-sky"></div>
+        <div class="hub-map-ground"></div>
+        <!-- Map title hint -->
+        <div class="hub-map-hint">✦ Tap a location to enter ✦</div>
+
+        <!-- LOBBY (center fountain area) -->
+        <div class="hub-map-pin" style="left:44%;top:38%;" onclick="enterHubZone('lobby')">
+          <div class="hub-map-building hub-map-lobby">
+            <div class="hmb-roof">💬</div>
+            <div class="hmb-body">
+              <div class="hmb-windows"><span></span><span></span></div>
+            </div>
+          </div>
+          <div class="hub-map-label">Global Lobby</div>
+        </div>
+
+        <!-- FOOD CORNER (bottom-left) -->
+        <div class="hub-map-pin" style="left:12%;top:55%;" onclick="enterHubZone('food')">
+          <div class="hub-map-building hub-map-food">
+            <div class="hmb-roof">🍜</div>
+            <div class="hmb-body">
+              <div class="hmb-windows"><span></span><span></span></div>
+            </div>
+          </div>
+          <div class="hub-map-label">Food Corner</div>
+        </div>
+
+        <!-- CINEMA (bottom-right) -->
+        <div class="hub-map-pin" style="left:72%;top:52%;" onclick="enterHubZone('cinema')">
+          <div class="hub-map-building hub-map-cinema">
+            <div class="hmb-roof">🎬</div>
+            <div class="hmb-body">
+              <div class="hmb-windows"><span></span><span></span><span></span></div>
+            </div>
+          </div>
+          <div class="hub-map-label">Meo-Cinema</div>
+        </div>
+
+        <!-- ARCADE (top-right) -->
+        <div class="hub-map-pin" style="left:64%;top:18%;" onclick="enterHubZone('arcade')">
+          <div class="hub-map-building hub-map-arcade">
+            <div class="hmb-roof">🕹️</div>
+            <div class="hmb-body">
+              <div class="hmb-windows"><span></span><span></span></div>
+            </div>
+          </div>
+          <div class="hub-map-label">Arcade</div>
+        </div>
+
+        <!-- ROOMS (top-left) -->
+        <div class="hub-map-pin" style="left:18%;top:18%;" onclick="enterHubZone('rooms')">
+          <div class="hub-map-building hub-map-rooms">
+            <div class="hmb-roof">🏠</div>
+            <div class="hmb-body">
+              <div class="hmb-windows"><span></span><span></span></div>
+            </div>
+          </div>
+          <div class="hub-map-label">Player Rooms</div>
+        </div>
+
+        <!-- TRADES (mid-left) -->
+        <div class="hub-map-pin" style="left:6%;top:38%;" onclick="enterHubZone('trades')">
+          <div class="hub-map-building hub-map-trades">
+            <div class="hmb-roof">🔄</div>
+            <div class="hmb-body">
+              <div class="hmb-windows"><span></span></div>
+            </div>
+          </div>
+          <div class="hub-map-label">Trade Post</div>
+        </div>
+
+        <!-- LEADERBOARD (mid-right) -->
+        <div class="hub-map-pin" style="left:86%;top:34%;" onclick="enterHubZone('leaderboard')">
+          <div class="hub-map-building hub-map-lb">
+            <div class="hmb-roof">🏆</div>
+            <div class="hmb-body">
+              <div class="hmb-windows"><span></span></div>
+            </div>
+          </div>
+          <div class="hub-map-label">Hall of Fame</div>
+        </div>
+
+        <!-- Decorative elements -->
+        <div class="hub-map-tree" style="left:35%;top:62%;">🌸</div>
+        <div class="hub-map-tree" style="left:54%;top:66%;">🌿</div>
+        <div class="hub-map-tree" style="left:28%;top:42%;">🌸</div>
+        <div class="hub-map-tree" style="left:48%;top:72%;">⛩️</div>
+        <div class="hub-map-tree" style="left:80%;top:65%;">🌙</div>
+        <div class="hub-map-tree" style="left:8%;top:65%;">🌿</div>
+        <!-- Path lines (decorative) -->
+        <svg class="hub-map-paths" viewBox="0 0 100 100" preserveAspectRatio="none">
+          <path d="M46,44 L20,24" stroke="rgba(255,157,199,0.2)" stroke-width="0.5" fill="none" stroke-dasharray="1,2"/>
+          <path d="M46,44 L18,42" stroke="rgba(255,157,199,0.2)" stroke-width="0.5" fill="none" stroke-dasharray="1,2"/>
+          <path d="M46,44 L18,60" stroke="rgba(255,157,199,0.2)" stroke-width="0.5" fill="none" stroke-dasharray="1,2"/>
+          <path d="M46,44 L74,57" stroke="rgba(255,157,199,0.2)" stroke-width="0.5" fill="none" stroke-dasharray="1,2"/>
+          <path d="M46,44 L66,24" stroke="rgba(255,157,199,0.2)" stroke-width="0.5" fill="none" stroke-dasharray="1,2"/>
+          <path d="M46,44 L88,38" stroke="rgba(255,157,199,0.2)" stroke-width="0.5" fill="none" stroke-dasharray="1,2"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- ── Zone breadcrumb bar (shown inside zones) ── -->
+    <div class="hub-breadcrumb" id="hubBreadcrumb" style="display:none;">
+      <button class="hub-back-btn" onclick="returnToHubMap()">
+        <span>🗺️</span> Meo Hub Map
       </button>
-      <button class="hub-zone-btn" id="hztab-rooms" onclick="switchHubZone('rooms',this)">
-        <span class="hzb-icon">🏠</span>
-        <span class="hzb-label">Rooms</span>
-      </button>
-      <button class="hub-zone-btn" id="hztab-food" onclick="switchHubZone('food',this)">
-        <span class="hzb-icon">🍜</span>
-        <span class="hzb-label">Food Corner</span>
-      </button>
-      <button class="hub-zone-btn" id="hztab-cinema" onclick="switchHubZone('cinema',this)">
-        <span class="hzb-icon">🎬</span>
-        <span class="hzb-label">Meo-Cinema</span>
-      </button>
-      <button class="hub-zone-btn" id="hztab-arcade" onclick="switchHubZone('arcade',this)">
-        <span class="hzb-icon">🕹️</span>
-        <span class="hzb-label">Arcade</span>
-      </button>
-      <button class="hub-zone-btn" id="hztab-trades" onclick="switchHubZone('trades',this)">
-        <span class="hzb-icon">🔄</span>
-        <span class="hzb-label">Trades</span>
-      </button>
-      <button class="hub-zone-btn" id="hztab-leaderboard" onclick="switchHubZone('leaderboard',this)">
-        <span class="hzb-icon">🏆</span>
-        <span class="hzb-label">Rankings</span>
-      </button>
+      <span class="hub-breadcrumb-sep">›</span>
+      <span class="hub-breadcrumb-zone" id="hubBreadcrumbZone"></span>
     </div>
 
     <!-- ══════════════════════════════════ -->
@@ -5802,10 +6065,13 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
                 <button class="cinema-ctrl-btn" onclick="cinemaNext()" title="Next">⏭</button>
               </div>
             </div>
-            <!-- Playlist -->
-            <div class="cinema-playlist">
-              <div class="cinema-playlist-title">📽️ Anime Openings Playlist</div>
-              <div class="cinema-playlist-grid" id="cinemaPlaylist"></div>
+            <!-- Playlist — admin only, collapsible -->
+            <div class="cinema-playlist" id="cinemaPlaylistSection" style="display:none;">
+              <button class="cinema-playlist-toggle" onclick="toggleCinemaPlaylist(this)">
+                <span>📽️ Anime Openings Playlist</span>
+                <span class="cinema-playlist-arrow">▼</span>
+              </button>
+              <div class="cinema-playlist-grid" id="cinemaPlaylist" style="display:none;"></div>
             </div>
             <!-- Marquee lights bottom -->
             <div class="cinema-marquee-lights cinema-lights-bottom">
@@ -9202,8 +9468,15 @@ function goTo(page,btn){ playNavSound();
   if(page==='profile')updateProfile();
   if(page==='social'){
     initChat();
-    loadLeaderboard('pvp');
-    initMeoHub();
+    // Init hub on first visit
+    if(!window._hubInited){
+      window._hubInited=true;
+      syncHubOnline();
+      renderFoodCorner();
+      renderCinemaPlaylist();
+    }
+    // Always show map on entry
+    returnToHubMap();
   }
   if(page==='admin'){
     // Load card list on first visit so ✏️ edit buttons work immediately
@@ -13855,46 +14128,43 @@ let tradeTargetCollection = [];
 // ══════════════════════════════════════════════
 // SOCIAL TAB SWITCHER
 // ══════════════════════════════════════════════
-// ── Legacy alias (keep for any remaining calls) ──
-function switchSocialTab(tab, btn){
-  const map = { chat: 'lobby', trades: 'trades', leaderboard: 'leaderboard' };
-  const zone = map[tab] || tab;
-  const zoneBtn = document.getElementById('hztab-' + zone);
-  switchHubZone(zone, zoneBtn);
-}
+// ── Legacy alias ──
+function switchHubZone(zone, btn){ enterHubZone(zone); }
 
-// ══════════════════════════════════════════════
-// MEO HUB — CORE
-// ══════════════════════════════════════════════
-let _hubInited = false;
+const HUB_ZONE_LABELS = {
+  lobby:'💬 Global Lobby', rooms:'🏠 Player Rooms', food:'🍜 Food Corner',
+  cinema:'🎬 Meo-Cinema', arcade:'🕹️ Arcade', trades:'🔄 Trade Post', leaderboard:'🏆 Hall of Fame'
+};
 
-function initMeoHub(){
-  if(_hubInited) return;
-  _hubInited = true;
-  // Sync online count to hub hero
-  syncHubOnline();
-  renderFoodCorner();
-  renderCinemaPlaylist();
-  loadLobbyLeaderboardPreview();
-  initRoomSystem();
-}
-
-function switchHubZone(zone, btn){
-  const zones = ['lobby','rooms','food','cinema','arcade','trades','leaderboard'];
+function enterHubZone(zone){
+  const zones=['lobby','rooms','food','cinema','arcade','trades','leaderboard'];
   zones.forEach(z=>{
-    const el = document.getElementById('hubZone-'+z);
-    const b  = document.getElementById('hztab-'+z);
-    if(el) el.style.display = z===zone ? '' : 'none';
-    if(b)  b.classList.toggle('active', z===zone);
+    const el=document.getElementById('hubZone-'+z);
+    if(el) el.style.display=z===zone?'':'none';
   });
+  // Show breadcrumb, hide map+hero
+  document.getElementById('hubMapView').style.display='none';
+  document.getElementById('hubHeroMap').style.display='none';
+  document.getElementById('hubBreadcrumb').style.display='flex';
+  document.getElementById('hubBreadcrumbZone').textContent=HUB_ZONE_LABELS[zone]||zone;
+
   if(zone==='trades') loadMyTrades();
   if(zone==='leaderboard') loadLeaderboard('pvp');
   if(zone==='lobby') loadLobbyLeaderboardPreview();
   if(zone==='arcade') syncArcadeWallet();
-  if(zone==='cinema') { initCinemaChat(); }
+  if(zone==='cinema') initCinemaChat();
   if(zone==='rooms') refreshRoomsList();
-  // Scroll zone nav button into view
-  if(btn) btn.scrollIntoView({behavior:'smooth',inline:'nearest',block:'nearest'});
+}
+
+function returnToHubMap(){
+  const zones=['lobby','rooms','food','cinema','arcade','trades','leaderboard'];
+  zones.forEach(z=>{
+    const el=document.getElementById('hubZone-'+z);
+    if(el) el.style.display='none';
+  });
+  document.getElementById('hubMapView').style.display='';
+  document.getElementById('hubHeroMap').style.display='';
+  document.getElementById('hubBreadcrumb').style.display='none';
 }
 
 function syncHubOnline(){
@@ -13944,8 +14214,17 @@ async function refreshRoomsList(){
   const listEl = document.getElementById('roomsList');
   if(!listEl) return;
   try {
-    const data = await sb.get(ROOM_TABLE, { is_public: true }, { order: 'created_at.desc', limit: 30 });
-    _roomsData = Array.isArray(data) ? data : [];
+    // Fetch public rooms
+    const pubRooms = await sb.get(ROOM_TABLE, { is_public: true }, { order: 'created_at.desc', limit: 30 });
+    // Fetch own private rooms if logged in
+    let privRooms = [];
+    if(state.discordId && !state.isGuest){
+      try { privRooms = await sb.get(ROOM_TABLE, { is_public: false, owner_id: state.discordId }, { order: 'created_at.desc', limit: 10 }); }
+      catch(_){}
+    }
+    // Merge and deduplicate
+    const seen = new Set();
+    _roomsData = [...(Array.isArray(pubRooms)?pubRooms:[]), ...(Array.isArray(privRooms)?privRooms:[])].filter(r=>{ if(seen.has(r.id)) return false; seen.add(r.id); return true; });
     if(!_roomsData.length){
       listEl.innerHTML = `<div class="rooms-empty"><div class="rooms-empty-icon">🏡</div><div>No public rooms yet.<br>Be the first to create one!</div></div>`;
       return;
@@ -14064,7 +14343,7 @@ function renderRoomChatMsg(msg){
   const div=document.createElement('div');
   div.className='chat-msg'+(isMe?' chat-me':'');
   if(msg.id) div.id='roommsg-'+msg.id;
-  const av=msg.avatar_url||`https://api.dicebear.com/7.x/pixel-art/svg?seed=${encodeURIComponent(msg.username||'u')}`;
+  const av=isMe?(state.customAvatar||state.avatar||msg.avatar_url||'https://cdn.discordapp.com/embed/avatars/0.png'):(msg.avatar_url||`https://api.dicebear.com/7.x/pixel-art/svg?seed=${encodeURIComponent(msg.username||'u')}`);
   const time=msg.created_at?new Date(msg.created_at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):'';
   const msgExcerpt=(msg.content||'').slice(0,60).replace(/'/g,"\\'");
   const idSafe=msg.id?String(msg.id).replace(/['"]/g,''):'';
@@ -14115,7 +14394,7 @@ async function submitRoomChat(){
     room_id:_currentRoomId,
     user_id:state.discordId,
     username:state.username||'Player',
-    avatar_url:state.avatar||'',
+    avatar_url:state.customAvatar||state.avatar||'',
     content
   };
   if(_roomReply){
@@ -14249,7 +14528,10 @@ let _cinemaViewerSet = new Set();
 
 function renderCinemaPlaylist(){
   const grid = document.getElementById('cinemaPlaylist');
+  const section = document.getElementById('cinemaPlaylistSection');
   if(!grid) return;
+  // Only show playlist section to admins
+  if(section) section.style.display = state.isAdmin ? '' : 'none';
   grid.innerHTML = CINEMA_PLAYLIST.map((v,i)=>`
     <div class="cinema-playlist-item ${i===_cinemaIdx?'playing':''}"
       onclick="${_cinemaScheduled && !state.isAdmin ? "showToast('🎬 A scheduled showing is active — only admins can change the video!')" : 'playVideo('+i+')'}">
@@ -14258,9 +14540,18 @@ function renderCinemaPlaylist(){
       <div class="cinema-pi-series">${escapeHtml(v.series)}</div>
       ${_cinemaScheduled && i===_cinemaIdx ? '<div style="font-size:0.6em;color:#f1c40f;margin-top:2px;">📡 LIVE</div>' : ''}
     </div>`).join('');
-  // Show/hide admin showing controls
+  // Show/hide admin chat controls
   const ctrl = document.getElementById('cinemaAdminControls');
   if(ctrl) ctrl.style.display = state.isAdmin ? '' : 'none';
+}
+
+function toggleCinemaPlaylist(btn){
+  const grid = document.getElementById('cinemaPlaylist');
+  if(!grid) return;
+  const open = grid.style.display !== 'none';
+  grid.style.display = open ? 'none' : '';
+  const arrow = btn?.querySelector('.cinema-playlist-arrow');
+  if(arrow) arrow.classList.toggle('open', !open);
 }
 
 function playVideo(idx, fromSchedule=false){
@@ -14401,8 +14692,8 @@ function renderCinemaMsg(msg){
   const div=document.createElement('div');
   div.className='chat-msg'+(isMe?' chat-me':'');
   if(msg.id) div.id='cinemamsg-'+msg.id;
-  // Use discord avatar if available, otherwise dicebear
-  const av=msg.avatar_url||`https://api.dicebear.com/7.x/pixel-art/svg?seed=${encodeURIComponent(msg.username||'u')}`;
+  // Use custom avatar for self, stored avatar for others
+  const av=isMe?(state.customAvatar||state.avatar||msg.avatar_url||'https://cdn.discordapp.com/embed/avatars/0.png'):(msg.avatar_url||`https://api.dicebear.com/7.x/pixel-art/svg?seed=${encodeURIComponent(msg.username||'u')}`);
   const time=msg.created_at?new Date(msg.created_at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):'';
   const msgExcerpt=(msg.content||'').slice(0,60).replace(/'/g,"\\'");
   const idSafe=msg.id?String(msg.id).replace(/['"]/g,''):'';
@@ -14469,7 +14760,7 @@ async function submitCinemaChat(){
   const payload={
     user_id:state.discordId,
     username:state.username||'Viewer',
-    avatar_url:state.avatar||'',
+    avatar_url:state.customAvatar||state.avatar||'',
     content
   };
   if(_cinemaReply){
