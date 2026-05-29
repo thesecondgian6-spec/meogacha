@@ -3960,8 +3960,639 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 ══════════════════════════════════════════════════ */
 #page-social { padding: 0 !important; max-width: 100% !important; }
 
-.hub-zone { padding: 20px 24px 100px; max-width: 1200px; margin: 0 auto; }
-@media(max-width:700px){ .hub-zone { padding: 14px 12px 100px; } }
+.hub-zone { padding: 0 0 100px; max-width: 1200px; margin: 0 auto; }
+@media(max-width:700px){ .hub-zone { padding: 0 0 100px; } }
+
+/* ══════════════════════════════════════════════════════
+   ZONE BANNER SYSTEM — Immersive GIF headers per zone
+   ══════════════════════════════════════════════════════ */
+
+/* Shared zone-banner base */
+.zone-banner {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  margin-bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-end;
+}
+.zone-banner-gif {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center center;
+  pointer-events: none;
+  z-index: 0;
+}
+.zone-banner-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+.zone-banner-content {
+  position: relative;
+  z-index: 2;
+  padding: 28px 32px 24px;
+  width: 100%;
+}
+@media(max-width:700px){
+  .zone-banner-content { padding: 18px 16px 16px; }
+}
+
+/* Zone content body padding (replaces removed .hub-zone padding) */
+.zone-body { padding: 24px 24px 0; max-width: 1200px; }
+@media(max-width:700px){ .zone-body { padding: 16px 12px 0; } }
+
+/* ── MEO HUB BANNER (map header) ── */
+.hub-zone-meohub-banner {
+  height: 200px;
+  border-radius: 0 0 24px 24px;
+  margin-bottom: 24px;
+}
+.hub-zone-meohub-banner .zone-banner-overlay {
+  background: linear-gradient(to bottom,
+    rgba(13,6,16,0.1) 0%,
+    rgba(13,6,16,0.3) 50%,
+    rgba(13,6,16,0.75) 85%,
+    var(--bg) 100%);
+}
+@media(max-width:700px){ .hub-zone-meohub-banner { height: 140px; } }
+
+/* ── LOBBY BANNER ── Cherry blossom plaza vibes */
+.hub-zone-lobby-banner {
+  height: 240px;
+  border-radius: 0 0 0 0;
+}
+.hub-zone-lobby-banner .zone-banner-overlay {
+  background: linear-gradient(
+    135deg,
+    rgba(13,6,16,0.2) 0%,
+    rgba(20,10,35,0.4) 40%,
+    rgba(13,6,16,0.88) 100%
+  );
+}
+.hub-zone-lobby-banner .zone-banner-overlay::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, transparent 40%, rgba(13,6,16,0.95) 100%);
+}
+.zone-lobby-title {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: clamp(1.4em, 4vw, 2.2em);
+  font-weight: 900;
+  background: linear-gradient(135deg, #ffd6ea, #ffadd5, #e0608a);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 2px 16px rgba(255,157,199,0.6));
+  margin-bottom: 4px;
+}
+.zone-lobby-sub {
+  font-style: italic;
+  font-size: 0.9em;
+  color: rgba(240,216,232,0.7);
+  font-family: 'Cormorant Garamond', serif;
+}
+.zone-banner-chips {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+.zone-chip {
+  background: rgba(255,157,199,0.12);
+  border: 1px solid rgba(255,157,199,0.3);
+  border-radius: 20px;
+  padding: 4px 14px;
+  font-size: 0.72em;
+  color: var(--pink-pale);
+  font-family: 'JetBrains Mono', monospace;
+  backdrop-filter: blur(8px);
+  letter-spacing: 0.03em;
+}
+@media(max-width:700px){ .hub-zone-lobby-banner { height: 160px; } }
+
+/* ── FOOD CORNER BANNER ── Warm ramen/bar atmosphere */
+.hub-zone-food-banner {
+  height: 220px;
+}
+.hub-zone-food-banner .zone-banner-overlay {
+  background: linear-gradient(
+    to bottom,
+    rgba(30,8,2,0.15) 0%,
+    rgba(30,8,2,0.5) 60%,
+    rgba(13,3,1,0.95) 100%
+  );
+}
+.hub-zone-food-banner .zone-banner-overlay::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 30% 80%, rgba(255,100,30,0.15), transparent 60%);
+}
+.zone-food-title {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: clamp(1.3em, 4vw, 2em);
+  font-weight: 900;
+  background: linear-gradient(135deg, #ffcc44, #ff8844, #ff4422);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 2px 14px rgba(255,120,30,0.7));
+  margin-bottom: 4px;
+}
+.zone-food-sub {
+  font-style: italic;
+  font-size: 0.88em;
+  color: rgba(255,220,180,0.7);
+  font-family: 'Cormorant Garamond', serif;
+}
+.zone-chip-food {
+  background: rgba(255,120,30,0.12);
+  border-color: rgba(255,120,30,0.35);
+  color: #ffcc88;
+}
+@media(max-width:700px){ .hub-zone-food-banner { height: 160px; } }
+
+/* ── ROOMS BANNER ── Warm cozy room atmosphere */
+.hub-zone-rooms-banner {
+  height: 220px;
+}
+.hub-zone-rooms-banner .zone-banner-overlay {
+  background: linear-gradient(
+    to bottom,
+    rgba(5,10,25,0.1) 0%,
+    rgba(10,15,35,0.5) 55%,
+    rgba(5,8,20,0.95) 100%
+  );
+}
+.hub-zone-rooms-banner .zone-banner-overlay::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 70% 80%, rgba(100,200,255,0.08), transparent 55%);
+}
+.zone-rooms-title {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: clamp(1.3em, 4vw, 2em);
+  font-weight: 900;
+  background: linear-gradient(135deg, #b8e0ff, #7ab8f5, #4a90d9);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 2px 14px rgba(100,180,255,0.5));
+  margin-bottom: 4px;
+}
+.zone-rooms-sub {
+  font-style: italic;
+  font-size: 0.88em;
+  color: rgba(180,220,255,0.65);
+  font-family: 'Cormorant Garamond', serif;
+}
+.zone-chip-rooms {
+  background: rgba(100,180,255,0.1);
+  border-color: rgba(100,180,255,0.3);
+  color: #aad4ff;
+}
+@media(max-width:700px){ .hub-zone-rooms-banner { height: 160px; } }
+
+/* ── CINEMA BANNER ── Dark cinematic atmosphere */
+.hub-zone-cinema-banner {
+  height: 240px;
+}
+.hub-zone-cinema-banner .zone-banner-overlay {
+  background: linear-gradient(
+    to bottom,
+    rgba(5,2,12,0.05) 0%,
+    rgba(5,2,12,0.45) 55%,
+    rgba(5,2,12,0.96) 100%
+  );
+}
+.hub-zone-cinema-banner .zone-banner-overlay::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 100%, rgba(180,60,0,0.18), transparent 60%);
+}
+.zone-cinema-title {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: clamp(1.3em, 4vw, 2em);
+  font-weight: 900;
+  background: linear-gradient(135deg, #fff7aa, #f1c40f, #e67e22);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 2px 14px rgba(241,196,15,0.6));
+  margin-bottom: 4px;
+}
+.zone-cinema-sub {
+  font-style: italic;
+  font-size: 0.88em;
+  color: rgba(255,240,180,0.65);
+  font-family: 'Cormorant Garamond', serif;
+}
+.zone-chip-cinema {
+  background: rgba(241,196,15,0.1);
+  border-color: rgba(241,196,15,0.3);
+  color: #f1d85f;
+}
+/* Cinema marquee ticker in banner */
+.cinema-banner-ticker {
+  position: absolute;
+  bottom: 0;
+  left: 0; right: 0;
+  z-index: 3;
+  background: rgba(0,0,0,0.6);
+  border-top: 1px solid rgba(241,196,15,0.2);
+  padding: 5px 0;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.cinema-banner-ticker-inner {
+  display: inline-block;
+  animation: tickerScroll 25s linear infinite;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7em;
+  color: #f1c40f;
+  letter-spacing: 0.05em;
+  padding-left: 100%;
+}
+@keyframes tickerScroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-100%); }
+}
+.cinema-banner-lights {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  z-index: 3;
+  display: flex;
+  justify-content: space-around;
+  padding: 6px 20px;
+  background: rgba(0,0,0,0.4);
+}
+.cinema-banner-lights span {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: #f1c40f;
+  box-shadow: 0 0 6px #f1c40f;
+  animation: marqueeFlicker 1.5s ease-in-out infinite;
+}
+.cinema-banner-lights span:nth-child(2n) { animation-delay: 0.3s; }
+.cinema-banner-lights span:nth-child(3n) { animation-delay: 0.6s; }
+.cinema-banner-lights span:nth-child(4n) { animation-delay: 0.9s; }
+@media(max-width:700px){ .hub-zone-cinema-banner { height: 160px; } }
+
+/* ── ARCADE BANNER ── Neon chaos atmosphere */
+.hub-zone-arcade-banner {
+  height: 240px;
+}
+.hub-zone-arcade-banner .zone-banner-overlay {
+  background: linear-gradient(
+    to bottom,
+    rgba(2,0,8,0.05) 0%,
+    rgba(2,0,8,0.45) 55%,
+    rgba(2,0,8,0.97) 100%
+  );
+}
+.hub-zone-arcade-banner .zone-banner-overlay::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: 
+    radial-gradient(ellipse at 20% 80%, rgba(255,0,200,0.12), transparent 40%),
+    radial-gradient(ellipse at 80% 80%, rgba(0,200,255,0.12), transparent 40%),
+    radial-gradient(ellipse at 50% 60%, rgba(100,0,255,0.08), transparent 50%);
+}
+.zone-arcade-title {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: clamp(1.3em, 4vw, 2em);
+  font-weight: 900;
+  background: linear-gradient(90deg, #ff00cc, #aa00ff, #0088ff, #00ffcc);
+  background-size: 200%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: arcadeTitleShift 3s linear infinite;
+  filter: drop-shadow(0 0 20px rgba(200,0,255,0.5));
+  margin-bottom: 4px;
+}
+@keyframes arcadeTitleShift {
+  0% { background-position: 0%; }
+  100% { background-position: 200%; }
+}
+.zone-arcade-sub {
+  font-style: italic;
+  font-size: 0.88em;
+  color: rgba(200,180,255,0.65);
+  font-family: 'Cormorant Garamond', serif;
+}
+.zone-chip-arcade {
+  background: rgba(200,0,255,0.1);
+  border-color: rgba(200,0,255,0.3);
+  color: #dd88ff;
+}
+.zone-chip-arcade-b {
+  background: rgba(0,200,255,0.1);
+  border-color: rgba(0,200,255,0.3);
+  color: #88ddff;
+}
+/* Arcade scanlines effect on banner */
+.arcade-banner-scanlines {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 3px,
+    rgba(0,0,0,0.08) 3px,
+    rgba(0,0,0,0.08) 4px
+  );
+}
+/* Arcade neon border on banner */
+.hub-zone-arcade-banner::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #ff00cc, #aa00ff, #0088ff, #00ffcc, #ff00cc);
+  background-size: 200%;
+  animation: arcadeTitleShift 2s linear infinite;
+  z-index: 3;
+}
+@media(max-width:700px){ .hub-zone-arcade-banner { height: 160px; } }
+
+/* ══ LOBBY INTERIOR ENHANCEMENTS ══ */
+#hubZone-lobby {
+  background: 
+    radial-gradient(ellipse at 20% 0%, rgba(255,157,199,0.04) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 100%, rgba(192,132,184,0.04) 0%, transparent 50%);
+}
+#hubZone-lobby .lobby-layout {
+  padding: 0 24px;
+  padding-bottom: 0;
+}
+@media(max-width:700px){
+  #hubZone-lobby .lobby-layout { padding: 0 12px; }
+}
+/* Lobby chat card: subtle sakura border pulse */
+#hubZone-lobby .lobby-chat-card {
+  border: 1px solid rgba(255,157,199,0.22);
+  background: 
+    linear-gradient(135deg, rgba(255,157,199,0.05) 0%, rgba(192,132,184,0.03) 100%);
+  box-shadow: 
+    0 4px 40px rgba(255,157,199,0.06),
+    inset 0 1px 0 rgba(255,157,199,0.1);
+}
+/* Lobby decorative top strip */
+.lobby-decor-strip {
+  height: 3px;
+  background: linear-gradient(90deg, transparent, var(--pink), var(--purple), var(--pink), transparent);
+  border-radius: 2px;
+  margin-bottom: 0;
+  opacity: 0.6;
+  flex-shrink: 0;
+}
+
+/* ══ FOOD CORNER INTERIOR ENHANCEMENTS ══ */
+#hubZone-food {
+  background:
+    radial-gradient(ellipse at 10% 20%, rgba(255,80,20,0.03) 0%, transparent 50%),
+    radial-gradient(ellipse at 90% 60%, rgba(180,60,0,0.03) 0%, transparent 50%);
+}
+#hubZone-food .food-shop-tabs {
+  padding: 0 24px 6px;
+  border-bottom: 1px solid rgba(255,100,30,0.12);
+  margin-bottom: 0;
+}
+@media(max-width:700px){
+  #hubZone-food .food-shop-tabs { padding: 0 12px 6px; }
+}
+#hubZone-food .food-shop-content { padding: 20px 24px 0; }
+@media(max-width:700px){
+  #hubZone-food .food-shop-content { padding: 16px 12px 0; }
+}
+/* Food banners with GIF-matching colors */
+.food-banner-maid {
+  background: 
+    linear-gradient(135deg, rgba(255,157,199,0.18) 0%, rgba(192,132,184,0.1) 100%) !important;
+  border: 1px solid rgba(255,157,199,0.3) !important;
+  position: relative;
+  overflow: hidden;
+}
+.food-banner-maid::before {
+  content: '🎀';
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 3em;
+  opacity: 0.15;
+}
+.food-banner-ichiraku {
+  background: 
+    linear-gradient(135deg, rgba(255,140,30,0.15) 0%, rgba(180,90,0,0.08) 100%) !important;
+  border: 1px solid rgba(241,160,15,0.28) !important;
+}
+.food-banner-ichiraku::before {
+  content: '🍜';
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 3em;
+  opacity: 0.15;
+}
+.food-banner-anteiku {
+  background: 
+    linear-gradient(135deg, rgba(30,20,10,0.5) 0%, rgba(60,40,20,0.3) 100%) !important;
+  border: 1px solid rgba(120,80,40,0.3) !important;
+}
+.food-banner-anteiku::before {
+  content: '☕';
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 3em;
+  opacity: 0.15;
+}
+.food-banner-baratie {
+  background: 
+    linear-gradient(135deg, rgba(180,30,20,0.15) 0%, rgba(100,10,5,0.1) 100%) !important;
+  border: 1px solid rgba(220,60,40,0.28) !important;
+}
+.food-banner-baratie::before {
+  content: '⚓';
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 3em;
+  opacity: 0.15;
+}
+/* Food item cards get per-shop theming via data attr */
+#hubZone-food .food-item-card {
+  transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
+}
+#hubZone-food .food-item-card:hover {
+  transform: translateY(-5px) scale(1.02);
+}
+
+/* ══ ROOMS INTERIOR ENHANCEMENTS ══ */
+#hubZone-rooms {
+  background:
+    radial-gradient(ellipse at 15% 30%, rgba(100,180,255,0.03) 0%, transparent 50%),
+    radial-gradient(ellipse at 85% 70%, rgba(60,120,200,0.03) 0%, transparent 50%);
+}
+#hubZone-rooms .rooms-layout {
+  padding: 0 24px;
+}
+@media(max-width:700px){
+  #hubZone-rooms .rooms-layout { padding: 0 12px; }
+}
+#hubZone-rooms .rooms-browser-col {
+  border: 1px solid rgba(100,180,255,0.18);
+  background: rgba(10,20,40,0.4);
+}
+#hubZone-rooms .rooms-browser-header {
+  border-bottom: 1px solid rgba(100,180,255,0.15);
+  background: rgba(10,15,30,0.5);
+}
+#hubZone-rooms .rooms-browser-title {
+  color: #aad4ff;
+}
+#hubZone-rooms .rooms-create-btn {
+  background: linear-gradient(135deg, rgba(60,140,255,0.25), rgba(40,100,200,0.15));
+  border: 1px solid rgba(100,180,255,0.35);
+  color: #aad4ff;
+}
+#hubZone-rooms .rooms-create-btn:hover {
+  background: linear-gradient(135deg, rgba(80,160,255,0.35), rgba(60,120,220,0.25));
+  border-color: rgba(140,200,255,0.5);
+}
+#hubZone-rooms .rooms-active-chat {
+  border: 1px solid rgba(100,180,255,0.15);
+  background: rgba(8,14,28,0.6);
+}
+#hubZone-rooms .rooms-chat-empty {
+  border: 1px solid rgba(100,180,255,0.12);
+}
+
+/* ══ CINEMA INTERIOR ENHANCEMENTS ══ */
+#hubZone-cinema {
+  background: #050208;
+}
+#hubZone-cinema .cinema-layout {
+  padding: 0 24px;
+}
+@media(max-width:700px){
+  #hubZone-cinema .cinema-layout { padding: 0 12px; }
+}
+/* Cinema room gets a more dramatic frame */
+#hubZone-cinema .cinema-room {
+  border: 1px solid rgba(241,196,15,0.2);
+  box-shadow: 
+    0 0 0 1px rgba(241,196,15,0.05),
+    0 8px 60px rgba(0,0,0,0.6),
+    inset 0 0 80px rgba(0,0,0,0.4);
+}
+#hubZone-cinema .cinema-screen-wrap {
+  background: linear-gradient(to bottom, #08040f, #030108);
+  padding: 16px 32px;
+}
+/* Red velvet curtains enhanced */
+#hubZone-cinema .cinema-curtain-left {
+  background: linear-gradient(to right, rgba(140,10,40,0.9), rgba(80,5,20,0.4), transparent);
+  width: 20px;
+}
+#hubZone-cinema .cinema-curtain-right {
+  background: linear-gradient(to left, rgba(140,10,40,0.9), rgba(80,5,20,0.4), transparent);
+  width: 20px;
+}
+/* Cinema floor seats rows (decorative) */
+.cinema-seats-row {
+  display: flex;
+  justify-content: center;
+  gap: 3px;
+  padding: 6px 24px;
+  background: rgba(0,0,0,0.5);
+  flex-shrink: 0;
+}
+.cinema-seat {
+  width: 14px; height: 10px;
+  border-radius: 3px 3px 0 0;
+  background: rgba(100,20,30,0.6);
+  border: 1px solid rgba(150,30,40,0.3);
+  flex-shrink: 0;
+}
+.cinema-seat.taken { background: rgba(60,10,20,0.9); }
+
+/* ══ ARCADE INTERIOR ENHANCEMENTS ══ */
+#hubZone-arcade {
+  background: #020008;
+  position: relative;
+}
+/* Scanlines overlay on entire arcade */
+#hubZone-arcade::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,0.05) 2px,
+    rgba(0,0,0,0.05) 3px
+  );
+}
+#hubZone-arcade > * { position: relative; z-index: 2; }
+#hubZone-arcade .arcade-layout-inner {
+  padding: 24px;
+}
+@media(max-width:700px){
+  #hubZone-arcade .arcade-layout-inner { padding: 16px 12px; }
+}
+/* Neon arcade game cards */
+#hubZone-arcade .arcade-game-card {
+  background: rgba(5,0,15,0.8);
+  border: 1px solid rgba(200,0,255,0.2);
+  box-shadow: 0 0 0 1px rgba(200,0,255,0.05), inset 0 0 20px rgba(0,0,0,0.5);
+  transition: all 0.3s;
+}
+#hubZone-arcade .arcade-game-card:nth-child(2n) {
+  border-color: rgba(0,200,255,0.2);
+  box-shadow: 0 0 0 1px rgba(0,200,255,0.05), inset 0 0 20px rgba(0,0,0,0.5);
+}
+#hubZone-arcade .arcade-game-card:hover {
+  border-color: rgba(255,0,200,0.5);
+  box-shadow: 0 0 30px rgba(255,0,200,0.15), 0 0 0 1px rgba(255,0,200,0.1);
+  transform: translateY(-6px) scale(1.02);
+}
+#hubZone-arcade .arcade-game-card:nth-child(2n):hover {
+  border-color: rgba(0,200,255,0.5);
+  box-shadow: 0 0 30px rgba(0,200,255,0.15), 0 0 0 1px rgba(0,200,255,0.1);
+}
+/* Arcade wallet neon styling */
+#hubZone-arcade .arcade-hero-wallet {
+  background: rgba(241,196,15,0.06);
+  border: 1px solid rgba(241,196,15,0.25);
+  box-shadow: 0 0 20px rgba(241,196,15,0.1);
+}
+
+/* ══ BREADCRUMB STYLED PER ZONE ══ */
+#hubBreadcrumb {
+  margin: 0 0 0 0;
+  padding: 10px 24px;
+  background: rgba(13,6,16,0.6);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+@media(max-width:700px){ #hubBreadcrumb { padding: 10px 12px; } }
 
 /* ── Hub Hero ── */
 .hub-hero {
@@ -6169,7 +6800,23 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
     <!-- ZONE: LOBBY                        -->
     <!-- ══════════════════════════════════ -->
     <div class="hub-zone" id="hubZone-lobby">
-      <div class="lobby-layout">
+      <!-- ── Lobby Banner ── -->
+      <div class="zone-banner hub-zone-lobby-banner">
+        <img class="zone-banner-gif" src="https://media1.tenor.com/m/vw9hHcFt0gIAAAAC/bbn2007.gif" alt="Lobby Banner" loading="lazy"/>
+        <div class="zone-banner-overlay"></div>
+        <div class="zone-banner-content">
+          <div class="zone-lobby-title">✦ Global Lobby</div>
+          <div class="zone-lobby-sub">Where summoners gather, chat, and flex their rarest cards</div>
+          <div class="zone-banner-chips">
+            <span class="zone-chip">💬 Live Chat</span>
+            <span class="zone-chip">✨ Card Flex</span>
+            <span class="zone-chip">🏆 Rankings</span>
+            <span class="zone-chip">🔄 Trade</span>
+          </div>
+        </div>
+      </div>
+      <div class="lobby-decor-strip"></div>
+      <div class="lobby-layout" style="padding:20px 24px 0;max-width:1200px;margin:0 auto;height:auto;min-height:500px;">
         <!-- Left: Chat -->
         <div class="lobby-chat-col">
           <div class="lobby-chat-card">
@@ -6252,7 +6899,21 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
     <!-- ZONE: PLAYER ROOMS                 -->
     <!-- ══════════════════════════════════ -->
     <div class="hub-zone" id="hubZone-rooms" style="display:none;">
-      <div class="rooms-layout">
+      <!-- ── Rooms Banner ── -->
+      <div class="zone-banner hub-zone-rooms-banner">
+        <img class="zone-banner-gif" src="https://media1.tenor.com/m/PKQz3kmo2akAAAAC/welcome.gif" alt="Rooms Banner" loading="lazy"/>
+        <div class="zone-banner-overlay"></div>
+        <div class="zone-banner-content">
+          <div class="zone-rooms-title">🏠 Player Rooms</div>
+          <div class="zone-rooms-sub">Your own little corner of the hub — invite friends, hang out, vibe</div>
+          <div class="zone-banner-chips">
+            <span class="zone-chip zone-chip-rooms">🏡 Create Room</span>
+            <span class="zone-chip zone-chip-rooms">💬 Private Chat</span>
+            <span class="zone-chip zone-chip-rooms">🌸 Hang Out</span>
+          </div>
+        </div>
+      </div>
+      <div class="rooms-layout" style="padding:20px 24px 0;max-width:1200px;margin:0 auto;height:auto;min-height:500px;">
         <!-- Left: Room list / browser -->
         <div class="rooms-browser-col">
           <div class="rooms-browser-header">
@@ -6311,9 +6972,20 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
     <!-- ZONE: FOOD CORNER                  -->
     <!-- ══════════════════════════════════ -->
     <div class="hub-zone" id="hubZone-food" style="display:none;">
-      <div class="food-hero">
-        <div class="food-hero-title">🍜 Food Corner</div>
-        <div class="food-hero-sub">Eat well, grow stronger. Powered by iconic anime restaurants.</div>
+      <!-- ── Food Corner Banner ── -->
+      <div class="zone-banner hub-zone-food-banner">
+        <img class="zone-banner-gif" src="https://media1.tenor.com/m/Bv37u6GJKkkAAAAC/bar-feelre.gif" alt="Food Corner Banner" loading="lazy"/>
+        <div class="zone-banner-overlay"></div>
+        <div class="zone-banner-content">
+          <div class="zone-food-title">🍜 Food Corner</div>
+          <div class="zone-food-sub">Eat well, grow stronger. Powered by iconic anime restaurants.</div>
+          <div class="zone-banner-chips">
+            <span class="zone-chip zone-chip-food">🎀 Maid Café</span>
+            <span class="zone-chip zone-chip-food">🍜 Ichiraku Ramen</span>
+            <span class="zone-chip zone-chip-food">☕ Anteiku</span>
+            <span class="zone-chip zone-chip-food">⚓ Baratie</span>
+          </div>
+        </div>
       </div>
       <!-- Shop tabs -->
       <div class="food-shop-tabs">
@@ -6369,7 +7041,32 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
     <!-- ZONE: MEO CINEMA                   -->
     <!-- ══════════════════════════════════ -->
     <div class="hub-zone" id="hubZone-cinema" style="display:none;">
-      <div class="cinema-layout">
+      <!-- ── Cinema Banner ── -->
+      <div class="zone-banner hub-zone-cinema-banner">
+        <img class="zone-banner-gif" src="https://media1.tenor.com/m/4xOYt5yvVNMAAAAC/demon-slayer-upper-six-fight.gif" alt="Cinema Banner" loading="lazy"/>
+        <div class="arcade-banner-scanlines"></div>
+        <div class="zone-banner-overlay"></div>
+        <!-- Top marquee lights -->
+        <div class="cinema-banner-lights">
+          <span></span><span></span><span></span><span></span><span></span>
+          <span></span><span></span><span></span><span></span><span></span>
+          <span></span><span></span><span></span><span></span><span></span>
+        </div>
+        <div class="zone-banner-content">
+          <div class="zone-cinema-title">🎬 Meo Cinema</div>
+          <div class="zone-cinema-sub">Watch anime openings, react live, and hype up your favorites</div>
+          <div class="zone-banner-chips">
+            <span class="zone-chip zone-chip-cinema">📺 Now Playing</span>
+            <span class="zone-chip zone-chip-cinema">🍿 Live React</span>
+            <span class="zone-chip zone-chip-cinema">🎬 Openings</span>
+          </div>
+        </div>
+        <!-- Ticker tape at bottom -->
+        <div class="cinema-banner-ticker">
+          <span class="cinema-banner-ticker-inner">🎬 NOW SHOWING: Anime Openings  ✦  🍿 Grab your popcorn  ✦  🎬 React in real-time with other summoners  ✦  ⭐ Vote for your favorite openings  ✦  🎬 More series added every week  ✦  🍿 Cinema chat is always open  ✦  </span>
+        </div>
+      </div>
+      <div class="cinema-layout" style="padding:20px 24px 0;max-width:1200px;margin:0 auto;">
         <!-- Main screen area -->
         <div class="cinema-screen-col">
           <div class="cinema-room">
@@ -6473,9 +7170,24 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
     <!-- ZONE: MEO ARCADE                   -->
     <!-- ══════════════════════════════════ -->
     <div class="hub-zone" id="hubZone-arcade" style="display:none;">
-      <div class="arcade-hero">
-        <div class="arcade-hero-title">🕹️ Meo Arcade</div>
-        <div class="arcade-hero-sub">Play games, earn coins & XP. New games coming soon!</div>
+      <!-- ── Arcade Banner ── -->
+      <div class="zone-banner hub-zone-arcade-banner">
+        <img class="zone-banner-gif" src="https://media1.tenor.com/m/j9NniiARmYMAAAAC/kakegurui-playing-cards.gif" alt="Arcade Banner" loading="lazy"/>
+        <div class="arcade-banner-scanlines"></div>
+        <div class="zone-banner-overlay"></div>
+        <div class="zone-banner-content">
+          <div class="zone-arcade-title">🕹️ Meo Arcade</div>
+          <div class="zone-arcade-sub">Play games, earn coins &amp; XP. High scores, bragging rights, and glory.</div>
+          <div class="zone-banner-chips">
+            <span class="zone-chip zone-chip-arcade">🧠 Memory Match</span>
+            <span class="zone-chip zone-chip-arcade-b">⚡ Reaction Rush</span>
+            <span class="zone-chip zone-chip-arcade">💰 Earn Coins</span>
+          </div>
+        </div>
+      </div>
+      <div class="arcade-layout-inner">
+      <!-- Wallet bar -->
+      <div class="arcade-hero" style="padding:18px 0 20px;">
         <div class="arcade-hero-wallet">
           <span>💰</span>
           <span id="arcadeWalletDisplay">0</span>
@@ -6550,6 +7262,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
           </div>
         </div>
       </div>
+      </div><!-- end arcade-layout-inner -->
     </div>
 
     <!-- ══════════════════════════════════ -->
