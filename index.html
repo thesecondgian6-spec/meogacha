@@ -4059,180 +4059,414 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .hub-breadcrumb-sep { color: var(--text-dim); font-size: 0.9em; }
 .hub-breadcrumb-zone { font-family: 'Cinzel Decorative', serif; font-size: 0.78em; color: var(--pink-pale); }
 
-/* ── Hub Map ── */
-.hub-map-view {
-  padding: 20px;
-  background: linear-gradient(180deg, rgba(10,4,18,0.9) 0%, rgba(5,2,8,0.95) 100%);
-}
-.hub-map-wrap {
+/* ══════════════════════════════════════════════════
+   MEO HUB — IMMERSIVE MAP
+══════════════════════════════════════════════════ */
+
+/* ── Sky header ── */
+.hmap-sky {
   position: relative;
-  width: 100%;
-  max-width: 860px;
-  margin: 0 auto;
-  aspect-ratio: 16/9;
-  border-radius: 24px;
   overflow: hidden;
-  border: 1px solid rgba(255,157,199,0.15);
-  box-shadow: 0 0 60px rgba(255,157,199,0.06), 0 0 120px rgba(192,132,184,0.04);
-  min-height: 320px;
+  min-height: 180px;
+  background: linear-gradient(180deg, #06010f 0%, #0f0428 35%, #1a083a 60%, #0d1a3a 80%, #081426 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 20px 50px;
 }
-@media(max-width:600px){
-  .hub-map-wrap { aspect-ratio: 3/4; min-height: 480px; }
+.hmap-moon {
+  position: absolute;
+  top: 18px; right: 12%;
+  font-size: 2.4em;
+  filter: drop-shadow(0 0 18px rgba(255,240,180,0.6));
+  animation: decoDrift 8s ease-in-out infinite;
 }
-/* Sky gradient */
-.hub-map-sky {
-  position: absolute; inset: 0;
-  background: linear-gradient(180deg,
-    #080318 0%,
-    #130830 30%,
-    #1a0a3a 55%,
-    #0d1a2e 75%,
-    #0a2218 100%);
-  z-index: 0;
-}
-/* Stars */
-.hub-map-sky::before {
-  content: '';
+.hmap-stars {
   position: absolute; inset: 0;
   background-image:
-    radial-gradient(1px 1px at 10% 15%, rgba(255,255,255,0.7) 0%, transparent 100%),
-    radial-gradient(1px 1px at 25% 8%, rgba(255,255,255,0.5) 0%, transparent 100%),
-    radial-gradient(1px 1px at 40% 20%, rgba(255,255,255,0.6) 0%, transparent 100%),
-    radial-gradient(1px 1px at 60% 12%, rgba(255,255,255,0.4) 0%, transparent 100%),
-    radial-gradient(1px 1px at 75% 18%, rgba(255,255,255,0.7) 0%, transparent 100%),
-    radial-gradient(1px 1px at 88% 9%, rgba(255,255,255,0.5) 0%, transparent 100%),
-    radial-gradient(1px 1px at 15% 35%, rgba(255,255,255,0.3) 0%, transparent 100%),
-    radial-gradient(1px 1px at 55% 28%, rgba(255,255,255,0.4) 0%, transparent 100%),
-    radial-gradient(2px 2px at 33% 5%, rgba(255,200,255,0.8) 0%, transparent 100%),
-    radial-gradient(2px 2px at 70% 7%, rgba(200,200,255,0.7) 0%, transparent 100%);
+    radial-gradient(1px 1px at 5%  10%, rgba(255,255,255,0.9) 0%, transparent 100%),
+    radial-gradient(1px 1px at 15% 6%,  rgba(255,255,255,0.7) 0%, transparent 100%),
+    radial-gradient(1px 1px at 28% 14%, rgba(255,255,255,0.8) 0%, transparent 100%),
+    radial-gradient(1px 1px at 42% 5%,  rgba(255,255,255,0.6) 0%, transparent 100%),
+    radial-gradient(1px 1px at 55% 12%, rgba(255,255,255,0.7) 0%, transparent 100%),
+    radial-gradient(1px 1px at 70% 8%,  rgba(255,255,255,0.9) 0%, transparent 100%),
+    radial-gradient(1px 1px at 82% 18%, rgba(255,255,255,0.5) 0%, transparent 100%),
+    radial-gradient(1px 1px at 91% 4%,  rgba(255,255,255,0.8) 0%, transparent 100%),
+    radial-gradient(1px 1px at 10% 30%, rgba(255,255,255,0.4) 0%, transparent 100%),
+    radial-gradient(1px 1px at 38% 25%, rgba(255,255,255,0.5) 0%, transparent 100%),
+    radial-gradient(1px 1px at 62% 22%, rgba(255,255,255,0.4) 0%, transparent 100%),
+    radial-gradient(2px 2px at 22% 8%,  rgba(255,220,255,0.9) 0%, transparent 100%),
+    radial-gradient(2px 2px at 75% 5%,  rgba(220,220,255,0.9) 0%, transparent 100%),
+    radial-gradient(2px 2px at 48% 3%,  rgba(255,255,220,0.8) 0%, transparent 100%);
+  pointer-events: none;
 }
-/* Ground */
-.hub-map-ground {
+/* Scrolling clouds */
+.hmap-clouds { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+.hmap-cloud {
+  position: absolute;
+  height: 18px;
+  border-radius: 30px;
+  background: rgba(255,255,255,0.04);
+  filter: blur(6px);
+}
+.hmap-cloud-1 { width: 120px; top: 28%; left: -10%; animation: cloudDrift 28s linear infinite; }
+.hmap-cloud-2 { width: 80px;  top: 45%; left: -8%;  animation: cloudDrift 38s linear infinite 8s; opacity: 0.6; }
+.hmap-cloud-3 { width: 160px; top: 16%; left: -15%; animation: cloudDrift 22s linear infinite 14s; opacity: 0.4; }
+@keyframes cloudDrift { from { transform: translateX(0); } to { transform: translateX(130vw); } }
+
+/* Title */
+.hmap-title-wrap { position: relative; z-index: 2; text-align: center; }
+.hmap-title {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: clamp(1.8em, 6vw, 3em);
+  font-weight: 900;
+  background: linear-gradient(135deg, #ffd6ea, #ff9dc7, #c084b8, #ff9dc7, #ffd6ea);
+  background-size: 300%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: pinkShift 8s linear infinite;
+  filter: drop-shadow(0 0 24px rgba(255,157,199,0.5));
+  margin-bottom: 6px;
+}
+.hmap-subtitle {
+  font-style: italic;
+  color: rgba(255,157,199,0.6);
+  font-size: 0.9em;
+  margin-bottom: 10px;
+}
+.hmap-online-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255,157,199,0.08);
+  border: 1px solid rgba(255,157,199,0.2);
+  border-radius: 20px;
+  padding: 4px 14px;
+  font-size: 0.78em;
+  color: rgba(255,157,199,0.7);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* ── Town strip ── */
+.hmap-town {
+  position: relative;
+  height: 48px;
+  background: linear-gradient(180deg, #0d1a2e 0%, #0a1f10 100%);
+  border-top: 2px solid rgba(255,157,199,0.15);
+  border-bottom: 2px solid rgba(39,174,96,0.2);
+  overflow: visible;
+  z-index: 1;
+}
+.hmap-ground-strip {
+  position: absolute; inset: 0;
+  background: repeating-linear-gradient(90deg,
+    transparent 0px, transparent 40px,
+    rgba(255,255,255,0.02) 40px, rgba(255,255,255,0.02) 41px);
+}
+.hmap-lamp {
+  position: absolute;
+  top: -16px;
+  font-size: 1.6em;
+  filter: drop-shadow(0 0 10px rgba(255,200,100,0.6));
+  animation: decoDrift 4s ease-in-out infinite;
+}
+.hmap-lamp-l { left: 8%; }
+.hmap-lamp-r { right: 8%; animation-delay: 2s; }
+.hmap-sakura {
+  position: absolute;
+  top: -22px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 1.4em;
+  animation: decoDrift 6s ease-in-out infinite;
+  pointer-events: none;
+}
+.hmap-sakura-1 { left: 24%; animation-delay: 0s; }
+.hmap-sakura-2 { left: 50%; animation-delay: 2s; }
+.hmap-sakura-3 { right: 22%; animation-delay: 4s; }
+.hmap-trunk {
+  width: 3px; height: 14px;
+  background: linear-gradient(180deg, #6b3a1f, #4a2810);
+  border-radius: 2px;
+  margin-top: -4px;
+}
+
+/* ── Location cards grid ── */
+.hmap-locations {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  padding: 16px 16px 100px;
+  background: linear-gradient(180deg, #0a1f10 0%, #050208 30%);
+}
+@media(max-width: 700px){
+  .hmap-locations { grid-template-columns: repeat(2, 1fr); gap: 10px; padding: 12px 10px 100px; }
+}
+@media(max-width: 380px){
+  .hmap-locations { grid-template-columns: 1fr 1fr; gap: 8px; padding: 10px 8px 100px; }
+}
+
+/* ── Location card ── */
+.hmap-loc {
+  border-radius: 16px;
+  overflow: hidden;
+  cursor: pointer;
+  border: 1px solid rgba(255,255,255,0.06);
+  background: rgba(10,4,18,0.8);
+  transition: transform 0.22s cubic-bezier(.34,1.56,.64,1), box-shadow 0.22s, border-color 0.22s;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+.hmap-loc:hover, .hmap-loc:active {
+  transform: translateY(-4px) scale(1.02);
+  border-color: rgba(255,157,199,0.3);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,157,199,0.1);
+}
+.hmap-loc:active { transform: scale(0.97); }
+
+/* Scene (top illustration area) */
+.hmap-loc-scene {
+  position: relative;
+  height: 130px;
+  overflow: hidden;
+}
+@media(max-width:700px){ .hmap-loc-scene { height: 110px; } }
+@media(max-width:380px){ .hmap-loc-scene { height: 90px; } }
+.hmap-scene-bg {
+  position: absolute; inset: 0;
+  z-index: 0;
+}
+
+/* Scene backgrounds — each zone gets its own atmosphere */
+.hmap-bg-lobby  { background: linear-gradient(180deg, #1a0a3a 0%, #2d1560 50%, #1a0d35 100%); }
+.hmap-bg-food   { background: linear-gradient(180deg, #1a0500 0%, #3d0e07 50%, #200804 100%); }
+.hmap-bg-cinema { background: linear-gradient(180deg, #0a0500 0%, #1a0d00 50%, #0a0800 100%); }
+.hmap-bg-arcade { background: linear-gradient(180deg, #010814 0%, #020f20 50%, #010509 100%); }
+.hmap-bg-rooms  { background: linear-gradient(180deg, #020a04 0%, #061408 50%, #030a04 100%); }
+.hmap-bg-trades { background: linear-gradient(180deg, #0a0800 0%, #1a1400 50%, #0a0900 100%); }
+.hmap-bg-lb     { background: linear-gradient(180deg, #100206 0%, #220408 50%, #100206 100%); }
+
+/* Ground floor of scene */
+.hmap-scene-ground {
   position: absolute;
   bottom: 0; left: 0; right: 0;
-  height: 35%;
-  background: linear-gradient(180deg, #0a1f10 0%, #061408 100%);
-  z-index: 1;
-  border-top: 1px solid rgba(46,204,113,0.12);
-}
-.hub-map-ground::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 3px;
-  background: linear-gradient(90deg, transparent, rgba(46,204,113,0.3), rgba(255,157,199,0.2), rgba(46,204,113,0.3), transparent);
-}
-.hub-map-hint {
-  position: absolute;
-  top: 10px; left: 50%; transform: translateX(-50%);
-  font-family: 'Cinzel Decorative', serif;
-  font-size: clamp(0.5em, 1.5vw, 0.72em);
-  color: rgba(255,157,199,0.5);
-  white-space: nowrap;
-  z-index: 10;
-  letter-spacing: 0.06em;
-}
-/* SVG paths */
-.hub-map-paths {
-  position: absolute; inset: 0;
-  width: 100%; height: 100%;
-  z-index: 2;
-  pointer-events: none;
-}
-/* Trees / decorations */
-.hub-map-tree {
-  position: absolute;
-  font-size: clamp(0.9em, 2vw, 1.4em);
+  height: 28px;
+  background: rgba(0,0,0,0.4);
+  border-top: 1px solid rgba(255,255,255,0.05);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
   z-index: 3;
-  opacity: 0.7;
-  pointer-events: none;
-  animation: decoDrift 5s ease-in-out infinite;
+  padding: 0 8px;
 }
-.hub-map-tree:nth-child(odd) { animation-delay: 1.2s; }
 
-/* Map pin (building + label) */
-.hub-map-pin {
+/* ── Building structures ── */
+.hmap-scene-building {
   position: absolute;
+  bottom: 28px; left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
-  cursor: pointer;
-  z-index: 10;
-  transform: translate(-50%, -50%);
-  transition: transform 0.2s;
 }
-.hub-map-pin:hover { transform: translate(-50%, -50%) scale(1.12); }
-.hub-map-pin:hover .hub-map-building { box-shadow: 0 0 20px rgba(255,157,199,0.5); }
-
-/* Building base */
-.hub-map-building {
+.hmap-bld-lobby,
+.hmap-bld-food,
+.hmap-bld-cinema,
+.hmap-bld-arcade,
+.hmap-bld-rooms {
   display: flex;
   flex-direction: column;
   align-items: center;
-  border-radius: 10px;
+  filter: drop-shadow(0 4px 12px rgba(0,0,0,0.7));
+}
+.hbld-roof {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.hbld-roof-tip {
+  width: 0; height: 0;
+  border-left: 20px solid transparent;
+  border-right: 20px solid transparent;
+  border-bottom: 16px solid #6c2b8a;
+}
+.hbld-roof-body {
+  width: 60px; height: 12px;
+  background: linear-gradient(135deg,#6c2b8a,#9b59b6);
+  border-radius: 2px 2px 0 0;
+}
+.hbld-banner {
+  position: absolute;
+  top: -6px;
+  font-size: clamp(1em, 2.5vw, 1.5em);
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8));
+}
+.hbld-facade {
+  width: 60px;
+  background: linear-gradient(180deg,#2d1545,#1a0d2e);
+  border: 1px solid rgba(155,89,182,0.25);
+  border-top: none;
+  border-radius: 0 0 4px 4px;
+  padding: 4px 4px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+.hbld-sign {
+  font-size: clamp(0.36em, 0.9vw, 0.52em);
+  font-family: 'Cinzel Decorative', serif;
+  color: rgba(255,157,199,0.9);
+  background: rgba(255,157,199,0.08);
+  border: 1px solid rgba(255,157,199,0.2);
+  border-radius: 3px;
+  padding: 1px 4px;
+  white-space: nowrap;
   overflow: hidden;
-  transition: box-shadow 0.2s;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+  max-width: 100%;
+  text-overflow: ellipsis;
 }
-.hmb-roof {
-  font-size: clamp(1.4em, 3.5vw, 2em);
-  padding: clamp(4px,1.2vw,8px) clamp(6px,1.5vw,12px);
-  border-radius: 10px 10px 0 0;
+.hbld-windows-row {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  line-height: 1;
-}
-.hmb-body {
-  width: 100%;
-  padding: clamp(3px,0.8vw,6px) clamp(6px,1.5vw,10px);
-  border-radius: 0 0 8px 8px;
-}
-.hmb-windows {
-  display: flex;
-  gap: clamp(2px,0.6vw,5px);
+  gap: 3px;
   justify-content: center;
 }
-.hmb-windows span {
-  width: clamp(5px,1.2vw,9px);
-  height: clamp(5px,1.2vw,9px);
+.hbld-win {
+  width: clamp(6px,1.4vw,10px);
+  height: clamp(6px,1.4vw,10px);
   border-radius: 2px;
-  background: rgba(255,255,220,0.7);
-  box-shadow: 0 0 4px rgba(255,255,180,0.8);
+  background: rgba(0,0,0,0.6);
+}
+.hbld-win.lit {
+  background: rgba(255,255,180,0.85);
+  box-shadow: 0 0 6px rgba(255,255,120,0.9);
   animation: windowBlink 3s ease-in-out infinite;
 }
-.hmb-windows span:nth-child(2) { animation-delay: 1.5s; }
-.hmb-windows span:nth-child(3) { animation-delay: 0.7s; }
-@keyframes windowBlink { 0%,100%{opacity:1;} 50%{opacity:0.4;} }
+.hbld-win.delay1 { animation-delay: 1.2s; }
+.hbld-win.delay2 { animation-delay: 2.4s; }
+.hbld-door {
+  width: 14px; height: 10px;
+  background: linear-gradient(180deg,#1a0d30,#0d0618);
+  border: 1px solid rgba(155,89,182,0.25);
+  border-radius: 3px 3px 0 0;
+  margin-top: auto;
+  align-self: center;
+}
+.hbld-door-open {
+  border-bottom: none;
+  background: linear-gradient(180deg,rgba(155,89,182,0.2),rgba(155,89,182,0.05));
+}
+/* Cinema marquee lights on building */
+.hbld-marquee-lights {
+  display: flex;
+  gap: 4px;
+  justify-content: center;
+  padding: 1px 0;
+}
+.hbld-marquee-lights span {
+  width: 4px; height: 4px;
+  border-radius: 50%;
+  background: #f1c40f;
+  box-shadow: 0 0 4px #f1c40f;
+  animation: marqueeFlicker 1.2s ease-in-out infinite;
+}
+.hbld-marquee-lights span:nth-child(2){ animation-delay:.25s; }
+.hbld-marquee-lights span:nth-child(3){ animation-delay:.5s; }
+.hbld-marquee-lights span:nth-child(4){ animation-delay:.75s; }
+.hbld-marquee-lights span:nth-child(5){ animation-delay:1s; }
+@keyframes arcadeFlicker { 0%,100%{opacity:1;} 40%{opacity:0.2;} 60%{opacity:0.9;} }
 
-/* Building color themes */
-.hub-map-lobby .hmb-roof   { background: linear-gradient(135deg,#6c2b8a,#9b59b6); }
-.hub-map-lobby .hmb-body   { background: linear-gradient(180deg,#2d1545,#1a0d2e); border:1px solid rgba(155,89,182,0.3); }
-.hub-map-food .hmb-roof    { background: linear-gradient(135deg,#c0392b,#e74c3c); }
-.hub-map-food .hmb-body    { background: linear-gradient(180deg,#3d0f0a,#200806); border:1px solid rgba(231,76,60,0.3); }
-.hub-map-cinema .hmb-roof  { background: linear-gradient(135deg,#7d3c00,#d35400); }
-.hub-map-cinema .hmb-body  { background: linear-gradient(180deg,#2a1500,#140a00); border:1px solid rgba(211,84,0,0.3); }
-.hub-map-arcade .hmb-roof  { background: linear-gradient(135deg,#0a3d62,#2980b9); }
-.hub-map-arcade .hmb-body  { background: linear-gradient(180deg,#051e30,#020e18); border:1px solid rgba(41,128,185,0.3); }
-.hub-map-rooms .hmb-roof   { background: linear-gradient(135deg,#145a32,#27ae60); }
-.hub-map-rooms .hmb-body   { background: linear-gradient(180deg,#082515,#04120a); border:1px solid rgba(39,174,96,0.3); }
-.hub-map-trades .hmb-roof  { background: linear-gradient(135deg,#7d6608,#d4ac0d); }
-.hub-map-trades .hmb-body  { background: linear-gradient(180deg,#2a2200,#141100); border:1px solid rgba(212,172,13,0.3); }
-.hub-map-lb .hmb-roof      { background: linear-gradient(135deg,#7b241c,#e74c3c); }
-.hub-map-lb .hmb-body      { background: linear-gradient(180deg,#2c0e09,#160706); border:1px solid rgba(231,76,60,0.3); }
+/* NPCs and scene props */
+.hmap-npc { font-size: clamp(0.85em,2vw,1.1em); }
+.hmap-fountain { font-size: clamp(0.85em,2vw,1.1em); animation: decoDrift 4s ease-in-out infinite; }
+.hmap-mailbox  { font-size: clamp(0.85em,2vw,1.1em); }
+.hmap-steam {
+  display: flex;
+  gap: 2px;
+  align-items: flex-end;
+  margin-bottom: 2px;
+}
+.hmap-steam span {
+  width: 3px;
+  border-radius: 4px;
+  background: rgba(255,255,255,0.4);
+  animation: steamRise 2s ease-in-out infinite;
+}
+.hmap-steam span:nth-child(1){ height: 8px; animation-delay: 0s; }
+.hmap-steam span:nth-child(2){ height: 12px; animation-delay: 0.4s; }
+.hmap-steam span:nth-child(3){ height: 8px; animation-delay: 0.8s; }
+@keyframes steamRise { 0%,100%{opacity:0.5;transform:translateY(0);} 50%{opacity:1;transform:translateY(-4px);} }
+.hmap-neon-sign {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: clamp(0.5em,1.2vw,0.72em);
+  font-weight: 900;
+  color: #5dade2;
+  text-shadow: 0 0 8px #2980b9, 0 0 16px rgba(41,128,185,0.6);
+  letter-spacing: 0.15em;
+  animation: neonFlicker 3s ease-in-out infinite;
+}
+@keyframes neonFlicker { 0%,100%{opacity:1;} 92%{opacity:1;} 94%{opacity:0.3;} 96%{opacity:1;} 98%{opacity:0.5;} }
 
-/* Map label */
-.hub-map-label {
+/* ── Location footer ── */
+.hmap-loc-footer {
+  padding: 10px 12px;
+  background: linear-gradient(180deg, rgba(10,4,18,0.95), rgba(5,2,10,1));
+  border-top: 1px solid rgba(255,255,255,0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.hmap-loc-name {
   font-family: 'Cinzel Decorative', serif;
-  font-size: clamp(0.42em, 1vw, 0.68em);
+  font-size: clamp(0.6em, 1.4vw, 0.78em);
   color: #fff;
   white-space: nowrap;
-  text-shadow: 0 1px 6px rgba(0,0,0,0.9), 0 0 10px rgba(255,157,199,0.4);
-  letter-spacing: 0.03em;
-  background: rgba(0,0,0,0.5);
-  padding: 1px 6px;
-  border-radius: 6px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.hmap-loc-desc {
+  font-size: clamp(0.58em, 1.2vw, 0.72em);
+  color: var(--text-dim);
+  font-style: italic;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.hmap-loc-enter {
+  font-size: clamp(0.56em, 1.1vw, 0.7em);
+  color: var(--loc-accent, var(--pink));
+  font-family: 'JetBrains Mono', monospace;
+  margin-top: 2px;
+  transition: letter-spacing 0.2s;
+}
+.hmap-loc:hover .hmap-loc-enter { letter-spacing: 0.06em; }
+
+/* ── Small cards (trades + leaderboard) ── */
+.hmap-loc-small { grid-column: span 1; }
+.hmap-scene-small {
+  height: 80px !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+@media(max-width:700px){ .hmap-scene-small { height: 70px !important; } }
+.hmap-small-icon { font-size: clamp(1.6em, 4vw, 2.4em); filter: drop-shadow(0 0 10px rgba(255,157,199,0.4)); z-index:2; }
+.hmap-small-npc  { font-size: clamp(1.2em, 3vw, 1.8em); opacity:0.6; z-index:2; }
+
+/* Make last two cards span correctly on different grid sizes */
+@media(min-width:701px){
+  .hmap-loc-small:nth-last-child(2),
+  .hmap-loc-small:nth-last-child(1) { grid-column: span 1; }
+  /* Force last row of 2 small cards to be centered */
+  .hmap-locations { grid-template-columns: repeat(3,1fr); }
+}
+@media(max-width:700px){
+  .hmap-loc-small { grid-column: span 1; }
 }
 
 /* Cinema playlist toggle (admin dropdown) */
@@ -5686,136 +5920,246 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   <!-- ═══════════════════════════════════════════════════════ -->
   <div class="page" id="page-social">
 
-    <!-- ── Hub Hero Banner (shown on map view) ── -->
-    <div class="hub-hero" id="hubHeroMap">
-      <div class="hub-hero-bg"></div>
-      <div class="hub-hero-content">
-        <div class="hub-hero-title">
-          <span class="hub-sparkle">✦</span>
-          Meo Hub
-          <span class="hub-sparkle">✦</span>
+    <!-- ── Hub Entry Screen (shown on map view) ── -->
+    <div id="hubMapView">
+
+      <!-- Parallax sky header -->
+      <div class="hmap-sky">
+        <div class="hmap-moon">🌕</div>
+        <div class="hmap-stars"></div>
+        <div class="hmap-clouds">
+          <div class="hmap-cloud hmap-cloud-1"></div>
+          <div class="hmap-cloud hmap-cloud-2"></div>
+          <div class="hmap-cloud hmap-cloud-3"></div>
         </div>
-        <div class="hub-hero-sub">Your cozy corner of the anime-verse</div>
-        <div class="hub-online-pill">
-          <span class="online-dot"></span>
-          <span id="hubOnlineCount">0 online</span>
+        <div class="hmap-title-wrap">
+          <div class="hmap-title">✦ Meo Hub ✦</div>
+          <div class="hmap-subtitle">Where the community lives</div>
+          <div class="hmap-online-pill">
+            <span class="online-dot"></span>
+            <span id="hubOnlineCount">0 online</span>
+          </div>
         </div>
       </div>
-      <div class="hub-deco hub-deco-1">🌸</div>
-      <div class="hub-deco hub-deco-2">⭐</div>
-      <div class="hub-deco hub-deco-3">🎌</div>
-      <div class="hub-deco hub-deco-4">🌙</div>
-    </div>
 
-    <!-- ── Interactive Map ── -->
-    <div class="hub-map-view" id="hubMapView">
-      <div class="hub-map-wrap">
-        <!-- Background sky/ground layers -->
-        <div class="hub-map-sky"></div>
-        <div class="hub-map-ground"></div>
-        <!-- Map title hint -->
-        <div class="hub-map-hint">✦ Tap a location to enter ✦</div>
-
-        <!-- LOBBY (center fountain area) -->
-        <div class="hub-map-pin" style="left:44%;top:38%;" onclick="enterHubZone('lobby')">
-          <div class="hub-map-building hub-map-lobby">
-            <div class="hmb-roof">💬</div>
-            <div class="hmb-body">
-              <div class="hmb-windows"><span></span><span></span></div>
-            </div>
-          </div>
-          <div class="hub-map-label">Global Lobby</div>
-        </div>
-
-        <!-- FOOD CORNER (bottom-left) -->
-        <div class="hub-map-pin" style="left:12%;top:55%;" onclick="enterHubZone('food')">
-          <div class="hub-map-building hub-map-food">
-            <div class="hmb-roof">🍜</div>
-            <div class="hmb-body">
-              <div class="hmb-windows"><span></span><span></span></div>
-            </div>
-          </div>
-          <div class="hub-map-label">Food Corner</div>
-        </div>
-
-        <!-- CINEMA (bottom-right) -->
-        <div class="hub-map-pin" style="left:72%;top:52%;" onclick="enterHubZone('cinema')">
-          <div class="hub-map-building hub-map-cinema">
-            <div class="hmb-roof">🎬</div>
-            <div class="hmb-body">
-              <div class="hmb-windows"><span></span><span></span><span></span></div>
-            </div>
-          </div>
-          <div class="hub-map-label">Meo-Cinema</div>
-        </div>
-
-        <!-- ARCADE (top-right) -->
-        <div class="hub-map-pin" style="left:64%;top:18%;" onclick="enterHubZone('arcade')">
-          <div class="hub-map-building hub-map-arcade">
-            <div class="hmb-roof">🕹️</div>
-            <div class="hmb-body">
-              <div class="hmb-windows"><span></span><span></span></div>
-            </div>
-          </div>
-          <div class="hub-map-label">Arcade</div>
-        </div>
-
-        <!-- ROOMS (top-left) -->
-        <div class="hub-map-pin" style="left:18%;top:18%;" onclick="enterHubZone('rooms')">
-          <div class="hub-map-building hub-map-rooms">
-            <div class="hmb-roof">🏠</div>
-            <div class="hmb-body">
-              <div class="hmb-windows"><span></span><span></span></div>
-            </div>
-          </div>
-          <div class="hub-map-label">Player Rooms</div>
-        </div>
-
-        <!-- TRADES (mid-left) -->
-        <div class="hub-map-pin" style="left:6%;top:38%;" onclick="enterHubZone('trades')">
-          <div class="hub-map-building hub-map-trades">
-            <div class="hmb-roof">🔄</div>
-            <div class="hmb-body">
-              <div class="hmb-windows"><span></span></div>
-            </div>
-          </div>
-          <div class="hub-map-label">Trade Post</div>
-        </div>
-
-        <!-- LEADERBOARD (mid-right) -->
-        <div class="hub-map-pin" style="left:86%;top:34%;" onclick="enterHubZone('leaderboard')">
-          <div class="hub-map-building hub-map-lb">
-            <div class="hmb-roof">🏆</div>
-            <div class="hmb-body">
-              <div class="hmb-windows"><span></span></div>
-            </div>
-          </div>
-          <div class="hub-map-label">Hall of Fame</div>
-        </div>
-
-        <!-- Decorative elements -->
-        <div class="hub-map-tree" style="left:35%;top:62%;">🌸</div>
-        <div class="hub-map-tree" style="left:54%;top:66%;">🌿</div>
-        <div class="hub-map-tree" style="left:28%;top:42%;">🌸</div>
-        <div class="hub-map-tree" style="left:48%;top:72%;">⛩️</div>
-        <div class="hub-map-tree" style="left:80%;top:65%;">🌙</div>
-        <div class="hub-map-tree" style="left:8%;top:65%;">🌿</div>
-        <!-- Path lines (decorative) -->
-        <svg class="hub-map-paths" viewBox="0 0 100 100" preserveAspectRatio="none">
-          <path d="M46,44 L20,24" stroke="rgba(255,157,199,0.2)" stroke-width="0.5" fill="none" stroke-dasharray="1,2"/>
-          <path d="M46,44 L18,42" stroke="rgba(255,157,199,0.2)" stroke-width="0.5" fill="none" stroke-dasharray="1,2"/>
-          <path d="M46,44 L18,60" stroke="rgba(255,157,199,0.2)" stroke-width="0.5" fill="none" stroke-dasharray="1,2"/>
-          <path d="M46,44 L74,57" stroke="rgba(255,157,199,0.2)" stroke-width="0.5" fill="none" stroke-dasharray="1,2"/>
-          <path d="M46,44 L66,24" stroke="rgba(255,157,199,0.2)" stroke-width="0.5" fill="none" stroke-dasharray="1,2"/>
-          <path d="M46,44 L88,38" stroke="rgba(255,157,199,0.2)" stroke-width="0.5" fill="none" stroke-dasharray="1,2"/>
-        </svg>
+      <!-- Illustrated town ground strip -->
+      <div class="hmap-town">
+        <!-- Ground texture -->
+        <div class="hmap-ground-strip"></div>
+        <!-- Street lamp left -->
+        <div class="hmap-lamp hmap-lamp-l">🏮</div>
+        <div class="hmap-lamp hmap-lamp-r">🏮</div>
+        <!-- Cherry blossom trees -->
+        <div class="hmap-sakura hmap-sakura-1">🌸<div class="hmap-trunk"></div></div>
+        <div class="hmap-sakura hmap-sakura-2">🌸<div class="hmap-trunk"></div></div>
+        <div class="hmap-sakura hmap-sakura-3">🌸<div class="hmap-trunk"></div></div>
       </div>
-    </div>
 
-    <!-- ── Zone breadcrumb bar (shown inside zones) ── -->
+      <!-- Location cards grid -->
+      <div class="hmap-locations">
+
+        <!-- GLOBAL LOBBY -->
+        <div class="hmap-loc hmap-loc-lobby" onclick="enterHubZone('lobby')">
+          <div class="hmap-loc-scene">
+            <div class="hmap-scene-bg hmap-bg-lobby"></div>
+            <div class="hmap-scene-building">
+              <div class="hmap-bld-lobby">
+                <div class="hbld-roof">
+                  <div class="hbld-roof-tip"></div>
+                  <div class="hbld-roof-body"></div>
+                  <div class="hbld-banner">💬</div>
+                </div>
+                <div class="hbld-facade">
+                  <div class="hbld-sign">Global Plaza</div>
+                  <div class="hbld-windows-row">
+                    <div class="hbld-win lit"></div>
+                    <div class="hbld-win lit delay1"></div>
+                    <div class="hbld-win lit delay2"></div>
+                  </div>
+                  <div class="hbld-door hbld-door-open"></div>
+                </div>
+              </div>
+            </div>
+            <div class="hmap-scene-ground">
+              <div class="hmap-npc hmap-npc-1">🧍</div>
+              <div class="hmap-npc hmap-npc-2">🧍‍♀️</div>
+              <div class="hmap-fountain">⛲</div>
+            </div>
+          </div>
+          <div class="hmap-loc-footer">
+            <div class="hmap-loc-name">💬 Global Lobby</div>
+            <div class="hmap-loc-desc">Chat · Flex · Meet players</div>
+            <div class="hmap-loc-enter">Enter →</div>
+          </div>
+        </div>
+
+        <!-- FOOD CORNER -->
+        <div class="hmap-loc hmap-loc-food" onclick="enterHubZone('food')">
+          <div class="hmap-loc-scene">
+            <div class="hmap-scene-bg hmap-bg-food"></div>
+            <div class="hmap-scene-building">
+              <div class="hmap-bld-food">
+                <div class="hbld-roof">
+                  <div class="hbld-roof-tip" style="border-bottom-color:#c0392b;"></div>
+                  <div class="hbld-roof-body" style="background:linear-gradient(135deg,#c0392b,#922b21);"></div>
+                  <div class="hbld-banner">🍜</div>
+                </div>
+                <div class="hbld-facade" style="background:linear-gradient(180deg,#2c0a04,#1a0502);">
+                  <div class="hbld-sign" style="background:rgba(231,76,60,0.2);border-color:rgba(231,76,60,0.4);">Food Corner</div>
+                  <div class="hbld-windows-row">
+                    <div class="hbld-win lit" style="background:rgba(255,160,80,0.85);box-shadow:0 0 6px rgba(255,120,0,0.8);"></div>
+                    <div class="hbld-win lit delay1" style="background:rgba(255,160,80,0.85);box-shadow:0 0 6px rgba(255,120,0,0.8);"></div>
+                  </div>
+                  <div class="hbld-door" style="background:linear-gradient(180deg,#4a0e06,#2a0803);border-color:rgba(231,76,60,0.3);"></div>
+                </div>
+              </div>
+            </div>
+            <div class="hmap-scene-ground">
+              <div class="hmap-npc hmap-npc-3">🧑‍🍳</div>
+              <div class="hmap-steam">
+                <span></span><span></span><span></span>
+              </div>
+            </div>
+          </div>
+          <div class="hmap-loc-footer" style="--loc-accent:#e74c3c;">
+            <div class="hmap-loc-name">🍜 Food Corner</div>
+            <div class="hmap-loc-desc">Maid Café · Ramen · Baratie</div>
+            <div class="hmap-loc-enter">Enter →</div>
+          </div>
+        </div>
+
+        <!-- MEO CINEMA -->
+        <div class="hmap-loc hmap-loc-cinema" onclick="enterHubZone('cinema')">
+          <div class="hmap-loc-scene">
+            <div class="hmap-scene-bg hmap-bg-cinema"></div>
+            <div class="hmap-scene-building">
+              <div class="hmap-bld-cinema">
+                <div class="hbld-roof">
+                  <div class="hbld-roof-tip" style="border-bottom-color:#7d3c00;"></div>
+                  <div class="hbld-roof-body" style="background:linear-gradient(135deg,#7d3c00,#a04000);"></div>
+                  <div class="hbld-banner">🎬</div>
+                </div>
+                <div class="hbld-facade" style="background:linear-gradient(180deg,#0d0700,#050300);">
+                  <div class="hbld-sign" style="background:rgba(241,196,15,0.12);border-color:rgba(241,196,15,0.35);color:#f1c40f;">Meo Cinema</div>
+                  <div class="hbld-marquee-lights">
+                    <span></span><span></span><span></span><span></span><span></span>
+                  </div>
+                  <div class="hbld-door" style="background:linear-gradient(180deg,#1a0e00,#0a0700);border-color:rgba(241,196,15,0.3);"></div>
+                </div>
+              </div>
+            </div>
+            <div class="hmap-scene-ground">
+              <div class="hmap-npc hmap-npc-4">🍿</div>
+              <div class="hmap-npc hmap-npc-5">🎟️</div>
+            </div>
+          </div>
+          <div class="hmap-loc-footer" style="--loc-accent:#f1c40f;">
+            <div class="hmap-loc-name">🎬 Meo-Cinema</div>
+            <div class="hmap-loc-desc">Watch · React · Live chat</div>
+            <div class="hmap-loc-enter">Enter →</div>
+          </div>
+        </div>
+
+        <!-- MEO ARCADE -->
+        <div class="hmap-loc hmap-loc-arcade" onclick="enterHubZone('arcade')">
+          <div class="hmap-loc-scene">
+            <div class="hmap-scene-bg hmap-bg-arcade"></div>
+            <div class="hmap-scene-building">
+              <div class="hmap-bld-arcade">
+                <div class="hbld-roof">
+                  <div class="hbld-roof-tip" style="border-bottom-color:#0a3d62;"></div>
+                  <div class="hbld-roof-body" style="background:linear-gradient(135deg,#0a3d62,#1a5276);"></div>
+                  <div class="hbld-banner">🕹️</div>
+                </div>
+                <div class="hbld-facade" style="background:linear-gradient(180deg,#020b14,#010609);">
+                  <div class="hbld-sign" style="background:rgba(41,128,185,0.15);border-color:rgba(41,128,185,0.4);color:#5dade2;">Meo Arcade</div>
+                  <div class="hbld-windows-row">
+                    <div class="hbld-win lit" style="background:rgba(80,200,255,0.7);box-shadow:0 0 8px rgba(0,180,255,0.9);animation:arcadeFlicker 0.8s ease-in-out infinite;"></div>
+                    <div class="hbld-win lit delay1" style="background:rgba(255,80,180,0.7);box-shadow:0 0 8px rgba(255,0,180,0.9);animation:arcadeFlicker 1.1s ease-in-out infinite;"></div>
+                    <div class="hbld-win lit delay2" style="background:rgba(80,255,120,0.7);box-shadow:0 0 8px rgba(0,255,80,0.9);animation:arcadeFlicker 1.4s ease-in-out infinite;"></div>
+                  </div>
+                  <div class="hbld-door" style="background:linear-gradient(180deg,#030e1f,#010a14);border-color:rgba(41,128,185,0.3);"></div>
+                </div>
+              </div>
+            </div>
+            <div class="hmap-scene-ground">
+              <div class="hmap-neon-sign">GAME</div>
+            </div>
+          </div>
+          <div class="hmap-loc-footer" style="--loc-accent:#2980b9;">
+            <div class="hmap-loc-name">🕹️ Arcade</div>
+            <div class="hmap-loc-desc">Memory · Reaction · Coins</div>
+            <div class="hmap-loc-enter">Enter →</div>
+          </div>
+        </div>
+
+        <!-- PLAYER ROOMS -->
+        <div class="hmap-loc hmap-loc-rooms" onclick="enterHubZone('rooms')">
+          <div class="hmap-loc-scene">
+            <div class="hmap-scene-bg hmap-bg-rooms"></div>
+            <div class="hmap-scene-building">
+              <div class="hmap-bld-rooms">
+                <div class="hbld-roof">
+                  <div class="hbld-roof-tip" style="border-bottom-color:#145a32;"></div>
+                  <div class="hbld-roof-body" style="background:linear-gradient(135deg,#145a32,#1d6e41);"></div>
+                  <div class="hbld-banner">🏠</div>
+                </div>
+                <div class="hbld-facade" style="background:linear-gradient(180deg,#050e07,#030804);">
+                  <div class="hbld-sign" style="background:rgba(39,174,96,0.12);border-color:rgba(39,174,96,0.35);color:#58d68d;">Player Rooms</div>
+                  <div class="hbld-windows-row">
+                    <div class="hbld-win lit" style="background:rgba(180,255,180,0.6);box-shadow:0 0 6px rgba(50,200,50,0.7);"></div>
+                    <div class="hbld-win lit delay1" style="background:rgba(180,255,180,0.6);box-shadow:0 0 6px rgba(50,200,50,0.7);"></div>
+                  </div>
+                  <div class="hbld-door" style="background:linear-gradient(180deg,#0a1c0d,#050e07);border-color:rgba(39,174,96,0.3);"></div>
+                </div>
+              </div>
+            </div>
+            <div class="hmap-scene-ground">
+              <div class="hmap-npc hmap-npc-6">🧑‍💻</div>
+              <div class="hmap-mailbox">📬</div>
+            </div>
+          </div>
+          <div class="hmap-loc-footer" style="--loc-accent:#27ae60;">
+            <div class="hmap-loc-name">🏠 Player Rooms</div>
+            <div class="hmap-loc-desc">Create · Chat · Hang out</div>
+            <div class="hmap-loc-enter">Enter →</div>
+          </div>
+        </div>
+
+        <!-- TRADE POST + HALL OF FAME (smaller duo row) -->
+        <div class="hmap-loc hmap-loc-small hmap-loc-trades" onclick="enterHubZone('trades')">
+          <div class="hmap-loc-scene hmap-scene-small">
+            <div class="hmap-scene-bg hmap-bg-trades"></div>
+            <div class="hmap-small-icon">🔄</div>
+            <div class="hmap-small-npc">🏪</div>
+          </div>
+          <div class="hmap-loc-footer" style="--loc-accent:#d4ac0d;">
+            <div class="hmap-loc-name">🔄 Trade Post</div>
+            <div class="hmap-loc-desc">Swap cards with players</div>
+            <div class="hmap-loc-enter">Enter →</div>
+          </div>
+        </div>
+
+        <div class="hmap-loc hmap-loc-small hmap-loc-lb" onclick="enterHubZone('leaderboard')">
+          <div class="hmap-loc-scene hmap-scene-small">
+            <div class="hmap-scene-bg hmap-bg-lb"></div>
+            <div class="hmap-small-icon">🏆</div>
+            <div class="hmap-small-npc">🎖️</div>
+          </div>
+          <div class="hmap-loc-footer" style="--loc-accent:#e74c3c;">
+            <div class="hmap-loc-name">🏆 Hall of Fame</div>
+            <div class="hmap-loc-desc">Top players · Rankings</div>
+            <div class="hmap-loc-enter">Enter →</div>
+          </div>
+        </div>
+
+      </div><!-- end hmap-locations -->
+    </div><!-- end hubMapView -->
+
+    <!-- ── Zone breadcrumb (shown inside zones) ── -->
     <div class="hub-breadcrumb" id="hubBreadcrumb" style="display:none;">
       <button class="hub-back-btn" onclick="returnToHubMap()">
-        <span>🗺️</span> Meo Hub Map
+        <span>🗺️</span> Hub Map
       </button>
       <span class="hub-breadcrumb-sep">›</span>
       <span class="hub-breadcrumb-zone" id="hubBreadcrumbZone"></span>
@@ -14139,9 +14483,8 @@ function enterHubZone(zone){
     const el=document.getElementById('hubZone-'+z);
     if(el) el.style.display=z===zone?'':'none';
   });
-  // Show breadcrumb, hide map+hero
+  // Show breadcrumb, hide map
   document.getElementById('hubMapView').style.display='none';
-  document.getElementById('hubHeroMap').style.display='none';
   document.getElementById('hubBreadcrumb').style.display='flex';
   document.getElementById('hubBreadcrumbZone').textContent=HUB_ZONE_LABELS[zone]||zone;
 
@@ -14160,7 +14503,6 @@ function returnToHubMap(){
     if(el) el.style.display='none';
   });
   document.getElementById('hubMapView').style.display='';
-  document.getElementById('hubHeroMap').style.display='';
   document.getElementById('hubBreadcrumb').style.display='none';
 }
 
