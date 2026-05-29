@@ -13894,7 +13894,7 @@ async function loadLobbyLeaderboardPreview(){
   const wrap = document.getElementById('lobbyLeaderboardPreview');
   if(!wrap) return;
   try {
-    const data = await sb.get('profiles',{},{ order:'pvp_wins.desc', limit:5 });
+    const data = await sb.get('players',{},{ order:'pvp_wins.desc', limit:5 });
     if(!data || !data.length){ wrap.innerHTML = '<div style="color:var(--text-dim);font-size:0.8em;font-style:italic;padding:6px 0;">No data yet</div>'; return; }
     const medals = ['🥇','🥈','🥉'];
     const rankClass = ['gold','silver','bronze'];
@@ -13954,15 +13954,15 @@ function closeCreateRoomModal(){
 }
 
 async function submitCreateRoom(){
-  if(!window._user){ showToast('Please log in first!'); return; }
+  if(!state.discordId||state.isGuest){ showToast('Please log in first! ʚɞ'); return; }
   const name = document.getElementById('createRoomName').value.trim();
   if(!name){ showToast('Please enter a room name'); return; }
   const isPublic = document.getElementById('roomVisPublic').classList.contains('active');
   try {
     const res = await sb.insert(ROOM_TABLE, {
       name,
-      owner_id: _user.id,
-      owner_username: _user.user_metadata?.full_name || _user.email?.split('@')[0] || 'Player',
+      owner_id: state.discordId,
+      owner_username: state.username || 'Player',
       is_public: isPublic
     });
     closeCreateRoomModal();
@@ -13991,9 +13991,9 @@ async function joinRoom(roomId, roomName, isPublic){
 
   // Show delete btn if owner
   const delBtn = document.getElementById('roomsDeleteBtn');
-  if(delBtn && window._user){
+  if(delBtn){
     const room = _roomsData.find(r=>r.id===roomId);
-    delBtn.style.display = (room && room.owner_id===_user.id) ? '' : 'none';
+    delBtn.style.display = (room && room.owner_id===state.discordId) ? '' : 'none';
   }
 
   // Load room chat
@@ -14021,7 +14021,7 @@ async function joinRoom(roomId, roomName, isPublic){
 function renderRoomChatMsg(msg){
   const feed=document.getElementById('roomChatFeed');
   if(!feed) return;
-  const isMe = window._user && msg.user_id===_user.id;
+  const isMe = state.discordId && msg.user_id===state.discordId;
   const div=document.createElement('div');
   div.className='chat-msg'+(isMe?' chat-me':'');
   const av=msg.avatar_url||'https://api.dicebear.com/7.x/pixel-art/svg?seed='+encodeURIComponent(msg.username||'u');
@@ -14037,7 +14037,7 @@ function renderRoomChatMsg(msg){
 }
 
 async function submitRoomChat(){
-  if(!window._user){ showToast('Please log in!'); return; }
+  if(!state.discordId||state.isGuest){ showToast('Please log in! ʚɞ'); return; }
   if(!_currentRoomId){ showToast('Join a room first!'); return; }
   const inp=document.getElementById('roomChatInput');
   const content=inp.value.trim();
@@ -14046,9 +14046,9 @@ async function submitRoomChat(){
   try {
     await sb.insert(ROOM_CHAT_TABLE,{
       room_id:_currentRoomId,
-      user_id:_user.id,
-      username:_user.user_metadata?.full_name||_user.email?.split('@')[0]||'Player',
-      avatar_url:_user.user_metadata?.avatar_url||'',
+      user_id:state.discordId,
+      username:state.username||'Player',
+      avatar_url:state.avatar||'',
       content
     });
   } catch(e){ showToast('Could not send: '+(e.message||'error')); }
@@ -14064,7 +14064,7 @@ function leaveCurrentRoom(silent=false){
 }
 
 async function deleteCurrentRoom(){
-  if(!window._user||!_currentRoomId) return;
+  if(!state.discordId||state.isGuest||!_currentRoomId) return;
   if(!confirm('Delete this room and all its messages?')) return;
   try {
     await sb.delete(ROOM_TABLE, { id: _currentRoomId });
@@ -14131,7 +14131,7 @@ function switchFoodShop(shop, btn){
 }
 
 async function buyFoodItem(shopKey, idx){
-  if(!window._user){ showToast('Please log in to order!'); return; }
+  if(!state.discordId||state.isGuest){ showToast('Please log in to order! ʚɞ'); return; }
   const item = FOOD_SHOPS[shopKey]?.[idx];
   if(!item) return;
   const coins = state.coins||0;
@@ -14140,7 +14140,7 @@ async function buyFoodItem(shopKey, idx){
     state.coins = coins - item.price;
     updateCoins();
     if(state.discordId && !state.isGuest){
-      await sb.update('profiles',{coins:state.coins},{discord_id:state.discordId});
+      await sb.update('players',{coins:state.coins},{discord_id:state.discordId});
     }
     showToast(`${item.emoji} Enjoyed! ${item.effects.join(', ')}`);
   } catch(e){ showToast('Order failed: '+(e.message||'error')); }
@@ -14221,7 +14221,7 @@ async function initCinemaChat(){
 function renderCinemaMsg(msg){
   const feed=document.getElementById('cinemaChatFeed');
   if(!feed) return;
-  const isMe=window._user&&msg.user_id===_user.id;
+  const isMe=state.discordId&&msg.user_id===state.discordId;
   const div=document.createElement('div');
   div.className='chat-msg'+(isMe?' chat-me':'');
   const av=msg.avatar_url||'https://api.dicebear.com/7.x/pixel-art/svg?seed='+encodeURIComponent(msg.username||'u');
@@ -14237,23 +14237,23 @@ function renderCinemaMsg(msg){
 }
 
 async function submitCinemaChat(){
-  if(!window._user){ showToast('Log in to chat!'); return; }
+  if(!state.discordId||state.isGuest){ showToast('Log in to chat! ʚɞ'); return; }
   const inp=document.getElementById('cinemaChatInput');
   const content=inp.value.trim();
   if(!content) return;
   inp.value='';
   try {
     await sb.insert('cinema_chat',{
-      user_id:_user.id,
-      username:_user.user_metadata?.full_name||_user.email?.split('@')[0]||'Viewer',
-      avatar_url:_user.user_metadata?.avatar_url||'',
+      user_id:state.discordId,
+      username:state.username||'Viewer',
+      avatar_url:state.avatar||'',
       content
     });
   } catch(e){ showToast('Could not send'); }
 }
 
 function sendCinemaReaction(emoji){
-  if(!window._user){ showToast('Log in to react!'); return; }
+  if(!state.discordId||state.isGuest){ showToast('Log in to react! ʚɞ'); return; }
   const inp=document.getElementById('cinemaChatInput');
   inp.value=emoji;
   submitCinemaChat();
@@ -14465,8 +14465,8 @@ async function giveArcadeReward(coins, xp, gameName){
     updateCoins();
     syncArcadeWallet();
     showToast(`🕹️ ${gameName}: +${coins} coins · +${xp} XP!`);
-    if(window._user && state.discordId && !state.isGuest){
-      await sb.update('profiles',{coins:state.coins},{discord_id:state.discordId});
+    if(state.discordId && !state.isGuest){
+      await sb.update('players',{coins:state.coins},{discord_id:state.discordId});
     }
   } catch(e){ console.warn('[Arcade] reward error',e); }
 }
