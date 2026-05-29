@@ -6044,12 +6044,9 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
                     <div class="cinema-placeholder-icon">🎬</div>
                     <div class="cinema-placeholder-text">Select an anime opening to watch</div>
                   </div>
+                  <!-- YouTube IFrame API target -->
                   <div id="cinemaYTWrap" style="display:none;width:100%;height:100%;">
-                    <iframe id="cinemaYTFrame"
-                      width="100%" height="100%"
-                      src="" frameborder="0"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowfullscreen style="border-radius:4px;"></iframe>
+                    <div id="cinemaYTPlayer" style="width:100%;height:100%;border-radius:4px;"></div>
                   </div>
                 </div>
               </div>
@@ -14554,7 +14551,76 @@ function toggleCinemaPlaylist(btn){
   if(arrow) arrow.classList.toggle('open', !open);
 }
 
-function playVideo(idx, fromSchedule=false){
+// ── YouTube IFrame Player API ──
+let _ytPlayer = null;
+let _ytReady  = false;
+let _ytPending = null; // { idx, seek } — queued while player loads
+
+// Load the YT API script once
+(function loadYTAPI(){
+  if(window.YT || document.getElementById('yt-api-script')) return;
+  const s = document.createElement('script');
+  s.id  = 'yt-api-script';
+  s.src = 'https://www.youtube.com/iframe_api';
+  document.head.appendChild(s);
+})();
+
+// Called automatically by YT API when ready
+window.onYouTubeIframeAPIReady = function(){
+  _ytReady = true;
+  _ytPlayer = new YT.Player('cinemaYTPlayer', {
+    width: '100%', height: '100%',
+    playerVars: {
+      autoplay: 1,
+      rel: 0,
+      modestbranding: 1,
+      playsinline: 1,
+    },
+    events: {
+      onReady(e){
+        if(_ytPending !== null){
+          const { idx, seek } = _ytPending;
+          _ytPending = null;
+          _doPlayVideo(idx, seek);
+        }
+      },
+      onStateChange(e){
+        // YT.PlayerState.ENDED = 0
+        if(e.data === 0){
+          const next = (_cinemaIdx + 1) % CINEMA_PLAYLIST.length;
+          if(_cinemaScheduled){
+            // Only the admin instance broadcasts the advance
+            if(state.isAdmin){
+              const now = new Date().toISOString();
+              sb.update('cinema_state',{video_idx:next,started_at:now},{id:1}).catch(()=>{});
+            }
+            // Non-admins wait for the Supabase realtime push
+          } else {
+            // Free mode: everyone advances locally in sync
+            _cinemaIdx = next;
+            _doPlayVideo(_cinemaIdx, 0);
+            renderCinemaPlaylist();
+            const np = document.getElementById('cinemaNPTitle');
+            const v = CINEMA_PLAYLIST[_cinemaIdx];
+            if(np && v) np.textContent = `${v.emoji} ${v.title} — ${v.series}`;
+          }
+        }
+      }
+    }
+  });
+};
+
+function _doPlayVideo(idx, seekTo=0){
+  const v = CINEMA_PLAYLIST[idx];
+  if(!v) return;
+  document.getElementById('cinemaPlaceholder').style.display = 'none';
+  document.getElementById('cinemaYTWrap').style.display = 'block';
+  if(_ytPlayer && typeof _ytPlayer.loadVideoById === 'function'){
+    _ytPlayer.loadVideoById({ videoId: v.ytId, startSeconds: seekTo });
+  }
+}
+
+function playVideo(idx, fromSchedule=false, seekTo=0){
   if(_cinemaScheduled && !state.isAdmin && !fromSchedule){
     showToast('🎬 A scheduled showing is active — only admins can change the video!');
     return;
@@ -14562,25 +14628,32 @@ function playVideo(idx, fromSchedule=false){
   _cinemaIdx = idx;
   const v = CINEMA_PLAYLIST[idx];
   if(!v) return;
-  const ph = document.getElementById('cinemaPlaceholder');
-  const yw = document.getElementById('cinemaYTWrap');
-  const fr = document.getElementById('cinemaYTFrame');
   const np = document.getElementById('cinemaNPTitle');
-  if(ph) ph.style.display='none';
-  if(yw) yw.style.display='block';
-  if(fr) fr.src=`https://www.youtube.com/embed/${v.ytId}?autoplay=1&rel=0`;
-  if(np) np.textContent=`${_cinemaScheduled?'📡 ':'' }${v.emoji} ${v.title} — ${v.series}`;
+  if(np) np.textContent = `${_cinemaScheduled?'📡 ':''}${v.emoji} ${v.title} — ${v.series}`;
   renderCinemaPlaylist();
+  if(!_ytReady || !_ytPlayer){
+    // API not loaded yet — queue it
+    _ytPending = { idx, seek: seekTo };
+    // Trigger API load if needed
+    if(!document.getElementById('yt-api-script')){
+      const s = document.createElement('script');
+      s.id  = 'yt-api-script';
+      s.src = 'https://www.youtube.com/iframe_api';
+      document.head.appendChild(s);
+    }
+    return;
+  }
+  _doPlayVideo(idx, seekTo);
 }
 
 function cinemaNext(){
   if(_cinemaScheduled && !state.isAdmin){ showToast('🎬 Showing is active — admin only!'); return; }
-  _cinemaIdx=(_cinemaIdx+1)%CINEMA_PLAYLIST.length;
+  _cinemaIdx = (_cinemaIdx + 1) % CINEMA_PLAYLIST.length;
   playVideo(_cinemaIdx);
 }
 function cinemaPrev(){
   if(_cinemaScheduled && !state.isAdmin){ showToast('🎬 Showing is active — admin only!'); return; }
-  _cinemaIdx=(_cinemaIdx-1+CINEMA_PLAYLIST.length)%CINEMA_PLAYLIST.length;
+  _cinemaIdx = (_cinemaIdx - 1 + CINEMA_PLAYLIST.length) % CINEMA_PLAYLIST.length;
   playVideo(_cinemaIdx);
 }
 
@@ -14589,13 +14662,12 @@ async function toggleCinemaShowing(){
   if(!state.isAdmin){ showToast('Admin only!'); return; }
   try {
     if(_cinemaScheduled){
-      // End showing
-      await sb.update('cinema_state',{active:false,scheduled_by:null},{id:1});
+      await sb.update('cinema_state',{active:false,scheduled_by:null,started_at:null},{id:1});
       _cinemaScheduled=false;
       showToast('📡 Showing ended');
     } else {
-      // Start showing at current video
-      await sb.upsert('cinema_state',{id:1,active:true,video_idx:_cinemaIdx,scheduled_by:state.discordId});
+      const now = new Date().toISOString();
+      await sb.upsert('cinema_state',{id:1,active:true,video_idx:_cinemaIdx,scheduled_by:state.discordId,started_at:now});
       _cinemaScheduled=true;
       showToast(`📡 Showing started: ${CINEMA_PLAYLIST[_cinemaIdx].title}`);
     }
@@ -14607,8 +14679,9 @@ async function toggleCinemaShowing(){
 async function adminSetCinemaVideo(idx){
   if(!state.isAdmin) return;
   try {
-    await sb.update('cinema_state',{video_idx:idx},{id:1});
-    playVideo(idx, true);
+    const now = new Date().toISOString();
+    await sb.update('cinema_state',{video_idx:idx,started_at:now},{id:1});
+    playVideo(idx, true, 0);
     showToast(`📡 Now showing: ${CINEMA_PLAYLIST[idx].title}`);
   } catch(e){}
 }
@@ -14655,7 +14728,12 @@ async function initCinemaChat(){
         if(!s) return;
         _cinemaScheduled = !!s.active;
         if(s.active && typeof s.video_idx==='number' && s.video_idx!==_cinemaIdx){
-          playVideo(s.video_idx, true);
+          let seekTo = 0;
+          if(s.started_at){
+            const elapsed = (Date.now() - new Date(s.started_at).getTime()) / 1000;
+            seekTo = Math.max(0, Math.floor(elapsed));
+          }
+          playVideo(s.video_idx, true, seekTo);
           showToast(`📡 Now showing: ${CINEMA_PLAYLIST[s.video_idx]?.title||''}`);
         }
         renderCinemaPlaylist();
@@ -14663,13 +14741,21 @@ async function initCinemaChat(){
       }).subscribe();
   } catch(_){}
 
-  // Load current showing state
+  // Load current showing state — seek late joiners to correct position
   try {
-    const stateData = await sb.get('cinema_state',{id:1});
-    const s = Array.isArray(stateData)?stateData[0]:stateData;
+    const stateRows = await sb.get('cinema_state',{id:1});
+    const s = Array.isArray(stateRows)?stateRows[0]:stateRows;
     if(s){
-      _cinemaScheduled=!!s.active;
-      if(s.active && typeof s.video_idx==='number') playVideo(s.video_idx, true);
+      _cinemaScheduled = !!s.active;
+      if(s.active && typeof s.video_idx === 'number'){
+        // Calculate how far into the video a late joiner should seek
+        let seekTo = 0;
+        if(s.started_at){
+          const elapsed = (Date.now() - new Date(s.started_at).getTime()) / 1000;
+          seekTo = Math.max(0, Math.floor(elapsed));
+        }
+        playVideo(s.video_idx, true, seekTo);
+      }
     }
     updateCinemaShowingBadge();
     renderCinemaPlaylist();
