@@ -6016,786 +6016,411 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 }
 
 /* ══════════════════════════════════════════════════
-   MEO HUB — SPECIAL NAV BUTTON (DESKTOP)
-══════════════════════════════════════════════════ */
-.nav-hub-btn {
-  position: relative;
-  background: linear-gradient(135deg, rgba(224,96,138,0.18), rgba(192,132,184,0.18)) !important;
-  border: 1px solid rgba(255,157,199,0.45) !important;
-  color: var(--pink) !important;
-  padding: 6px 20px 6px 14px !important;
-  font-family: 'Cinzel Decorative', serif !important;
-  font-size: 0.78em !important;
-  font-weight: 700 !important;
-  letter-spacing: 0.04em !important;
-  overflow: visible !important;
-  box-shadow: 0 0 18px rgba(255,157,199,0.18), inset 0 0 10px rgba(255,157,199,0.05) !important;
-  transition: all 0.3s !important;
-}
-.nav-hub-btn::before { display:none !important; }
-.nav-hub-btn:hover {
-  background: linear-gradient(135deg, rgba(224,96,138,0.32), rgba(192,132,184,0.32)) !important;
-  box-shadow: 0 0 28px rgba(255,157,199,0.35), inset 0 0 14px rgba(255,157,199,0.08) !important;
-  transform: translateY(-1px) !important;
-}
-.nav-hub-btn.active {
-  background: linear-gradient(135deg, rgba(224,96,138,0.35), rgba(192,132,184,0.35)) !important;
-  border-color: var(--pink) !important;
-  box-shadow: 0 0 24px rgba(255,157,199,0.4), inset 0 0 16px rgba(255,157,199,0.1) !important;
-}
-.nav-hub-orb {
-  display: inline-block;
-  font-size: 1.1em;
-  margin-right: 5px;
-  animation: hubOrbSpin 4s linear infinite;
-  filter: drop-shadow(0 0 4px var(--pink));
-}
-@keyframes hubOrbSpin { 0%{transform:rotate(0deg);} 100%{transform:rotate(360deg);} }
-.nav-hub-text { vertical-align: middle; }
-.nav-hub-ring {
-  position: absolute;
-  inset: -3px;
-  border-radius: 22px;
-  border: 1px solid rgba(255,157,199,0.3);
-  animation: hubRingPulse 2.5s ease-in-out infinite;
-  pointer-events: none;
-}
-@keyframes hubRingPulse {
-  0%,100% { opacity: 0.4; transform: scale(1); }
-  50% { opacity: 0.9; transform: scale(1.04); }
-}
-
-/* ══════════════════════════════════════════════════
-   MEO HUB — SPECIAL NAV BUTTON (MOBILE)
-══════════════════════════════════════════════════ */
-.mnav-hub-btn {
-  position: relative;
-  flex-direction: column;
-  align-items: center;
-  gap: 1px;
-  padding: 0 6px 4px !important;
-  min-width: 58px !important;
-  margin-top: -18px;
-}
-.mnav-hub-circle {
-  position: relative;
-  width: 52px;
-  height: 52px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #e0608a, #c084b8, #ff9dc7);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 4px 20px rgba(255,157,199,0.5), 0 0 0 3px rgba(13,6,16,0.9), 0 0 0 4px rgba(255,157,199,0.35);
-  margin-bottom: 2px;
-  transition: all 0.3s;
-}
-.mnav-hub-icon {
-  font-size: 1.5em;
-  color: #fff;
-  filter: drop-shadow(0 0 6px rgba(255,255,255,0.7));
-  animation: hubOrbSpin 4s linear infinite;
-  display: block;
-}
-.mnav-hub-ring1, .mnav-hub-ring2 {
-  position: absolute;
-  inset: -3px;
-  border-radius: 50%;
-  border: 1.5px solid rgba(255,157,199,0.5);
-  animation: mnavRingPulse 2s ease-in-out infinite;
-  pointer-events: none;
-}
-.mnav-hub-ring2 {
-  inset: -7px;
-  border-color: rgba(255,157,199,0.2);
-  animation-delay: 0.5s;
-}
-@keyframes mnavRingPulse {
-  0%,100% { opacity: 0.6; transform: scale(1); }
-  50% { opacity: 1; transform: scale(1.06); }
-}
-.mnav-hub-label {
-  font-family: 'Cinzel Decorative', serif;
-  font-size: 0.52em;
-  color: var(--pink);
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  filter: drop-shadow(0 0 4px rgba(255,157,199,0.5));
-}
-.mnav-hub-btn.active .mnav-hub-circle {
-  box-shadow: 0 4px 28px rgba(255,157,199,0.7), 0 0 0 3px rgba(13,6,16,0.9), 0 0 0 5px rgba(255,157,199,0.5);
-}
-
-/* ══════════════════════════════════════════════════
-   PLAYER ROOMS — REDESIGNED
+   PLAYER ROOMS — FULL REDESIGN
 ══════════════════════════════════════════════════ */
 
-/* Main layout */
-.rooms-v2-layout {
-  display: grid;
-  grid-template-columns: 300px 1fr;
-  gap: 16px;
-  padding: 16px;
-  min-height: 600px;
-  align-items: start;
-}
-@media(max-width:800px){
-  .rooms-v2-layout { grid-template-columns: 1fr; }
-}
-
-/* Left sidebar — room browser */
-.rooms-v2-sidebar {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  position: sticky;
-  top: 70px;
-}
-.rooms-v2-sidebar-header {
+/* ── Room Browser ── */
+.rb-toolbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 4px;
-}
-.rooms-v2-sidebar-title {
-  font-family: 'Cinzel Decorative', serif;
-  font-size: 0.82em;
-  color: var(--pink-pale);
-}
-.rooms-v2-create-btn {
-  background: linear-gradient(135deg, var(--pink-deep), var(--purple));
-  border: none;
-  color: #fff;
-  padding: 6px 14px;
-  border-radius: 20px;
-  font-family: 'Cinzel Decorative', serif;
-  font-size: 0.65em;
-  cursor: pointer;
-  transition: all 0.2s;
-  box-shadow: 0 3px 12px rgba(255,157,199,0.3);
-  letter-spacing: 0.04em;
-}
-.rooms-v2-create-btn:hover { transform: translateY(-1px); box-shadow: 0 5px 18px rgba(255,157,199,0.4); }
-
-/* Room entry card */
-.room-v2-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 12px 14px;
-  cursor: pointer;
-  transition: all 0.22s;
-  position: relative;
-  overflow: hidden;
-}
-.room-v2-card::before {
-  content: '';
-  position: absolute;
-  left: 0; top: 0; bottom: 0;
-  width: 3px;
-  background: var(--room-accent, var(--pink));
-  border-radius: 3px 0 0 3px;
-  opacity: 0;
-  transition: opacity 0.2s;
-}
-.room-v2-card:hover { border-color: rgba(255,157,199,0.35); transform: translateX(3px); }
-.room-v2-card:hover::before, .room-v2-card.active-room::before { opacity: 1; }
-.room-v2-card.active-room { border-color: rgba(255,157,199,0.5); background: rgba(255,157,199,0.07); }
-.room-v2-card-top { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
-.room-v2-avatar {
-  width: 38px; height: 38px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 2px solid var(--border);
-  flex-shrink: 0;
-}
-.room-v2-name {
-  font-size: 0.88em;
-  font-weight: 600;
-  color: var(--text);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  flex: 1;
-}
-.room-v2-vis {
-  font-size: 0.7em;
-  opacity: 0.7;
-}
-.room-v2-bio {
-  font-size: 0.72em;
-  color: var(--text-dim);
-  font-style: italic;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  margin-bottom: 5px;
-}
-.room-v2-tags {
-  display: flex;
-  gap: 5px;
+  padding: 16px 20px;
+  gap: 10px;
   flex-wrap: wrap;
-}
-.room-v2-tag {
-  font-size: 0.6em;
-  background: rgba(255,157,199,0.08);
-  border: 1px solid rgba(255,157,199,0.2);
-  border-radius: 8px;
-  padding: 1px 7px;
-  color: rgba(255,157,199,0.7);
-  font-family: 'JetBrains Mono', monospace;
-}
-
-/* ── Right panel — active player room ── */
-.rooms-v2-main {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-  border-radius: 20px;
-  overflow: hidden;
-  border: 1px solid var(--border);
-  background: var(--bg2);
-  min-height: 600px;
-}
-
-/* Room banner */
-.proom-banner {
-  position: relative;
-  height: 180px;
-  overflow: hidden;
-  flex-shrink: 0;
-}
-.proom-banner-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-  transition: transform 0.4s;
-}
-.proom-banner:hover .proom-banner-img { transform: scale(1.03); }
-.proom-banner-overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(13,6,16,0.85) 100%);
-}
-.proom-banner-gradient {
-  position: absolute;
-  inset: 0;
-  background: var(--room-gradient, linear-gradient(135deg, rgba(224,96,138,0.4), rgba(192,132,184,0.4)));
-  mix-blend-mode: overlay;
-}
-.proom-banner-stickers {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-}
-.proom-sticker {
-  position: absolute;
-  font-size: 1.8em;
-  filter: drop-shadow(0 2px 8px rgba(0,0,0,0.5));
-  animation: stickerFloat 3s ease-in-out infinite;
-  cursor: default;
-}
-@keyframes stickerFloat {
-  0%,100% { transform: translateY(0) rotate(var(--rot, 0deg)); }
-  50% { transform: translateY(-5px) rotate(calc(var(--rot, 0deg) + 3deg)); }
-}
-
-/* Room header row */
-.proom-header {
-  display: flex;
-  align-items: flex-end;
-  gap: 14px;
-  padding: 0 20px;
-  margin-top: -28px;
-  position: relative;
-  z-index: 2;
-  margin-bottom: 14px;
-}
-.proom-avatar-wrap {
-  position: relative;
-  flex-shrink: 0;
-}
-.proom-avatar {
-  width: 64px; height: 64px;
-  border-radius: 50%;
-  border: 3px solid var(--bg2);
-  object-fit: cover;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-  display: block;
-}
-.proom-online-dot {
-  position: absolute;
-  bottom: 3px; right: 3px;
-  width: 12px; height: 12px;
-  border-radius: 50%;
-  background: #2ecc71;
-  border: 2px solid var(--bg2);
-  box-shadow: 0 0 6px rgba(46,204,113,0.6);
-}
-.proom-identity {
-  flex: 1;
-  padding-bottom: 4px;
-  min-width: 0;
-}
-.proom-username {
-  font-family: 'Cinzel Decorative', serif;
-  font-size: 1.1em;
-  color: var(--pink-pale);
-  margin-bottom: 2px;
-}
-.proom-title-badge {
-  display: inline-block;
-  font-size: 0.72em;
-  font-style: italic;
-  color: var(--pink);
-  opacity: 0.85;
-}
-.proom-header-actions {
-  display: flex;
-  gap: 7px;
-  padding-bottom: 4px;
-  flex-shrink: 0;
-}
-.proom-action-btn {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  color: var(--text-dim);
-  padding: 5px 12px;
-  border-radius: 16px;
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 0.78em;
-  cursor: pointer;
-  transition: all 0.2s;
-  white-space: nowrap;
-}
-.proom-action-btn:hover { border-color: var(--pink); color: var(--pink); }
-.proom-action-btn.danger:hover { border-color: #e74c3c; color: #e74c3c; }
-
-/* Room tabs */
-.proom-tabs {
-  display: flex;
-  gap: 0;
-  padding: 0 20px;
   border-bottom: 1px solid var(--border);
-  margin-bottom: 0;
-  overflow-x: auto;
-  scrollbar-width: none;
 }
-.proom-tabs::-webkit-scrollbar { display: none; }
-.proom-tab {
-  background: none;
-  border: none;
-  border-bottom: 2px solid transparent;
-  color: var(--text-dim);
-  padding: 10px 14px;
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 0.85em;
-  cursor: pointer;
+.rb-toolbar-left { display: flex; align-items: center; gap: 8px; }
+.rb-title { font-family: 'Cinzel Decorative', serif; font-size: 0.82em; color: var(--pink-pale); }
+.rb-refresh-btn {
+  background: none; border: 1px solid var(--border);
+  color: var(--text-dim); border-radius: 8px;
+  padding: 3px 9px; cursor: pointer; font-size: 1em;
   transition: all 0.2s;
-  white-space: nowrap;
-  margin-bottom: -1px;
 }
-.proom-tab:hover { color: var(--text); }
-.proom-tab.active { color: var(--pink); border-bottom-color: var(--pink); }
-
-/* Tab panels */
-.proom-panel { display: none; padding: 20px; }
-.proom-panel.active { display: block; }
-
-/* About panel */
-.proom-bio-section {
-  background: rgba(255,157,199,0.04);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 16px;
-  margin-bottom: 16px;
-  font-size: 0.92em;
-  line-height: 1.7;
-  color: var(--text-dim);
-  font-style: italic;
-  border-left: 3px solid rgba(255,157,199,0.3);
-  min-height: 60px;
-}
-.proom-about-grid {
+.rb-refresh-btn:hover { border-color: var(--pink); color: var(--pink); }
+.rb-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin-bottom: 16px;
-}
-@media(max-width:600px){ .proom-about-grid { grid-template-columns: 1fr; } }
-.proom-about-box {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 12px 14px;
-}
-.proom-about-box-label {
-  font-size: 0.65em;
-  font-family: 'JetBrains Mono', monospace;
-  color: var(--text-dim);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  margin-bottom: 5px;
-}
-.proom-about-box-val {
-  font-size: 0.88em;
-  color: var(--text);
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-/* Top 3 cards showcase */
-.proom-top3-section { margin-bottom: 16px; }
-.proom-section-title {
-  font-family: 'Cinzel Decorative', serif;
-  font-size: 0.72em;
-  color: var(--text-dim);
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  margin-bottom: 10px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.proom-section-title::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: linear-gradient(90deg, var(--border), transparent);
-}
-.proom-top3-row {
-  display: flex;
-  gap: 10px;
-}
-.proom-top3-slot {
-  flex: 1;
-  background: rgba(255,157,199,0.04);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  overflow: hidden;
-  cursor: pointer;
-  transition: all 0.25s;
-  position: relative;
-}
-.proom-top3-slot:hover { border-color: rgba(255,157,199,0.4); transform: translateY(-3px); box-shadow: 0 8px 20px rgba(255,157,199,0.1); }
-.proom-top3-img {
-  width: 100%;
-  aspect-ratio: 3/4;
-  object-fit: cover;
-  display: block;
-}
-.proom-top3-slot-empty {
-  width: 100%;
-  aspect-ratio: 3/4;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.5em;
-  color: var(--text-dim);
-  opacity: 0.4;
-}
-.proom-top3-rank {
-  position: absolute;
-  top: 6px;
-  left: 6px;
-  background: rgba(0,0,0,0.75);
-  border-radius: 6px;
-  padding: 2px 7px;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.62em;
-  color: #f1c40f;
-  backdrop-filter: blur(4px);
-}
-.proom-top3-name {
-  padding: 6px 8px;
-  font-size: 0.7em;
-  font-weight: 600;
-  color: var(--text);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* Room panel */
-.proom-room-canvas {
-  position: relative;
-  background: linear-gradient(180deg, #0a0520 0%, #080318 100%);
-  border-radius: 14px;
-  min-height: 280px;
-  overflow: hidden;
-  margin-bottom: 16px;
-  border: 1px solid var(--border);
-}
-.proom-room-floor {
-  position: absolute;
-  bottom: 0; left: 0; right: 0;
-  height: 30%;
-  background: linear-gradient(180deg, transparent, rgba(255,157,199,0.04));
-  border-top: 1px solid rgba(255,157,199,0.08);
-}
-.proom-room-wallpaper {
-  position: absolute;
-  inset: 0;
-  background: var(--room-wallpaper, none);
-  background-size: cover;
-  opacity: 0.3;
-}
-.proom-furniture-item {
-  position: absolute;
-  font-size: 2.2em;
-  cursor: default;
-  filter: drop-shadow(0 4px 12px rgba(0,0,0,0.5));
-  animation: furnitureIdle var(--idle-dur, 4s) ease-in-out infinite;
-  user-select: none;
-}
-@keyframes furnitureIdle {
-  0%,100% { transform: translateY(0) rotate(var(--rot, 0deg)); }
-  50% { transform: translateY(-3px) rotate(var(--rot, 0deg)); }
-}
-.proom-figurine {
-  position: absolute;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 3px;
-}
-.proom-figurine-card {
-  width: 36px;
-  height: 50px;
-  object-fit: cover;
-  border-radius: 5px;
-  border: 1.5px solid rgba(255,157,199,0.4);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.6);
-}
-.proom-figurine-base {
-  width: 44px;
-  height: 6px;
-  background: linear-gradient(180deg, rgba(255,157,199,0.3), rgba(192,132,184,0.2));
-  border-radius: 3px;
-}
-
-/* Poster section */
-.proom-poster-grid {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-.proom-poster {
-  width: 70px;
-  height: 98px;
-  border-radius: 8px;
-  object-fit: cover;
-  border: 2px solid rgba(255,157,199,0.25);
-  box-shadow: 0 4px 14px rgba(0,0,0,0.5);
-  transition: transform 0.2s;
-}
-.proom-poster:hover { transform: scale(1.06) rotate(1deg); }
-
-/* Music player */
-.proom-music-player {
-  background: linear-gradient(135deg, rgba(255,157,199,0.06), rgba(192,132,184,0.06));
-  border: 1px solid rgba(255,157,199,0.2);
-  border-radius: 14px;
-  padding: 14px 16px;
-  display: flex;
-  align-items: center;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 14px;
-  margin-bottom: 16px;
-}
-.proom-music-disc {
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--pink-deep), var(--purple));
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.3em;
-  flex-shrink: 0;
-  animation: discSpin 3s linear infinite paused;
-  box-shadow: 0 0 14px rgba(255,157,199,0.3);
-}
-.proom-music-disc.playing { animation-play-state: running; }
-@keyframes discSpin { from { transform: rotate(0); } to { transform: rotate(360deg); } }
-.proom-music-info { flex: 1; min-width: 0; }
-.proom-music-title {
-  font-size: 0.88em;
-  font-weight: 600;
-  color: var(--text);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.proom-music-artist {
-  font-size: 0.72em;
-  color: var(--text-dim);
-  font-style: italic;
-  margin-top: 2px;
-}
-.proom-music-play-btn {
-  width: 36px; height: 36px;
-  border-radius: 50%;
-  background: rgba(255,157,199,0.12);
-  border: 1px solid rgba(255,157,199,0.3);
-  color: var(--pink);
-  font-size: 0.9em;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s;
-  flex-shrink: 0;
-}
-.proom-music-play-btn:hover { background: rgba(255,157,199,0.22); transform: scale(1.1); }
-
-/* Chat panel */
-.proom-chat-wrap {
-  display: flex;
-  flex-direction: column;
-  height: 400px;
-}
-
-/* Empty state */
-.proom-empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 400px;
-  gap: 14px;
-  color: var(--text-dim);
-  text-align: center;
-}
-.proom-empty-icon { font-size: 3em; opacity: 0.4; animation: decoDrift 3s ease-in-out infinite; }
-.proom-empty-text { font-style: italic; font-size: 0.9em; opacity: 0.6; line-height: 1.6; }
-
-/* Customize modal */
-.room-customize-modal {
-  position: fixed;
-  inset: 0;
-  z-index: 410;
-  display: none;
-  align-items: center;
-  justify-content: center;
-  background: rgba(0,0,0,0.88);
-  backdrop-filter: blur(8px);
   padding: 20px;
 }
-.room-customize-modal.active { display: flex; }
-.room-customize-box {
-  background: linear-gradient(135deg, var(--bg2), var(--bg3));
-  border: 1px solid var(--border);
-  border-radius: 24px;
-  max-width: 560px;
-  width: 100%;
-  max-height: 90vh;
-  overflow-y: auto;
-  padding: 28px;
-  animation: modalIn 0.3s cubic-bezier(0.34,1.56,0.64,1);
-}
-.rcm-title {
-  font-family: 'Cinzel Decorative', serif;
-  font-size: 1em;
-  color: var(--pink-pale);
-  margin-bottom: 20px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.rcm-section { margin-bottom: 20px; }
-.rcm-section-label {
-  font-size: 0.72em;
-  font-family: 'JetBrains Mono', monospace;
-  letter-spacing: 0.1em;
-  color: var(--text-dim);
-  text-transform: uppercase;
-  margin-bottom: 10px;
-}
-.rcm-color-row {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-.rcm-color-opt {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  cursor: pointer;
-  border: 2px solid transparent;
-  transition: all 0.2s;
-}
-.rcm-color-opt:hover, .rcm-color-opt.selected { border-color: #fff; transform: scale(1.15); box-shadow: 0 0 10px rgba(255,255,255,0.3); }
-.rcm-sticker-row {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-.rcm-sticker-opt {
-  width: 42px;
-  height: 42px;
-  border-radius: 10px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  font-size: 1.4em;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s;
-}
-.rcm-sticker-opt:hover { border-color: var(--pink); transform: scale(1.1); }
-.rcm-sticker-opt.selected { border-color: var(--pink); background: rgba(255,157,199,0.1); box-shadow: 0 0 8px var(--pink-glow); }
-.rcm-furniture-row {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
-  gap: 8px;
-}
-.rcm-furniture-opt {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 8px 4px;
-  cursor: pointer;
-  text-align: center;
-  transition: all 0.2s;
-  font-size: 0.72em;
-  color: var(--text-dim);
-}
-.rcm-furniture-opt:hover { border-color: var(--pink); }
-.rcm-furniture-opt.selected { border-color: var(--pink); background: rgba(255,157,199,0.08); }
-.rcm-furniture-opt .rf-icon { font-size: 1.5em; display: block; margin-bottom: 3px; }
-.rcm-input {
-  width: 100%;
-  background: rgba(255,157,199,0.05);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 10px 14px;
-  color: var(--text);
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 1em;
-  transition: border-color 0.2s;
-}
-.rcm-input:focus { outline: none; border-color: var(--pink); }
-.rcm-textarea { resize: vertical; min-height: 70px; line-height: 1.5; }
-.rcm-save-btn {
-  width: 100%;
-  padding: 12px;
-  border-radius: 14px;
-  background: linear-gradient(135deg, var(--pink-deep), var(--purple));
-  border: none;
-  color: #fff;
-  font-family: 'Cinzel Decorative', serif;
-  font-size: 0.82em;
-  cursor: pointer;
-  margin-top: 6px;
-  transition: all 0.2s;
-  letter-spacing: 0.04em;
-}
-.rcm-save-btn:hover { opacity: 0.88; transform: translateY(-1px); }
+@media(max-width:600px){ .rb-grid { grid-template-columns: 1fr; padding: 14px; gap: 10px; } }
 
-/* ══ LOBBY background glow ══ */
+/* Room card in browser */
+.room-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.22s cubic-bezier(.34,1.56,.64,1);
+  -webkit-tap-highlight-color: transparent;
+}
+.room-card:hover { transform: translateY(-3px); border-color: rgba(255,157,199,0.3); box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
+.room-card-banner {
+  height: 90px;
+  background: linear-gradient(135deg, #1a0d2e, #0d0618);
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  overflow: hidden;
+}
+.room-card-banner-overlay { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,0.1), rgba(0,0,0,0.5)); }
+.room-card-vis-badge {
+  position: absolute; top: 8px; right: 8px;
+  background: rgba(0,0,0,0.6); border-radius: 8px;
+  padding: 2px 8px; font-size: 0.65em;
+  font-family: 'JetBrains Mono', monospace; color: rgba(255,255,255,0.7);
+  backdrop-filter: blur(4px);
+}
+.room-card-music-badge {
+  position: absolute; bottom: 8px; left: 8px;
+  background: rgba(0,0,0,0.6); border-radius: 20px;
+  padding: 2px 8px; font-size: 0.65em; color: rgba(255,255,255,0.6);
+}
+.room-card-body { padding: 12px 14px; }
+.room-card-owner { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.room-card-avatar { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; border: 1px solid var(--border); flex-shrink: 0; }
+.room-card-owner-name { font-size: 0.78em; font-weight: 600; color: var(--text); }
+.room-card-name { font-family: 'Cinzel Decorative', serif; font-size: 0.72em; color: var(--pink-pale); margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.room-card-bio { font-size: 0.72em; color: var(--text-dim); font-style: italic; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 10px; }
+.room-card-stickers { display: flex; gap: 4px; font-size: 1.1em; flex-wrap: wrap; margin-bottom: 8px; min-height: 22px; }
+.room-card-enter {
+  width: 100%; padding: 7px;
+  background: rgba(255,157,199,0.08);
+  border: 1px solid rgba(255,157,199,0.2);
+  border-radius: 10px; color: var(--pink);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.82em; cursor: pointer; transition: all 0.2s;
+  text-align: center;
+}
+.room-card-enter:hover { background: rgba(255,157,199,0.15); }
+
+/* ── Room Interior ── */
+.ri-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: rgba(13,6,16,0.8);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+  position: sticky;
+  top: 53px;
+  z-index: 20;
+}
+.ri-back-btn {
+  background: rgba(255,255,255,0.05); border: 1px solid var(--border);
+  color: var(--text-dim); border-radius: 10px; padding: 5px 12px;
+  font-size: 0.78em; cursor: pointer; transition: all 0.2s; white-space: nowrap;
+}
+.ri-back-btn:hover { color: var(--pink); border-color: var(--pink); }
+.ri-header-center { flex: 1; min-width: 0; }
+.ri-room-name { font-family: 'Cinzel Decorative', serif; font-size: 0.8em; color: var(--pink-pale); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ri-room-meta { font-size: 0.68em; color: var(--text-dim); font-family: 'JetBrains Mono', monospace; }
+.ri-header-right { display: flex; gap: 6px; align-items: center; flex-shrink: 0; }
+.ri-tab-btn {
+  background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+  color: var(--text-dim); border-radius: 10px; padding: 5px 12px;
+  font-size: 0.75em; cursor: pointer; transition: all 0.2s; white-space: nowrap;
+}
+.ri-tab-btn.active { background: rgba(255,157,199,0.12); border-color: var(--pink); color: var(--pink); }
+.ri-edit-btn {
+  background: rgba(255,157,199,0.08); border: 1px solid rgba(255,157,199,0.2);
+  color: var(--pink); border-radius: 10px; padding: 5px 12px;
+  font-size: 0.75em; cursor: pointer; transition: all 0.2s;
+}
+.ri-edit-btn:hover { background: rgba(255,157,199,0.16); }
+.ri-delete-btn {
+  background: rgba(231,76,60,0.08); border: 1px solid rgba(231,76,60,0.2);
+  color: #e74c3c; border-radius: 10px; padding: 5px 10px;
+  font-size: 0.75em; cursor: pointer;
+}
+
+/* Wallpaper */
+.ri-wallpaper {
+  position: relative;
+  height: 160px;
+  background: linear-gradient(135deg, #1a0d2e 0%, #0d0618 100%);
+  background-size: cover;
+  background-position: center;
+  overflow: hidden;
+}
+.ri-wallpaper-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(0,0,0,0.05), rgba(0,0,0,0.55));
+}
+@media(max-width:600px){ .ri-wallpaper { height: 120px; } }
+
+/* Music bar */
+.ri-music-bar {
+  position: absolute; bottom: 10px; left: 12px; right: 12px;
+  display: flex; align-items: center; gap: 8px;
+  background: rgba(0,0,0,0.65); backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px; padding: 6px 12px;
+  z-index: 2;
+}
+.ri-music-icon { font-size: 1em; flex-shrink: 0; }
+.ri-music-title { font-size: 0.72em; color: rgba(255,255,255,0.7); font-style: italic; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ri-music-eq {
+  display: flex; gap: 2px; align-items: flex-end; flex-shrink: 0; margin-left: auto;
+}
+.ri-music-eq span {
+  width: 3px; border-radius: 2px;
+  background: var(--pink); opacity: 0.7;
+  animation: eqBounce 0.8s ease-in-out infinite;
+}
+.ri-music-eq span:nth-child(1){ height: 8px; animation-delay:0s; }
+.ri-music-eq span:nth-child(2){ height: 14px; animation-delay:0.15s; }
+.ri-music-eq span:nth-child(3){ height: 10px; animation-delay:0.3s; }
+.ri-music-eq span:nth-child(4){ height: 6px; animation-delay:0.45s; }
+@keyframes eqBounce { 0%,100%{transform:scaleY(1);} 50%{transform:scaleY(0.3);} }
+
+/* Owner strip */
+.ri-owner-strip {
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 18px;
+  background: rgba(255,255,255,0.03);
+  border-bottom: 1px solid var(--border);
+}
+.ri-owner-avatar { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(255,157,199,0.3); flex-shrink: 0; }
+.ri-owner-name { font-weight: 700; font-size: 0.9em; color: var(--text); margin-bottom: 2px; }
+.ri-owner-bio { font-size: 0.78em; color: var(--text-dim); font-style: italic; }
+.ri-owner-badge {
+  margin-left: auto; flex-shrink: 0;
+  background: rgba(255,157,199,0.1); border: 1px solid rgba(255,157,199,0.2);
+  border-radius: 20px; padding: 3px 12px; font-size: 0.72em; color: var(--pink);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Content grid */
+.ri-content-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  padding: 16px 18px 32px;
+}
+@media(max-width:700px){ .ri-content-grid { grid-template-columns: 1fr; } }
+
+.ri-col-left, .ri-col-right { display: flex; flex-direction: column; gap: 16px; }
+
+.ri-section { }
+.ri-section-label {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 0.65em;
+  color: rgba(255,157,199,0.5);
+  letter-spacing: 0.08em;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+
+/* Cards showcase */
+.ri-cards-showcase {
+  display: flex; gap: 8px;
+}
+.ri-card-slot {
+  flex: 1; aspect-ratio: 3/4;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.03);
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s;
+  position: relative;
+}
+.ri-card-slot img { width: 100%; height: 100%; object-fit: cover; }
+.ri-card-slot.empty { border-style: dashed; opacity: 0.5; }
+.ri-card-slot-ph { font-size: 1.2em; color: var(--text-dim); }
+.ri-card-slot .ri-card-rarity {
+  position: absolute; bottom: 3px; left: 0; right: 0;
+  text-align: center; font-size: 0.55em;
+  font-family: 'JetBrains Mono', monospace;
+  color: rgba(255,255,255,0.6);
+  text-shadow: 0 1px 4px rgba(0,0,0,0.8);
+}
+
+/* Figurine shelf */
+.ri-shelf { position: relative; }
+.ri-shelf-board {
+  height: 6px;
+  background: linear-gradient(90deg, #2a1a0e, #4a2e18, #2a1a0e);
+  border-radius: 3px;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.5);
+  margin-bottom: -3px;
+  position: relative; z-index: 2;
+}
+.ri-figurines {
+  display: flex; gap: 6px;
+  background: linear-gradient(180deg, rgba(20,12,6,0.6), rgba(10,6,2,0.8));
+  border: 1px solid rgba(100,60,20,0.2);
+  border-top: none;
+  border-radius: 0 0 8px 8px;
+  padding: 10px 8px 8px;
+}
+.ri-figurine-slot {
+  flex: 1; min-height: 60px;
+  display: flex; align-items: flex-end; justify-content: center;
+  font-size: 1.8em;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+.ri-figurine-slot.empty {
+  border: 1px dashed rgba(255,255,255,0.08);
+  font-size: 0.9em; color: rgba(255,255,255,0.15);
+  align-items: center;
+}
+
+/* Poster wall */
+.ri-poster-wall {
+  display: flex; gap: 10px;
+}
+.ri-poster-slot {
+  flex: 1; aspect-ratio: 2/3;
+  border-radius: 8px; overflow: hidden;
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.03);
+  display: flex; align-items: center; justify-content: center;
+  position: relative;
+}
+.ri-poster-slot img { width: 100%; height: 100%; object-fit: cover; border-radius: 7px; }
+.ri-poster-slot.empty { border-style: dashed; opacity: 0.5; }
+.ri-poster-ph { font-size: 1.2em; color: var(--text-dim); }
+/* Pin decoration */
+.ri-poster-slot::before {
+  content: '📌';
+  position: absolute; top: -4px; left: 50%; transform: translateX(-50%);
+  font-size: 0.7em; z-index: 2;
+}
+.ri-poster-slot.empty::before { display: none; }
+
+/* Sticker board */
+.ri-sticker-board {
+  position: relative;
+  min-height: 80px;
+  background: linear-gradient(135deg, rgba(255,240,220,0.04), rgba(255,220,180,0.02));
+  border: 1px solid rgba(255,200,150,0.1);
+  border-radius: 12px;
+  overflow: hidden;
+  padding: 10px;
+}
+.ri-sticker-board-bg {
+  position: absolute; inset: 0;
+  background-image: repeating-linear-gradient(0deg, rgba(255,255,255,0.015) 0px, rgba(255,255,255,0.015) 1px, transparent 1px, transparent 20px),
+                    repeating-linear-gradient(90deg, rgba(255,255,255,0.015) 0px, rgba(255,255,255,0.015) 1px, transparent 1px, transparent 20px);
+}
+.ri-stickers { position: relative; z-index: 1; display: flex; flex-wrap: wrap; gap: 6px; }
+.ri-sticker { font-size: 1.6em; line-height: 1; animation: decoDrift 4s ease-in-out infinite; }
+.ri-sticker:nth-child(2){ animation-delay:0.5s; }
+.ri-sticker:nth-child(3){ animation-delay:1s; }
+.ri-sticker:nth-child(4){ animation-delay:1.5s; }
+.ri-sticker:nth-child(5){ animation-delay:2s; }
+.ri-sticker:nth-child(6){ animation-delay:2.5s; }
+
+/* Furniture row */
+.ri-furniture-row {
+  display: flex; gap: 8px; flex-wrap: wrap;
+}
+.ri-furniture-slot {
+  width: 52px; height: 52px;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.8em;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  transition: all 0.2s;
+}
+.ri-furniture-slot.empty {
+  border-style: dashed; opacity: 0.4;
+  font-size: 1em; color: var(--text-dim);
+}
+
+/* Chat wrap inside room */
+.ri-chat-wrap { display: flex; flex-direction: column; height: 100%; }
+
+/* Tab content */
+.ri-tab-content { }
+
+/* ── Create Room Modal ── */
+.crm-section-label {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 0.65em;
+  color: rgba(255,157,199,0.5);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin: 18px 0 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(255,157,199,0.08);
+}
+.crm-section-label:first-child { margin-top: 0; }
+.crm-label {
+  font-size: 0.78em; color: var(--text-dim);
+  display: block; margin-bottom: 5px;
+}
+.crm-banner-preview {
+  width: 100%; height: 60px;
+  border-radius: 8px; border: 1px dashed var(--border);
+  background-size: cover; background-position: center;
+  margin-bottom: 10px; transition: background-image 0.3s;
+}
+/* Wallpaper theme grid */
+.crm-theme-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+  margin-bottom: 16px;
+}
+.crm-theme-swatch {
+  aspect-ratio: 16/9; border-radius: 6px;
+  cursor: pointer; border: 2px solid transparent;
+  transition: all 0.2s; background-size: cover; background-position: center;
+}
+.crm-theme-swatch:hover { transform: scale(1.06); }
+.crm-theme-swatch.selected { border-color: var(--pink); box-shadow: 0 0 10px rgba(255,157,199,0.4); }
+
+/* Sticker picker */
+.crm-sticker-grid {
+  display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 4px;
+}
+.crm-sticker-btn {
+  font-size: 1.5em; padding: 4px 6px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border); border-radius: 8px;
+  cursor: pointer; transition: all 0.15s; line-height: 1;
+}
+.crm-sticker-btn:hover { background: rgba(255,157,199,0.1); transform: scale(1.15); }
+.crm-sticker-btn.selected { background: rgba(255,157,199,0.15); border-color: var(--pink); box-shadow: 0 0 8px rgba(255,157,199,0.3); }
+
+/* Furniture picker */
+.crm-furniture-grid {
+  display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 4px;
+}
+.crm-furn-btn {
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  padding: 6px 10px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border); border-radius: 10px;
+  cursor: pointer; transition: all 0.15s; font-size: 0.72em; color: var(--text-dim);
+}
+.crm-furn-btn span:first-child { font-size: 1.6em; }
+.crm-furn-btn:hover { background: rgba(255,157,199,0.08); }
+.crm-furn-btn.selected { background: rgba(255,157,199,0.12); border-color: var(--pink); color: var(--pink); }
+
+/* Figurine picker */
+.crm-figurine-grid {
+  display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 4px;
+}
+.crm-fig-btn {
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  padding: 6px 10px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border); border-radius: 10px;
+  cursor: pointer; transition: all 0.15s; font-size: 0.72em; color: var(--text-dim);
+}
+.crm-fig-btn span:first-child { font-size: 1.8em; }
+.crm-fig-btn:hover { background: rgba(255,157,199,0.08); }
+.crm-fig-btn.selected { background: rgba(255,157,199,0.12); border-color: var(--pink); color: var(--pink); }
 #hubZone-lobby {
   background: radial-gradient(ellipse at 50% 0%, rgba(100,50,160,0.06) 0%, transparent 60%),
               linear-gradient(180deg, #0a0414 0%, #050210 100%);
@@ -7010,13 +6635,9 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
       <button class="nav-btn active" onclick="goTo('home',this)">🏠 Home</button>
       <button class="nav-btn" onclick="goTo('pull',this)">🎴 Pull</button>
       <button class="nav-btn" onclick="goTo('collection',this)">🃏 Cards</button>
-      <button class="nav-btn nav-hub-btn" onclick="goTo('social',this)" id="navHubBtn">
-        <span class="nav-hub-orb">✦</span>
-        <span class="nav-hub-text">Meo Hub</span>
-        <span class="nav-hub-ring"></span>
-      </button>
       <button class="nav-btn" onclick="goTo('shop',this)">🛍️ Shop</button>
       <button class="nav-btn" onclick="goTo('activities',this)">⚔️ Activities</button>
+      <button class="nav-btn" onclick="goTo('social',this)">✦ Meo Hub</button>
       <button class="nav-btn" id="adminNavBtn" style="display:none" onclick="goTo('admin',this)">⚙️ Admin</button>
     </div>
     <!-- right side: coins + avatar — visible on BOTH desktop and mobile -->
@@ -7035,17 +6656,10 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
     <div class="mobile-nav-inner">
       <button class="mobile-nav-btn active" id="mnav-home" onclick="goTo('home',null);setMobileNav('home')"><span class="mob-icon">🏠</span>Home</button>
       <button class="mobile-nav-btn" id="mnav-pull" onclick="goTo('pull',null);setMobileNav('pull')"><span class="mob-icon">🎴</span>Pull</button>
-      <button class="mobile-nav-btn mnav-hub-btn" id="mnav-social" onclick="goTo('social',null);setMobileNav('social')">
-        <span class="mnav-hub-circle">
-          <span class="mnav-hub-icon">✦</span>
-          <span class="mnav-hub-ring1"></span>
-          <span class="mnav-hub-ring2"></span>
-        </span>
-        <span class="mnav-hub-label">Meo Hub</span>
-      </button>
       <button class="mobile-nav-btn" id="mnav-collection" onclick="goTo('collection',null);setMobileNav('collection')"><span class="mob-icon">🃏</span>Cards</button>
       <button class="mobile-nav-btn" id="mnav-shop" onclick="goTo('shop',null);setMobileNav('shop')"><span class="mob-icon">🛍️</span>Shop</button>
-      <button class="mobile-nav-btn" id="mnav-activities" style="display:none" onclick="goTo('activities',null);setMobileNav('activities')"><span class="mob-icon">⚔️</span>Battle</button>
+      <button class="mobile-nav-btn" id="mnav-activities" onclick="goTo('activities',null);setMobileNav('activities')"><span class="mob-icon">⚔️</span>Battle</button>
+      <button class="mobile-nav-btn" id="mnav-social" onclick="goTo('social',null);setMobileNav('social')"><span class="mob-icon">✦</span>Hub</button>
       <button class="mobile-nav-btn" id="mnav-profile" style="display:none" onclick="goTo('profile',null);setMobileNav('profile')"><span class="mob-icon">👤</span>Profile</button>
       <button class="mobile-nav-btn" id="mnav-admin" style="display:none" onclick="goTo('admin',null);setMobileNav('admin')"><span class="mob-icon">⚙️</span>Admin</button>
     </div>
@@ -7774,171 +7388,148 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
         <div class="zone-banner-overlay" style="background:linear-gradient(180deg,rgba(4,18,10,0.45) 0%,rgba(2,10,5,0.85) 100%);"></div>
         <div class="zone-banner-content">
           <div class="zone-banner-title">🏠 Player Rooms</div>
-          <div class="zone-banner-sub">Your cozy corner — decorate, vibe, and hang out ✦</div>
+          <div class="zone-banner-sub">Create your own cozy space — personalise everything</div>
         </div>
-        <div class="zone-petal zone-petal-1">🌿</div>
-        <div class="zone-petal zone-petal-3">🍃</div>
       </div>
 
-      <div class="rooms-v2-layout">
-        <!-- LEFT: Room Browser -->
-        <div class="rooms-v2-sidebar">
-          <div class="rooms-v2-sidebar-header">
-            <div class="rooms-v2-sidebar-title">🏡 Rooms</div>
-            <button class="rooms-v2-create-btn" onclick="openCreateRoomModal()">＋ My Room</button>
+      <!-- ── ROOM BROWSER (shown when not in a room) ── -->
+      <div id="roomBrowserView">
+        <div class="rb-toolbar">
+          <div class="rb-toolbar-left">
+            <div class="rb-title">🏘️ Browse Rooms</div>
+            <button class="rb-refresh-btn" onclick="refreshRoomsList()" title="Refresh">↺</button>
           </div>
-          <div id="roomsList" style="display:flex;flex-direction:column;gap:8px;">
-            <div class="proom-empty-state" style="min-height:120px;">
-              <div class="proom-empty-icon">🏡</div>
-              <div class="proom-empty-text">No rooms yet.<br>Create yours!</div>
-            </div>
+          <button class="rooms-create-btn" onclick="openCreateRoomModal()">＋ Create My Room</button>
+        </div>
+        <div id="roomsList" class="rb-grid">
+          <div class="rooms-empty">
+            <div class="rooms-empty-icon">🏡</div>
+            <div>No rooms yet — be the first to create one!</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── ACTIVE ROOM INTERIOR (shown when inside a room) ── -->
+      <div id="roomInteriorView" style="display:none;">
+
+        <!-- Room header bar -->
+        <div class="ri-header">
+          <button class="ri-back-btn" onclick="leaveCurrentRoom()">← Leave</button>
+          <div class="ri-header-center">
+            <div class="ri-room-name" id="riRoomName">Room Name</div>
+            <div class="ri-room-meta" id="riRoomMeta">Public</div>
+          </div>
+          <div class="ri-header-right">
+            <button class="ri-tab-btn active" id="ritab-room" onclick="switchRoomTab('room',this)">🏠 Room</button>
+            <button class="ri-tab-btn" id="ritab-chat" onclick="switchRoomTab('chat',this)">💬 Chat</button>
+            <button class="ri-edit-btn" id="riEditBtn" style="display:none;" onclick="openRoomEditPanel()">✏️ Edit</button>
+            <button class="ri-delete-btn" id="riDeleteBtn" style="display:none;" onclick="deleteCurrentRoom()">🗑️</button>
           </div>
         </div>
 
-        <!-- RIGHT: Active Player Room View -->
-        <div class="rooms-v2-main" id="roomsV2Main">
-          <!-- Empty state -->
-          <div class="proom-empty-state" id="roomsV2Empty">
-            <div class="proom-empty-icon">🌸</div>
-            <div class="proom-empty-text">Select a room on the left<br>to visit someone's space ✦</div>
-          </div>
+        <!-- ═══ ROOM TAB ═══ -->
+        <div id="riTab-room" class="ri-tab-content">
+          <div class="room-interior" id="roomInterior">
 
-          <!-- Active room (hidden until a room is selected) -->
-          <div id="roomsV2Active" style="display:none;flex-direction:column;">
-
-            <!-- Banner with stickers overlay -->
-            <div class="proom-banner" id="proomBanner">
-              <div class="proom-banner-gradient" id="proomBannerGradient"></div>
-              <div class="proom-banner-stickers" id="proomBannerStickers"></div>
-              <div class="proom-banner-overlay"></div>
-            </div>
-
-            <!-- Profile header row -->
-            <div class="proom-header">
-              <div class="proom-avatar-wrap">
-                <img class="proom-avatar" id="proomAvatar" src="" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'"/>
-                <div class="proom-online-dot"></div>
-              </div>
-              <div class="proom-identity">
-                <div class="proom-username" id="proomUsername">Room Name</div>
-                <div class="proom-title-badge" id="proomTitleBadge">✦ Collector</div>
-              </div>
-              <div class="proom-header-actions">
-                <button class="proom-action-btn" id="proomCustomizeBtn" style="display:none;" onclick="openRoomCustomizeModal()">🎨 Customize</button>
-                <button class="proom-action-btn" id="proomLeaveBtn" onclick="leaveCurrentRoom()">← Leave</button>
-                <button class="proom-action-btn danger" id="proomDeleteBtn" style="display:none;" onclick="deleteCurrentRoom()">🗑️</button>
-              </div>
-            </div>
-
-            <!-- Tabs -->
-            <div class="proom-tabs">
-              <button class="proom-tab active" onclick="switchRoomTab('about', this)">🌸 About</button>
-              <button class="proom-tab" onclick="switchRoomTab('room', this)">🏠 Room</button>
-              <button class="proom-tab" onclick="switchRoomTab('chat', this)">💬 Chat</button>
-            </div>
-
-            <!-- ABOUT tab -->
-            <div class="proom-panel active" id="proomPanel-about">
-              <!-- Bio -->
-              <div class="proom-section-title">Bio</div>
-              <div class="proom-bio-section" id="proomBio">No bio set yet... ʚɞ</div>
-
-              <!-- Info boxes -->
-              <div class="proom-about-grid">
-                <div class="proom-about-box">
-                  <div class="proom-about-box-label">🎵 Vibe Music</div>
-                  <div class="proom-about-box-val" id="proomMusicLabel" style="font-style:italic;color:var(--text-dim);">Not set</div>
-                </div>
-                <div class="proom-about-box">
-                  <div class="proom-about-box-label">🎌 Fav Anime</div>
-                  <div class="proom-about-box-val" id="proomFavAnime" style="font-style:italic;color:var(--text-dim);">Not set</div>
-                </div>
-                <div class="proom-about-box">
-                  <div class="proom-about-box-label">🌐 Visibility</div>
-                  <div class="proom-about-box-val" id="proomVisLabel">—</div>
-                </div>
-                <div class="proom-about-box">
-                  <div class="proom-about-box-label">👑 Owner</div>
-                  <div class="proom-about-box-val" id="proomOwnerLabel">—</div>
-                </div>
-              </div>
-
-              <!-- Top 3 cards -->
-              <div class="proom-top3-section">
-                <div class="proom-section-title">✦ Top 3 Cards</div>
-                <div class="proom-top3-row" id="proomTop3Row">
-                  <div class="proom-top3-slot"><div class="proom-top3-slot-empty">🃏</div><div class="proom-top3-name">—</div></div>
-                  <div class="proom-top3-slot"><div class="proom-top3-slot-empty">🃏</div><div class="proom-top3-name">—</div></div>
-                  <div class="proom-top3-slot"><div class="proom-top3-slot-empty">🃏</div><div class="proom-top3-name">—</div></div>
-                </div>
-              </div>
-
+            <!-- Room banner/wallpaper -->
+            <div class="ri-wallpaper" id="riWallpaper">
+              <div class="ri-wallpaper-overlay"></div>
               <!-- Music player -->
-              <div class="proom-section-title">🎵 Now Playing</div>
-              <div class="proom-music-player" id="proomMusicPlayer">
-                <div class="proom-music-disc" id="proomMusicDisc">🎵</div>
-                <div class="proom-music-info">
-                  <div class="proom-music-title" id="proomMusicTitle">No music set</div>
-                  <div class="proom-music-artist" id="proomMusicArtist">Set a song in your room settings~</div>
+              <div class="ri-music-bar" id="riMusicBar" style="display:none;">
+                <div class="ri-music-icon">🎵</div>
+                <div class="ri-music-info">
+                  <div class="ri-music-title" id="riMusicTitle">No music</div>
                 </div>
-                <button class="proom-music-play-btn" id="proomMusicPlayBtn" onclick="toggleRoomMusic()" title="Play/Pause">▶</button>
-              </div>
-            </div>
-
-            <!-- ROOM tab -->
-            <div class="proom-panel" id="proomPanel-room">
-              <div class="proom-section-title">🏠 Room Layout</div>
-              <!-- Interactive room canvas -->
-              <div class="proom-room-canvas" id="proomRoomCanvas">
-                <div class="proom-room-wallpaper" id="proomWallpaper"></div>
-                <div class="proom-room-floor"></div>
-                <!-- Furniture items rendered by JS -->
-                <div id="proomFurnitureLayer"></div>
-                <!-- Anime figurines -->
-                <div id="proomFigurineLayer"></div>
-              </div>
-
-              <!-- Posters / stickers shelf -->
-              <div class="proom-section-title">🎌 Posters & Stickers</div>
-              <div class="proom-poster-grid" id="proomPosterGrid">
-                <div style="color:var(--text-dim);font-style:italic;font-size:0.82em;padding:6px 0;">No posters added yet ʚɞ</div>
-              </div>
-            </div>
-
-            <!-- CHAT tab -->
-            <div class="proom-panel" id="proomPanel-chat">
-              <div class="proom-chat-wrap">
-                <div class="chat-feed" id="roomChatFeed" style="flex:1;min-height:0;overflow-y:auto;border-radius:14px 14px 0 0;border:1px solid var(--border);border-bottom:none;background:rgba(0,0,0,0.2);">
-                  <div style="text-align:center;color:var(--text-dim);font-style:italic;font-size:0.85em;padding:20px;">Join a room to start chatting! 🌸</div>
-                </div>
-                <div class="chat-reply-bar" id="roomReplyBar">
-                  <span class="chat-reply-icon">↩️</span>
-                  <span class="chat-reply-bar-name" id="roomReplyName"></span>
-                  <span class="chat-reply-bar-excerpt" id="roomReplyExcerpt"></span>
-                  <button class="chat-reply-bar-close" onclick="clearRoomReply()" title="Cancel reply">✕</button>
-                </div>
-                <div style="display:flex;gap:8px;padding:10px;background:rgba(255,157,199,0.04);border:1px solid var(--border);border-top:none;border-radius:0 0 14px 14px;">
-                  <input id="roomChatInput" class="chat-input" placeholder="Say something cozy... 🌸" style="flex:1;" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();submitRoomChat();}"/>
-                  <button class="chat-send-btn" onclick="submitRoomChat()">✦</button>
+                <div class="ri-music-eq">
+                  <span></span><span></span><span></span><span></span>
                 </div>
               </div>
             </div>
 
-          </div><!-- end roomsV2Active -->
-        </div><!-- end rooms-v2-main -->
-      </div><!-- end rooms-v2-layout -->
-    </div>
+            <!-- Owner profile strip -->
+            <div class="ri-owner-strip" id="riOwnerStrip">
+              <img class="ri-owner-avatar" id="riOwnerAvatar" src="" alt="" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'"/>
+              <div class="ri-owner-info">
+                <div class="ri-owner-name" id="riOwnerName">Owner</div>
+                <div class="ri-owner-bio" id="riOwnerBio">Welcome to my room~</div>
               </div>
+              <div class="ri-owner-badge" id="riOwnerBadge">👑 Host</div>
             </div>
-            <div class="chat-feed" id="roomChatFeed">
-              <div style="text-align:center;color:var(--text-dim);font-style:italic;font-size:0.85em;padding:20px;">Connecting to room...</div>
+
+            <!-- Room content grid -->
+            <div class="ri-content-grid">
+
+              <!-- Left column: Cards showcase + figurines -->
+              <div class="ri-col-left">
+                <!-- Top 3 cards showcase -->
+                <div class="ri-section">
+                  <div class="ri-section-label">✦ Showcase Cards</div>
+                  <div class="ri-cards-showcase" id="riCardsShowcase">
+                    <div class="ri-card-slot empty" id="riCard-0"><div class="ri-card-slot-ph">＋</div></div>
+                    <div class="ri-card-slot empty" id="riCard-1"><div class="ri-card-slot-ph">＋</div></div>
+                    <div class="ri-card-slot empty" id="riCard-2"><div class="ri-card-slot-ph">＋</div></div>
+                  </div>
+                </div>
+                <!-- Anime figurines shelf -->
+                <div class="ri-section">
+                  <div class="ri-section-label">🗄️ Figurine Shelf</div>
+                  <div class="ri-shelf">
+                    <div class="ri-shelf-board"></div>
+                    <div class="ri-figurines" id="riFigurines">
+                      <div class="ri-figurine-slot empty">＋</div>
+                      <div class="ri-figurine-slot empty">＋</div>
+                      <div class="ri-figurine-slot empty">＋</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Right column: Posters + stickers + furniture -->
+              <div class="ri-col-right">
+                <!-- Poster wall -->
+                <div class="ri-section">
+                  <div class="ri-section-label">🖼️ Poster Wall</div>
+                  <div class="ri-poster-wall" id="riPosterWall">
+                    <div class="ri-poster-slot empty" id="riPoster-0"><div class="ri-poster-ph">＋</div></div>
+                    <div class="ri-poster-slot empty" id="riPoster-1"><div class="ri-poster-ph">＋</div></div>
+                  </div>
+                </div>
+                <!-- Sticker board -->
+                <div class="ri-section">
+                  <div class="ri-section-label">🎀 Sticker Board</div>
+                  <div class="ri-sticker-board" id="riStickerBoard">
+                    <div class="ri-sticker-board-bg"></div>
+                    <div class="ri-stickers" id="riStickers"></div>
+                  </div>
+                </div>
+                <!-- Furniture row -->
+                <div class="ri-section">
+                  <div class="ri-section-label">🪑 Furniture</div>
+                  <div class="ri-furniture-row" id="riFurnitureRow">
+                    <div class="ri-furniture-slot empty">＋</div>
+                    <div class="ri-furniture-slot empty">＋</div>
+                    <div class="ri-furniture-slot empty">＋</div>
+                    <div class="ri-furniture-slot empty">＋</div>
+                  </div>
+                </div>
+              </div>
+
+            </div><!-- end ri-content-grid -->
+          </div><!-- end room-interior -->
+        </div>
+
+        <!-- ═══ CHAT TAB ═══ -->
+        <div id="riTab-chat" class="ri-tab-content" style="display:none;">
+          <div class="ri-chat-wrap">
+            <div class="chat-feed" id="roomChatFeed" style="height:calc(100vh - 320px);min-height:300px;">
+              <div style="text-align:center;color:var(--text-dim);font-style:italic;font-size:0.85em;padding:20px;">Connecting...</div>
             </div>
             <div class="lobby-input-area" style="padding:10px;">
               <div class="chat-reply-bar" id="roomReplyBar">
                 <span class="chat-reply-icon">↩️</span>
                 <span class="chat-reply-bar-name" id="roomReplyName"></span>
                 <span class="chat-reply-bar-excerpt" id="roomReplyExcerpt"></span>
-                <button class="chat-reply-bar-close" onclick="clearRoomReply()" title="Cancel reply">✕</button>
+                <button class="chat-reply-bar-close" onclick="clearRoomReply()">✕</button>
               </div>
               <div class="chat-input-wrap">
                 <input id="roomChatInput" placeholder="Chat in the room..." maxlength="300"
@@ -7948,7 +7539,8 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
             </div>
           </div>
         </div>
-      </div>
+
+      </div><!-- end roomInteriorView -->
     </div>
 
     <!-- ══════════════════════════════════ -->
@@ -8326,104 +7918,73 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 
   </div><!-- end page-social -->
 
-  <!-- ROOM CUSTOMIZE MODAL -->
-  <div class="room-customize-modal" id="roomCustomizeModal">
-    <div class="room-customize-box">
-      <div class="rcm-title">🎨 Customize Your Room</div>
-
-      <div class="rcm-section">
-        <div class="rcm-section-label">📝 Bio</div>
-        <textarea class="rcm-input rcm-textarea" id="rcmBio" placeholder="Write something about yourself... (max 200 chars)" maxlength="200"></textarea>
-      </div>
-
-      <div class="rcm-section">
-        <div class="rcm-section-label">🎨 Room Color Theme</div>
-        <div class="rcm-color-row" id="rcmColorRow">
-          <div class="rcm-color-opt selected" data-gradient="linear-gradient(135deg,#e0608a,#c084b8)" style="background:linear-gradient(135deg,#e0608a,#c084b8)"></div>
-          <div class="rcm-color-opt" data-gradient="linear-gradient(135deg,#3498db,#9b59b6)" style="background:linear-gradient(135deg,#3498db,#9b59b6)"></div>
-          <div class="rcm-color-opt" data-gradient="linear-gradient(135deg,#2ecc71,#1abc9c)" style="background:linear-gradient(135deg,#2ecc71,#1abc9c)"></div>
-          <div class="rcm-color-opt" data-gradient="linear-gradient(135deg,#f1c40f,#e67e22)" style="background:linear-gradient(135deg,#f1c40f,#e67e22)"></div>
-          <div class="rcm-color-opt" data-gradient="linear-gradient(135deg,#e74c3c,#c0392b)" style="background:linear-gradient(135deg,#e74c3c,#c0392b)"></div>
-          <div class="rcm-color-opt" data-gradient="linear-gradient(135deg,#1abc9c,#2980b9)" style="background:linear-gradient(135deg,#1abc9c,#2980b9)"></div>
-          <div class="rcm-color-opt" data-gradient="linear-gradient(90deg,#ff0099,#ff7700,#ffdd00,#00ff99,#00aaff,#cc00ff)" style="background:linear-gradient(90deg,#ff0099,#ff7700,#ffdd00,#00ff99,#00aaff,#cc00ff)"></div>
-        </div>
-      </div>
-
-      <div class="rcm-section">
-        <div class="rcm-section-label">✨ Banner Stickers (pick up to 3)</div>
-        <div class="rcm-sticker-row" id="rcmStickerRow">
-          <div class="rcm-sticker-opt" data-sticker="🌸">🌸</div>
-          <div class="rcm-sticker-opt" data-sticker="✦">✦</div>
-          <div class="rcm-sticker-opt" data-sticker="🎌">🎌</div>
-          <div class="rcm-sticker-opt" data-sticker="⚔️">⚔️</div>
-          <div class="rcm-sticker-opt" data-sticker="🌙">🌙</div>
-          <div class="rcm-sticker-opt" data-sticker="🐉">🐉</div>
-          <div class="rcm-sticker-opt" data-sticker="🍜">🍜</div>
-          <div class="rcm-sticker-opt" data-sticker="🎴">🎴</div>
-          <div class="rcm-sticker-opt" data-sticker="💜">💜</div>
-          <div class="rcm-sticker-opt" data-sticker="🦋">🦋</div>
-          <div class="rcm-sticker-opt" data-sticker="🍒">🍒</div>
-          <div class="rcm-sticker-opt" data-sticker="🔮">🔮</div>
-          <div class="rcm-sticker-opt" data-sticker="🧸">🧸</div>
-          <div class="rcm-sticker-opt" data-sticker="🎀">🎀</div>
-          <div class="rcm-sticker-opt" data-sticker="🌟">🌟</div>
-        </div>
-      </div>
-
-      <div class="rcm-section">
-        <div class="rcm-section-label">🛋️ Furniture</div>
-        <div class="rcm-furniture-row" id="rcmFurnitureRow">
-          <div class="rcm-furniture-opt" data-item="🛋️"><span class="rf-icon">🛋️</span>Sofa</div>
-          <div class="rcm-furniture-opt" data-item="🪴"><span class="rf-icon">🪴</span>Plant</div>
-          <div class="rcm-furniture-opt" data-item="📺"><span class="rf-icon">📺</span>TV</div>
-          <div class="rcm-furniture-opt" data-item="🕯️"><span class="rf-icon">🕯️</span>Candle</div>
-          <div class="rcm-furniture-opt" data-item="🎮"><span class="rf-icon">🎮</span>Console</div>
-          <div class="rcm-furniture-opt" data-item="📚"><span class="rf-icon">📚</span>Bookshelf</div>
-          <div class="rcm-furniture-opt" data-item="☕"><span class="rf-icon">☕</span>Coffee</div>
-          <div class="rcm-furniture-opt" data-item="🪑"><span class="rf-icon">🪑</span>Chair</div>
-          <div class="rcm-furniture-opt" data-item="🖼️"><span class="rf-icon">🖼️</span>Painting</div>
-          <div class="rcm-furniture-opt" data-item="🎸"><span class="rf-icon">🎸</span>Guitar</div>
-          <div class="rcm-furniture-opt" data-item="🧸"><span class="rf-icon">🧸</span>Plushie</div>
-          <div class="rcm-furniture-opt" data-item="💐"><span class="rf-icon">💐</span>Flowers</div>
-        </div>
-      </div>
-
-      <div class="rcm-section">
-        <div class="rcm-section-label">🎵 Vibe Song (YouTube title or artist)</div>
-        <input class="rcm-input" id="rcmMusicTitle" placeholder="e.g. Blue Bird — Naruto Shippuden OP"/>
-      </div>
-
-      <div class="rcm-section">
-        <div class="rcm-section-label">🎌 Favorite Anime</div>
-        <input class="rcm-input" id="rcmFavAnime" placeholder="e.g. Fullmetal Alchemist: Brotherhood"/>
-      </div>
-
-      <div class="rcm-section">
-        <div class="rcm-section-label">🖼️ Poster URLs (comma-separated, up to 4 image URLs)</div>
-        <textarea class="rcm-input rcm-textarea" id="rcmPosters" placeholder="https://img.url1, https://img.url2, ..."></textarea>
-      </div>
-
-      <div style="display:flex;gap:10px;margin-top:8px;">
-        <button class="rcm-save-btn" onclick="saveRoomCustomization()">✦ Save Room</button>
-        <button class="proom-action-btn" style="flex:0 0 auto;padding:12px 18px;" onclick="closeRoomCustomizeModal()">Cancel</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- CREATE ROOM MODAL -->
-  <div id="createRoomModal" style="display:none;position:fixed;inset:0;z-index:400;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.8);backdrop-filter:blur(6px);">
-    <div class="modal-box" style="max-width:400px;">
+  <!-- CREATE / EDIT ROOM MODAL -->
+  <div id="createRoomModal" style="display:none;position:fixed;inset:0;z-index:400;align-items:flex-start;justify-content:center;background:rgba(0,0,0,0.85);backdrop-filter:blur(8px);overflow-y:auto;padding:20px 0;">
+    <div class="modal-box" style="max-width:480px;width:calc(100% - 32px);margin:auto;">
       <div class="modal-body">
-        <div style="font-family:'Cinzel Decorative',serif;font-size:1em;margin-bottom:18px;color:var(--pink-pale);">🏠 Create a Room</div>
-        <label style="font-size:0.82em;color:var(--text-dim);display:block;margin-bottom:6px;">Room Name *</label>
-        <input id="createRoomName" class="admin-input" placeholder="e.g. Sakura Study Hall" maxlength="40" style="margin-bottom:12px;"/>
-        <label style="font-size:0.82em;color:var(--text-dim);display:block;margin-bottom:6px;">Visibility</label>
-        <div style="display:flex;gap:8px;margin-bottom:20px;">
+        <div style="font-family:'Cinzel Decorative',serif;font-size:1em;margin-bottom:20px;color:var(--pink-pale);">🏠 <span id="createRoomModalTitle">Create Your Room</span></div>
+
+        <!-- Basic info -->
+        <div class="crm-section-label">Room Info</div>
+        <label class="crm-label">Room Name *</label>
+        <input id="createRoomName" class="admin-input" placeholder="e.g. Sakura Study Hall" maxlength="40" style="margin-bottom:10px;"/>
+
+        <label class="crm-label">Bio / Welcome Message</label>
+        <textarea id="createRoomBio" class="admin-input" placeholder="Write something about your room..." maxlength="120" rows="2" style="resize:none;margin-bottom:10px;"></textarea>
+
+        <label class="crm-label">Visibility</label>
+        <div style="display:flex;gap:8px;margin-bottom:16px;">
           <button class="filter-btn active" id="roomVisPublic" onclick="this.classList.add('active');document.getElementById('roomVisPrivate').classList.remove('active')">🌐 Public</button>
           <button class="filter-btn" id="roomVisPrivate" onclick="this.classList.add('active');document.getElementById('roomVisPublic').classList.remove('active')">🔒 Private</button>
         </div>
-        <div style="display:flex;gap:8px;">
-          <button class="btn-primary" style="flex:1;" onclick="submitCreateRoom()">Create ✦</button>
+
+        <!-- Wallpaper -->
+        <div class="crm-section-label">Wallpaper</div>
+        <label class="crm-label">Banner / Wallpaper URL (image or GIF)</label>
+        <input id="createRoomBanner" class="admin-input" placeholder="https://..." maxlength="300" style="margin-bottom:6px;"/>
+        <div id="createRoomBannerPreview" class="crm-banner-preview"></div>
+        <script>document.getElementById('createRoomBanner')?.addEventListener('input',function(){
+          const p=document.getElementById('createRoomBannerPreview');
+          if(this.value) p.style.backgroundImage=`url('${this.value}')`;
+          else p.style.backgroundImage='none';
+        });</script>
+
+        <!-- Wallpaper theme presets -->
+        <div class="crm-label" style="margin-top:8px;">— or pick a theme —</div>
+        <div class="crm-theme-grid" id="crmThemeGrid"></div>
+
+        <!-- Music -->
+        <div class="crm-section-label">Room Music</div>
+        <label class="crm-label">YouTube URL (plays as BGM for visitors)</label>
+        <input id="createRoomMusic" class="admin-input" placeholder="https://youtube.com/watch?v=..." maxlength="200" style="margin-bottom:16px;"/>
+
+        <!-- Stickers -->
+        <div class="crm-section-label">Stickers</div>
+        <div class="crm-label">Pick up to 6 stickers for your board</div>
+        <div class="crm-sticker-grid" id="crmStickerGrid"></div>
+        <div style="font-size:0.72em;color:var(--text-dim);margin-top:4px;margin-bottom:16px;" id="crmStickerCount">0 / 6 selected</div>
+
+        <!-- Furniture -->
+        <div class="crm-section-label">Furniture</div>
+        <div class="crm-label">Pick up to 4 furniture pieces</div>
+        <div class="crm-furniture-grid" id="crmFurnitureGrid"></div>
+        <div style="font-size:0.72em;color:var(--text-dim);margin-top:4px;margin-bottom:16px;" id="crmFurnitureCount">0 / 4 selected</div>
+
+        <!-- Figurines -->
+        <div class="crm-section-label">Figurines</div>
+        <div class="crm-label">Pick up to 3 anime figurines for your shelf</div>
+        <div class="crm-figurine-grid" id="crmFigurineGrid"></div>
+        <div style="font-size:0.72em;color:var(--text-dim);margin-top:4px;margin-bottom:16px;" id="crmFigurineCount">0 / 3 selected</div>
+
+        <!-- Posters -->
+        <div class="crm-section-label">Posters</div>
+        <label class="crm-label">Poster 1 URL</label>
+        <input id="createRoomPoster0" class="admin-input" placeholder="https://..." maxlength="300" style="margin-bottom:8px;"/>
+        <label class="crm-label">Poster 2 URL</label>
+        <input id="createRoomPoster1" class="admin-input" placeholder="https://..." maxlength="300" style="margin-bottom:16px;"/>
+
+        <div style="display:flex;gap:8px;padding-top:4px;">
+          <button class="btn-primary" style="flex:1;" onclick="submitCreateRoom()">Save Room ✦</button>
           <button class="btn-secondary" onclick="closeCreateRoomModal()">Cancel</button>
         </div>
       </div>
@@ -16369,327 +15930,390 @@ async function loadLobbyLeaderboardPreview(){
 // ══════════════════════════════════════════════
 // PLAYER ROOMS
 // ══════════════════════════════════════════════
-let _currentRoomId = null;
+// ══════════════════════════════════════════════
+// PLAYER ROOMS — FULL SYSTEM
+// ══════════════════════════════════════════════
+let _currentRoomId   = null;
 let _currentRoomChannel = null;
-let _roomsData = [];
-const ROOM_TABLE = 'hub_rooms'; // Supabase table: id, name, owner_id, is_public, created_at
-const ROOM_CHAT_TABLE = 'hub_room_messages'; // id, room_id, user_id, username, avatar_url, content, created_at
+let _roomsData       = [];
+let _crmSelectedStickers   = [];
+let _crmSelectedFurniture  = [];
+let _crmSelectedFigurines  = [];
+let _crmSelectedTheme      = null;
 
-function switchRoomTab(tabName, clickedBtn) {
-  document.querySelectorAll('.proom-tab').forEach(t=>t.classList.remove('active'));
-  document.querySelectorAll('.proom-panel').forEach(p=>p.classList.remove('active'));
-  if(clickedBtn) clickedBtn.classList.add('active');
-  else {
-    const tabs = document.querySelectorAll('.proom-tab');
-    const tabMap = {'about':0,'room':1,'chat':2};
-    if(tabs[tabMap[tabName]]) tabs[tabMap[tabName]].classList.add('active');
-  }
-  const panel = document.getElementById('proomPanel-'+tabName);
-  if(panel) panel.classList.add('active');
-}
+const ROOM_TABLE      = 'hub_rooms';
+const ROOM_CHAT_TABLE = 'hub_room_messages';
 
-let _roomMusicPlaying = false;
-function toggleRoomMusic() {
-  _roomMusicPlaying = !_roomMusicPlaying;
-  const disc = document.getElementById('proomMusicDisc');
-  const btn = document.getElementById('proomMusicPlayBtn');
-  if(disc) disc.classList.toggle('playing', _roomMusicPlaying);
-  if(btn) btn.textContent = _roomMusicPlaying ? '⏸' : '▶';
-  if(_roomMusicPlaying) showToast('🎵 Vibing~');
-}
+// Catalogue data
+const ROOM_STICKERS   = ['🌸','⭐','🔥','💖','🎌','🌙','⚔️','🍜','🎀','🐾','✨','🌊','🏆','🎮','🎵','🦋','🌈','🍡','🎏','🪄','💫','🌺'];
+const ROOM_FURNITURE  = [
+  {e:'🛋️',n:'Sofa'},{e:'🪑',n:'Chair'},{e:'📺',n:'TV'},{e:'📚',n:'Bookshelf'},
+  {e:'🪴',n:'Plant'},{e:'🖥️',n:'PC'},{e:'🎹',n:'Piano'},{e:'🛏️',n:'Bed'},
+  {e:'🪞',n:'Mirror'},{e:'🕯️',n:'Candle'},{e:'🎸',n:'Guitar'},{e:'🧸',n:'Plushie'},
+];
+const ROOM_FIGURINES  = [
+  {e:'🗿',n:'Mystery'},{e:'🏯',n:'Castle'},{e:'⛩️',n:'Shrine'},{e:'🎎',n:'Dolls'},
+  {e:'🐉',n:'Dragon'},{e:'🦊',n:'Fox'},{e:'🌸',n:'Sakura'},{e:'⚔️',n:'Katana'},
+  {e:'🎭',n:'Mask'},{e:'🌙',n:'Moon'},{e:'💎',n:'Crystal'},{e:'🔮',n:'Orb'},
+];
+const ROOM_THEMES = [
+  { name:'Night Sky',   css:'linear-gradient(135deg,#06010f,#1a0838,#0d1a3a)' },
+  { name:'Cherry',      css:'linear-gradient(135deg,#2d0a1a,#8b2252,#3d1030)' },
+  { name:'Forest',      css:'linear-gradient(135deg,#020a04,#0a2212,#061808)' },
+  { name:'Ocean',       css:'linear-gradient(135deg,#01080f,#02203a,#011828)' },
+  { name:'Sunset',      css:'linear-gradient(135deg,#1a0800,#3d1400,#1a0600)' },
+  { name:'Candy',       css:'linear-gradient(135deg,#1a0020,#3a0040,#200030)' },
+  { name:'Gold',        css:'linear-gradient(135deg,#0a0800,#1a1400,#0a0900)' },
+  { name:'Frost',       css:'linear-gradient(135deg,#020810,#081828,#041020)' },
+  { name:'Ember',       css:'linear-gradient(135deg,#1a0200,#3d0800,#200400)' },
+  { name:'Meadow',      css:'linear-gradient(135deg,#040a02,#0c180a,#060e04)' },
+];
 
-let _rcmSelectedGradient = 'linear-gradient(135deg,rgba(224,96,138,0.4),rgba(192,132,184,0.4))';
-let _rcmSelectedStickers = [];
-let _rcmSelectedFurniture = [];
-
-function openRoomCustomizeModal() {
-  if(!_currentRoomId){ showToast('Join a room first!'); return; }
-  const room = _roomsData.find(r=>r.id===_currentRoomId);
-  if(!room || room.owner_id !== state.discordId){ showToast('Only the room owner can customize!'); return; }
-  const customData = room.custom_data ? (typeof room.custom_data==='string' ? JSON.parse(room.custom_data) : room.custom_data) : {};
-
-  // Pre-fill fields
-  document.getElementById('rcmBio').value = customData.bio||'';
-  document.getElementById('rcmMusicTitle').value = customData.music||'';
-  document.getElementById('rcmFavAnime').value = customData.favAnime||'';
-  document.getElementById('rcmPosters').value = (customData.posters||[]).join(', ');
-  _rcmSelectedGradient = customData.gradient || 'linear-gradient(135deg,rgba(224,96,138,0.4),rgba(192,132,184,0.4))';
-  _rcmSelectedStickers = customData.stickers || [];
-  _rcmSelectedFurniture = customData.furniture || [];
-
-  // Color row
-  document.querySelectorAll('.rcm-color-opt').forEach(opt=>{
-    opt.classList.toggle('selected', opt.dataset.gradient === _rcmSelectedGradient);
-    opt.onclick = function(){ _rcmSelectedGradient = this.dataset.gradient; document.querySelectorAll('.rcm-color-opt').forEach(o=>o.classList.remove('selected')); this.classList.add('selected'); };
-  });
-
-  // Sticker row
-  document.querySelectorAll('.rcm-sticker-opt').forEach(opt=>{
-    opt.classList.toggle('selected', _rcmSelectedStickers.includes(opt.dataset.sticker));
-    opt.onclick = function(){
-      const s = this.dataset.sticker;
-      if(_rcmSelectedStickers.includes(s)){ _rcmSelectedStickers = _rcmSelectedStickers.filter(x=>x!==s); this.classList.remove('selected'); }
-      else if(_rcmSelectedStickers.length < 3){ _rcmSelectedStickers.push(s); this.classList.add('selected'); }
-      else showToast('Max 3 stickers!');
-    };
-  });
-
-  // Furniture row
-  document.querySelectorAll('.rcm-furniture-opt').forEach(opt=>{
-    opt.classList.toggle('selected', _rcmSelectedFurniture.includes(opt.dataset.item));
-    opt.onclick = function(){
-      const item = this.dataset.item;
-      if(_rcmSelectedFurniture.includes(item)){ _rcmSelectedFurniture = _rcmSelectedFurniture.filter(x=>x!==item); this.classList.remove('selected'); }
-      else if(_rcmSelectedFurniture.length < 5){ _rcmSelectedFurniture.push(item); this.classList.add('selected'); }
-      else showToast('Max 5 furniture items!');
-    };
-  });
-
-  document.getElementById('roomCustomizeModal').classList.add('active');
-}
-
-function closeRoomCustomizeModal() {
-  document.getElementById('roomCustomizeModal').classList.remove('active');
-}
-
-async function saveRoomCustomization() {
-  if(!_currentRoomId || !state.discordId || state.isGuest){ showToast('Please log in!'); return; }
-  const postersRaw = document.getElementById('rcmPosters').value;
-  const posters = postersRaw.split(',').map(s=>s.trim()).filter(Boolean).slice(0,4);
-  const customData = {
-    bio: document.getElementById('rcmBio').value.trim().slice(0,200),
-    gradient: _rcmSelectedGradient,
-    stickers: _rcmSelectedStickers,
-    furniture: _rcmSelectedFurniture,
-    music: document.getElementById('rcmMusicTitle').value.trim().slice(0,80),
-    favAnime: document.getElementById('rcmFavAnime').value.trim().slice(0,50),
-    posters,
-    top3: (_roomsData.find(r=>r.id===_currentRoomId)?.custom_data?.top3) || []
-  };
-  try {
-    await sb.update(ROOM_TABLE, { custom_data: JSON.stringify(customData) }, { id: _currentRoomId });
-    // Update local cache
-    const roomIdx = _roomsData.findIndex(r=>r.id===_currentRoomId);
-    if(roomIdx>=0) _roomsData[roomIdx].custom_data = customData;
-    closeRoomCustomizeModal();
-    showToast('🎨 Room customized!');
-    // Re-render room
-    const room = _roomsData[roomIdx];
-    if(room) joinRoom(_currentRoomId, room.name, room.is_public);
-  } catch(e) { showToast('Could not save: '+(e.message||'error')); }
-}
-
-// Expose for use
-window.switchRoomTab = switchRoomTab;
-window.toggleRoomMusic = toggleRoomMusic;
-window.openRoomCustomizeModal = openRoomCustomizeModal;
-window.closeRoomCustomizeModal = closeRoomCustomizeModal;
-window.saveRoomCustomization = saveRoomCustomization;
-
-function initRoomSystem(){ return refreshRoomsList(); }
+async function initRoomSystem(){ await refreshRoomsList(); }
 
 async function refreshRoomsList(){
   const listEl = document.getElementById('roomsList');
   if(!listEl) return;
   try {
-    // Fetch public rooms
-    const pubRooms = await sb.get(ROOM_TABLE, { is_public: true }, { order: 'created_at.desc', limit: 30 });
-    // Fetch own private rooms if logged in
+    const pubRooms = await sb.get(ROOM_TABLE, { is_public: true }, { order:'created_at.desc', limit:30 });
     let privRooms = [];
     if(state.discordId && !state.isGuest){
-      try { privRooms = await sb.get(ROOM_TABLE, { is_public: false, owner_id: state.discordId }, { order: 'created_at.desc', limit: 10 }); }
+      try { privRooms = await sb.get(ROOM_TABLE, { is_public:false, owner_id:state.discordId }, { order:'created_at.desc', limit:10 }); }
       catch(_){}
     }
-    // Merge and deduplicate
     const seen = new Set();
-    _roomsData = [...(Array.isArray(pubRooms)?pubRooms:[]), ...(Array.isArray(privRooms)?privRooms:[])].filter(r=>{ if(seen.has(r.id)) return false; seen.add(r.id); return true; });
+    _roomsData = [...(Array.isArray(pubRooms)?pubRooms:[]),...(Array.isArray(privRooms)?privRooms:[])].filter(r=>{ if(seen.has(r.id)) return false; seen.add(r.id); return true; });
     if(!_roomsData.length){
-      listEl.innerHTML = `<div class="rooms-empty"><div class="rooms-empty-icon">🏡</div><div>No public rooms yet.<br>Be the first to create one!</div></div>`;
+      listEl.innerHTML = `<div class="rooms-empty" style="grid-column:1/-1;padding:40px 20px;text-align:center;"><div class="rooms-empty-icon">🏡</div><div>No rooms yet — be the first to create one!</div></div>`;
       return;
     }
     listEl.innerHTML = _roomsData.map(r=>{
-      const customData = r.custom_data ? (typeof r.custom_data==='string' ? JSON.parse(r.custom_data) : r.custom_data) : {};
-      const bio = customData.bio ? customData.bio.slice(0,60)+'...' : (r.description||'');
-      const gradient = customData.gradient||'linear-gradient(135deg,rgba(224,96,138,0.4),rgba(192,132,184,0.4))';
-      const tags = [r.is_public?'🌐 Public':'🔒 Private', ...(customData.favAnime?['🎌 '+customData.favAnime.slice(0,18)]:[]),(customData.music?['🎵 Music']:[])].flat().slice(0,3);
-      const ownerAvatar = r.owner_avatar || `https://api.dicebear.com/7.x/pixel-art/svg?seed=${encodeURIComponent(r.owner_username||'u')}`;
-      return `<div class="room-v2-card ${_currentRoomId===r.id?'active-room':''}" style="--room-accent:var(--pink);" onclick="joinRoom('${r.id}','${escapeHtml(r.name)}',${r.is_public})">
-        <div class="room-v2-card-top">
-          <img class="room-v2-avatar" src="${escapeHtml(ownerAvatar)}" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'" />
-          <div class="room-v2-name">${escapeHtml(r.name)}</div>
-          <span class="room-v2-vis">${r.is_public?'🌐':'🔒'}</span>
+      const stickers = (r.stickers||[]).slice(0,5).join('');
+      const theme = r.theme_css || ROOM_THEMES[0].css;
+      const av = r.owner_avatar || `https://api.dicebear.com/7.x/pixel-art/svg?seed=${encodeURIComponent(r.owner_username||'u')}`;
+      const bannerStyle = r.banner_url ? `background-image:url('${escapeHtml(r.banner_url)}')` : `background:${theme}`;
+      return `<div class="room-card" onclick="joinRoom('${r.id}','${escapeHtml(r.name)}',${r.is_public})">
+        <div class="room-card-banner" style="${bannerStyle};">
+          <div class="room-card-banner-overlay"></div>
+          <div class="room-card-vis-badge">${r.is_public?'🌐 Public':'🔒 Private'}</div>
+          ${r.music_url?`<div class="room-card-music-badge">🎵 Music</div>`:''}
         </div>
-        ${bio ? `<div class="room-v2-bio">✦ ${escapeHtml(bio)}</div>` : ''}
-        <div class="room-v2-tags">${tags.map(t=>`<span class="room-v2-tag">${escapeHtml(t)}</span>`).join('')}</div>
+        <div class="room-card-body">
+          <div class="room-card-owner">
+            <img class="room-card-avatar" src="${escapeHtml(av)}" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'"/>
+            <div class="room-card-owner-name">${escapeHtml(r.owner_username||'Player')}</div>
+          </div>
+          <div class="room-card-name">${escapeHtml(r.name)}</div>
+          <div class="room-card-bio">${escapeHtml(r.bio||'No description yet~')}</div>
+          <div class="room-card-stickers">${stickers||'&nbsp;'}</div>
+          <button class="room-card-enter">Enter Room →</button>
+        </div>
       </div>`;
     }).join('');
-  } catch(e) {
-    listEl.innerHTML = `<div class="rooms-empty"><div>Could not load rooms.<br><button onclick="refreshRoomsList()" style="margin-top:8px;background:var(--surface);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:4px 12px;cursor:pointer;font-size:0.8em;">Retry</button></div></div>`;
+  } catch(e){
+    listEl.innerHTML = `<div style="grid-column:1/-1;text-align:center;color:var(--text-dim);padding:30px;">Could not load rooms. <button onclick="refreshRoomsList()" style="margin-left:8px;background:none;border:1px solid var(--border);color:var(--text);border-radius:8px;padding:3px 10px;cursor:pointer;font-size:0.8em;">Retry</button></div>`;
   }
 }
 
-function openCreateRoomModal(){
+// ── Create / Edit room modal ──
+function openCreateRoomModal(editRoom=null){
   const m = document.getElementById('createRoomModal');
-  if(m){ m.style.display='flex'; }
+  if(!m) return;
+  m.style.display = 'flex';
+  document.getElementById('createRoomModalTitle').textContent = editRoom ? 'Edit Room' : 'Create Your Room';
+  // Reset selections
+  _crmSelectedStickers  = editRoom?.stickers  || [];
+  _crmSelectedFurniture = editRoom?.furniture  || [];
+  _crmSelectedFigurines = editRoom?.figurines  || [];
+  _crmSelectedTheme     = editRoom?.theme_css  || null;
+  // Pre-fill fields
+  document.getElementById('createRoomName').value       = editRoom?.name       || '';
+  document.getElementById('createRoomBio').value        = editRoom?.bio        || '';
+  document.getElementById('createRoomBanner').value     = editRoom?.banner_url || '';
+  document.getElementById('createRoomMusic').value      = editRoom?.music_url  || '';
+  document.getElementById('createRoomPoster0').value    = editRoom?.posters?.[0] || '';
+  document.getElementById('createRoomPoster1').value    = editRoom?.posters?.[1] || '';
+  const bprev = document.getElementById('createRoomBannerPreview');
+  if(bprev) bprev.style.backgroundImage = editRoom?.banner_url ? `url('${editRoom.banner_url}')` : 'none';
+  // Visibility
+  const pub = editRoom ? editRoom.is_public : true;
+  document.getElementById('roomVisPublic').classList.toggle('active', pub);
+  document.getElementById('roomVisPrivate').classList.toggle('active', !pub);
+  // Build pickers
+  _buildCrmThemeGrid();
+  _buildCrmStickerGrid();
+  _buildCrmFurnitureGrid();
+  _buildCrmFigurineGrid();
 }
+
 function closeCreateRoomModal(){
   const m = document.getElementById('createRoomModal');
-  if(m){ m.style.display='none'; document.getElementById('createRoomName').value=''; }
+  if(m) m.style.display = 'none';
+}
+
+function _buildCrmThemeGrid(){
+  const g = document.getElementById('crmThemeGrid'); if(!g) return;
+  g.innerHTML = ROOM_THEMES.map((t,i)=>`
+    <div class="crm-theme-swatch ${_crmSelectedTheme===t.css?'selected':''}"
+      style="background:${t.css};" title="${t.name}"
+      onclick="crmSelectTheme('${t.css.replace(/'/g,'\\\'')}')" ></div>`).join('');
+}
+function crmSelectTheme(css){
+  _crmSelectedTheme = css;
+  document.getElementById('createRoomBanner').value = '';
+  document.getElementById('createRoomBannerPreview').style.backgroundImage = 'none';
+  _buildCrmThemeGrid();
+}
+function _buildCrmStickerGrid(){
+  const g = document.getElementById('crmStickerGrid'); if(!g) return;
+  g.innerHTML = ROOM_STICKERS.map(s=>`
+    <button class="crm-sticker-btn ${_crmSelectedStickers.includes(s)?'selected':''}"
+      onclick="crmToggleSticker('${s}')">${s}</button>`).join('');
+  document.getElementById('crmStickerCount').textContent = `${_crmSelectedStickers.length} / 6 selected`;
+}
+function crmToggleSticker(s){
+  if(_crmSelectedStickers.includes(s)) _crmSelectedStickers = _crmSelectedStickers.filter(x=>x!==s);
+  else if(_crmSelectedStickers.length < 6) _crmSelectedStickers.push(s);
+  else { showToast('Max 6 stickers!'); return; }
+  _buildCrmStickerGrid();
+}
+function _buildCrmFurnitureGrid(){
+  const g = document.getElementById('crmFurnitureGrid'); if(!g) return;
+  g.innerHTML = ROOM_FURNITURE.map(f=>`
+    <button class="crm-furn-btn ${_crmSelectedFurniture.includes(f.e)?'selected':''}"
+      onclick="crmToggleFurniture('${f.e}')"><span>${f.e}</span><span>${f.n}</span></button>`).join('');
+  document.getElementById('crmFurnitureCount').textContent = `${_crmSelectedFurniture.length} / 4 selected`;
+}
+function crmToggleFurniture(e){
+  if(_crmSelectedFurniture.includes(e)) _crmSelectedFurniture = _crmSelectedFurniture.filter(x=>x!==e);
+  else if(_crmSelectedFurniture.length < 4) _crmSelectedFurniture.push(e);
+  else { showToast('Max 4 furniture pieces!'); return; }
+  _buildCrmFurnitureGrid();
+}
+function _buildCrmFigurineGrid(){
+  const g = document.getElementById('crmFigurineGrid'); if(!g) return;
+  g.innerHTML = ROOM_FIGURINES.map(f=>`
+    <button class="crm-fig-btn ${_crmSelectedFigurines.includes(f.e)?'selected':''}"
+      onclick="crmToggleFigurine('${f.e}')"><span>${f.e}</span><span>${f.n}</span></button>`).join('');
+  document.getElementById('crmFigurineCount').textContent = `${_crmSelectedFigurines.length} / 3 selected`;
+}
+function crmToggleFigurine(e){
+  if(_crmSelectedFigurines.includes(e)) _crmSelectedFigurines = _crmSelectedFigurines.filter(x=>x!==e);
+  else if(_crmSelectedFigurines.length < 3) _crmSelectedFigurines.push(e);
+  else { showToast('Max 3 figurines!'); return; }
+  _buildCrmFigurineGrid();
 }
 
 async function submitCreateRoom(){
   if(!state.discordId||state.isGuest){ showToast('Please log in first! ʚɞ'); return; }
   const name = document.getElementById('createRoomName').value.trim();
   if(!name){ showToast('Please enter a room name'); return; }
-  const isPublic = document.getElementById('roomVisPublic').classList.contains('active');
+  const isPublic   = document.getElementById('roomVisPublic').classList.contains('active');
+  const bio        = document.getElementById('createRoomBio').value.trim();
+  const banner_url = document.getElementById('createRoomBanner').value.trim();
+  const music_url  = document.getElementById('createRoomMusic').value.trim();
+  const poster0    = document.getElementById('createRoomPoster0').value.trim();
+  const poster1    = document.getElementById('createRoomPoster1').value.trim();
+  const payload = {
+    name, is_public: isPublic, bio, banner_url,
+    theme_css: _crmSelectedTheme || ROOM_THEMES[0].css,
+    music_url,
+    posters:    [poster0, poster1],
+    stickers:   _crmSelectedStickers,
+    furniture:  _crmSelectedFurniture,
+    figurines:  _crmSelectedFigurines,
+    owner_id:       state.discordId,
+    owner_username: state.username || 'Player',
+    owner_avatar:   state.customAvatar || state.avatar || '',
+  };
   try {
-    const res = await sb.insert(ROOM_TABLE, {
-      name,
-      owner_id: state.discordId,
-      owner_username: state.username || 'Player',
-      is_public: isPublic
-    });
+    const res = await sb.insert(ROOM_TABLE, payload);
     closeCreateRoomModal();
     showToast('Room created! 🏠');
     await refreshRoomsList();
-    // Auto-join
     if(res && res.id) joinRoom(res.id, name, isPublic);
-  } catch(e) {
-    showToast('Could not create room: ' + (e.message||'error'));
-  }
+  } catch(e){ showToast('Could not create room: '+(e.message||'error')); }
 }
 
+function openRoomEditPanel(){
+  const room = _roomsData.find(r=>r.id===_currentRoomId);
+  if(!room) return;
+  openCreateRoomModal(room);
+}
+
+// ── Enter a room ──
 async function joinRoom(roomId, roomName, isPublic){
-  // Leave current
-  if(_currentRoomId && _currentRoomId !== roomId) leaveCurrentRoom(true);
+  if(_currentRoomId && _currentRoomId !== roomId) _cleanupRoom();
   _currentRoomId = roomId;
-  // UI sidebar highlight
-  document.querySelectorAll('.room-v2-card').forEach(el=>el.classList.remove('active-room'));
-  document.querySelectorAll('.room-v2-card').forEach(el=>{
-    if(el.getAttribute('onclick')?.includes(roomId)) el.classList.add('active-room');
-  });
 
-  // Show active room panel
-  document.getElementById('roomsV2Empty').style.display='none';
-  const active = document.getElementById('roomsV2Active');
-  active.style.display='flex';
+  // Switch views
+  document.getElementById('roomBrowserView').style.display  = 'none';
+  document.getElementById('roomInteriorView').style.display = '';
 
-  // Get room data
+  // Get full room data
   const room = _roomsData.find(r=>r.id===roomId) || {};
-  const customData = room.custom_data ? (typeof room.custom_data==='string' ? JSON.parse(room.custom_data) : room.custom_data) : {};
+
+  // Header
+  document.getElementById('riRoomName').textContent = roomName;
+  document.getElementById('riRoomMeta').textContent = (isPublic?'🌐 Public':'🔒 Private');
+
+  // Owner controls
   const isOwner = room.owner_id === state.discordId;
+  document.getElementById('riEditBtn').style.display   = isOwner ? '' : 'none';
+  document.getElementById('riDeleteBtn').style.display = isOwner ? '' : 'none';
 
-  // Populate identity
-  const ownerAvatar = room.owner_avatar || `https://api.dicebear.com/7.x/pixel-art/svg?seed=${encodeURIComponent(room.owner_username||'u')}`;
-  document.getElementById('proomAvatar').src = ownerAvatar;
-  document.getElementById('proomUsername').textContent = roomName;
-  document.getElementById('proomTitleBadge').textContent = customData.titleBadge || '✦ Collector';
-  document.getElementById('proomBio').textContent = customData.bio || 'No bio set yet... ʚɞ';
-  document.getElementById('proomOwnerLabel').textContent = room.owner_username || 'Owner';
-  document.getElementById('proomVisLabel').textContent = isPublic ? '🌐 Public' : '🔒 Private';
-  document.getElementById('proomFavAnime').textContent = customData.favAnime || 'Not set';
-  document.getElementById('proomMusicLabel').textContent = customData.music || 'Not set';
-  document.getElementById('proomMusicTitle').textContent = customData.music || 'No music set';
-  document.getElementById('proomMusicArtist').textContent = customData.musicArtist || 'Set a song in room settings~';
+  // Wallpaper / theme
+  const wp = document.getElementById('riWallpaper');
+  if(wp){
+    if(room.banner_url) { wp.style.backgroundImage = `url('${room.banner_url}')`; wp.style.background = ''; }
+    else wp.style.background = room.theme_css || ROOM_THEMES[0].css;
+  }
 
-  // Banner gradient
-  const grad = customData.gradient || 'linear-gradient(135deg,rgba(224,96,138,0.4),rgba(192,132,184,0.4))';
-  document.getElementById('proomBannerGradient').style.background = grad;
-
-  // Stickers on banner
-  const stickers = customData.stickers || [];
-  const stickerPositions = [{top:'20%',left:'12%',rot:'-8deg'},{top:'35%',right:'10%',rot:'6deg'},{top:'55%',left:'60%',rot:'-4deg'}];
-  document.getElementById('proomBannerStickers').innerHTML = stickers.slice(0,3).map((s,i)=>{
-    const pos = stickerPositions[i] || {top:'30%',left:'40%',rot:'0deg'};
-    const style = Object.entries(pos).map(([k,v])=>k+':'+v).join(';');
-    return `<span class="proom-sticker" style="${style};--rot:${pos.rot||'0deg'};animation-delay:${i*0.8}s;">${s}</span>`;
-  }).join('');
-
-  // Furniture
-  const furniture = customData.furniture || [];
-  const furniturePositions = [
-    {bottom:'32px',left:'8%'},{bottom:'32px',left:'28%'},{bottom:'32px',left:'50%'},
-    {bottom:'32px',left:'68%'},{bottom:'32px',right:'6%'}
-  ];
-  document.getElementById('proomFurnitureLayer').innerHTML = furniture.slice(0,5).map((item,i)=>{
-    const pos = furniturePositions[i] || {bottom:'32px',left:'50%'};
-    const style = Object.entries(pos).map(([k,v])=>k+':'+v).join(';');
-    return `<div class="proom-furniture-item" style="${style};--idle-dur:${3+i}s;--rot:0deg;">${item}</div>`;
-  }).join('');
-
-  // Figurines — top 3 cards as figurines in room
-  const top3 = customData.top3 || [];
-  const cards = window.DEMO_CARDS||DEMO_CARDS||[];
-  const figPositions = [{bottom:'80px',right:'14%'},{bottom:'80px',right:'22%'},{bottom:'80px',right:'30%'}];
-  document.getElementById('proomFigurineLayer').innerHTML = top3.slice(0,3).map((cardId,i)=>{
-    const c = cards.find(x=>x.id===cardId);
-    if(!c) return '';
-    const pos = figPositions[i] || {bottom:'80px',right:'20%'};
-    const style = Object.entries(pos).map(([k,v])=>k+':'+v).join(';');
-    const imgSrc = c.thumbnail||c.image||'';
-    return `<div class="proom-figurine" style="${style};">
-      ${imgSrc ? `<img class="proom-figurine-card" src="${escapeHtml(imgSrc)}" alt="${escapeHtml(c.name)}" onerror="this.style.display='none'"/>` : `<div style="width:36px;height:50px;background:rgba(255,157,199,0.1);border-radius:5px;border:1.5px solid rgba(255,157,199,0.4);"></div>`}
-      <div class="proom-figurine-base"></div>
-    </div>`;
-  }).join('');
-
-  // Top 3 showcase
-  const top3Row = document.getElementById('proomTop3Row');
-  top3Row.innerHTML = [0,1,2].map(i => {
-    const cardId = top3[i];
-    const c = cardId ? cards.find(x=>x.id===cardId) : null;
-    const rankLabels = ['🥇','🥈','🥉'];
-    if(c) {
-      const imgSrc = c.thumbnail||c.image||'';
-      return `<div class="proom-top3-slot" onclick="">
-        <span class="proom-top3-rank">${rankLabels[i]}</span>
-        ${imgSrc ? `<img class="proom-top3-img" src="${escapeHtml(imgSrc)}" onerror="this.style.background='#1c0f26'" />` : `<div class="proom-top3-slot-empty">🃏</div>`}
-        <div class="proom-top3-name">${escapeHtml(c.name)}</div>
-      </div>`;
+  // Music
+  const musicBar = document.getElementById('riMusicBar');
+  if(room.music_url && musicBar){
+    musicBar.style.display = 'flex';
+    const ytMatch = room.music_url.match(/(?:v=|youtu\.be\/)([^&?/]+)/);
+    document.getElementById('riMusicTitle').textContent = ytMatch ? `YouTube — ${ytMatch[1]}` : room.music_url;
+    // Inject hidden YT iframe for audio
+    let ytAudio = document.getElementById('roomYTAudio');
+    if(!ytAudio){
+      ytAudio = document.createElement('iframe');
+      ytAudio.id = 'roomYTAudio';
+      ytAudio.style.cssText = 'display:none;width:0;height:0;position:absolute;';
+      ytAudio.allow = 'autoplay';
+      document.body.appendChild(ytAudio);
     }
-    return `<div class="proom-top3-slot"><div class="proom-top3-slot-empty">🃏</div><div class="proom-top3-name">—</div></div>`;
-  }).join('');
+    if(ytMatch) ytAudio.src = `https://www.youtube.com/embed/${ytMatch[1]}?autoplay=1&loop=1&playlist=${ytMatch[1]}&mute=0`;
+  } else if(musicBar){ musicBar.style.display='none'; }
+
+  // Owner strip
+  const av = room.owner_avatar || `https://api.dicebear.com/7.x/pixel-art/svg?seed=${encodeURIComponent(room.owner_username||'u')}`;
+  document.getElementById('riOwnerAvatar').src = av;
+  document.getElementById('riOwnerName').textContent = room.owner_username || 'Player';
+  document.getElementById('riOwnerBio').textContent  = room.bio || 'Welcome to my room~';
+
+  // Showcase cards (stored as array of card thumbnail URLs or card IDs)
+  const cards = room.showcase_cards || [];
+  for(let i=0;i<3;i++){
+    const slot = document.getElementById(`riCard-${i}`);
+    if(!slot) continue;
+    if(cards[i]){
+      slot.classList.remove('empty');
+      slot.innerHTML = `<img src="${escapeHtml(cards[i])}" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.innerHTML='<div class=ri-card-slot-ph>?</div>'"/>`;
+    } else {
+      slot.classList.add('empty');
+      slot.innerHTML = '<div class="ri-card-slot-ph">＋</div>';
+    }
+  }
 
   // Posters
-  const posters = customData.posters || [];
-  const posterGrid = document.getElementById('proomPosterGrid');
-  if(posters.length){
-    posterGrid.innerHTML = posters.slice(0,4).map(url=>`<img class="proom-poster" src="${escapeHtml(url)}" onerror="this.remove()" />`).join('');
-  } else {
-    posterGrid.innerHTML = '<div style="color:var(--text-dim);font-style:italic;font-size:0.82em;padding:6px 0;">No posters added yet ʚɞ</div>';
+  const posters = room.posters || [];
+  for(let i=0;i<2;i++){
+    const slot = document.getElementById(`riPoster-${i}`);
+    if(!slot) continue;
+    if(posters[i]){
+      slot.classList.remove('empty');
+      slot.innerHTML = `<img src="${escapeHtml(posters[i])}" onerror="this.parentElement.classList.add('empty');this.parentElement.innerHTML='<div class=ri-poster-ph>＋</div>'"/>`;
+    } else {
+      slot.classList.add('empty');
+      slot.innerHTML = '<div class="ri-poster-ph">＋</div>';
+    }
   }
 
-  // Show/hide owner actions
-  document.getElementById('proomCustomizeBtn').style.display = isOwner ? '' : 'none';
-  document.getElementById('proomDeleteBtn').style.display = isOwner ? '' : 'none';
+  // Stickers
+  const stickerWrap = document.getElementById('riStickers');
+  if(stickerWrap) stickerWrap.innerHTML = (room.stickers||[]).map(s=>`<span class="ri-sticker">${s}</span>`).join('') || '<span style="color:var(--text-dim);font-size:0.75em;font-style:italic;">No stickers yet~</span>';
 
-  // Switch to about tab
-  switchRoomTab('about', document.querySelector('.proom-tab'));
+  // Furniture
+  const furnRow = document.getElementById('riFurnitureRow');
+  if(furnRow){
+    const furn = room.furniture || [];
+    furnRow.innerHTML = '';
+    for(let i=0;i<4;i++){
+      const div = document.createElement('div');
+      div.className = 'ri-furniture-slot' + (furn[i]?'':' empty');
+      div.textContent = furn[i] || '＋';
+      furnRow.appendChild(div);
+    }
+  }
 
-  // Load room chat
-  const feed = document.getElementById('roomChatFeed');
-  feed.innerHTML = '<div style="text-align:center;color:var(--text-dim);font-style:italic;font-size:0.85em;padding:20px;">Loading...</div>';
-  try {
-    const msgs = await sb.get(ROOM_CHAT_TABLE, { room_id: roomId }, { order:'created_at.desc', limit:50 });
-    feed.innerHTML='';
-    (Array.isArray(msgs)?msgs:[]).reverse().forEach(m=>renderRoomChatMsg(m));
-    feed.scrollTop = feed.scrollHeight;
-  } catch(e) { feed.innerHTML='<div style="color:var(--text-dim);padding:20px;text-align:center;">Could not load chat</div>'; }
+  // Figurines
+  const figWrap = document.getElementById('riFigurines');
+  if(figWrap){
+    const figs = room.figurines || [];
+    figWrap.innerHTML = '';
+    for(let i=0;i<3;i++){
+      const div = document.createElement('div');
+      div.className = 'ri-figurine-slot' + (figs[i]?'':' empty');
+      div.textContent = figs[i] || '＋';
+      figWrap.appendChild(div);
+    }
+  }
 
-  // Subscribe realtime
-  if(_currentRoomChannel) { try { _currentRoomChannel.unsubscribe(); } catch(_){} }
-  const rt = getSupaRT();
-  _currentRoomChannel = rt.channel('room:'+roomId)
-    .on('postgres_changes',{event:'INSERT',schema:'public',table:ROOM_CHAT_TABLE,filter:`room_id=eq.${roomId}`},({new:msg})=>{
-      renderRoomChatMsg(msg);
-      const f=document.getElementById('roomChatFeed');
-      if(f) f.scrollTop=f.scrollHeight;
-    })
-    .subscribe();
+  // Default to Room tab
+  switchRoomTab('room', document.getElementById('ritab-room'));
+
+  // Load chat
+  await _loadRoomChat(roomId);
 }
 
+function switchRoomTab(tab, btn){
+  ['room','chat'].forEach(t=>{
+    document.getElementById('riTab-'+t).style.display = t===tab?'':'none';
+    document.getElementById('ritab-'+t)?.classList.toggle('active', t===tab);
+  });
+}
+
+async function _loadRoomChat(roomId){
+  const feed = document.getElementById('roomChatFeed');
+  if(!feed) return;
+  feed.innerHTML = '<div style="text-align:center;color:var(--text-dim);font-style:italic;font-size:0.85em;padding:20px;">Loading...</div>';
+  try {
+    const msgs = await sb.get(ROOM_CHAT_TABLE, { room_id:roomId }, { order:'created_at.desc', limit:50 });
+    feed.innerHTML = '';
+    (Array.isArray(msgs)?msgs:[]).reverse().forEach(m=>renderRoomChatMsg(m));
+    feed.scrollTop = feed.scrollHeight;
+  } catch(e){ feed.innerHTML='<div style="color:var(--text-dim);padding:20px;text-align:center;">Could not load chat</div>'; }
+
+  if(_currentRoomChannel){ try{_currentRoomChannel.unsubscribe();}catch(_){} }
+  try {
+    _currentRoomChannel = getSupaRT().channel('room:'+roomId)
+      .on('postgres_changes',{event:'INSERT',schema:'public',table:ROOM_CHAT_TABLE,filter:`room_id=eq.${roomId}`},({new:msg})=>{
+        renderRoomChatMsg(msg);
+        const f=document.getElementById('roomChatFeed');
+        if(f) f.scrollTop=f.scrollHeight;
+      }).subscribe();
+  } catch(_){}
+}
+
+function _cleanupRoom(){
+  if(_currentRoomChannel){ try{_currentRoomChannel.unsubscribe();}catch(_){} _currentRoomChannel=null; }
+  // Stop music
+  const ytAudio = document.getElementById('roomYTAudio');
+  if(ytAudio){ ytAudio.src=''; }
+}
+
+function leaveCurrentRoom(silent=false){
+  _cleanupRoom();
+  _currentRoomId = null;
+  document.getElementById('roomBrowserView').style.display  = '';
+  document.getElementById('roomInteriorView').style.display = 'none';
+  refreshRoomsList();
+  if(!silent) showToast('Left the room');
+}
+
+async function deleteCurrentRoom(){
+  if(!state.discordId||!_currentRoomId) return;
+  if(!confirm('Delete this room?')) return;
+  try {
+    await sb.delete(ROOM_TABLE, { id:_currentRoomId });
+    leaveCurrentRoom(true);
+    showToast('Room deleted');
+  } catch(e){ showToast('Could not delete: '+(e.message||'error')); }
+}
 // Room reply state
-let _roomReply=null;
+let _roomReply = null;
 function setRoomReply(id,username,excerpt){
   _roomReply={id,username,excerpt};
   const bar=document.getElementById('roomReplyBar');
@@ -16781,9 +16405,9 @@ async function submitRoomChat(){
 function leaveCurrentRoom(silent=false){
   _currentRoomId=null;
   if(_currentRoomChannel){ try{_currentRoomChannel.unsubscribe();}catch(_){} _currentRoomChannel=null; }
-  document.getElementById('roomsV2Empty').style.display='';
-  document.getElementById('roomsV2Active').style.display='none';
-  document.querySelectorAll('.room-v2-card').forEach(el=>el.classList.remove('active-room'));
+  document.getElementById('roomsChatEmpty').style.display='';
+  document.getElementById('roomsActiveChat').style.display='none';
+  document.querySelectorAll('.room-entry').forEach(el=>el.classList.remove('active-room'));
   if(!silent) showToast('Left the room');
 }
 
