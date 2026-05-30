@@ -3960,620 +3960,8 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 ══════════════════════════════════════════════════ */
 #page-social { padding: 0 !important; max-width: 100% !important; }
 
-.hub-zone { padding: 0 0 100px; max-width: 1200px; margin: 0 auto; }
-@media(max-width:700px){ .hub-zone { padding: 0 0 80px; } }
-
-/* ══════════════════════════════════════════════════════
-   ZONE BANNER SYSTEM — Immersive GIF headers per zone
-   ══════════════════════════════════════════════════════ */
-
-/* Shared zone-banner base */
-.zone-banner {
-  position: relative;
-  width: 100%;
-  overflow: hidden;
-  margin-bottom: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: flex-end;
-  flex-shrink: 0;
-}
-.zone-banner-gif {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center center;
-  pointer-events: none;
-  z-index: 0;
-  display: block;
-}
-.zone-banner-overlay {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  pointer-events: none;
-}
-.zone-banner-content {
-  position: relative;
-  z-index: 2;
-  padding: 20px 24px 18px;
-  width: 100%;
-}
-@media(max-width:700px){
-  .zone-banner-content { padding: 14px 14px 12px; }
-}
-@media(max-width:400px){
-  .zone-banner-content { padding: 10px 12px 10px; }
-}
-
-/* ── MEO HUB BANNER (map header) ── */
-.hub-zone-meohub-banner {
-  height: 200px;
-  border-radius: 0;
-  margin-bottom: 0;
-  justify-content: center;
-  align-items: center;
-}
-.hub-zone-meohub-banner .zone-banner-overlay {
-  background: linear-gradient(to bottom,
-    rgba(13,6,16,0.15) 0%,
-    rgba(13,6,16,0.35) 50%,
-    rgba(13,6,16,0.8) 85%,
-    var(--bg) 100%);
-}
-.hub-zone-meohub-banner .zone-banner-content {
-  text-align: center;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding-bottom: 0;
-}
-@media(max-width:700px){ .hub-zone-meohub-banner { height: 150px; } }
-@media(max-width:400px){ .hub-zone-meohub-banner { height: 120px; } }
-
-/* ── LOBBY BANNER ── Cherry blossom plaza vibes */
-.hub-zone-lobby-banner {
-  height: 200px;
-}
-.hub-zone-lobby-banner .zone-banner-overlay {
-  background: linear-gradient(
-    to bottom,
-    rgba(13,6,16,0.1) 0%,
-    rgba(20,10,35,0.35) 45%,
-    rgba(13,6,16,0.92) 100%
-  );
-}
-.zone-lobby-title {
-  font-family: 'Cinzel Decorative', serif;
-  font-size: clamp(1.1em, 5vw, 2em);
-  font-weight: 900;
-  background: linear-gradient(135deg, #ffd6ea, #ffadd5, #e0608a);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 2px 16px rgba(255,157,199,0.6));
-  margin-bottom: 3px;
-  line-height: 1.2;
-}
-.zone-lobby-sub {
-  font-style: italic;
-  font-size: clamp(0.72em, 2.5vw, 0.9em);
-  color: rgba(240,216,232,0.75);
-  font-family: 'Cormorant Garamond', serif;
-  line-height: 1.3;
-}
-.zone-banner-chips {
-  display: flex;
-  gap: 6px;
-  margin-top: 8px;
-  flex-wrap: wrap;
-}
-.zone-chip {
-  background: rgba(255,157,199,0.12);
-  border: 1px solid rgba(255,157,199,0.3);
-  border-radius: 20px;
-  padding: 3px 10px;
-  font-size: clamp(0.6em, 2vw, 0.72em);
-  color: var(--pink-pale);
-  font-family: 'JetBrains Mono', monospace;
-  backdrop-filter: blur(8px);
-  letter-spacing: 0.02em;
-  white-space: nowrap;
-}
-@media(max-width:700px){
-  .hub-zone-lobby-banner { height: 150px; }
-  .zone-banner-chips { margin-top: 5px; gap: 4px; }
-}
-@media(max-width:400px){
-  .hub-zone-lobby-banner { height: 120px; }
-  .zone-banner-chips { display: none; }
-}
-
-/* ── FOOD CORNER BANNER ── */
-.hub-zone-food-banner { height: 190px; }
-.hub-zone-food-banner .zone-banner-overlay {
-  background: linear-gradient(to bottom,
-    rgba(30,8,2,0.1) 0%,
-    rgba(30,8,2,0.45) 55%,
-    rgba(13,3,1,0.96) 100%);
-}
-.hub-zone-food-banner .zone-banner-overlay::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(ellipse at 30% 80%, rgba(255,100,30,0.12), transparent 60%);
-}
-.zone-food-title {
-  font-family: 'Cinzel Decorative', serif;
-  font-size: clamp(1.1em, 5vw, 2em);
-  font-weight: 900;
-  background: linear-gradient(135deg, #ffcc44, #ff8844, #ff4422);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 2px 14px rgba(255,120,30,0.7));
-  margin-bottom: 3px;
-  line-height: 1.2;
-}
-.zone-food-sub {
-  font-style: italic;
-  font-size: clamp(0.72em, 2.5vw, 0.88em);
-  color: rgba(255,220,180,0.75);
-  font-family: 'Cormorant Garamond', serif;
-}
-.zone-chip-food { background: rgba(255,120,30,0.12); border-color: rgba(255,120,30,0.35); color: #ffcc88; }
-@media(max-width:700px){ .hub-zone-food-banner { height: 150px; } }
-@media(max-width:400px){ .hub-zone-food-banner { height: 120px; } }
-
-/* ── ROOMS BANNER ── */
-.hub-zone-rooms-banner { height: 190px; }
-.hub-zone-rooms-banner .zone-banner-overlay {
-  background: linear-gradient(to bottom,
-    rgba(5,10,25,0.08) 0%,
-    rgba(10,15,35,0.45) 55%,
-    rgba(5,8,20,0.96) 100%);
-}
-.hub-zone-rooms-banner .zone-banner-overlay::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(ellipse at 70% 80%, rgba(100,200,255,0.07), transparent 55%);
-}
-.zone-rooms-title {
-  font-family: 'Cinzel Decorative', serif;
-  font-size: clamp(1.1em, 5vw, 2em);
-  font-weight: 900;
-  background: linear-gradient(135deg, #b8e0ff, #7ab8f5, #4a90d9);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 2px 14px rgba(100,180,255,0.5));
-  margin-bottom: 3px;
-  line-height: 1.2;
-}
-.zone-rooms-sub {
-  font-style: italic;
-  font-size: clamp(0.72em, 2.5vw, 0.88em);
-  color: rgba(180,220,255,0.7);
-  font-family: 'Cormorant Garamond', serif;
-}
-.zone-chip-rooms { background: rgba(100,180,255,0.1); border-color: rgba(100,180,255,0.3); color: #aad4ff; }
-@media(max-width:700px){ .hub-zone-rooms-banner { height: 150px; } }
-@media(max-width:400px){ .hub-zone-rooms-banner { height: 120px; } }
-
-/* ── CINEMA BANNER ── */
-.hub-zone-cinema-banner { height: 210px; }
-.hub-zone-cinema-banner .zone-banner-overlay {
-  background: linear-gradient(to bottom,
-    rgba(5,2,12,0.05) 0%,
-    rgba(5,2,12,0.4) 55%,
-    rgba(5,2,12,0.97) 100%);
-}
-.hub-zone-cinema-banner .zone-banner-overlay::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(ellipse at 50% 100%, rgba(180,60,0,0.15), transparent 60%);
-}
-.zone-cinema-title {
-  font-family: 'Cinzel Decorative', serif;
-  font-size: clamp(1.1em, 5vw, 2em);
-  font-weight: 900;
-  background: linear-gradient(135deg, #fff7aa, #f1c40f, #e67e22);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 2px 14px rgba(241,196,15,0.6));
-  margin-bottom: 3px;
-  line-height: 1.2;
-}
-.zone-cinema-sub {
-  font-style: italic;
-  font-size: clamp(0.72em, 2.5vw, 0.88em);
-  color: rgba(255,240,180,0.7);
-  font-family: 'Cormorant Garamond', serif;
-}
-.zone-chip-cinema { background: rgba(241,196,15,0.1); border-color: rgba(241,196,15,0.3); color: #f1d85f; }
-/* Cinema marquee ticker */
-.cinema-banner-ticker {
-  position: absolute;
-  bottom: 0; left: 0; right: 0;
-  z-index: 3;
-  background: rgba(0,0,0,0.55);
-  border-top: 1px solid rgba(241,196,15,0.18);
-  padding: 4px 0;
-  overflow: hidden;
-  white-space: nowrap;
-}
-.cinema-banner-ticker-inner {
-  display: inline-block;
-  animation: tickerScroll 30s linear infinite;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.65em;
-  color: #f1c40f;
-  letter-spacing: 0.04em;
-  padding-left: 100%;
-}
-@keyframes tickerScroll { 0%{transform:translateX(0);} 100%{transform:translateX(-100%);} }
-.cinema-banner-lights {
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  z-index: 3;
-  display: flex;
-  justify-content: space-around;
-  padding: 5px 16px;
-  background: rgba(0,0,0,0.35);
-}
-.cinema-banner-lights span {
-  width: 7px; height: 7px;
-  border-radius: 50%;
-  background: #f1c40f;
-  box-shadow: 0 0 6px #f1c40f;
-  animation: marqueeFlicker 1.5s ease-in-out infinite;
-  flex-shrink: 0;
-}
-.cinema-banner-lights span:nth-child(2n) { animation-delay: 0.3s; }
-.cinema-banner-lights span:nth-child(3n) { animation-delay: 0.6s; }
-.cinema-banner-lights span:nth-child(4n) { animation-delay: 0.9s; }
-@media(max-width:700px){ .hub-zone-cinema-banner { height: 155px; } }
-@media(max-width:400px){ .hub-zone-cinema-banner { height: 125px; } }
-
-/* ── ARCADE BANNER ── */
-.hub-zone-arcade-banner { height: 210px; }
-.hub-zone-arcade-banner .zone-banner-overlay {
-  background: linear-gradient(to bottom,
-    rgba(2,0,8,0.05) 0%,
-    rgba(2,0,8,0.4) 50%,
-    rgba(2,0,8,0.97) 100%);
-}
-.hub-zone-arcade-banner .zone-banner-overlay::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(ellipse at 20% 80%, rgba(255,0,200,0.1), transparent 40%),
-    radial-gradient(ellipse at 80% 80%, rgba(0,200,255,0.1), transparent 40%);
-}
-.zone-arcade-title {
-  font-family: 'Cinzel Decorative', serif;
-  font-size: clamp(1.1em, 5vw, 2em);
-  font-weight: 900;
-  background: linear-gradient(90deg, #ff00cc, #aa00ff, #0088ff, #00ffcc);
-  background-size: 200%;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  animation: arcadeTitleShift 3s linear infinite;
-  filter: drop-shadow(0 0 18px rgba(200,0,255,0.5));
-  margin-bottom: 3px;
-  line-height: 1.2;
-}
-@keyframes arcadeTitleShift { 0%{background-position:0%;} 100%{background-position:200%;} }
-.zone-arcade-sub {
-  font-style: italic;
-  font-size: clamp(0.72em, 2.5vw, 0.88em);
-  color: rgba(200,180,255,0.7);
-  font-family: 'Cormorant Garamond', serif;
-}
-.zone-chip-arcade { background: rgba(200,0,255,0.1); border-color: rgba(200,0,255,0.3); color: #dd88ff; }
-.zone-chip-arcade-b { background: rgba(0,200,255,0.1); border-color: rgba(0,200,255,0.3); color: #88ddff; }
-/* Arcade scanlines */
-.arcade-banner-scanlines {
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-  pointer-events: none;
-  background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.06) 3px, rgba(0,0,0,0.06) 4px);
-}
-.hub-zone-arcade-banner::after {
-  content: '';
-  position: absolute;
-  bottom: 0; left: 0; right: 0;
-  height: 2px;
-  background: linear-gradient(90deg, #ff00cc, #aa00ff, #0088ff, #00ffcc, #ff00cc);
-  background-size: 200%;
-  animation: arcadeTitleShift 2s linear infinite;
-  z-index: 3;
-}
-@media(max-width:700px){ .hub-zone-arcade-banner { height: 155px; } }
-@media(max-width:400px){ .hub-zone-arcade-banner { height: 125px; } }
-
-
-/* ════════════════════════════════════════════════════
-   PER-ZONE AMBIENT PARTICLE EFFECTS
-   ════════════════════════════════════════════════════ */
-
-/* --- SHARED particle canvas layer --- */
-.zone-particles {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 3;
-  overflow: hidden;
-}
-
-/* ─ LOBBY: Floating sakura petals ─ */
-.lobby-petal {
-  position: absolute;
-  pointer-events: none;
-  width: clamp(6px,1.5vw,12px);
-  height: clamp(6px,1.5vw,12px);
-  border-radius: 50% 0 50% 0;
-  opacity: 0;
-  will-change: transform, opacity;
-  animation-timing-function: ease-in-out;
-  animation-fill-mode: forwards;
-}
-@keyframes lobbyPetalFall {
-  0%  { transform: translate(0,-20px) rotate(0deg);   opacity: 0; }
-  8%  { opacity: 0.75; }
-  50% { transform: translate(var(--dx,20px),45vh) rotate(180deg); opacity: 0.7; }
-  100%{ transform: translate(var(--dx2,-10px),105vh) rotate(360deg); opacity: 0; }
-}
-
-/* ─ FOOD: Rising steam wisps ─ */
-.food-steam {
-  position: absolute;
-  bottom: 0;
-  width: clamp(4px,1vw,8px);
-  border-radius: 50%;
-  background: rgba(255,200,150,0.15);
-  filter: blur(4px);
-  opacity: 0;
-  animation: steamRise var(--dur,4s) ease-out infinite;
-  animation-delay: var(--delay,0s);
-}
-@keyframes steamRise {
-  0%  { transform: translateY(0) scaleX(1);    opacity: 0; }
-  20% { opacity: 0.55; }
-  60% { transform: translateY(-40vh) scaleX(1.6); opacity: 0.3; }
-  100%{ transform: translateY(-80vh) scaleX(2.2); opacity: 0; }
-}
-
-/* ─ ROOMS: Soft dust/sparkle floats ─ */
-.rooms-sparkle {
-  position: absolute;
-  width: clamp(2px,0.6vw,5px);
-  height: clamp(2px,0.6vw,5px);
-  border-radius: 50%;
-  background: rgba(120,200,255,0.6);
-  box-shadow: 0 0 4px rgba(120,200,255,0.4);
-  opacity: 0;
-  animation: sparkleFloat var(--dur,6s) ease-in-out infinite;
-  animation-delay: var(--delay,0s);
-}
-@keyframes sparkleFloat {
-  0%  { transform: translate(0,0) scale(0.5);  opacity: 0; }
-  20% { opacity: 0.7; }
-  50% { transform: translate(var(--tx,10px),var(--ty,-30px)) scale(1); opacity: 0.5; }
-  100%{ transform: translate(var(--tx2,-5px),var(--ty2,-70px)) scale(0.3); opacity: 0; }
-}
-
-/* ─ CINEMA: Film grain + floating stars ─ */
-.cinema-star-float {
-  position: absolute;
-  width: clamp(2px,0.5vw,4px);
-  height: clamp(2px,0.5vw,4px);
-  border-radius: 50%;
-  background: rgba(241,196,15,0.8);
-  box-shadow: 0 0 4px rgba(241,196,15,0.5);
-  opacity: 0;
-  animation: cinemaStarDrift var(--dur,5s) ease-in-out infinite;
-  animation-delay: var(--delay,0s);
-}
-@keyframes cinemaStarDrift {
-  0%  { transform: translate(0,0) scale(0.4); opacity: 0; }
-  25% { opacity: 0.9; }
-  75% { transform: translate(var(--tx,15px),var(--ty,-50px)) scale(1); opacity: 0.4; }
-  100%{ transform: translate(var(--tx2,-8px),var(--ty2,-100px)) scale(0.2); opacity: 0; }
-}
-
-/* ─ ARCADE: Neon floating pixels ─ */
-.arcade-pixel {
-  position: absolute;
-  width: clamp(3px,0.8vw,6px);
-  height: clamp(3px,0.8vw,6px);
-  border-radius: 1px;
-  opacity: 0;
-  animation: arcadePixelBurst var(--dur,3s) ease-out infinite;
-  animation-delay: var(--delay,0s);
-}
-@keyframes arcadePixelBurst {
-  0%  { transform: translate(0,0) scale(1);   opacity: 0; }
-  10% { opacity: 1; }
-  60% { transform: translate(var(--tx,20px),var(--ty,-60px)) scale(0.5); opacity: 0.6; }
-  100%{ transform: translate(var(--tx2,30px),var(--ty2,-120px)) scale(0); opacity: 0; }
-}
-
-
-/* ══ LOBBY INTERIOR ══ */
-#hubZone-lobby {
-  background:
-    radial-gradient(ellipse at 20% 0%, rgba(255,157,199,0.04) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 100%, rgba(192,132,184,0.04) 0%, transparent 50%);
-}
-.lobby-layout-inner {
-  padding: 16px 16px 0;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-@media(max-width:700px){ .lobby-layout-inner { padding: 12px 10px 0; } }
-#hubZone-lobby .lobby-layout {
-  height: auto;
-  min-height: 400px;
-}
-@media(max-width:900px){ #hubZone-lobby .lobby-layout { grid-template-columns: 1fr; } }
-#hubZone-lobby .lobby-chat-card {
-  border: 1px solid rgba(255,157,199,0.22);
-  background: linear-gradient(135deg, rgba(255,157,199,0.05) 0%, rgba(192,132,184,0.03) 100%);
-  box-shadow: 0 4px 40px rgba(255,157,199,0.06), inset 0 1px 0 rgba(255,157,199,0.1);
-}
-.lobby-decor-strip {
-  height: 2px;
-  background: linear-gradient(90deg, transparent, var(--pink), var(--purple), var(--pink), transparent);
-  border-radius: 2px;
-  opacity: 0.5;
-  flex-shrink: 0;
-}
-
-/* ══ FOOD INTERIOR ══ */
-#hubZone-food {
-  background:
-    radial-gradient(ellipse at 10% 20%, rgba(255,80,20,0.025) 0%, transparent 50%),
-    radial-gradient(ellipse at 90% 60%, rgba(180,60,0,0.025) 0%, transparent 50%);
-}
-#hubZone-food .food-shop-tabs {
-  padding: 12px 16px 0;
-  border-bottom: 1px solid rgba(255,100,30,0.1);
-  margin-bottom: 0;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-}
-@media(max-width:700px){ #hubZone-food .food-shop-tabs { padding: 10px 12px 0; } }
-#hubZone-food .food-shop-content { padding: 16px 16px 0; }
-@media(max-width:700px){ #hubZone-food .food-shop-content { padding: 12px 10px 0; } }
-.food-banner-maid {
-  background: linear-gradient(135deg, rgba(255,157,199,0.18) 0%, rgba(192,132,184,0.1) 100%) !important;
-  border: 1px solid rgba(255,157,199,0.3) !important;
-  position: relative; overflow: hidden;
-}
-.food-banner-maid::after { content:'🎀'; position:absolute; right:16px; top:50%; transform:translateY(-50%); font-size:2.5em; opacity:0.12; pointer-events:none; }
-.food-banner-ichiraku {
-  background: linear-gradient(135deg, rgba(255,140,30,0.15) 0%, rgba(180,90,0,0.08) 100%) !important;
-  border: 1px solid rgba(241,160,15,0.28) !important;
-  position: relative; overflow: hidden;
-}
-.food-banner-ichiraku::after { content:'🍜'; position:absolute; right:16px; top:50%; transform:translateY(-50%); font-size:2.5em; opacity:0.12; pointer-events:none; }
-.food-banner-anteiku {
-  background: linear-gradient(135deg, rgba(30,20,10,0.5) 0%, rgba(60,40,20,0.3) 100%) !important;
-  border: 1px solid rgba(120,80,40,0.3) !important;
-  position: relative; overflow: hidden;
-}
-.food-banner-anteiku::after { content:'☕'; position:absolute; right:16px; top:50%; transform:translateY(-50%); font-size:2.5em; opacity:0.12; pointer-events:none; }
-.food-banner-baratie {
-  background: linear-gradient(135deg, rgba(180,30,20,0.15) 0%, rgba(100,10,5,0.1) 100%) !important;
-  border: 1px solid rgba(220,60,40,0.28) !important;
-  position: relative; overflow: hidden;
-}
-.food-banner-baratie::after { content:'⚓'; position:absolute; right:16px; top:50%; transform:translateY(-50%); font-size:2.5em; opacity:0.12; pointer-events:none; }
-
-/* ══ ROOMS INTERIOR ══ */
-#hubZone-rooms {
-  background:
-    radial-gradient(ellipse at 15% 30%, rgba(100,180,255,0.025) 0%, transparent 50%),
-    radial-gradient(ellipse at 85% 70%, rgba(60,120,200,0.025) 0%, transparent 50%);
-}
-.rooms-layout-inner { padding: 16px 16px 0; max-width: 1200px; margin: 0 auto; }
-@media(max-width:700px){ .rooms-layout-inner { padding: 12px 10px 0; } }
-#hubZone-rooms .rooms-layout { height: auto; min-height: 400px; }
-@media(max-width:900px){ #hubZone-rooms .rooms-layout { grid-template-columns: 1fr; } }
-#hubZone-rooms .rooms-browser-col {
-  border: 1px solid rgba(100,180,255,0.18);
-  background: rgba(10,20,40,0.4);
-}
-#hubZone-rooms .rooms-browser-header {
-  border-bottom: 1px solid rgba(100,180,255,0.15);
-  background: rgba(10,15,30,0.5);
-}
-#hubZone-rooms .rooms-browser-title { color: #aad4ff; }
-#hubZone-rooms .rooms-create-btn {
-  background: linear-gradient(135deg, rgba(60,140,255,0.2), rgba(40,100,200,0.12));
-  border: 1px solid rgba(100,180,255,0.3);
-  color: #aad4ff;
-}
-#hubZone-rooms .rooms-create-btn:hover {
-  background: linear-gradient(135deg, rgba(80,160,255,0.3), rgba(60,120,220,0.2));
-  border-color: rgba(140,200,255,0.45);
-}
-
-/* ══ CINEMA INTERIOR ══ */
-#hubZone-cinema { background: #050208; }
-.cinema-layout-inner { padding: 16px 16px 0; max-width: 1200px; margin: 0 auto; }
-@media(max-width:700px){ .cinema-layout-inner { padding: 12px 10px 0; } }
-#hubZone-cinema .cinema-room {
-  border: 1px solid rgba(241,196,15,0.2);
-  box-shadow: 0 0 0 1px rgba(241,196,15,0.05), 0 8px 60px rgba(0,0,0,0.6), inset 0 0 80px rgba(0,0,0,0.4);
-}
-#hubZone-cinema .cinema-screen-wrap {
-  background: linear-gradient(to bottom, #08040f, #030108);
-  padding: 14px 24px;
-}
-@media(max-width:700px){ #hubZone-cinema .cinema-screen-wrap { padding: 10px 12px; } }
-#hubZone-cinema .cinema-curtain-left {
-  background: linear-gradient(to right, rgba(140,10,40,0.88), rgba(80,5,20,0.4), transparent);
-  width: 18px;
-}
-#hubZone-cinema .cinema-curtain-right {
-  background: linear-gradient(to left, rgba(140,10,40,0.88), rgba(80,5,20,0.4), transparent);
-  width: 18px;
-}
-
-/* ══ ARCADE INTERIOR ══ */
-#hubZone-arcade { background: #020008; position: relative; }
-#hubZone-arcade::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 1;
-  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.04) 2px, rgba(0,0,0,0.04) 3px);
-}
-#hubZone-arcade > * { position: relative; z-index: 2; }
-.arcade-layout-inner { padding: 16px 16px 0; max-width: 1200px; margin: 0 auto; }
-@media(max-width:700px){ .arcade-layout-inner { padding: 12px 10px 0; } }
-#hubZone-arcade .arcade-game-card {
-  background: rgba(5,0,15,0.8);
-  border: 1px solid rgba(200,0,255,0.2);
-  box-shadow: 0 0 0 1px rgba(200,0,255,0.04), inset 0 0 20px rgba(0,0,0,0.5);
-  transition: all 0.3s;
-}
-#hubZone-arcade .arcade-game-card:nth-child(2n) {
-  border-color: rgba(0,200,255,0.2);
-  box-shadow: 0 0 0 1px rgba(0,200,255,0.04), inset 0 0 20px rgba(0,0,0,0.5);
-}
-#hubZone-arcade .arcade-game-card:hover {
-  border-color: rgba(255,0,200,0.5);
-  box-shadow: 0 0 30px rgba(255,0,200,0.14), 0 0 0 1px rgba(255,0,200,0.1);
-  transform: translateY(-6px) scale(1.02);
-}
-#hubZone-arcade .arcade-game-card:nth-child(2n):hover {
-  border-color: rgba(0,200,255,0.5);
-  box-shadow: 0 0 30px rgba(0,200,255,0.14), 0 0 0 1px rgba(0,200,255,0.1);
-}
-#hubZone-arcade .arcade-hero-wallet {
-  background: rgba(241,196,15,0.06);
-  border: 1px solid rgba(241,196,15,0.22);
-  box-shadow: 0 0 20px rgba(241,196,15,0.08);
-}
-
-/* ══ BREADCRUMB ══ */
-#hubBreadcrumb {
-  margin: 0;
-  padding: 9px 16px;
-  background: rgba(13,6,16,0.7);
-  backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--border);
-  -webkit-backdrop-filter: blur(12px);
-}
-@media(max-width:700px){ #hubBreadcrumb { padding: 8px 12px; } }
+.hub-zone { padding: 20px 24px 100px; max-width: 1200px; margin: 0 auto; }
+@media(max-width:700px){ .hub-zone { padding: 14px 12px 100px; } }
 
 /* ── Hub Hero ── */
 .hub-hero {
@@ -4726,39 +4114,37 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .hmap-cloud-3 { width: 160px; top: 16%; left: -15%; animation: cloudDrift 22s linear infinite 14s; opacity: 0.4; }
 @keyframes cloudDrift { from { transform: translateX(0); } to { transform: translateX(130vw); } }
 
-/* Title — now inside GIF banner overlay */
-.hmap-title-wrap { position: relative; z-index: 2; text-align: center; display: flex; flex-direction: column; align-items: center; }
+/* Title */
+.hmap-title-wrap { position: relative; z-index: 2; text-align: center; }
 .hmap-title {
   font-family: 'Cinzel Decorative', serif;
-  font-size: clamp(1.5em, 6vw, 2.8em);
+  font-size: clamp(1.8em, 6vw, 3em);
   font-weight: 900;
   background: linear-gradient(135deg, #ffd6ea, #ff9dc7, #c084b8, #ff9dc7, #ffd6ea);
   background-size: 300%;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   animation: pinkShift 8s linear infinite;
-  filter: drop-shadow(0 0 24px rgba(255,157,199,0.6));
-  margin-bottom: 5px;
-  line-height: 1.2;
+  filter: drop-shadow(0 0 24px rgba(255,157,199,0.5));
+  margin-bottom: 6px;
 }
 .hmap-subtitle {
   font-style: italic;
-  color: rgba(255,220,235,0.75);
-  font-size: clamp(0.75em, 2.5vw, 0.9em);
+  color: rgba(255,157,199,0.6);
+  font-size: 0.9em;
   margin-bottom: 10px;
 }
 .hmap-online-pill {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: rgba(255,157,199,0.12);
-  border: 1px solid rgba(255,157,199,0.28);
+  background: rgba(255,157,199,0.08);
+  border: 1px solid rgba(255,157,199,0.2);
   border-radius: 20px;
   padding: 4px 14px;
-  font-size: clamp(0.68em, 2vw, 0.78em);
-  color: rgba(255,200,220,0.85);
+  font-size: 0.78em;
+  color: rgba(255,157,199,0.7);
   font-family: 'JetBrains Mono', monospace;
-  backdrop-filter: blur(6px);
 }
 
 /* ── Town strip ── */
@@ -5108,11 +4494,11 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .lobby-layout {
   display: grid;
   grid-template-columns: 1fr 300px;
-  gap: 16px;
-  height: calc(100vh - 340px);
-  min-height: 450px;
+  gap: 20px;
+  height: calc(100vh - 300px);
+  min-height: 500px;
 }
-@media(max-width:900px){ .lobby-layout { grid-template-columns: 1fr; height: auto; min-height: 0; gap: 12px; } }
+@media(max-width:900px){ .lobby-layout { grid-template-columns: 1fr; height: auto; } }
 .lobby-chat-col { display: flex; flex-direction: column; min-height: 0; }
 .lobby-chat-card {
   background: linear-gradient(135deg, rgba(255,157,199,0.04), rgba(192,132,184,0.04));
@@ -5121,10 +4507,9 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   display: flex;
   flex-direction: column;
   height: 100%;
-  min-height: 420px;
+  min-height: 500px;
   overflow: hidden;
 }
-@media(max-width:700px){ .lobby-chat-card { min-height: 380px; border-radius: 14px; } }
 .lobby-chat-header {
   display: flex;
   align-items: center;
@@ -5261,12 +4646,12 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 /* ══ PLAYER ROOMS ══ */
 .rooms-layout {
   display: grid;
-  grid-template-columns: 300px 1fr;
-  gap: 16px;
-  height: calc(100vh - 340px);
-  min-height: 420px;
+  grid-template-columns: 320px 1fr;
+  gap: 20px;
+  height: calc(100vh - 300px);
+  min-height: 500px;
 }
-@media(max-width:900px){ .rooms-layout { grid-template-columns: 1fr; height: auto; min-height: 0; gap: 12px; } }
+@media(max-width:900px){ .rooms-layout { grid-template-columns: 1fr; height: auto; } }
 .rooms-browser-col {
   background: rgba(255,157,199,0.04);
   border: 1px solid var(--border);
@@ -5411,7 +4796,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
-  margin-bottom: 16px;
+  margin-bottom: 20px;
   padding: 2px 0 6px;
 }
 .food-shop-tabs::-webkit-scrollbar { display: none; }
@@ -5422,12 +4807,12 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   background: rgba(255,255,255,0.04);
   border: 1px solid var(--border);
   border-radius: 20px;
-  padding: 7px 14px;
+  padding: 8px 18px;
   cursor: pointer;
   transition: all 0.2s;
   color: var(--text-dim);
   font-family: 'Cormorant Garamond', serif;
-  font-size: clamp(0.78em, 3vw, 0.88em);
+  font-size: 0.88em;
   white-space: nowrap;
   flex-shrink: 0;
 }
@@ -5439,9 +4824,9 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   font-weight: 600;
 }
 .food-shop-banner {
-  border-radius: 14px;
-  padding: 18px 16px;
-  margin-bottom: 16px;
+  border-radius: 16px;
+  padding: 22px 24px;
+  margin-bottom: 20px;
   position: relative;
   overflow: hidden;
 }
@@ -5520,11 +4905,11 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 /* ══ CINEMA ══ */
 .cinema-layout {
   display: grid;
-  grid-template-columns: 1fr 290px;
-  gap: 16px;
+  grid-template-columns: 1fr 300px;
+  gap: 20px;
   align-items: start;
 }
-@media(max-width:900px){ .cinema-layout { grid-template-columns: 1fr; gap: 12px; } }
+@media(max-width:900px){ .cinema-layout { grid-template-columns: 1fr; } }
 .cinema-room {
   background: #050208;
   border: 1px solid rgba(255,157,199,0.15);
@@ -5749,16 +5134,15 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 }
 .arcade-games-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(260px, 100%), 1fr));
-  gap: 14px;
-  margin-bottom: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
 }
-@media(max-width:500px){ .arcade-games-grid { grid-template-columns: 1fr; } }
 .arcade-game-card {
   background: linear-gradient(135deg, rgba(255,157,199,0.06), rgba(192,132,184,0.04));
   border: 1px solid var(--border);
-  border-radius: 18px;
-  padding: 20px 16px;
+  border-radius: 20px;
+  padding: 24px 20px;
   cursor: pointer;
   transition: all 0.25s;
   text-align: center;
@@ -5940,6 +5324,240 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   color: #f1c40f;
   pointer-events: none;
 }
+
+/* ══════════════════════════════════════════════════
+   ZONE BANNERS — shared + per-zone
+══════════════════════════════════════════════════ */
+.zone-banner {
+  position: relative;
+  overflow: hidden;
+  height: clamp(140px, 28vw, 220px);
+  display: flex;
+  align-items: flex-end;
+  margin-bottom: 0;
+}
+.zone-banner-gif {
+  position: absolute;
+  inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  z-index: 0;
+  pointer-events: none;
+}
+.zone-banner-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(13,6,16,0.25) 0%, rgba(8,2,12,0.88) 100%);
+  z-index: 1;
+}
+.zone-banner-content {
+  position: relative;
+  z-index: 2;
+  padding: 18px 22px;
+  width: 100%;
+}
+.zone-banner-title {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: clamp(1.1em, 4vw, 1.8em);
+  font-weight: 900;
+  color: #fff;
+  text-shadow: 0 2px 16px rgba(0,0,0,0.9), 0 0 30px rgba(255,157,199,0.4);
+  margin-bottom: 4px;
+  line-height: 1.2;
+}
+.zone-banner-sub {
+  font-size: clamp(0.72em, 2vw, 0.9em);
+  color: rgba(255,255,255,0.65);
+  font-style: italic;
+}
+/* Floating petals/deco in banners */
+.zone-petal {
+  position: absolute;
+  z-index: 2;
+  font-size: clamp(1em, 2.5vw, 1.5em);
+  opacity: 0.55;
+  pointer-events: none;
+  animation: decoDrift 4s ease-in-out infinite;
+}
+.zone-petal-1 { top: 14px; right: 8%;  animation-delay: 0s; }
+.zone-petal-2 { top: 30px; right: 22%; animation-delay: 1.2s; }
+.zone-petal-3 { top: 18px; right: 38%; animation-delay: 2.4s; }
+
+/* Per-banner accent borders */
+.zone-banner-lobby  { border-bottom: 2px solid rgba(155,89,182,0.4); }
+.zone-banner-rooms  { border-bottom: 2px solid rgba(39,174,96,0.4); }
+.zone-banner-food   { border-bottom: 2px solid rgba(231,76,60,0.4); }
+.zone-banner-cinema { border-bottom: 2px solid rgba(241,196,15,0.4); }
+.zone-banner-arcade { border-bottom: 2px solid rgba(41,128,185,0.4); }
+.zone-banner-trades { border-bottom: 2px solid rgba(212,172,13,0.35); min-height:100px; background:linear-gradient(135deg,#1a1400,#0a0900); }
+.zone-banner-lb     { border-bottom: 2px solid rgba(231,76,60,0.35); min-height:100px; background:linear-gradient(135deg,#1a0204,#0a0102); }
+
+/* Live badge on cinema banner */
+.zone-cinema-live {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(231,76,60,0.2);
+  border: 1px solid rgba(231,76,60,0.5);
+  border-radius: 20px;
+  padding: 3px 12px;
+  font-size: 0.72em;
+  font-family: 'JetBrains Mono', monospace;
+  color: #e74c3c;
+  margin-top: 8px;
+  animation: pulseDot 1.5s ease-in-out infinite;
+}
+
+/* Arcade wallet in banner */
+.arcade-banner-wallet {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(241,196,15,0.1);
+  border: 1px solid rgba(241,196,15,0.25);
+  border-radius: 20px;
+  padding: 4px 14px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.88em;
+  color: #f1c40f;
+  margin-top: 8px;
+}
+
+/* Hub zone — remove top padding since banner does it */
+.hub-zone { padding: 0 0 100px; max-width: 100%; }
+.hub-zone > *:not(.zone-banner) { padding-left: 20px; padding-right: 20px; }
+.hub-zone > .lobby-layout,
+.hub-zone > .rooms-layout,
+.hub-zone > .cinema-layout { padding-left: 20px; padding-right: 20px; }
+@media(max-width:700px){
+  .hub-zone > *:not(.zone-banner) { padding-left: 12px; padding-right: 12px; }
+  .hub-zone > .lobby-layout,
+  .hub-zone > .rooms-layout,
+  .hub-zone > .cinema-layout { padding-left: 12px; padding-right: 12px; }
+}
+
+/* Lobby layout spacing fix */
+.lobby-layout { margin-top: 16px; }
+.rooms-layout { margin-top: 16px; }
+.cinema-layout { padding-top: 16px; }
+
+/* ══ FOOD CORNER redesign ══ */
+.food-shop-tabs {
+  margin-top: 16px;
+  padding: 0 20px 10px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 16px;
+}
+@media(max-width:700px){ .food-shop-tabs { padding: 0 12px 10px; } }
+
+/* Food shop banner upgrade */
+.food-shop-banner {
+  border-radius: 16px;
+  padding: 20px 22px;
+  margin-bottom: 18px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.fsb-deco {
+  font-size: 1.4em;
+  margin-bottom: 6px;
+  letter-spacing: 0.2em;
+  opacity: 0.8;
+}
+.fsb-title {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: clamp(0.85em, 2.5vw, 1.1em);
+  color: var(--text);
+  margin-bottom: 4px;
+}
+.fsb-sub {
+  color: var(--text-dim);
+  font-style: italic;
+  font-size: clamp(0.75em, 2vw, 0.88em);
+}
+
+/* Maid café — soft pink */
+.food-banner-maid {
+  background: linear-gradient(135deg,rgba(255,157,199,0.12),rgba(192,132,184,0.08));
+  border: 1px solid rgba(255,157,199,0.25);
+}
+.food-banner-maid .fsb-title { color: var(--pink-pale); }
+
+/* Ichiraku — warm amber */
+.food-banner-ichiraku {
+  background: linear-gradient(135deg,rgba(241,196,15,0.1),rgba(230,126,34,0.07));
+  border: 1px solid rgba(241,196,15,0.2);
+}
+.food-banner-ichiraku .fsb-title { color: #f39c12; }
+
+/* Anteiku — deep slate */
+.food-banner-anteiku {
+  background: linear-gradient(135deg,rgba(44,62,80,0.4),rgba(30,40,50,0.3));
+  border: 1px solid rgba(52,73,94,0.5);
+}
+.food-banner-anteiku .fsb-title { color: #aab7c4; }
+
+/* Baratie — ocean red */
+.food-banner-baratie {
+  background: linear-gradient(135deg,rgba(231,76,60,0.1),rgba(41,128,185,0.07));
+  border: 1px solid rgba(231,76,60,0.2);
+}
+.food-banner-baratie .fsb-title { color: #e74c3c; }
+
+/* Food item cards — tighter on mobile */
+@media(max-width:480px){
+  .food-items-grid { grid-template-columns: 1fr 1fr !important; }
+  .food-item-card { padding: 12px 10px; }
+  .food-item-emoji { font-size: 1.8em; }
+  .food-item-name { font-size: 0.7em; }
+  .food-item-desc { font-size: 0.72em; }
+}
+
+/* ══ ARCADE neon card border ══ */
+.arcade-game-card { position: relative; }
+.agc-neon-border {
+  position: absolute;
+  inset: 0;
+  border-radius: 20px;
+  border: 1px solid var(--neon, var(--pink));
+  opacity: 0;
+  transition: opacity 0.25s;
+  box-shadow: inset 0 0 20px rgba(0,0,0,0), 0 0 12px var(--neon, var(--pink));
+  pointer-events: none;
+}
+.arcade-game-card:hover .agc-neon-border { opacity: 0.6; }
+
+/* Hub zone padding for trades/lb content */
+#hubZone-trades .section-title,
+#hubZone-leaderboard .section-title { padding-top: 16px; }
+
+/* hmap sky gif layer */
+.hmap-sky { position: relative; }
+.hmap-sky-gif {
+  position: absolute;
+  inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  object-position: center;
+  z-index: 0;
+  opacity: 0.35;
+}
+.hmap-sky-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(6,1,15,0.55) 0%, rgba(10,4,26,0.75) 100%);
+  z-index: 1;
+}
+.hmap-moon, .hmap-stars, .hmap-clouds, .hmap-title-wrap { position: relative; z-index: 2; }
+
+/* Mobile: stack cinema layout */
+@media(max-width:900px){
+  .cinema-layout { padding-bottom: 20px; }
+}
+
+/* food-shop-content padding fix */
+.food-shop-content { padding: 0 20px; }
+@media(max-width:700px){ .food-shop-content { padding: 0 12px; } }
 </style>
 </head>
 <body>
@@ -6539,18 +6157,23 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
     <!-- ── Hub Entry Screen (shown on map view) ── -->
     <div id="hubMapView">
 
-      <!-- ── Meo Hub GIF Banner ── -->
-      <div class="zone-banner hub-zone-meohub-banner">
-        <img class="zone-banner-gif" src="https://media1.tenor.com/m/mWdkLIVD5sMAAAAd/pretty-flowers.gif" alt="Meo Hub Banner" loading="lazy"/>
-        <div class="zone-banner-overlay"></div>
-        <div class="zone-banner-content" style="text-align:center;">
-          <div class="hmap-title-wrap">
-            <div class="hmap-title">✦ Meo Hub ✦</div>
-            <div class="hmap-subtitle">Where the community lives</div>
-            <div class="hmap-online-pill">
-              <span class="online-dot"></span>
-              <span id="hubOnlineCount">0 online</span>
-            </div>
+      <!-- Parallax sky header -->
+      <div class="hmap-sky">
+        <img class="hmap-sky-gif" src="https://media1.tenor.com/m/mWdkLIVD5sMAAAAd/pretty-flowers.gif" alt="" aria-hidden="true"/>
+        <div class="hmap-sky-overlay"></div>
+        <div class="hmap-moon">🌕</div>
+        <div class="hmap-stars"></div>
+        <div class="hmap-clouds">
+          <div class="hmap-cloud hmap-cloud-1"></div>
+          <div class="hmap-cloud hmap-cloud-2"></div>
+          <div class="hmap-cloud hmap-cloud-3"></div>
+        </div>
+        <div class="hmap-title-wrap">
+          <div class="hmap-title">✦ Meo Hub ✦</div>
+          <div class="hmap-subtitle">Where the community lives</div>
+          <div class="hmap-online-pill">
+            <span class="online-dot"></span>
+            <span id="hubOnlineCount">0 online</span>
           </div>
         </div>
       </div>
@@ -6782,24 +6405,21 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
     <!-- ZONE: LOBBY                        -->
     <!-- ══════════════════════════════════ -->
     <div class="hub-zone" id="hubZone-lobby">
-      <!-- ── Lobby Banner ── -->
-      <div class="zone-banner hub-zone-lobby-banner">
-        <img class="zone-banner-gif" src="https://media1.tenor.com/m/vw9hHcFt0gIAAAAC/bbn2007.gif" alt="Lobby Banner" loading="lazy"/>
+      <!-- GIF Banner -->
+      <div class="zone-banner zone-banner-lobby">
+        <img class="zone-banner-gif" src="https://media1.tenor.com/m/vw9hHcFt0gIAAAAC/bbn2007.gif" alt=""/>
         <div class="zone-banner-overlay"></div>
         <div class="zone-banner-content">
-          <div class="zone-lobby-title">✦ Global Lobby</div>
-          <div class="zone-lobby-sub">Where summoners gather, chat, and flex their rarest cards</div>
-          <div class="zone-banner-chips">
-            <span class="zone-chip">💬 Live Chat</span>
-            <span class="zone-chip">✨ Card Flex</span>
-            <span class="zone-chip">🏆 Rankings</span>
-            <span class="zone-chip">🔄 Trade</span>
-          </div>
+          <div class="zone-banner-title">💬 Global Plaza</div>
+          <div class="zone-banner-sub">The heart of Meo Hub — say hello to everyone!</div>
         </div>
+        <!-- Floating petals -->
+        <div class="zone-petal zone-petal-1">🌸</div>
+        <div class="zone-petal zone-petal-2">⭐</div>
+        <div class="zone-petal zone-petal-3">🌸</div>
       </div>
-      <div class="lobby-decor-strip"></div>
-      <div class="lobby-layout" style="padding:16px 14px 0;max-width:1200px;margin:0 auto;height:auto;min-height:400px;box-sizing:border-box;">
-        <!-- Left: Chat -->
+
+      <div class="lobby-layout">
         <div class="lobby-chat-col">
           <div class="lobby-chat-card">
             <div class="lobby-chat-header">
@@ -6825,47 +6445,30 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
               <div class="chat-input-wrap">
                 <div class="mention-dropdown" id="mentionDropdown"></div>
                 <input id="chatInput" placeholder="Chat in the plaza… say hi! ʚɞ" maxlength="300"
-                  onkeydown="chatInputKeydown(event)"
-                  oninput="chatInputChange(this)"/>
+                  onkeydown="chatInputKeydown(event)" oninput="chatInputChange(this)"/>
                 <button class="chat-flex-btn" title="Flex a card" onclick="openFlexPicker()">✨</button>
               </div>
               <button class="chat-send-btn" onclick="submitChat()">Send ✦</button>
             </div>
           </div>
         </div>
-        <!-- Right: Lobby sidebar -->
         <div class="lobby-sidebar">
-          <!-- Quick actions -->
           <div class="lobby-sidebar-section">
             <div class="lobby-sidebar-title">✦ Quick Actions</div>
             <div class="lobby-quick-actions">
-              <button class="lobby-qa-btn" onclick="openFlexPicker()">
-                <span class="lqa-icon">✨</span>
-                <span>Flex Card</span>
-              </button>
-              <button class="lobby-qa-btn" onclick="switchHubZone('trades',document.getElementById('hztab-trades'))">
-                <span class="lqa-icon">🔄</span>
-                <span>Trade</span>
-              </button>
-              <button class="lobby-qa-btn" onclick="goTo('activities')">
-                <span class="lqa-icon">⚔️</span>
-                <span>Battle</span>
-              </button>
-              <button class="lobby-qa-btn" onclick="switchHubZone('rooms',document.getElementById('hztab-rooms'))">
-                <span class="lqa-icon">🏠</span>
-                <span>Rooms</span>
-              </button>
+              <button class="lobby-qa-btn" onclick="openFlexPicker()"><span class="lqa-icon">✨</span><span>Flex Card</span></button>
+              <button class="lobby-qa-btn" onclick="enterHubZone('trades')"><span class="lqa-icon">🔄</span><span>Trade</span></button>
+              <button class="lobby-qa-btn" onclick="goTo('activities')"><span class="lqa-icon">⚔️</span><span>Battle</span></button>
+              <button class="lobby-qa-btn" onclick="enterHubZone('rooms')"><span class="lqa-icon">🏠</span><span>Rooms</span></button>
             </div>
           </div>
-          <!-- Leaderboard preview -->
           <div class="lobby-sidebar-section">
             <div class="lobby-sidebar-title">🏆 Top Players</div>
             <div id="lobbyLeaderboardPreview" class="lobby-lb-preview">
               <div style="color:var(--text-dim);font-size:0.8em;font-style:italic;padding:10px 0;">Loading...</div>
             </div>
-            <button class="lobby-see-all-btn" onclick="switchHubZone('leaderboard',document.getElementById('hztab-leaderboard'))">See full rankings →</button>
+            <button class="lobby-see-all-btn" onclick="enterHubZone('leaderboard')">See full rankings →</button>
           </div>
-          <!-- Pinned notice (future-proof) -->
           <div class="lobby-sidebar-section">
             <div class="lobby-sidebar-title">📌 Notice Board</div>
             <div class="lobby-notice-card">
@@ -6881,22 +6484,17 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
     <!-- ZONE: PLAYER ROOMS                 -->
     <!-- ══════════════════════════════════ -->
     <div class="hub-zone" id="hubZone-rooms" style="display:none;">
-      <!-- ── Rooms Banner ── -->
-      <div class="zone-banner hub-zone-rooms-banner">
-        <img class="zone-banner-gif" src="https://media1.tenor.com/m/PKQz3kmo2akAAAAC/welcome.gif" alt="Rooms Banner" loading="lazy"/>
-        <div class="zone-banner-overlay"></div>
+      <div class="zone-banner zone-banner-rooms">
+        <img class="zone-banner-gif" src="https://media1.tenor.com/m/PKQz3kmo2akAAAAC/welcome.gif" alt=""/>
+        <div class="zone-banner-overlay" style="background:linear-gradient(180deg,rgba(4,18,10,0.45) 0%,rgba(2,10,5,0.85) 100%);"></div>
         <div class="zone-banner-content">
-          <div class="zone-rooms-title">🏠 Player Rooms</div>
-          <div class="zone-rooms-sub">Your own little corner of the hub — invite friends, hang out, vibe</div>
-          <div class="zone-banner-chips">
-            <span class="zone-chip zone-chip-rooms">🏡 Create Room</span>
-            <span class="zone-chip zone-chip-rooms">💬 Private Chat</span>
-            <span class="zone-chip zone-chip-rooms">🌸 Hang Out</span>
-          </div>
+          <div class="zone-banner-title">🏠 Player Rooms</div>
+          <div class="zone-banner-sub">Create your own cozy space — public or private</div>
         </div>
+        <div class="zone-petal zone-petal-1">🌿</div>
+        <div class="zone-petal zone-petal-3">🍃</div>
       </div>
-      <div class="rooms-layout" style="padding:16px 14px 0;max-width:1200px;margin:0 auto;height:auto;min-height:400px;box-sizing:border-box;">
-        <!-- Left: Room list / browser -->
+      <div class="rooms-layout">
         <div class="rooms-browser-col">
           <div class="rooms-browser-header">
             <div class="rooms-browser-title">🏠 Public Rooms</div>
@@ -6909,7 +6507,6 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
             </div>
           </div>
         </div>
-        <!-- Right: Active room chat -->
         <div class="rooms-chat-col" id="roomsChatCol">
           <div class="rooms-chat-empty" id="roomsChatEmpty">
             <div class="rooms-chat-empty-icon">🌸</div>
@@ -6954,22 +6551,19 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
     <!-- ZONE: FOOD CORNER                  -->
     <!-- ══════════════════════════════════ -->
     <div class="hub-zone" id="hubZone-food" style="display:none;">
-      <!-- ── Food Corner Banner ── -->
-      <div class="zone-banner hub-zone-food-banner">
-        <img class="zone-banner-gif" src="https://media1.tenor.com/m/Bv37u6GJKkkAAAAC/bar-feelre.gif" alt="Food Corner Banner" loading="lazy"/>
-        <div class="zone-banner-overlay"></div>
+      <div class="zone-banner zone-banner-food">
+        <img class="zone-banner-gif" src="https://media1.tenor.com/m/Bv37u6GJKkkAAAAC/bar-feelre.gif" alt=""/>
+        <div class="zone-banner-overlay" style="background:linear-gradient(180deg,rgba(30,5,2,0.35) 0%,rgba(20,3,1,0.88) 100%);"></div>
         <div class="zone-banner-content">
-          <div class="zone-food-title">🍜 Food Corner</div>
-          <div class="zone-food-sub">Eat well, grow stronger. Powered by iconic anime restaurants.</div>
-          <div class="zone-banner-chips">
-            <span class="zone-chip zone-chip-food">🎀 Maid Café</span>
-            <span class="zone-chip zone-chip-food">🍜 Ichiraku Ramen</span>
-            <span class="zone-chip zone-chip-food">☕ Anteiku</span>
-            <span class="zone-chip zone-chip-food">⚓ Baratie</span>
-          </div>
+          <div class="zone-banner-title">🍜 Food Corner</div>
+          <div class="zone-banner-sub">Eat well · grow stronger · power up your cards</div>
         </div>
+        <div class="zone-petal zone-petal-1">🌶️</div>
+        <div class="zone-petal zone-petal-2">🍜</div>
+        <div class="zone-petal zone-petal-3">🍱</div>
       </div>
-      <!-- Shop tabs -->
+
+      <!-- Shop tabs — styled as hanging lanterns/noren -->
       <div class="food-shop-tabs">
         <button class="food-shop-tab active" id="fshop-maid" onclick="switchFoodShop('maid',this)">
           <span>🎀</span> Maid Café
@@ -6985,35 +6579,35 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
         </button>
       </div>
 
-      <!-- MAID CAFÉ -->
       <div class="food-shop-content" id="fshopContent-maid">
         <div class="food-shop-banner food-banner-maid">
-          <div class="fsb-title">🎀 Welcome to the Maid Café, Master~</div>
-          <div class="fsb-sub">Homemade treats with love and sparkles ♡</div>
+          <div class="fsb-deco">🎀 ♡ 🎀</div>
+          <div class="fsb-title">Welcome, Master~</div>
+          <div class="fsb-sub">Homemade treats served with love and sparkles ♡</div>
         </div>
         <div class="food-items-grid" id="foodGrid-maid"></div>
       </div>
-      <!-- ICHIRAKU -->
       <div class="food-shop-content" id="fshopContent-ichiraku" style="display:none;">
         <div class="food-shop-banner food-banner-ichiraku">
-          <div class="fsb-title">🍜 Teuchi's Ichiraku Ramen</div>
-          <div class="fsb-sub">"The best ramen in the Hidden Leaf!" — Naruto</div>
+          <div class="fsb-deco">🍜 🌿 🍜</div>
+          <div class="fsb-title">Teuchi's Ichiraku Ramen</div>
+          <div class="fsb-sub">"The best ramen in the Hidden Leaf!" — Naruto Uzumaki</div>
         </div>
         <div class="food-items-grid" id="foodGrid-ichiraku"></div>
       </div>
-      <!-- ANTEIKU -->
       <div class="food-shop-content" id="fshopContent-anteiku" style="display:none;">
         <div class="food-shop-banner food-banner-anteiku">
-          <div class="fsb-title">☕ Anteiku Coffee House</div>
+          <div class="fsb-deco">☕ 🌙 ☕</div>
+          <div class="fsb-title">Anteiku Coffee House</div>
           <div class="fsb-sub">A quiet place where all ghouls are welcome~</div>
         </div>
         <div class="food-items-grid" id="foodGrid-anteiku"></div>
       </div>
-      <!-- BARATIE -->
       <div class="food-shop-content" id="fshopContent-baratie" style="display:none;">
         <div class="food-shop-banner food-banner-baratie">
-          <div class="fsb-title">⚓ The Baratie — Sea Restaurant</div>
-          <div class="fsb-sub">Sanji's finest cuisine, served with a kick.</div>
+          <div class="fsb-deco">⚓ 🌊 ⚓</div>
+          <div class="fsb-title">The Baratie — Sea Restaurant</div>
+          <div class="fsb-sub">Sanji's finest cuisine, served with a kick 🦵</div>
         </div>
         <div class="food-items-grid" id="foodGrid-baratie"></div>
       </div>
@@ -7023,41 +6617,27 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
     <!-- ZONE: MEO CINEMA                   -->
     <!-- ══════════════════════════════════ -->
     <div class="hub-zone" id="hubZone-cinema" style="display:none;">
-      <!-- ── Cinema Banner ── -->
-      <div class="zone-banner hub-zone-cinema-banner">
-        <img class="zone-banner-gif" src="https://media1.tenor.com/m/p_YUieGw55oAAAAC/tengen-vs.gif" alt="Cinema Banner" loading="lazy"/>
-        <div class="arcade-banner-scanlines"></div>
-        <div class="zone-banner-overlay"></div>
-        <!-- Top marquee lights -->
-        <div class="cinema-banner-lights">
-          <span></span><span></span><span></span><span></span><span></span>
-          <span></span><span></span><span></span><span></span><span></span>
-          <span></span><span></span><span></span><span></span><span></span>
-        </div>
+      <!-- Cinema banner -->
+      <div class="zone-banner zone-banner-cinema">
+        <img class="zone-banner-gif" src="https://media1.tenor.com/m/4xOYt5yvVNMAAAAC/demon-slayer-upper-six-fight.gif" alt=""/>
+        <div class="zone-banner-overlay" style="background:linear-gradient(180deg,rgba(5,3,0,0.3) 0%,rgba(5,3,0,0.9) 100%);"></div>
         <div class="zone-banner-content">
-          <div class="zone-cinema-title">🎬 Meo Cinema</div>
-          <div class="zone-cinema-sub">Watch anime openings, react live, and hype up your favorites</div>
-          <div class="zone-banner-chips">
-            <span class="zone-chip zone-chip-cinema">📺 Now Playing</span>
-            <span class="zone-chip zone-chip-cinema">🍿 Live React</span>
-            <span class="zone-chip zone-chip-cinema">🎬 Openings</span>
-          </div>
+          <div class="zone-banner-title">🎬 Meo-Cinema</div>
+          <div class="zone-banner-sub">Watch anime openings together in real time</div>
+          <div id="cinemaBannerStatus" class="zone-cinema-live" style="display:none;">🔴 LIVE SHOWING</div>
         </div>
-        <!-- Ticker tape at bottom -->
-        <div class="cinema-banner-ticker">
-          <span class="cinema-banner-ticker-inner">🎬 NOW SHOWING: Anime Openings  ✦  🍿 Grab your popcorn  ✦  🎬 React in real-time with other summoners  ✦  ⭐ Vote for your favorite openings  ✦  🎬 More series added every week  ✦  🍿 Cinema chat is always open  ✦  </span>
-        </div>
+        <div class="zone-petal zone-petal-1">🍿</div>
+        <div class="zone-petal zone-petal-2">🎬</div>
+        <div class="zone-petal zone-petal-3">⭐</div>
       </div>
-      <div class="cinema-layout" style="padding:16px 14px 0;max-width:1200px;margin:0 auto;box-sizing:border-box;">
-        <!-- Main screen area -->
+
+      <div class="cinema-layout">
         <div class="cinema-screen-col">
           <div class="cinema-room">
-            <!-- Marquee lights top -->
             <div class="cinema-marquee-lights cinema-lights-top">
               <span></span><span></span><span></span><span></span><span></span>
               <span></span><span></span><span></span><span></span><span></span>
             </div>
-            <!-- Screen -->
             <div class="cinema-screen-wrap">
               <div class="cinema-screen-frame">
                 <div class="cinema-curtain cinema-curtain-left"></div>
@@ -7067,14 +6647,12 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
                     <div class="cinema-placeholder-icon">🎬</div>
                     <div class="cinema-placeholder-text">Select an anime opening to watch</div>
                   </div>
-                  <!-- YouTube IFrame API target -->
                   <div id="cinemaYTWrap" style="display:none;width:100%;height:100%;">
                     <div id="cinemaYTPlayer" style="width:100%;height:100%;border-radius:4px;"></div>
                   </div>
                 </div>
               </div>
             </div>
-            <!-- Cinema info bar -->
             <div class="cinema-info-bar">
               <div class="cinema-now-playing" id="cinemaNowPlaying">
                 <span class="cinema-np-dot"></span>
@@ -7085,7 +6663,6 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
                 <button class="cinema-ctrl-btn" onclick="cinemaNext()" title="Next">⏭</button>
               </div>
             </div>
-            <!-- Playlist — admin only, collapsible -->
             <div class="cinema-playlist" id="cinemaPlaylistSection" style="display:none;">
               <button class="cinema-playlist-toggle" onclick="toggleCinemaPlaylist(this)">
                 <span>📽️ Anime Openings Playlist</span>
@@ -7093,14 +6670,12 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
               </button>
               <div class="cinema-playlist-grid" id="cinemaPlaylist" style="display:none;"></div>
             </div>
-            <!-- Marquee lights bottom -->
             <div class="cinema-marquee-lights cinema-lights-bottom">
               <span></span><span></span><span></span><span></span><span></span>
               <span></span><span></span><span></span><span></span><span></span>
             </div>
           </div>
         </div>
-        <!-- Live chat -->
         <div class="cinema-chat-col">
           <div class="cinema-chat-card">
             <div class="cinema-chat-header">
@@ -7109,9 +6684,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
               <span class="cinema-chat-viewers" id="cinemaChatViewers">0 watching</span>
             </div>
             <div class="chat-feed cinema-chat-feed" id="cinemaChatFeed">
-              <div style="text-align:center;color:var(--text-dim);font-style:italic;font-size:0.85em;padding:20px;">
-                🍿 Grab some popcorn and start chatting!
-              </div>
+              <div style="text-align:center;color:var(--text-dim);font-style:italic;font-size:0.85em;padding:20px;">🍿 Grab some popcorn and start chatting!</div>
             </div>
             <div class="cinema-chat-input-area">
               <div class="chat-reply-bar" id="cinemaReplyBar">
@@ -7126,7 +6699,6 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
               </div>
               <button class="chat-send-btn" style="padding:8px 14px;font-size:0.8em;" onclick="submitCinemaChat()">✦</button>
             </div>
-            <!-- Admin showing controls -->
             <div id="cinemaAdminControls" style="display:none;padding:6px 10px;border-top:1px solid var(--border);background:rgba(241,196,15,0.04);">
               <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
                 <span style="font-size:0.7em;color:#f1c40f;font-family:'JetBrains Mono',monospace;">👑 Admin</span>
@@ -7134,7 +6706,6 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
                 <span id="cinemaShowingBadge" style="display:none;background:rgba(231,76,60,0.15);border:1px solid rgba(231,76,60,0.3);color:#e74c3c;border-radius:10px;padding:2px 10px;font-size:0.72em;font-family:'JetBrains Mono',monospace;">🔴 LIVE</span>
               </div>
             </div>
-            <!-- Quick reaction emojis -->
             <div class="cinema-reactions">
               <button class="cinema-react-btn" onclick="sendCinemaReaction('🔥')">🔥</button>
               <button class="cinema-react-btn" onclick="sendCinemaReaction('😭')">😭</button>
@@ -7152,42 +6723,35 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
     <!-- ZONE: MEO ARCADE                   -->
     <!-- ══════════════════════════════════ -->
     <div class="hub-zone" id="hubZone-arcade" style="display:none;">
-      <!-- ── Arcade Banner ── -->
-      <div class="zone-banner hub-zone-arcade-banner">
-        <img class="zone-banner-gif" src="https://media1.tenor.com/m/D-AMH22wyC8AAAAC/kakegurui.gif" alt="Arcade Banner" loading="lazy"/>
-        <div class="arcade-banner-scanlines"></div>
-        <div class="zone-banner-overlay"></div>
+      <div class="zone-banner zone-banner-arcade">
+        <img class="zone-banner-gif" src="https://media1.tenor.com/m/j9NniiARmYMAAAAC/kakegurui-playing-cards.gif" alt=""/>
+        <div class="zone-banner-overlay" style="background:linear-gradient(180deg,rgba(1,5,14,0.3) 0%,rgba(1,3,9,0.92) 100%);"></div>
         <div class="zone-banner-content">
-          <div class="zone-arcade-title">🕹️ Meo Arcade</div>
-          <div class="zone-arcade-sub">Play games, earn coins &amp; XP. High scores, bragging rights, and glory.</div>
-          <div class="zone-banner-chips">
-            <span class="zone-chip zone-chip-arcade">🧠 Memory Match</span>
-            <span class="zone-chip zone-chip-arcade-b">⚡ Reaction Rush</span>
-            <span class="zone-chip zone-chip-arcade">💰 Earn Coins</span>
+          <div class="zone-banner-title" style="color:#5dade2;text-shadow:0 0 20px rgba(41,128,185,0.8),0 0 40px rgba(41,128,185,0.4);">🕹️ Meo Arcade</div>
+          <div class="zone-banner-sub">Play games · earn coins · beat your highscore</div>
+          <div class="arcade-banner-wallet">
+            <span>💰</span>
+            <span id="arcadeWalletDisplay">0</span>
+            <span style="opacity:0.6;font-size:0.82em;">coins</span>
           </div>
         </div>
+        <div class="zone-petal zone-petal-1" style="animation-duration:2s;">🃏</div>
+        <div class="zone-petal zone-petal-2" style="animation-duration:3s;">⚡</div>
+        <div class="zone-petal zone-petal-3" style="animation-duration:1.5s;">🎰</div>
       </div>
-      <div class="arcade-layout-inner">
-      <!-- Wallet bar -->
-      <div class="arcade-hero" style="padding:18px 0 20px;">
-        <div class="arcade-hero-wallet">
-          <span>💰</span>
-          <span id="arcadeWalletDisplay">0</span>
-          <span style="opacity:0.6;font-size:0.85em;">coins</span>
-        </div>
-      </div>
-      <!-- Game select -->
+
+      <!-- Neon game grid -->
       <div class="arcade-games-grid">
-        <!-- Memory Match -->
         <div class="arcade-game-card" onclick="launchGame('memory')">
+          <div class="agc-neon-border" style="--neon:#9b59b6;"></div>
           <div class="agc-icon">🧠</div>
           <div class="agc-title">Memory Match</div>
           <div class="agc-desc">Match anime card pairs before time runs out!</div>
           <div class="agc-rewards">+20 coins · +10 XP per win</div>
           <div class="agc-play-btn">Play Now ▶</div>
         </div>
-        <!-- Reaction Timer -->
         <div class="arcade-game-card" onclick="launchGame('reaction')">
+          <div class="agc-neon-border" style="--neon:#e74c3c;"></div>
           <div class="agc-icon">⚡</div>
           <div class="agc-title">Reaction Rush</div>
           <div class="agc-desc">Tap when the sakura glows — test your reflexes!</div>
@@ -7196,13 +6760,11 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
         </div>
       </div>
 
-      <!-- GAME CANVAS AREA (shown when playing) -->
       <div class="arcade-canvas-area" id="arcadeCanvasArea" style="display:none;">
         <div class="arcade-canvas-header">
           <div class="arcade-game-title-bar" id="arcadeGameTitleBar">Game</div>
           <button class="arcade-exit-btn" onclick="exitArcadeGame()">✕ Exit</button>
         </div>
-        <!-- Memory Match Game -->
         <div id="gameArea-memory" style="display:none;">
           <div class="memory-score-row">
             <div class="memory-stat">⏱ <span id="memTimer">60</span>s</div>
@@ -7217,7 +6779,6 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
             <button class="btn-primary" style="margin-top:14px;" onclick="startMemoryGame()">Play Again</button>
           </div>
         </div>
-        <!-- Reaction Rush Game -->
         <div id="gameArea-reaction" style="display:none;">
           <div class="reaction-game-wrap" id="reactionGameWrap">
             <div class="reaction-instructions" id="reactionInstructions">
@@ -7244,14 +6805,21 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
           </div>
         </div>
       </div>
-      </div><!-- end arcade-layout-inner -->
     </div>
 
     <!-- ══════════════════════════════════ -->
     <!-- ZONE: TRADES                       -->
     <!-- ══════════════════════════════════ -->
     <div class="hub-zone" id="hubZone-trades" style="display:none;">
-      <div class="section-title" style="margin-bottom:18px;">🔄 Trade Center</div>
+      <div class="zone-banner zone-banner-trades">
+        <div class="zone-banner-overlay" style="background:linear-gradient(135deg,rgba(20,17,0,0.7),rgba(10,9,0,0.9));"></div>
+        <div class="zone-banner-content">
+          <div class="zone-banner-title" style="color:#f1c40f;text-shadow:0 0 20px rgba(241,196,15,0.6);">🔄 Trade Post</div>
+          <div class="zone-banner-sub">Swap cards · make deals · build your collection</div>
+        </div>
+        <div class="zone-petal zone-petal-1">🃏</div>
+        <div class="zone-petal zone-petal-2">💰</div>
+      </div>
       <div style="margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
         <div style="color:var(--text-dim);font-size:0.88em;font-style:italic;">Pending trade offers sent &amp; received</div>
         <button class="btn-secondary" style="font-size:0.8em;padding:6px 18px;" onclick="loadMyTrades()">🔄 Refresh</button>
@@ -7265,7 +6833,16 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
     <!-- ZONE: LEADERBOARD                  -->
     <!-- ══════════════════════════════════ -->
     <div class="hub-zone" id="hubZone-leaderboard" style="display:none;">
-      <div class="section-title" style="margin-bottom:18px;">🏆 Hall of Fame</div>
+      <div class="zone-banner zone-banner-lb">
+        <div class="zone-banner-overlay" style="background:linear-gradient(135deg,rgba(16,2,6,0.6),rgba(10,1,4,0.9));"></div>
+        <div class="zone-banner-content">
+          <div class="zone-banner-title" style="color:#f1c40f;text-shadow:0 0 20px rgba(241,196,15,0.7);">🏆 Hall of Fame</div>
+          <div class="zone-banner-sub">The strongest trainers in Meo Hub</div>
+        </div>
+        <div class="zone-petal zone-petal-1">🥇</div>
+        <div class="zone-petal zone-petal-2">⭐</div>
+        <div class="zone-petal zone-petal-3">🏆</div>
+      </div>
       <div style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;">
         <button class="filter-btn active" id="lbf-pvp" onclick="switchLeaderboard('pvp',this)">⚔️ PvP Wins</button>
         <button class="filter-btn" id="lbf-cards" onclick="switchLeaderboard('cards',this)">🃏 Most Cards</button>
@@ -15189,9 +14766,6 @@ function enterHubZone(zone){
   if(zone==='arcade') syncArcadeWallet();
   if(zone==='cinema') initCinemaChat();
   if(zone==='rooms') refreshRoomsList();
-
-  // ── Ambient particle effects per zone ──
-  ZoneParticles.start(zone);
 }
 
 function returnToHubMap(){
@@ -15202,223 +14776,7 @@ function returnToHubMap(){
   });
   document.getElementById('hubMapView').style.display='';
   document.getElementById('hubBreadcrumb').style.display='none';
-  ZoneParticles.stop();
 }
-
-/* ══════════════════════════════════════════════
-   ZONE PARTICLES — ambient effects per zone
-   Lobby   → falling sakura petals (pink)
-   Food    → rising steam wisps (warm amber)
-   Rooms   → drifting sparkle dust (blue)
-   Cinema  → floating gold stars (gold)
-   Arcade  → neon pixel burst (pink/cyan)
-   ══════════════════════════════════════════════ */
-const ZoneParticles = (function(){
-  let _layer = null;
-  let _timers = [];
-  let _active = false;
-  let _zone = null;
-
-  // Configs per zone
-  const CONFIGS = {
-    lobby: {
-      count: window.innerWidth < 600 ? 10 : 18,
-      interval: 700,
-      fn: spawnPetal
-    },
-    food: {
-      count: window.innerWidth < 600 ? 6 : 12,
-      interval: 900,
-      fn: spawnSteam
-    },
-    rooms: {
-      count: window.innerWidth < 600 ? 8 : 14,
-      interval: 800,
-      fn: spawnSparkle
-    },
-    cinema: {
-      count: window.innerWidth < 600 ? 6 : 12,
-      interval: 1000,
-      fn: spawnCinemaStar
-    },
-    arcade: {
-      count: window.innerWidth < 600 ? 8 : 16,
-      interval: 400,
-      fn: spawnArcadePixel
-    }
-  };
-
-  function getLayer(){
-    if(!_layer){
-      _layer = document.createElement('div');
-      _layer.className = 'zone-particles';
-      _layer.id = 'zoneParticleLayer';
-      document.body.appendChild(_layer);
-    }
-    return _layer;
-  }
-
-  function rnd(min,max){ return Math.random()*(max-min)+min; }
-  function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
-
-  // ── Sakura petals for Lobby ──
-  function spawnPetal(){
-    const layer = getLayer();
-    const p = document.createElement('div');
-    p.className = 'lobby-petal';
-    const colors = [
-      'rgba(255,157,199,0.75)',
-      'rgba(255,183,215,0.7)',
-      'rgba(230,130,180,0.65)',
-      'rgba(255,200,225,0.6)',
-      'rgba(200,100,160,0.55)'
-    ];
-    p.style.cssText = `
-      left:${rnd(0,100)}vw;
-      top:-20px;
-      background:${pick(colors)};
-      width:${rnd(7,13)}px;
-      height:${rnd(6,10)}px;
-      border-radius:50% 0 50% 0;
-      --dx:${rnd(-60,60)}px;
-      --dx2:${rnd(-40,40)}px;
-      animation: lobbyPetalFall ${rnd(5,9)}s ease-in-out ${rnd(0,1.5)}s forwards;
-      box-shadow: 0 0 4px rgba(255,157,199,0.3);
-    `;
-    layer.appendChild(p);
-    setTimeout(()=>{ p.remove(); }, 10500);
-  }
-
-  // ── Steam wisps for Food ──
-  function spawnSteam(){
-    const layer = getLayer();
-    const p = document.createElement('div');
-    p.className = 'food-steam';
-    p.style.cssText = `
-      left:${rnd(10,90)}vw;
-      bottom:${rnd(5,20)}vh;
-      width:${rnd(4,10)}px;
-      height:${rnd(20,45)}px;
-      --dur:${rnd(3,6)}s;
-      --delay:0s;
-      background: rgba(${pick(['255,200,150','255,180,120','240,160,100'])},0.14);
-      filter: blur(${rnd(3,6)}px);
-      animation: steamRise ${rnd(3,6)}s ease-out forwards;
-    `;
-    layer.appendChild(p);
-    setTimeout(()=>{ p.remove(); }, 6500);
-  }
-
-  // ── Sparkle dust for Rooms ──
-  function spawnSparkle(){
-    const layer = getLayer();
-    const p = document.createElement('div');
-    p.className = 'rooms-sparkle';
-    const colors = [
-      'rgba(120,200,255,0.65)',
-      'rgba(160,220,255,0.55)',
-      'rgba(80,180,255,0.5)',
-      'rgba(200,230,255,0.5)'
-    ];
-    p.style.cssText = `
-      left:${rnd(5,95)}vw;
-      top:${rnd(20,80)}vh;
-      background:${pick(colors)};
-      box-shadow: 0 0 5px ${pick(colors)};
-      --dur:${rnd(5,8)}s;
-      --delay:0s;
-      --tx:${rnd(-30,30)}px;
-      --ty:${rnd(-60,-20)}px;
-      --tx2:${rnd(-15,15)}px;
-      --ty2:${rnd(-100,-50)}px;
-      animation: sparkleFloat ${rnd(5,8)}s ease-in-out forwards;
-    `;
-    layer.appendChild(p);
-    setTimeout(()=>{ p.remove(); }, 9000);
-  }
-
-  // ── Cinema gold stars ──
-  function spawnCinemaStar(){
-    const layer = getLayer();
-    const p = document.createElement('div');
-    p.className = 'cinema-star-float';
-    const colors = ['rgba(241,196,15,0.8)','rgba(255,220,80,0.7)','rgba(255,240,160,0.6)'];
-    const c = pick(colors);
-    p.style.cssText = `
-      left:${rnd(5,95)}vw;
-      top:${rnd(30,90)}vh;
-      background:${c};
-      box-shadow: 0 0 5px ${c};
-      --dur:${rnd(4,7)}s;
-      --delay:0s;
-      --tx:${rnd(-40,40)}px;
-      --ty:${rnd(-80,-30)}px;
-      --tx2:${rnd(-20,20)}px;
-      --ty2:${rnd(-140,-80)}px;
-      animation: cinemaStarDrift ${rnd(4,7)}s ease-in-out forwards;
-    `;
-    layer.appendChild(p);
-    setTimeout(()=>{ p.remove(); }, 8000);
-  }
-
-  // ── Arcade neon pixels ──
-  function spawnArcadePixel(){
-    const layer = getLayer();
-    const p = document.createElement('div');
-    p.className = 'arcade-pixel';
-    const neonSets = [
-      { bg:'rgba(255,0,200,0.9)', sh:'rgba(255,0,200,0.6)' },
-      { bg:'rgba(0,200,255,0.9)', sh:'rgba(0,200,255,0.6)' },
-      { bg:'rgba(160,0,255,0.9)', sh:'rgba(160,0,255,0.6)' },
-      { bg:'rgba(0,255,160,0.9)', sh:'rgba(0,255,160,0.6)' }
-    ];
-    const n = pick(neonSets);
-    p.style.cssText = `
-      left:${rnd(5,95)}vw;
-      top:${rnd(20,90)}vh;
-      background:${n.bg};
-      box-shadow: 0 0 6px ${n.sh}, 0 0 12px ${n.sh};
-      --dur:${rnd(2,4)}s;
-      --delay:0s;
-      --tx:${rnd(-50,50)}px;
-      --ty:${rnd(-100,-40)}px;
-      --tx2:${rnd(-60,60)}px;
-      --ty2:${rnd(-180,-100)}px;
-      animation: arcadePixelBurst ${rnd(2,4)}s ease-out forwards;
-    `;
-    layer.appendChild(p);
-    setTimeout(()=>{ p.remove(); }, 4500);
-  }
-
-  function start(zone){
-    stop();
-    _active = true;
-    _zone = zone;
-    const cfg = CONFIGS[zone];
-    if(!cfg) return;
-    // Spawn initial burst
-    const burstCount = Math.min(cfg.count, 6);
-    for(let i=0; i<burstCount; i++){
-      setTimeout(()=>{ if(_active && _zone===zone) cfg.fn(); }, i*120);
-    }
-    // Then keep spawning at interval
-    const iv = setInterval(()=>{
-      if(!_active){ clearInterval(iv); return; }
-      cfg.fn();
-    }, cfg.interval);
-    _timers.push(iv);
-  }
-
-  function stop(){
-    _active = false;
-    _zone = null;
-    _timers.forEach(t=>clearInterval(t));
-    _timers = [];
-    if(_layer){ _layer.innerHTML = ''; }
-  }
-
-  return { start, stop };
-})();
 
 function syncHubOnline(){
   const src = document.getElementById('onlineCount');
@@ -15943,10 +15301,12 @@ async function adminSetCinemaVideo(idx){
 }
 
 function updateCinemaShowingBadge(){
-  const badge = document.getElementById('cinemaShowingBadge');
-  const btn   = document.getElementById('cinemaToggleShowingBtn');
-  if(badge) badge.style.display = _cinemaScheduled ? '' : 'none';
-  if(btn)   btn.textContent     = _cinemaScheduled ? '📡 End Showing' : '📡 Start Showing';
+  const badge  = document.getElementById('cinemaShowingBadge');
+  const btn    = document.getElementById('cinemaToggleShowingBtn');
+  const banner = document.getElementById('cinemaBannerStatus');
+  if(badge)  badge.style.display  = _cinemaScheduled ? '' : 'none';
+  if(btn)    btn.textContent      = _cinemaScheduled ? '📡 End Showing' : '📡 Start Showing';
+  if(banner) banner.style.display = _cinemaScheduled ? '' : 'none';
 }
 
 async function initCinemaChat(){
