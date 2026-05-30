@@ -6662,6 +6662,452 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   .rs-desk-surface  { width: 64px; }
   .rs-center-furniture { min-width: 120px; }
 }
+
+/* ═══════════════════════════════════════════════
+   TOP-DOWN ROOM REDESIGN — overrides old styles
+═══════════════════════════════════════════════ */
+.room-scene {
+  position: relative !important;
+  display: flex !important;
+  flex-direction: column !important;
+  width: 100%;
+  min-height: 420px;
+  overflow: hidden;
+  border-radius: 10px;
+  box-shadow: 0 4px 40px rgba(0,0,0,0.6);
+}
+@media(max-width:600px){ .room-scene { min-height: 480px; border-radius: 0; } }
+
+/* ── Top strip: owner info + music ── */
+.rs-topbar {
+  position: relative;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  flex-shrink: 0;
+}
+.rs-topbar .rs-owner-avatar {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid rgba(255,157,199,0.35);
+  flex-shrink: 0;
+}
+.rs-topbar .rs-owner-text { flex: 1; min-width: 0; }
+.rs-topbar .rs-owner-name {
+  font-size: 0.8em; font-weight: 600; color: var(--text);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.rs-topbar .rs-owner-bio {
+  font-size: 0.68em; color: var(--text-dim); font-style: italic;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+/* Music bar: moved into topbar */
+.rs-topbar .rs-music-bar {
+  position: static !important;
+  transform: none !important;
+  top: auto !important; right: auto !important;
+  display: flex; align-items: center; gap: 5px;
+  background: rgba(0,0,0,0.4);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 20px; padding: 3px 10px;
+  max-width: 170px; flex-shrink: 0;
+}
+.rs-topbar .rs-music-title { max-width: 100px; }
+
+/* ── BACK WALL (top strip of room viewed from above) ── */
+.rs-wall {
+  position: relative !important;
+  flex-shrink: 0 !important;
+  height: 92px !important;
+  min-height: 92px !important;
+  flex: none !important;
+  border-bottom: 4px solid rgba(0,0,0,0.55) !important;
+  border-left: none !important; border-right: none !important;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.45) !important;
+  display: flex !important;
+  align-items: center !important;
+  padding: 0 20px !important;
+  gap: 14px !important;
+  z-index: 2 !important;
+}
+.rs-wall::before {
+  content: '';
+  position: absolute; inset: 0;
+  background-image: repeating-linear-gradient(
+    90deg, transparent 0, transparent 39px,
+    rgba(255,255,255,0.012) 39px, rgba(255,255,255,0.012) 40px
+  );
+  pointer-events: none; z-index: 0;
+}
+.rs-wall > * { position: relative; z-index: 1; }
+
+/* Poster slots inside wall */
+.rs-poster-area {
+  display: flex !important;
+  gap: 8px !important;
+  position: relative !important; right: auto !important; top: auto !important;
+  margin-left: auto;
+}
+.rs-poster-slot {
+  position: relative;
+  width: 50px !important; height: 66px !important;
+  border-radius: 5px; overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.05);
+  flex-shrink: 0;
+}
+.rs-poster-slot .rs-poster-ph {
+  display: flex; align-items: center; justify-content: center;
+  height: 100%; font-size: 0.6em; color: rgba(255,255,255,0.2);
+}
+
+/* Wall stickers */
+.rs-sticker-area {
+  position: absolute !important;
+  inset: 0 !important; left: 130px !important; right: 130px !important;
+  top: 0 !important; bottom: 0 !important;
+  display: flex !important; flex-wrap: wrap !important;
+  align-content: center; gap: 5px; padding: 6px;
+  pointer-events: none; z-index: 1;
+}
+.rs-sticker { font-size: 1.3em !important; animation: decoDrift 5s ease-in-out infinite; display: inline-block !important; }
+
+/* Window hotspot in wall */
+.rs-hotspot-wall {
+  position: relative !important;
+  top: auto !important; left: auto !important; right: auto !important; bottom: auto !important;
+  transform: none !important;
+  flex-shrink: 0;
+  background: rgba(255,255,255,0.07) !important;
+}
+.rs-hotspot-wall:hover { transform: scale(1.07) translateY(-1px) !important; }
+
+/* ── FLOOR LAYER (main room area) ── */
+.rs-floor-layer {
+  flex: 1 !important;
+  position: relative !important;
+  display: block !important;
+  min-height: 280px !important;
+  padding: 0 !important;
+  gap: 0 !important;
+  align-items: initial !important;
+  border-left: 8px solid rgba(0,0,0,0.32) !important;
+  border-right: 8px solid rgba(0,0,0,0.32) !important;
+  border-bottom: 8px solid rgba(0,0,0,0.45) !important;
+  overflow: hidden !important;
+  z-index: 1;
+  background-image: repeating-linear-gradient(
+    90deg, transparent 0, transparent 79px, rgba(0,0,0,0.08) 79px, rgba(0,0,0,0.08) 80px
+  ) !important;
+}
+/* Hide old furniture columns */
+.rs-left-furniture, .rs-right-furniture, .rs-center-furniture,
+.rs-wardrobe, .rs-figurine-shelf, .rs-desk, .rs-side-table, .rs-bed,
+.rs-card-stand-base { display: none !important; }
+
+/* Rug (center, decorative) */
+#rsRug, .rs-rug {
+  position: absolute !important;
+  top: 50% !important; left: 50% !important;
+  transform: translate(-50%,-50%) !important;
+  width: 40% !important; max-width: 180px !important;
+  height: 80px !important;
+  border-radius: 10px !important;
+  opacity: 0.5 !important;
+  z-index: 0 !important;
+  border-top: none !important;
+  margin: 0 !important;
+}
+#rsRug::before, .rs-rug::before { content:''; position:absolute; inset:5px; border:1px solid rgba(255,255,255,0.08); border-radius:7px; }
+
+/* Card showcase stand (absolute centered) */
+.rs-card-stand {
+  position: absolute !important;
+  top: 50% !important; left: 50% !important;
+  transform: translate(-50%,-50%) !important;
+  display: flex !important; flex-direction: column !important;
+  align-items: center !important; gap: 5px !important;
+  z-index: 2 !important;
+}
+.rs-card-stand-label { font-family:'Cinzel Decorative',serif; font-size:0.55em; color:rgba(255,157,199,0.4); letter-spacing:0.1em; }
+.rs-cards-row { display:flex; gap:6px; }
+.ri-card-slot { width:44px; aspect-ratio:3/4; border-radius:7px; overflow:hidden; border:1px solid var(--border); background:rgba(255,255,255,0.03); display:flex; align-items:center; justify-content:center; box-shadow:2px 4px 10px rgba(0,0,0,0.5); }
+.ri-card-slot img { width:100%; height:100%; object-fit:cover; }
+.ri-card-slot.empty { border-style:dashed; opacity:0.4; }
+.ri-card-slot-ph { font-size:0.8em; color:var(--text-dim); }
+
+/* Extra furniture row (bottom-right corner) */
+.rs-extra-furniture {
+  position: absolute !important;
+  bottom: 18px !important; right: 18px !important;
+  display: flex !important; gap: 6px !important;
+  flex-wrap: wrap !important;
+  max-width: 100px !important;
+  justify-content: flex-end !important;
+}
+.rs-furn-item { font-size:1.5em; filter:drop-shadow(0 2px 4px rgba(0,0,0,0.5)); }
+
+/* Hide old/unused room elements */
+.rs-ceiling, .rs-floor { display: none !important; }
+.rs-owner-strip { display: none !important; }
+.rs-window { display: none !important; }
+
+/* ── FURNITURE HOTSPOT BUTTONS ── */
+.rs-hotspot {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 10px 14px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  font-family: 'Cormorant Garamond', serif;
+  color: var(--text);
+  user-select: none;
+  z-index: 3;
+}
+.rs-hotspot:hover {
+  background: rgba(255,157,199,0.1);
+  border-color: rgba(255,157,199,0.35);
+  transform: translateY(-2px) scale(1.07);
+  box-shadow: 0 4px 20px rgba(255,157,199,0.2), 0 0 0 2px rgba(255,157,199,0.08);
+  z-index: 4;
+}
+.rs-hotspot:active { transform: translateY(0) scale(0.97) !important; }
+.rs-hotspot-icon { font-size: 2em; line-height: 1; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.6)); }
+.rs-hotspot-label { font-size: 0.66em; color: rgba(255,255,255,0.42); letter-spacing: 0.04em; white-space: nowrap; }
+/* Floor furniture positions */
+.rs-furn-bed   { top: 12px; right: 18px; }
+.rs-furn-shelf { top: 50%; right: 18px; transform: translateY(-50%) !important; }
+.rs-furn-shelf:hover { transform: translateY(calc(-50% - 2px)) scale(1.07) !important; }
+.rs-furn-desk  { bottom: 18px; left: 18px; }
+@media(max-width:500px){
+  .rs-hotspot { padding: 8px 10px; }
+  .rs-hotspot-icon { font-size: 1.7em; }
+  .rs-furn-bed   { top: 10px; right: 10px; }
+  .rs-furn-shelf { right: 10px; }
+  .rs-furn-desk  { bottom: 10px; left: 10px; }
+}
+
+/* ══════════════════════════════
+   ROOM POPUP SYSTEM
+══════════════════════════════ */
+.rs-popup-overlay {
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,0.62);
+  backdrop-filter: blur(4px);
+  z-index: 10;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.22s;
+}
+.rs-popup-overlay.rs-open { opacity: 1; pointer-events: all; }
+
+.rs-popup {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  background: linear-gradient(180deg, #1c0e30 0%, #0e0620 100%);
+  border-top: 1px solid rgba(255,157,199,0.22);
+  border-radius: 16px 16px 0 0;
+  z-index: 11;
+  transform: translateY(100%);
+  transition: transform 0.3s cubic-bezier(0.34,1.35,0.64,1);
+  max-height: 80%;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  box-shadow: 0 -4px 40px rgba(0,0,0,0.6);
+}
+.rs-popup.rs-open { transform: translateY(0); }
+
+.rs-popup-drag-handle {
+  width: 36px; height: 4px;
+  background: rgba(255,255,255,0.14);
+  border-radius: 2px;
+  margin: 10px auto 4px;
+}
+.rs-popup-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 6px 16px 12px;
+  border-bottom: 1px solid rgba(255,157,199,0.08);
+}
+.rs-popup-title {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 0.75em; color: var(--pink-pale);
+  letter-spacing: 0.05em;
+  display: flex; align-items: center; gap: 7px;
+}
+.rs-popup-close {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
+  color: var(--text-dim); font-size: 0.85em;
+  cursor: pointer; padding: 4px 9px;
+  border-radius: 6px; line-height: 1;
+  transition: all 0.14s;
+}
+.rs-popup-close:hover { background: rgba(255,157,199,0.1); color: var(--pink); }
+.rs-popup-body { padding: 14px 16px 22px; }
+
+/* Window popup */
+.rsp-window-frame {
+  border-radius: 10px; overflow: hidden;
+  aspect-ratio: 3/2; position: relative;
+  margin-bottom: 12px;
+  border: 3px solid rgba(140,110,70,0.4);
+  box-shadow: inset 0 0 0 8px rgba(80,55,25,0.12), 0 4px 16px rgba(0,0,0,0.5);
+}
+.rsp-window-frame::before {
+  content: ''; position: absolute; top:0; bottom:0; left:50%; width:3px;
+  background: rgba(120,90,50,0.5); z-index: 3; transform: translateX(-50%);
+}
+.rsp-window-frame::after {
+  content: ''; position: absolute; left:0; right:0; top:50%; height:3px;
+  background: rgba(120,90,50,0.5); z-index: 3; transform: translateY(-50%);
+}
+.rsp-window-sky {
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg, #050210 0%, #0b0820 55%, #060a18 100%);
+  overflow: hidden;
+}
+.rsp-window-moon {
+  position: absolute; top: 12%; right: 18%;
+  font-size: 2.2em;
+  filter: drop-shadow(0 0 14px rgba(255,230,180,0.8));
+  animation: decoDrift 7s ease-in-out infinite;
+}
+.rsp-window-stars {
+  position: absolute; inset: 0;
+  background-image:
+    radial-gradient(circle, rgba(255,255,255,0.85) 1px, transparent 1px),
+    radial-gradient(circle, rgba(255,255,255,0.55) 1px, transparent 1px),
+    radial-gradient(circle, rgba(255,255,255,0.35) 1px, transparent 1px);
+  background-size: 58px 58px, 43px 43px, 29px 29px;
+  background-position: 8px 8px, 22px 18px, 4px 28px;
+}
+.rsp-window-city {
+  position: absolute; bottom:0; left:0; right:0; height:38%;
+  display: flex; align-items: flex-end; justify-content: space-around; padding: 0 8px;
+}
+.rsp-city-b {
+  background: #080614; border-radius: 2px 2px 0 0; position: relative; flex-shrink: 0;
+}
+.rsp-city-b::before {
+  content:''; position:absolute; inset:4px;
+  background-image: radial-gradient(circle, rgba(255,200,80,0.22) 1px, transparent 1px);
+  background-size: 5px 8px;
+}
+.rsp-curtains { position:absolute; inset:0; pointer-events:none; z-index:4; }
+.rsp-curtain-l, .rsp-curtain-r {
+  position:absolute; top:0; bottom:0; width:0; overflow:hidden; transition:width 0.4s ease;
+}
+.rsp-curtain-l { left:0; background: linear-gradient(90deg, var(--rs-curtain-col,#3a0060) 60%, rgba(58,0,96,0.4)); }
+.rsp-curtain-r { right:0; background: linear-gradient(270deg, var(--rs-curtain-col,#3a0060) 60%, rgba(58,0,96,0.4)); }
+.rsp-curtain-l.rsp-open, .rsp-curtain-r.rsp-open { width: 24%; }
+.rsp-window-sill {
+  height: 8px; margin-bottom: 10px;
+  background: linear-gradient(180deg, rgba(120,90,50,0.35), rgba(80,60,30,0.2));
+  border-radius: 0 0 8px 8px;
+}
+.rsp-win-controls { display:flex; gap:8px; justify-content:center; }
+.rsp-ctrl-btn {
+  background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px; padding: 8px 18px;
+  color: var(--text); font-family:'Cormorant Garamond',serif; font-size:0.85em;
+  cursor: pointer; transition: all 0.14s;
+  display: flex; align-items: center; gap: 6px;
+}
+.rsp-ctrl-btn:hover { background: rgba(255,157,199,0.1); border-color: rgba(255,157,199,0.3); color: var(--pink-pale); }
+.rsp-ctrl-btn.active { background: rgba(255,157,199,0.12); border-color: rgba(255,157,199,0.35); color: var(--pink); }
+
+/* Bed popup */
+.rsp-bed-scene {
+  text-align: center; padding: 20px 0 10px; position: relative; min-height: 130px;
+}
+.rsp-bed-emoji { font-size: 4em; display: block; margin-bottom: 10px; animation: decoDrift 3s ease-in-out infinite; }
+.rsp-zzz { position:absolute; font-family:'Cinzel Decorative',serif; color:rgba(160,130,220,0.55); pointer-events:none; }
+.rsp-zzz-1 { top:14%; right:24%; font-size:1.3em; animation:rspZzz 2.8s ease-in-out infinite; }
+.rsp-zzz-2 { top:7%;  right:30%; font-size:0.95em; animation:rspZzz 2.8s ease-in-out infinite 0.6s; }
+.rsp-zzz-3 { top:1%;  right:37%; font-size:0.65em; animation:rspZzz 2.8s ease-in-out infinite 1.2s; }
+@keyframes rspZzz { 0%{opacity:0;transform:translateY(0) scale(0.7);} 35%{opacity:0.9;} 100%{opacity:0;transform:translateY(-28px) scale(1.3);} }
+.rsp-bed-text { font-style:italic; color:var(--text-dim); font-size:0.88em; line-height:1.65; margin-bottom:16px; }
+.rsp-bed-btn {
+  background: rgba(100,60,160,0.18); border: 1px solid rgba(150,100,200,0.22);
+  border-radius: 20px; padding: 9px 24px;
+  color: rgba(180,150,230,0.6); font-family:'Cinzel Decorative',serif; font-size:0.68em;
+  cursor: not-allowed; letter-spacing: 0.05em;
+}
+
+/* Shelf popup */
+.rsp-shelf-section-title {
+  font-family:'Cinzel Decorative',serif; font-size:0.58em;
+  color:rgba(255,157,199,0.38); letter-spacing:0.1em; margin-bottom:10px;
+}
+.rsp-shelf-figurines { display:flex; gap:10px; justify-content:center; padding:4px 0 14px; border-bottom:1px solid rgba(255,255,255,0.05); margin-bottom:14px; flex-wrap:wrap; }
+.rsp-fig-slot {
+  width:52px; height:64px; border-radius:8px;
+  background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08);
+  display:flex; align-items:center; justify-content:center; font-size:1.8em;
+  transition:transform 0.2s;
+}
+.rsp-fig-slot:not(.empty) { animation: decoDrift 5s ease-in-out infinite; }
+.rsp-fig-slot.empty { opacity:0.28; font-size:0.85em; color:var(--text-dim); }
+.rsp-shelf-posters { display:flex; gap:10px; flex-wrap:wrap; justify-content:center; }
+.rsp-poster-thumb {
+  width:60px; height:84px; border-radius:6px; overflow:hidden;
+  border:1px solid rgba(255,255,255,0.1); background:rgba(255,255,255,0.04);
+  display:flex; align-items:center; justify-content:center;
+  font-size:0.62em; color:rgba(255,255,255,0.18); text-align:center; line-height:1.3;
+  position: relative;
+}
+.rsp-poster-thumb img { width:100%; height:100%; object-fit:cover; }
+.rsp-poster-pin {
+  position:absolute; top:3px; left:50%; transform:translateX(-50%);
+  width:6px; height:6px; border-radius:50%;
+  background:rgba(200,160,80,0.85); z-index:2;
+  box-shadow:0 0 4px rgba(241,196,15,0.5);
+}
+
+/* Desk popup */
+.rsp-desk-screen {
+  background: #04101c;
+  border-radius: 8px; border: 2px solid rgba(80,180,255,0.15);
+  padding: 14px; margin-bottom: 12px;
+  position: relative;
+  box-shadow: 0 0 24px rgba(80,180,255,0.06), inset 0 0 24px rgba(0,0,0,0.5);
+}
+.rsp-desk-screen-title {
+  position: absolute; top: -9px; left: 50%; transform: translateX(-50%);
+  font-family:'JetBrains Mono',monospace; font-size:0.58em;
+  color:rgba(80,180,255,0.4); background:#04101c; padding:0 8px; letter-spacing:0.1em;
+}
+.rsp-desk-cards { display:flex; gap:8px; justify-content:center; }
+.rsp-desk-card-slot {
+  width:52px; aspect-ratio:3/4; border-radius:8px; overflow:hidden;
+  border:1px solid rgba(80,180,255,0.15); background:rgba(0,0,0,0.45);
+  display:flex; align-items:center; justify-content:center;
+  font-size:0.7em; color:rgba(255,255,255,0.18);
+  box-shadow:2px 4px 12px rgba(0,0,0,0.6);
+}
+.rsp-desk-card-slot img { width:100%; height:100%; object-fit:cover; }
+.rsp-desk-stats {
+  display:grid; grid-template-columns:1fr 1fr; gap:8px;
+}
+.rsp-stat-box {
+  background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06);
+  border-radius:8px; padding:8px 10px; text-align:center;
+}
+.rsp-stat-val { font-family:'JetBrains Mono',monospace; font-size:0.95em; color:var(--pink); display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.rsp-stat-label { font-size:0.64em; color:var(--text-dim); }
 .crm-section-label {
   font-family: 'Cinzel Decorative', serif;
   font-size: 0.65em;
@@ -7750,175 +8196,97 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
         <div id="riTab-room" class="ri-tab-content">
           <div class="room-scene" id="roomScene">
 
-            <!-- ── CEILING / TOP ── -->
-            <div class="rs-ceiling" id="rsCeiling">
-              <!-- Hanging fairy lights -->
-              <div class="rs-fairy-lights">
-                <span></span><span></span><span></span><span></span><span></span>
-                <span></span><span></span><span></span><span></span><span></span>
-                <span></span><span></span><span></span><span></span><span></span>
+            <!-- ── TOP BAR: owner info + music ── -->
+            <div class="rs-topbar">
+              <img class="rs-owner-avatar" id="riOwnerAvatar" src="" alt="" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'"/>
+              <div class="rs-owner-text">
+                <div class="rs-owner-name" id="riOwnerName">Owner</div>
+                <div class="rs-owner-bio" id="riOwnerBio">Welcome~</div>
               </div>
-              <!-- Music player floats at top -->
               <div class="rs-music-bar" id="riMusicBar" style="display:none;">
                 <div class="rs-music-icon">🎵</div>
                 <div class="rs-music-title" id="riMusicTitle">No music</div>
-                <div class="rs-music-eq">
-                  <span></span><span></span><span></span><span></span>
-                </div>
+                <div class="rs-music-eq"><span></span><span></span><span></span><span></span></div>
               </div>
             </div>
 
-            <!-- ── BACK WALL ── -->
+            <!-- ── BACK WALL (top of room in top-down view) ── -->
             <div class="rs-wall" id="rsWall">
-
-              <!-- Window (left side of wall) -->
-              <div class="rs-window" id="rsWindow">
-                <div class="rs-window-frame">
-                  <div class="rs-window-pane rs-window-tl"></div>
-                  <div class="rs-window-pane rs-window-tr"></div>
-                  <div class="rs-window-pane rs-window-bl"></div>
-                  <div class="rs-window-pane rs-window-br"></div>
-                  <div class="rs-window-cross-h"></div>
-                  <div class="rs-window-cross-v"></div>
-                  <!-- Night sky outside -->
-                  <div class="rs-window-sky">
-                    <div class="rs-window-moon">🌙</div>
-                    <div class="rs-window-stars"></div>
-                    <div class="rs-window-cityscape">
-                      <div class="rs-city-building rs-cb-1"></div>
-                      <div class="rs-city-building rs-cb-2"></div>
-                      <div class="rs-city-building rs-cb-3"></div>
-                      <div class="rs-city-building rs-cb-4"></div>
-                      <div class="rs-city-building rs-cb-5"></div>
-                    </div>
-                  </div>
-                  <!-- Curtains -->
-                  <div class="rs-curtain rs-curtain-l" id="rsCurtainL"></div>
-                  <div class="rs-curtain rs-curtain-r" id="rsCurtainR"></div>
-                </div>
-                <div class="rs-window-sill"></div>
-                <!-- Potted plant on sill -->
-                <div class="rs-window-plant">🌱</div>
-              </div>
-
-              <!-- Poster wall (right side) -->
+              <!-- Window hotspot -->
+              <button class="rs-hotspot rs-hotspot-wall" onclick="openRoomPopup('window')" title="Window">
+                <span class="rs-hotspot-icon">🪟</span>
+                <span class="rs-hotspot-label">Window</span>
+              </button>
+              <!-- Poster area (clickable) -->
               <div class="rs-poster-area">
                 <div class="rs-poster-slot" id="riPoster-0">
                   <div class="rs-poster-pin"></div>
-                  <div class="rs-poster-ph">＋ Poster</div>
+                  <div class="rs-poster-ph">＋</div>
                 </div>
                 <div class="rs-poster-slot" id="riPoster-1">
                   <div class="rs-poster-pin"></div>
-                  <div class="rs-poster-ph">＋ Poster</div>
+                  <div class="rs-poster-ph">＋</div>
                 </div>
               </div>
-
-              <!-- Sticker wall (scattered across wall) -->
+              <!-- Stickers scattered across wall -->
               <div class="rs-sticker-area" id="riStickers"></div>
-
-              <!-- Owner name plate -->
-              <div class="rs-owner-strip" id="riOwnerStrip">
-                <img class="rs-owner-avatar" id="riOwnerAvatar" src="" alt="" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'"/>
-                <div class="rs-owner-text">
-                  <div class="rs-owner-name" id="riOwnerName">Owner</div>
-                  <div class="rs-owner-bio" id="riOwnerBio">Welcome~</div>
-                </div>
-              </div>
-
             </div><!-- end rs-wall -->
 
-            <!-- ── FURNITURE LAYER ── -->
-            <div class="rs-floor-layer">
+            <!-- ── FLOOR AREA (main room, top-down view) ── -->
+            <div class="rs-floor-layer" id="rsFloor">
 
-              <!-- LEFT: Bookshelf + figurine shelf -->
-              <div class="rs-left-furniture">
-                <!-- Wardrobe/bookshelf unit -->
-                <div class="rs-wardrobe">
-                  <div class="rs-wardrobe-top"></div>
-                  <div class="rs-wardrobe-body">
-                    <div class="rs-wardrobe-door rs-wd-left">
-                      <div class="rs-wardrobe-handle"></div>
-                    </div>
-                    <div class="rs-wardrobe-door rs-wd-right">
-                      <div class="rs-wardrobe-handle"></div>
-                    </div>
-                  </div>
-                  <div class="rs-wardrobe-feet">
-                    <div class="rs-wf"></div><div class="rs-wf"></div>
-                  </div>
-                </div>
+              <!-- Rug (decorative, center) -->
+              <div class="rs-rug" id="rsRug"></div>
 
-                <!-- Figurine shelf mounted on wall above desk -->
-                <div class="rs-figurine-shelf">
-                  <div class="rs-fig-shelf-board"></div>
-                  <div class="rs-fig-shelf-bracket rs-fsb-l"></div>
-                  <div class="rs-fig-shelf-bracket rs-fsb-r"></div>
-                  <div class="rs-fig-items" id="riFigurines">
-                    <div class="rs-figurine empty">＋</div>
-                    <div class="rs-figurine empty">＋</div>
-                    <div class="rs-figurine empty">＋</div>
-                  </div>
-                </div>
-
-                <!-- Small desk -->
-                <div class="rs-desk">
-                  <div class="rs-desk-surface">
-                    <div class="rs-desk-item">🖥️</div>
-                    <div class="rs-desk-item small">📚</div>
-                  </div>
-                  <div class="rs-desk-legs">
-                    <div class="rs-desk-leg"></div>
-                    <div class="rs-desk-leg"></div>
-                  </div>
+              <!-- Card Showcase (center) -->
+              <div class="rs-card-stand">
+                <div class="rs-card-stand-label">✦ Showcase</div>
+                <div class="rs-cards-row" id="riCardsShowcase">
+                  <div class="ri-card-slot empty" id="riCard-0"><div class="ri-card-slot-ph">＋</div></div>
+                  <div class="ri-card-slot empty" id="riCard-1"><div class="ri-card-slot-ph">＋</div></div>
+                  <div class="ri-card-slot empty" id="riCard-2"><div class="ri-card-slot-ph">＋</div></div>
                 </div>
               </div>
 
-              <!-- CENTER: Card showcase + floor deco -->
-              <div class="rs-center-furniture">
-                <!-- Cards display stand -->
-                <div class="rs-card-stand">
-                  <div class="rs-card-stand-label">✦ Showcase</div>
-                  <div class="rs-cards-row" id="riCardsShowcase">
-                    <div class="ri-card-slot empty" id="riCard-0"><div class="ri-card-slot-ph">＋</div></div>
-                    <div class="ri-card-slot empty" id="riCard-1"><div class="ri-card-slot-ph">＋</div></div>
-                    <div class="ri-card-slot empty" id="riCard-2"><div class="ri-card-slot-ph">＋</div></div>
-                  </div>
-                  <div class="rs-card-stand-base"></div>
-                </div>
-                <!-- Rug -->
-                <div class="rs-rug" id="rsRug"></div>
-              </div>
+              <!-- BED hotspot (top-right corner) -->
+              <button class="rs-hotspot rs-furn-bed" onclick="openRoomPopup('bed')" title="Bed">
+                <span class="rs-hotspot-icon">🛏️</span>
+                <span class="rs-hotspot-label">Bed</span>
+              </button>
 
-              <!-- RIGHT: Bed + furniture items -->
-              <div class="rs-right-furniture">
-                <!-- Bed -->
-                <div class="rs-bed">
-                  <div class="rs-bed-headboard">
-                    <div class="rs-bed-hb-deco">🌸</div>
-                  </div>
-                  <div class="rs-bed-mattress">
-                    <div class="rs-bed-pillow rs-bp-1"></div>
-                    <div class="rs-bed-pillow rs-bp-2"></div>
-                    <div class="rs-bed-blanket"></div>
-                    <div class="rs-bed-plush">🧸</div>
-                  </div>
-                  <div class="rs-bed-frame"></div>
-                </div>
-                <!-- Side table -->
-                <div class="rs-side-table">
-                  <div class="rs-side-table-top">
-                    <span class="rs-st-lamp">🪔</span>
-                  </div>
-                  <div class="rs-side-table-leg"></div>
-                </div>
-                <!-- Extra furniture slots -->
-                <div class="rs-extra-furniture" id="riFurnitureRow"></div>
-              </div>
+              <!-- SHELF hotspot (right side, middle) -->
+              <button class="rs-hotspot rs-furn-shelf" onclick="openRoomPopup('shelf')" title="Shelf">
+                <span class="rs-hotspot-icon">📚</span>
+                <span class="rs-hotspot-label">Shelf</span>
+              </button>
+
+              <!-- DESK hotspot (bottom-left corner) -->
+              <button class="rs-hotspot rs-furn-desk" onclick="openRoomPopup('desk')" title="Desk">
+                <span class="rs-hotspot-icon">🖥️</span>
+                <span class="rs-hotspot-label">Desk</span>
+              </button>
+
+              <!-- Extra furniture items (bottom-right, decorative) -->
+              <div class="rs-extra-furniture" id="riFurnitureRow"></div>
 
             </div><!-- end rs-floor-layer -->
 
-            <!-- ── FLOOR ── -->
-            <div class="rs-floor" id="rsFloor"></div>
+            <!-- Legacy hidden elements for JS compat -->
+            <div id="rsCeiling"   style="display:none;"></div>
+            <div id="rsFigurines" style="display:none;"></div>
+
+            <!-- ── POPUP OVERLAY ── -->
+            <div class="rs-popup-overlay" id="rsPopupOverlay" onclick="closeRoomPopup()"></div>
+
+            <!-- ── POPUP PANEL (slides up from bottom) ── -->
+            <div class="rs-popup" id="rsPopup">
+              <div class="rs-popup-drag-handle"></div>
+              <div class="rs-popup-header">
+                <div class="rs-popup-title" id="rsPopupTitle">✦</div>
+                <button class="rs-popup-close" onclick="closeRoomPopup()">✕ Close</button>
+              </div>
+              <div class="rs-popup-body" id="rsPopupBody"></div>
+            </div>
 
           </div><!-- end room-scene -->
         </div>
@@ -16414,20 +16782,160 @@ function _applyRoomTheme(room){
 
   // Floor
   const floor = document.getElementById('rsFloor');
-  if(floor) floor.style.background = `linear-gradient(180deg, ${ts.floor} 0%, #050208 100%)`;
+  if(floor) floor.style.background = `${ts.floor || '#0a0618'}`;
 
-  // Ceiling
-  const ceil = document.getElementById('rsCeiling');
-  if(ceil) ceil.style.background = ts.ceil || 'rgba(0,0,0,0.3)';
-
-  // Curtains (CSS variable)
-  scene.style.setProperty('--rs-curtain', ts.curtain);
+  // Curtain color for popup
+  scene.style.setProperty('--rs-curtain-col', ts.curtain || '#3a0060');
 
   // Bed blanket & rug
   const blanket = scene.querySelector('.rs-bed-blanket');
   if(blanket) blanket.style.background = ts.blanket;
   const rug = document.getElementById('rsRug');
   if(rug) rug.style.background = ts.rug;
+}
+
+// ══════════════════════════════════════════════
+// ROOM POPUP SYSTEM
+// ══════════════════════════════════════════════
+let _rsCurrentRoom  = null;
+let _rsCurtainsOpen = false;
+
+function openRoomPopup(type){
+  const overlay = document.getElementById('rsPopupOverlay');
+  const popup   = document.getElementById('rsPopup');
+  const title   = document.getElementById('rsPopupTitle');
+  const body    = document.getElementById('rsPopupBody');
+  if(!overlay || !popup) return;
+
+  _rsCurtainsOpen = false; // reset curtain state each open
+
+  overlay.classList.add('rs-open');
+  popup.classList.add('rs-open');
+
+  switch(type){
+    case 'window':
+      title.innerHTML = '🪟 &nbsp;Window';
+      body.innerHTML  = _rspWindowContent();
+      break;
+    case 'bed':
+      title.innerHTML = '🛏️ &nbsp;Bed';
+      body.innerHTML  = _rspBedContent();
+      break;
+    case 'shelf':
+      title.innerHTML = '📚 &nbsp;Shelf &amp; Posters';
+      body.innerHTML  = _rspShelfContent(_rsCurrentRoom);
+      break;
+    case 'desk':
+      title.innerHTML = '🖥️ &nbsp;Desk';
+      body.innerHTML  = _rspDeskContent(_rsCurrentRoom);
+      break;
+  }
+}
+
+function closeRoomPopup(){
+  document.getElementById('rsPopupOverlay')?.classList.remove('rs-open');
+  document.getElementById('rsPopup')?.classList.remove('rs-open');
+}
+
+function _rspWindowContent(){
+  return `
+    <div class="rsp-window-frame">
+      <div class="rsp-window-sky">
+        <div class="rsp-window-moon">🌙</div>
+        <div class="rsp-window-stars"></div>
+        <div class="rsp-window-city">
+          <div class="rsp-city-b" style="width:22px;height:44%"></div>
+          <div class="rsp-city-b" style="width:18px;height:58%"></div>
+          <div class="rsp-city-b" style="width:28px;height:36%"></div>
+          <div class="rsp-city-b" style="width:16px;height:65%"></div>
+          <div class="rsp-city-b" style="width:20px;height:42%"></div>
+          <div class="rsp-city-b" style="width:14px;height:30%"></div>
+          <div class="rsp-city-b" style="width:26px;height:52%"></div>
+        </div>
+      </div>
+      <div class="rsp-curtains">
+        <div class="rsp-curtain-l" id="rspCurtainL"></div>
+        <div class="rsp-curtain-r" id="rspCurtainR"></div>
+      </div>
+    </div>
+    <div class="rsp-window-sill"></div>
+    <div class="rsp-win-controls">
+      <button class="rsp-ctrl-btn" id="rspCurtainBtn" onclick="_rspToggleCurtains()">🎭 Open Curtains</button>
+    </div>
+  `;
+}
+
+function _rspToggleCurtains(){
+  _rsCurtainsOpen = !_rsCurtainsOpen;
+  document.getElementById('rspCurtainL')?.classList.toggle('rsp-open', _rsCurtainsOpen);
+  document.getElementById('rspCurtainR')?.classList.toggle('rsp-open', _rsCurtainsOpen);
+  const btn = document.getElementById('rspCurtainBtn');
+  if(btn){
+    btn.textContent = _rsCurtainsOpen ? '🎭 Close Curtains' : '🎭 Open Curtains';
+    btn.classList.toggle('active', _rsCurtainsOpen);
+  }
+}
+
+function _rspBedContent(){
+  return `
+    <div class="rsp-bed-scene">
+      <span class="rsp-zzz rsp-zzz-1">z</span>
+      <span class="rsp-zzz rsp-zzz-2">z</span>
+      <span class="rsp-zzz rsp-zzz-3">z</span>
+      <span class="rsp-bed-emoji">🛏️</span>
+      <p class="rsp-bed-text">The bed looks so cozy...<br/><em>Maybe just a little rest~</em></p>
+      <button class="rsp-bed-btn" disabled>💤 Rest ・ Coming Soon</button>
+    </div>
+  `;
+}
+
+function _rspShelfContent(room){
+  const figs    = room?.figurines  || [];
+  const posters = room?.posters    || [];
+
+  const figHtml = Array.from({length:3},(_,i)=>
+    `<div class="rsp-fig-slot${figs[i]?'':' empty'}">${figs[i]||'＋'}</div>`
+  ).join('');
+
+  const posterHtml = Array.from({length:2},(_,i)=>{
+    if(posters[i]) return `<div class="rsp-poster-thumb"><div class="rsp-poster-pin"></div><img src="${escapeHtml(posters[i])}" onerror="this.parentElement.innerHTML='<div class=rsp-poster-pin></div>?'"/></div>`;
+    return `<div class="rsp-poster-thumb"><div class="rsp-poster-pin"></div>＋ Poster</div>`;
+  }).join('');
+
+  return `
+    <div class="rsp-shelf-section-title">FIGURINES</div>
+    <div class="rsp-shelf-figurines">${figHtml}</div>
+    <div class="rsp-shelf-section-title">WALL POSTERS</div>
+    <div class="rsp-shelf-posters">${posterHtml}</div>
+  `;
+}
+
+function _rspDeskContent(room){
+  const cards = room?.showcase_cards || [];
+  const cardHtml = Array.from({length:3},(_,i)=>{
+    if(cards[i]) return `<div class="rsp-desk-card-slot"><img src="${escapeHtml(cards[i])}" onerror="this.parentElement.innerHTML='?'"/></div>`;
+    return `<div class="rsp-desk-card-slot">＋</div>`;
+  }).join('');
+
+  const roomName = room?.name || '—';
+  const shortName = roomName.length > 10 ? roomName.slice(0,10)+'…' : roomName;
+
+  return `
+    <div class="rsp-desk-screen">
+      <div class="rsp-desk-screen-title">✦ SHOWCASE</div>
+      <div class="rsp-desk-cards">${cardHtml}</div>
+    </div>
+    <div class="rsp-desk-stats">
+      <div class="rsp-stat-box">
+        <span class="rsp-stat-val">${escapeHtml(shortName)}</span>
+        <span class="rsp-stat-label">Room Name</span>
+      </div>
+      <div class="rsp-stat-box">
+        <span class="rsp-stat-val">${room?.is_public ? '🌐' : '🔒'}</span>
+        <span class="rsp-stat-label">${room?.is_public ? 'Public' : 'Private'}</span>
+      </div>
+    </div>
+  `;
 }
 
 async function initRoomSystem(){ await refreshRoomsList(); }
@@ -16613,6 +17121,7 @@ async function joinRoom(roomId, roomName, isPublic){
 
   // Get full room data
   const room = _roomsData.find(r=>r.id===roomId) || {};
+  _rsCurrentRoom = room; // store for popup system
 
   // Header
   document.getElementById('riRoomName').textContent = roomName;
