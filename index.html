@@ -6591,6 +6591,77 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 }
 
 /* ── Room theme application (set via JS on .room-scene) ── */
+
+/* 2D room: wall panel + floor panel like a doll house cross-section */
+.room-scene {
+  display: flex;
+  flex-direction: column;
+}
+/* Wall panel takes most of the height */
+.rs-wall {
+  flex: 1;
+  min-height: 240px;
+  border-left: 6px solid rgba(0,0,0,0.4);
+  border-right: 6px solid rgba(0,0,0,0.4);
+  /* Subtle wallpaper texture lines */
+  background-image: repeating-linear-gradient(
+    180deg,
+    transparent 0px, transparent 39px,
+    rgba(255,255,255,0.015) 39px, rgba(255,255,255,0.015) 40px
+  );
+  background-blend-mode: overlay;
+}
+/* Baseboard strip between wall and floor */
+.rs-floor-layer {
+  border-top: 6px solid rgba(0,0,0,0.35);
+  border-left: 6px solid rgba(0,0,0,0.4);
+  border-right: 6px solid rgba(0,0,0,0.4);
+  padding: 6px 12px 0;
+  background: rgba(0,0,0,0.15);
+  /* subtle wood-plank lines on floor area */
+  background-image: repeating-linear-gradient(
+    90deg,
+    transparent 0px, transparent 59px,
+    rgba(0,0,0,0.12) 59px, rgba(0,0,0,0.12) 60px
+  );
+}
+/* Floor panel */
+.rs-floor {
+  border-left: 6px solid rgba(0,0,0,0.4);
+  border-right: 6px solid rgba(0,0,0,0.4);
+  border-bottom: 6px solid rgba(0,0,0,0.5);
+  /* wood planks */
+  background-image: repeating-linear-gradient(
+    90deg,
+    transparent 0px, transparent 59px,
+    rgba(0,0,0,0.18) 59px, rgba(0,0,0,0.18) 60px
+  ) !important;
+  background-blend-mode: multiply;
+}
+/* Ceiling border-bottom = coving strip */
+.rs-ceiling {
+  border-left: 6px solid rgba(0,0,0,0.4);
+  border-right: 6px solid rgba(0,0,0,0.4);
+  border-bottom: 4px solid rgba(255,255,255,0.07);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+}
+
+/* Mobile layout — collapse side panels */
+@media(max-width:600px){
+  .rs-window { width: 80px; left: 8px; top: 8px; }
+  .rs-poster-area { right: 8px; }
+  .rs-poster-slot { width: 55px; }
+  .rs-sticker-area { left: 100px; right: 70px; }
+  .rs-floor-layer { flex-wrap: wrap; gap: 8px; }
+  .rs-left-furniture, .rs-right-furniture { flex-direction: row; flex-wrap: wrap; justify-content: center; }
+  .rs-wardrobe-body { height: 60px; }
+  .rs-wardrobe { display: none; } /* hide wardrobe on very small screens */
+  .rs-bed-headboard { width: 80px; height: 38px; }
+  .rs-bed-mattress  { width: 80px; height: 36px; }
+  .rs-bed-frame     { width: 84px; }
+  .rs-desk-surface  { width: 64px; }
+  .rs-center-furniture { min-width: 120px; }
+}
 .crm-section-label {
   font-family: 'Cinzel Decorative', serif;
   font-size: 0.65em;
@@ -16303,6 +16374,62 @@ const ROOM_THEMES = [
   { name:'Meadow',      css:'linear-gradient(135deg,#040a02,#0c180a,#060e04)' },
 ];
 
+// Per-theme derived colours (wall, floor, ceiling, curtain, blanket, rug)
+const ROOM_THEME_STYLES = {
+  'Night Sky':  { wall:'#100828', wall2:'#0a0418', floor:'#0a0618', ceil:'#080214', curtain:'#2d1060', blanket:'linear-gradient(135deg,#2d1060,#5a24a8)', rug:'linear-gradient(90deg,#1a0838,#3d1a80,#1a0838)' },
+  'Cherry':     { wall:'#200812', wall2:'#160408', floor:'#120306', ceil:'#0e0204', curtain:'#6b0a2a', blanket:'linear-gradient(135deg,#6b0a2a,#c01850)', rug:'linear-gradient(90deg,#2d0a1a,#6b1a3a,#2d0a1a)' },
+  'Forest':     { wall:'#041208', wall2:'#020a04', floor:'#020804', ceil:'#010602', curtain:'#0a2810', blanket:'linear-gradient(135deg,#0a2810,#1a5020)', rug:'linear-gradient(90deg,#041408,#0a2814,#041408)' },
+  'Ocean':      { wall:'#020e1a', wall2:'#010810', floor:'#010610', ceil:'#01040c', curtain:'#042050', blanket:'linear-gradient(135deg,#042050,#0a4080)', rug:'linear-gradient(90deg,#020c1a,#043060,#020c1a)' },
+  'Sunset':     { wall:'#1a0800', wall2:'#100400', floor:'#0a0200', ceil:'#080200', curtain:'#4a1200', blanket:'linear-gradient(135deg,#4a1200,#8a2800)', rug:'linear-gradient(90deg,#1a0600,#3a1000,#1a0600)' },
+  'Candy':      { wall:'#18001e', wall2:'#100016', floor:'#0c0010', ceil:'#08000c', curtain:'#3a0050', blanket:'linear-gradient(135deg,#3a0050,#7000a0)', rug:'linear-gradient(90deg,#180020,#3a0060,#180020)' },
+  'Gold':       { wall:'#0c0a00', wall2:'#080600', floor:'#060400', ceil:'#040200', curtain:'#2a2000', blanket:'linear-gradient(135deg,#2a2000,#5a4400)', rug:'linear-gradient(90deg,#0c0800,#281e00,#0c0800)' },
+  'Frost':      { wall:'#040c14', wall2:'#020810', floor:'#020608', ceil:'#010406', curtain:'#082040', blanket:'linear-gradient(135deg,#082040,#103860)', rug:'linear-gradient(90deg,#040a10,#0c2030,#040a10)' },
+  'Ember':      { wall:'#150200', wall2:'#0a0100', floor:'#080100', ceil:'#050100', curtain:'#350500', blanket:'linear-gradient(135deg,#350500,#6a0a00)', rug:'linear-gradient(90deg,#120200,#300400,#120200)' },
+  'Meadow':     { wall:'#040a02', wall2:'#020601', floor:'#020401', ceil:'#010300', curtain:'#0a1e06', blanket:'linear-gradient(135deg,#0a1e06,#163808)', rug:'linear-gradient(90deg,#040a02,#0c1e06,#040a02)' },
+};
+
+function _applyRoomTheme(room){
+  const scene = document.getElementById('roomScene');
+  if(!scene) return;
+
+  // Find theme name from css
+  const matchedTheme = ROOM_THEMES.find(t => t.css === (room.theme_css || ROOM_THEMES[0].css));
+  const themeName = matchedTheme?.name || 'Night Sky';
+  const ts = ROOM_THEME_STYLES[themeName] || ROOM_THEME_STYLES['Night Sky'];
+
+  // Wall background — use banner_url as wallpaper if set
+  const wall = document.getElementById('rsWall');
+  if(wall){
+    if(room.banner_url){
+      wall.style.backgroundImage = `url('${room.banner_url}')`;
+      wall.style.backgroundSize  = 'cover';
+      wall.style.backgroundPosition = 'center';
+    } else {
+      wall.style.backgroundImage = 'none';
+      wall.style.background = `linear-gradient(180deg, ${ts.wall} 0%, ${ts.wall2} 100%)`;
+    }
+  }
+  // Scene base bg
+  scene.style.background = ts.wall2 || '#0a0418';
+
+  // Floor
+  const floor = document.getElementById('rsFloor');
+  if(floor) floor.style.background = `linear-gradient(180deg, ${ts.floor} 0%, #050208 100%)`;
+
+  // Ceiling
+  const ceil = document.getElementById('rsCeiling');
+  if(ceil) ceil.style.background = ts.ceil || 'rgba(0,0,0,0.3)';
+
+  // Curtains (CSS variable)
+  scene.style.setProperty('--rs-curtain', ts.curtain);
+
+  // Bed blanket & rug
+  const blanket = scene.querySelector('.rs-bed-blanket');
+  if(blanket) blanket.style.background = ts.blanket;
+  const rug = document.getElementById('rsRug');
+  if(rug) rug.style.background = ts.rug;
+}
+
 async function initRoomSystem(){ await refreshRoomsList(); }
 
 async function refreshRoomsList(){
@@ -16496,12 +16623,8 @@ async function joinRoom(roomId, roomName, isPublic){
   document.getElementById('riEditBtn').style.display   = isOwner ? '' : 'none';
   document.getElementById('riDeleteBtn').style.display = isOwner ? '' : 'none';
 
-  // Wallpaper / theme
-  const wp = document.getElementById('riWallpaper');
-  if(wp){
-    if(room.banner_url) { wp.style.backgroundImage = `url('${room.banner_url}')`; wp.style.background = ''; }
-    else wp.style.background = room.theme_css || ROOM_THEMES[0].css;
-  }
+  // Apply room theme to the scene
+  _applyRoomTheme(room);
 
   // Music
   const musicBar = document.getElementById('riMusicBar');
@@ -16557,40 +16680,40 @@ async function joinRoom(roomId, roomName, isPublic){
     const slot = document.getElementById(`riPoster-${i}`);
     if(!slot) continue;
     if(posters[i]){
-      slot.classList.remove('empty');
-      slot.innerHTML = `<img src="${escapeHtml(posters[i])}" onerror="this.parentElement.classList.add('empty');this.parentElement.innerHTML='<div class=ri-poster-ph>＋</div>'"/>`;
+      slot.innerHTML = `<div class="rs-poster-pin"></div><img src="${escapeHtml(posters[i])}" style="width:100%;height:100%;object-fit:cover;border-radius:4px;" onerror="this.parentElement.innerHTML='<div class=rs-poster-pin></div><div class=rs-poster-ph>＋ Poster</div>'"/>`;
     } else {
-      slot.classList.add('empty');
-      slot.innerHTML = '<div class="ri-poster-ph">＋</div>';
+      slot.innerHTML = '<div class="rs-poster-pin"></div><div class="rs-poster-ph">＋ Poster</div>';
     }
   }
 
-  // Stickers
+  // Stickers — scattered across wall
   const stickerWrap = document.getElementById('riStickers');
-  if(stickerWrap) stickerWrap.innerHTML = (room.stickers||[]).map(s=>`<span class="ri-sticker">${s}</span>`).join('') || '<span style="color:var(--text-dim);font-size:0.75em;font-style:italic;">No stickers yet~</span>';
+  if(stickerWrap){
+    const stickers = room.stickers || [];
+    if(stickers.length){
+      stickerWrap.innerHTML = stickers.map((s,i)=>`<span class="rs-sticker" style="animation-delay:${i*0.4}s;">${s}</span>`).join('');
+    } else {
+      stickerWrap.innerHTML = '';
+    }
+  }
 
-  // Furniture
+  // Furniture — shown as emoji items in extra furniture area
   const furnRow = document.getElementById('riFurnitureRow');
   if(furnRow){
     const furn = room.furniture || [];
-    furnRow.innerHTML = '';
-    for(let i=0;i<4;i++){
-      const div = document.createElement('div');
-      div.className = 'ri-furniture-slot' + (furn[i]?'':' empty');
-      div.textContent = furn[i] || '＋';
-      furnRow.appendChild(div);
-    }
+    furnRow.innerHTML = furn.map(f=>`<span class="rs-furn-item">${f}</span>`).join('');
   }
 
-  // Figurines
+  // Figurines on shelf
   const figWrap = document.getElementById('riFigurines');
   if(figWrap){
     const figs = room.figurines || [];
     figWrap.innerHTML = '';
     for(let i=0;i<3;i++){
       const div = document.createElement('div');
-      div.className = 'ri-figurine-slot' + (figs[i]?'':' empty');
+      div.className = 'rs-figurine' + (figs[i]?'':' empty');
       div.textContent = figs[i] || '＋';
+      if(figs[i]) div.style.animationDelay = (i*1.5)+'s';
       figWrap.appendChild(div);
     }
   }
