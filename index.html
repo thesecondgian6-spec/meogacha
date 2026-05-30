@@ -6096,253 +6096,501 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 }
 .room-card-enter:hover { background: rgba(255,157,199,0.15); }
 
-/* ── Room Interior ── */
-.ri-header {
+/* ══════════════════════════════════════════════════
+   ROOM SCENE — ILLUSTRATED ROOM
+══════════════════════════════════════════════════ */
+.room-scene {
+  position: relative;
+  width: 100%;
+  min-height: 520px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background: var(--rs-wall-color, linear-gradient(180deg,#1a0d2e 0%,#120820 100%));
+  transition: background 0.4s;
+}
+@media(max-width:600px){ .room-scene { min-height: 640px; } }
+
+/* ── Ceiling ── */
+.rs-ceiling {
+  position: relative;
+  height: 38px;
+  background: rgba(0,0,0,0.25);
+  border-bottom: 2px solid rgba(255,255,255,0.06);
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 10px 16px;
-  background: rgba(13,6,16,0.8);
-  backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--border);
-  flex-wrap: wrap;
-  position: sticky;
-  top: 53px;
-  z-index: 20;
+  justify-content: center;
+  flex-shrink: 0;
 }
-.ri-back-btn {
-  background: rgba(255,255,255,0.05); border: 1px solid var(--border);
-  color: var(--text-dim); border-radius: 10px; padding: 5px 12px;
-  font-size: 0.78em; cursor: pointer; transition: all 0.2s; white-space: nowrap;
+/* Fairy lights string */
+.rs-fairy-lights {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 100%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-around;
+  padding: 0 20px;
 }
-.ri-back-btn:hover { color: var(--pink); border-color: var(--pink); }
-.ri-header-center { flex: 1; min-width: 0; }
-.ri-room-name { font-family: 'Cinzel Decorative', serif; font-size: 0.8em; color: var(--pink-pale); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.ri-room-meta { font-size: 0.68em; color: var(--text-dim); font-family: 'JetBrains Mono', monospace; }
-.ri-header-right { display: flex; gap: 6px; align-items: center; flex-shrink: 0; }
-.ri-tab-btn {
-  background: rgba(255,255,255,0.04); border: 1px solid var(--border);
-  color: var(--text-dim); border-radius: 10px; padding: 5px 12px;
-  font-size: 0.75em; cursor: pointer; transition: all 0.2s; white-space: nowrap;
+.rs-fairy-lights::before {
+  content: '';
+  position: absolute;
+  top: 4px; left: 20px; right: 20px;
+  height: 1px;
+  background: rgba(255,255,255,0.15);
 }
-.ri-tab-btn.active { background: rgba(255,157,199,0.12); border-color: var(--pink); color: var(--pink); }
-.ri-edit-btn {
-  background: rgba(255,157,199,0.08); border: 1px solid rgba(255,157,199,0.2);
-  color: var(--pink); border-radius: 10px; padding: 5px 12px;
-  font-size: 0.75em; cursor: pointer; transition: all 0.2s;
+.rs-fairy-lights span {
+  width: 6px; height: 8px;
+  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+  background: #f1c40f;
+  box-shadow: 0 0 6px #f1c40f, 0 0 10px rgba(241,196,15,0.4);
+  position: relative;
+  bottom: 2px;
+  animation: fairyFlicker 2s ease-in-out infinite;
 }
-.ri-edit-btn:hover { background: rgba(255,157,199,0.16); }
-.ri-delete-btn {
-  background: rgba(231,76,60,0.08); border: 1px solid rgba(231,76,60,0.2);
-  color: #e74c3c; border-radius: 10px; padding: 5px 10px;
-  font-size: 0.75em; cursor: pointer;
+.rs-fairy-lights span:nth-child(2n)   { background:#ff9dc7; box-shadow:0 0 6px #ff9dc7,0 0 10px rgba(255,157,199,0.4); animation-delay:0.3s; }
+.rs-fairy-lights span:nth-child(3n)   { background:#5dade2; box-shadow:0 0 6px #5dade2,0 0 10px rgba(93,173,226,0.4); animation-delay:0.6s; }
+.rs-fairy-lights span:nth-child(4n)   { background:#58d68d; box-shadow:0 0 6px #58d68d,0 0 10px rgba(88,214,141,0.4); animation-delay:0.9s; }
+.rs-fairy-lights span:nth-child(5n)   { animation-delay:1.2s; }
+@keyframes fairyFlicker { 0%,100%{opacity:1;} 45%{opacity:0.5;} 50%{opacity:1;} 85%{opacity:0.7;} }
+
+/* Music bar in ceiling */
+.rs-music-bar {
+  position: absolute;
+  right: 12px; top: 50%; transform: translateY(-50%);
+  display: flex; align-items: center; gap: 6px;
+  background: rgba(0,0,0,0.5); backdrop-filter: blur(6px);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 20px; padding: 3px 10px;
+  max-width: 200px;
+}
+.rs-music-icon { font-size: 0.75em; flex-shrink: 0; }
+.rs-music-title { font-size: 0.66em; color: rgba(255,255,255,0.65); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 120px; font-style: italic; }
+.rs-music-eq { display:flex; gap:2px; align-items:flex-end; flex-shrink:0; }
+.rs-music-eq span { width:2px; border-radius:1px; background:var(--pink); animation:eqBounce 0.8s ease-in-out infinite; }
+.rs-music-eq span:nth-child(1){height:6px;} .rs-music-eq span:nth-child(2){height:10px;animation-delay:.15s;} .rs-music-eq span:nth-child(3){height:7px;animation-delay:.3s;} .rs-music-eq span:nth-child(4){height:5px;animation-delay:.45s;}
+
+/* ── Back Wall ── */
+.rs-wall {
+  position: relative;
+  flex: 1;
+  min-height: 220px;
+  display: flex;
+  align-items: flex-end;
+  padding: 16px 16px 0;
+  gap: 14px;
 }
 
-/* Wallpaper */
-.ri-wallpaper {
+/* ── Window ── */
+.rs-window {
+  position: absolute;
+  left: 24px; top: 12px;
+  width: 120px;
+}
+@media(max-width:500px){ .rs-window { width: 90px; left: 12px; } }
+.rs-window-frame {
   position: relative;
-  height: 160px;
-  background: linear-gradient(135deg, #1a0d2e 0%, #0d0618 100%);
-  background-size: cover;
-  background-position: center;
+  width: 100%;
+  aspect-ratio: 1/1.1;
+  border: 3px solid rgba(180,160,120,0.5);
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: inset 0 0 0 2px rgba(255,255,255,0.05), 0 4px 16px rgba(0,0,0,0.5);
+}
+/* Sky outside */
+.rs-window-sky {
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg, #020612 0%, #0a0f28 60%, #0d1535 100%);
   overflow: hidden;
 }
-.ri-wallpaper-overlay {
-  position: absolute; inset: 0;
-  background: linear-gradient(180deg, rgba(0,0,0,0.05), rgba(0,0,0,0.55));
+.rs-window-moon {
+  position: absolute; top: 8px; right: 12px;
+  font-size: 1.1em;
+  filter: drop-shadow(0 0 8px rgba(255,240,180,0.6));
+  animation: decoDrift 8s ease-in-out infinite;
 }
-@media(max-width:600px){ .ri-wallpaper { height: 120px; } }
+.rs-window-stars {
+  position: absolute; inset: 0;
+  background-image:
+    radial-gradient(1px 1px at 15% 20%, rgba(255,255,255,0.9) 0%, transparent 100%),
+    radial-gradient(1px 1px at 40% 10%, rgba(255,255,255,0.7) 0%, transparent 100%),
+    radial-gradient(1px 1px at 70% 25%, rgba(255,255,255,0.8) 0%, transparent 100%),
+    radial-gradient(1px 1px at 85% 15%, rgba(255,255,255,0.6) 0%, transparent 100%),
+    radial-gradient(1px 1px at 25% 40%, rgba(255,255,255,0.5) 0%, transparent 100%),
+    radial-gradient(1px 1px at 60% 35%, rgba(255,255,255,0.4) 0%, transparent 100%);
+}
+/* City buildings silhouette */
+.rs-window-cityscape {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 40%;
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  padding: 0 2px;
+}
+.rs-city-building {
+  flex: 1;
+  background: #0a0d16;
+  border-radius: 2px 2px 0 0;
+  position: relative;
+}
+.rs-city-building::before {
+  content: '';
+  position: absolute;
+  top: 4px; left: 2px; right: 2px;
+  height: 3px; background: rgba(241,196,15,0.3);
+  box-shadow: 0 6px 0 rgba(241,196,15,0.2), 0 12px 0 rgba(241,196,15,0.15);
+}
+.rs-cb-1 { height: 55%; }
+.rs-cb-2 { height: 80%; }
+.rs-cb-3 { height: 65%; }
+.rs-cb-4 { height: 90%; }
+.rs-cb-5 { height: 45%; }
+/* Window cross dividers */
+.rs-window-cross-h {
+  position: absolute; top: 50%; left: 0; right: 0;
+  height: 3px; background: rgba(180,160,120,0.45); z-index: 3;
+  transform: translateY(-50%);
+}
+.rs-window-cross-v {
+  position: absolute; left: 50%; top: 0; bottom: 0;
+  width: 3px; background: rgba(180,160,120,0.45); z-index: 3;
+  transform: translateX(-50%);
+}
+/* Curtains */
+.rs-curtain {
+  position: absolute; top: 0; bottom: 0;
+  width: 32%;
+  z-index: 4;
+  transition: width 0.5s cubic-bezier(.34,1.56,.64,1);
+}
+.rs-curtain-l {
+  left: 0;
+  background: linear-gradient(90deg, var(--rs-curtain, #4a1a5e) 70%, transparent);
+  border-radius: 0 0 4px 0;
+}
+.rs-curtain-r {
+  right: 0;
+  background: linear-gradient(270deg, var(--rs-curtain, #4a1a5e) 70%, transparent);
+  border-radius: 0 0 0 4px;
+}
+.rs-curtain-l::after, .rs-curtain-r::after {
+  content: '';
+  position: absolute;
+  top: 0; bottom: 0;
+  width: 6px;
+  background: repeating-linear-gradient(180deg, rgba(255,255,255,0.04) 0px, rgba(255,255,255,0.04) 8px, transparent 8px, transparent 16px);
+}
+.rs-curtain-l::after { right: 0; }
+.rs-curtain-r::after { left: 0; }
+/* Window sill */
+.rs-window-sill {
+  height: 8px;
+  background: linear-gradient(180deg, rgba(200,180,140,0.5), rgba(160,140,100,0.4));
+  border-radius: 0 0 4px 4px;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.4);
+}
+.rs-window-plant {
+  position: absolute;
+  bottom: -4px; left: 50%;
+  transform: translateX(-50%);
+  font-size: 1.2em;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+}
 
-/* Music bar */
-.ri-music-bar {
-  position: absolute; bottom: 10px; left: 12px; right: 12px;
-  display: flex; align-items: center; gap: 8px;
-  background: rgba(0,0,0,0.65); backdrop-filter: blur(8px);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 12px; padding: 6px 12px;
+/* ── Poster area ── */
+.rs-poster-area {
+  position: absolute;
+  right: 24px; top: 10px;
+  display: flex;
+  gap: 10px;
+}
+.rs-poster-slot {
+  width: 70px;
+  aspect-ratio: 2/3;
+  border-radius: 6px;
+  border: 2px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.04);
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
+  position: relative;
+  box-shadow: 2px 3px 10px rgba(0,0,0,0.5);
+}
+.rs-poster-slot img { width:100%; height:100%; object-fit:cover; }
+.rs-poster-pin {
+  position: absolute; top: -4px; left: 50%; transform: translateX(-50%);
+  width: 8px; height: 8px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #e74c3c, #922b21);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.5);
   z-index: 2;
 }
-.ri-music-icon { font-size: 1em; flex-shrink: 0; }
-.ri-music-title { font-size: 0.72em; color: rgba(255,255,255,0.7); font-style: italic; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.ri-music-eq {
-  display: flex; gap: 2px; align-items: flex-end; flex-shrink: 0; margin-left: auto;
-}
-.ri-music-eq span {
-  width: 3px; border-radius: 2px;
-  background: var(--pink); opacity: 0.7;
-  animation: eqBounce 0.8s ease-in-out infinite;
-}
-.ri-music-eq span:nth-child(1){ height: 8px; animation-delay:0s; }
-.ri-music-eq span:nth-child(2){ height: 14px; animation-delay:0.15s; }
-.ri-music-eq span:nth-child(3){ height: 10px; animation-delay:0.3s; }
-.ri-music-eq span:nth-child(4){ height: 6px; animation-delay:0.45s; }
-@keyframes eqBounce { 0%,100%{transform:scaleY(1);} 50%{transform:scaleY(0.3);} }
+.rs-poster-ph { font-size: 0.65em; color: rgba(255,255,255,0.2); font-style: italic; }
 
-/* Owner strip */
-.ri-owner-strip {
-  display: flex; align-items: center; gap: 12px;
-  padding: 14px 18px;
-  background: rgba(255,255,255,0.03);
-  border-bottom: 1px solid var(--border);
+/* ── Sticker area ── */
+.rs-sticker-area {
+  position: absolute;
+  left: 160px; right: 120px;
+  top: 10px; bottom: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  gap: 6px;
+  padding: 8px;
 }
-.ri-owner-avatar { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(255,157,199,0.3); flex-shrink: 0; }
-.ri-owner-name { font-weight: 700; font-size: 0.9em; color: var(--text); margin-bottom: 2px; }
-.ri-owner-bio { font-size: 0.78em; color: var(--text-dim); font-style: italic; }
-.ri-owner-badge {
-  margin-left: auto; flex-shrink: 0;
-  background: rgba(255,157,199,0.1); border: 1px solid rgba(255,157,199,0.2);
-  border-radius: 20px; padding: 3px 12px; font-size: 0.72em; color: var(--pink);
-  font-family: 'JetBrains Mono', monospace;
-}
+.rs-sticker { font-size: 1.4em; animation: decoDrift 5s ease-in-out infinite; display: inline-block; }
+.rs-sticker:nth-child(2n){animation-delay:.7s;} .rs-sticker:nth-child(3n){animation-delay:1.4s;} .rs-sticker:nth-child(4n){animation-delay:2.1s;}
 
-/* Content grid */
-.ri-content-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-  padding: 16px 18px 32px;
+/* ── Owner strip on wall ── */
+.rs-owner-strip {
+  position: absolute;
+  bottom: 10px; left: 50%; transform: translateX(-50%);
+  display: flex; align-items: center; gap: 8px;
+  background: rgba(0,0,0,0.5); backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 30px;
+  padding: 6px 14px 6px 6px;
+  white-space: nowrap;
 }
-@media(max-width:700px){ .ri-content-grid { grid-template-columns: 1fr; } }
+.rs-owner-avatar { width:30px; height:30px; border-radius:50%; object-fit:cover; border:1px solid rgba(255,157,199,0.3); flex-shrink:0; }
+.rs-owner-name { font-size:0.78em; font-weight:700; color:var(--text); }
+.rs-owner-bio  { font-size:0.68em; color:var(--text-dim); font-style:italic; max-width:160px; overflow:hidden; text-overflow:ellipsis; }
 
-.ri-col-left, .ri-col-right { display: flex; flex-direction: column; gap: 16px; }
-
-.ri-section { }
-.ri-section-label {
-  font-family: 'Cinzel Decorative', serif;
-  font-size: 0.65em;
-  color: rgba(255,157,199,0.5);
-  letter-spacing: 0.08em;
-  margin-bottom: 8px;
-  text-transform: uppercase;
+/* ── Floor layer ── */
+.rs-floor-layer {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  padding: 0 12px;
+  position: relative;
+  z-index: 5;
+  flex-shrink: 0;
 }
-
-/* Cards showcase */
-.ri-cards-showcase {
-  display: flex; gap: 8px;
+.rs-left-furniture, .rs-center-furniture, .rs-right-furniture {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
 }
-.ri-card-slot {
-  flex: 1; aspect-ratio: 3/4;
-  border-radius: 10px;
-  overflow: hidden;
-  border: 1px solid var(--border);
-  background: rgba(255,255,255,0.03);
-  display: flex; align-items: center; justify-content: center;
-  transition: all 0.2s;
+.rs-left-furniture   { flex: 0 0 auto; }
+.rs-center-furniture { flex: 1; align-items: center; }
+.rs-right-furniture  { flex: 0 0 auto; }
+
+/* ── Wardrobe ── */
+.rs-wardrobe { display: flex; flex-direction: column; align-items: center; }
+.rs-wardrobe-top {
+  width: 70px; height: 6px;
+  background: linear-gradient(90deg, #2a1a0e, #4a2e18, #2a1a0e);
+  border-radius: 3px 3px 0 0;
+  box-shadow: 0 -2px 6px rgba(0,0,0,0.4);
+}
+.rs-wardrobe-body {
+  width: 70px; height: 90px;
+  background: linear-gradient(180deg, #1e1208, #150d05);
+  border: 1px solid rgba(100,60,20,0.3);
+  border-top: none;
+  display: flex;
   position: relative;
 }
-.ri-card-slot img { width: 100%; height: 100%; object-fit: cover; }
-.ri-card-slot.empty { border-style: dashed; opacity: 0.5; }
-.ri-card-slot-ph { font-size: 1.2em; color: var(--text-dim); }
-.ri-card-slot .ri-card-rarity {
-  position: absolute; bottom: 3px; left: 0; right: 0;
-  text-align: center; font-size: 0.55em;
-  font-family: 'JetBrains Mono', monospace;
-  color: rgba(255,255,255,0.6);
-  text-shadow: 0 1px 4px rgba(0,0,0,0.8);
+.rs-wardrobe-door {
+  flex: 1;
+  border: 1px solid rgba(100,60,20,0.2);
+  position: relative;
+  background: linear-gradient(180deg, #221508, #180f04);
 }
+.rs-wd-left { border-right: none; }
+.rs-wardrobe-handle {
+  position: absolute;
+  top: 50%; right: 3px; transform: translateY(-50%);
+  width: 4px; height: 12px;
+  border-radius: 2px;
+  background: rgba(200,160,80,0.5);
+}
+.rs-wd-left .rs-wardrobe-handle { right: auto; left: 3px; }
+.rs-wardrobe-feet { display:flex; justify-content:space-around; width:70px; }
+.rs-wf { width:8px; height:6px; background:#0a0600; border-radius:0 0 3px 3px; }
 
-/* Figurine shelf */
-.ri-shelf { position: relative; }
-.ri-shelf-board {
-  height: 6px;
+/* ── Figurine shelf ── */
+.rs-figurine-shelf {
+  position: relative;
+  width: 90px;
+}
+.rs-fig-shelf-board {
+  height: 8px;
+  background: linear-gradient(90deg, #2a1a0e, #5a3a1a, #2a1a0e);
+  border-radius: 3px;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.5);
+  position: relative; z-index: 2;
+}
+.rs-fig-shelf-bracket {
+  position: absolute;
+  bottom: -14px;
+  width: 6px; height: 14px;
+  background: linear-gradient(180deg, #3a2010, #1a0e04);
+  border-radius: 0 0 2px 2px;
+}
+.rs-fsb-l { left: 8px; }
+.rs-fsb-r { right: 8px; }
+.rs-fig-items {
+  display: flex; gap: 4px; justify-content: center;
+  padding: 6px 4px 4px;
+  margin-top: 2px;
+}
+.rs-figurine {
+  font-size: 1.5em; line-height: 1;
+  display: flex; align-items: flex-end; justify-content: center;
+  min-width: 26px;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.6));
+  animation: decoDrift 5s ease-in-out infinite;
+}
+.rs-figurine:nth-child(2){ animation-delay:1.5s; }
+.rs-figurine:nth-child(3){ animation-delay:3s; }
+.rs-figurine.empty { font-size:0.7em; color:rgba(255,255,255,0.12); border:1px dashed rgba(255,255,255,0.08); border-radius:4px; width:26px; height:26px; align-items:center; }
+
+/* ── Desk ── */
+.rs-desk { display:flex; flex-direction:column; align-items:center; }
+.rs-desk-surface {
+  width: 80px; height: 18px;
   background: linear-gradient(90deg, #2a1a0e, #4a2e18, #2a1a0e);
   border-radius: 3px;
   box-shadow: 0 3px 8px rgba(0,0,0,0.5);
-  margin-bottom: -3px;
-  position: relative; z-index: 2;
+  display: flex; align-items: center; justify-content: center; gap: 4px;
 }
-.ri-figurines {
-  display: flex; gap: 6px;
-  background: linear-gradient(180deg, rgba(20,12,6,0.6), rgba(10,6,2,0.8));
-  border: 1px solid rgba(100,60,20,0.2);
-  border-top: none;
-  border-radius: 0 0 8px 8px;
-  padding: 10px 8px 8px;
-}
-.ri-figurine-slot {
-  flex: 1; min-height: 60px;
-  display: flex; align-items: flex-end; justify-content: center;
-  font-size: 1.8em;
-  border-radius: 6px;
-  transition: all 0.2s;
-}
-.ri-figurine-slot.empty {
-  border: 1px dashed rgba(255,255,255,0.08);
-  font-size: 0.9em; color: rgba(255,255,255,0.15);
-  align-items: center;
-}
+.rs-desk-item { font-size: 0.85em; }
+.rs-desk-item.small { font-size: 0.65em; }
+.rs-desk-legs { display:flex; justify-content:space-around; width:70px; }
+.rs-desk-leg { width:4px; height:28px; background:linear-gradient(180deg,#2a1a0e,#1a0e04); border-radius:0 0 2px 2px; }
 
-/* Poster wall */
-.ri-poster-wall {
-  display: flex; gap: 10px;
-}
-.ri-poster-slot {
-  flex: 1; aspect-ratio: 2/3;
+/* ── Card stand ── */
+.rs-card-stand { display:flex; flex-direction:column; align-items:center; gap:4px; }
+.rs-card-stand-label { font-family:'Cinzel Decorative',serif; font-size:0.6em; color:rgba(255,157,199,0.5); letter-spacing:0.08em; }
+.rs-cards-row { display:flex; gap:6px; }
+.ri-card-slot {
+  width: 52px; aspect-ratio: 3/4;
   border-radius: 8px; overflow: hidden;
   border: 1px solid var(--border);
   background: rgba(255,255,255,0.03);
   display: flex; align-items: center; justify-content: center;
-  position: relative;
+  box-shadow: 2px 4px 12px rgba(0,0,0,0.5);
 }
-.ri-poster-slot img { width: 100%; height: 100%; object-fit: cover; border-radius: 7px; }
-.ri-poster-slot.empty { border-style: dashed; opacity: 0.5; }
-.ri-poster-ph { font-size: 1.2em; color: var(--text-dim); }
-/* Pin decoration */
-.ri-poster-slot::before {
-  content: '📌';
-  position: absolute; top: -4px; left: 50%; transform: translateX(-50%);
-  font-size: 0.7em; z-index: 2;
+.ri-card-slot img { width:100%; height:100%; object-fit:cover; }
+.ri-card-slot.empty { border-style:dashed; opacity:0.4; }
+.ri-card-slot-ph { font-size:0.9em; color:var(--text-dim); }
+.rs-card-stand-base {
+  width: 100px; height: 6px;
+  background: linear-gradient(90deg, #1a1008, #3a2a10, #1a1008);
+  border-radius: 3px;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.5);
 }
-.ri-poster-slot.empty::before { display: none; }
 
-/* Sticker board */
-.ri-sticker-board {
+/* ── Rug ── */
+.rs-rug {
+  width: 100%; height: 14px;
+  background: var(--rs-rug, linear-gradient(90deg, #2d0a1a, #6b1a3a, #2d0a1a));
+  border-radius: 4px;
+  margin-top: 4px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.4);
   position: relative;
-  min-height: 80px;
-  background: linear-gradient(135deg, rgba(255,240,220,0.04), rgba(255,220,180,0.02));
-  border: 1px solid rgba(255,200,150,0.1);
-  border-radius: 12px;
   overflow: hidden;
-  padding: 10px;
 }
-.ri-sticker-board-bg {
-  position: absolute; inset: 0;
-  background-image: repeating-linear-gradient(0deg, rgba(255,255,255,0.015) 0px, rgba(255,255,255,0.015) 1px, transparent 1px, transparent 20px),
-                    repeating-linear-gradient(90deg, rgba(255,255,255,0.015) 0px, rgba(255,255,255,0.015) 1px, transparent 1px, transparent 20px);
+.rs-rug::before {
+  content: '';
+  position: absolute; inset: 2px;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 3px;
 }
-.ri-stickers { position: relative; z-index: 1; display: flex; flex-wrap: wrap; gap: 6px; }
-.ri-sticker { font-size: 1.6em; line-height: 1; animation: decoDrift 4s ease-in-out infinite; }
-.ri-sticker:nth-child(2){ animation-delay:0.5s; }
-.ri-sticker:nth-child(3){ animation-delay:1s; }
-.ri-sticker:nth-child(4){ animation-delay:1.5s; }
-.ri-sticker:nth-child(5){ animation-delay:2s; }
-.ri-sticker:nth-child(6){ animation-delay:2.5s; }
 
-/* Furniture row */
-.ri-furniture-row {
-  display: flex; gap: 8px; flex-wrap: wrap;
-}
-.ri-furniture-slot {
-  width: 52px; height: 52px;
-  border-radius: 10px;
+/* ── Bed ── */
+.rs-bed { display:flex; flex-direction:column; align-items:center; }
+.rs-bed-headboard {
+  width: 100px; height: 50px;
+  background: linear-gradient(180deg, #2a1a0e, #1a0e04);
+  border-radius: 6px 6px 0 0;
+  border: 1px solid rgba(100,60,20,0.3);
+  border-bottom: none;
   display: flex; align-items: center; justify-content: center;
-  font-size: 1.8em;
-  background: rgba(255,255,255,0.03);
-  border: 1px solid var(--border);
-  transition: all 0.2s;
+  box-shadow: 0 -4px 12px rgba(0,0,0,0.4);
+  position: relative;
 }
-.ri-furniture-slot.empty {
-  border-style: dashed; opacity: 0.4;
-  font-size: 1em; color: var(--text-dim);
+.rs-bed-hb-deco { font-size:1.3em; opacity:0.7; }
+.rs-bed-headboard::before {
+  content: '';
+  position: absolute; inset: 4px;
+  border: 1px solid rgba(100,60,20,0.2);
+  border-radius: 3px 3px 0 0;
+}
+.rs-bed-mattress {
+  width: 100px; height: 48px;
+  background: linear-gradient(180deg, #e8e0d8, #d0c8c0);
+  border-radius: 0 0 4px 4px;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(200,180,150,0.3);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+}
+.rs-bed-blanket {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  height: 55%;
+  background: var(--rs-blanket, linear-gradient(135deg, #4a1a5e, #7b2d96, #4a1a5e));
+  border-radius: 0 0 3px 3px;
+}
+.rs-bed-pillow {
+  position: absolute;
+  top: 5px;
+  width: 30px; height: 18px;
+  background: rgba(255,255,255,0.9);
+  border-radius: 4px;
+  box-shadow: 1px 1px 4px rgba(0,0,0,0.2);
+}
+.rs-bp-1 { left: 8px; }
+.rs-bp-2 { left: 44px; }
+.rs-bed-plush {
+  position: absolute;
+  bottom: 50%; right: 8px;
+  font-size: 1.1em;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));
+  animation: decoDrift 4s ease-in-out infinite;
+}
+.rs-bed-frame {
+  width: 104px; height: 6px;
+  background: linear-gradient(90deg, #2a1a0e, #4a2e18, #2a1a0e);
+  border-radius: 0 0 4px 4px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.5);
 }
 
-/* Chat wrap inside room */
-.ri-chat-wrap { display: flex; flex-direction: column; height: 100%; }
+/* ── Side table ── */
+.rs-side-table { display:flex; flex-direction:column; align-items:center; }
+.rs-side-table-top {
+  width: 34px; height: 6px;
+  background: linear-gradient(90deg, #2a1a0e, #4a2e18, #2a1a0e);
+  border-radius: 3px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+  display: flex; align-items: center; justify-content: center;
+  overflow: visible; position: relative;
+}
+.rs-st-lamp { font-size: 1em; position: absolute; top: -14px; filter: drop-shadow(0 0 6px rgba(255,200,80,0.6)); }
+.rs-side-table-leg { width:4px; height:28px; background:linear-gradient(180deg,#2a1a0e,#1a0e04); border-radius:0 0 2px 2px; }
 
-/* Tab content */
-.ri-tab-content { }
+/* ── Extra furniture ── */
+.rs-extra-furniture { display:flex; gap:6px; flex-wrap:wrap; justify-content:center; }
+.rs-furn-item { font-size:1.4em; filter:drop-shadow(0 2px 4px rgba(0,0,0,0.5)); }
 
-/* ── Create Room Modal ── */
+/* ── Floor ── */
+.rs-floor {
+  height: 20px;
+  background: var(--rs-floor, linear-gradient(180deg, #1a0e04 0%, #0a0600 100%));
+  flex-shrink: 0;
+  position: relative;
+  border-top: 2px solid rgba(255,255,255,0.05);
+}
+.rs-floor::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent);
+}
+
+/* ── Room theme application (set via JS on .room-scene) ── */
 .crm-section-label {
   font-family: 'Cinzel Decorative', serif;
   font-size: 0.65em;
@@ -7429,93 +7677,179 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 
         <!-- ═══ ROOM TAB ═══ -->
         <div id="riTab-room" class="ri-tab-content">
-          <div class="room-interior" id="roomInterior">
+          <div class="room-scene" id="roomScene">
 
-            <!-- Room banner/wallpaper -->
-            <div class="ri-wallpaper" id="riWallpaper">
-              <div class="ri-wallpaper-overlay"></div>
-              <!-- Music player -->
-              <div class="ri-music-bar" id="riMusicBar" style="display:none;">
-                <div class="ri-music-icon">🎵</div>
-                <div class="ri-music-info">
-                  <div class="ri-music-title" id="riMusicTitle">No music</div>
-                </div>
-                <div class="ri-music-eq">
+            <!-- ── CEILING / TOP ── -->
+            <div class="rs-ceiling" id="rsCeiling">
+              <!-- Hanging fairy lights -->
+              <div class="rs-fairy-lights">
+                <span></span><span></span><span></span><span></span><span></span>
+                <span></span><span></span><span></span><span></span><span></span>
+                <span></span><span></span><span></span><span></span><span></span>
+              </div>
+              <!-- Music player floats at top -->
+              <div class="rs-music-bar" id="riMusicBar" style="display:none;">
+                <div class="rs-music-icon">🎵</div>
+                <div class="rs-music-title" id="riMusicTitle">No music</div>
+                <div class="rs-music-eq">
                   <span></span><span></span><span></span><span></span>
                 </div>
               </div>
             </div>
 
-            <!-- Owner profile strip -->
-            <div class="ri-owner-strip" id="riOwnerStrip">
-              <img class="ri-owner-avatar" id="riOwnerAvatar" src="" alt="" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'"/>
-              <div class="ri-owner-info">
-                <div class="ri-owner-name" id="riOwnerName">Owner</div>
-                <div class="ri-owner-bio" id="riOwnerBio">Welcome to my room~</div>
+            <!-- ── BACK WALL ── -->
+            <div class="rs-wall" id="rsWall">
+
+              <!-- Window (left side of wall) -->
+              <div class="rs-window" id="rsWindow">
+                <div class="rs-window-frame">
+                  <div class="rs-window-pane rs-window-tl"></div>
+                  <div class="rs-window-pane rs-window-tr"></div>
+                  <div class="rs-window-pane rs-window-bl"></div>
+                  <div class="rs-window-pane rs-window-br"></div>
+                  <div class="rs-window-cross-h"></div>
+                  <div class="rs-window-cross-v"></div>
+                  <!-- Night sky outside -->
+                  <div class="rs-window-sky">
+                    <div class="rs-window-moon">🌙</div>
+                    <div class="rs-window-stars"></div>
+                    <div class="rs-window-cityscape">
+                      <div class="rs-city-building rs-cb-1"></div>
+                      <div class="rs-city-building rs-cb-2"></div>
+                      <div class="rs-city-building rs-cb-3"></div>
+                      <div class="rs-city-building rs-cb-4"></div>
+                      <div class="rs-city-building rs-cb-5"></div>
+                    </div>
+                  </div>
+                  <!-- Curtains -->
+                  <div class="rs-curtain rs-curtain-l" id="rsCurtainL"></div>
+                  <div class="rs-curtain rs-curtain-r" id="rsCurtainR"></div>
+                </div>
+                <div class="rs-window-sill"></div>
+                <!-- Potted plant on sill -->
+                <div class="rs-window-plant">🌱</div>
               </div>
-              <div class="ri-owner-badge" id="riOwnerBadge">👑 Host</div>
-            </div>
 
-            <!-- Room content grid -->
-            <div class="ri-content-grid">
+              <!-- Poster wall (right side) -->
+              <div class="rs-poster-area">
+                <div class="rs-poster-slot" id="riPoster-0">
+                  <div class="rs-poster-pin"></div>
+                  <div class="rs-poster-ph">＋ Poster</div>
+                </div>
+                <div class="rs-poster-slot" id="riPoster-1">
+                  <div class="rs-poster-pin"></div>
+                  <div class="rs-poster-ph">＋ Poster</div>
+                </div>
+              </div>
 
-              <!-- Left column: Cards showcase + figurines -->
-              <div class="ri-col-left">
-                <!-- Top 3 cards showcase -->
-                <div class="ri-section">
-                  <div class="ri-section-label">✦ Showcase Cards</div>
-                  <div class="ri-cards-showcase" id="riCardsShowcase">
+              <!-- Sticker wall (scattered across wall) -->
+              <div class="rs-sticker-area" id="riStickers"></div>
+
+              <!-- Owner name plate -->
+              <div class="rs-owner-strip" id="riOwnerStrip">
+                <img class="rs-owner-avatar" id="riOwnerAvatar" src="" alt="" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'"/>
+                <div class="rs-owner-text">
+                  <div class="rs-owner-name" id="riOwnerName">Owner</div>
+                  <div class="rs-owner-bio" id="riOwnerBio">Welcome~</div>
+                </div>
+              </div>
+
+            </div><!-- end rs-wall -->
+
+            <!-- ── FURNITURE LAYER ── -->
+            <div class="rs-floor-layer">
+
+              <!-- LEFT: Bookshelf + figurine shelf -->
+              <div class="rs-left-furniture">
+                <!-- Wardrobe/bookshelf unit -->
+                <div class="rs-wardrobe">
+                  <div class="rs-wardrobe-top"></div>
+                  <div class="rs-wardrobe-body">
+                    <div class="rs-wardrobe-door rs-wd-left">
+                      <div class="rs-wardrobe-handle"></div>
+                    </div>
+                    <div class="rs-wardrobe-door rs-wd-right">
+                      <div class="rs-wardrobe-handle"></div>
+                    </div>
+                  </div>
+                  <div class="rs-wardrobe-feet">
+                    <div class="rs-wf"></div><div class="rs-wf"></div>
+                  </div>
+                </div>
+
+                <!-- Figurine shelf mounted on wall above desk -->
+                <div class="rs-figurine-shelf">
+                  <div class="rs-fig-shelf-board"></div>
+                  <div class="rs-fig-shelf-bracket rs-fsb-l"></div>
+                  <div class="rs-fig-shelf-bracket rs-fsb-r"></div>
+                  <div class="rs-fig-items" id="riFigurines">
+                    <div class="rs-figurine empty">＋</div>
+                    <div class="rs-figurine empty">＋</div>
+                    <div class="rs-figurine empty">＋</div>
+                  </div>
+                </div>
+
+                <!-- Small desk -->
+                <div class="rs-desk">
+                  <div class="rs-desk-surface">
+                    <div class="rs-desk-item">🖥️</div>
+                    <div class="rs-desk-item small">📚</div>
+                  </div>
+                  <div class="rs-desk-legs">
+                    <div class="rs-desk-leg"></div>
+                    <div class="rs-desk-leg"></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- CENTER: Card showcase + floor deco -->
+              <div class="rs-center-furniture">
+                <!-- Cards display stand -->
+                <div class="rs-card-stand">
+                  <div class="rs-card-stand-label">✦ Showcase</div>
+                  <div class="rs-cards-row" id="riCardsShowcase">
                     <div class="ri-card-slot empty" id="riCard-0"><div class="ri-card-slot-ph">＋</div></div>
                     <div class="ri-card-slot empty" id="riCard-1"><div class="ri-card-slot-ph">＋</div></div>
                     <div class="ri-card-slot empty" id="riCard-2"><div class="ri-card-slot-ph">＋</div></div>
                   </div>
+                  <div class="rs-card-stand-base"></div>
                 </div>
-                <!-- Anime figurines shelf -->
-                <div class="ri-section">
-                  <div class="ri-section-label">🗄️ Figurine Shelf</div>
-                  <div class="ri-shelf">
-                    <div class="ri-shelf-board"></div>
-                    <div class="ri-figurines" id="riFigurines">
-                      <div class="ri-figurine-slot empty">＋</div>
-                      <div class="ri-figurine-slot empty">＋</div>
-                      <div class="ri-figurine-slot empty">＋</div>
-                    </div>
-                  </div>
-                </div>
+                <!-- Rug -->
+                <div class="rs-rug" id="rsRug"></div>
               </div>
 
-              <!-- Right column: Posters + stickers + furniture -->
-              <div class="ri-col-right">
-                <!-- Poster wall -->
-                <div class="ri-section">
-                  <div class="ri-section-label">🖼️ Poster Wall</div>
-                  <div class="ri-poster-wall" id="riPosterWall">
-                    <div class="ri-poster-slot empty" id="riPoster-0"><div class="ri-poster-ph">＋</div></div>
-                    <div class="ri-poster-slot empty" id="riPoster-1"><div class="ri-poster-ph">＋</div></div>
+              <!-- RIGHT: Bed + furniture items -->
+              <div class="rs-right-furniture">
+                <!-- Bed -->
+                <div class="rs-bed">
+                  <div class="rs-bed-headboard">
+                    <div class="rs-bed-hb-deco">🌸</div>
                   </div>
-                </div>
-                <!-- Sticker board -->
-                <div class="ri-section">
-                  <div class="ri-section-label">🎀 Sticker Board</div>
-                  <div class="ri-sticker-board" id="riStickerBoard">
-                    <div class="ri-sticker-board-bg"></div>
-                    <div class="ri-stickers" id="riStickers"></div>
+                  <div class="rs-bed-mattress">
+                    <div class="rs-bed-pillow rs-bp-1"></div>
+                    <div class="rs-bed-pillow rs-bp-2"></div>
+                    <div class="rs-bed-blanket"></div>
+                    <div class="rs-bed-plush">🧸</div>
                   </div>
+                  <div class="rs-bed-frame"></div>
                 </div>
-                <!-- Furniture row -->
-                <div class="ri-section">
-                  <div class="ri-section-label">🪑 Furniture</div>
-                  <div class="ri-furniture-row" id="riFurnitureRow">
-                    <div class="ri-furniture-slot empty">＋</div>
-                    <div class="ri-furniture-slot empty">＋</div>
-                    <div class="ri-furniture-slot empty">＋</div>
-                    <div class="ri-furniture-slot empty">＋</div>
+                <!-- Side table -->
+                <div class="rs-side-table">
+                  <div class="rs-side-table-top">
+                    <span class="rs-st-lamp">🪔</span>
                   </div>
+                  <div class="rs-side-table-leg"></div>
                 </div>
+                <!-- Extra furniture slots -->
+                <div class="rs-extra-furniture" id="riFurnitureRow"></div>
               </div>
 
-            </div><!-- end ri-content-grid -->
-          </div><!-- end room-interior -->
+            </div><!-- end rs-floor-layer -->
+
+            <!-- ── FLOOR ── -->
+            <div class="rs-floor" id="rsFloor"></div>
+
+          </div><!-- end room-scene -->
         </div>
 
         <!-- ═══ CHAT TAB ═══ -->
@@ -16174,13 +16508,23 @@ async function joinRoom(roomId, roomName, isPublic){
   if(room.music_url && musicBar){
     musicBar.style.display = 'flex';
     const ytMatch = room.music_url.match(/(?:v=|youtu\.be\/)([^&?/]+)/);
-    document.getElementById('riMusicTitle').textContent = ytMatch ? `YouTube — ${ytMatch[1]}` : room.music_url;
+    // Show URL domain as title while loading, then try to resolve
+    document.getElementById('riMusicTitle').textContent = '🎵 Loading...';
+    if(ytMatch){
+      // Use noembed to get real title
+      fetch(`https://noembed.com/embed?url=https://www.youtube.com/watch?v=${ytMatch[1]}`)
+        .then(r=>r.json())
+        .then(d=>{ const el=document.getElementById('riMusicTitle'); if(el) el.textContent = d.title||'Now Playing'; })
+        .catch(()=>{ const el=document.getElementById('riMusicTitle'); if(el) el.textContent='Now Playing'; });
+    } else {
+      document.getElementById('riMusicTitle').textContent = 'Now Playing';
+    }
     // Inject hidden YT iframe for audio
     let ytAudio = document.getElementById('roomYTAudio');
     if(!ytAudio){
       ytAudio = document.createElement('iframe');
       ytAudio.id = 'roomYTAudio';
-      ytAudio.style.cssText = 'display:none;width:0;height:0;position:absolute;';
+      ytAudio.style.cssText = 'display:none;width:0;height:0;position:absolute;pointer-events:none;';
       ytAudio.allow = 'autoplay';
       document.body.appendChild(ytAudio);
     }
@@ -16379,9 +16723,10 @@ async function deleteRoomMsg(id, el){
 }
 
 async function submitRoomChat(){
-  if(!state.discordId||state.isGuest){ showToast('Please log in! ʚɞ'); return; }
+  if(!state.discordId){ showToast('Please log in first! ʚɞ'); return; }
   if(!_currentRoomId){ showToast('Join a room first!'); return; }
   const inp=document.getElementById('roomChatInput');
+  if(!inp) return;
   const content=inp.value.trim();
   if(!content) return;
   inp.value='';
@@ -16400,26 +16745,6 @@ async function submitRoomChat(){
   }
   try { await sb.insert(ROOM_CHAT_TABLE, payload); }
   catch(e){ showToast('Could not send: '+(e.message||'error')); }
-}
-
-function leaveCurrentRoom(silent=false){
-  _currentRoomId=null;
-  if(_currentRoomChannel){ try{_currentRoomChannel.unsubscribe();}catch(_){} _currentRoomChannel=null; }
-  document.getElementById('roomsChatEmpty').style.display='';
-  document.getElementById('roomsActiveChat').style.display='none';
-  document.querySelectorAll('.room-entry').forEach(el=>el.classList.remove('active-room'));
-  if(!silent) showToast('Left the room');
-}
-
-async function deleteCurrentRoom(){
-  if(!state.discordId||state.isGuest||!_currentRoomId) return;
-  if(!confirm('Delete this room and all its messages?')) return;
-  try {
-    await sb.delete(ROOM_TABLE, { id: _currentRoomId });
-    leaveCurrentRoom(true);
-    showToast('Room deleted');
-    refreshRoomsList();
-  } catch(e){ showToast('Could not delete: '+(e.message||'error')); }
 }
 
 // ══════════════════════════════════════════════
