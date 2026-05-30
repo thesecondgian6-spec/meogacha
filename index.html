@@ -5331,7 +5331,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .zone-banner {
   position: relative;
   overflow: hidden;
-  height: clamp(140px, 28vw, 220px);
+  height: clamp(200px, 38vw, 320px);
   display: flex;
   align-items: flex-end;
   margin-bottom: 0;
@@ -5347,50 +5347,40 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 }
 .zone-banner-overlay {
   position: absolute; inset: 0;
-  background: linear-gradient(180deg, rgba(13,6,16,0.25) 0%, rgba(8,2,12,0.88) 100%);
+  background: linear-gradient(180deg, rgba(13,6,16,0.15) 0%, rgba(8,2,12,0.82) 100%);
   z-index: 1;
 }
 .zone-banner-content {
   position: relative;
   z-index: 2;
-  padding: 18px 22px;
+  padding: 22px 26px;
   width: 100%;
 }
 .zone-banner-title {
   font-family: 'Cinzel Decorative', serif;
-  font-size: clamp(1.1em, 4vw, 1.8em);
+  font-size: clamp(1.3em, 5vw, 2.2em);
   font-weight: 900;
   color: #fff;
-  text-shadow: 0 2px 16px rgba(0,0,0,0.9), 0 0 30px rgba(255,157,199,0.4);
-  margin-bottom: 4px;
+  text-shadow: 0 2px 20px rgba(0,0,0,0.95), 0 0 40px rgba(255,157,199,0.35);
+  margin-bottom: 6px;
   line-height: 1.2;
 }
 .zone-banner-sub {
-  font-size: clamp(0.72em, 2vw, 0.9em);
-  color: rgba(255,255,255,0.65);
+  font-size: clamp(0.78em, 2.2vw, 1em);
+  color: rgba(255,255,255,0.7);
   font-style: italic;
 }
-/* Floating petals/deco in banners */
-.zone-petal {
-  position: absolute;
-  z-index: 2;
-  font-size: clamp(1em, 2.5vw, 1.5em);
-  opacity: 0.55;
-  pointer-events: none;
-  animation: decoDrift 4s ease-in-out infinite;
-}
-.zone-petal-1 { top: 14px; right: 8%;  animation-delay: 0s; }
-.zone-petal-2 { top: 30px; right: 22%; animation-delay: 1.2s; }
-.zone-petal-3 { top: 18px; right: 38%; animation-delay: 2.4s; }
+/* Remove floating petals globally */
+.zone-petal { display: none !important; }
 
 /* Per-banner accent borders */
-.zone-banner-lobby  { border-bottom: 2px solid rgba(155,89,182,0.4); }
-.zone-banner-rooms  { border-bottom: 2px solid rgba(39,174,96,0.4); }
-.zone-banner-food   { border-bottom: 2px solid rgba(231,76,60,0.4); }
-.zone-banner-cinema { border-bottom: 2px solid rgba(241,196,15,0.4); }
-.zone-banner-arcade { border-bottom: 2px solid rgba(41,128,185,0.4); }
-.zone-banner-trades { border-bottom: 2px solid rgba(212,172,13,0.35); min-height:100px; background:linear-gradient(135deg,#1a1400,#0a0900); }
-.zone-banner-lb     { border-bottom: 2px solid rgba(231,76,60,0.35); min-height:100px; background:linear-gradient(135deg,#1a0204,#0a0102); }
+.zone-banner-lobby  { border-bottom: 2px solid rgba(155,89,182,0.5); }
+.zone-banner-rooms  { border-bottom: 2px solid rgba(39,174,96,0.5); }
+.zone-banner-food   { border-bottom: 2px solid rgba(231,76,60,0.5); }
+.zone-banner-cinema { border-bottom: 2px solid rgba(241,196,15,0.5); }
+.zone-banner-arcade { border-bottom: 2px solid rgba(41,128,185,0.5); }
+.zone-banner-trades { border-bottom: 2px solid rgba(212,172,13,0.4); min-height:160px; background:linear-gradient(135deg,#1a1400,#0a0900); }
+.zone-banner-lb     { border-bottom: 2px solid rgba(231,76,60,0.4);  min-height:160px; background:linear-gradient(135deg,#1a0204,#0a0102); }
 
 /* Live badge on cinema banner */
 .zone-cinema-live {
@@ -5423,7 +5413,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   margin-top: 8px;
 }
 
-/* Hub zone — remove top padding since banner does it */
+/* Hub zone */
 .hub-zone { padding: 0 0 100px; max-width: 100%; }
 .hub-zone > *:not(.zone-banner) { padding-left: 20px; padding-right: 20px; }
 .hub-zone > .lobby-layout,
@@ -5435,104 +5425,11 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   .hub-zone > .rooms-layout,
   .hub-zone > .cinema-layout { padding-left: 12px; padding-right: 12px; }
 }
-
-/* Lobby layout spacing fix */
-.lobby-layout { margin-top: 16px; }
-.rooms-layout { margin-top: 16px; }
+.lobby-layout  { margin-top: 16px; }
+.rooms-layout  { margin-top: 16px; }
 .cinema-layout { padding-top: 16px; }
 
-/* ══ FOOD CORNER redesign ══ */
-.food-shop-tabs {
-  margin-top: 16px;
-  padding: 0 20px 10px;
-  border-bottom: 1px solid var(--border);
-  margin-bottom: 16px;
-}
-@media(max-width:700px){ .food-shop-tabs { padding: 0 12px 10px; } }
-
-/* Food shop banner upgrade */
-.food-shop-banner {
-  border-radius: 16px;
-  padding: 20px 22px;
-  margin-bottom: 18px;
-  text-align: center;
-  position: relative;
-  overflow: hidden;
-}
-.fsb-deco {
-  font-size: 1.4em;
-  margin-bottom: 6px;
-  letter-spacing: 0.2em;
-  opacity: 0.8;
-}
-.fsb-title {
-  font-family: 'Cinzel Decorative', serif;
-  font-size: clamp(0.85em, 2.5vw, 1.1em);
-  color: var(--text);
-  margin-bottom: 4px;
-}
-.fsb-sub {
-  color: var(--text-dim);
-  font-style: italic;
-  font-size: clamp(0.75em, 2vw, 0.88em);
-}
-
-/* Maid café — soft pink */
-.food-banner-maid {
-  background: linear-gradient(135deg,rgba(255,157,199,0.12),rgba(192,132,184,0.08));
-  border: 1px solid rgba(255,157,199,0.25);
-}
-.food-banner-maid .fsb-title { color: var(--pink-pale); }
-
-/* Ichiraku — warm amber */
-.food-banner-ichiraku {
-  background: linear-gradient(135deg,rgba(241,196,15,0.1),rgba(230,126,34,0.07));
-  border: 1px solid rgba(241,196,15,0.2);
-}
-.food-banner-ichiraku .fsb-title { color: #f39c12; }
-
-/* Anteiku — deep slate */
-.food-banner-anteiku {
-  background: linear-gradient(135deg,rgba(44,62,80,0.4),rgba(30,40,50,0.3));
-  border: 1px solid rgba(52,73,94,0.5);
-}
-.food-banner-anteiku .fsb-title { color: #aab7c4; }
-
-/* Baratie — ocean red */
-.food-banner-baratie {
-  background: linear-gradient(135deg,rgba(231,76,60,0.1),rgba(41,128,185,0.07));
-  border: 1px solid rgba(231,76,60,0.2);
-}
-.food-banner-baratie .fsb-title { color: #e74c3c; }
-
-/* Food item cards — tighter on mobile */
-@media(max-width:480px){
-  .food-items-grid { grid-template-columns: 1fr 1fr !important; }
-  .food-item-card { padding: 12px 10px; }
-  .food-item-emoji { font-size: 1.8em; }
-  .food-item-name { font-size: 0.7em; }
-  .food-item-desc { font-size: 0.72em; }
-}
-
-/* ══ ARCADE neon card border ══ */
-.arcade-game-card { position: relative; }
-.agc-neon-border {
-  position: absolute;
-  inset: 0;
-  border-radius: 20px;
-  border: 1px solid var(--neon, var(--pink));
-  opacity: 0;
-  transition: opacity 0.25s;
-  box-shadow: inset 0 0 20px rgba(0,0,0,0), 0 0 12px var(--neon, var(--pink));
-  pointer-events: none;
-}
-.arcade-game-card:hover .agc-neon-border { opacity: 0.6; }
-
-/* Hub zone padding for trades/lb content */
-#hubZone-trades .section-title,
-#hubZone-leaderboard .section-title { padding-top: 16px; }
-
-/* hmap sky gif layer */
+/* hmap sky — full opacity GIF, no moon */
 .hmap-sky { position: relative; }
 .hmap-sky-gif {
   position: absolute;
@@ -5541,23 +5438,620 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   object-fit: cover;
   object-position: center;
   z-index: 0;
-  opacity: 0.35;
+  opacity: 1;
 }
 .hmap-sky-overlay {
   position: absolute; inset: 0;
-  background: linear-gradient(180deg, rgba(6,1,15,0.55) 0%, rgba(10,4,26,0.75) 100%);
+  background: linear-gradient(180deg, rgba(6,1,15,0.45) 0%, rgba(10,4,26,0.65) 100%);
   z-index: 1;
 }
-.hmap-moon, .hmap-stars, .hmap-clouds, .hmap-title-wrap { position: relative; z-index: 2; }
+.hmap-moon { display: none; }
+.hmap-stars, .hmap-clouds, .hmap-title-wrap { position: relative; z-index: 2; }
 
-/* Mobile: stack cinema layout */
-@media(max-width:900px){
-  .cinema-layout { padding-bottom: 20px; }
+/* ══════════════════════════════════════════════════
+   FOOD CORNER — RESTAURANT/BOOTH REDESIGN
+══════════════════════════════════════════════════ */
+.food-shop-tabs {
+  display: flex;
+  gap: 0;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  margin: 0;
+  padding: 0;
+  border-bottom: none;
+  background: rgba(0,0,0,0.3);
+}
+.food-shop-tabs::-webkit-scrollbar { display: none; }
+.food-shop-tab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255,255,255,0.03);
+  border: none;
+  border-bottom: 3px solid transparent;
+  border-right: 1px solid rgba(255,255,255,0.05);
+  padding: 14px 20px;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: var(--text-dim);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.92em;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.food-shop-tab:hover { background: rgba(255,255,255,0.06); color: var(--text); }
+.food-shop-tab.active { background: rgba(255,255,255,0.06); color: var(--text); border-bottom-color: var(--pink); }
+
+/* Per-restaurant themed active tab */
+#fshop-maid.active     { border-bottom-color: #ff9dc7; color: #ff9dc7; }
+#fshop-ichiraku.active { border-bottom-color: #f39c12; color: #f39c12; }
+#fshop-anteiku.active  { border-bottom-color: #7f8c8d; color: #aab7c4; }
+#fshop-baratie.active  { border-bottom-color: #e74c3c; color: #e74c3c; }
+
+.food-shop-content { padding: 0; }
+
+/* ── RESTAURANT INTERIOR WRAPPER ── */
+.restaurant-interior {
+  position: relative;
+  overflow: hidden;
+  min-height: 100vh;
 }
 
-/* food-shop-content padding fix */
-.food-shop-content { padding: 0 20px; }
-@media(max-width:700px){ .food-shop-content { padding: 0 12px; } }
+/* ── MAID CAFÉ ── */
+.restaurant-maid {
+  background:
+    radial-gradient(ellipse at 20% 0%, rgba(255,182,212,0.08) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 10%, rgba(192,132,184,0.06) 0%, transparent 50%),
+    linear-gradient(180deg, #0e0414 0%, #08020e 100%);
+}
+.restaurant-maid::before {
+  content: '';
+  position: absolute; inset: 0;
+  background-image:
+    radial-gradient(circle at 15% 20%, rgba(255,157,199,0.06) 0%, transparent 30%),
+    radial-gradient(circle at 85% 40%, rgba(192,132,184,0.05) 0%, transparent 25%);
+  pointer-events: none;
+}
+/* Maid cafe header sign */
+.maid-header {
+  position: relative;
+  padding: 28px 24px 20px;
+  text-align: center;
+  border-bottom: 1px solid rgba(255,157,199,0.12);
+}
+.maid-header::before {
+  content: '♡ ♡ ♡ ♡ ♡ ♡ ♡ ♡ ♡ ♡ ♡ ♡ ♡ ♡ ♡ ♡ ♡ ♡ ♡ ♡';
+  position: absolute;
+  top: 10px; left: 0; right: 0;
+  font-size: 0.7em;
+  color: rgba(255,157,199,0.2);
+  letter-spacing: 0.3em;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.maid-sign {
+  display: inline-block;
+  background: linear-gradient(135deg, rgba(255,157,199,0.12), rgba(192,132,184,0.08));
+  border: 1px solid rgba(255,157,199,0.25);
+  border-radius: 16px;
+  padding: 14px 28px;
+  position: relative;
+}
+.maid-sign-title {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: clamp(0.9em, 3vw, 1.3em);
+  color: #ffd6ea;
+  text-shadow: 0 0 20px rgba(255,157,199,0.5);
+  margin-bottom: 4px;
+}
+.maid-sign-sub { font-style: italic; font-size: 0.82em; color: rgba(255,157,199,0.6); }
+/* Menu board */
+.maid-menu-header {
+  padding: 14px 24px 6px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.maid-menu-label {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 0.72em;
+  color: rgba(255,157,199,0.5);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.maid-menu-line { flex: 1; height: 1px; background: rgba(255,157,199,0.1); }
+.maid-items-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 12px;
+  padding: 12px 24px 32px;
+}
+@media(max-width:600px){ .maid-items-grid { grid-template-columns: 1fr 1fr; padding: 10px 14px 28px; gap: 10px; } }
+
+/* ── ICHIRAKU RAMEN ── */
+.restaurant-ichiraku {
+  background: linear-gradient(180deg, #0e0800 0%, #060400 100%);
+  position: relative;
+}
+.ichiraku-header {
+  position: relative;
+  padding: 0;
+  overflow: hidden;
+}
+/* Noren curtain strips */
+.ichiraku-noren {
+  display: flex;
+  justify-content: center;
+  gap: 3px;
+  padding: 0 16px;
+  margin-bottom: -1px;
+}
+.ichiraku-noren-strip {
+  flex: 1;
+  max-width: 60px;
+  height: 80px;
+  background: linear-gradient(180deg, #8B0000 0%, #600000 100%);
+  border-radius: 0 0 8px 8px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.ichiraku-noren-strip::after {
+  content: '一楽';
+  font-size: 0.65em;
+  color: rgba(255,220,100,0.8);
+  writing-mode: vertical-rl;
+  letter-spacing: 0.1em;
+}
+.ichiraku-noren-strip:nth-child(even) { background: linear-gradient(180deg, #6B0000 0%, #400000 100%); }
+.ichiraku-sign-bar {
+  background: linear-gradient(90deg, #1a0a00, #2a1200, #1a0a00);
+  border-top: 3px solid #8B6914;
+  border-bottom: 3px solid #8B6914;
+  padding: 16px 24px;
+  text-align: center;
+  position: relative;
+}
+.ichiraku-sign-bar::before, .ichiraku-sign-bar::after {
+  content: '⬡';
+  position: absolute;
+  top: 50%; transform: translateY(-50%);
+  color: rgba(139,105,20,0.5);
+  font-size: 1.2em;
+}
+.ichiraku-sign-bar::before { left: 16px; }
+.ichiraku-sign-bar::after  { right: 16px; }
+.ichiraku-title {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: clamp(0.9em,3vw,1.3em);
+  color: #f5d670;
+  text-shadow: 0 0 16px rgba(245,214,112,0.4);
+  margin-bottom: 3px;
+}
+.ichiraku-sub { font-style: italic; font-size: 0.8em; color: rgba(245,214,112,0.5); }
+.ichiraku-counter {
+  background: linear-gradient(90deg, #0a0600, #120c00, #0a0600);
+  border-top: 2px solid rgba(139,105,20,0.3);
+  border-bottom: 2px solid rgba(139,105,20,0.2);
+  padding: 10px 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.ichiraku-counter-stools {
+  display: flex;
+  gap: 8px;
+}
+.ichiraku-stool { font-size: 1.1em; opacity: 0.5; }
+.ichiraku-counter-label {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.82em;
+  color: rgba(245,214,112,0.4);
+  font-style: italic;
+  margin-left: auto;
+}
+.ichiraku-menu-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+  padding: 16px 24px 32px;
+  background: linear-gradient(180deg, #0a0600 0%, #060400 100%);
+}
+@media(max-width:600px){ .ichiraku-menu-grid { grid-template-columns: 1fr 1fr; padding: 12px 14px 28px; gap: 10px; } }
+
+/* ── ANTEIKU CAFÉ ── */
+.restaurant-anteiku {
+  background: linear-gradient(180deg, #07080a 0%, #040507 100%);
+  position: relative;
+}
+.anteiku-header {
+  padding: 0;
+  position: relative;
+  overflow: hidden;
+}
+.anteiku-window-scene {
+  position: relative;
+  height: 120px;
+  background: linear-gradient(180deg, #0d1117 0%, #080c10 100%);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-bottom: 1px solid rgba(100,120,140,0.15);
+}
+.anteiku-rain {
+  position: absolute; inset: 0;
+  background-image: repeating-linear-gradient(
+    170deg,
+    transparent 0px, transparent 3px,
+    rgba(150,180,220,0.08) 3px, rgba(150,180,220,0.08) 4px
+  );
+  background-size: 20px 60px;
+  animation: rainFall 1.2s linear infinite;
+  pointer-events: none;
+}
+@keyframes rainFall { from{background-position:0 0;} to{background-position:-10px 60px;} }
+.anteiku-window-frame {
+  position: relative;
+  z-index: 2;
+  width: 140px;
+  height: 90px;
+  border: 3px solid rgba(80,100,120,0.4);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, rgba(20,40,60,0.6), rgba(10,20,30,0.8));
+  box-shadow: 0 0 30px rgba(100,150,200,0.08);
+}
+.anteiku-window-cross {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  pointer-events: none;
+}
+.anteiku-window-cross::before { content: ''; position: absolute; top: 50%; left: 0; right: 0; height: 2px; background: rgba(80,100,120,0.3); }
+.anteiku-window-cross::after  { content: ''; position: absolute; left: 50%; top: 0; bottom: 0; width: 2px; background: rgba(80,100,120,0.3); }
+.anteiku-cityscape {
+  font-size: 1.8em;
+  filter: brightness(0.3) blur(1px);
+}
+.anteiku-sign-area {
+  background: #070809;
+  padding: 18px 24px;
+  text-align: center;
+  border-bottom: 1px solid rgba(100,120,140,0.1);
+}
+.anteiku-logo {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: clamp(0.9em,3vw,1.3em);
+  color: #8faec4;
+  letter-spacing: 0.08em;
+  margin-bottom: 4px;
+  text-shadow: 0 0 20px rgba(100,150,200,0.3);
+}
+.anteiku-sub { font-style: italic; font-size: 0.8em; color: rgba(120,140,160,0.5); }
+.anteiku-menu-header {
+  padding: 12px 24px 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.anteiku-menu-label { font-family:'JetBrains Mono',monospace; font-size:0.68em; color:rgba(100,130,160,0.5); text-transform:uppercase; letter-spacing:0.1em; }
+.anteiku-menu-line  { flex:1; height:1px; background:rgba(100,130,160,0.1); }
+.anteiku-menu-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+  padding: 10px 24px 32px;
+}
+@media(max-width:600px){ .anteiku-menu-grid { grid-template-columns: 1fr 1fr; padding: 10px 14px 28px; gap: 10px; } }
+
+/* ── BARATIE ── */
+.restaurant-baratie {
+  background: linear-gradient(180deg, #03080f 0%, #020509 100%);
+  position: relative;
+  overflow: hidden;
+}
+.baratie-ocean {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  height: 120px;
+  background: linear-gradient(180deg, transparent, rgba(10,40,80,0.15));
+  overflow: hidden;
+  pointer-events: none;
+}
+.baratie-wave {
+  position: absolute;
+  left: -100%; right: -100%;
+  height: 30px;
+  background: linear-gradient(180deg, rgba(41,128,185,0.08), transparent);
+  border-radius: 50%;
+  animation: waveRoll 6s ease-in-out infinite;
+}
+.baratie-wave:nth-child(2) { bottom: 20px; animation-delay: -2s; animation-duration: 8s; opacity: 0.6; }
+.baratie-wave:nth-child(3) { bottom: 40px; animation-delay: -4s; animation-duration: 10s; opacity: 0.4; }
+.baratie-wave-1 { bottom: 0; }
+@keyframes waveRoll { 0%,100%{transform:translateX(-5%) scaleY(1);} 50%{transform:translateX(5%) scaleY(1.3);} }
+.baratie-header {
+  position: relative;
+  z-index: 2;
+  padding: 0;
+  text-align: center;
+}
+.baratie-ship-name {
+  background: linear-gradient(180deg, #0d1a2e, #081018);
+  border-bottom: 3px solid rgba(41,128,185,0.3);
+  padding: 20px 24px;
+  position: relative;
+}
+.baratie-flags {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 10px;
+  font-size: 1.2em;
+}
+.baratie-title {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: clamp(0.9em,3vw,1.3em);
+  color: #e74c3c;
+  text-shadow: 0 0 20px rgba(231,76,60,0.4);
+  margin-bottom: 4px;
+}
+.baratie-sub { font-style: italic; font-size: 0.8em; color: rgba(200,150,130,0.6); }
+.baratie-divider {
+  height: 2px;
+  background: repeating-linear-gradient(90deg, rgba(41,128,185,0.3) 0px, rgba(41,128,185,0.3) 10px, transparent 10px, transparent 20px);
+}
+.baratie-menu-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+  padding: 16px 24px 32px;
+  position: relative;
+  z-index: 2;
+}
+@media(max-width:600px){ .baratie-menu-grid { grid-template-columns: 1fr 1fr; padding: 12px 14px 28px; gap: 10px; } }
+
+/* ── Shared menu item card redesign ── */
+.food-item-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 14px;
+  padding: 16px 14px;
+  cursor: pointer;
+  transition: all 0.22s cubic-bezier(.34,1.56,.64,1);
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  position: relative;
+  overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
+}
+.food-item-card::before { display: none; }
+.food-item-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(255,255,255,0.15);
+  box-shadow: 0 10px 28px rgba(0,0,0,0.4);
+}
+.food-item-card:active { transform: scale(0.97); }
+/* Per-restaurant card accent on hover */
+.restaurant-maid    .food-item-card:hover { border-color: rgba(255,157,199,0.3); box-shadow: 0 10px 28px rgba(255,157,199,0.08); }
+.restaurant-ichiraku .food-item-card:hover{ border-color: rgba(241,196,15,0.3);  box-shadow: 0 10px 28px rgba(241,196,15,0.08); }
+.restaurant-anteiku  .food-item-card:hover{ border-color: rgba(100,130,160,0.3); box-shadow: 0 10px 28px rgba(100,130,160,0.08); }
+.restaurant-baratie  .food-item-card:hover{ border-color: rgba(231,76,60,0.3);   box-shadow: 0 10px 28px rgba(231,76,60,0.08); }
+.food-item-emoji { font-size: 2em; text-align: center; }
+.food-item-name  { font-family:'Cinzel Decorative',serif; font-size:clamp(0.62em,1.5vw,0.74em); color:var(--text); text-align:center; line-height:1.3; }
+.food-item-desc  { font-size:clamp(0.68em,1.5vw,0.76em); color:var(--text-dim); text-align:center; font-style:italic; line-height:1.4; flex:1; }
+.food-item-effects { display:flex; flex-wrap:wrap; gap:4px; justify-content:center; }
+.food-effect-tag {
+  background: rgba(255,157,199,0.07);
+  border: 1px solid rgba(255,157,199,0.18);
+  border-radius: 8px;
+  padding: 2px 7px;
+  font-size: 0.65em;
+  color: var(--pink);
+  font-family: 'JetBrains Mono', monospace;
+}
+.food-item-price { display:flex; align-items:center; justify-content:center; gap:5px; font-family:'JetBrains Mono',monospace; font-size:0.78em; color:#f1c40f; font-weight:700; }
+.food-buy-btn {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: var(--text);
+  padding: 7px;
+  border-radius: 10px;
+  font-size: 0.8em;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family:'Cormorant Garamond',serif;
+  width: 100%;
+}
+.food-buy-btn:hover { background: rgba(255,255,255,0.1); transform:translateY(-1px); }
+.restaurant-maid     .food-buy-btn:hover { background:rgba(255,157,199,0.12); border-color:rgba(255,157,199,0.25); color:#ffd6ea; }
+.restaurant-ichiraku .food-buy-btn:hover { background:rgba(241,196,15,0.1);  border-color:rgba(241,196,15,0.25);  color:#f5d670; }
+.restaurant-anteiku  .food-buy-btn:hover { background:rgba(100,130,160,0.1); border-color:rgba(100,130,160,0.25); color:#aab7c4; }
+.restaurant-baratie  .food-buy-btn:hover { background:rgba(231,76,60,0.1);   border-color:rgba(231,76,60,0.25);   color:#e74c3c; }
+
+/* ══════════════════════════════════════════════════
+   ARCADE — NEON GAME HALL REDESIGN
+══════════════════════════════════════════════════ */
+/* Arcade zone gets scanline + neon bg effect */
+#hubZone-arcade {
+  background:
+    repeating-linear-gradient(0deg, rgba(0,0,0,0.06) 0px, rgba(0,0,0,0.06) 1px, transparent 1px, transparent 4px),
+    linear-gradient(180deg, #010610 0%, #010408 100%);
+  min-height: 100vh;
+}
+.arcade-games-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+  padding: 24px 0 8px;
+}
+.arcade-game-card {
+  background: #020a14;
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 16px;
+  padding: 0;
+  cursor: pointer;
+  transition: transform 0.22s cubic-bezier(.34,1.56,.64,1), box-shadow 0.22s;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.arcade-game-card:hover { transform: translateY(-5px) scale(1.01); }
+
+/* Game card screen area */
+.agc-screen {
+  position: relative;
+  height: 130px;
+  background: #000;
+  border-radius: 14px 14px 0 0;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-bottom: 2px solid var(--neon, #9b59b6);
+  box-shadow: inset 0 0 40px rgba(0,0,0,0.8), 0 0 20px var(--neon, #9b59b6);
+}
+.agc-screen-scanlines {
+  position: absolute; inset: 0;
+  background: repeating-linear-gradient(0deg, rgba(0,0,0,0.25) 0px, rgba(0,0,0,0.25) 1px, transparent 1px, transparent 4px);
+  pointer-events: none;
+  z-index: 2;
+}
+.agc-screen-glow {
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 50% 50%, rgba(255,255,255,0.04), transparent 70%);
+  pointer-events: none;
+}
+.agc-icon {
+  font-size: 3.5em;
+  position: relative;
+  z-index: 1;
+  filter: drop-shadow(0 0 16px var(--neon, #9b59b6));
+  animation: decoDrift 3s ease-in-out infinite;
+}
+/* Cabinet body */
+.agc-body {
+  padding: 14px 18px;
+  background: linear-gradient(180deg, #040d18, #020810);
+}
+.agc-title {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: clamp(0.8em,2vw,0.95em);
+  color: var(--neon, #fff);
+  text-shadow: 0 0 12px var(--neon, rgba(255,255,255,0.3));
+  margin-bottom: 6px;
+}
+.agc-desc {
+  color: rgba(255,255,255,0.45);
+  font-size: 0.78em;
+  font-style: italic;
+  line-height: 1.4;
+  margin-bottom: 8px;
+}
+.agc-rewards {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7em;
+  color: #f1c40f;
+  margin-bottom: 12px;
+  background: rgba(241,196,15,0.07);
+  border-radius: 6px;
+  padding: 3px 8px;
+  display: inline-block;
+}
+/* Insert coin button */
+.agc-play-btn {
+  background: var(--neon, #9b59b6);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 9px 20px;
+  font-size: 0.8em;
+  font-family: 'JetBrains Mono', monospace;
+  cursor: pointer;
+  letter-spacing: 0.05em;
+  width: 100%;
+  text-align: center;
+  transition: opacity 0.2s, transform 0.1s;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+}
+.agc-play-btn:hover { opacity: 0.85; }
+.agc-play-btn:active { transform: scale(0.97); }
+
+/* Neon border glow on hover */
+.agc-neon-border {
+  position: absolute; inset: 0;
+  border-radius: 16px;
+  border: 1px solid var(--neon, var(--pink));
+  opacity: 0;
+  transition: opacity 0.25s;
+  box-shadow: 0 0 20px var(--neon, var(--pink)), inset 0 0 20px rgba(0,0,0,0.3);
+  pointer-events: none;
+}
+.arcade-game-card:hover .agc-neon-border { opacity: 0.5; }
+.arcade-game-card:hover .agc-screen { box-shadow: inset 0 0 40px rgba(0,0,0,0.6), 0 0 30px var(--neon, #9b59b6); }
+
+/* Arcade cabinet legs */
+.agc-legs {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  padding: 0 20px 12px;
+  background: linear-gradient(180deg, #020810, #010508);
+}
+.agc-leg {
+  width: 12px; height: 16px;
+  background: linear-gradient(180deg, #1a2a3a, #0d1820);
+  border-radius: 0 0 4px 4px;
+  border: 1px solid rgba(255,255,255,0.05);
+  border-top: none;
+}
+
+/* ══ LOBBY background glow ══ */
+#hubZone-lobby {
+  background: radial-gradient(ellipse at 50% 0%, rgba(100,50,160,0.06) 0%, transparent 60%),
+              linear-gradient(180deg, #0a0414 0%, #050210 100%);
+}
+/* ══ ROOMS — cozy wood interior ══ */
+#hubZone-rooms {
+  background:
+    radial-gradient(ellipse at 30% 20%, rgba(39,174,96,0.04) 0%, transparent 50%),
+    linear-gradient(180deg, #020a04 0%, #010502 100%);
+}
+/* ══ CINEMA dark theater bg ══ */
+#hubZone-cinema {
+  background: linear-gradient(180deg, #040200 0%, #020100 100%);
+}
+/* ══ FOOD CORNER atmospheric bg ══ */
+#hubZone-food {
+  background: linear-gradient(180deg, #08020a 0%, #040106 100%);
+}
+/* ══ TRADES ══ */
+#hubZone-trades {
+  background: linear-gradient(180deg, #080600 0%, #040300 100%);
+  padding-top: 0;
+}
+#hubZone-trades > *:not(.zone-banner) { padding-top: 16px; }
+/* ══ LEADERBOARD ══ */
+#hubZone-leaderboard {
+  background: linear-gradient(180deg, #0a0102 0%, #050101 100%);
+  padding-top: 0;
+}
+#hubZone-leaderboard > *:not(.zone-banner) { padding-top: 16px; }
+
+/* Mobile: stack arcade cards */
+@media(max-width:600px){
+  .arcade-games-grid { grid-template-columns: 1fr; }
+  .agc-screen { height: 100px; }
+}
 </style>
 </head>
 <body>
@@ -6580,36 +7074,90 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
       </div>
 
       <div class="food-shop-content" id="fshopContent-maid">
-        <div class="food-shop-banner food-banner-maid">
-          <div class="fsb-deco">🎀 ♡ 🎀</div>
-          <div class="fsb-title">Welcome, Master~</div>
-          <div class="fsb-sub">Homemade treats served with love and sparkles ♡</div>
+        <div class="restaurant-interior restaurant-maid">
+          <div class="maid-header">
+            <div class="maid-sign">
+              <div class="maid-sign-title">🎀 Welcome, Master~ 🎀</div>
+              <div class="maid-sign-sub">Homemade treats served with love and sparkles ♡</div>
+            </div>
+          </div>
+          <div class="maid-menu-header">
+            <div class="maid-menu-label">Today's Menu</div>
+            <div class="maid-menu-line"></div>
+          </div>
+          <div class="maid-items-grid food-items-grid" id="foodGrid-maid"></div>
         </div>
-        <div class="food-items-grid" id="foodGrid-maid"></div>
       </div>
+
       <div class="food-shop-content" id="fshopContent-ichiraku" style="display:none;">
-        <div class="food-shop-banner food-banner-ichiraku">
-          <div class="fsb-deco">🍜 🌿 🍜</div>
-          <div class="fsb-title">Teuchi's Ichiraku Ramen</div>
-          <div class="fsb-sub">"The best ramen in the Hidden Leaf!" — Naruto Uzumaki</div>
+        <div class="restaurant-interior restaurant-ichiraku">
+          <div class="ichiraku-header">
+            <div class="ichiraku-noren">
+              <div class="ichiraku-noren-strip"></div>
+              <div class="ichiraku-noren-strip"></div>
+              <div class="ichiraku-noren-strip"></div>
+              <div class="ichiraku-noren-strip"></div>
+              <div class="ichiraku-noren-strip"></div>
+              <div class="ichiraku-noren-strip"></div>
+            </div>
+            <div class="ichiraku-sign-bar">
+              <div class="ichiraku-title">Teuchi's Ichiraku Ramen</div>
+              <div class="ichiraku-sub">"The best ramen in the Hidden Leaf!" — Naruto Uzumaki</div>
+            </div>
+            <div class="ichiraku-counter">
+              <div class="ichiraku-counter-stools">
+                <span class="ichiraku-stool">🪑</span>
+                <span class="ichiraku-stool">🪑</span>
+                <span class="ichiraku-stool">🪑</span>
+                <span class="ichiraku-stool">🪑</span>
+              </div>
+              <div class="ichiraku-counter-label">Pull up a stool, order a bowl~</div>
+            </div>
+          </div>
+          <div class="ichiraku-menu-grid food-items-grid" id="foodGrid-ichiraku"></div>
         </div>
-        <div class="food-items-grid" id="foodGrid-ichiraku"></div>
       </div>
+
       <div class="food-shop-content" id="fshopContent-anteiku" style="display:none;">
-        <div class="food-shop-banner food-banner-anteiku">
-          <div class="fsb-deco">☕ 🌙 ☕</div>
-          <div class="fsb-title">Anteiku Coffee House</div>
-          <div class="fsb-sub">A quiet place where all ghouls are welcome~</div>
+        <div class="restaurant-interior restaurant-anteiku">
+          <div class="anteiku-header">
+            <div class="anteiku-window-scene">
+              <div class="anteiku-rain"></div>
+              <div class="anteiku-window-frame">
+                <div class="anteiku-window-cross"></div>
+                <div class="anteiku-cityscape">🌃</div>
+              </div>
+            </div>
+            <div class="anteiku-sign-area">
+              <div class="anteiku-logo">☕ Anteiku Coffee House ☕</div>
+              <div class="anteiku-sub">A quiet place where all ghouls are welcome~</div>
+            </div>
+          </div>
+          <div class="anteiku-menu-header">
+            <div class="anteiku-menu-label">Order</div>
+            <div class="anteiku-menu-line"></div>
+          </div>
+          <div class="anteiku-menu-grid food-items-grid" id="foodGrid-anteiku"></div>
         </div>
-        <div class="food-items-grid" id="foodGrid-anteiku"></div>
       </div>
+
       <div class="food-shop-content" id="fshopContent-baratie" style="display:none;">
-        <div class="food-shop-banner food-banner-baratie">
-          <div class="fsb-deco">⚓ 🌊 ⚓</div>
-          <div class="fsb-title">The Baratie — Sea Restaurant</div>
-          <div class="fsb-sub">Sanji's finest cuisine, served with a kick 🦵</div>
+        <div class="restaurant-interior restaurant-baratie">
+          <div class="baratie-ocean">
+            <div class="baratie-wave baratie-wave-1"></div>
+            <div class="baratie-wave"></div>
+            <div class="baratie-wave"></div>
+          </div>
+          <div class="baratie-header">
+            <div class="baratie-ship-name">
+              <div class="baratie-flags">🏴‍☠️ ⚓ 🏴‍☠️</div>
+              <div class="baratie-title">The Baratie — Sea Restaurant</div>
+              <div class="baratie-sub">Sanji's finest cuisine, served with a kick 🦵</div>
+            </div>
+            <div class="baratie-divider"></div>
+          </div>
+          <div class="baratie-menu-grid food-items-grid" id="foodGrid-baratie"></div>
         </div>
-        <div class="food-items-grid" id="foodGrid-baratie"></div>
       </div>
     </div>
 
@@ -6744,19 +7292,33 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
       <div class="arcade-games-grid">
         <div class="arcade-game-card" onclick="launchGame('memory')">
           <div class="agc-neon-border" style="--neon:#9b59b6;"></div>
-          <div class="agc-icon">🧠</div>
-          <div class="agc-title">Memory Match</div>
-          <div class="agc-desc">Match anime card pairs before time runs out!</div>
-          <div class="agc-rewards">+20 coins · +10 XP per win</div>
-          <div class="agc-play-btn">Play Now ▶</div>
+          <div class="agc-screen" style="--neon:#9b59b6;">
+            <div class="agc-screen-scanlines"></div>
+            <div class="agc-screen-glow"></div>
+            <div class="agc-icon" style="--neon:#9b59b6;">🧠</div>
+          </div>
+          <div class="agc-body">
+            <div class="agc-title" style="--neon:#9b59b6;">Memory Match</div>
+            <div class="agc-desc">Match anime card pairs before time runs out!</div>
+            <div class="agc-rewards">+20 coins · +10 XP per win</div>
+            <div class="agc-play-btn" style="background:#9b59b6;">▶ INSERT COIN</div>
+          </div>
+          <div class="agc-legs"><div class="agc-leg"></div><div class="agc-leg"></div></div>
         </div>
         <div class="arcade-game-card" onclick="launchGame('reaction')">
           <div class="agc-neon-border" style="--neon:#e74c3c;"></div>
-          <div class="agc-icon">⚡</div>
-          <div class="agc-title">Reaction Rush</div>
-          <div class="agc-desc">Tap when the sakura glows — test your reflexes!</div>
-          <div class="agc-rewards">+15 coins · +5 XP per run</div>
-          <div class="agc-play-btn">Play Now ▶</div>
+          <div class="agc-screen" style="--neon:#e74c3c;">
+            <div class="agc-screen-scanlines"></div>
+            <div class="agc-screen-glow"></div>
+            <div class="agc-icon" style="--neon:#e74c3c;">⚡</div>
+          </div>
+          <div class="agc-body">
+            <div class="agc-title" style="--neon:#e74c3c;">Reaction Rush</div>
+            <div class="agc-desc">Tap when the sakura glows — test your reflexes!</div>
+            <div class="agc-rewards">+15 coins · +5 XP per run</div>
+            <div class="agc-play-btn" style="background:#e74c3c;">▶ INSERT COIN</div>
+          </div>
+          <div class="agc-legs"><div class="agc-leg"></div><div class="agc-leg"></div></div>
         </div>
       </div>
 
