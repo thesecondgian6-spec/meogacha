@@ -4726,37 +4726,39 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .hmap-cloud-3 { width: 160px; top: 16%; left: -15%; animation: cloudDrift 22s linear infinite 14s; opacity: 0.4; }
 @keyframes cloudDrift { from { transform: translateX(0); } to { transform: translateX(130vw); } }
 
-/* Title */
-.hmap-title-wrap { position: relative; z-index: 2; text-align: center; }
+/* Title — now inside GIF banner overlay */
+.hmap-title-wrap { position: relative; z-index: 2; text-align: center; display: flex; flex-direction: column; align-items: center; }
 .hmap-title {
   font-family: 'Cinzel Decorative', serif;
-  font-size: clamp(1.8em, 6vw, 3em);
+  font-size: clamp(1.5em, 6vw, 2.8em);
   font-weight: 900;
   background: linear-gradient(135deg, #ffd6ea, #ff9dc7, #c084b8, #ff9dc7, #ffd6ea);
   background-size: 300%;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   animation: pinkShift 8s linear infinite;
-  filter: drop-shadow(0 0 24px rgba(255,157,199,0.5));
-  margin-bottom: 6px;
+  filter: drop-shadow(0 0 24px rgba(255,157,199,0.6));
+  margin-bottom: 5px;
+  line-height: 1.2;
 }
 .hmap-subtitle {
   font-style: italic;
-  color: rgba(255,157,199,0.6);
-  font-size: 0.9em;
+  color: rgba(255,220,235,0.75);
+  font-size: clamp(0.75em, 2.5vw, 0.9em);
   margin-bottom: 10px;
 }
 .hmap-online-pill {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: rgba(255,157,199,0.08);
-  border: 1px solid rgba(255,157,199,0.2);
+  background: rgba(255,157,199,0.12);
+  border: 1px solid rgba(255,157,199,0.28);
   border-radius: 20px;
   padding: 4px 14px;
-  font-size: 0.78em;
-  color: rgba(255,157,199,0.7);
+  font-size: clamp(0.68em, 2vw, 0.78em);
+  color: rgba(255,200,220,0.85);
   font-family: 'JetBrains Mono', monospace;
+  backdrop-filter: blur(6px);
 }
 
 /* ── Town strip ── */
@@ -5106,11 +5108,11 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .lobby-layout {
   display: grid;
   grid-template-columns: 1fr 300px;
-  gap: 20px;
-  height: calc(100vh - 300px);
-  min-height: 500px;
+  gap: 16px;
+  height: calc(100vh - 340px);
+  min-height: 450px;
 }
-@media(max-width:900px){ .lobby-layout { grid-template-columns: 1fr; height: auto; } }
+@media(max-width:900px){ .lobby-layout { grid-template-columns: 1fr; height: auto; min-height: 0; gap: 12px; } }
 .lobby-chat-col { display: flex; flex-direction: column; min-height: 0; }
 .lobby-chat-card {
   background: linear-gradient(135deg, rgba(255,157,199,0.04), rgba(192,132,184,0.04));
@@ -5119,9 +5121,10 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   display: flex;
   flex-direction: column;
   height: 100%;
-  min-height: 500px;
+  min-height: 420px;
   overflow: hidden;
 }
+@media(max-width:700px){ .lobby-chat-card { min-height: 380px; border-radius: 14px; } }
 .lobby-chat-header {
   display: flex;
   align-items: center;
@@ -5258,12 +5261,12 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 /* ══ PLAYER ROOMS ══ */
 .rooms-layout {
   display: grid;
-  grid-template-columns: 320px 1fr;
-  gap: 20px;
-  height: calc(100vh - 300px);
-  min-height: 500px;
+  grid-template-columns: 300px 1fr;
+  gap: 16px;
+  height: calc(100vh - 340px);
+  min-height: 420px;
 }
-@media(max-width:900px){ .rooms-layout { grid-template-columns: 1fr; height: auto; } }
+@media(max-width:900px){ .rooms-layout { grid-template-columns: 1fr; height: auto; min-height: 0; gap: 12px; } }
 .rooms-browser-col {
   background: rgba(255,157,199,0.04);
   border: 1px solid var(--border);
@@ -5408,7 +5411,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
   padding: 2px 0 6px;
 }
 .food-shop-tabs::-webkit-scrollbar { display: none; }
@@ -5419,12 +5422,12 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   background: rgba(255,255,255,0.04);
   border: 1px solid var(--border);
   border-radius: 20px;
-  padding: 8px 18px;
+  padding: 7px 14px;
   cursor: pointer;
   transition: all 0.2s;
   color: var(--text-dim);
   font-family: 'Cormorant Garamond', serif;
-  font-size: 0.88em;
+  font-size: clamp(0.78em, 3vw, 0.88em);
   white-space: nowrap;
   flex-shrink: 0;
 }
@@ -5436,9 +5439,9 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   font-weight: 600;
 }
 .food-shop-banner {
-  border-radius: 16px;
-  padding: 22px 24px;
-  margin-bottom: 20px;
+  border-radius: 14px;
+  padding: 18px 16px;
+  margin-bottom: 16px;
   position: relative;
   overflow: hidden;
 }
@@ -5517,11 +5520,11 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 /* ══ CINEMA ══ */
 .cinema-layout {
   display: grid;
-  grid-template-columns: 1fr 300px;
-  gap: 20px;
+  grid-template-columns: 1fr 290px;
+  gap: 16px;
   align-items: start;
 }
-@media(max-width:900px){ .cinema-layout { grid-template-columns: 1fr; } }
+@media(max-width:900px){ .cinema-layout { grid-template-columns: 1fr; gap: 12px; } }
 .cinema-room {
   background: #050208;
   border: 1px solid rgba(255,157,199,0.15);
@@ -5746,15 +5749,16 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 }
 .arcade-games-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 16px;
-  margin-bottom: 24px;
+  grid-template-columns: repeat(auto-fill, minmax(min(260px, 100%), 1fr));
+  gap: 14px;
+  margin-bottom: 20px;
 }
+@media(max-width:500px){ .arcade-games-grid { grid-template-columns: 1fr; } }
 .arcade-game-card {
   background: linear-gradient(135deg, rgba(255,157,199,0.06), rgba(192,132,184,0.04));
   border: 1px solid var(--border);
-  border-radius: 20px;
-  padding: 24px 20px;
+  border-radius: 18px;
+  padding: 20px 16px;
   cursor: pointer;
   transition: all 0.25s;
   text-align: center;
@@ -6794,7 +6798,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
         </div>
       </div>
       <div class="lobby-decor-strip"></div>
-      <div class="lobby-layout" style="padding:20px 24px 0;max-width:1200px;margin:0 auto;height:auto;min-height:500px;">
+      <div class="lobby-layout" style="padding:16px 14px 0;max-width:1200px;margin:0 auto;height:auto;min-height:400px;box-sizing:border-box;">
         <!-- Left: Chat -->
         <div class="lobby-chat-col">
           <div class="lobby-chat-card">
@@ -6891,7 +6895,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
           </div>
         </div>
       </div>
-      <div class="rooms-layout" style="padding:20px 24px 0;max-width:1200px;margin:0 auto;height:auto;min-height:500px;">
+      <div class="rooms-layout" style="padding:16px 14px 0;max-width:1200px;margin:0 auto;height:auto;min-height:400px;box-sizing:border-box;">
         <!-- Left: Room list / browser -->
         <div class="rooms-browser-col">
           <div class="rooms-browser-header">
@@ -7044,7 +7048,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
           <span class="cinema-banner-ticker-inner">🎬 NOW SHOWING: Anime Openings  ✦  🍿 Grab your popcorn  ✦  🎬 React in real-time with other summoners  ✦  ⭐ Vote for your favorite openings  ✦  🎬 More series added every week  ✦  🍿 Cinema chat is always open  ✦  </span>
         </div>
       </div>
-      <div class="cinema-layout" style="padding:20px 24px 0;max-width:1200px;margin:0 auto;">
+      <div class="cinema-layout" style="padding:16px 14px 0;max-width:1200px;margin:0 auto;box-sizing:border-box;">
         <!-- Main screen area -->
         <div class="cinema-screen-col">
           <div class="cinema-room">
@@ -15185,6 +15189,9 @@ function enterHubZone(zone){
   if(zone==='arcade') syncArcadeWallet();
   if(zone==='cinema') initCinemaChat();
   if(zone==='rooms') refreshRoomsList();
+
+  // ── Ambient particle effects per zone ──
+  ZoneParticles.start(zone);
 }
 
 function returnToHubMap(){
@@ -15195,7 +15202,223 @@ function returnToHubMap(){
   });
   document.getElementById('hubMapView').style.display='';
   document.getElementById('hubBreadcrumb').style.display='none';
+  ZoneParticles.stop();
 }
+
+/* ══════════════════════════════════════════════
+   ZONE PARTICLES — ambient effects per zone
+   Lobby   → falling sakura petals (pink)
+   Food    → rising steam wisps (warm amber)
+   Rooms   → drifting sparkle dust (blue)
+   Cinema  → floating gold stars (gold)
+   Arcade  → neon pixel burst (pink/cyan)
+   ══════════════════════════════════════════════ */
+const ZoneParticles = (function(){
+  let _layer = null;
+  let _timers = [];
+  let _active = false;
+  let _zone = null;
+
+  // Configs per zone
+  const CONFIGS = {
+    lobby: {
+      count: window.innerWidth < 600 ? 10 : 18,
+      interval: 700,
+      fn: spawnPetal
+    },
+    food: {
+      count: window.innerWidth < 600 ? 6 : 12,
+      interval: 900,
+      fn: spawnSteam
+    },
+    rooms: {
+      count: window.innerWidth < 600 ? 8 : 14,
+      interval: 800,
+      fn: spawnSparkle
+    },
+    cinema: {
+      count: window.innerWidth < 600 ? 6 : 12,
+      interval: 1000,
+      fn: spawnCinemaStar
+    },
+    arcade: {
+      count: window.innerWidth < 600 ? 8 : 16,
+      interval: 400,
+      fn: spawnArcadePixel
+    }
+  };
+
+  function getLayer(){
+    if(!_layer){
+      _layer = document.createElement('div');
+      _layer.className = 'zone-particles';
+      _layer.id = 'zoneParticleLayer';
+      document.body.appendChild(_layer);
+    }
+    return _layer;
+  }
+
+  function rnd(min,max){ return Math.random()*(max-min)+min; }
+  function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+
+  // ── Sakura petals for Lobby ──
+  function spawnPetal(){
+    const layer = getLayer();
+    const p = document.createElement('div');
+    p.className = 'lobby-petal';
+    const colors = [
+      'rgba(255,157,199,0.75)',
+      'rgba(255,183,215,0.7)',
+      'rgba(230,130,180,0.65)',
+      'rgba(255,200,225,0.6)',
+      'rgba(200,100,160,0.55)'
+    ];
+    p.style.cssText = `
+      left:${rnd(0,100)}vw;
+      top:-20px;
+      background:${pick(colors)};
+      width:${rnd(7,13)}px;
+      height:${rnd(6,10)}px;
+      border-radius:50% 0 50% 0;
+      --dx:${rnd(-60,60)}px;
+      --dx2:${rnd(-40,40)}px;
+      animation: lobbyPetalFall ${rnd(5,9)}s ease-in-out ${rnd(0,1.5)}s forwards;
+      box-shadow: 0 0 4px rgba(255,157,199,0.3);
+    `;
+    layer.appendChild(p);
+    setTimeout(()=>{ p.remove(); }, 10500);
+  }
+
+  // ── Steam wisps for Food ──
+  function spawnSteam(){
+    const layer = getLayer();
+    const p = document.createElement('div');
+    p.className = 'food-steam';
+    p.style.cssText = `
+      left:${rnd(10,90)}vw;
+      bottom:${rnd(5,20)}vh;
+      width:${rnd(4,10)}px;
+      height:${rnd(20,45)}px;
+      --dur:${rnd(3,6)}s;
+      --delay:0s;
+      background: rgba(${pick(['255,200,150','255,180,120','240,160,100'])},0.14);
+      filter: blur(${rnd(3,6)}px);
+      animation: steamRise ${rnd(3,6)}s ease-out forwards;
+    `;
+    layer.appendChild(p);
+    setTimeout(()=>{ p.remove(); }, 6500);
+  }
+
+  // ── Sparkle dust for Rooms ──
+  function spawnSparkle(){
+    const layer = getLayer();
+    const p = document.createElement('div');
+    p.className = 'rooms-sparkle';
+    const colors = [
+      'rgba(120,200,255,0.65)',
+      'rgba(160,220,255,0.55)',
+      'rgba(80,180,255,0.5)',
+      'rgba(200,230,255,0.5)'
+    ];
+    p.style.cssText = `
+      left:${rnd(5,95)}vw;
+      top:${rnd(20,80)}vh;
+      background:${pick(colors)};
+      box-shadow: 0 0 5px ${pick(colors)};
+      --dur:${rnd(5,8)}s;
+      --delay:0s;
+      --tx:${rnd(-30,30)}px;
+      --ty:${rnd(-60,-20)}px;
+      --tx2:${rnd(-15,15)}px;
+      --ty2:${rnd(-100,-50)}px;
+      animation: sparkleFloat ${rnd(5,8)}s ease-in-out forwards;
+    `;
+    layer.appendChild(p);
+    setTimeout(()=>{ p.remove(); }, 9000);
+  }
+
+  // ── Cinema gold stars ──
+  function spawnCinemaStar(){
+    const layer = getLayer();
+    const p = document.createElement('div');
+    p.className = 'cinema-star-float';
+    const colors = ['rgba(241,196,15,0.8)','rgba(255,220,80,0.7)','rgba(255,240,160,0.6)'];
+    const c = pick(colors);
+    p.style.cssText = `
+      left:${rnd(5,95)}vw;
+      top:${rnd(30,90)}vh;
+      background:${c};
+      box-shadow: 0 0 5px ${c};
+      --dur:${rnd(4,7)}s;
+      --delay:0s;
+      --tx:${rnd(-40,40)}px;
+      --ty:${rnd(-80,-30)}px;
+      --tx2:${rnd(-20,20)}px;
+      --ty2:${rnd(-140,-80)}px;
+      animation: cinemaStarDrift ${rnd(4,7)}s ease-in-out forwards;
+    `;
+    layer.appendChild(p);
+    setTimeout(()=>{ p.remove(); }, 8000);
+  }
+
+  // ── Arcade neon pixels ──
+  function spawnArcadePixel(){
+    const layer = getLayer();
+    const p = document.createElement('div');
+    p.className = 'arcade-pixel';
+    const neonSets = [
+      { bg:'rgba(255,0,200,0.9)', sh:'rgba(255,0,200,0.6)' },
+      { bg:'rgba(0,200,255,0.9)', sh:'rgba(0,200,255,0.6)' },
+      { bg:'rgba(160,0,255,0.9)', sh:'rgba(160,0,255,0.6)' },
+      { bg:'rgba(0,255,160,0.9)', sh:'rgba(0,255,160,0.6)' }
+    ];
+    const n = pick(neonSets);
+    p.style.cssText = `
+      left:${rnd(5,95)}vw;
+      top:${rnd(20,90)}vh;
+      background:${n.bg};
+      box-shadow: 0 0 6px ${n.sh}, 0 0 12px ${n.sh};
+      --dur:${rnd(2,4)}s;
+      --delay:0s;
+      --tx:${rnd(-50,50)}px;
+      --ty:${rnd(-100,-40)}px;
+      --tx2:${rnd(-60,60)}px;
+      --ty2:${rnd(-180,-100)}px;
+      animation: arcadePixelBurst ${rnd(2,4)}s ease-out forwards;
+    `;
+    layer.appendChild(p);
+    setTimeout(()=>{ p.remove(); }, 4500);
+  }
+
+  function start(zone){
+    stop();
+    _active = true;
+    _zone = zone;
+    const cfg = CONFIGS[zone];
+    if(!cfg) return;
+    // Spawn initial burst
+    const burstCount = Math.min(cfg.count, 6);
+    for(let i=0; i<burstCount; i++){
+      setTimeout(()=>{ if(_active && _zone===zone) cfg.fn(); }, i*120);
+    }
+    // Then keep spawning at interval
+    const iv = setInterval(()=>{
+      if(!_active){ clearInterval(iv); return; }
+      cfg.fn();
+    }, cfg.interval);
+    _timers.push(iv);
+  }
+
+  function stop(){
+    _active = false;
+    _zone = null;
+    _timers.forEach(t=>clearInterval(t));
+    _timers = [];
+    if(_layer){ _layer.innerHTML = ''; }
+  }
+
+  return { start, stop };
+})();
 
 function syncHubOnline(){
   const src = document.getElementById('onlineCount');
