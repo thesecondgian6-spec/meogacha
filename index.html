@@ -17503,7 +17503,6 @@ function openCardShowcasePicker(slotIdx){
   const grid=document.getElementById('cardPickerGrid');
   if(!grid) return;
   const allCards = window.DEMO_CARDS || [];
-  const col = state.collection || [];
   const myCards = allCards.filter(c => col.includes(c.id)).slice(0, 40);
   if(!myCards.length){
     grid.innerHTML='<div style="grid-column:1/-1;color:var(--text-dim);font-size:0.8em;font-style:italic;text-align:center;">Could not load cards</div>';
