@@ -6670,6 +6670,127 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 }
 .rp-music-pause-btn:hover { background: rgba(255,157,199,0.1); color: var(--pink); border-color: rgba(255,157,199,0.3); }
 
+/* ── Floating music toggle button ── */
+.float-music-btn {
+  position: fixed;
+  bottom: 80px;
+  right: 18px;
+  z-index: 200;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--pink-deep), var(--purple));
+  border: none;
+  color: #fff;
+  font-size: 1.25em;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(255,157,199,0.45), 0 0 0 0 rgba(255,157,199,0.3);
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: musicBtnPulse 2s ease-in-out infinite;
+}
+.float-music-btn:hover { transform: scale(1.1); box-shadow: 0 6px 28px rgba(255,157,199,0.6); }
+.float-music-btn.paused { background: linear-gradient(135deg, #555, #333); animation: none; }
+@keyframes musicBtnPulse {
+  0%,100% { box-shadow: 0 4px 20px rgba(255,157,199,0.45), 0 0 0 0 rgba(255,157,199,0.3); }
+  50%      { box-shadow: 0 4px 20px rgba(255,157,199,0.45), 0 0 0 8px rgba(255,157,199,0); }
+}
+
+/* ── Figurine slots in edit panel ── */
+.crm-fig-slot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255,157,199,0.05);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 10px 8px;
+  min-width: 80px;
+  flex: 1;
+}
+.crm-fig-slot-preview {
+  width: 56px;
+  height: 56px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.03);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2em;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.crm-fig-slot-preview img { width: 100%; height: 100%; object-fit: cover; }
+.crm-fig-slot-actions { display: flex; gap: 4px; }
+.crm-fig-action-btn {
+  background: rgba(255,157,199,0.08);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  border-radius: 6px;
+  padding: 3px 7px;
+  font-size: 0.72em;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.crm-fig-action-btn:hover { border-color: var(--pink); color: var(--pink); }
+.crm-fig-action-btn.danger:hover { border-color: #e74c3c; color: #e74c3c; }
+.crm-fig-slot-label { font-size: 0.62em; color: var(--text-dim); }
+
+/* ── Spotify-like Desk Music Player ── */
+.pdm-spotify {
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  height: 100%;
+}
+.pdm-spotify-art {
+  width: 70px;
+  height: 70px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, var(--pink-deep), var(--purple));
+  margin: 0 auto 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2em;
+  flex-shrink: 0;
+  box-shadow: 0 4px 16px rgba(255,157,199,0.3);
+  animation: spotifyRotate 8s linear infinite;
+}
+.pdm-spotify-art.paused { animation-play-state: paused; }
+@keyframes spotifyRotate { to { transform: rotate(360deg); } }
+.pdm-spotify-title { font-size: 0.6em; font-weight: 700; color: #fff; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pdm-spotify-artist { font-size: 0.52em; color: rgba(255,255,255,0.5); text-align: center; margin-top: 1px; }
+.pdm-spotify-bar { height: 3px; background: rgba(255,255,255,0.15); border-radius: 2px; margin: 2px 0; position: relative; }
+.pdm-spotify-progress { height: 100%; border-radius: 2px; background: #1db954; width: 45%; transition: width 0.5s; }
+.pdm-spotify-eq-wrap { display: flex; justify-content: center; }
+.pdm-spotify-controls { display: flex; justify-content: center; gap: 10px; align-items: center; }
+.pdm-spotify-ctrl { background: none; border: none; color: rgba(255,255,255,0.6); font-size: 1em; cursor: pointer; padding: 2px; }
+.pdm-spotify-ctrl.play { background: #1db954; color: #000; border-radius: 50%; width: 24px; height: 24px; font-size: 0.8em; display: flex; align-items: center; justify-content: center; }
+
+/* ── Enlarged card showcase in desk PC ── */
+.pdm-cards-large {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  padding: 4px 0;
+}
+.pdm-card-large {
+  width: 52px;
+  aspect-ratio: 3/4;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid rgba(255,157,199,0.3);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+  flex-shrink: 0;
+}
+.pdm-card-large img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
 /* ── Ceiling ── */
 .rs-ceiling {
   position: relative;
@@ -8312,7 +8433,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
                 <span class="rp-music-icon">🎵</span>
                 <span class="rp-music-title" id="riMusicTitle">Music</span>
                 <div class="rp-music-eq"><span></span><span></span><span></span><span></span></div>
-                <button class="rp-music-pause-btn" id="musicPauseBtn" onclick="togglePersonalMusicPause()" title="Pause/resume (only you)">⏸</button>
+                <canvas id="riSpectrumCanvas" width="80" height="22" style="border-radius:3px;align-self:center;"></canvas>
               </div>
             </div>
             <!-- Top 3 cards strip — clickable for owner -->
@@ -8423,6 +8544,9 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
         </div>
 
       </div><!-- end roomInteriorView -->
+
+      <!-- Floating music toggle (bottom-right, shown only when music is playing) -->
+      <button id="floatingMusicBtn" class="float-music-btn" onclick="togglePersonalMusicPause()" title="Pause/resume music" style="display:none;">⏸</button>
 
       <!-- ══ INTERACTION POPUPS ══ -->
 
@@ -8976,8 +9100,15 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 
         <!-- Music -->
         <div class="crm-section-label">Room Music</div>
-        <label class="crm-label">YouTube URL (plays as BGM for visitors)</label>
-        <input id="createRoomMusic" class="admin-input" placeholder="https://youtube.com/watch?v=..." maxlength="200" style="margin-bottom:16px;"/>
+        <label class="crm-label">YouTube/SoundCloud URL or paste a direct audio/video link</label>
+        <input id="createRoomMusic" class="admin-input" placeholder="https://youtube.com/watch?v=..." maxlength="400" style="margin-bottom:8px;"/>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;">
+          <span style="font-size:0.72em;color:var(--text-dim);">— or —</span>
+          <label style="cursor:pointer;padding:7px 14px;border-radius:10px;background:rgba(255,157,199,0.12);border:1px solid var(--border);color:var(--pink);font-size:0.82em;display:inline-flex;align-items:center;gap:5px;">
+            📁 Import from Gallery<input type="file" accept="audio/*,video/*" style="display:none" onchange="handleRoomMusicUpload(this)"/>
+          </label>
+          <span id="roomMusicFileName" style="font-size:0.72em;color:var(--pink);font-style:italic;"></span>
+        </div>
 
         <!-- Stickers -->
         <div class="crm-section-label">Stickers</div>
@@ -8985,24 +9116,67 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
         <div class="crm-sticker-grid" id="crmStickerGrid"></div>
         <div style="font-size:0.72em;color:var(--text-dim);margin-top:4px;margin-bottom:16px;" id="crmStickerCount">0 / 6 selected</div>
 
-        <!-- Furniture -->
-        <div class="crm-section-label">Furniture</div>
-        <div class="crm-label">Pick up to 4 furniture pieces</div>
-        <div class="crm-furniture-grid" id="crmFurnitureGrid"></div>
-        <div style="font-size:0.72em;color:var(--text-dim);margin-top:4px;margin-bottom:16px;" id="crmFurnitureCount">0 / 4 selected</div>
-
         <!-- Figurines -->
         <div class="crm-section-label">Figurines</div>
-        <div class="crm-label">Pick up to 3 anime figurines for your shelf</div>
-        <div class="crm-figurine-grid" id="crmFigurineGrid"></div>
-        <div style="font-size:0.72em;color:var(--text-dim);margin-top:4px;margin-bottom:16px;" id="crmFigurineCount">0 / 3 selected</div>
+        <div class="crm-label">Pick up to 3 shelf figures — choose emoji or import an image</div>
+        <div id="crmFigurineSlots" style="display:flex;gap:10px;margin-bottom:8px;flex-wrap:wrap;">
+          <div class="crm-fig-slot" id="crmFigSlot0">
+            <div class="crm-fig-slot-preview" id="crmFigPreview0">?</div>
+            <div class="crm-fig-slot-actions">
+              <button class="crm-fig-action-btn" onclick="openFigEmojiPicker(0)" title="Pick emoji">😀</button>
+              <label class="crm-fig-action-btn" title="Upload image" style="cursor:pointer;">📁<input type="file" accept="image/*" style="display:none" onchange="handleFigImageUpload(this,0)"/></label>
+              <button class="crm-fig-action-btn danger" onclick="clearFigSlot(0)" title="Clear">✕</button>
+            </div>
+            <div class="crm-fig-slot-label">Slot 1</div>
+          </div>
+          <div class="crm-fig-slot" id="crmFigSlot1">
+            <div class="crm-fig-slot-preview" id="crmFigPreview1">?</div>
+            <div class="crm-fig-slot-actions">
+              <button class="crm-fig-action-btn" onclick="openFigEmojiPicker(1)" title="Pick emoji">😀</button>
+              <label class="crm-fig-action-btn" title="Upload image" style="cursor:pointer;">📁<input type="file" accept="image/*" style="display:none" onchange="handleFigImageUpload(this,1)"/></label>
+              <button class="crm-fig-action-btn danger" onclick="clearFigSlot(1)" title="Clear">✕</button>
+            </div>
+            <div class="crm-fig-slot-label">Slot 2</div>
+          </div>
+          <div class="crm-fig-slot" id="crmFigSlot2">
+            <div class="crm-fig-slot-preview" id="crmFigPreview2">?</div>
+            <div class="crm-fig-slot-actions">
+              <button class="crm-fig-action-btn" onclick="openFigEmojiPicker(2)" title="Pick emoji">😀</button>
+              <label class="crm-fig-action-btn" title="Upload image" style="cursor:pointer;">📁<input type="file" accept="image/*" style="display:none" onchange="handleFigImageUpload(this,2)"/></label>
+              <button class="crm-fig-action-btn danger" onclick="clearFigSlot(2)" title="Clear">✕</button>
+            </div>
+            <div class="crm-fig-slot-label">Slot 3</div>
+          </div>
+        </div>
+        <!-- Emoji picker popup -->
+        <div id="figEmojiPickerModal" style="display:none;position:fixed;inset:0;z-index:700;background:rgba(0,0,0,0.7);align-items:center;justify-content:center;">
+          <div style="background:var(--bg2);border:1px solid var(--border);border-radius:18px;padding:20px;max-width:340px;width:90%;max-height:60vh;overflow-y:auto;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;font-family:'Cinzel Decorative',serif;font-size:0.82em;color:var(--pink-pale);">
+              <span>🎎 Pick a Figure Emoji</span>
+              <button onclick="closeFigEmojiPicker()" style="background:rgba(255,255,255,0.06);border:1px solid var(--border);color:var(--text-dim);border-radius:8px;width:28px;height:28px;cursor:pointer;">✕</button>
+            </div>
+            <div id="figEmojiGrid" style="display:grid;grid-template-columns:repeat(6,1fr);gap:6px;"></div>
+          </div>
+        </div>
 
         <!-- Posters -->
         <div class="crm-section-label">Posters</div>
-        <label class="crm-label">Poster 1 URL</label>
-        <input id="createRoomPoster0" class="admin-input" placeholder="https://..." maxlength="300" style="margin-bottom:8px;"/>
-        <label class="crm-label">Poster 2 URL</label>
-        <input id="createRoomPoster1" class="admin-input" placeholder="https://..." maxlength="300" style="margin-bottom:16px;"/>
+        <label class="crm-label">Poster 1 — URL or upload from gallery</label>
+        <div style="display:flex;gap:6px;margin-bottom:8px;">
+          <input id="createRoomPoster0" class="admin-input" placeholder="https://..." maxlength="300" style="flex:1;"/>
+          <label style="cursor:pointer;padding:8px 12px;border-radius:10px;background:rgba(255,157,199,0.12);border:1px solid var(--border);color:var(--pink);font-size:0.82em;display:inline-flex;align-items:center;white-space:nowrap;" title="Upload poster">
+            📁<input type="file" accept="image/*" style="display:none" onchange="handlePosterUpload(this,0)"/>
+          </label>
+        </div>
+        <div id="createRoomPoster0Preview" style="display:none;width:60px;border-radius:6px;overflow:hidden;border:1px solid var(--border);margin-bottom:8px;"><img id="createRoomPoster0Img" style="width:100%;display:block;" onerror="this.parentElement.style.display='none'"/></div>
+        <label class="crm-label">Poster 2 — URL or upload from gallery</label>
+        <div style="display:flex;gap:6px;margin-bottom:8px;">
+          <input id="createRoomPoster1" class="admin-input" placeholder="https://..." maxlength="300" style="flex:1;"/>
+          <label style="cursor:pointer;padding:8px 12px;border-radius:10px;background:rgba(255,157,199,0.12);border:1px solid var(--border);color:var(--pink);font-size:0.82em;display:inline-flex;align-items:center;white-space:nowrap;" title="Upload poster">
+            📁<input type="file" accept="image/*" style="display:none" onchange="handlePosterUpload(this,1)"/>
+          </label>
+        </div>
+        <div id="createRoomPoster1Preview" style="display:none;width:60px;border-radius:6px;overflow:hidden;border:1px solid var(--border);margin-bottom:16px;"><img id="createRoomPoster1Img" style="width:100%;display:block;" onerror="this.parentElement.style.display='none'"/></div>
 
         <div style="display:flex;gap:8px;padding-top:4px;">
           <button class="btn-primary" style="flex:1;" onclick="submitCreateRoom()">Save Room ✦</button>
@@ -17082,7 +17256,19 @@ function openCreateRoomModal(editRoom=null){
   // Reset selections
   _crmSelectedStickers  = editRoom?.stickers  || [];
   _crmSelectedFurniture = editRoom?.furniture  || [];
-  _crmSelectedFigurines = editRoom?.figurines  || [];
+  // Init figurine data from room
+  if(editRoom?.figurines && Array.isArray(editRoom.figurines)){
+    _crmFigurineData = [0,1,2].map(i=>{
+      const v = editRoom.figurines[i];
+      if(!v) return {};
+      // Check if it's a dataURL or emoji
+      if(v.startsWith('data:') || v.startsWith('http') || v.startsWith('blob:')) return {type:'image',val:v};
+      return {type:'emoji',val:v};
+    });
+  } else {
+    _crmFigurineData = [{},{},{}];
+  }
+  _refreshFigurineSlots();
   _crmSelectedTheme     = editRoom?.theme_css  || null;
   // Pre-fill fields
   document.getElementById('createRoomName').value       = editRoom?.name       || '';
@@ -17100,8 +17286,6 @@ function openCreateRoomModal(editRoom=null){
   // Build pickers
   _buildCrmThemeGrid();
   _buildCrmStickerGrid();
-  _buildCrmFurnitureGrid();
-  _buildCrmFigurineGrid();
 }
 
 function closeCreateRoomModal(){
@@ -17135,6 +17319,16 @@ function crmToggleSticker(s){
   else { showToast('Max 6 stickers!'); return; }
   _buildCrmStickerGrid();
 }
+function _refreshFigurineSlots(){
+  for(let i=0;i<3;i++){
+    const d = _crmFigurineData[i];
+    const prev = document.getElementById(`crmFigPreview${i}`);
+    if(!prev) continue;
+    if(!d || !d.val){ prev.innerHTML=''; prev.textContent='?'; prev.style.fontSize='1.5em'; }
+    else if(d.type==='emoji'){ prev.innerHTML=''; prev.textContent=d.val; prev.style.fontSize='2em'; }
+    else { prev.innerHTML=`<img src="${d.val}" style="width:100%;height:100%;object-fit:cover;border-radius:6px;"/>`; }
+  }
+}
 function _buildCrmFurnitureGrid(){
   const g = document.getElementById('crmFurnitureGrid'); if(!g) return;
   g.innerHTML = ROOM_FURNITURE.map(f=>`
@@ -17147,19 +17341,6 @@ function crmToggleFurniture(e){
   else if(_crmSelectedFurniture.length < 4) _crmSelectedFurniture.push(e);
   else { showToast('Max 4 furniture pieces!'); return; }
   _buildCrmFurnitureGrid();
-}
-function _buildCrmFigurineGrid(){
-  const g = document.getElementById('crmFigurineGrid'); if(!g) return;
-  g.innerHTML = ROOM_FIGURINES.map(f=>`
-    <button class="crm-fig-btn ${_crmSelectedFigurines.includes(f.e)?'selected':''}"
-      onclick="crmToggleFigurine('${f.e}')"><span>${f.e}</span><span>${f.n}</span></button>`).join('');
-  document.getElementById('crmFigurineCount').textContent = `${_crmSelectedFigurines.length} / 3 selected`;
-}
-function crmToggleFigurine(e){
-  if(_crmSelectedFigurines.includes(e)) _crmSelectedFigurines = _crmSelectedFigurines.filter(x=>x!==e);
-  else if(_crmSelectedFigurines.length < 3) _crmSelectedFigurines.push(e);
-  else { showToast('Max 3 figurines!'); return; }
-  _buildCrmFigurineGrid();
 }
 
 async function submitCreateRoom(){
@@ -17177,7 +17358,7 @@ async function submitCreateRoom(){
     theme_css:  _crmSelectedTheme || ROOM_THEMES[0].css,
     music_url,
     posters:    [poster0, poster1],
-    figurines:  _crmSelectedFigurines,
+    figurines:  _crmFigurineData.map(d=>d?.val||null).filter(Boolean),
     owner_id:       state.discordId,
     owner_username: state.username || 'Player',
     owner_avatar:   state.customAvatar || state.avatar || '',
@@ -17236,8 +17417,10 @@ async function joinRoom(roomId, roomName, isPublic){
 
   // Music in profile bar
   const musicBar = document.getElementById('riMusicBar');
+  const floatBtn = document.getElementById('floatingMusicBtn');
   if(room.music_url && musicBar){
     musicBar.style.display = 'flex';
+    if(floatBtn) floatBtn.style.display = 'flex';
     const ytMatch = room.music_url.match(/(?:v=|youtu\.be\/)([^&?/]+)/);
     document.getElementById('riMusicTitle').textContent = 'Loading...';
     if(ytMatch){
@@ -17246,10 +17429,25 @@ async function joinRoom(roomId, roomName, isPublic){
         .then(d=>{ const el=document.getElementById('riMusicTitle'); if(el) el.textContent=d.title||'Now Playing'; })
         .catch(()=>{ const el=document.getElementById('riMusicTitle'); if(el) el.textContent='Now Playing'; });
     } else { document.getElementById('riMusicTitle').textContent='Now Playing'; }
-    let ytAudio = document.getElementById('roomYTAudio');
-    if(!ytAudio){ ytAudio=document.createElement('iframe'); ytAudio.id='roomYTAudio'; ytAudio.style.cssText='display:none;width:0;height:0;position:absolute;pointer-events:none;'; ytAudio.allow='autoplay'; document.body.appendChild(ytAudio); }
-    if(ytMatch) ytAudio.src=`https://www.youtube.com/embed/${ytMatch[1]}?autoplay=1&loop=1&playlist=${ytMatch[1]}&mute=0`;
-  } else if(musicBar){ musicBar.style.display='none'; }
+
+    // Handle YouTube vs direct audio/video URL
+    if(ytMatch){
+      let ytAudio = document.getElementById('roomYTAudio');
+      if(!ytAudio){ ytAudio=document.createElement('iframe'); ytAudio.id='roomYTAudio'; ytAudio.style.cssText='display:none;width:0;height:0;position:absolute;pointer-events:none;'; ytAudio.allow='autoplay'; document.body.appendChild(ytAudio); }
+      ytAudio.src=`https://www.youtube.com/embed/${ytMatch[1]}?autoplay=1&loop=1&playlist=${ytMatch[1]}&mute=0`;
+    } else {
+      // Direct audio/video or blob URL
+      let roomAudio = document.getElementById('roomDirectAudio');
+      if(!roomAudio){ roomAudio=document.createElement('audio'); roomAudio.id='roomDirectAudio'; roomAudio.style.cssText='display:none;'; roomAudio.loop=true; document.body.appendChild(roomAudio); }
+      roomAudio.src = room.music_url;
+      roomAudio.play().catch(()=>{});
+    }
+    _startProfileSpectrum();
+  } else {
+    if(musicBar) musicBar.style.display='none';
+    if(floatBtn) floatBtn.style.display='none';
+    _stopProfileSpectrum();
+  }
 
   // Top 3 showcase cards — clickable for owner
   const cards = room.showcase_cards || [];
@@ -17282,9 +17480,31 @@ async function joinRoom(roomId, roomName, isPublic){
     for(let i=0;i<3;i++){
       const sp=document.createElement('span');
       sp.className='td-shelf-fig';
-      sp.textContent=figs[i]||'📦';
+      const v = figs[i];
+      if(v && (v.startsWith('data:') || v.startsWith('http') || v.startsWith('blob:'))){
+        sp.innerHTML=`<img src="${escapeHtml(v)}" style="width:28px;height:28px;object-fit:cover;border-radius:4px;" onerror="this.parentElement.textContent='📦'"/>`;
+      } else {
+        sp.textContent=v||'📦';
+      }
       sp.style.animationDelay=(i*1.5)+'s';
       shelfItems.appendChild(sp);
+    }
+  }
+
+  // Popup shelf figurines
+  const popShelf=document.getElementById('popupShelfItems');
+  if(popShelf){
+    const figs=room.figurines||[];
+    if(figs.length){
+      popShelf.innerHTML=figs.map(f=>{
+        if(f && (f.startsWith('data:') || f.startsWith('http') || f.startsWith('blob:')))
+          return `<span class="popup-shelf-fig"><img src="${escapeHtml(f)}" style="width:44px;height:44px;object-fit:cover;border-radius:6px;" onerror="this.parentElement.textContent='📦'"/></span>`;
+        return `<span class="popup-shelf-fig">${f}</span>`;
+      }).join('');
+      document.getElementById('popupShelfDesc').textContent=`${figs.length} figurine${figs.length!==1?'s':''} on display`;
+    } else {
+      popShelf.innerHTML='<span style="color:var(--text-dim);font-size:0.8em;font-style:italic;">Empty shelf</span>';
+      document.getElementById('popupShelfDesc').textContent='No figurines placed yet.';
     }
   }
 
@@ -17312,19 +17532,6 @@ async function joinRoom(roomId, roomName, isPublic){
   // Clear sticker row and furniture row (removed features)
   const stickerRow=document.getElementById('tdStickerRow'); if(stickerRow) stickerRow.innerHTML='';
   const furnRow=document.getElementById('tdFurnRow');       if(furnRow)    furnRow.innerHTML='';
-
-  // Popup shelf figurines
-  const popShelf=document.getElementById('popupShelfItems');
-  if(popShelf){
-    const figs=room.figurines||[];
-    if(figs.length){
-      popShelf.innerHTML=figs.map(f=>`<span class="popup-shelf-fig">${f}</span>`).join('');
-      document.getElementById('popupShelfDesc').textContent=`${figs.length} figurine${figs.length!==1?'s':''} on display`;
-    } else {
-      popShelf.innerHTML='<span style="color:var(--text-dim);font-size:0.8em;font-style:italic;">Empty shelf</span>';
-      document.getElementById('popupShelfDesc').textContent='No figurines placed yet.';
-    }
-  }
 
   // Store room data on window for popup use
   window._currentRoom = room;
@@ -17422,19 +17629,31 @@ function deskApp(app){
     const cards=room.showcase_cards||[];
     screen.innerHTML=`<div class="pdm-app-wrap">
       <div class="pdm-app-title">🃏 Showcase Cards</div>
-      <div class="pdm-cards-row">${cards.filter(Boolean).length
-        ? cards.filter(Boolean).map(c=>`<div class="pdm-card-mini"><img src="${escapeHtml(c)}" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none'"/></div>`).join('')
-        : '<span style="color:var(--text-dim);font-size:0.65em;font-style:italic;">No cards</span>'
+      <div class="pdm-cards-large">${cards.filter(Boolean).length
+        ? cards.filter(Boolean).map(c=>`<div class="pdm-card-large"><img src="${escapeHtml(c)}" onerror="this.style.display='none'"/></div>`).join('')
+        : '<span style="color:rgba(255,255,255,0.3);font-size:0.6em;font-style:italic;">No cards set</span>'
       }</div>
     </div>`;
   } else if(app==='music'){
-    const title=document.getElementById('riMusicTitle')?.textContent||'No music set';
-    screen.innerHTML=`<div class="pdm-app-wrap">
-      <div class="pdm-app-title">🎵 Now Playing</div>
-      <div class="pdm-music-info">${escapeHtml(title)}</div>
-      <canvas id="pdmEqCanvas" width="160" height="40" style="margin-top:8px;border-radius:4px;"></canvas>
+    const title=document.getElementById('riMusicTitle')?.textContent||'No music';
+    const isPaused = (document.getElementById('roomYTAudio')?.dataset?.paused==='1') ||
+                     (document.getElementById('roomDirectAudio')?.paused === true);
+    screen.innerHTML=`<div class="pdm-spotify">
+      <div class="pdm-spotify-art${isPaused?' paused':''}">🎵</div>
+      <div class="pdm-spotify-title">${escapeHtml(title)}</div>
+      <div class="pdm-spotify-artist">Room BGM</div>
+      <div class="pdm-spotify-bar"><div class="pdm-spotify-progress" id="spotifyBar"></div></div>
+      <div class="pdm-spotify-eq-wrap">
+        <canvas id="pdmEqCanvas" width="120" height="28" style="border-radius:3px;"></canvas>
+      </div>
+      <div class="pdm-spotify-controls">
+        <button class="pdm-spotify-ctrl">⏮</button>
+        <button class="pdm-spotify-ctrl play" onclick="togglePersonalMusicPause()" id="spotPlayBtn">${isPaused?'▶':'⏸'}</button>
+        <button class="pdm-spotify-ctrl">⏭</button>
+      </div>
     </div>`;
     _startDeskEQ();
+    _animateSpotifyBar();
   } else if(app==='stickers'){
     const stickers=room.stickers||[];
     screen.innerHTML=`<div class="pdm-app-wrap">
@@ -17447,32 +17666,171 @@ function deskApp(app){
   }
 }
 
+// Animate the fake Spotify progress bar
+let _spotifyBarRAF = null;
+function _animateSpotifyBar(){
+  if(_spotifyBarRAF) cancelAnimationFrame(_spotifyBarRAF);
+  let pct = 45;
+  function step(){
+    pct = (pct + 0.02) % 100;
+    const bar = document.getElementById('spotifyBar');
+    if(!bar){ _spotifyBarRAF = null; return; }
+    bar.style.width = pct + '%';
+    _spotifyBarRAF = requestAnimationFrame(step);
+  }
+  step();
+}
+
 // Animated EQ on desk screen
 let _deskEQRAF=null;
 function _startDeskEQ(){
   const canvas=document.getElementById('pdmEqCanvas');
   if(!canvas) return;
   const ctx=canvas.getContext('2d');
-  const bars=12;
-  const heights=Array(bars).fill(0).map(()=>Math.random()*30+5);
-  let targets=Array(bars).fill(0).map(()=>Math.random()*30+5);
+  const bars=14;
+  const heights=Array(bars).fill(0).map(()=>Math.random()*20+4);
+  let targets=Array(bars).fill(0).map(()=>Math.random()*20+4);
   function draw(){
-    ctx.clearRect(0,0,160,40);
-    const bw=160/bars;
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    const bw=canvas.width/bars;
     for(let i=0;i<bars;i++){
       heights[i]+=(targets[i]-heights[i])*0.15;
-      if(Math.abs(heights[i]-targets[i])<1) targets[i]=Math.random()*32+4;
-      const hue=280+i*8;
-      ctx.fillStyle=`hsl(${hue},80%,70%)`;
-      const h=Math.min(heights[i],38);
+      if(Math.abs(heights[i]-targets[i])<1) targets[i]=Math.random()*(canvas.height-4)+3;
+      const g=ctx.createLinearGradient(0,canvas.height,0,0);
+      g.addColorStop(0,'#1db954');
+      g.addColorStop(0.6,'#ff9dc7');
+      g.addColorStop(1,'#c084b8');
+      ctx.fillStyle=g;
+      const h=Math.min(heights[i],canvas.height-2);
       ctx.beginPath();
-      ctx.roundRect(i*bw+2,40-h,bw-4,h,2);
+      ctx.roundRect(i*bw+1.5,canvas.height-h,bw-3,h,2);
       ctx.fill();
     }
     _deskEQRAF=requestAnimationFrame(draw);
   }
   if(_deskEQRAF) cancelAnimationFrame(_deskEQRAF);
   draw();
+}
+
+// ── Profile spectrum (next to avatar) ──
+let _profileSpecRAF = null;
+function _startProfileSpectrum(){
+  const canvas = document.getElementById('riSpectrumCanvas');
+  if(!canvas) return;
+  if(_profileSpecRAF) cancelAnimationFrame(_profileSpecRAF);
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  const bars = 14;
+  const heights = Array(bars).fill(0).map(()=>Math.random()*H*0.7+2);
+  let targets = Array(bars).fill(0).map(()=>Math.random()*H*0.7+2);
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    const bw = W / bars;
+    for(let i=0;i<bars;i++){
+      heights[i]+=(targets[i]-heights[i])*0.18;
+      if(Math.abs(heights[i]-targets[i])<0.5) targets[i]=Math.random()*(H-2)+1;
+      const g=ctx.createLinearGradient(0,H,0,0);
+      g.addColorStop(0,'rgba(255,157,199,0.9)');
+      g.addColorStop(1,'rgba(192,132,184,0.6)');
+      ctx.fillStyle=g;
+      const h=Math.min(heights[i],H-1);
+      ctx.beginPath();
+      ctx.roundRect(i*bw+0.5,H-h,bw-1,h,1);
+      ctx.fill();
+    }
+    _profileSpecRAF=requestAnimationFrame(draw);
+  }
+  draw();
+}
+function _stopProfileSpectrum(){
+  if(_profileSpecRAF){ cancelAnimationFrame(_profileSpecRAF); _profileSpecRAF=null; }
+  const canvas=document.getElementById('riSpectrumCanvas');
+  if(canvas){ const ctx=canvas.getContext('2d'); ctx.clearRect(0,0,canvas.width,canvas.height); }
+}
+
+// ── Figurine slot management ──
+// _crmFigurineData stores [{type:'emoji'|'image', val:string}] for up to 3 slots
+let _crmFigurineData = [{},{},{} ];
+
+const FIG_EMOJIS = ['🐱','🐰','🦊','🐼','🐨','🐸','🦁','🐯','🐺','🐻','🐮','🐷','🐙','🦋','🌸','⭐','🌙','🎀','🧸','🗡️','🎎','🏮','🌺','🍙','🎐','✨','🌟','💫','🦄','🐉','⚔️','🛡️','🧿','🫧','🌸','🍀','🌻','🌹','🔮','🗿','🏺','🎴','🃏','🀄','🎭','🎪','🎠','🎡','🎢','🎰'];
+
+function openFigEmojiPicker(slotIdx){
+  const modal = document.getElementById('figEmojiPickerModal');
+  const grid = document.getElementById('figEmojiGrid');
+  if(!modal||!grid) return;
+  grid.innerHTML = FIG_EMOJIS.map(e=>`
+    <button onclick="setFigEmoji(${slotIdx},'${e}')" style="font-size:1.5em;background:rgba(255,157,199,0.06);border:1px solid var(--border);border-radius:8px;padding:4px;cursor:pointer;transition:all 0.15s;" onmouseover="this.style.borderColor='var(--pink)'" onmouseout="this.style.borderColor='var(--border)'">${e}</button>
+  `).join('');
+  modal.style.display='flex';
+  modal._slotIdx = slotIdx;
+}
+function closeFigEmojiPicker(){
+  const m = document.getElementById('figEmojiPickerModal');
+  if(m) m.style.display='none';
+}
+function setFigEmoji(slotIdx, emoji){
+  _crmFigurineData[slotIdx] = { type:'emoji', val: emoji };
+  const prev = document.getElementById(`crmFigPreview${slotIdx}`);
+  if(prev){ prev.textContent=''; prev.style.fontSize='2em'; prev.textContent=emoji; }
+  closeFigEmojiPicker();
+}
+function handleFigImageUpload(input, slotIdx){
+  const file = input.files?.[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const dataUrl = e.target.result;
+    _crmFigurineData[slotIdx] = { type:'image', val: dataUrl };
+    const prev = document.getElementById(`crmFigPreview${slotIdx}`);
+    if(prev){ prev.innerHTML=`<img src="${dataUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:6px;"/>`; }
+  };
+  reader.readAsDataURL(file);
+}
+function clearFigSlot(slotIdx){
+  _crmFigurineData[slotIdx] = {};
+  const prev = document.getElementById(`crmFigPreview${slotIdx}`);
+  if(prev){ prev.innerHTML=''; prev.textContent='?'; prev.style.fontSize='1.5em'; }
+}
+
+// ── Poster gallery upload handler ──
+function handlePosterUpload(input, idx){
+  const file = input.files?.[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const dataUrl = e.target.result;
+    const inp = document.getElementById(`createRoomPoster${idx}`);
+    if(inp) inp.value = dataUrl;
+    const preview = document.getElementById(`createRoomPoster${idx}Preview`);
+    const img = document.getElementById(`createRoomPoster${idx}Img`);
+    if(preview && img){ img.src=dataUrl; preview.style.display=''; }
+  };
+  reader.readAsDataURL(file);
+}
+// Auto-preview poster URLs
+['0','1'].forEach(idx=>{
+  document.addEventListener('DOMContentLoaded',()=>{
+    const inp = document.getElementById(`createRoomPoster${idx}`);
+    if(!inp) return;
+    inp.addEventListener('input',function(){
+      const preview = document.getElementById(`createRoomPoster${idx}Preview`);
+      const img = document.getElementById(`createRoomPoster${idx}Img`);
+      if(preview&&img&&this.value){ img.src=this.value; preview.style.display=''; }
+      else if(preview) preview.style.display='none';
+    });
+  });
+});
+
+// ── Room music gallery upload ──
+function handleRoomMusicUpload(input){
+  const file = input.files?.[0];
+  if(!file) return;
+  const url = URL.createObjectURL(file);
+  const inp = document.getElementById('createRoomMusic');
+  if(inp) inp.value = url;
+  const label = document.getElementById('roomMusicFileName');
+  if(label) label.textContent = file.name;
+  showToast('🎵 Music file loaded — will play for you (local only)');
 }
 
 // ── Cards showcase — editable for owner ──
@@ -17553,25 +17911,37 @@ async function clearShowcaseSlot(slotIdx){
 
 // ── Personal music pause (own view only) ──
 function togglePersonalMusicPause(){
-  const ytAudio=document.getElementById('roomYTAudio');
-  const btn=document.getElementById('musicPauseBtn');
-  if(!ytAudio||!btn) return;
-  if(ytAudio.src){
-    // toggle muted as a proxy for pause since we can't control the iframe directly
-    // We'll reload without autoplay to effectively pause
-    const wasPaused=ytAudio.dataset.paused==='1';
+  const ytAudio = document.getElementById('roomYTAudio');
+  const directAudio = document.getElementById('roomDirectAudio');
+  const btn = document.getElementById('floatingMusicBtn');
+  let wasPaused = false;
+
+  if(ytAudio && ytAudio.src){
+    wasPaused = ytAudio.dataset.paused === '1';
     if(wasPaused){
-      // Resume: re-add autoplay
-      ytAudio.src=ytAudio.src.replace('autoplay=0','autoplay=1');
-      ytAudio.dataset.paused='0';
-      btn.textContent='⏸ Pause Music';
+      ytAudio.src = ytAudio.src.replace('autoplay=0','autoplay=1');
+      ytAudio.dataset.paused = '0';
     } else {
-      // Pause: replace src without autoplay
-      ytAudio.src=ytAudio.src.replace('autoplay=1','autoplay=0');
-      ytAudio.dataset.paused='1';
-      btn.textContent='▶ Resume Music';
+      ytAudio.src = ytAudio.src.replace('autoplay=1','autoplay=0');
+      ytAudio.dataset.paused = '1';
     }
+  } else if(directAudio && directAudio.src){
+    wasPaused = directAudio.paused;
+    if(wasPaused){ directAudio.play().catch(()=>{}); }
+    else { directAudio.pause(); }
   }
+
+  const nowPaused = !wasPaused;
+  if(btn){
+    btn.textContent = nowPaused ? '▶' : '⏸';
+    btn.classList.toggle('paused', nowPaused);
+  }
+  // Also update Spotify UI if open
+  const spotArt = document.querySelector('.pdm-spotify-art');
+  if(spotArt) spotArt.classList.toggle('paused', nowPaused);
+  const spotCtrl = document.querySelector('.pdm-spotify-ctrl.play');
+  if(spotCtrl) spotCtrl.textContent = nowPaused ? '▶' : '⏸';
+  if(nowPaused) _stopProfileSpectrum(); else _startProfileSpectrum();
 }
 
 function switchRoomTab(tab, btn){
@@ -17610,6 +17980,12 @@ function _cleanupRoom(){
   // Stop music
   const ytAudio = document.getElementById('roomYTAudio');
   if(ytAudio){ ytAudio.src=''; }
+  const directAudio = document.getElementById('roomDirectAudio');
+  if(directAudio){ directAudio.pause(); directAudio.src=''; }
+  // Hide floating btn
+  const floatBtn = document.getElementById('floatingMusicBtn');
+  if(floatBtn) floatBtn.style.display='none';
+  _stopProfileSpectrum();
 }
 
 function leaveCurrentRoom(silent=false){
@@ -22522,4 +22898,47 @@ CREATE TABLE IF NOT EXISTS anime_collections (
 ALTER TABLE anime_collections ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "anon_read_anime"  ON anime_collections FOR SELECT USING (true);
 CREATE POLICY "anon_write_anime" ON anime_collections FOR ALL    USING (true);
+-->
+
+<!-- PLAYER ROOMS — FAVOURITE/SHOWCASE CARDS + FIGURINES SQL MIGRATION
+     Run this ONCE in your Supabase SQL Editor to fix saving favourite cards:
+
+ALTER TABLE player_rooms
+  ADD COLUMN IF NOT EXISTS showcase_cards  jsonb    DEFAULT '[]'::jsonb,
+  ADD COLUMN IF NOT EXISTS figurines       jsonb    DEFAULT '[]'::jsonb,
+  ADD COLUMN IF NOT EXISTS posters         jsonb    DEFAULT '[]'::jsonb,
+  ADD COLUMN IF NOT EXISTS stickers        jsonb    DEFAULT '[]'::jsonb,
+  ADD COLUMN IF NOT EXISTS furniture       jsonb    DEFAULT '[]'::jsonb,
+  ADD COLUMN IF NOT EXISTS music_url       text     DEFAULT '',
+  ADD COLUMN IF NOT EXISTS banner_url      text     DEFAULT '',
+  ADD COLUMN IF NOT EXISTS theme_css       text     DEFAULT '',
+  ADD COLUMN IF NOT EXISTS bio             text     DEFAULT '',
+  ADD COLUMN IF NOT EXISTS is_public       boolean  DEFAULT true,
+  ADD COLUMN IF NOT EXISTS owner_id        text     DEFAULT '',
+  ADD COLUMN IF NOT EXISTS owner_username  text     DEFAULT '',
+  ADD COLUMN IF NOT EXISTS owner_avatar    text     DEFAULT '';
+
+-- Replace 'player_rooms' above with your actual table name if different.
+-- If the table doesn't exist yet, create it:
+CREATE TABLE IF NOT EXISTS player_rooms (
+  id              uuid      PRIMARY KEY DEFAULT gen_random_uuid(),
+  name            text      NOT NULL,
+  bio             text      DEFAULT '',
+  banner_url      text      DEFAULT '',
+  theme_css       text      DEFAULT '',
+  music_url       text      DEFAULT '',
+  is_public       boolean   DEFAULT true,
+  owner_id        text      NOT NULL,
+  owner_username  text      DEFAULT '',
+  owner_avatar    text      DEFAULT '',
+  showcase_cards  jsonb     DEFAULT '[]'::jsonb,
+  figurines       jsonb     DEFAULT '[]'::jsonb,
+  posters         jsonb     DEFAULT '[]'::jsonb,
+  stickers        jsonb     DEFAULT '[]'::jsonb,
+  furniture       jsonb     DEFAULT '[]'::jsonb,
+  created_at      timestamptz DEFAULT now()
+);
+ALTER TABLE player_rooms ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "anon_read_rooms"  ON player_rooms FOR SELECT USING (true);
+CREATE POLICY "anon_write_rooms" ON player_rooms FOR ALL    USING (true);
 -->
