@@ -6523,9 +6523,35 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 }
 .pw-toggle-btn:hover { opacity:0.85;transform:translateY(-1px); }
 .pw-status { font-size:0.8em;color:var(--text-dim);font-style:italic; }
-/* Open window effect */
-.pw-sky.open { background:linear-gradient(180deg,#040828,#0d1840,#162040); }
-.pw-sky.open .pw-moon { filter:drop-shadow(0 0 20px rgba(255,240,180,0.9));font-size:2.4em; }
+/* Curtains over window sky */
+.pw-curtain {
+  position: absolute; top: 0; bottom: 0;
+  width: 50%;
+  transition: width 0.6s cubic-bezier(.4,0,.2,1), opacity 0.4s;
+  z-index: 3;
+}
+.pw-curtain-l {
+  left: 0;
+  background: linear-gradient(90deg, var(--td-blanket, #4a1a5e) 80%, transparent);
+  border-radius: 0 0 6px 0;
+}
+.pw-curtain-r {
+  right: 0;
+  background: linear-gradient(270deg, var(--td-blanket, #4a1a5e) 80%, transparent);
+  border-radius: 0 0 0 6px;
+}
+/* Curtain fold texture */
+.pw-curtain-l::after, .pw-curtain-r::after {
+  content: '';
+  position: absolute; top:0; bottom:0;
+  width: 100%;
+  background: repeating-linear-gradient(180deg, rgba(255,255,255,0.03) 0px, rgba(255,255,255,0.03) 8px, transparent 8px, transparent 16px);
+}
+/* Open = curtains slide off to sides */
+.pw-curtain-l.open { width: 8%; }
+.pw-curtain-r.open { width: 8%; }
+.pw-sky.open { filter: brightness(1.15); }
+.pw-sky.open .pw-moon { filter:drop-shadow(0 0 20px rgba(255,240,180,0.9)); font-size:2.4em; }
 
 /* Shelf popup */
 .popup-shelf-scene { position:relative;margin-bottom:14px;padding:20px 14px 10px; }
@@ -6594,6 +6620,55 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
     radial-gradient(ellipse at 30% 20%, rgba(39,174,96,0.04) 0%, transparent 50%),
     linear-gradient(180deg, #020a04 0%, #010502 100%);
 }
+
+/* Zzz particle animation */
+@keyframes zzzFloat {
+  0%   { transform: translateY(0) scale(1);   opacity: 1; }
+  60%  { transform: translateY(-40px) scale(1.3); opacity: 0.8; }
+  100% { transform: translateY(-80px) scale(0.6); opacity: 0; }
+}
+.zzz-particle {
+  font-family: 'Cinzel Decorative', serif;
+  text-shadow: 0 0 8px rgba(255,157,199,0.6);
+  user-select: none;
+}
+
+/* Card slots — clickable for owners */
+.rp-card-slot.owner-slot {
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.rp-card-slot.owner-slot:hover {
+  border-color: rgba(255,157,199,0.5);
+  box-shadow: 0 0 12px rgba(255,157,199,0.2);
+  transform: scale(1.06);
+}
+.rp-card-slot.owner-slot::after {
+  content: '✏️';
+  position: absolute;
+  bottom: 2px; right: 2px;
+  font-size: 0.55em;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.rp-card-slot.owner-slot:hover::after { opacity: 1; }
+.rp-cards { position: relative; }
+.rp-card-slot { position: relative; }
+
+/* Music pause button in profile panel */
+.rp-music-pause-btn {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: var(--text-dim);
+  border-radius: 20px;
+  padding: 2px 10px;
+  font-size: 0.68em;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-left: 4px;
+  flex-shrink: 0;
+}
+.rp-music-pause-btn:hover { background: rgba(255,157,199,0.1); color: var(--pink); border-color: rgba(255,157,199,0.3); }
 
 /* ── Ceiling ── */
 .rs-ceiling {
@@ -8237,9 +8312,10 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
                 <span class="rp-music-icon">🎵</span>
                 <span class="rp-music-title" id="riMusicTitle">Music</span>
                 <div class="rp-music-eq"><span></span><span></span><span></span><span></span></div>
+                <button class="rp-music-pause-btn" id="musicPauseBtn" onclick="togglePersonalMusicPause()" title="Pause/resume (only you)">⏸</button>
               </div>
             </div>
-            <!-- Top 3 cards strip -->
+            <!-- Top 3 cards strip — clickable for owner -->
             <div class="rp-cards" id="riCardsShowcase">
               <div class="rp-card-slot empty" id="riCard-0"><span>＋</span></div>
               <div class="rp-card-slot empty" id="riCard-1"><span>＋</span></div>
@@ -8375,6 +8451,9 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
                   <div class="pw-bld" style="height:75%;width:10%;"></div>
                   <div class="pw-bld" style="height:60%;width:14%;"></div>
                 </div>
+                <!-- Curtains overlay -->
+                <div class="pw-curtain pw-curtain-l" id="pwCurtainL"></div>
+                <div class="pw-curtain pw-curtain-r" id="pwCurtainR"></div>
               </div>
               <div class="pw-sill">
                 <span class="pw-plant">🌱</span>
@@ -8382,8 +8461,8 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
               </div>
             </div>
             <div class="popup-window-controls">
-              <button class="pw-toggle-btn" id="pwToggleBtn" onclick="toggleRoomWindow()">Open Window 🌬️</button>
-              <div class="pw-status" id="pwStatus">The window is closed.</div>
+              <button class="pw-toggle-btn" id="pwToggleBtn" onclick="toggleRoomCurtains()">Open Curtains 🌙</button>
+              <div class="pw-status" id="pwStatus">The curtains are closed.</div>
             </div>
           </div>
         </div>
@@ -16882,6 +16961,7 @@ let _crmSelectedStickers   = [];
 let _crmSelectedFurniture  = [];
 let _crmSelectedFigurines  = [];
 let _crmSelectedTheme      = null;
+let _editingRoomId         = null;
 
 const ROOM_TABLE      = 'hub_rooms';
 const ROOM_CHAT_TABLE = 'hub_room_messages';
@@ -16931,30 +17011,16 @@ function _applyRoomTheme(room){
   const matchedTheme = ROOM_THEMES.find(t=>t.css===(room.theme_css||ROOM_THEMES[0].css));
   const ts = ROOM_THEME_STYLES[matchedTheme?.name||'Night Sky'] || ROOM_THEME_STYLES['Night Sky'];
 
-  // Wall colour
-  if(room.banner_url){
-    inner.style.backgroundImage = `url('${room.banner_url}')`;
-    inner.style.backgroundSize  = 'cover';
-    inner.style.backgroundPosition = 'center';
-  } else {
-    inner.style.backgroundImage = 'none';
-    inner.style.background = ts.wall || '#1a0d2e';
-  }
-  // Floor & blanket/rug via CSS vars on the inner div
-  inner.style.setProperty('--td-wall',    ts.wall    || '#1a0d2e');
-  inner.style.setProperty('--td-floor',   ts.floor   || '#1a0e04');
+  // Wall colour ONLY — no image inside the room
+  inner.style.backgroundImage = 'none';
+  inner.style.background = ts.wall || '#1a0d2e';
   inner.style.setProperty('--td-blanket', ts.blanket || 'linear-gradient(135deg,#2d1060,#5a24a8)');
   inner.style.setProperty('--td-rug',     ts.rug     || 'linear-gradient(135deg,#2d1060,#5a24a8,#2d1060)');
 
-  // Propagate floor vars to floor pseudo (::after) via custom property on parent
-  document.getElementById('tdRoom')?.style?.setProperty('--td-floor', ts.floor || '#1a0e04');
-
-  // Apply blanket colour directly to bed cover and rug
   const cover = document.getElementById('tdBedCover');
   if(cover) cover.style.background = ts.blanket;
   const rug = document.getElementById('tdRug');
   if(rug) rug.style.background = ts.rug;
-  // Also to popup bed
   const pdbB = document.getElementById('pdbBlanket');
   if(pdbB) pdbB.style.background = ts.blanket;
 }
@@ -17011,6 +17077,8 @@ function openCreateRoomModal(editRoom=null){
   if(!m) return;
   m.style.display = 'flex';
   document.getElementById('createRoomModalTitle').textContent = editRoom ? 'Edit Room' : 'Create Your Room';
+  // Track which room we're editing (null = new room)
+  _editingRoomId = editRoom?.id || null;
   // Reset selections
   _crmSelectedStickers  = editRoom?.stickers  || [];
   _crmSelectedFurniture = editRoom?.furniture  || [];
@@ -17106,23 +17174,32 @@ async function submitCreateRoom(){
   const poster1    = document.getElementById('createRoomPoster1').value.trim();
   const payload = {
     name, is_public: isPublic, bio, banner_url,
-    theme_css: _crmSelectedTheme || ROOM_THEMES[0].css,
+    theme_css:  _crmSelectedTheme || ROOM_THEMES[0].css,
     music_url,
     posters:    [poster0, poster1],
-    stickers:   _crmSelectedStickers,
-    furniture:  _crmSelectedFurniture,
     figurines:  _crmSelectedFigurines,
     owner_id:       state.discordId,
     owner_username: state.username || 'Player',
     owner_avatar:   state.customAvatar || state.avatar || '',
   };
   try {
-    const res = await sb.insert(ROOM_TABLE, payload);
-    closeCreateRoomModal();
-    showToast('Room created! 🏠');
-    await refreshRoomsList();
-    if(res && res.id) joinRoom(res.id, name, isPublic);
-  } catch(e){ showToast('Could not create room: '+(e.message||'error')); }
+    // If editing an existing room, UPDATE instead of INSERT
+    if(_editingRoomId){
+      await sb.update(ROOM_TABLE, payload, { id: _editingRoomId });
+      closeCreateRoomModal();
+      showToast('Room updated! ✦');
+      // Refresh data and re-render the interior
+      await refreshRoomsList();
+      const updated = _roomsData.find(r=>r.id===_editingRoomId);
+      if(updated) joinRoom(_editingRoomId, updated.name, updated.is_public);
+    } else {
+      const res = await sb.insert(ROOM_TABLE, payload);
+      closeCreateRoomModal();
+      showToast('Room created! 🏠');
+      await refreshRoomsList();
+      if(res && res.id) joinRoom(res.id, name, isPublic);
+    }
+  } catch(e){ showToast('Could not save room: '+(e.message||'error')); }
 }
 
 function openRoomEditPanel(){
@@ -17174,11 +17251,15 @@ async function joinRoom(roomId, roomName, isPublic){
     if(ytMatch) ytAudio.src=`https://www.youtube.com/embed/${ytMatch[1]}?autoplay=1&loop=1&playlist=${ytMatch[1]}&mute=0`;
   } else if(musicBar){ musicBar.style.display='none'; }
 
-  // Top 3 showcase cards
+  // Top 3 showcase cards — clickable for owner
   const cards = room.showcase_cards || [];
+  const isOwner2 = room.owner_id === state.discordId;
   for(let i=0;i<3;i++){
     const slot = document.getElementById(`riCard-${i}`);
     if(!slot) continue;
+    slot.classList.toggle('owner-slot', isOwner2);
+    if(isOwner2) slot.onclick = ()=>openCardShowcasePicker(i);
+    else slot.onclick = null;
     if(cards[i]){
       slot.classList.remove('empty');
       slot.innerHTML=`<img src="${escapeHtml(cards[i])}" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.classList.add('empty');this.parentElement.innerHTML='<span>＋</span>'"/>`;
@@ -17192,15 +17273,6 @@ async function joinRoom(roomId, roomName, isPublic){
   _applyRoomTheme(room);
 
   // ── Populate top-down room objects ──
-
-  // Stickers on sticker row
-  const stickerRow = document.getElementById('tdStickerRow');
-  if(stickerRow){
-    const stickers = room.stickers||[];
-    stickerRow.innerHTML = stickers.length
-      ? stickers.map((s,i)=>`<span class="td-sticker" style="animation-delay:${i*0.5}s;">${s}</span>`).join('')
-      : '';
-  }
 
   // Figurines on shelf
   const shelfItems = document.getElementById('tdShelfItems');
@@ -17237,14 +17309,9 @@ async function joinRoom(roomId, roomName, isPublic){
     }
   }
 
-  // Furniture row
-  const furnRow = document.getElementById('tdFurnRow');
-  if(furnRow){
-    const furn=room.furniture||[];
-    furnRow.innerHTML=furn.length
-      ? furn.map((f,i)=>`<span class="td-furn-item" style="animation-delay:${i*0.8}s;" title="${f}">${f}</span>`).join('')
-      : '';
-  }
+  // Clear sticker row and furniture row (removed features)
+  const stickerRow=document.getElementById('tdStickerRow'); if(stickerRow) stickerRow.innerHTML='';
+  const furnRow=document.getElementById('tdFurnRow');       if(furnRow)    furnRow.innerHTML='';
 
   // Popup shelf figurines
   const popShelf=document.getElementById('popupShelfItems');
@@ -17273,7 +17340,6 @@ async function joinRoom(roomId, roomName, isPublic){
 let _windowOpen = false;
 
 function roomInteract(obj){
-  // Close all popups first
   ['window','shelf','posters','bed','desk'].forEach(closeRoomPopup);
   const pop = document.getElementById('popup-'+obj);
   if(pop){ pop.style.display='flex'; document.body.style.overflow='hidden'; }
@@ -17284,49 +17350,70 @@ function closeRoomPopup(obj){
   document.body.style.overflow='';
 }
 
-// Window: open/close toggle
-function toggleRoomWindow(){
+// Curtain toggle (replaces window open/close)
+function toggleRoomCurtains(){
   _windowOpen = !_windowOpen;
+  const cl   = document.getElementById('pwCurtainL');
+  const cr   = document.getElementById('pwCurtainR');
   const sky  = document.getElementById('pwSky');
   const btn  = document.getElementById('pwToggleBtn');
   const stat = document.getElementById('pwStatus');
   const cat  = document.getElementById('pwCat');
+  cl?.classList.toggle('open', _windowOpen);
+  cr?.classList.toggle('open', _windowOpen);
+  sky?.classList.toggle('open', _windowOpen);
   if(_windowOpen){
-    sky?.classList.add('open');
-    if(btn)  btn.textContent  = 'Close Window 🌙';
-    if(stat) stat.textContent = 'A cool night breeze drifts in... 🌬️';
-    if(cat)  cat.textContent  = '😼'; // cat looks out
-    setTimeout(()=>{ if(cat) cat.textContent='🐱'; }, 2000);
+    if(btn)  btn.textContent  = 'Close Curtains 🌙';
+    if(stat) stat.textContent = 'The curtains are open — moonlight streams in ✨';
+    if(cat){ cat.textContent='😼'; setTimeout(()=>{ cat.textContent='🐱'; }, 1800); }
   } else {
-    sky?.classList.remove('open');
-    if(btn)  btn.textContent  = 'Open Window 🌬️';
-    if(stat) stat.textContent = 'The window is closed.';
+    if(btn)  btn.textContent  = 'Open Curtains 🌙';
+    if(stat) stat.textContent = 'The curtains are closed.';
   }
 }
 
-// Bed interactions
-const BED_MSGS = [
-  'You sink into the soft blanket... 💤',
-  'So cozy~ You could sleep here forever.',
-  'The pillow smells like lavender 🌸',
-  'You close your eyes for a second... zzz',
-  'Rest well, you deserve it 🌙',
-];
-const PLUSH_MSGS = [
-  'You give the plushie a big hug! 🧸',
-  'The plushie squeaks happily ✨',
-  'It smells faintly of vanilla 🍦',
-  'You feel instantly comforted 💖',
-  '...it hugs back? Impossible. Yet here we are.',
-];
+// ── Bed — Zzz effect ──
+const BED_MSGS  = ['You sink into the soft blanket... 💤','So cozy~ You could stay here forever.','The pillow smells like lavender 🌸','You close your eyes for a second... zzz','Rest well, you deserve it 🌙'];
+const PLUSH_MSGS= ['You give the plushie a big hug! 🧸','The plushie squeaks happily ✨','It smells faintly of vanilla 🍦','You feel instantly comforted 💖','...it hugs back? Impossible. Yet here we are.'];
+
 function bedAction(type){
-  const msgs = type==='plush' ? PLUSH_MSGS : BED_MSGS;
+  const msgs = type==='plush'? PLUSH_MSGS : BED_MSGS;
   const msg  = msgs[Math.floor(Math.random()*msgs.length)];
   const el   = document.getElementById('popupBedMsg');
   if(el){ el.textContent=msg; el.style.color='var(--pink)'; }
+  if(type==='rest') spawnZzzEffect();
 }
 
-// Desk apps
+function spawnZzzEffect(){
+  const scene = document.getElementById('popupBedGraphic');
+  if(!scene) return;
+  const zCount = 5;
+  for(let i=0;i<zCount;i++){
+    setTimeout(()=>{
+      const z=document.createElement('div');
+      z.className='zzz-particle';
+      z.textContent='z';
+      z.style.cssText=`
+        position:absolute;
+        left:${50+Math.random()*30}%;
+        bottom:${60+Math.random()*20}%;
+        font-size:${0.8+Math.random()*0.8}em;
+        color:var(--pink);
+        font-weight:700;
+        pointer-events:none;
+        z-index:10;
+        animation:zzzFloat 1.8s ease-out forwards;
+        opacity:1;
+      `;
+      scene.style.position='relative';
+      scene.style.overflow='visible';
+      scene.appendChild(z);
+      setTimeout(()=>z.remove(), 1850);
+    }, i*220);
+  }
+}
+
+// ── Desk apps ──
 function deskApp(app){
   const screen = document.getElementById('pdmContent');
   if(!screen) return;
@@ -17335,8 +17422,8 @@ function deskApp(app){
     const cards=room.showcase_cards||[];
     screen.innerHTML=`<div class="pdm-app-wrap">
       <div class="pdm-app-title">🃏 Showcase Cards</div>
-      <div class="pdm-cards-row">${cards.length
-        ? cards.map(c=>`<div class="pdm-card-mini"><img src="${escapeHtml(c)}" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none'"/></div>`).join('')
+      <div class="pdm-cards-row">${cards.filter(Boolean).length
+        ? cards.filter(Boolean).map(c=>`<div class="pdm-card-mini"><img src="${escapeHtml(c)}" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none'"/></div>`).join('')
         : '<span style="color:var(--text-dim);font-size:0.65em;font-style:italic;">No cards</span>'
       }</div>
     </div>`;
@@ -17345,13 +17432,9 @@ function deskApp(app){
     screen.innerHTML=`<div class="pdm-app-wrap">
       <div class="pdm-app-title">🎵 Now Playing</div>
       <div class="pdm-music-info">${escapeHtml(title)}</div>
-      <div class="rp-music-eq" style="justify-content:center;gap:3px;margin-top:8px;">
-        <span style="width:3px;height:8px;background:var(--pink);border-radius:2px;animation:eqBounce 0.8s ease-in-out infinite;display:inline-block;"></span>
-        <span style="width:3px;height:14px;background:var(--pink);border-radius:2px;animation:eqBounce 0.8s ease-in-out infinite 0.15s;display:inline-block;"></span>
-        <span style="width:3px;height:10px;background:var(--pink);border-radius:2px;animation:eqBounce 0.8s ease-in-out infinite 0.3s;display:inline-block;"></span>
-        <span style="width:3px;height:6px;background:var(--pink);border-radius:2px;animation:eqBounce 0.8s ease-in-out infinite 0.45s;display:inline-block;"></span>
-      </div>
+      <canvas id="pdmEqCanvas" width="160" height="40" style="margin-top:8px;border-radius:4px;"></canvas>
     </div>`;
+    _startDeskEQ();
   } else if(app==='stickers'){
     const stickers=room.stickers||[];
     screen.innerHTML=`<div class="pdm-app-wrap">
@@ -17361,6 +17444,134 @@ function deskApp(app){
         : '<span style="color:var(--text-dim);font-size:0.65em;font-style:italic;">No stickers</span>'
       }</div>
     </div>`;
+  }
+}
+
+// Animated EQ on desk screen
+let _deskEQRAF=null;
+function _startDeskEQ(){
+  const canvas=document.getElementById('pdmEqCanvas');
+  if(!canvas) return;
+  const ctx=canvas.getContext('2d');
+  const bars=12;
+  const heights=Array(bars).fill(0).map(()=>Math.random()*30+5);
+  let targets=Array(bars).fill(0).map(()=>Math.random()*30+5);
+  function draw(){
+    ctx.clearRect(0,0,160,40);
+    const bw=160/bars;
+    for(let i=0;i<bars;i++){
+      heights[i]+=(targets[i]-heights[i])*0.15;
+      if(Math.abs(heights[i]-targets[i])<1) targets[i]=Math.random()*32+4;
+      const hue=280+i*8;
+      ctx.fillStyle=`hsl(${hue},80%,70%)`;
+      const h=Math.min(heights[i],38);
+      ctx.beginPath();
+      ctx.roundRect(i*bw+2,40-h,bw-4,h,2);
+      ctx.fill();
+    }
+    _deskEQRAF=requestAnimationFrame(draw);
+  }
+  if(_deskEQRAF) cancelAnimationFrame(_deskEQRAF);
+  draw();
+}
+
+// ── Cards showcase — editable for owner ──
+function openCardShowcasePicker(slotIdx){
+  const room=window._currentRoom;
+  if(!room||room.owner_id!==state.discordId) return;
+  const col=state.collection||[];
+  if(!col.length){ showToast('No cards in your collection yet!'); return; }
+  let existing=document.getElementById('cardPickerModal');
+  if(existing) existing.remove();
+  const modal=document.createElement('div');
+  modal.id='cardPickerModal';
+  modal.style.cssText='position:fixed;inset:0;z-index:600;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.85);backdrop-filter:blur(8px);padding:16px;';
+  modal.innerHTML=`
+    <div style="background:linear-gradient(135deg,#12071e,#0a0414);border:1px solid rgba(255,157,199,0.2);border-radius:20px;width:100%;max-width:400px;max-height:80vh;overflow-y:auto;">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 18px;border-bottom:1px solid rgba(255,157,199,0.1);font-family:'Cinzel Decorative',serif;font-size:0.82em;color:var(--pink-pale);">
+        <span>🃏 Pick Showcase Card</span>
+        <button onclick="document.getElementById('cardPickerModal').remove()" style="background:rgba(255,255,255,0.06);border:1px solid var(--border);color:var(--text-dim);border-radius:8px;width:30px;height:30px;cursor:pointer;">✕</button>
+      </div>
+      <div style="padding:16px;">
+        <div style="font-size:0.75em;color:var(--text-dim);margin-bottom:12px;font-style:italic;">Select a card for slot ${slotIdx+1}. Tap to confirm.</div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;" id="cardPickerGrid"></div>
+        <button onclick="clearShowcaseSlot(${slotIdx})" style="margin-top:12px;width:100%;background:rgba(231,76,60,0.1);border:1px solid rgba(231,76,60,0.2);color:#e74c3c;border-radius:10px;padding:7px;cursor:pointer;font-size:0.8em;">🗑️ Clear Slot</button>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+  // Populate grid from collection using card thumbnails
+  const grid=document.getElementById('cardPickerGrid');
+  if(!grid) return;
+  const allCards = window.DEMO_CARDS || [];
+  const col = state.collection || [];
+  const myCards = allCards.filter(c => col.includes(c.id)).slice(0, 40);
+  if(!myCards.length){
+    grid.innerHTML='<div style="grid-column:1/-1;color:var(--text-dim);font-size:0.8em;font-style:italic;text-align:center;">Could not load cards</div>';
+    return;
+  }
+  grid.innerHTML=myCards.map(c=>`
+    <div onclick="setShowcaseCard(${slotIdx},'${escapeHtml(c.thumbnail||c.image||'')}');document.getElementById('cardPickerModal').remove();"
+      style="aspect-ratio:3/4;border-radius:8px;overflow:hidden;border:1px solid var(--border);cursor:pointer;transition:all 0.2s;-webkit-tap-highlight-color:transparent;"
+      onmouseover="this.style.borderColor='var(--pink)'" onmouseout="this.style.borderColor='var(--border)'">
+      <img src="${escapeHtml(c.thumbnail||c.image||'')}" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.style.display='none'"/>
+    </div>`).join('');
+}
+
+async function setShowcaseCard(slotIdx, imgUrl){
+  const room=window._currentRoom;
+  if(!room) return;
+  const cards=[...(room.showcase_cards||[null,null,null])];
+  while(cards.length<3) cards.push(null);
+  cards[slotIdx]=imgUrl;
+  try {
+    await sb.update(ROOM_TABLE,{showcase_cards:cards},{id:room.id});
+    room.showcase_cards=cards;
+    // Update profile strip slot
+    const slot=document.getElementById(`riCard-${slotIdx}`);
+    if(slot){
+      slot.classList.remove('empty');
+      slot.innerHTML=`<img src="${escapeHtml(imgUrl)}" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.classList.add('empty');this.parentElement.innerHTML='<span>＋</span>'"/>`;
+    }
+    showToast('Card updated! ✦');
+  } catch(e){ showToast('Could not save: '+(e.message||'error')); }
+}
+
+async function clearShowcaseSlot(slotIdx){
+  const room=window._currentRoom;
+  if(!room) return;
+  const cards=[...(room.showcase_cards||[null,null,null])];
+  while(cards.length<3) cards.push(null);
+  cards[slotIdx]=null;
+  try {
+    await sb.update(ROOM_TABLE,{showcase_cards:cards},{id:room.id});
+    room.showcase_cards=cards;
+    const slot=document.getElementById(`riCard-${slotIdx}`);
+    if(slot){ slot.classList.add('empty'); slot.innerHTML='<span>＋</span>'; }
+    document.getElementById('cardPickerModal')?.remove();
+    showToast('Slot cleared');
+  } catch(e){ showToast('Could not clear: '+(e.message||'error')); }
+}
+
+// ── Personal music pause (own view only) ──
+function togglePersonalMusicPause(){
+  const ytAudio=document.getElementById('roomYTAudio');
+  const btn=document.getElementById('musicPauseBtn');
+  if(!ytAudio||!btn) return;
+  if(ytAudio.src){
+    // toggle muted as a proxy for pause since we can't control the iframe directly
+    // We'll reload without autoplay to effectively pause
+    const wasPaused=ytAudio.dataset.paused==='1';
+    if(wasPaused){
+      // Resume: re-add autoplay
+      ytAudio.src=ytAudio.src.replace('autoplay=0','autoplay=1');
+      ytAudio.dataset.paused='0';
+      btn.textContent='⏸ Pause Music';
+    } else {
+      // Pause: replace src without autoplay
+      ytAudio.src=ytAudio.src.replace('autoplay=1','autoplay=0');
+      ytAudio.dataset.paused='1';
+      btn.textContent='▶ Resume Music';
+    }
   }
 }
 
