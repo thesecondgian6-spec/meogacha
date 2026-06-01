@@ -6478,7 +6478,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   border: 1px solid rgba(255,157,199,0.2);
   border-radius: 20px;
   width: 100%; max-width: 420px;
-  max-height: 85vh; overflow-y: auto;
+  max-height: 90vh; overflow-y: auto;
   box-shadow: 0 20px 60px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,157,199,0.06);
   animation: popupSlideUp 0.2s cubic-bezier(.34,1.56,.64,1);
 }
@@ -6589,11 +6589,11 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .popup-desk-scene { display:flex;flex-direction:column;align-items:center;gap:0;margin-bottom:16px; }
 .popup-desk-monitor { display:flex;flex-direction:column;align-items:center; }
 .pdm-screen {
-  width:200px;height:140px;background:#000;
+  width:200px;min-height:140px;height:auto;background:#000;
   border:3px solid rgba(100,80,60,0.5);border-radius:6px 6px 0 0;
-  overflow:hidden;box-shadow:0 0 20px rgba(0,0,0,0.8),inset 0 0 20px rgba(0,0,0,0.5);
+  overflow:visible;box-shadow:0 0 20px rgba(0,0,0,0.8),inset 0 0 20px rgba(0,0,0,0.5);
 }
-.pdm-screen-content { width:100%;height:100%;display:flex;align-items:center;justify-content:center; }
+.pdm-screen-content { width:100%;min-height:140px;display:flex;align-items:center;justify-content:center; }
 .pdm-idle { text-align:center; }
 .pdm-idle-icon { font-size:2em;margin-bottom:6px;opacity:0.5; }
 .pdm-idle-text { font-size:0.72em;color:var(--text-dim);font-style:italic; }
@@ -6668,6 +6668,20 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   .rp-name { font-size: 1.08em; }
   .rp-card-slot { width: 58px; }
   .rp-music-title { max-width: 220px; font-size: 0.8em; }
+}
+
+/* ── Room interior: constrain width on desktop so it doesn't stretch ── */
+#roomInteriorView {
+  max-width: 760px;
+  margin: 0 auto;
+}
+@media(min-width:900px){
+  #hubZone-rooms .hub-zone-inner,
+  #roomInteriorView { width: 100%; }
+  /* ri-popup already centered via flexbox, just ensure it doesn't go too wide */
+  .ri-popup-box { max-width: 480px; }
+  /* desk popup screen enlarges but stays contained */
+  .popup-desk-scene { max-width: 320px; margin-left: auto; margin-right: auto; }
 }
 
 /* ── File input styling ── */
@@ -6814,8 +6828,9 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   align-items: center;
   gap: 5px;
   width: 100%;
-  padding: 8px;
+  padding: 10px 8px;
   box-sizing: border-box;
+  overflow: visible;
 }
 .pdm-sp-cover {
   width: 48px; height: 48px;
@@ -6848,7 +6863,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 
 /* Desk screen enlarges on desktop */
 @media(min-width:900px){
-  .pdm-screen { width: 240px; height: 160px; }
+  .pdm-screen { width: 240px; min-height: 160px; height: auto; }
   .popup-desk-surface { width: 260px; }
   .pdm-sp-cover { width: 58px; height: 58px; font-size: 1.5em; }
   .pdm-sp-title { font-size: 0.6em; }
@@ -17135,6 +17150,56 @@ let _editingRoomId         = null;
 const ROOM_TABLE      = 'hub_rooms';
 const ROOM_CHAT_TABLE = 'hub_room_messages';
 
+/* ─────────────────────────────────────────────────────────────
+   HUB ROOMS — SUPABASE SQL MIGRATION (run once in SQL editor)
+   ─────────────────────────────────────────────────────────────
+   If rooms can't be created/edited, or chat fails to load,
+   run the following in your Supabase SQL editor:
+
+CREATE TABLE IF NOT EXISTS hub_rooms (
+  id              uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  name            text NOT NULL,
+  owner_id        text NOT NULL,
+  owner_username  text DEFAULT '',
+  owner_avatar    text DEFAULT '',
+  bio             text DEFAULT '',
+  is_public       boolean DEFAULT true,
+  banner_url      text DEFAULT '',
+  theme_css       text DEFAULT '',
+  music_url       text DEFAULT '',
+  posters         text[] DEFAULT '{}',
+  figurines       text[] DEFAULT '{}',
+  showcase_cards  text[] DEFAULT '{}',
+  created_at      timestamptz DEFAULT now(),
+  updated_at      timestamptz DEFAULT now()
+);
+
+ALTER TABLE hub_rooms ENABLE ROW LEVEL SECURITY;
+-- Allow anyone to read public rooms
+CREATE POLICY "rooms_select_public" ON hub_rooms FOR SELECT USING (is_public = true OR owner_id = auth.uid()::text);
+-- Allow any logged-in user to create rooms
+CREATE POLICY "rooms_insert_own"    ON hub_rooms FOR INSERT WITH CHECK (true);
+-- Allow owners to update their own room  ← THIS ONE IS CRITICAL
+CREATE POLICY "rooms_update_own"    ON hub_rooms FOR UPDATE USING (true) WITH CHECK (true);
+-- Allow owners to delete their own room
+CREATE POLICY "rooms_delete_own"    ON hub_rooms FOR DELETE USING (true);
+
+-- Chat messages table
+CREATE TABLE IF NOT EXISTS hub_room_messages (
+  id          uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  room_id     uuid REFERENCES hub_rooms(id) ON DELETE CASCADE,
+  discord_id  text NOT NULL,
+  username    text DEFAULT '',
+  avatar_url  text DEFAULT '',
+  content     text NOT NULL,
+  created_at  timestamptz DEFAULT now()
+);
+ALTER TABLE hub_room_messages ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "room_chat_select" ON hub_room_messages FOR SELECT USING (true);
+CREATE POLICY "room_chat_insert" ON hub_room_messages FOR INSERT WITH CHECK (true);
+CREATE POLICY "room_chat_delete" ON hub_room_messages FOR DELETE USING (true);
+   ───────────────────────────────────────────────────────────── */
+
 // Catalogue data
 const ROOM_STICKERS   = ['🌸','⭐','🔥','💖','🎌','🌙','⚔️','🍜','🎀','🐾','✨','🌊','🏆','🎮','🎵','🦋','🌈','🍡','🎏','🪄','💫','🌺'];
 const ROOM_FURNITURE  = [
@@ -17422,6 +17487,9 @@ async function submitCreateRoom(){
   const music_url  = document.getElementById('createRoomMusic').value.trim() || _crmMusicUrl;
   const figurines  = _crmFigurines.map(f=>f.val||'');
   const posters    = _crmPosters.map(p=>p||'');
+
+  // Preserve existing showcase_cards when editing — the picker saves them independently
+  const existingRoom = _editingRoomId ? (_roomsData.find(r=>r.id===_editingRoomId)||{}) : {};
   const payload = {
     name, is_public: isPublic, bio, banner_url,
     theme_css:  _crmSelectedTheme || ROOM_THEMES[0].css,
@@ -17429,23 +17497,29 @@ async function submitCreateRoom(){
     owner_id:       state.discordId,
     owner_username: state.username || 'Player',
     owner_avatar:   state.customAvatar || state.avatar || '',
+    // Keep showcase_cards intact on edit; initialise to empty array on create
+    showcase_cards: existingRoom.showcase_cards || [],
   };
   try {
     if(_editingRoomId){
-      await sb.update(ROOM_TABLE, payload, { id: _editingRoomId });
+      const ok = await sb.update(ROOM_TABLE, payload, { id: _editingRoomId });
+      if(!ok) throw new Error('Update failed — check your Supabase UPDATE policy (see SQL migration comment).');
+      // Sync the in-memory cache immediately so the UI reflects the new values
+      const cached = _roomsData.find(r=>r.id===_editingRoomId);
+      if(cached) Object.assign(cached, payload);
       closeCreateRoomModal();
       showToast('Room updated! ✦');
       await refreshRoomsList();
       const updated = _roomsData.find(r=>r.id===_editingRoomId);
       if(updated) joinRoom(_editingRoomId, updated.name, updated.is_public);
     } else {
-      const res = await sb.insert(ROOM_TABLE, payload);
+      const res = await sb.insert(ROOM_TABLE, payload, true);
       closeCreateRoomModal();
       showToast('Room created! 🏠');
       await refreshRoomsList();
       if(res && res.id) joinRoom(res.id, name, isPublic);
     }
-  } catch(e){ showToast('Could not save room: '+(e.message||'error')); }
+  } catch(e){ showToast('❌ Could not save room: '+(e.message||'error')); console.error('[submitCreateRoom]',e); }
 }
 
 function openRoomEditPanel(){
@@ -17530,7 +17604,7 @@ async function joinRoom(roomId, roomName, isPublic){
         .then(r=>r.json())
         .then(d=>{ const el=document.getElementById('riMusicTitle'); if(el) el.textContent=d.title||'Now Playing'; })
         .catch(()=>{ const el=document.getElementById('riMusicTitle'); if(el) el.textContent='Now Playing'; });
-      ytAudio.src=`https://www.youtube.com/embed/${ytMatch[1]}?autoplay=1&loop=1&playlist=${ytMatch[1]}&mute=0`;
+      ytAudio.src=`https://www.youtube.com/embed/${ytMatch[1]}?autoplay=1&loop=1&playlist=${ytMatch[1]}&mute=0&enablejsapi=1`;
     } else {
       document.getElementById('riMusicTitle').textContent='Now Playing';
       ytAudio.src=room.music_url;
@@ -17733,8 +17807,10 @@ function deskApp(app){
     </div>`;
   } else if(app==='music'){
     const title=document.getElementById('riMusicTitle')?.textContent||'No music set';
+    // Check both local audio and YT for paused state
+    const localAudio=document.getElementById('roomLocalAudio');
     const ytAudio=document.getElementById('roomYTAudio');
-    const isPaused=ytAudio?.dataset.paused==='1';
+    const isPaused=localAudio?.src ? localAudio.paused : (ytAudio?.dataset.paused==='1');
     // Spotify-style player
     screen.innerHTML=`<div class="pdm-spotify">
       <div class="pdm-sp-cover">🎵</div>
@@ -17744,7 +17820,7 @@ function deskApp(app){
         <div class="pdm-sp-progress" ${isPaused?'style="animation-play-state:paused;"':''}></div>
       </div>
       <canvas id="pdmEqCanvas" width="120" height="28" style="margin-top:6px;border-radius:3px;"></canvas>
-      <button onclick="togglePersonalMusicPause()" style="margin-top:6px;background:${isPaused?'rgba(29,185,84,0.2)':'rgba(255,255,255,0.1)'};border:1px solid ${isPaused?'rgba(29,185,84,0.4)':'rgba(255,255,255,0.15)'};color:#fff;border-radius:20px;padding:4px 16px;font-size:0.65em;cursor:pointer;">
+      <button onclick="togglePersonalMusicPause();setTimeout(()=>deskApp('music'),80);" style="margin-top:8px;margin-bottom:4px;background:${isPaused?'rgba(29,185,84,0.2)':'rgba(255,255,255,0.1)'};border:1px solid ${isPaused?'rgba(29,185,84,0.4)':'rgba(255,255,255,0.15)'};color:#fff;border-radius:20px;padding:6px 18px;font-size:0.65em;cursor:pointer;">
         ${isPaused?'▶ Resume':'⏸ Pause'} <span style="opacity:0.5;font-size:0.85em;">(you only)</span>
       </button>
     </div>`;
@@ -17816,26 +17892,54 @@ function _startProfileEQ(){
 }
 
 function togglePersonalMusicPause(){
-  const ytAudio=document.getElementById('roomYTAudio');
   const fab=document.getElementById('musicPauseFab');
   const fabIcon=document.getElementById('musicPauseFabIcon');
+
+  // ── Local audio element (uploaded files / direct URLs) ──
+  const localAudio=document.getElementById('roomLocalAudio');
+  if(localAudio && localAudio.src){
+    const wasPaused=localAudio.paused;
+    if(wasPaused){
+      localAudio.play().catch(()=>{});
+      if(fab){ fab.classList.remove('paused'); }
+      if(fabIcon) fabIcon.textContent='⏸';
+      _startProfileEQ();
+    } else {
+      localAudio.pause(); // preserves currentTime — resumes from same spot
+      if(fab){ fab.classList.add('paused'); }
+      if(fabIcon) fabIcon.textContent='▶';
+      if(_profileEQRAF){ cancelAnimationFrame(_profileEQRAF); _profileEQRAF=null; }
+      const canvas=document.getElementById('rpEqCanvas');
+      if(canvas){ const c=canvas.getContext('2d'); c.clearRect(0,0,canvas.width,canvas.height); }
+    }
+    // Keep ytAudio paused-state in sync for the desk music tab UI
+    const ytAudio=document.getElementById('roomYTAudio');
+    if(ytAudio) ytAudio.dataset.paused=localAudio.paused?'1':'0';
+    return;
+  }
+
+  // ── YouTube iframe — use postMessage (no src swap = no restart) ──
+  const ytAudio=document.getElementById('roomYTAudio');
   if(!ytAudio||!ytAudio.src) return;
   const wasPaused=ytAudio.dataset.paused==='1';
+  try {
+    ytAudio.contentWindow.postMessage(
+      JSON.stringify({event:'command', func: wasPaused ? 'playVideo' : 'pauseVideo', args:[]}),
+      '*'
+    );
+  } catch(e){}
   if(wasPaused){
-    ytAudio.src=ytAudio.src.replace('autoplay=0','autoplay=1');
     ytAudio.dataset.paused='0';
-    if(fab) fab.classList.remove('paused');
+    if(fab){ fab.classList.remove('paused'); }
     if(fabIcon) fabIcon.textContent='⏸';
     _startProfileEQ();
   } else {
-    ytAudio.src=ytAudio.src.replace('autoplay=1','autoplay=0');
     ytAudio.dataset.paused='1';
-    if(fab) fab.classList.add('paused');
+    if(fab){ fab.classList.add('paused'); }
     if(fabIcon) fabIcon.textContent='▶';
-    // Stop profile EQ
     if(_profileEQRAF){ cancelAnimationFrame(_profileEQRAF); _profileEQRAF=null; }
     const canvas=document.getElementById('rpEqCanvas');
-    if(canvas){ const ctx=canvas.getContext('2d'); ctx.clearRect(0,0,canvas.width,canvas.height); }
+    if(canvas){ const c=canvas.getContext('2d'); c.clearRect(0,0,canvas.width,canvas.height); }
   }
 }
 function openCardShowcasePicker(slotIdx){
@@ -19200,7 +19304,12 @@ function chatDebugError(msg){
 
 function escapeHtml(str){
   if(!str) return '';
-  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+// Safe escape for JS string literals inside inline onclick attributes
+function escapeJs(str){
+  if(!str) return '';
+  return String(str).replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/\n/g,'\\n').replace(/\r/g,'');
 }
 
 // ══════════════════════════════════════════════
