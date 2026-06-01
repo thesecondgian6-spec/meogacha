@@ -17217,7 +17217,9 @@ async function refreshRoomsList(){
       const theme = r.theme_css || ROOM_THEMES[0].css;
       const av = r.owner_avatar || `https://api.dicebear.com/7.x/pixel-art/svg?seed=${encodeURIComponent(r.owner_username||'u')}`;
       const bannerStyle = r.banner_url ? `background-image:url('${escapeHtml(r.banner_url)}')` : `background:${theme}`;
-      return `<div class="room-card" onclick="joinRoom('${r.id}','${escapeHtml(r.name)}',${r.is_public})">
+      const safeName = escapeHtml(r.name);
+      const safeId   = escapeHtml(r.id);
+      return `<div class="room-card" data-room-id="${safeId}" data-room-name="${safeName}" data-room-public="${r.is_public?'1':'0'}" onclick="joinRoomFromCard(this)">
         <div class="room-card-banner" style="${bannerStyle};">
           <div class="room-card-banner-overlay"></div>
           <div class="room-card-vis-badge">${r.is_public?'🌐 Public':'🔒 Private'}</div>
@@ -17228,7 +17230,7 @@ async function refreshRoomsList(){
             <img class="room-card-avatar" src="${escapeHtml(av)}" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'"/>
             <div class="room-card-owner-name">${escapeHtml(r.owner_username||'Player')}</div>
           </div>
-          <div class="room-card-name">${escapeHtml(r.name)}</div>
+          <div class="room-card-name">${safeName}</div>
           <div class="room-card-bio">${escapeHtml(r.bio||'No description yet~')}</div>
           <div class="room-card-stickers">${stickers||'&nbsp;'}</div>
           <button class="room-card-enter">Enter Room →</button>
@@ -17439,12 +17441,11 @@ async function submitCreateRoom(){
       const updated = _roomsData.find(r=>r.id===_editingRoomId);
       if(updated) joinRoom(_editingRoomId, updated.name, updated.is_public);
     } else {
-      const res = await sb.insert(ROOM_TABLE, payload, true);
+      const res = await sb.insert(ROOM_TABLE, payload);
       closeCreateRoomModal();
       showToast('Room created! 🏠');
       await refreshRoomsList();
-      const newId = res?.id || _roomsData.find(r=>r.owner_id===state.discordId&&r.name===name)?.id;
-      if(newId) joinRoom(newId, name, isPublic);
+      if(res && res.id) joinRoom(res.id, name, isPublic);
     }
   } catch(e){ showToast('Could not save room: '+(e.message||'error')); }
 }
@@ -17455,17 +17456,33 @@ function openRoomEditPanel(){
   openCreateRoomModal(room);
 }
 
+// ── Enter a room (called from room card click via data attributes) ──
+function joinRoomFromCard(el){
+  const id     = el.dataset.roomId;
+  const name   = el.dataset.roomName;
+  const pub    = el.dataset.roomPublic === '1';
+  joinRoom(id, name, pub);
+}
+
 // ── Enter a room ──
 async function joinRoom(roomId, roomName, isPublic){
   if(_currentRoomId && _currentRoomId !== roomId) _cleanupRoom();
   _currentRoomId = roomId;
 
-  // Switch views
+  // Switch views immediately so user sees something
   document.getElementById('roomBrowserView').style.display  = 'none';
   document.getElementById('roomInteriorView').style.display = '';
 
-  // Get full room data
-  const room = _roomsData.find(r=>r.id===roomId) || {};
+  // Get full room data — try local cache first, then fetch fresh from DB
+  let room = _roomsData.find(r=>r.id===roomId);
+  if(!room){
+    try {
+      const rows = await sb.get(ROOM_TABLE, { id: roomId });
+      room = Array.isArray(rows) ? rows[0] : rows;
+      if(room) _roomsData.push(room); // cache it
+    } catch(e){ console.warn('[joinRoom] Could not fetch room:', e); }
+  }
+  if(!room) room = { id: roomId, name: roomName, is_public: isPublic }; // bare fallback
 
   // Header
   document.getElementById('riRoomName').textContent = roomName;
