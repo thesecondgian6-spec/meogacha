@@ -6554,10 +6554,31 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .pw-sky.open .pw-moon { filter:drop-shadow(0 0 20px rgba(255,240,180,0.9)); font-size:2.4em; }
 
 /* Shelf popup */
-.popup-shelf-scene { position:relative;margin-bottom:14px;padding:20px 14px 10px; }
-.popup-shelf-board { height:10px;background:linear-gradient(90deg,#2a1a0e,#6a3a18,#2a1a0e);border-radius:4px;box-shadow:0 4px 10px rgba(0,0,0,0.5);margin-bottom:4px; }
-.popup-shelf-items { display:flex;gap:14px;justify-content:center;padding:10px 8px;background:rgba(0,0,0,0.2);border:1px solid rgba(100,60,20,0.15);border-top:none;border-radius:0 0 6px 6px;min-height:60px;align-items:flex-end; }
-.popup-shelf-fig { font-size:2em;text-align:center;filter:drop-shadow(0 3px 6px rgba(0,0,0,0.6));animation:decoDrift 4s ease-in-out infinite; }
+.popup-shelf-scene { position:relative;margin-bottom:14px;padding:14px 14px 6px; }
+.popup-shelf-board { height:12px;background:linear-gradient(90deg,#2a1a0e,#6a3a18,#4a2a0e,#6a3a18,#2a1a0e);border-radius:4px;box-shadow:0 4px 12px rgba(0,0,0,0.6);margin-bottom:0; }
+.popup-shelf-items {
+  display:flex;gap:20px;justify-content:center;
+  padding:18px 16px 16px;
+  background:rgba(0,0,0,0.25);
+  border:1px solid rgba(100,60,20,0.2);
+  border-top:none;border-radius:0 0 10px 10px;
+  min-height:100px;align-items:flex-end;
+}
+.popup-shelf-fig {
+  font-size:3.8em;
+  text-align:center;
+  filter:drop-shadow(0 4px 10px rgba(0,0,0,0.7));
+  animation:decoDrift 4s ease-in-out infinite;
+  line-height:1;
+}
+/* Image-based figurines */
+.popup-shelf-fig img {
+  width:72px;height:72px;object-fit:cover;
+  border-radius:10px;
+  border:1px solid rgba(255,255,255,0.1);
+  box-shadow:0 4px 14px rgba(0,0,0,0.6);
+  display:block;
+}
 .popup-shelf-fig:nth-child(2){animation-delay:1.3s;} .popup-shelf-fig:nth-child(3){animation-delay:2.6s;}
 .popup-shelf-desc { font-size:0.82em;color:var(--text-dim);font-style:italic;text-align:center; }
 
@@ -6588,12 +6609,8 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 /* Desk popup */
 .popup-desk-scene { display:flex;flex-direction:column;align-items:center;gap:0;margin-bottom:16px; }
 .popup-desk-monitor { display:flex;flex-direction:column;align-items:center; }
-.pdm-screen {
-  width:200px;min-height:140px;height:auto;background:#000;
-  border:3px solid rgba(100,80,60,0.5);border-radius:6px 6px 0 0;
-  overflow:visible;box-shadow:0 0 20px rgba(0,0,0,0.8),inset 0 0 20px rgba(0,0,0,0.5);
-}
-.pdm-screen-content { width:100%;min-height:140px;display:flex;align-items:center;justify-content:center; }
+/* .pdm-screen defined below in the Spotify section */
+.pdm-screen-content { width:100%; height:100%; display:flex; align-items:center; justify-content:center; overflow:hidden; }
 .pdm-idle { text-align:center; }
 .pdm-idle-icon { font-size:2em;margin-bottom:6px;opacity:0.5; }
 .pdm-idle-text { font-size:0.72em;color:var(--text-dim);font-style:italic; }
@@ -6607,12 +6624,10 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 /* Desk screen app content */
 .pdm-app-wrap { width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:8px;overflow:hidden; }
 .pdm-app-title { font-size:0.6em;font-family:'Cinzel Decorative',serif;color:var(--pink);margin-bottom:2px; }
-.pdm-cards-row { display:flex;gap:4px; }
-.pdm-card-mini { width:22px;aspect-ratio:3/4;border-radius:3px;overflow:hidden;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05); }
+.pdm-cards-row { display:flex;gap:6px; }
+.pdm-card-mini { width:36px;aspect-ratio:3/4;border-radius:5px;overflow:hidden;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);box-shadow:0 2px 8px rgba(0,0,0,0.5); }
 .pdm-card-mini img { width:100%;height:100%;object-fit:cover; }
 .pdm-music-info { text-align:center;font-size:0.6em;color:rgba(255,157,199,0.8);font-style:italic; }
-.pdm-stickers-row { display:flex;gap:4px;flex-wrap:wrap;justify-content:center; }
-.pdm-sticker { font-size:1.1em; }
 
 /* ══ ROOMS background ══ */
 #hubZone-rooms {
@@ -6826,29 +6841,29 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 5px;
+  gap: 3px;
   width: 100%;
-  padding: 10px 8px;
+  padding: 6px 8px 4px;
   box-sizing: border-box;
-  overflow: visible;
+  overflow: hidden;
 }
 .pdm-sp-cover {
-  width: 48px; height: 48px;
-  border-radius: 8px;
+  width: 32px; height: 32px;
+  border-radius: 6px;
   background: linear-gradient(135deg, var(--pink-deep), var(--purple));
   display: flex; align-items: center; justify-content: center;
-  font-size: 1.3em; flex-shrink: 0;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+  font-size: 0.9em; flex-shrink: 0;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.5);
 }
 .pdm-sp-title {
-  font-size: 0.55em; color: #fff; font-weight: 600;
-  text-align: center; line-height: 1.3; width: 100%;
+  font-size: 0.48em; color: #fff; font-weight: 600;
+  text-align: center; line-height: 1.2; width: 100%;
   overflow: hidden; display: -webkit-box;
-  -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1; -webkit-box-orient: vertical;
 }
-.pdm-sp-artist { font-size: 0.5em; color: rgba(255,255,255,0.45); text-align: center; }
+.pdm-sp-artist { font-size: 0.42em; color: rgba(255,255,255,0.45); text-align: center; }
 .pdm-sp-bar {
-  width: 85%; height: 3px;
+  width: 85%; height: 2px;
   background: rgba(255,255,255,0.15);
   border-radius: 2px; overflow: hidden;
 }
@@ -6861,15 +6876,21 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 @keyframes spProgress { 0%{width:0%;} 100%{width:100%;} }
 .pdm-sp-eq { display: flex; gap: 2px; align-items: flex-end; justify-content: center; }
 
-/* Desk screen enlarges on desktop */
-@media(min-width:900px){
-  .pdm-screen { width: 240px; min-height: 160px; height: auto; }
-  .popup-desk-surface { width: 260px; }
-  .pdm-sp-cover { width: 58px; height: 58px; font-size: 1.5em; }
-  .pdm-sp-title { font-size: 0.6em; }
+/* Desk screen fixed height — no overflow stretch */
+.pdm-screen {
+  width:200px; height:140px; min-height:unset; background:#000;
+  border:3px solid rgba(100,80,60,0.5); border-radius:6px 6px 0 0;
+  overflow:hidden; box-shadow:0 0 20px rgba(0,0,0,0.8),inset 0 0 20px rgba(0,0,0,0.5);
 }
-.pdm-cards-row-lg { display:flex; gap:6px; flex-wrap:wrap; justify-content:center; }
-@media(min-width:900px){ .pdm-card-mini { width:32px; } }
+.pdm-screen-content { width:100%; height:100%; display:flex; align-items:center; justify-content:center; overflow:hidden; }
+@media(min-width:900px){
+  .pdm-screen { width: 240px; height: 160px; min-height: unset; }
+  .popup-desk-surface { width: 260px; }
+  .pdm-sp-cover { width: 38px; height: 38px; font-size: 1em; }
+  .pdm-sp-title { font-size: 0.5em; }
+}
+.pdm-cards-row-lg { display:flex; gap:8px; flex-wrap:wrap; justify-content:center; align-items:flex-end; }
+@media(min-width:900px){ .pdm-card-mini { width:44px; } }
 
 
 /* ── Ceiling ── */
@@ -8761,7 +8782,6 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
             <div class="popup-desk-apps">
               <button class="popup-app-btn" onclick="deskApp('cards')">🃏 View Cards</button>
               <button class="popup-app-btn" onclick="deskApp('music')">🎵 Now Playing</button>
-              <button class="popup-app-btn" onclick="deskApp('stickers')">🎀 Stickers</button>
             </div>
           </div>
         </div>
@@ -17694,7 +17714,7 @@ async function joinRoom(roomId, roomName, isPublic){
     if(nonEmpty.length){
       popShelf.innerHTML=nonEmpty.map(f=>{
         if(f.startsWith('http')||f.startsWith('data:'))
-          return `<span class="popup-shelf-fig"><img src="${escapeHtml(f)}" style="width:52px;height:52px;object-fit:cover;border-radius:8px;" onerror="this.parentElement.textContent='📦'"/></span>`;
+          return `<span class="popup-shelf-fig"><img src="${escapeHtml(f)}" onerror="this.parentElement.textContent='📦'"/></span>`;
         return `<span class="popup-shelf-fig">${f}</span>`;
       }).join('');
       document.getElementById('popupShelfDesc').textContent=`${nonEmpty.length} figurine${nonEmpty.length!==1?'s':''} on display`;
@@ -17798,11 +17818,11 @@ function deskApp(app){
   const room = window._currentRoom || {};
   if(app==='cards'){
     const cards=(room.showcase_cards||[]).filter(Boolean);
-    screen.innerHTML=`<div class="pdm-app-wrap">
-      <div class="pdm-app-title">🃏 Showcase Cards</div>
-      <div class="pdm-cards-row pdm-cards-row-lg">${cards.length
-        ? cards.map(c=>`<div class="pdm-card-mini"><img src="${escapeHtml(c)}" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none'"/></div>`).join('')
-        : '<span style="color:rgba(255,255,255,0.4);font-size:0.65em;font-style:italic;">No cards set</span>'
+    screen.innerHTML=`<div class="pdm-app-wrap" style="gap:8px;">
+      <div class="pdm-app-title" style="margin-bottom:4px;">🃏 Showcase</div>
+      <div class="pdm-cards-row pdm-cards-row-lg" style="gap:8px;">${cards.length
+        ? cards.map(c=>`<div class="pdm-card-mini" style="box-shadow:0 4px 12px rgba(0,0,0,0.7),0 0 0 1px rgba(255,157,199,0.15);"><img src="${escapeHtml(c)}" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none'"/></div>`).join('')
+        : '<span style="color:rgba(255,255,255,0.4);font-size:0.6em;font-style:italic;text-align:center;">No cards set yet</span>'
       }</div>
     </div>`;
   } else if(app==='music'){
@@ -17815,25 +17835,16 @@ function deskApp(app){
     screen.innerHTML=`<div class="pdm-spotify">
       <div class="pdm-sp-cover">🎵</div>
       <div class="pdm-sp-title">${escapeHtml(title)}</div>
-      <div class="pdm-sp-artist" style="color:rgba(255,255,255,0.4);font-size:0.55em;">Room BGM</div>
-      <div class="pdm-sp-bar" style="width:80%;margin-top:6px;">
+      <div class="pdm-sp-artist">Room BGM</div>
+      <div class="pdm-sp-bar" style="width:80%;margin-top:3px;">
         <div class="pdm-sp-progress" ${isPaused?'style="animation-play-state:paused;"':''}></div>
       </div>
-      <canvas id="pdmEqCanvas" width="120" height="28" style="margin-top:6px;border-radius:3px;"></canvas>
-      <button onclick="togglePersonalMusicPause();setTimeout(()=>deskApp('music'),80);" style="margin-top:8px;margin-bottom:4px;background:${isPaused?'rgba(29,185,84,0.2)':'rgba(255,255,255,0.1)'};border:1px solid ${isPaused?'rgba(29,185,84,0.4)':'rgba(255,255,255,0.15)'};color:#fff;border-radius:20px;padding:6px 18px;font-size:0.65em;cursor:pointer;">
-        ${isPaused?'▶ Resume':'⏸ Pause'} <span style="opacity:0.5;font-size:0.85em;">(you only)</span>
+      <canvas id="pdmEqCanvas" width="100" height="18" style="margin-top:3px;border-radius:2px;"></canvas>
+      <button onclick="togglePersonalMusicPause();setTimeout(()=>deskApp('music'),80);" style="margin-top:4px;background:${isPaused?'rgba(29,185,84,0.2)':'rgba(255,255,255,0.08)'};border:1px solid ${isPaused?'rgba(29,185,84,0.4)':'rgba(255,255,255,0.12)'};color:#fff;border-radius:20px;padding:3px 12px;font-size:0.5em;cursor:pointer;">
+        ${isPaused?'▶ Resume':'⏸ Pause'}
       </button>
     </div>`;
     _startDeskEQ();
-  } else if(app==='stickers'){
-    const stickers=room.stickers||[];
-    screen.innerHTML=`<div class="pdm-app-wrap">
-      <div class="pdm-app-title">🎀 Stickers</div>
-      <div class="pdm-stickers-row">${stickers.length
-        ? stickers.map(s=>`<span class="pdm-sticker">${s}</span>`).join('')
-        : '<span style="color:rgba(255,255,255,0.4);font-size:0.65em;font-style:italic;">No stickers</span>'
-      }</div>
-    </div>`;
   }
 }
 
