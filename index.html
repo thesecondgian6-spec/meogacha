@@ -423,7 +423,73 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .pull-big-btn:hover{transform:translateY(-3px);box-shadow:0 10px 30px var(--pink-glow);}
 .pull-big-btn span{font-family:'JetBrains Mono',monospace;font-size:0.8em;opacity:0.8;}
 .rN{color:var(--rN);border-color:var(--rN);}.rR{color:var(--rR);border-color:var(--rR);}.rSR{color:var(--rSR);border-color:var(--rSR);}.rSSR{color:var(--rSSR);border-color:var(--rSSR);}.rUR{color:var(--rUR);border-color:var(--rUR);}.rLR{color:var(--rLR);border-color:var(--rLR);}.rS{color:var(--rS);border-color:var(--rS);}
-/* ══ MOBILE NAV ══ */
+/* ══ MEO HUB — SPECIAL NAV BUTTON ══ */
+.nav-btn-hub {
+  background: linear-gradient(135deg, rgba(255,157,199,0.18), rgba(192,132,184,0.15)) !important;
+  border-color: var(--pink) !important;
+  color: var(--pink) !important;
+  font-family: 'Cinzel Decorative', serif !important;
+  font-size: 0.88em !important;
+  letter-spacing: 0.05em;
+  padding: 6px 20px !important;
+  box-shadow: 0 0 14px rgba(255,157,199,0.2), inset 0 0 12px rgba(255,157,199,0.05);
+  position: relative;
+  overflow: hidden;
+}
+.nav-btn-hub::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,157,199,0.12) 50%, transparent 100%);
+  animation: hubSheen 2.5s linear infinite;
+}
+@keyframes hubSheen {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(200%); }
+}
+.nav-btn-hub:hover, .nav-btn-hub.active {
+  background: linear-gradient(135deg, rgba(255,157,199,0.28), rgba(192,132,184,0.25)) !important;
+  box-shadow: 0 0 20px rgba(255,157,199,0.4), inset 0 0 18px rgba(255,157,199,0.08) !important;
+  transform: translateY(-1px);
+}
+
+/* Mobile Hub button — centered, bigger, glowing */
+.mobile-nav-btn-hub {
+  background: linear-gradient(135deg, rgba(255,157,199,0.15), rgba(192,132,184,0.12)) !important;
+  border: 1px solid rgba(255,157,199,0.4) !important;
+  border-radius: 18px !important;
+  padding: 4px 10px 6px !important;
+  box-shadow: 0 0 16px rgba(255,157,199,0.2);
+  position: relative;
+  min-width: 62px !important;
+}
+.mobile-nav-btn-hub::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 18px;
+  background: linear-gradient(135deg, rgba(255,157,199,0.06), rgba(192,132,184,0.06));
+  animation: hubMobilePulse 3s ease-in-out infinite;
+}
+@keyframes hubMobilePulse {
+  0%,100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+.mob-icon-hub {
+  font-size: 1.9em !important;
+  background: linear-gradient(135deg, var(--pink), var(--purple));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 8px rgba(255,157,199,0.7));
+  animation: hubIconFloat 2s ease-in-out infinite;
+}
+@keyframes hubIconFloat {
+  0%,100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-3px) scale(1.1); }
+}
+.mobile-nav-btn-hub { color: var(--pink) !important; font-size: 0.66em !important; }
+.mobile-nav-btn-hub.active { color: var(--pink-pale) !important; }
+.mobile-nav-btn-hub.active::before { background: rgba(255,157,199,0.22); animation: none; }
 .mobile-nav{display:none;position:fixed;bottom:0;left:0;right:0;z-index:100;background:rgba(13,6,16,0.96);backdrop-filter:blur(24px);border-top:1px solid var(--border);padding:6px 4px;padding-bottom:max(6px,env(safe-area-inset-bottom));}
 .mobile-nav-inner{display:flex;justify-content:space-around;align-items:center;}
 .mobile-nav-btn{display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:none;color:var(--text-dim);padding:6px 10px;border-radius:14px;cursor:pointer;transition:all 0.22s;font-size:0.6em;font-family:'Cormorant Garamond',serif;min-width:52px;position:relative;}
@@ -434,7 +500,28 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .mobile-nav-btn.active::before{content:'';position:absolute;top:4px;left:50%;transform:translateX(-50%);width:36px;height:28px;background:rgba(255,157,199,0.14);border-radius:10px;z-index:-1;}
 
 
-/* ══ NAV PROFILE AVATAR BUTTON ══ */
+/* ══ ADMIN GEAR BUTTON ══ */
+.nav-admin-gear-btn {
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  background: rgba(241,196,15,0.1);
+  border: 1px solid rgba(241,196,15,0.3);
+  color: #f1c40f;
+  font-size: 1em;
+  cursor: pointer;
+  transition: all 0.25s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  line-height: 1;
+}
+.nav-admin-gear-btn:hover {
+  background: rgba(241,196,15,0.2);
+  border-color: rgba(241,196,15,0.6);
+  transform: rotate(45deg);
+  box-shadow: 0 0 12px rgba(241,196,15,0.3);
+}
 .nav-profile-avatar-btn {
   width: 38px; height: 38px;
   border-radius: 50%;
@@ -7553,10 +7640,17 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 }
 #hubZone-leaderboard > *:not(.zone-banner) { padding-top: 16px; }
 
-/* Mobile: stack arcade cards */
+/* Mobile: 3 columns for arcade cards */
 @media(max-width:600px){
-  .arcade-games-grid { grid-template-columns: 1fr; }
-  .agc-screen { height: 100px; }
+  .arcade-games-grid { grid-template-columns: repeat(3, 1fr) !important; gap: 8px !important; }
+  .agc-screen { height: 72px; }
+  .agc-body { padding: 6px 8px 8px; }
+  .agc-title { font-size: 0.6em; }
+  .agc-desc { display: none; }
+  .agc-rewards { font-size: 0.55em; }
+  .agc-play-btn { font-size: 0.6em; padding: 6px 4px; letter-spacing: 0.02em; }
+  .agc-legs { gap: 20px; padding: 0 10px 8px; }
+  .agc-icon { font-size: 1.6em; }
 }
 </style>
 </head>
@@ -7736,14 +7830,15 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
       <button class="nav-btn active" onclick="goTo('home',this)">🏠 Home</button>
       <button class="nav-btn" onclick="goTo('pull',this)">🎴 Pull</button>
       <button class="nav-btn" onclick="goTo('collection',this)">🃏 Cards</button>
+      <button class="nav-btn nav-btn-hub" onclick="goTo('social',this)">✦ Meo Hub ✦</button>
       <button class="nav-btn" onclick="goTo('shop',this)">🛍️ Shop</button>
       <button class="nav-btn" onclick="goTo('activities',this)">⚔️ Activities</button>
-      <button class="nav-btn" onclick="goTo('social',this)">✦ Meo Hub</button>
-      <button class="nav-btn" id="adminNavBtn" style="display:none" onclick="goTo('admin',this)">⚙️ Admin</button>
+      <button class="nav-btn" id="adminNavBtn" style="display:none !important;" onclick="goTo('admin',this)">⚙️ Admin</button>
     </div>
     <!-- right side: coins + avatar — visible on BOTH desktop and mobile -->
     <div class="nav-right" id="navRight">
       <div class="nav-coins">🪙 <span id="coinDisplay">1000</span></div>
+      <button class="nav-admin-gear-btn" id="navAdminGearBtn" style="display:none" onclick="goTo('admin',null)" title="Admin Panel">⚙️</button>
       <button class="nav-profile-avatar-btn" onclick="goTo('profile',null)" title="View Profile" id="navProfileBtn">
         <img id="navProfileAvatar" src="https://cdn.discordapp.com/embed/avatars/0.png" alt="Profile"/>
       </button>
@@ -7758,9 +7853,9 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
       <button class="mobile-nav-btn active" id="mnav-home" onclick="goTo('home',null);setMobileNav('home')"><span class="mob-icon">🏠</span>Home</button>
       <button class="mobile-nav-btn" id="mnav-pull" onclick="goTo('pull',null);setMobileNav('pull')"><span class="mob-icon">🎴</span>Pull</button>
       <button class="mobile-nav-btn" id="mnav-collection" onclick="goTo('collection',null);setMobileNav('collection')"><span class="mob-icon">🃏</span>Cards</button>
+      <button class="mobile-nav-btn mobile-nav-btn-hub" id="mnav-social" onclick="goTo('social',null);setMobileNav('social')"><span class="mob-icon mob-icon-hub">✦</span>Meo Hub</button>
       <button class="mobile-nav-btn" id="mnav-shop" onclick="goTo('shop',null);setMobileNav('shop')"><span class="mob-icon">🛍️</span>Shop</button>
       <button class="mobile-nav-btn" id="mnav-activities" onclick="goTo('activities',null);setMobileNav('activities')"><span class="mob-icon">⚔️</span>Battle</button>
-      <button class="mobile-nav-btn" id="mnav-social" onclick="goTo('social',null);setMobileNav('social')"><span class="mob-icon">✦</span>Hub</button>
       <button class="mobile-nav-btn" id="mnav-profile" style="display:none" onclick="goTo('profile',null);setMobileNav('profile')"><span class="mob-icon">👤</span>Profile</button>
       <button class="mobile-nav-btn" id="mnav-admin" style="display:none" onclick="goTo('admin',null);setMobileNav('admin')"><span class="mob-icon">⚙️</span>Admin</button>
     </div>
@@ -9068,6 +9163,86 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
           </div>
           <div class="agc-legs"><div class="agc-leg"></div><div class="agc-leg"></div></div>
         </div>
+
+        <div class="arcade-game-card" onclick="launchGame('typing')">
+          <div class="agc-neon-border" style="--neon:#2ecc71;"></div>
+          <div class="agc-screen" style="--neon:#2ecc71;">
+            <div class="agc-screen-scanlines"></div>
+            <div class="agc-screen-glow"></div>
+            <div class="agc-icon" style="--neon:#2ecc71;">⌨️</div>
+          </div>
+          <div class="agc-body">
+            <div class="agc-title" style="--neon:#2ecc71;">Type Racer</div>
+            <div class="agc-desc">Type anime quotes as fast as you can!</div>
+            <div class="agc-rewards">+25 coins · +12 XP per win</div>
+            <div class="agc-play-btn" style="background:#2ecc71;">▶ INSERT COIN</div>
+          </div>
+          <div class="agc-legs"><div class="agc-leg"></div><div class="agc-leg"></div></div>
+        </div>
+
+        <div class="arcade-game-card" onclick="launchGame('quiz')">
+          <div class="agc-neon-border" style="--neon:#f1c40f;"></div>
+          <div class="agc-screen" style="--neon:#f1c40f;">
+            <div class="agc-screen-scanlines"></div>
+            <div class="agc-screen-glow"></div>
+            <div class="agc-icon" style="--neon:#f1c40f;">❓</div>
+          </div>
+          <div class="agc-body">
+            <div class="agc-title" style="--neon:#f1c40f;">Anime Quiz</div>
+            <div class="agc-desc">Test your anime knowledge — 10 questions!</div>
+            <div class="agc-rewards">+30 coins · +15 XP per win</div>
+            <div class="agc-play-btn" style="background:#d4ac0d;">▶ INSERT COIN</div>
+          </div>
+          <div class="agc-legs"><div class="agc-leg"></div><div class="agc-leg"></div></div>
+        </div>
+
+        <div class="arcade-game-card" onclick="launchGame('numberguess')">
+          <div class="agc-neon-border" style="--neon:#e67e22;"></div>
+          <div class="agc-screen" style="--neon:#e67e22;">
+            <div class="agc-screen-scanlines"></div>
+            <div class="agc-screen-glow"></div>
+            <div class="agc-icon" style="--neon:#e67e22;">🔢</div>
+          </div>
+          <div class="agc-body">
+            <div class="agc-title" style="--neon:#e67e22;">Number Duel</div>
+            <div class="agc-desc">Guess the secret number in 7 tries or less!</div>
+            <div class="agc-rewards">+18 coins · +8 XP per win</div>
+            <div class="agc-play-btn" style="background:#e67e22;">▶ INSERT COIN</div>
+          </div>
+          <div class="agc-legs"><div class="agc-leg"></div><div class="agc-leg"></div></div>
+        </div>
+
+        <div class="arcade-game-card" onclick="launchGame('whackamole')">
+          <div class="agc-neon-border" style="--neon:#1abc9c;"></div>
+          <div class="agc-screen" style="--neon:#1abc9c;">
+            <div class="agc-screen-scanlines"></div>
+            <div class="agc-screen-glow"></div>
+            <div class="agc-icon" style="--neon:#1abc9c;">🔨</div>
+          </div>
+          <div class="agc-body">
+            <div class="agc-title" style="--neon:#1abc9c;">Whack-a-Mole</div>
+            <div class="agc-desc">Bonk the chibi characters as they pop up!</div>
+            <div class="agc-rewards">+20 coins · +10 XP per win</div>
+            <div class="agc-play-btn" style="background:#1abc9c;">▶ INSERT COIN</div>
+          </div>
+          <div class="agc-legs"><div class="agc-leg"></div><div class="agc-leg"></div></div>
+        </div>
+
+        <div class="arcade-game-card" onclick="launchGame('janken')">
+          <div class="agc-neon-border" style="--neon:#c084b8;"></div>
+          <div class="agc-screen" style="--neon:#c084b8;">
+            <div class="agc-screen-scanlines"></div>
+            <div class="agc-screen-glow"></div>
+            <div class="agc-icon" style="--neon:#c084b8;">✊</div>
+          </div>
+          <div class="agc-body">
+            <div class="agc-title" style="--neon:#c084b8;">Janken Royale</div>
+            <div class="agc-desc">Rock Paper Scissors — best of 5 rounds!</div>
+            <div class="agc-rewards">+12 coins · +6 XP per win</div>
+            <div class="agc-play-btn" style="background:#9b59b6;">▶ INSERT COIN</div>
+          </div>
+          <div class="agc-legs"><div class="agc-leg"></div><div class="agc-leg"></div></div>
+        </div>
       </div>
 
       <div class="arcade-canvas-area" id="arcadeCanvasArea" style="display:none;">
@@ -9114,8 +9289,135 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
             </div>
           </div>
         </div>
-      </div>
-    </div>
+
+        <!-- TYPING GAME -->
+        <div id="gameArea-typing" style="display:none;">
+          <div style="padding:20px;max-width:520px;margin:0 auto;">
+            <div id="typingInstructions" style="text-align:center;">
+              <div style="font-size:2.5em;margin-bottom:10px;">⌨️</div>
+              <div style="color:var(--text-dim);margin-bottom:16px;font-style:italic;">Type the anime quote as fast and accurately as you can!</div>
+              <button class="btn-primary" onclick="startTypingGame()">Start!</button>
+            </div>
+            <div id="typingArena" style="display:none;">
+              <div style="display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:0.78em;color:var(--text-dim);margin-bottom:10px;">
+                <span>⏱ <span id="typingTimer">30</span>s</span>
+                <span>Accuracy: <span id="typingAccuracy">100</span>%</span>
+              </div>
+              <div id="typingQuote" style="background:rgba(255,157,199,0.06);border:1px solid var(--border);border-radius:12px;padding:14px 16px;font-size:1em;line-height:1.8;margin-bottom:12px;letter-spacing:0.02em;"></div>
+              <input id="typingInput" class="admin-input" placeholder="Start typing here..." oninput="checkTyping()" autocomplete="off" autocorrect="off" spellcheck="false" style="font-size:1em;letter-spacing:0.02em;"/>
+            </div>
+            <div id="typingResult" style="display:none;text-align:center;">
+              <div style="font-size:2.5em;margin-bottom:8px;">⌨️</div>
+              <div class="memory-result-title" id="typingResultTitle">Well done!</div>
+              <div class="memory-result-reward" id="typingResultReward"></div>
+              <button class="btn-primary" style="margin-top:14px;" onclick="startTypingGame()">Play Again</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- QUIZ GAME -->
+        <div id="gameArea-quiz" style="display:none;">
+          <div style="padding:20px;max-width:520px;margin:0 auto;">
+            <div id="quizInstructions" style="text-align:center;">
+              <div style="font-size:2.5em;margin-bottom:10px;">❓</div>
+              <div style="color:var(--text-dim);margin-bottom:16px;font-style:italic;">10 anime trivia questions — how many can you get right?</div>
+              <button class="btn-primary" onclick="startQuizGame()">Start Quiz!</button>
+            </div>
+            <div id="quizArena" style="display:none;">
+              <div style="display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:0.78em;color:var(--text-dim);margin-bottom:14px;">
+                <span>Q <span id="quizQNum">1</span>/10</span>
+                <span>Score: <span id="quizScore">0</span></span>
+              </div>
+              <div id="quizQuestion" style="background:rgba(241,196,15,0.06);border:1px solid rgba(241,196,15,0.2);border-radius:12px;padding:16px;font-size:0.95em;line-height:1.55;margin-bottom:14px;"></div>
+              <div id="quizChoices" style="display:flex;flex-direction:column;gap:8px;"></div>
+            </div>
+            <div id="quizResult" style="display:none;text-align:center;">
+              <div style="font-size:2.5em;margin-bottom:8px;" id="quizResultIcon">🏆</div>
+              <div class="memory-result-title" id="quizResultTitle">Quiz Complete!</div>
+              <div class="memory-result-reward" id="quizResultReward"></div>
+              <button class="btn-primary" style="margin-top:14px;" onclick="startQuizGame()">Play Again</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- NUMBER GUESS GAME -->
+        <div id="gameArea-numberguess" style="display:none;">
+          <div style="padding:20px;max-width:380px;margin:0 auto;text-align:center;">
+            <div id="nguessInstructions">
+              <div style="font-size:2.5em;margin-bottom:10px;">🔢</div>
+              <div style="color:var(--text-dim);margin-bottom:16px;font-style:italic;">I'm thinking of a number from 1–100. You have 7 guesses!</div>
+              <button class="btn-primary" onclick="startNumberGuess()">Start!</button>
+            </div>
+            <div id="nguessArena" style="display:none;">
+              <div style="font-family:'JetBrains Mono',monospace;font-size:0.82em;color:var(--text-dim);margin-bottom:12px;">Guesses left: <span id="nguessLeft">7</span></div>
+              <div id="nguessFeedback" style="min-height:32px;font-size:1.1em;margin-bottom:12px;"></div>
+              <div style="display:flex;gap:8px;justify-content:center;">
+                <input id="nguessInput" class="admin-input" type="number" min="1" max="100" placeholder="1–100" style="width:110px;text-align:center;font-size:1em;" onkeydown="if(event.key==='Enter')submitNumberGuess()"/>
+                <button class="btn-primary" onclick="submitNumberGuess()" style="padding:10px 18px;">Guess!</button>
+              </div>
+              <div id="nguessList" style="margin-top:12px;font-family:'JetBrains Mono',monospace;font-size:0.78em;color:var(--text-dim);display:flex;flex-wrap:wrap;gap:6px;justify-content:center;"></div>
+            </div>
+            <div id="nguessResult" style="display:none;">
+              <div style="font-size:2.5em;margin-bottom:8px;" id="nguessResultIcon">🎉</div>
+              <div class="memory-result-title" id="nguessResultTitle"></div>
+              <div class="memory-result-reward" id="nguessResultReward"></div>
+              <button class="btn-primary" style="margin-top:14px;" onclick="startNumberGuess()">Play Again</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- WHACK-A-MOLE GAME -->
+        <div id="gameArea-whackamole" style="display:none;">
+          <div style="padding:14px;max-width:420px;margin:0 auto;">
+            <div id="whamInstructions" style="text-align:center;">
+              <div style="font-size:2.5em;margin-bottom:10px;">🔨</div>
+              <div style="color:var(--text-dim);margin-bottom:16px;font-style:italic;">Bonk the chibi characters as they pop up! 30 seconds.</div>
+              <button class="btn-primary" onclick="startWhackGame()">Start!</button>
+            </div>
+            <div id="whamArena" style="display:none;">
+              <div style="display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:0.78em;color:var(--text-dim);margin-bottom:10px;">
+                <span>⏱ <span id="whamTimer">30</span>s</span>
+                <span>Hits: <span id="whamHits">0</span></span>
+              </div>
+              <div id="whamGrid" class="wg-grid" style="max-width:320px;margin:0 auto 14px;"></div>
+            </div>
+            <div id="whamResult" style="display:none;text-align:center;">
+              <div style="font-size:2.5em;margin-bottom:8px;">🔨</div>
+              <div class="memory-result-title" id="whamResultTitle">Game Over!</div>
+              <div class="memory-result-reward" id="whamResultReward"></div>
+              <button class="btn-primary" style="margin-top:14px;" onclick="startWhackGame()">Play Again</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- JANKEN GAME -->
+        <div id="gameArea-janken" style="display:none;">
+          <div style="padding:20px;max-width:380px;margin:0 auto;text-align:center;">
+            <div id="jankenInstructions">
+              <div style="font-size:2.5em;margin-bottom:10px;">✊</div>
+              <div style="color:var(--text-dim);margin-bottom:16px;font-style:italic;">Rock Paper Scissors — best of 5! Beat the AI.</div>
+              <button class="btn-primary" onclick="startJanken()">Start!</button>
+            </div>
+            <div id="jankenArena" style="display:none;">
+              <div style="font-family:'JetBrains Mono',monospace;font-size:0.78em;color:var(--text-dim);margin-bottom:12px;">Round <span id="jankenRound">1</span>/5 · You: <span id="jankenYouScore">0</span> — AI: <span id="jankenAIScore">0</span></div>
+              <div id="jankenResult" style="font-size:1.1em;min-height:36px;margin-bottom:14px;"></div>
+              <div style="display:flex;gap:14px;justify-content:center;">
+                <button onclick="playJanken('✊')" style="font-size:2.2em;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:12px 18px;cursor:pointer;transition:transform 0.15s;" onmouseover="this.style.transform='scale(1.15)'" onmouseout="this.style.transform='scale(1)'">✊</button>
+                <button onclick="playJanken('✋')" style="font-size:2.2em;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:12px 18px;cursor:pointer;transition:transform 0.15s;" onmouseover="this.style.transform='scale(1.15)'" onmouseout="this.style.transform='scale(1)'">✋</button>
+                <button onclick="playJanken('✌️')" style="font-size:2.2em;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:12px 18px;cursor:pointer;transition:transform 0.15s;" onmouseover="this.style.transform='scale(1.15)'" onmouseout="this.style.transform='scale(1)'">✌️</button>
+              </div>
+            </div>
+            <div id="jankenFinalResult" style="display:none;text-align:center;">
+              <div style="font-size:2.5em;margin-bottom:8px;" id="jankenFinalIcon">🎌</div>
+              <div class="memory-result-title" id="jankenFinalTitle"></div>
+              <div class="memory-result-reward" id="jankenFinalReward"></div>
+              <button class="btn-primary" style="margin-top:14px;" onclick="startJanken()">Play Again</button>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- end arcadeCanvasArea -->
+    </div><!-- end hubZone-arcade -->
 
     <!-- ══════════════════════════════════ -->
     <!-- ZONE: TRADES                       -->
@@ -12354,11 +12656,14 @@ function updateProfile(){
   // admin badge
   const ab=document.getElementById('adminProfileBadge');
   if(ab)ab.style.display=state.isAdmin?'flex':'none';
-  // admin nav button
+  // admin nav button (hidden — gear button used instead)
   const anb=document.getElementById('adminNavBtn');
-  if(anb)anb.style.display=state.isAdmin?'':'none';
+  if(anb)anb.style.display='none';
   const mAdminNav=document.getElementById('mnav-admin');
-  if(mAdminNav)mAdminNav.style.display=state.isAdmin?'flex':'none';
+  if(mAdminNav)mAdminNav.style.display='none';
+  // admin gear button in top nav
+  const gearBtn=document.getElementById('navAdminGearBtn');
+  if(gearBtn)gearBtn.style.display=state.isAdmin?'':'none';
   const ep=document.getElementById('equippedPreview');
   if(state.equippedId){
     const c=(window.DEMO_CARDS||DEMO_CARDS).find(x=>x.id===state.equippedId);
@@ -12417,6 +12722,9 @@ function goTo(page,btn){ playNavSound();
   const pageEl=document.getElementById('page-'+page);
   if(pageEl)pageEl.classList.add('active');
   if(btn)btn.classList.add('active');
+  // Sync hub button active state regardless of how goTo was triggered
+  const hubBtn=document.querySelector('.nav-btn-hub');
+  if(hubBtn) hubBtn.classList.toggle('active', page==='social');
   if(page==='collection')renderCollection();
   if(page==='activities'){renderBattleCardSelect();}
   if(page==='shop'){ renderShop(); }
@@ -15244,6 +15552,8 @@ const DEFAULT_AB_MEDIA = {
 
 function showAdminNav(){
   ['adminNavBtn','mnav-admin'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='';});
+  const gear=document.getElementById('navAdminGearBtn');
+  if(gear) gear.style.display='';
 }
 
 function switchAdminTab(tab, btn){
@@ -18202,27 +18512,27 @@ async function submitRoomChat(){
 const FOOD_SHOPS = {
   maid: [
     { emoji:'🍳', name:'Heart Omurice', desc:'Fluffy rice omelette with a ketchup heart drawn by your maid~', price:120, effects:['+ 50 Card XP'], effect_key:'card_xp', effect_val:50 },
-    { emoji:'🍮', name:'Strawberry Pudding', desc:'Silky smooth pudding topped with fresh berries', price:80, effects:['+ 1hr +5% Gacha Luck'], effect_key:'boost_luck', effect_val:60 },
+    { emoji:'🍮', name:'Strawberry Pudding', desc:'Silky smooth pudding topped with fresh berries', price:80, effects:['+ 40 Card XP'], effect_key:'card_xp', effect_val:40 },
     { emoji:'🧁', name:'Sakura Cupcake', desc:'Cherry blossom flavored with pink frosting', price:60, effects:['+ 30 Card XP'], effect_key:'card_xp', effect_val:30 },
-    { emoji:'🍓', name:'Parfait Delight', desc:'Layers of cream, fruit, and maid magic!', price:150, effects:['+ 100 Card XP','+ 1hr Boost'], effect_key:'card_xp', effect_val:100 },
+    { emoji:'🍓', name:'Parfait Delight', desc:'Layers of cream, fruit, and maid magic!', price:150, effects:['+ 100 Card XP'], effect_key:'card_xp', effect_val:100 },
   ],
   ichiraku: [
     { emoji:'🍜', name:'Naruto\'s Miso Ramen', desc:'Rich miso broth with naruto fish cake. "The best in Konoha!"', price:100, effects:['+ 80 Card XP'], effect_key:'card_xp', effect_val:80 },
     { emoji:'🥢', name:'Tonkotsu Bowl', desc:'Creamy pork bone broth, thick noodles, soft-boiled egg', price:130, effects:['+ 120 Card XP'], effect_key:'card_xp', effect_val:120 },
     { emoji:'🍥', name:'Shoyu Ramen', desc:'Classic soy sauce broth — the OG', price:90, effects:['+ 60 Card XP'], effect_key:'card_xp', effect_val:60 },
-    { emoji:'🧧', name:'Teuchi Special', desc:'Secret recipe only served to loyal customers', price:250, effects:['+ 200 Card XP','+ 2hr Boost'], effect_key:'card_xp', effect_val:200 },
+    { emoji:'🧧', name:'Teuchi Special', desc:'Secret recipe only served to loyal customers', price:250, effects:['+ 200 Card XP'], effect_key:'card_xp', effect_val:200 },
   ],
   anteiku: [
-    { emoji:'☕', name:'Black Coffee', desc:'Rich dark roast. You can feel the ghoul energy.', price:70, effects:['+ 1hr Focus Boost'], effect_key:'boost_coins', effect_val:60 },
+    { emoji:'☕', name:'Black Coffee', desc:'Rich dark roast. You can feel the ghoul energy.', price:70, effects:['+ 35 Card XP'], effect_key:'card_xp', effect_val:35 },
     { emoji:'🫖', name:'Touka\'s Tea', desc:'Gentle and calming. A little bitter, just like her.', price:80, effects:['+ 40 Card XP'], effect_key:'card_xp', effect_val:40 },
     { emoji:'🍰', name:'Anteiku Cake Slice', desc:'Soft vanilla with dark chocolate — deceptively light', price:110, effects:['+ 70 Card XP'], effect_key:'card_xp', effect_val:70 },
-    { emoji:'🫙', name:'Ghoul Blend Latte', desc:'Specialty blend. Best not to ask what\'s in it.', price:180, effects:['+ 150 Card XP','Rare boost'], effect_key:'card_xp', effect_val:150 },
+    { emoji:'🫙', name:'Ghoul Blend Latte', desc:'Specialty blend. Best not to ask what\'s in it.', price:180, effects:['+ 150 Card XP'], effect_key:'card_xp', effect_val:150 },
   ],
   baratie: [
     { emoji:'🍱', name:'Sanji\'s Bento Box', desc:'Lovingly prepared with All Blue ingredients', price:140, effects:['+ 100 Card XP'], effect_key:'card_xp', effect_val:100 },
     { emoji:'🍣', name:'Grand Line Sushi', desc:'Rare fish from across the oceans. Exquisite.', price:200, effects:['+ 160 Card XP'], effect_key:'card_xp', effect_val:160 },
     { emoji:'🍙', name:'Onigiri Set', desc:'Simple, warm, made with the heart of a cook', price:60, effects:['+ 35 Card XP'], effect_key:'card_xp', effect_val:35 },
-    { emoji:'🦞', name:'Baratie Feast', desc:'"I cook for people who are alive!" — Sanji', price:350, effects:['+ 300 Card XP','+ 3hr Boost','+ 50 coins'], effect_key:'card_xp', effect_val:300 },
+    { emoji:'🦞', name:'Baratie Feast', desc:'"I cook for people who are alive!" — Sanji', price:350, effects:['+ 300 Card XP'], effect_key:'card_xp', effect_val:300 },
   ]
 };
 
@@ -18258,13 +18568,28 @@ async function buyFoodItem(shopKey, idx){
   if(!item) return;
   const coins = state.coins||0;
   if(coins < item.price){ showToast(`Not enough coins! Need ${item.price} 💰`); return; }
+
+  // All food items give card XP only
+  const xpVal = item.effect_val||0;
+  if(!state.equippedId){
+    showToast('Equip a card first to enjoy your meal! ʚɞ');
+    return;
+  }
+  const card = (window.DEMO_CARDS||DEMO_CARDS||[]).find(c=>c.id===state.equippedId);
+  const cardName = card ? card.name : 'your card';
+
   try {
     state.coins = coins - item.price;
     updateCoins();
+    state.xpMap = state.xpMap || {};
+    state.xpMap[state.equippedId] = (state.xpMap[state.equippedId]||0) + xpVal;
+    showToast(`${item.emoji} Enjoyed! +${xpVal} XP added to ${cardName}!`);
     if(state.discordId && !state.isGuest){
-      await sb.update('players',{coins:state.coins},{discord_id:state.discordId});
+      await saveXp(state.discordId, state.equippedId, state.xpMap[state.equippedId]);
+      await savePlayer();
     }
-    showToast(`${item.emoji} Enjoyed! ${item.effects.join(', ')}`);
+    if(state.isGuest) saveGuestState();
+    if(typeof renderCollection === 'function') renderCollection();
   } catch(e){ showToast('Order failed: '+(e.message||'error')); }
 }
 
@@ -18664,17 +18989,22 @@ function launchGame(game){
   const area=document.getElementById('arcadeCanvasArea');
   if(area) area.style.display='';
   // Hide all game areas
-  ['memory','reaction'].forEach(g=>{
+  ['memory','reaction','typing','quiz','numberguess','whackamole','janken'].forEach(g=>{
     const el=document.getElementById('gameArea-'+g);
     if(el) el.style.display='none';
   });
   const gameEl=document.getElementById('gameArea-'+game);
   if(gameEl) gameEl.style.display='';
   const titleBar=document.getElementById('arcadeGameTitleBar');
-  const titles={memory:'🧠 Memory Match',reaction:'⚡ Reaction Rush'};
+  const titles={memory:'🧠 Memory Match',reaction:'⚡ Reaction Rush',typing:'⌨️ Type Racer',quiz:'❓ Anime Quiz',numberguess:'🔢 Number Duel',whackamole:'🔨 Whack-a-Mole',janken:'✊ Janken Royale'};
   if(titleBar) titleBar.textContent=titles[game]||game;
   if(game==='memory') startMemoryGame();
   if(game==='reaction') initReactionGame();
+  if(game==='typing') initTypingGame();
+  if(game==='quiz') initQuizGame();
+  if(game==='numberguess') initNumberGuess();
+  if(game==='whackamole') initWhackGame();
+  if(game==='janken') initJanken();
   // Scroll into view
   area?.scrollIntoView({behavior:'smooth',block:'start'});
 }
@@ -18682,13 +19012,16 @@ function launchGame(game){
 function exitArcadeGame(){
   const area=document.getElementById('arcadeCanvasArea');
   if(area) area.style.display='none';
-  ['memory','reaction'].forEach(g=>{
+  ['memory','reaction','typing','quiz','numberguess','whackamole','janken'].forEach(g=>{
     const el=document.getElementById('gameArea-'+g);
     if(el) el.style.display='none';
   });
   // Stop any running timers
   if(_memTimerInt){ clearInterval(_memTimerInt); _memTimerInt=null; }
   if(_rxTimerTO){ clearTimeout(_rxTimerTO); _rxTimerTO=null; }
+  if(_typingTimerInt){ clearInterval(_typingTimerInt); _typingTimerInt=null; }
+  if(_whamTimerInt){ clearInterval(_whamTimerInt); _whamTimerInt=null; }
+  if(_whamSpawnInt){ clearInterval(_whamSpawnInt); _whamSpawnInt=null; }
 }
 
 /* ── Memory Match ── */
@@ -18852,6 +19185,337 @@ async function giveArcadeReward(coins, xp, gameName){
       await sb.update('players',{coins:state.coins},{discord_id:state.discordId});
     }
   } catch(e){ console.warn('[Arcade] reward error',e); }
+}
+
+// ══════════════════════════════════════════════
+// TYPING RACER GAME
+// ══════════════════════════════════════════════
+const TYPING_QUOTES=[
+  {text:"Believe it! I'm gonna be Hokage!",anime:"Naruto"},
+  {text:"Even if I die, I won't let you destroy this world!",anime:"Bleach"},
+  {text:"You can't win if you're always on the defense.",anime:"Attack on Titan"},
+  {text:"If you don't take risks, you can't create a future.",anime:"One Piece"},
+  {text:"The world isn't perfect. But it's there for us.",anime:"Fullmetal Alchemist"},
+  {text:"Forgetting is like a wound. The wound may heal but it has already left a scar.",anime:"One Piece"},
+  {text:"Hard work betrays none, but dreams betray many.",anime:"Oregairu"},
+  {text:"It's okay not to be okay as long as you're not giving up.",anime:"Sword Art Online"},
+];
+let _typingTimerInt=null, _typingTimer=30, _typingCurrent=null, _typingStarted=false;
+
+function initTypingGame(){
+  document.getElementById('typingInstructions').style.display='';
+  document.getElementById('typingArena').style.display='none';
+  document.getElementById('typingResult').style.display='none';
+}
+function startTypingGame(){
+  clearInterval(_typingTimerInt);
+  _typingTimer=30; _typingStarted=false;
+  const q=TYPING_QUOTES[Math.floor(Math.random()*TYPING_QUOTES.length)];
+  _typingCurrent=q;
+  document.getElementById('typingInstructions').style.display='none';
+  document.getElementById('typingResult').style.display='none';
+  document.getElementById('typingArena').style.display='';
+  document.getElementById('typingTimer').textContent='30';
+  document.getElementById('typingAccuracy').textContent='100';
+  const input=document.getElementById('typingInput');
+  input.value='';
+  // Render colored quote
+  renderTypingQuote('');
+  input.focus();
+  _typingTimerInt=setInterval(()=>{
+    _typingTimer--;
+    const el=document.getElementById('typingTimer');
+    if(el) el.textContent=_typingTimer;
+    if(_typingTimer<=0){ clearInterval(_typingTimerInt); endTypingGame(false); }
+  },1000);
+}
+function renderTypingQuote(typed){
+  const el=document.getElementById('typingQuote');
+  if(!el||!_typingCurrent) return;
+  const target=_typingCurrent.text;
+  let html='';
+  for(let i=0;i<target.length;i++){
+    if(i<typed.length){
+      html+=`<span style="color:${typed[i]===target[i]?'#2ecc71':'#e74c3c'}">${target[i]}</span>`;
+    } else if(i===typed.length){
+      html+=`<span style="background:rgba(255,157,199,0.3);border-radius:2px;">${target[i]}</span>`;
+    } else {
+      html+=`<span style="opacity:0.5">${target[i]}</span>`;
+    }
+  }
+  el.innerHTML=html+`<div style="font-size:0.72em;color:var(--text-dim);margin-top:6px;">— ${_typingCurrent.anime}</div>`;
+}
+function checkTyping(){
+  const input=document.getElementById('typingInput');
+  if(!input||!_typingCurrent) return;
+  const typed=input.value;
+  const target=_typingCurrent.text;
+  renderTypingQuote(typed);
+  // Accuracy
+  let correct=0;
+  for(let i=0;i<Math.min(typed.length,target.length);i++) if(typed[i]===target[i]) correct++;
+  const acc=typed.length?Math.round(correct/typed.length*100):100;
+  const accEl=document.getElementById('typingAccuracy');
+  if(accEl) accEl.textContent=acc;
+  if(typed===target){ clearInterval(_typingTimerInt); endTypingGame(true,acc); }
+}
+async function endTypingGame(completed, accuracy=0){
+  clearInterval(_typingTimerInt);
+  const timeUsed=30-_typingTimer;
+  document.getElementById('typingArena').style.display='none';
+  document.getElementById('typingResult').style.display='';
+  const wpm=completed?Math.round((_typingCurrent.text.split(' ').length/(timeUsed/60))):0;
+  const coins=completed?Math.max(10,Math.min(40,Math.round(wpm*0.5))):5;
+  const xp=completed?Math.max(5,Math.min(20,Math.round(wpm*0.25))):2;
+  document.getElementById('typingResultTitle').textContent=completed?`${wpm} WPM · ${accuracy}% accuracy`:'Time\'s up!';
+  document.getElementById('typingResultReward').textContent=`+${coins} coins · +${xp} XP`;
+  ARCADE_COOLDOWNS['typing']=Date.now();
+  await giveArcadeReward(coins,xp,'Type Racer');
+}
+
+// ══════════════════════════════════════════════
+// ANIME QUIZ GAME
+// ══════════════════════════════════════════════
+const QUIZ_QUESTIONS=[
+  {q:"What is Naruto's signature jutsu?",a:"Shadow Clone Jutsu",choices:["Rasengan","Shadow Clone Jutsu","Chidori","Fire Release"]},
+  {q:"Which anime features the 'Survey Corps'?",a:"Attack on Titan",choices:["Bleach","Demon Slayer","Attack on Titan","Vinland Saga"]},
+  {q:"Who is the author of One Piece?",a:"Eiichiro Oda",choices:["Masashi Kishimoto","Akira Toriyama","Eiichiro Oda","Tite Kubo"]},
+  {q:"What is the name of Ichigo's sword in Bleach?",a:"Zangetsu",choices:["Senbonzakura","Zangetsu","Tensa Zangetsu","Ryujin Jakka"]},
+  {q:"In what anime does the character Levi Ackerman appear?",a:"Attack on Titan",choices:["Black Clover","My Hero Academia","Attack on Titan","Demon Slayer"]},
+  {q:"What is the currency used in the world of One Piece?",a:"Beli",choices:["Zeni","Beli","Gold","Coin"]},
+  {q:"Which Studio animated 'Violet Evergarden'?",a:"Kyoto Animation",choices:["Ufotable","Mappa","Kyoto Animation","Bones"]},
+  {q:"What power does Tanjiro wield in Demon Slayer?",a:"Water Breathing",choices:["Flame Breathing","Water Breathing","Wind Breathing","Thunder Breathing"]},
+  {q:"What is the real name of 'L' in Death Note?",a:"L Lawliet",choices:["Ryuzaki Hideki","L Lawliet","Near Walker","Nate River"]},
+  {q:"Which anime features Alchemy as a core power system?",a:"Fullmetal Alchemist",choices:["Fairy Tail","Fullmetal Alchemist","Black Clover","Hunter x Hunter"]},
+  {q:"What is the name of Goku's signature move?",a:"Kamehameha",choices:["Galick Gun","Spirit Bomb","Kamehameha","Final Flash"]},
+  {q:"In 'Sword Art Online', what is the first game's name?",a:"Sword Art Online",choices:["ALfheim Online","Sword Art Online","Gun Gale Online","Ordinal Scale"]},
+];
+let _quizQ=[], _quizIdx=0, _quizScore=0;
+
+function initQuizGame(){
+  document.getElementById('quizInstructions').style.display='';
+  document.getElementById('quizArena').style.display='none';
+  document.getElementById('quizResult').style.display='none';
+}
+function startQuizGame(){
+  _quizQ=[...QUIZ_QUESTIONS].sort(()=>Math.random()-0.5).slice(0,10);
+  _quizIdx=0; _quizScore=0;
+  document.getElementById('quizInstructions').style.display='none';
+  document.getElementById('quizResult').style.display='none';
+  document.getElementById('quizArena').style.display='';
+  showQuizQuestion();
+}
+function showQuizQuestion(){
+  const q=_quizQ[_quizIdx];
+  if(!q){ endQuizGame(); return; }
+  document.getElementById('quizQNum').textContent=_quizIdx+1;
+  document.getElementById('quizScore').textContent=_quizScore;
+  document.getElementById('quizQuestion').textContent=q.q;
+  const choices=[...q.choices].sort(()=>Math.random()-0.5);
+  const container=document.getElementById('quizChoices');
+  container.innerHTML='';
+  choices.forEach(c=>{
+    const btn=document.createElement('button');
+    btn.textContent=c;
+    btn.style.cssText='background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:10px 14px;cursor:pointer;font-size:0.88em;color:var(--text);text-align:left;transition:all 0.2s;';
+    btn.onmouseover=()=>{ if(!btn.disabled) btn.style.background='rgba(255,157,199,0.1)'; };
+    btn.onmouseout=()=>{ if(!btn.disabled) btn.style.background='var(--surface)'; };
+    btn.onclick=()=>answerQuiz(btn, c, q.a);
+    container.appendChild(btn);
+  });
+}
+function answerQuiz(btn, answer, correct){
+  const allBtns=document.getElementById('quizChoices').querySelectorAll('button');
+  allBtns.forEach(b=>{
+    b.disabled=true;
+    if(b.textContent.trim()===correct) b.style.background='rgba(46,204,113,0.2)';
+  });
+  if(answer===correct){ _quizScore++; btn.style.background='rgba(46,204,113,0.25)'; }
+  else { btn.style.background='rgba(231,76,60,0.2)'; }
+  _quizIdx++;
+  setTimeout(()=>showQuizQuestion(),900);
+}
+async function endQuizGame(){
+  document.getElementById('quizArena').style.display='none';
+  document.getElementById('quizResult').style.display='';
+  const s=_quizScore;
+  const coins=s>=8?50:s>=6?35:s>=4?20:10;
+  const xp=s>=8?25:s>=6?18:s>=4?10:5;
+  document.getElementById('quizResultIcon').textContent=s>=8?'🏆':s>=5?'🎌':'😅';
+  document.getElementById('quizResultTitle').textContent=`${s}/10 correct — ${s>=8?'Anime Master!':s>=5?'Good effort!':'Keep watching!'}`;
+  document.getElementById('quizResultReward').textContent=`+${coins} coins · +${xp} XP`;
+  ARCADE_COOLDOWNS['quiz']=Date.now();
+  await giveArcadeReward(coins,xp,'Anime Quiz');
+}
+
+// ══════════════════════════════════════════════
+// NUMBER DUEL GAME
+// ══════════════════════════════════════════════
+let _nguessSecret=0, _nguessLeft=7, _nguessGuesses=[];
+
+function initNumberGuess(){
+  document.getElementById('nguessInstructions').style.display='';
+  document.getElementById('nguessArena').style.display='none';
+  document.getElementById('nguessResult').style.display='none';
+}
+function startNumberGuess(){
+  _nguessSecret=Math.floor(Math.random()*100)+1;
+  _nguessLeft=7; _nguessGuesses=[];
+  document.getElementById('nguessInstructions').style.display='none';
+  document.getElementById('nguessResult').style.display='none';
+  document.getElementById('nguessArena').style.display='';
+  document.getElementById('nguessLeft').textContent='7';
+  document.getElementById('nguessFeedback').textContent='';
+  document.getElementById('nguessList').innerHTML='';
+  document.getElementById('nguessInput').value='';
+}
+async function submitNumberGuess(){
+  const input=document.getElementById('nguessInput');
+  const val=parseInt(input.value);
+  if(!val||val<1||val>100){ showToast('Enter a number from 1 to 100!'); return; }
+  input.value='';
+  _nguessLeft--;
+  _nguessGuesses.push(val);
+  document.getElementById('nguessLeft').textContent=_nguessLeft;
+  const fb=document.getElementById('nguessFeedback');
+  const chip=`<span style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:2px 10px;">${val}</span>`;
+  document.getElementById('nguessList').innerHTML+=chip;
+  if(val===_nguessSecret){
+    fb.innerHTML='✅ Correct!';
+    await endNumberGuess(true);
+  } else if(_nguessLeft<=0){
+    fb.innerHTML=`❌ The number was <strong>${_nguessSecret}</strong>`;
+    await endNumberGuess(false);
+  } else {
+    fb.textContent=val<_nguessSecret?'📈 Too low! Go higher!':'📉 Too high! Go lower!';
+  }
+}
+async function endNumberGuess(won){
+  document.getElementById('nguessArena').style.display='none';
+  document.getElementById('nguessResult').style.display='';
+  const guessesUsed=7-_nguessLeft;
+  const coins=won?Math.max(10,30-guessesUsed*3):0;
+  const xp=won?Math.max(5,15-guessesUsed*2):2;
+  document.getElementById('nguessResultIcon').textContent=won?'🎉':'😢';
+  document.getElementById('nguessResultTitle').textContent=won?`Got it in ${guessesUsed} guess${guessesUsed>1?'es':''}!`:`Better luck next time!`;
+  document.getElementById('nguessResultReward').textContent=won?`+${coins} coins · +${xp} XP`:'No reward this round';
+  ARCADE_COOLDOWNS['numberguess']=Date.now();
+  if(won) await giveArcadeReward(coins,xp,'Number Duel');
+}
+
+// ══════════════════════════════════════════════
+// WHACK-A-MOLE GAME
+// ══════════════════════════════════════════════
+const WHAM_CHARS=['🐱','🐶','🐰','🦊','🐻','🐼','🐨','🐸','🐻‍❄️'];
+let _whamHits=0, _whamTimer=30, _whamTimerInt=null, _whamSpawnInt=null, _whamActive=-1;
+
+function initWhackGame(){
+  document.getElementById('whamInstructions').style.display='';
+  document.getElementById('whamArena').style.display='none';
+  document.getElementById('whamResult').style.display='none';
+}
+function startWhackGame(){
+  clearInterval(_whamTimerInt); clearInterval(_whamSpawnInt);
+  _whamHits=0; _whamTimer=30; _whamActive=-1;
+  document.getElementById('whamInstructions').style.display='none';
+  document.getElementById('whamResult').style.display='none';
+  document.getElementById('whamArena').style.display='';
+  document.getElementById('whamTimer').textContent='30';
+  document.getElementById('whamHits').textContent='0';
+  // Build 3x3 grid
+  const grid=document.getElementById('whamGrid');
+  grid.innerHTML=Array.from({length:9},(_,i)=>`<div class="wg-cell" id="wham-cell-${i}"></div>`).join('');
+  _whamTimerInt=setInterval(()=>{
+    _whamTimer--;
+    const el=document.getElementById('whamTimer');
+    if(el) el.textContent=_whamTimer;
+    if(_whamTimer<=0){ clearInterval(_whamTimerInt); clearInterval(_whamSpawnInt); endWhackGame(); }
+  },1000);
+  _whamSpawnInt=setInterval(()=>{
+    if(_whamActive>=0){
+      const prev=document.getElementById('wham-cell-'+_whamActive);
+      if(prev){ prev.textContent=''; prev.classList.remove('wg-active'); }
+    }
+    _whamActive=Math.floor(Math.random()*9);
+    const cell=document.getElementById('wham-cell-'+_whamActive);
+    if(cell){
+      const ch=WHAM_CHARS[Math.floor(Math.random()*WHAM_CHARS.length)];
+      cell.textContent=ch;
+      cell.classList.add('wg-active');
+      cell.onclick=()=>whackCell(_whamActive,cell);
+    }
+  },700);
+}
+function whackCell(idx,cell){
+  if(_whamActive!==idx) return;
+  _whamHits++;
+  document.getElementById('whamHits').textContent=_whamHits;
+  cell.classList.remove('wg-active');
+  cell.classList.add('wg-hit');
+  cell.textContent='💥';
+  setTimeout(()=>{ cell.textContent=''; cell.classList.remove('wg-hit'); },300);
+  _whamActive=-1;
+}
+async function endWhackGame(){
+  document.getElementById('whamArena').style.display='none';
+  document.getElementById('whamResult').style.display='';
+  const coins=Math.max(5,Math.min(50,_whamHits*2));
+  const xp=Math.max(3,Math.min(25,_whamHits));
+  document.getElementById('whamResultTitle').textContent=`${_whamHits} hits! ${_whamHits>=20?'Pro Bonker!':_whamHits>=10?'Nice!':'Keep training!'}`;
+  document.getElementById('whamResultReward').textContent=`+${coins} coins · +${xp} XP`;
+  ARCADE_COOLDOWNS['whackamole']=Date.now();
+  await giveArcadeReward(coins,xp,'Whack-a-Mole');
+}
+
+// ══════════════════════════════════════════════
+// JANKEN ROYALE (Rock Paper Scissors)
+// ══════════════════════════════════════════════
+let _jankenYou=0, _jankenAI=0, _jankenRound=0;
+
+function initJanken(){
+  document.getElementById('jankenInstructions').style.display='';
+  document.getElementById('jankenArena').style.display='none';
+  document.getElementById('jankenFinalResult').style.display='none';
+}
+function startJanken(){
+  _jankenYou=0; _jankenAI=0; _jankenRound=0;
+  document.getElementById('jankenInstructions').style.display='none';
+  document.getElementById('jankenFinalResult').style.display='none';
+  document.getElementById('jankenArena').style.display='';
+  document.getElementById('jankenRound').textContent='1';
+  document.getElementById('jankenYouScore').textContent='0';
+  document.getElementById('jankenAIScore').textContent='0';
+  document.getElementById('jankenResult').textContent='Choose your move!';
+}
+async function playJanken(choice){
+  if(_jankenRound>=5) return;
+  const moves=['✊','✋','✌️'];
+  const ai=moves[Math.floor(Math.random()*3)];
+  let outcome;
+  if(choice===ai) outcome='draw';
+  else if((choice==='✊'&&ai==='✌️')||(choice==='✋'&&ai==='✊')||(choice==='✌️'&&ai==='✋')) outcome='win';
+  else outcome='lose';
+  if(outcome==='win') _jankenYou++;
+  if(outcome==='lose') _jankenAI++;
+  _jankenRound++;
+  const msgs={win:`✅ You win! ${choice} beats ${ai}`,lose:`❌ AI wins! ${ai} beats ${choice}`,draw:`🤝 Draw! Both chose ${choice}`};
+  document.getElementById('jankenResult').textContent=msgs[outcome];
+  document.getElementById('jankenYouScore').textContent=_jankenYou;
+  document.getElementById('jankenAIScore').textContent=_jankenAI;
+  document.getElementById('jankenRound').textContent=Math.min(_jankenRound+1,5);
+  if(_jankenRound>=5){ setTimeout(()=>endJanken(),600); }
+}
+async function endJanken(){
+  document.getElementById('jankenArena').style.display='none';
+  document.getElementById('jankenFinalResult').style.display='';
+  const won=_jankenYou>_jankenAI;
+  const coins=won?20:_jankenYou===_jankenAI?8:0;
+  const xp=won?10:_jankenYou===_jankenAI?4:2;
+  document.getElementById('jankenFinalIcon').textContent=won?'🏆':_jankenYou===_jankenAI?'🤝':'😢';
+  document.getElementById('jankenFinalTitle').textContent=won?`You win! ${_jankenYou}–${_jankenAI}`:_jankenYou===_jankenAI?`Draw! ${_jankenYou}–${_jankenAI}`:`AI wins ${_jankenAI}–${_jankenYou}`;
+  document.getElementById('jankenFinalReward').textContent=won||_jankenYou===_jankenAI?`+${coins} coins · +${xp} XP`:'No reward this round';
+  ARCADE_COOLDOWNS['janken']=Date.now();
+  if(won||_jankenYou===_jankenAI) await giveArcadeReward(coins,xp,'Janken Royale');
 }
 
 // ══════════════════════════════════════════════
