@@ -6591,10 +6591,9 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .pdm-screen {
   width:200px;height:140px;background:#000;
   border:3px solid rgba(100,80,60,0.5);border-radius:6px 6px 0 0;
-  overflow-y:auto;overflow-x:hidden;box-shadow:0 0 20px rgba(0,0,0,0.8),inset 0 0 20px rgba(0,0,0,0.5);
+  overflow:hidden;box-shadow:0 0 20px rgba(0,0,0,0.8),inset 0 0 20px rgba(0,0,0,0.5);
 }
-.pdm-screen::-webkit-scrollbar{width:3px;} .pdm-screen::-webkit-scrollbar-track{background:transparent;} .pdm-screen::-webkit-scrollbar-thumb{background:rgba(255,157,199,0.2);border-radius:2px;}
-.pdm-screen-content { width:100%;min-height:100%;display:flex;align-items:center;justify-content:center; }
+.pdm-screen-content { width:100%;height:100%;display:flex;align-items:center;justify-content:center; }
 .pdm-idle { text-align:center; }
 .pdm-idle-icon { font-size:2em;margin-bottom:6px;opacity:0.5; }
 .pdm-idle-text { font-size:0.72em;color:var(--text-dim);font-style:italic; }
@@ -6813,26 +6812,26 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 3px;
+  gap: 5px;
   width: 100%;
-  padding: 6px 6px 8px;
+  padding: 8px;
   box-sizing: border-box;
 }
 .pdm-sp-cover {
-  width: 38px; height: 38px;
-  border-radius: 6px;
+  width: 48px; height: 48px;
+  border-radius: 8px;
   background: linear-gradient(135deg, var(--pink-deep), var(--purple));
   display: flex; align-items: center; justify-content: center;
-  font-size: 1.1em; flex-shrink: 0;
-  box-shadow: 0 3px 10px rgba(0,0,0,0.5);
+  font-size: 1.3em; flex-shrink: 0;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.5);
 }
 .pdm-sp-title {
-  font-size: 0.5em; color: #fff; font-weight: 600;
-  text-align: center; line-height: 1.2; width: 100%;
+  font-size: 0.55em; color: #fff; font-weight: 600;
+  text-align: center; line-height: 1.3; width: 100%;
   overflow: hidden; display: -webkit-box;
   -webkit-line-clamp: 2; -webkit-box-orient: vertical;
 }
-.pdm-sp-artist { font-size: 0.46em; color: rgba(255,255,255,0.45); text-align: center; }
+.pdm-sp-artist { font-size: 0.5em; color: rgba(255,255,255,0.45); text-align: center; }
 .pdm-sp-bar {
   width: 85%; height: 3px;
   background: rgba(255,255,255,0.15);
@@ -6849,10 +6848,10 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 
 /* Desk screen enlarges on desktop */
 @media(min-width:900px){
-  .pdm-screen { width: 240px; height: 170px; }
+  .pdm-screen { width: 240px; height: 160px; }
   .popup-desk-surface { width: 260px; }
-  .pdm-sp-cover { width: 44px; height: 44px; font-size: 1.2em; }
-  .pdm-sp-title { font-size: 0.52em; }
+  .pdm-sp-cover { width: 58px; height: 58px; font-size: 1.5em; }
+  .pdm-sp-title { font-size: 0.6em; }
 }
 .pdm-cards-row-lg { display:flex; gap:6px; flex-wrap:wrap; justify-content:center; }
 @media(min-width:900px){ .pdm-card-mini { width:32px; } }
@@ -7496,13 +7495,6 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   background:
     radial-gradient(ellipse at 30% 20%, rgba(39,174,96,0.04) 0%, transparent 50%),
     linear-gradient(180deg, #020a04 0%, #010502 100%);
-}
-/* Constrain the room browser and interior to a sensible width on desktop */
-#roomBrowserView,
-#roomInteriorView {
-  max-width: 860px;
-  margin: 0 auto;
-  width: 100%;
 }
 /* ══ CINEMA dark theater bg ══ */
 #hubZone-cinema {
@@ -9158,7 +9150,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
         <!-- Wallpaper -->
         <div class="crm-section-label">Wallpaper</div>
         <label class="crm-label">Banner URL (image or GIF)</label>
-        <input id="createRoomBanner" class="admin-input" placeholder="https://..." style="margin-bottom:4px;" oninput="crmPreviewBanner(this.value)"/>
+        <input id="createRoomBanner" class="admin-input" placeholder="https://..." maxlength="300" style="margin-bottom:4px;" oninput="crmPreviewBanner(this.value)"/>
         <label class="crm-label" style="margin-top:4px;">— or upload from gallery —</label>
         <input type="file" id="createRoomBannerFile" accept="image/*,video/mp4,video/webm" class="crm-file-input" onchange="crmUploadBanner(this)"/>
         <div id="createRoomBannerPreview" class="crm-banner-preview" style="margin-bottom:8px;"></div>
@@ -9168,7 +9160,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
         <!-- Music -->
         <div class="crm-section-label">Room Music</div>
         <label class="crm-label">YouTube / audio URL</label>
-        <input id="createRoomMusic" class="admin-input" placeholder="https://youtube.com/watch?v=..." style="margin-bottom:4px;"/>
+        <input id="createRoomMusic" class="admin-input" placeholder="https://youtube.com/watch?v=..." maxlength="400" style="margin-bottom:4px;"/>
         <label class="crm-label" style="margin-top:4px;">— or upload audio/video from gallery —</label>
         <input type="file" id="createRoomMusicFile" accept="audio/*,video/mp4,video/webm" class="crm-file-input" onchange="crmUploadMusic(this)"/>
         <div id="crmMusicPreview" style="font-size:0.75em;color:var(--pink);font-style:italic;min-height:16px;margin-bottom:12px;"></div>
@@ -17447,11 +17439,12 @@ async function submitCreateRoom(){
       const updated = _roomsData.find(r=>r.id===_editingRoomId);
       if(updated) joinRoom(_editingRoomId, updated.name, updated.is_public);
     } else {
-      const res = await sb.insert(ROOM_TABLE, payload);
+      const res = await sb.insert(ROOM_TABLE, payload, true);
       closeCreateRoomModal();
       showToast('Room created! 🏠');
       await refreshRoomsList();
-      if(res && res.id) joinRoom(res.id, name, isPublic);
+      const newId = res?.id || _roomsData.find(r=>r.owner_id===state.discordId&&r.name===name)?.id;
+      if(newId) joinRoom(newId, name, isPublic);
     }
   } catch(e){ showToast('Could not save room: '+(e.message||'error')); }
 }
@@ -17530,7 +17523,7 @@ async function joinRoom(roomId, roomName, isPublic){
         .then(r=>r.json())
         .then(d=>{ const el=document.getElementById('riMusicTitle'); if(el) el.textContent=d.title||'Now Playing'; })
         .catch(()=>{ const el=document.getElementById('riMusicTitle'); if(el) el.textContent='Now Playing'; });
-      ytAudio.src=`https://www.youtube.com/embed/${ytMatch[1]}?autoplay=1&loop=1&playlist=${ytMatch[1]}&mute=0&enablejsapi=1`;
+      ytAudio.src=`https://www.youtube.com/embed/${ytMatch[1]}?autoplay=1&loop=1&playlist=${ytMatch[1]}&mute=0`;
     } else {
       document.getElementById('riMusicTitle').textContent='Now Playing';
       ytAudio.src=room.music_url;
@@ -17734,8 +17727,7 @@ function deskApp(app){
   } else if(app==='music'){
     const title=document.getElementById('riMusicTitle')?.textContent||'No music set';
     const ytAudio=document.getElementById('roomYTAudio');
-    const localAudio=document.getElementById('roomLocalAudio');
-    const isPaused=(ytAudio?.dataset.paused==='1') || (localAudio && localAudio.paused && localAudio.src);
+    const isPaused=ytAudio?.dataset.paused==='1';
     // Spotify-style player
     screen.innerHTML=`<div class="pdm-spotify">
       <div class="pdm-sp-cover">🎵</div>
@@ -17745,7 +17737,7 @@ function deskApp(app){
         <div class="pdm-sp-progress" ${isPaused?'style="animation-play-state:paused;"':''}></div>
       </div>
       <canvas id="pdmEqCanvas" width="120" height="28" style="margin-top:6px;border-radius:3px;"></canvas>
-      <button class="pdm-pause-btn" onclick="togglePersonalMusicPause()" style="margin-top:6px;background:${isPaused?'rgba(29,185,84,0.2)':'rgba(255,255,255,0.1)'};border:1px solid ${isPaused?'rgba(29,185,84,0.4)':'rgba(255,255,255,0.15)'};color:#fff;border-radius:20px;padding:4px 16px;font-size:0.65em;cursor:pointer;">
+      <button onclick="togglePersonalMusicPause()" style="margin-top:6px;background:${isPaused?'rgba(29,185,84,0.2)':'rgba(255,255,255,0.1)'};border:1px solid ${isPaused?'rgba(29,185,84,0.4)':'rgba(255,255,255,0.15)'};color:#fff;border-radius:20px;padding:4px 16px;font-size:0.65em;cursor:pointer;">
         ${isPaused?'▶ Resume':'⏸ Pause'} <span style="opacity:0.5;font-size:0.85em;">(you only)</span>
       </button>
     </div>`;
@@ -17817,71 +17809,27 @@ function _startProfileEQ(){
 }
 
 function togglePersonalMusicPause(){
+  const ytAudio=document.getElementById('roomYTAudio');
   const fab=document.getElementById('musicPauseFab');
   const fabIcon=document.getElementById('musicPauseFabIcon');
-
-  // ── Local audio (uploaded file) ──
-  const localAudio=document.getElementById('roomLocalAudio');
-  if(localAudio && localAudio.src){
-    const paused = !localAudio.paused;
-    if(paused){
-      localAudio.pause();
-      if(fab) fab.classList.add('paused');
-      if(fabIcon) fabIcon.textContent='▶';
-      if(_profileEQRAF){ cancelAnimationFrame(_profileEQRAF); _profileEQRAF=null; }
-      const canvas=document.getElementById('rpEqCanvas');
-      if(canvas){ const ctx=canvas.getContext('2d'); ctx.clearRect(0,0,canvas.width,canvas.height); }
-    } else {
-      localAudio.play().catch(()=>{});
-      if(fab) fab.classList.remove('paused');
-      if(fabIcon) fabIcon.textContent='⏸';
-      _startProfileEQ();
-    }
-    // Sync paused state for desk app display
-    const ytAudio=document.getElementById('roomYTAudio');
-    if(ytAudio) ytAudio.dataset.paused = paused ? '1' : '0';
-    _updateDeskMusicBtn();
-    return;
-  }
-
-  // ── YouTube iframe ──
-  const ytAudio=document.getElementById('roomYTAudio');
   if(!ytAudio||!ytAudio.src) return;
   const wasPaused=ytAudio.dataset.paused==='1';
   if(wasPaused){
-    // Resume — send postMessage to YT iframe
-    ytAudio.contentWindow?.postMessage('{"event":"command","func":"playVideo","args":""}','*');
+    ytAudio.src=ytAudio.src.replace('autoplay=0','autoplay=1');
     ytAudio.dataset.paused='0';
     if(fab) fab.classList.remove('paused');
     if(fabIcon) fabIcon.textContent='⏸';
     _startProfileEQ();
   } else {
-    // Pause — send postMessage to YT iframe
-    ytAudio.contentWindow?.postMessage('{"event":"command","func":"pauseVideo","args":""}','*');
+    ytAudio.src=ytAudio.src.replace('autoplay=1','autoplay=0');
     ytAudio.dataset.paused='1';
     if(fab) fab.classList.add('paused');
     if(fabIcon) fabIcon.textContent='▶';
+    // Stop profile EQ
     if(_profileEQRAF){ cancelAnimationFrame(_profileEQRAF); _profileEQRAF=null; }
     const canvas=document.getElementById('rpEqCanvas');
     if(canvas){ const ctx=canvas.getContext('2d'); ctx.clearRect(0,0,canvas.width,canvas.height); }
   }
-  _updateDeskMusicBtn();
-}
-
-function _updateDeskMusicBtn(){
-  // Refresh the pause/resume button inside the desk music app if it's open
-  const btn = document.querySelector('#pdmContent .pdm-pause-btn');
-  if(!btn) return;
-  const ytAudio=document.getElementById('roomYTAudio');
-  const localAudio=document.getElementById('roomLocalAudio');
-  const isPaused = (ytAudio?.dataset.paused==='1') || (localAudio && localAudio.paused && localAudio.src);
-  btn.textContent = (isPaused ? '▶ Resume' : '⏸ Pause') + ' ';
-  const youOnly = document.createElement('span');
-  youOnly.style.cssText='opacity:0.5;font-size:0.85em;';
-  youOnly.textContent='(you only)';
-  btn.appendChild(youOnly);
-  btn.style.background = isPaused ? 'rgba(29,185,84,0.2)' : 'rgba(255,255,255,0.1)';
-  btn.style.borderColor = isPaused ? 'rgba(29,185,84,0.4)' : 'rgba(255,255,255,0.15)';
 }
 function openCardShowcasePicker(slotIdx){
   const room=window._currentRoom;
