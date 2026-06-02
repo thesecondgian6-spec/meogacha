@@ -424,49 +424,534 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .pull-big-btn span{font-family:'JetBrains Mono',monospace;font-size:0.8em;opacity:0.8;}
 .rN{color:var(--rN);border-color:var(--rN);}.rR{color:var(--rR);border-color:var(--rR);}.rSR{color:var(--rSR);border-color:var(--rSR);}.rSSR{color:var(--rSSR);border-color:var(--rSSR);}.rUR{color:var(--rUR);border-color:var(--rUR);}.rLR{color:var(--rLR);border-color:var(--rLR);}.rS{color:var(--rS);border-color:var(--rS);}
 /* ══════════════════════════════════════════════════
-   HUB MINIMAP BAR
+   HUB HERO HEADER
 ══════════════════════════════════════════════════ */
-.hub-minimap-bar {
+.hmap-hero {
+  position: relative;
+  height: clamp(240px, 45vw, 420px);
+  overflow: hidden;
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 10px 20px;
-  background: rgba(0,0,0,0.55);
-  border-bottom: 1px solid rgba(255,157,199,0.15);
-  position: sticky;
-  top: 0;
-  z-index: 50;
-  backdrop-filter: blur(12px);
-  overflow-x: auto;
-  scrollbar-width: none;
+  justify-content: center;
 }
-.hub-minimap-bar::-webkit-scrollbar { display: none; }
-.hmm-label {
+.hmap-hero-gif {
+  position: absolute;
+  inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  z-index: 0;
+  filter: saturate(1.2) brightness(0.9);
+}
+/* Top dark fade so nav bar blends in */
+.hmap-hero-fade-top {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 80px;
+  background: linear-gradient(to bottom, rgba(6,2,12,0.85), transparent);
+  z-index: 1; pointer-events: none;
+}
+/* Bottom fade into page background */
+.hmap-hero-fade-bottom {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 100px;
+  background: linear-gradient(to top, #06020c 0%, rgba(6,2,12,0.7) 60%, transparent 100%);
+  z-index: 1; pointer-events: none;
+}
+/* Floating particle specks */
+.hmap-hero-particles {
+  position: absolute; inset: 0; z-index: 2; pointer-events: none;
+}
+.hmap-particle {
+  position: absolute;
+  width: 4px; height: 4px;
+  border-radius: 50%;
+  background: rgba(255,157,199,0.8);
+  box-shadow: 0 0 6px rgba(255,157,199,0.9);
+  animation: hmapParticleFloat linear infinite;
+}
+
+/* 🗺️ map button */
+.hmap-map-btn {
+  position: absolute;
+  top: 14px; left: 14px;
+  z-index: 10;
+  background: rgba(6,2,12,0.7);
+  border: 1px solid rgba(255,157,199,0.3);
+  border-radius: 12px;
+  padding: 7px 12px;
+  font-size: 1.1em;
+  cursor: pointer;
+  color: #fff;
+  backdrop-filter: blur(8px);
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.hmap-map-btn:hover { background: rgba(255,157,199,0.15); border-color: rgba(255,157,199,0.6); transform: scale(1.05); }
+.hmap-map-badge {
+  background: var(--pink);
+  color: #000;
+  font-size: 0.52em;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  border-radius: 20px;
+  padding: 1px 6px;
+  line-height: 1.4;
+}
+
+/* Hero title block */
+.hmap-hero-content {
+  position: relative;
+  z-index: 3;
+  text-align: center;
+  padding: 20px;
+}
+.hmap-pretitle {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7em;
+  letter-spacing: 0.3em;
+  color: rgba(255,157,199,0.75);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+}
+.hmap-title {
   font-family: 'Cinzel Decorative', serif;
-  font-size: 0.65em;
-  color: var(--text-dim);
-  white-space: nowrap;
-  letter-spacing: 0.05em;
-  flex-shrink: 0;
+  font-size: clamp(2em, 8vw, 4em);
+  font-weight: 900;
+  color: #fff;
+  text-shadow: 0 0 40px rgba(255,157,199,0.5), 0 4px 20px rgba(0,0,0,0.9);
+  line-height: 1.1;
+  margin-bottom: 8px;
+  letter-spacing: 0.04em;
 }
-.hmm-pins { display: flex; gap: 6px; flex-shrink: 0; }
-.hmm-pin {
+.hmap-subtitle {
+  font-size: 0.88em;
+  color: rgba(255,255,255,0.65);
+  font-style: italic;
+  margin-bottom: 12px;
+}
+.hmap-online-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: rgba(0,0,0,0.45);
+  border: 1px solid rgba(255,157,199,0.2);
+  border-radius: 20px;
+  padding: 5px 14px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72em;
+  color: rgba(255,255,255,0.7);
+  backdrop-filter: blur(6px);
+}
+
+/* ══════════════════════════════════════════════════
+   MINIMAP PANEL
+══════════════════════════════════════════════════ */
+.hmap-minimap-panel {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  z-index: 300;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(10px);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 10px;
-  padding: 5px 10px;
+  justify-content: center;
+  padding: 20px;
+  animation: hmapPanelIn 0.2s ease;
+}
+@keyframes hmapPanelIn { from{opacity:0;transform:scale(0.96)} to{opacity:1;transform:scale(1)} }
+.hmp-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 580px;
+  margin-bottom: 18px;
+}
+.hmp-title {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: clamp(0.9em, 3vw, 1.2em);
+  color: var(--pink);
+  letter-spacing: 0.05em;
+}
+.hmp-close {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 8px;
+  color: rgba(255,255,255,0.7);
+  font-size: 1em;
+  padding: 6px 12px;
   cursor: pointer;
   transition: all 0.2s;
-  white-space: nowrap;
+}
+.hmp-close:hover { background: rgba(231,76,60,0.2); color:#e74c3c; border-color:rgba(231,76,60,0.4); }
+.hmp-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 10px;
+  width: 100%;
+  max-width: 580px;
+  max-height: 70vh;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+.hmp-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 14px;
+  padding: 16px 14px;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.hmp-card:hover {
+  background: rgba(var(--hmp-c, 255,157,199), 0.12);
+  border-color: var(--hmp-c, rgba(255,157,199,0.4));
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+}
+.hmp-icon { font-size: 1.8em; margin-bottom: 4px; }
+.hmp-name {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 0.72em;
+  color: #fff;
+  letter-spacing: 0.03em;
+}
+.hmp-sub { font-size: 0.65em; color: var(--text-dim); font-style: italic; }
+
+/* ══════════════════════════════════════════════════
+   HUB BODY (stats + gacha widget + bg effects)
+══════════════════════════════════════════════════ */
+.hmap-body {
+  position: relative;
+  padding: 28px 24px 0;
+  max-width: 960px;
+  margin: 0 auto;
+  width: 100%;
+  overflow: hidden;
+}
+
+/* Background grid pattern */
+.hmap-bg-grid {
+  position: absolute;
+  inset: -20px;
+  background-image:
+    linear-gradient(rgba(255,157,199,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,157,199,0.04) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Ambient glow orbs */
+.hmap-ambient-orbs { position: absolute; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+.hmap-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(60px);
+  animation: orbDrift ease-in-out infinite;
+}
+.hmap-orb-1 {
+  width: 300px; height: 300px;
+  background: rgba(155,89,182,0.12);
+  top: -80px; left: -60px;
+  animation-duration: 12s;
+}
+.hmap-orb-2 {
+  width: 200px; height: 200px;
+  background: rgba(255,157,199,0.08);
+  top: 40%; right: -40px;
+  animation-duration: 16s;
+  animation-delay: 4s;
+}
+.hmap-orb-3 {
+  width: 250px; height: 250px;
+  background: rgba(41,128,185,0.07);
+  bottom: 0; left: 30%;
+  animation-duration: 20s;
+  animation-delay: 8s;
+}
+@keyframes orbDrift {
+  0%,100% { transform: translate(0,0) scale(1); }
+  33%      { transform: translate(20px,-15px) scale(1.05); }
+  66%      { transform: translate(-10px,20px) scale(0.95); }
+}
+
+/* Stats row */
+.hmap-stats-row {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+  justify-content: center;
+}
+.hmap-stats-row .home-stat-chip {
+  flex: 1;
+  min-width: 110px;
+  max-width: 200px;
+  background: rgba(255,255,255,0.04);
+  border-color: rgba(255,255,255,0.08);
+  cursor: pointer;
+}
+
+/* ══════════════════════════════════════════════════
+   GACHA BANNER WIDGET
+══════════════════════════════════════════════════ */
+.hmap-gacha-widget {
+  position: relative;
+  z-index: 2;
+  border-radius: 20px;
+  overflow: hidden;
+  cursor: pointer;
+  min-height: 260px;
+  display: flex;
+  align-items: stretch;
+  border: 1px solid rgba(255,255,255,0.08);
+  box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+  transition: transform 0.25s cubic-bezier(.34,1.4,.64,1), box-shadow 0.25s;
+  margin-bottom: 32px;
+}
+.hmap-gacha-widget:hover { transform: translateY(-4px) scale(1.005); box-shadow: 0 16px 60px rgba(0,0,0,0.65); }
+/* Banner GIF as background */
+.hgw-bg {
+  position: absolute; inset: 0;
+  background-size: cover;
+  background-position: center;
+  z-index: 0;
+  transform: scale(1.04);
+  transition: transform 0.6s ease;
+  filter: saturate(1.1);
+}
+.hmap-gacha-widget:hover .hgw-bg { transform: scale(1.08); }
+.hgw-overlay {
+  position: absolute; inset: 0; z-index: 1;
+  background: linear-gradient(115deg, rgba(8,2,18,0.82) 0%, rgba(8,2,18,0.6) 50%, rgba(8,2,18,0.25) 100%);
+}
+.hgw-scanlines {
+  position: absolute; inset: 0; z-index: 2; pointer-events: none;
+  background: repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,0.07) 3px,rgba(0,0,0,0.07) 4px);
+}
+.hgw-content {
+  position: relative; z-index: 3;
+  display: flex;
+  align-items: stretch;
+  width: 100%;
+  gap: 0;
+}
+.hgw-left {
+  flex: 1;
+  padding: 28px 28px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+.hgw-right {
+  width: clamp(130px, 28%, 220px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
   flex-shrink: 0;
 }
-.hmm-pin:hover { background: rgba(255,157,199,0.12); border-color: rgba(255,157,199,0.35); transform: translateY(-2px); }
-.hmm-pin-icon { font-size: 1.2em; line-height: 1; }
-.hmm-pin-name { font-size: 0.58em; color: var(--text-dim); font-family: 'JetBrains Mono', monospace; letter-spacing: 0.03em; }
+.hgw-badge {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(255,157,199,0.15);
+  border: 1px solid rgba(255,157,199,0.3);
+  border-radius: 20px;
+  padding: 3px 12px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6em;
+  color: var(--pink);
+  letter-spacing: 0.1em;
+  width: fit-content;
+}
+.hgw-title {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: clamp(1em, 3.5vw, 1.7em);
+  color: #fff;
+  text-shadow: 0 2px 16px rgba(0,0,0,0.8);
+  line-height: 1.2;
+}
+.hgw-desc {
+  font-size: 0.82em;
+  color: rgba(255,255,255,0.6);
+  font-style: italic;
+  line-height: 1.4;
+}
+.hgw-rateup-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6em;
+  letter-spacing: 0.15em;
+  color: rgba(255,157,199,0.7);
+  margin-top: 4px;
+}
+.hgw-featured-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
+.hgw-fc {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  cursor: pointer;
+}
+.hgw-fc img {
+  width: clamp(46px, 8vw, 68px);
+  aspect-ratio: 2/3;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.15);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+  transition: transform 0.2s;
+}
+.hgw-fc:hover img { transform: scale(1.08) translateY(-3px); }
+.hgw-fc-name { font-size: 0.55em; color: rgba(255,255,255,0.7); text-align: center; max-width: 68px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hgw-fc-rarity { font-size: 0.5em; }
+.hgw-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+.hgw-btn-pull {
+  background: linear-gradient(135deg, var(--pink), var(--purple));
+  border: none;
+  border-radius: 10px;
+  padding: 9px 18px;
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 0.7em;
+  color: #fff;
+  cursor: pointer;
+  letter-spacing: 0.04em;
+  transition: all 0.2s;
+  box-shadow: 0 4px 16px rgba(255,157,199,0.3);
+}
+.hgw-btn-pull:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(255,157,199,0.45); }
+.hgw-btn-coll {
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 10px;
+  padding: 9px 18px;
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 0.7em;
+  color: rgba(255,255,255,0.8);
+  cursor: pointer;
+  letter-spacing: 0.04em;
+  transition: all 0.2s;
+}
+.hgw-btn-coll:hover { background: rgba(255,255,255,0.13); }
+/* Right side card stack */
+.hgw-card-stack {
+  position: relative;
+  width: 100px;
+  height: 150px;
+}
+.hgw-stack-card {
+  position: absolute;
+  width: 80px;
+  aspect-ratio: 2/3;
+  border-radius: 10px;
+  object-fit: cover;
+  border: 1px solid rgba(255,255,255,0.2);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.6);
+  transition: transform 0.3s;
+}
+.hgw-stack-card:nth-child(1) { transform: rotate(-8deg) translate(-10px,10px); z-index: 1; }
+.hgw-stack-card:nth-child(2) { transform: rotate(-3deg) translate(-3px,4px); z-index: 2; }
+.hgw-stack-card:nth-child(3) { transform: rotate(2deg); z-index: 3; }
+.hmap-gacha-widget:hover .hgw-stack-card:nth-child(1) { transform: rotate(-12deg) translate(-16px,14px); }
+.hmap-gacha-widget:hover .hgw-stack-card:nth-child(2) { transform: rotate(-4deg) translate(-5px,6px); }
+.hgw-corner-glow {
+  position: absolute;
+  bottom: -40px; right: -40px;
+  width: 180px; height: 180px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(155,89,182,0.25), transparent 70%);
+  pointer-events: none;
+  z-index: 2;
+  animation: orbDrift 8s ease-in-out infinite;
+}
+
+/* ── Section divider ── */
+.hmap-section-divider {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 4px;
+  margin-bottom: 0;
+}
+.hsd-line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,157,199,0.2), rgba(255,157,199,0.4), rgba(255,157,199,0.2), transparent);
+}
+.hsd-text {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 0.65em;
+  letter-spacing: 0.15em;
+  color: rgba(255,157,199,0.55);
+  white-space: nowrap;
+}
+
+/* ══════════════════════════════════════════════════
+   BOOTH SECTIONS — extra vertical spacing
+══════════════════════════════════════════════════ */
+.hub-booth-sections {
+  padding-top: 0;
+}
+.hbs-section {
+  margin-top: 48px;  /* ← spacing between booths */
+}
+.hbs-section:first-child { margin-top: 32px; }
+
+/* Shadow/fade above each banner for blending */
+.hbs-section::before {
+  content: '';
+  display: block;
+  height: 32px;
+  background: linear-gradient(to bottom, #06020c, transparent);
+  margin-bottom: -2px;
+  position: relative;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* ══════════════════════════════════════════════════
+   MOBILE ADJUSTMENTS
+══════════════════════════════════════════════════ */
+@media(max-width:600px){
+  .hmap-body { padding: 16px 14px 0; }
+  .hmap-stats-row { gap: 7px; }
+  .hmap-stats-row .home-stat-chip { min-width: 90px; padding: 8px 10px; }
+  .hgw-left { padding: 18px 16px 16px; }
+  .hgw-right { width: clamp(90px, 32%, 130px); padding: 10px; }
+  .hgw-actions { flex-direction: column; gap: 6px; }
+  .hgw-btn-pull, .hgw-btn-coll { width: 100%; text-align: center; padding: 10px; }
+  .hmp-grid { grid-template-columns: repeat(2, 1fr); }
+  .hbs-section { margin-top: 28px; }
+  .hbs-section::before { height: 20px; }
+}
+
+/* ══════════════════════════════════════════════════
+   HUB MINIMAP BAR (legacy — now hidden)
+══════════════════════════════════════════════════ */
+.hub-minimap-bar { display: none !important; }
 
 /* ══════════════════════════════════════════════════
    HUB BOOTH SECTIONS — full-width vertical layout
@@ -9116,20 +9601,24 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
     <!-- ── Hub Entry Screen (shown on map view) ── -->
     <div id="hubMapView">
 
-      <!-- Sky header with parallax -->
-      <div class="hmap-sky">
-        <img class="hmap-sky-gif" src="https://media1.tenor.com/m/mWdkLIVD5sMAAAAd/pretty-flowers.gif" alt="" aria-hidden="true"/>
-        <div class="hmap-sky-overlay"></div>
-        <div class="hmap-moon">🌕</div>
-        <div class="hmap-stars"></div>
-        <div class="hmap-clouds">
-          <div class="hmap-cloud hmap-cloud-1"></div>
-          <div class="hmap-cloud hmap-cloud-2"></div>
-          <div class="hmap-cloud hmap-cloud-3"></div>
-        </div>
-        <div class="hmap-title-wrap">
-          <div class="hmap-title">✦ Meo Hub ✦</div>
-          <div class="hmap-subtitle">Where the community lives</div>
+      <!-- ═══ HERO GIF HEADER ═══ -->
+      <div class="hmap-hero">
+        <img class="hmap-hero-gif" src="https://media1.tenor.com/m/mWdkLIVD5sMAAAAd/pretty-flowers.gif" alt="" aria-hidden="true"/>
+        <div class="hmap-hero-fade-top"></div>
+        <div class="hmap-hero-fade-bottom"></div>
+        <div class="hmap-hero-particles" id="hmapParticles"></div>
+
+        <!-- 🗺️ minimap button top-left -->
+        <button class="hmap-map-btn" onclick="toggleHubMinimap()" id="hmapMapBtn" title="Quick Nav">
+          🗺️
+          <span class="hmap-map-badge">7</span>
+        </button>
+
+        <!-- title block -->
+        <div class="hmap-hero-content">
+          <div class="hmap-pretitle">✦ WELCOME TO ✦</div>
+          <div class="hmap-title">Meo Hub</div>
+          <div class="hmap-subtitle">Where the community lives ʚɞ</div>
           <div class="hmap-online-pill">
             <span class="online-dot"></span>
             <span id="hubOnlineCount">0 online</span>
@@ -9137,18 +9626,101 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
         </div>
       </div>
 
-      <!-- ── MINIMAP QUICK-NAV ── -->
-      <div class="hub-minimap-bar">
-        <div class="hmm-label">🗺️ Quick Nav</div>
-        <div class="hmm-pins">
-          <button class="hmm-pin" onclick="enterHubZone('lobby')" title="Global Lobby"><span class="hmm-pin-icon">💬</span><span class="hmm-pin-name">Lobby</span></button>
-          <button class="hmm-pin" onclick="enterHubZone('gacha')" title="Gacha Booth"><span class="hmm-pin-icon">🎴</span><span class="hmm-pin-name">Gacha</span></button>
-          <button class="hmm-pin" onclick="enterHubZone('food')" title="Food Corner"><span class="hmm-pin-icon">🍜</span><span class="hmm-pin-name">Food</span></button>
-          <button class="hmm-pin" onclick="enterHubZone('cinema')" title="Meo Cinema"><span class="hmm-pin-icon">🎬</span><span class="hmm-pin-name">Cinema</span></button>
-          <button class="hmm-pin" onclick="enterHubZone('arcade')" title="Meo Arcade"><span class="hmm-pin-icon">🕹️</span><span class="hmm-pin-name">Arcade</span></button>
-          <button class="hmm-pin" onclick="enterHubZone('rooms')" title="Player Rooms"><span class="hmm-pin-icon">🏠</span><span class="hmm-pin-name">Rooms</span></button>
-          <button class="hmm-pin" onclick="enterHubZone('arena')" title="Trading & Arena"><span class="hmm-pin-icon">⚔️</span><span class="hmm-pin-name">Arena</span></button>
+      <!-- ═══ MINIMAP PANEL (hidden by default) ═══ -->
+      <div class="hmap-minimap-panel" id="hmapMinimapPanel" style="display:none;">
+        <div class="hmp-header">
+          <span class="hmp-title">🗺️ Meo Hub — Quick Nav</span>
+          <button class="hmp-close" onclick="toggleHubMinimap()">✕</button>
         </div>
+        <div class="hmp-grid">
+          <button class="hmp-card" onclick="enterHubZone('lobby');toggleHubMinimap();" style="--hmp-c:#9b59b6;">
+            <span class="hmp-icon">💬</span><span class="hmp-name">Meo Plaza</span><span class="hmp-sub">Chat & socialize</span>
+          </button>
+          <button class="hmp-card" onclick="enterHubZone('gacha');toggleHubMinimap();" style="--hmp-c:#a855f7;">
+            <span class="hmp-icon">🎴</span><span class="hmp-name">Gacha Booth</span><span class="hmp-sub">Pull cards</span>
+          </button>
+          <button class="hmp-card" onclick="enterHubZone('food');toggleHubMinimap();" style="--hmp-c:#e74c3c;">
+            <span class="hmp-icon">🍜</span><span class="hmp-name">Food Corner</span><span class="hmp-sub">Feed card XP</span>
+          </button>
+          <button class="hmp-card" onclick="enterHubZone('cinema');toggleHubMinimap();" style="--hmp-c:#f1c40f;">
+            <span class="hmp-icon">🎬</span><span class="hmp-name">Meo Cinema</span><span class="hmp-sub">Watch anime OPs</span>
+          </button>
+          <button class="hmp-card" onclick="enterHubZone('arcade');toggleHubMinimap();" style="--hmp-c:#2980b9;">
+            <span class="hmp-icon">🕹️</span><span class="hmp-name">Meo Arcade</span><span class="hmp-sub">Play & win coins</span>
+          </button>
+          <button class="hmp-card" onclick="enterHubZone('rooms');toggleHubMinimap();" style="--hmp-c:#27ae60;">
+            <span class="hmp-icon">🏠</span><span class="hmp-name">Player Rooms</span><span class="hmp-sub">Create & decorate</span>
+          </button>
+          <button class="hmp-card" onclick="enterHubZone('arena');toggleHubMinimap();" style="--hmp-c:#e67e22;">
+            <span class="hmp-icon">⚔️</span><span class="hmp-name">Arena Hub</span><span class="hmp-sub">Trade & battle</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- ═══ PLAYER STATS + GACHA WIDGET ═══ -->
+      <div class="hmap-body">
+
+        <!-- Ambient BG particles canvas -->
+        <div class="hmap-bg-grid"></div>
+        <div class="hmap-ambient-orbs">
+          <div class="hmap-orb hmap-orb-1"></div>
+          <div class="hmap-orb hmap-orb-2"></div>
+          <div class="hmap-orb hmap-orb-3"></div>
+        </div>
+
+        <!-- ── Player stats row ── -->
+        <div class="hmap-stats-row" id="hmapStatsRow">
+          <div class="home-stat-chip" onclick="goTo('collection',null)" title="View collection">
+            <span class="hsc-icon">🃏</span>
+            <div><div class="hsc-val" id="hubUniqueCards">—</div><div class="hsc-lbl">Unique Cards</div></div>
+          </div>
+          <div class="home-stat-chip" onclick="goTo('pull',null)" title="Pull history">
+            <span class="hsc-icon">🎴</span>
+            <div><div class="hsc-val" id="hubTotalPulls">—</div><div class="hsc-lbl">Total Pulls</div></div>
+          </div>
+          <div class="home-stat-chip">
+            <span class="hsc-icon">🪙</span>
+            <div><div class="hsc-val" id="hubCoins">—</div><div class="hsc-lbl">Coins</div></div>
+          </div>
+          <div class="home-stat-chip" onclick="goTo('collection',null)" title="Collection %">
+            <span class="hsc-icon">📊</span>
+            <div><div class="hsc-val" id="hubCollPct">—%</div><div class="hsc-lbl">Collection</div></div>
+          </div>
+        </div>
+
+        <!-- ── Gacha Banner Widget ── -->
+        <div class="hmap-gacha-widget" id="hmapGachaWidget" onclick="goTo('pull',null)">
+          <div class="hgw-bg" id="hgwBg"></div>
+          <div class="hgw-overlay"></div>
+          <div class="hgw-scanlines"></div>
+          <div class="hgw-content">
+            <div class="hgw-left">
+              <div class="hgw-badge" id="hgwBadge">✦ STANDARD</div>
+              <div class="hgw-title" id="hgwTitle">Loading Banner...</div>
+              <div class="hgw-desc" id="hgwDesc"></div>
+              <div class="hgw-rateup-label">✦ Rate-Up Characters</div>
+              <div class="hgw-featured-row" id="hgwFeaturedRow">
+                <div style="color:var(--text-dim);font-size:0.8em;font-style:italic;">Loading...</div>
+              </div>
+              <div class="hgw-actions">
+                <button class="hgw-btn-pull" onclick="event.stopPropagation();goTo('pull',null)">🎴 Start Pulling</button>
+                <button class="hgw-btn-coll" onclick="event.stopPropagation();goTo('collection',null)">🃏 My Collection</button>
+              </div>
+            </div>
+            <div class="hgw-right" id="hgwRight">
+              <!-- filled by renderHubGachaWidget -->
+            </div>
+          </div>
+          <div class="hgw-corner-glow"></div>
+        </div>
+
+        <!-- ── Section Divider ── -->
+        <div class="hmap-section-divider">
+          <div class="hsd-line"></div>
+          <div class="hsd-text">✦ Explore the Hub ✦</div>
+          <div class="hsd-line"></div>
+        </div>
+
       </div>
 
       <!-- ── BOOTH SECTIONS ── -->
@@ -13200,6 +13772,8 @@ async function loadAll(discordId){
   updateCoins();updatePity();updateProfile();renderCollection();renderShop();
   await loadActiveBanner();
   if(state.isAdmin) showAdminNav();
+  // Refresh hub stats now that player data is loaded
+  setTimeout(()=>{ if(typeof updateHubStats==='function') updateHubStats(); }, 200);
   // Show daily reward popup if unclaimed
   setTimeout(()=>checkAndShowDailyPopup(), 900);
 }
@@ -20853,11 +21427,104 @@ function renderBoothCinemaPlaylist(){
   });
 }
 
+// ══════════════════════════════════════════════
+// HUB MAP — MINIMAP PANEL, PARTICLES, WIDGET
+// ══════════════════════════════════════════════
+
+function toggleHubMinimap(){
+  const panel = document.getElementById('hmapMinimapPanel');
+  if(!panel) return;
+  const hidden = panel.style.display === 'none' || !panel.style.display;
+  panel.style.display = hidden ? 'flex' : 'none';
+}
+
+// Close minimap when clicking outside the inner content
+document.addEventListener('click', e=>{
+  const panel = document.getElementById('hmapMinimapPanel');
+  if(panel && panel.style.display !== 'none' && e.target === panel){
+    panel.style.display = 'none';
+  }
+});
+
+function spawnHubParticles(){
+  const container = document.getElementById('hmapParticles');
+  if(!container) return;
+  container.innerHTML = '';
+  const colors = ['rgba(255,157,199,0.8)','rgba(192,132,184,0.7)','rgba(155,89,182,0.6)','rgba(255,255,255,0.5)'];
+  for(let i = 0; i < 18; i++){
+    const p = document.createElement('div');
+    p.className = 'hmap-particle';
+    const size = Math.random()*4+2;
+    p.style.cssText = `left:${Math.random()*100}%;top:${Math.random()*100}%;width:${size}px;height:${size}px;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${4+Math.random()*8}s;animation-delay:${Math.random()*5}s;opacity:${0.4+Math.random()*0.6};`;
+    container.appendChild(p);
+  }
+}
+
+// Inject particle keyframe once
+(function(){
+  if(document.getElementById('_hmapParticleStyle')) return;
+  const s = document.createElement('style');
+  s.id = '_hmapParticleStyle';
+  s.textContent = '@keyframes hmapParticleFloat{0%{transform:translateY(0) scale(1);opacity:0;}10%{opacity:1;}90%{opacity:0.8;}100%{transform:translateY(-80px) scale(0.5);opacity:0;}}';
+  document.head.appendChild(s);
+})();
+
+function renderHubGachaWidget(){
+  const bgEl    = document.getElementById('hgwBg');
+  const titleEl = document.getElementById('hgwTitle');
+  const descEl  = document.getElementById('hgwDesc');
+  const badgeEl = document.getElementById('hgwBadge');
+  const rowEl   = document.getElementById('hgwFeaturedRow');
+  const rightEl = document.getElementById('hgwRight');
+  if(!titleEl) return;
+  try {
+    const banner   = getActiveBanner ? getActiveBanner() : null;
+    const allCards = window.DEMO_CARDS || DEMO_CARDS || [];
+    const meta     = banner ? (BANNER_TYPE_META[banner.banner_type||'standard']||BANNER_TYPE_META.standard) : null;
+    if(bgEl) bgEl.style.backgroundImage = banner&&banner.image ? `url('${banner.image}')` : `url('https://media1.tenor.com/m/j9NniiARmYMAAAAC/kakegurui-playing-cards.gif')`;
+    if(banner){
+      if(badgeEl) badgeEl.textContent = `${meta?.icon||'✦'} ${meta?.label||'STANDARD'}`;
+      if(titleEl) titleEl.textContent = banner.name||'Current Banner';
+      if(descEl)  descEl.textContent  = banner.description||'';
+      const ids = parseFeaturedCards ? parseFeaturedCards(banner.featured_cards) : [];
+      let fc = ids.map(id=>allCards.find(c=>c.id===id)).filter(Boolean);
+      if(!fc.length) fc = allCards.filter(c=>c.rarity>=5).sort((a,b)=>b.rarity-a.rarity).slice(0,3);
+      if(rowEl){
+        rowEl.innerHTML = fc.slice(0,4).map(card=>{
+          const color=(RARITY_COLORS&&RARITY_COLORS[card.rarity])||'#bdc3c7';
+          const img=(typeof getCardThumbnail==='function')?getCardThumbnail(card):(card.thumbnail||card.image);
+          return `<div class="hgw-fc" onclick="event.stopPropagation();goTo('pull',null)"><img src="${img}" alt="${card.name}" onerror="this.src='https://placehold.co/68x102/1a0030/9b59b6?text=?'"/><div class="hgw-fc-name">${card.name}</div><div class="hgw-fc-rarity" style="color:${color}">${card.rarityName||''}</div></div>`;
+        }).join('');
+      }
+      if(rightEl && fc.length){
+        rightEl.innerHTML = `<div class="hgw-card-stack">${fc.slice(0,3).map(c=>{const img=(typeof getCardThumbnail==='function')?getCardThumbnail(c):(c.thumbnail||c.image);return `<img class="hgw-stack-card" src="${img}" alt="${c.name}" onerror="this.style.display='none'"/>`;}).join('')}</div>`;
+      }
+    } else {
+      if(titleEl) titleEl.textContent='No Active Banner';
+      if(descEl)  descEl.textContent='Check back soon!';
+    }
+  } catch(e){ console.warn('Hub widget error:',e); }
+}
+
+function updateHubStats(){
+  const allCards = window.DEMO_CARDS||DEMO_CARDS||[];
+  const owned = Object.keys(state.xpMap||{}).filter(id=>allCards.find(c=>c.id===id)).length;
+  const pct   = allCards.length ? Math.round(owned/allCards.length*100) : 0;
+  const set = (id,val)=>{ const el=document.getElementById(id); if(el) el.textContent=val; };
+  set('hubUniqueCards', owned);
+  set('hubTotalPulls',  (state.totalPulls||0).toLocaleString());
+  set('hubCoins',       (state.coins||0).toLocaleString());
+  set('hubCollPct',     pct+'%');
+}
+
 function initHubBooths(){
   renderBoothFeaturedCards();
   updateBoothBannerName();
   updateBoothRoomCount();
   renderBoothCinemaPlaylist();
+  renderHubGachaWidget();
+  updateHubStats();
+  spawnHubParticles();
 }
 
 function switchArenaTab(tab, btn){
