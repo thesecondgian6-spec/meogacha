@@ -15660,7 +15660,7 @@ function _baiSelectCard(id) {
   _baiRenderCardSelect();
 }
 
-function startBattleAI() {
+async function startBattleAI() {
   if (!_baiState.selectedCardId) return;
   const playerCard = (window.DEMO_CARDS || DEMO_CARDS).find(x => x.id === _baiState.selectedCardId);
   const enc = _baiState.encounter || _baiPickEncounter(playerCard.rarity);
