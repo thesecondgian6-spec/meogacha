@@ -2507,7 +2507,11 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   .admin-grid { grid-template-columns: 1fr 1fr; }
 
   /* ── Battle ── */
-  .battle-moves-grid { grid-template-columns: 1fr; }
+  .battle-moves-grid { grid-template-columns: 1fr 1fr; }
+  .bai-moves-cols { grid-template-columns: 1fr 1fr; gap: 7px; }
+  .battle-move-btn { padding: 8px 10px; }
+  .move-name { font-size: 0.65em; }
+  .move-desc { font-size: 0.68em; }
   .battle-card-img { width: 90px; height: 128px; }
   .battle-arena-bg { padding: 18px 14px; }
   .battle-vs-badge { font-size: 1.4em; }
@@ -3319,6 +3323,14 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   gap: 10px;
   margin-bottom: 14px;
 }
+/* ── Two-column moves layout ── */
+.bai-moves-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.bai-moves-col { display: flex; flex-direction: column; gap: 7px; }
+.bai-moves-col-label { font-family: 'JetBrains Mono', monospace; font-size: 0.66em; color: var(--text-dim); letter-spacing: 0.1em; text-transform: uppercase; padding: 2px 4px; margin-bottom: 2px; }
+.bai-passives-row { display: flex; flex-direction: column; gap: 4px; margin-bottom: 2px; }
+.bai-passive-chip { background: rgba(155,89,182,0.12); border: 1px solid rgba(155,89,182,0.25); border-radius: 8px; padding: 5px 9px; font-size: 0.72em; color: var(--purple); display: flex; align-items: center; gap: 5px; }
+.bai-passive-chip span { color: var(--text-dim); }
+.bai-passive-none { border-color: transparent; background: transparent; color: var(--text-dim); font-style: italic; }
 .battle-move-btn {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -15630,7 +15642,6 @@ function _baiSelectCard(id) {
   const c = (window.DEMO_CARDS || DEMO_CARDS).find(x => x.id === id);
   const color = RARITY_COLORS[c.rarity] || '#bdc3c7';
 
-  // Rarity bracket info for display
   const RARITY_NAMES = {1:'N',2:'R',3:'SR',4:'SSR',5:'UR',6:'LR',7:'???'};
   const pr = c.rarity;
   const minR = Math.max(1, pr - 1), maxR = Math.min(7, pr + 1);
@@ -15640,22 +15651,39 @@ function _baiSelectCard(id) {
     `<span style="color:${color}">${c.rarityName}</span> ${c.name} — enemies: <span style="color:var(--pink-pale);font-family:'JetBrains Mono',monospace;font-size:0.9em;">${bracketStr}</span>`;
   document.getElementById('baiBattleStartBtn').disabled = false;
 
-  // Preview encounter — show encounter type and rarity hint
+  // Pick a preview encounter + sample a real enemy card to show
   const enc = _baiPickEncounter(c.rarity);
   _baiState.encounter = enc;
-  const RARITY_NAMES_2 = {1:'N',2:'R',3:'SR',4:'SSR',5:'UR',6:'LR',7:'???'};
-  const sameRarity = RARITY_NAMES_2[pr] || `R${pr}`;
-  const lowerRarity = pr > 1 ? RARITY_NAMES_2[pr-1] : null;
-  const higherRarity = pr < 7 ? RARITY_NAMES_2[pr+1] : null;
+
+  const allCards = window.DEMO_CARDS || DEMO_CARDS;
+  let previewPool = [];
+  allCards.filter(x => x.id !== id).forEach(x => {
+    if (enc.isBoss) {
+      if (x.rarity >= pr) previewPool.push(x);
+    } else {
+      const d = x.rarity - pr;
+      if (d === 0) { previewPool.push(x, x, x); }
+      else if (d === -1 || d === 1) { previewPool.push(x); }
+    }
+  });
+  if (!previewPool.length) previewPool = allCards.filter(x => x.id !== id);
+  const previewEnemy = previewPool[Math.floor(Math.random() * previewPool.length)];
+  const enemyColor = RARITY_COLORS[previewEnemy.rarity] || '#bdc3c7';
+  const enemyRarityName = previewEnemy.rarityName || RARITY_NAMES[previewEnemy.rarity] || '';
+
   const diffLabel = enc.isBoss ? 'BOSS' : enc.diff === 'hard' ? 'Hard' : enc.diff === 'easy' ? 'Easy' : 'Normal';
-  const rarityRange = enc.isBoss
-    ? `≥ ${sameRarity}`
-    : `${sameRarity}${lowerRarity||higherRarity ? ` / ${[lowerRarity,higherRarity].filter(Boolean).join('/')}` : ''}`;
+  const diffColor = enc.isBoss ? '#f1c40f' : enc.diff === 'hard' ? '#e74c3c' : enc.diff === 'easy' ? '#2ecc71' : '#bdc3c7';
+
   const box = document.getElementById('baiEncounterBox');
   box.className = 'bai-encounter-box active' + (enc.isBoss ? ' bai-encounter-boss' : '');
-  document.getElementById('baiEncounterLabel').textContent = enc.isBoss ? '👑 BOSS ENCOUNTER' : '⚔️ ENCOUNTER PREVIEW';
-  document.getElementById('baiEncounterName').innerHTML = `<strong>${enc.label}</strong> &nbsp;<span style="opacity:0.65;font-size:0.88em;">${rarityRange}</span> &nbsp;<span style="color:${enc.isBoss?'#f1c40f':enc.diff==='hard'?'#e74c3c':enc.diff==='easy'?'#2ecc71':'#bdc3c7'};font-size:0.82em;font-family:'JetBrains Mono',monospace;">[${diffLabel}]</span>`;
-  document.getElementById('baiEncounterDesc').textContent = enc.desc || (enc.isBoss ? 'Prepare for a tough fight! Boss enemies are stronger.' : enc.diff === 'hard' ? 'Hard encounter — enemy hits harder.' : enc.diff === 'easy' ? 'Easy encounter — enemy is weaker.' : 'Normal encounter.');
+  document.getElementById('baiEncounterLabel').textContent = enc.isBoss ? '👑 BOSS ENCOUNTER' : '⚔️ ENCOUNTER';
+  document.getElementById('baiEncounterName').innerHTML =
+    `<strong>${previewEnemy.name}</strong> <span style="color:${enemyColor};font-size:0.88em;margin-left:4px;">${enemyRarityName}</span> <span style="color:${diffColor};font-size:0.82em;font-family:'JetBrains Mono',monospace;margin-left:6px;">[${diffLabel}]</span>`;
+  document.getElementById('baiEncounterDesc').textContent = enc.isBoss
+    ? enc.desc || 'A powerful boss awaits. Prepare yourself.'
+    : enc.diff === 'hard' ? 'Hard encounter — enemy hits harder.'
+    : enc.diff === 'easy' ? 'Easy encounter — enemy is weaker.'
+    : 'Normal encounter.';
 
   _baiRenderCardSelect();
 }
@@ -15814,18 +15842,41 @@ function _baiRenderMoves() {
   if (!ps || !ps.playerCard) { grid.innerHTML = ''; return; }
   const moves = getCardMoves(ps.playerCard);
   const locked = ps.movesCooldown || ps.battleEnded;
-  grid.innerHTML = moves.map(m => {
+
+  const mkBtn = (m, onclick) => {
     const isUlt = m.type === 'ult';
     const noMP = m.mpCost > (ps.playerMP || 0);
     const disabled = locked || noMP;
     const borderClr = isUlt ? 'rgba(241,196,15,0.5)' : m.type === 'spc' ? 'rgba(255,157,199,0.4)' : m.type === 'def' ? 'rgba(93,173,226,0.35)' : 'var(--border)';
     const mpBadge = m.mpCost > 0 ? `<span style="font-family:'JetBrains Mono',monospace;font-size:0.62em;color:#f1c40f;float:right;">${m.mpCost}MP</span>` : '';
-    return `<button class="battle-move-btn" onclick="_baiPlayerMove('${m.id}')" ${disabled ? 'disabled' : ''} style="border-color:${borderClr};">
+    return `<button class="battle-move-btn" onclick="${onclick}('${m.id}')" ${disabled ? 'disabled' : ''} style="border-color:${borderClr};">
       <span class="move-name">${m.icon} ${m.name}${mpBadge}</span>
       <span class="move-desc">${m.desc || ''}</span>
       ${m.power && m.type === 'atk' ? `<span class="move-power">PWR ${m.power}</span>` : ''}
     </button>`;
-  }).join('');
+  };
+
+  // Split: basic skills vs card abilities
+  const basicMoves = moves.filter(m => !m.id.startsWith('active_') && !m.id.startsWith('ult_'));
+  const abilMoves  = moves.filter(m =>  m.id.startsWith('active_') ||  m.id.startsWith('ult_'));
+
+  // Also pull passive info for display
+  const passives = getCardAbilities(ps.playerCard.id, ps.playerCard.rarity).filter(a => a.tier === 'passive');
+  const passiveHtml = passives.length
+    ? passives.map(p => `<div class="bai-passive-chip" title="${p.desc||''}">${p.icon} <span>${p.name}</span></div>`).join('')
+    : `<div class="bai-passive-chip bai-passive-none">— no passive —</div>`;
+
+  grid.innerHTML = `<div class="bai-moves-cols">
+    <div class="bai-moves-col">
+      <div class="bai-moves-col-label">⚔️ Skills</div>
+      ${basicMoves.map(m => mkBtn(m, '_baiPlayerMove')).join('')}
+    </div>
+    <div class="bai-moves-col">
+      <div class="bai-moves-col-label">✨ Abilities</div>
+      <div class="bai-passives-row">${passiveHtml}</div>
+      ${abilMoves.length ? abilMoves.map(m => mkBtn(m, '_baiPlayerMove')).join('') : `<div style="color:var(--text-dim);font-size:0.78em;font-style:italic;padding:6px 2px;">No active abilities</div>`}
+    </div>
+  </div>`;
 }
 
 function _baiFlashCard(who) {
@@ -17039,42 +17090,73 @@ async function submitBannerForm(){
   const featuredCards = [];
   document.querySelectorAll('[id^="bfCard_"]').forEach(sel=>{ if(sel.value) featuredCards.push(sel.value); });
 
-  const bannerData = {
+  // Core columns every banners table must have
+  const coreData = {
     name,
     description: document.getElementById('bannerForm_desc').value.trim(),
     image:        document.getElementById('bannerForm_image').value.trim(),
     is_active:    document.getElementById('bannerForm_active').value === 'true',
     banner_type:  document.getElementById('bannerForm_type').value || 'character',
-    series_filter:document.getElementById('bannerForm_seriesFilter').value.trim(),
-    min_rarity:   parseInt(document.getElementById('bannerForm_minRarity').value)||1,
-    featured_cards: JSON.stringify(featuredCards),
+  };
+  // Optional extended columns — strip if insert fails
+  const extendedData = {
+    ...coreData,
+    series_filter:   document.getElementById('bannerForm_seriesFilter').value.trim(),
+    min_rarity:      parseInt(document.getElementById('bannerForm_minRarity').value)||1,
+    featured_cards:  JSON.stringify(featuredCards),
     rate_multiplier: parseInt(document.getElementById('bannerForm_rateMulti')?.value)||2,
+  };
+
+  const _tryInsert = async (data) => {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/banners`, {
+      method: 'POST',
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer '+SUPABASE_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+      body: JSON.stringify(data)
+    });
+    const body = res.status !== 204 ? await res.json().catch(()=>null) : null;
+    return { ok: res.ok, status: res.status, msg: body?.message || body?.hint || body?.details || '' };
+  };
+
+  const _tryUpdate = async (data, id) => {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/banners?id=eq.${id}`, {
+      method: 'PATCH',
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer '+SUPABASE_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+      body: JSON.stringify(data)
+    });
+    const body = res.status !== 204 ? await res.json().catch(()=>null) : null;
+    return { ok: res.ok, status: res.status, msg: body?.message || body?.hint || body?.details || '' };
   };
 
   try {
     const editId = document.getElementById('bannerEditId').value;
-    let ok;
+    let result;
+
     if(editId){
-      // If setting active, deactivate others of SAME type
-      if(bannerData.is_active){
-        const sameType = _adminBannerCache.filter(b=>b.id!==editId && b.banner_type===bannerData.banner_type && b.is_active);
+      if(coreData.is_active){
+        const sameType = _adminBannerCache.filter(b=>b.id!==editId && b.banner_type===coreData.banner_type && b.is_active);
         for(const b of sameType) await sb.update('banners',{is_active:false},{id:b.id});
       }
-      ok = await sb.update('banners', bannerData, {id: editId});
+      // Try update with all columns first, fall back to core only
+      result = await _tryUpdate(extendedData, editId);
+      if(!result.ok) result = await _tryUpdate(coreData, editId);
     } else {
-      if(bannerData.is_active){
-        const sameType = _adminBannerCache.filter(b=>b.banner_type===bannerData.banner_type && b.is_active);
+      if(coreData.is_active){
+        const sameType = _adminBannerCache.filter(b=>b.banner_type===coreData.banner_type && b.is_active);
         for(const b of sameType) await sb.update('banners',{is_active:false},{id:b.id});
       }
-      // Try insert with rate_multiplier first; if it fails, retry without it (column may not exist)
-      ok = await sb.insert('banners', bannerData);
-      if(ok === false){
-        const { rate_multiplier, ...bannerDataNoRate } = bannerData;
-        ok = await sb.insert('banners', bannerDataNoRate);
-      }
+      // Try insert with all columns, fall back to core only
+      result = await _tryInsert(extendedData);
+      if(!result.ok) result = await _tryInsert(coreData);
     }
-    if(ok !== false){ showToast(`✅ Banner "${name}" saved!`); cancelBannerEdit(); await loadAdminBannerList(); await loadActiveBanner(); }
-    else showToast('❌ Save failed — check Supabase RLS or missing columns');
+
+    if(result.ok){
+      showToast(`✅ Banner "${name}" saved!`);
+      cancelBannerEdit();
+      await loadAdminBannerList();
+      await loadActiveBanner();
+    } else {
+      showToast(`❌ Save failed (${result.status})${result.msg ? ': '+result.msg : ''}`);
+    }
   } catch(e){ showToast('❌ Error: '+e.message); }
 }
 
