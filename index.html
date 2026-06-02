@@ -3122,6 +3122,22 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .bai-sub { font-size: 0.82em; color: var(--text-dim); font-style: italic; }
 .bai-encounter-box { background: rgba(231,76,60,0.07); border: 1px solid rgba(231,76,60,0.2); border-radius: 14px; padding: 14px 16px; margin-bottom: 18px; display: none; animation: fadeIn 0.4s ease; }
 .bai-encounter-box.active { display: block; }
+/* ── Boss Intro Screen ── */
+#bossIntroScreen { position:fixed;inset:0;z-index:9999;display:none;align-items:center;justify-content:center;background:#000;flex-direction:column;text-align:center; }
+#bossIntroScreen.active { display:flex; }
+@keyframes bossFlash { 0%{background:#000;} 15%{background:#1a0800;} 30%{background:#000;} 60%{background:#0d0000;} 100%{background:rgba(0,0,0,0.92);} }
+@keyframes bossRise { 0%{opacity:0;transform:translateY(40px) scale(0.85);} 100%{opacity:1;transform:translateY(0) scale(1);} }
+@keyframes bossShake { 0%,100%{transform:translateX(0);} 20%{transform:translateX(-8px);} 40%{transform:translateX(8px);} 60%{transform:translateX(-5px);} 80%{transform:translateX(5px);} }
+@keyframes bossGlowPulse { 0%,100%{filter:drop-shadow(0 0 20px rgba(241,196,15,0.4));} 50%{filter:drop-shadow(0 0 60px rgba(241,196,15,0.9)) drop-shadow(0 0 100px rgba(231,76,60,0.5));} }
+@keyframes bossCrackIn { 0%{letter-spacing:0.8em;opacity:0;} 100%{letter-spacing:0.12em;opacity:1;} }
+.boss-intro-bg { position:absolute;inset:0;background:radial-gradient(ellipse at 50% 40%,rgba(241,196,15,0.08),rgba(231,76,60,0.06),transparent 70%);pointer-events:none; }
+.boss-intro-crown { font-size:5em;animation:bossGlowPulse 2s ease-in-out infinite;display:block;margin-bottom:12px; }
+.boss-intro-warning { font-family:'Cinzel Decorative',serif;font-size:0.72em;letter-spacing:0.35em;color:#e74c3c;text-transform:uppercase;margin-bottom:18px;opacity:0.85; }
+.boss-intro-name { font-family:'Cinzel Decorative',serif;font-size:clamp(1.6em,5vw,3.2em);font-weight:900;color:#f1c40f;animation:bossCrackIn 0.7s cubic-bezier(0.2,0,0.3,1) both;letter-spacing:0.12em;text-shadow:0 0 40px rgba(241,196,15,0.7),0 0 80px rgba(231,76,60,0.4);margin-bottom:16px; }
+.boss-intro-desc { color:rgba(240,216,232,0.7);font-style:italic;font-size:1.05em;max-width:420px;line-height:1.7;margin-bottom:32px;padding:0 20px; }
+.boss-intro-bar { width:80%;max-width:320px;height:3px;background:linear-gradient(90deg,transparent,#f1c40f,#e74c3c,#f1c40f,transparent);margin:0 auto 28px;opacity:0.6; }
+.boss-intro-skip { color:rgba(240,216,232,0.35);font-size:0.78em;letter-spacing:0.1em;cursor:pointer;border:1px solid rgba(255,255,255,0.1);padding:6px 20px;border-radius:20px;background:transparent;font-family:'Cormorant Garamond',serif;transition:all 0.2s; }
+.boss-intro-skip:hover { color:rgba(240,216,232,0.7);border-color:rgba(255,255,255,0.25); }
 .bai-encounter-label { font-family: 'JetBrains Mono', monospace; font-size: 0.65em; color: #e74c3c; letter-spacing: 0.08em; margin-bottom: 4px; }
 .bai-encounter-name { font-family: 'Cinzel Decorative', serif; font-size: 1em; color: var(--text); margin-bottom: 2px; }
 .bai-encounter-desc { font-size: 0.78em; color: var(--text-dim); font-style: italic; }
@@ -9568,6 +9584,17 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
     <div id="poolGrid"></div>
   </div>
 </div>
+<!-- ── Boss Intro Screen ── -->
+<div id="bossIntroScreen">
+  <div class="boss-intro-bg"></div>
+  <span class="boss-intro-crown">👑</span>
+  <div class="boss-intro-warning">⚠ &nbsp; Boss Encounter &nbsp; ⚠</div>
+  <div class="boss-intro-name" id="bossIntroName">???</div>
+  <div class="boss-intro-bar"></div>
+  <div class="boss-intro-desc" id="bossIntroDesc"></div>
+  <button class="boss-intro-skip" id="bossIntroSkipBtn">[ tap to continue ]</button>
+</div>
+
 <div id="pullScreen">
   <!-- layered bg -->
   <div class="pull-bg-layer" id="pullBgBase"></div>
@@ -15620,14 +15647,15 @@ function _baiSelectCard(id) {
   const sameRarity = RARITY_NAMES_2[pr] || `R${pr}`;
   const lowerRarity = pr > 1 ? RARITY_NAMES_2[pr-1] : null;
   const higherRarity = pr < 7 ? RARITY_NAMES_2[pr+1] : null;
-  const rarityHint = enc.isBoss
+  const diffLabel = enc.isBoss ? 'BOSS' : enc.diff === 'hard' ? 'Hard' : enc.diff === 'easy' ? 'Easy' : 'Normal';
+  const rarityRange = enc.isBoss
     ? `≥ ${sameRarity}`
-    : `mostly ${sameRarity}${lowerRarity||higherRarity ? ` · rare: ${[lowerRarity,higherRarity].filter(Boolean).join('/')}` : ''}`;
+    : `${sameRarity}${lowerRarity||higherRarity ? ` / ${[lowerRarity,higherRarity].filter(Boolean).join('/')}` : ''}`;
   const box = document.getElementById('baiEncounterBox');
   box.className = 'bai-encounter-box active' + (enc.isBoss ? ' bai-encounter-boss' : '');
   document.getElementById('baiEncounterLabel').textContent = enc.isBoss ? '👑 BOSS ENCOUNTER' : '⚔️ ENCOUNTER PREVIEW';
-  document.getElementById('baiEncounterName').textContent = enc.isBoss ? `Boss — enemy rarity: ${rarityHint}` : `Enemy rarity: ${rarityHint}`;
-  document.getElementById('baiEncounterDesc').textContent = enc.isBoss ? 'Prepare for a tough fight! Boss enemies are stronger.' : enc.diff === 'hard' ? 'Hard encounter — enemy hits harder.' : enc.diff === 'easy' ? 'Easy encounter — enemy is weaker.' : 'Normal encounter.';
+  document.getElementById('baiEncounterName').innerHTML = `<strong>${enc.label}</strong> &nbsp;<span style="opacity:0.65;font-size:0.88em;">${rarityRange}</span> &nbsp;<span style="color:${enc.isBoss?'#f1c40f':enc.diff==='hard'?'#e74c3c':enc.diff==='easy'?'#2ecc71':'#bdc3c7'};font-size:0.82em;font-family:'JetBrains Mono',monospace;">[${diffLabel}]</span>`;
+  document.getElementById('baiEncounterDesc').textContent = enc.desc || (enc.isBoss ? 'Prepare for a tough fight! Boss enemies are stronger.' : enc.diff === 'hard' ? 'Hard encounter — enemy hits harder.' : enc.diff === 'easy' ? 'Easy encounter — enemy is weaker.' : 'Normal encounter.');
 
   _baiRenderCardSelect();
 }
@@ -15737,6 +15765,7 @@ function startBattleAI() {
   _baiLog(`⚡ ${playerCard.name} VS ${enemyDisplayName} [${enemyRarityLabel}]! The battle begins!`, 'system');
   if (enc.isBoss) _baiLog(`👑 BOSS — prepare for a tough fight!`, 'enemy');
   playBattleStartSound();
+  if (enc.isBoss) await _baiShowBossIntro(enc);
   if (atkBoostP > 0) _baiLog(`💪 Passive: +${atkBoostP}% ATK permanently!`, 'player');
   if (defReduceP > 0) _baiLog(`🛡️ Passive: incoming damage -${defReduceP}%!`, 'player');
   if (regenP > 0) _baiLog(`💚 Regen: +${regenP} HP/turn.`, 'player');
@@ -15899,6 +15928,7 @@ async function _baiPlayerMove(moveId) {
     if (ps.enemyHP <= 0) { _baiUpdateHPBars(); await _baiEndBattle(true); return; }
 
     // Enemy attack — scaled relative to player max HP so it's always proportional
+    const enc = ps.encounter;
     const baseHitPct = enc.isBoss ? 0.13 : (enc.diff === 'hard' ? 0.11 : 0.09);
     const enemyBaseDmg = Math.round(ps.playerMaxHP * baseHitPct * diff.atkMult);
     let enemyDmg = enemyBaseDmg + Math.floor(Math.random() * Math.round(ps.playerMaxHP * 0.04));
@@ -15949,6 +15979,36 @@ async function _baiPlayerMove(moveId) {
 
   ps.movesCooldown = false;
   _baiRenderMoves();
+}
+
+// ── Boss Intro Cinematic ──
+function _baiShowBossIntro(enc) {
+  return new Promise(resolve => {
+    const screen = document.getElementById('bossIntroScreen');
+    document.getElementById('bossIntroName').textContent = enc.label.replace(/^👑\s*/,'');
+    document.getElementById('bossIntroDesc').textContent = enc.desc || 'A fearsome enemy stands before you. Prepare for the hardest fight of your life.';
+    screen.style.animation = 'bossFlash 0.9s ease forwards';
+    screen.classList.add('active');
+
+    // Shake the name after a moment
+    setTimeout(() => {
+      const nameEl = document.getElementById('bossIntroName');
+      if (nameEl) nameEl.style.animation = 'bossCrackIn 0.7s cubic-bezier(0.2,0,0.3,1) both, bossShake 0.5s ease 0.9s both';
+    }, 400);
+
+    const finish = () => {
+      screen.classList.remove('active');
+      screen.style.animation = '';
+      resolve();
+    };
+
+    // Auto-dismiss after 3.8s or on click
+    const timer = setTimeout(finish, 3800);
+    const skipBtn = document.getElementById('bossIntroSkipBtn');
+    const onSkip = () => { clearTimeout(timer); skipBtn.removeEventListener('click', onSkip); screen.removeEventListener('click', onSkip); finish(); };
+    skipBtn.addEventListener('click', onSkip);
+    screen.addEventListener('click', onSkip);
+  });
 }
 
 function _baiRenderStatusRow() {
@@ -17006,10 +17066,15 @@ async function submitBannerForm(){
         const sameType = _adminBannerCache.filter(b=>b.banner_type===bannerData.banner_type && b.is_active);
         for(const b of sameType) await sb.update('banners',{is_active:false},{id:b.id});
       }
+      // Try insert with rate_multiplier first; if it fails, retry without it (column may not exist)
       ok = await sb.insert('banners', bannerData);
+      if(ok === false){
+        const { rate_multiplier, ...bannerDataNoRate } = bannerData;
+        ok = await sb.insert('banners', bannerDataNoRate);
+      }
     }
     if(ok !== false){ showToast(`✅ Banner "${name}" saved!`); cancelBannerEdit(); await loadAdminBannerList(); await loadActiveBanner(); }
-    else showToast('❌ Save failed');
+    else showToast('❌ Save failed — check Supabase RLS or missing columns');
   } catch(e){ showToast('❌ Error: '+e.message); }
 }
 
