@@ -960,7 +960,8 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   display: flex;
   flex-direction: column;
   width: 100%;
-  padding-bottom: 40px;
+  padding: 0 0 48px;
+  gap: 0;
 }
 
 /* ── Each Section ── */
@@ -1565,6 +1566,257 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   .hbs-rooms-grid { grid-template-columns: 1fr 1fr; }
   .hbs-arena-split { gap: 8px; }
   .hbs-divider { padding: 0 14px; height: 28px; }
+}
+
+/* ══════════════════════════════════════════════════
+   HZC — ZONE CARDS (gacha-widget-style hub sections)
+══════════════════════════════════════════════════ */
+.hzc {
+  position: relative;
+  border-radius: 20px;
+  overflow: hidden;
+  cursor: pointer;
+  min-height: 240px;
+  display: flex;
+  align-items: stretch;
+  border: 1px solid rgba(255,255,255,0.07);
+  box-shadow: 0 8px 40px rgba(0,0,0,0.55);
+  transition: transform 0.28s cubic-bezier(.34,1.4,.64,1), box-shadow 0.28s, filter 0.2s;
+}
+.hzc:hover { transform: translateY(-5px) scale(1.008); box-shadow: 0 18px 64px rgba(0,0,0,0.7); filter: brightness(1.06); }
+.hzc:active { transform: scale(0.975); filter: brightness(0.92); }
+.hzc-bg {
+  position: absolute; inset: 0;
+  background-size: cover;
+  background-position: center;
+  z-index: 0;
+  transform: scale(1.04);
+  transition: transform 0.6s ease;
+  filter: saturate(1.15);
+}
+.hzc:hover .hzc-bg { transform: scale(1.09); }
+.hzc-overlay { position: absolute; inset: 0; z-index: 1; }
+.hzc-scanlines {
+  position: absolute; inset: 0; z-index: 2; pointer-events: none;
+  background: repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,0.06) 3px,rgba(0,0,0,0.06) 4px);
+}
+.hzc-corner-glow {
+  position: absolute;
+  bottom: -50px; right: -50px;
+  width: 220px; height: 220px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 2;
+  animation: orbDrift 8s ease-in-out infinite;
+}
+.hzc-content { position: relative; z-index: 3; display: flex; align-items: stretch; width: 100%; }
+.hzc-left {
+  flex: 1;
+  padding: 26px 28px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  min-width: 0;
+}
+.hzc-right {
+  width: clamp(200px, 38%, 340px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px 22px;
+  flex-shrink: 0;
+  border-left: 1px solid rgba(255,255,255,0.05);
+  background: rgba(0,0,0,0.18);
+}
+.hzc-badge {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-left: 3px solid var(--hzc-c, var(--pink));
+  border-radius: 4px;
+  padding: 3px 10px 3px 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.58em;
+  color: var(--hzc-c, var(--pink));
+  letter-spacing: 0.14em;
+  width: fit-content;
+}
+.hzc-title {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: clamp(1em, 3.8vw, 1.75em);
+  color: #fff;
+  text-shadow: 0 2px 20px rgba(0,0,0,0.9), 0 0 40px rgba(0,0,0,0.6);
+  line-height: 1.2;
+  letter-spacing: 0.02em;
+}
+.hzc-desc {
+  font-size: 0.83em;
+  color: rgba(255,255,255,0.62);
+  font-style: italic;
+  line-height: 1.5;
+  max-width: 420px;
+}
+.hzc-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 2px; }
+.hzc-tag {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid color-mix(in srgb, var(--ht, #fff) 35%, transparent);
+  border-radius: 20px;
+  padding: 3px 10px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6em;
+  color: color-mix(in srgb, var(--ht, #fff) 80%, white 20%);
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+.hzc-enter {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 0.72em;
+  letter-spacing: 0.12em;
+  color: var(--hzce, var(--pink));
+  margin-top: auto;
+  padding-top: 4px;
+  position: relative;
+  width: fit-content;
+  transition: letter-spacing 0.2s;
+}
+.hzc-enter::after {
+  content: '';
+  position: absolute;
+  bottom: -2px; left: 0; right: 0;
+  height: 1px;
+  background: var(--hzce, var(--pink));
+  opacity: 0.4;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.25s;
+}
+.hzc:hover .hzc-enter::after { transform: scaleX(1); }
+.hzc:hover .hzc-enter { letter-spacing: 0.18em; }
+
+/* Plaza bubbles */
+.hzc-plaza-bubbles { display: flex; flex-direction: column; gap: 6px; width: 100%; }
+.hzc-bubble {
+  background: rgba(155,89,182,0.14);
+  border: 1px solid rgba(192,132,184,0.25);
+  border-radius: 14px 14px 14px 4px;
+  padding: 6px 12px;
+  font-size: 0.78em;
+  color: rgba(255,255,255,0.82);
+  max-width: 85%;
+  line-height: 1.4;
+}
+.hzc-bubble.right {
+  background: rgba(192,132,184,0.16);
+  border-radius: 14px 14px 4px 14px;
+  align-self: flex-end;
+}
+
+/* Food menu board */
+.hzc-menu-board {
+  background: rgba(0,0,0,0.5);
+  border: 1px solid rgba(231,76,60,0.22);
+  border-radius: 12px;
+  padding: 14px 16px;
+  width: 100%;
+}
+.hzc-mb-header { font-family:'JetBrains Mono',monospace; font-size:0.62em; letter-spacing:0.18em; color:#e74c3c; text-align:center; margin-bottom:6px; }
+.hzc-mb-divider { height:1px; background:rgba(231,76,60,0.2); margin:6px 0; }
+.hzc-mb-row { display:flex; justify-content:space-between; align-items:center; padding:3px 0; gap:8px; }
+.hzc-mb-shop { color:rgba(231,76,60,0.9); font-family:'JetBrains Mono',monospace; font-size:0.72em; letter-spacing:0.04em; white-space:nowrap; }
+.hzc-mb-xp { color:rgba(255,255,255,0.7); font-family:'JetBrains Mono',monospace; font-size:0.75em; }
+.hzc-mb-footer { text-align:center; font-size:0.62em; color:rgba(231,76,60,0.45); margin-top:4px; letter-spacing:0.12em; }
+
+/* Cinema */
+.hzc-cinema-marquee-top {
+  position:absolute; top:0; left:0; right:0; z-index:4;
+  display:flex; justify-content:space-evenly; padding:7px 2%;
+  pointer-events:none;
+  background:linear-gradient(to bottom,rgba(0,0,0,0.4),transparent);
+}
+.hzc-cinema-marquee-top span, .hzc-cinema-marquee-bottom span {
+  width:8px; height:8px; border-radius:50%;
+  background:#f1c40f;
+  box-shadow:0 0 10px rgba(241,196,15,1),0 0 20px rgba(241,196,15,0.5);
+  animation:hbsMarquee 0.9s ease-in-out infinite;
+}
+.hzc-cinema-marquee-top span:nth-child(2){animation-delay:0.075s}
+.hzc-cinema-marquee-top span:nth-child(3){animation-delay:0.15s}
+.hzc-cinema-marquee-top span:nth-child(4){animation-delay:0.225s}
+.hzc-cinema-marquee-top span:nth-child(5){animation-delay:0.3s}
+.hzc-cinema-marquee-top span:nth-child(6){animation-delay:0.375s}
+.hzc-cinema-marquee-top span:nth-child(7){animation-delay:0.45s}
+.hzc-cinema-marquee-top span:nth-child(8){animation-delay:0.525s}
+.hzc-cinema-marquee-top span:nth-child(9){animation-delay:0.6s}
+.hzc-cinema-marquee-top span:nth-child(10){animation-delay:0.675s}
+.hzc-cinema-marquee-top span:nth-child(11){animation-delay:0.75s}
+.hzc-cinema-marquee-top span:nth-child(12){animation-delay:0.825s}
+.hzc-cinema-screen {
+  background:#000; border:2px solid rgba(241,196,15,0.3); border-radius:10px; overflow:hidden;
+  box-shadow:0 0 24px rgba(241,196,15,0.2),inset 0 0 40px rgba(0,0,0,0.95); width:100%; position:relative;
+}
+.hzc-cs-scanlines { position:absolute;inset:0;z-index:2;pointer-events:none; background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.22) 2px,rgba(0,0,0,0.22) 4px); }
+.hzc-cs-body { position:relative;z-index:1;padding:14px 18px;text-align:center; }
+.hzc-cs-now { font-family:'JetBrains Mono',monospace;font-size:0.6em;letter-spacing:0.2em;color:#f1c40f;margin-bottom:6px; }
+.hzc-cs-rule { height:1px;background:rgba(241,196,15,0.22);margin:6px 0; }
+.hzc-cs-entry { font-size:0.88em;color:rgba(255,255,255,0.85);padding:3px 0;animation:hbsEntryPulse 4s ease-in-out infinite; }
+.hzc-cs-entry:nth-child(3){animation-delay:0.6s;}
+.hzc-cs-entry:nth-child(4){animation-delay:1.2s;}
+.hzc-cs-footer { font-size:0.72em;color:rgba(241,196,15,0.4);margin-top:4px;letter-spacing:0.2em; }
+.hzc-cinema-marquee-bottom { display:flex;justify-content:space-evenly;padding:6px 3%;background:rgba(0,0,0,0.4);border-top:1px solid rgba(241,196,15,0.1); }
+.hzc-cinema-marquee-bottom span:nth-child(2){animation-delay:0.11s}
+.hzc-cinema-marquee-bottom span:nth-child(3){animation-delay:0.22s}
+.hzc-cinema-marquee-bottom span:nth-child(4){animation-delay:0.33s}
+.hzc-cinema-marquee-bottom span:nth-child(5){animation-delay:0.44s}
+.hzc-cinema-marquee-bottom span:nth-child(6){animation-delay:0.55s}
+.hzc-cinema-marquee-bottom span:nth-child(7){animation-delay:0.66s}
+.hzc-cinema-marquee-bottom span:nth-child(8){animation-delay:0.77s}
+
+/* Arcade */
+.hzc-neon-rack { position:absolute;top:18px;right:22px;z-index:4;display:flex;flex-direction:column;gap:3px;align-items:flex-end;pointer-events:none; }
+.hzc-neon { font-family:'JetBrains Mono',monospace;font-size:0.78em;font-weight:700;letter-spacing:0.22em;text-shadow:0 0 10px currentColor,0 0 22px currentColor;animation:hbsNeonFlicker 3.2s ease-in-out infinite; }
+.hzc-crt { background:#000;border:2px solid rgba(41,128,185,0.4);border-radius:10px;overflow:hidden;box-shadow:0 0 28px rgba(41,128,185,0.3),inset 0 0 40px rgba(0,0,50,0.7);width:100%;position:relative; }
+.hzc-crt-scanlines { position:absolute;inset:0;z-index:2;pointer-events:none;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.18) 2px,rgba(0,0,0,0.18) 4px); }
+.hzc-crt-body { position:relative;z-index:1;padding:12px 16px; }
+.hzc-crt-title { font-family:'JetBrains Mono',monospace;font-size:0.65em;letter-spacing:0.2em;color:#5dade2;text-align:center;margin-bottom:10px;animation:hbsCrtBlink 1.8s ease-in-out infinite; }
+.hzc-crt-games { display:grid;grid-template-columns:repeat(2,1fr);gap:4px;margin-bottom:10px; }
+.hzc-crt-games span { background:rgba(41,128,185,0.1);border:1px solid rgba(41,128,185,0.25);border-radius:5px;padding:4px 7px;font-family:'JetBrains Mono',monospace;font-size:0.6em;color:#85c1e9;text-align:center; }
+.hzc-crt-blink { font-family:'JetBrains Mono',monospace;font-size:0.6em;color:#f1c40f;text-align:center;animation:hbsBlinkTxt 1s step-end infinite; }
+
+/* Rooms */
+.hzc-rooms-panel { display:flex;flex-direction:column;gap:8px;width:100%; }
+.hzc-rooms-list { display:flex;flex-direction:column;gap:5px; }
+.hzc-room-row { display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.03);border:1px solid rgba(39,174,96,0.18);border-radius:8px;padding:7px 10px; }
+.hzc-room-row.featured { border-color:rgba(255,157,199,0.28);background:rgba(255,157,199,0.04); }
+.hzc-rr-dot { width:10px;height:10px;border-radius:50%;flex-shrink:0;animation:hbsWinGlow 2s ease-in-out infinite; }
+.hzc-rr-dot.green { background:rgba(100,220,100,0.8);box-shadow:0 0 8px rgba(50,200,50,0.7); }
+.hzc-rr-dot.pink { background:rgba(255,157,199,0.9);box-shadow:0 0 8px rgba(255,100,180,0.8); }
+.hzc-rr-name { flex:1;font-size:0.76em;color:rgba(255,255,255,0.75);white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+.hzc-rr-status { font-size:0.62em;font-family:'JetBrains Mono',monospace;flex-shrink:0; }
+.hzc-rr-status.open { color:rgba(39,174,96,0.8); }
+.hzc-rr-status.pink-s { color:rgba(255,157,199,0.8); }
+.hzc-rooms-live { display:flex;align-items:center;gap:6px;font-size:0.72em;font-family:'JetBrains Mono',monospace;color:rgba(39,174,96,0.7);justify-content:center; }
+
+/* Arena */
+.hzc-arena-split { display:flex;align-items:center;gap:10px;width:100%; }
+.hzc-arena-half { flex:1;text-align:center;padding:14px 10px;border-radius:12px;background:rgba(0,0,0,0.35);border:1px solid rgba(255,255,255,0.08); }
+.hzc-ah-icon { font-size:2em;margin-bottom:4px; }
+.hzc-ah-label { font-family:'Cinzel Decorative',serif;font-size:0.76em;color:rgba(255,255,255,0.9);margin-bottom:4px; }
+.hzc-ah-sub { font-size:0.64em;color:var(--text-dim);line-height:1.45; }
+.hzc-arena-vs { font-family:'Cinzel Decorative',serif;font-size:1em;color:rgba(230,126,34,0.8);flex-shrink:0; }
+
+@media(max-width:700px){
+  .hzc { min-height:200px; border-radius:14px; }
+  .hzc-content { flex-direction:column; }
+  .hzc-left { padding:16px 14px 12px; gap:7px; }
+  .hzc-right { width:100%;border-left:none;border-top:1px solid rgba(255,255,255,0.05);padding:10px 12px; }
+  .hzc-title { font-size:1em; }
+  .hzc-desc { display:none; }
+  .hzc-neon-rack { top:10px;right:12px; }
+  .hzc-neon { font-size:0.6em; }
+  .hzc-cinema-marquee-top span { width:6px;height:6px; }
+  .hzc-arena-split { gap:6px; }
+  .hzc-rooms-list { display:grid;grid-template-columns:1fr 1fr; }
 }
 
 /* ══════════════════════════════════════════════════
@@ -9603,7 +9855,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 
       <!-- ═══ HERO GIF HEADER ═══ -->
       <div class="hmap-hero">
-        <img class="hmap-hero-gif" src="https://media1.tenor.com/m/mWdkLIVD5sMAAAAd/pretty-flowers.gif" alt="" aria-hidden="true"/>
+        <img class="hmap-hero-gif" src="https://media1.tenor.com/m/x15S5rhHVscAAAAd/anime-purple.gif" alt="" aria-hidden="true"/>
         <div class="hmap-hero-fade-top"></div>
         <div class="hmap-hero-fade-bottom"></div>
         <div class="hmap-hero-particles" id="hmapParticles"></div>
@@ -9611,7 +9863,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
         <!-- 🗺️ minimap button top-left -->
         <button class="hmap-map-btn" onclick="toggleHubMinimap()" id="hmapMapBtn" title="Quick Nav">
           🗺️
-          <span class="hmap-map-badge">7</span>
+          <span class="hmap-map-badge">6</span>
         </button>
 
         <!-- title block -->
@@ -9635,9 +9887,6 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
         <div class="hmp-grid">
           <button class="hmp-card" onclick="enterHubZone('lobby');toggleHubMinimap();" style="--hmp-c:#9b59b6;">
             <span class="hmp-icon">💬</span><span class="hmp-name">Meo Plaza</span><span class="hmp-sub">Chat & socialize</span>
-          </button>
-          <button class="hmp-card" onclick="enterHubZone('gacha');toggleHubMinimap();" style="--hmp-c:#a855f7;">
-            <span class="hmp-icon">🎴</span><span class="hmp-name">Gacha Booth</span><span class="hmp-sub">Pull cards</span>
           </button>
           <button class="hmp-card" onclick="enterHubZone('food');toggleHubMinimap();" style="--hmp-c:#e74c3c;">
             <span class="hmp-icon">🍜</span><span class="hmp-name">Food Corner</span><span class="hmp-sub">Feed card XP</span>
@@ -9726,460 +9975,232 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
       <!-- ── BOOTH SECTIONS ── -->
       <div class="hub-booth-sections">
 
-        <!-- ═══════════════════════════════════════════════
-             SECTION: MEO PLAZA (Lobby)
-        ═══════════════════════════════════════════════ -->
-        <div class="hbs-section" onclick="enterHubZone('lobby')">
-          <div class="hbs-banner" style="--hbs-bg:url('https://media1.tenor.com/m/vw9hHcFt0gIAAAAC/bbn2007.gif');--hbs-accent:#9b59b6;--hbs-accent2:#6c3483;">
-            <div class="hbs-banner-img"></div>
-            <div class="hbs-banner-overlay"></div>
-            <div class="hbs-banner-content">
-              <div class="hbs-section-label">LOCATION 01</div>
-              <div class="hbs-section-title">💬 Meo Plaza</div>
-              <div class="hbs-section-sub">Chat · Flex your cards · Meet players</div>
+        <!-- MEO PLAZA -->
+        <div class="hzc" onclick="enterHubZone('lobby')">
+          <div class="hzc-bg" style="background-image:url('https://media1.tenor.com/m/vw9hHcFt0gIAAAAC/bbn2007.gif');"></div>
+          <div class="hzc-overlay" style="background:linear-gradient(115deg,rgba(30,4,55,0.88) 0%,rgba(20,4,40,0.72) 55%,rgba(10,2,20,0.3) 100%);"></div>
+          <div class="hzc-scanlines"></div>
+          <div class="hzc-content">
+            <div class="hzc-left">
+              <div class="hzc-badge" style="--hzc-c:#c084b8;">LOCATION 01</div>
+              <div class="hzc-title">💬 Meo Plaza</div>
+              <div class="hzc-desc">The beating heart of Meo Hub — chat, flex your pulls, meet other players, and vibe together.</div>
+              <div class="hzc-tags">
+                <span class="hzc-tag" style="--ht:#9b59b6;">💬 Global Chat</span>
+                <span class="hzc-tag" style="--ht:#c084b8;">🌸 Card Flexing</span>
+                <span class="hzc-tag" style="--ht:#9b59b6;">🧍 Social</span>
+              </div>
+              <div class="hzc-enter" style="--hzce:#c084b8;">Enter Plaza →</div>
             </div>
-            <div class="hbs-pennants">
-              <span class="hbs-pennant">💬</span>
-              <span class="hbs-pennant delay1">🌸</span>
-              <span class="hbs-pennant delay2">✦</span>
-              <span class="hbs-pennant delay3">🌸</span>
-              <span class="hbs-pennant delay4">💬</span>
+            <div class="hzc-right">
+              <div class="hzc-plaza-bubbles">
+                <div class="hzc-bubble">おはよう! 🌸</div>
+                <div class="hzc-bubble right">just pulled a UR!! ✨</div>
+                <div class="hzc-bubble">gg!! flex it 👀</div>
+                <div class="hzc-bubble right">welcome to the hub ✦</div>
+                <div class="hzc-bubble">anyone trading? 🃏</div>
+              </div>
             </div>
           </div>
-          <div class="hbs-booth-wrap">
-            <div class="hbs-booth" style="--hbs-roof:#6c1a8a;--hbs-valance:#9b59b6;">
-              <div class="hbs-roof">
-                <div class="hbs-roof-bar"></div>
-                <div class="hbs-roof-valance"></div>
+          <div class="hzc-corner-glow" style="background:radial-gradient(circle,rgba(192,132,184,0.2),transparent 70%);"></div>
+        </div>
+
+        <div class="hbs-divider"><div class="hbs-div-line"></div><div class="hbs-div-icon">✦</div><div class="hbs-div-line"></div></div>
+
+        <!-- FOOD CORNER -->
+        <div class="hzc" onclick="enterHubZone('food')">
+          <div class="hzc-bg" style="background-image:url('https://media1.tenor.com/m/PKQz3kmo2akAAAAC/welcome.gif');"></div>
+          <div class="hzc-overlay" style="background:linear-gradient(115deg,rgba(60,5,2,0.9) 0%,rgba(40,4,2,0.72) 55%,rgba(15,2,1,0.3) 100%);"></div>
+          <div class="hzc-scanlines"></div>
+          <div class="hzc-content">
+            <div class="hzc-left">
+              <div class="hzc-badge" style="--hzc-c:#e74c3c;">LOCATION 02</div>
+              <div class="hzc-title">🍜 Food Corner</div>
+              <div class="hzc-desc">Feed your cards XP at four iconic anime restaurants. Daily specials refresh every night.</div>
+              <div class="hzc-tags">
+                <span class="hzc-tag" style="--ht:#e74c3c;">🍶 Maid Café</span>
+                <span class="hzc-tag" style="--ht:#c0392b;">🍥 Ichiraku</span>
+                <span class="hzc-tag" style="--ht:#e74c3c;">☕ Anteiku</span>
+                <span class="hzc-tag" style="--ht:#c0392b;">🦞 Baratie</span>
               </div>
-              <div class="hbs-booth-body">
-                <div class="hbs-booth-preview hbs-preview-lobby">
-                  <div class="hbs-chat-bubbles">
-                    <div class="hbs-bcb">おはよう! 🌸</div>
-                    <div class="hbs-bcb right">just pulled a UR!!</div>
-                    <div class="hbs-bcb">gg!! flex it 👀</div>
-                    <div class="hbs-bcb right">✦ welcome to the hub ✦</div>
-                  </div>
+              <div class="hzc-enter" style="--hzce:#e74c3c;">Order Food →</div>
+            </div>
+            <div class="hzc-right">
+              <div class="hzc-menu-board">
+                <div class="hzc-mb-header">✦ TODAY'S SPECIAL ✦</div>
+                <div class="hzc-mb-divider"></div>
+                <div class="hzc-mb-row"><span class="hzc-mb-shop">🍶 MAID CAFÉ</span><span class="hzc-mb-xp">+50 XP</span></div>
+                <div class="hzc-mb-row"><span class="hzc-mb-shop">🍥 ICHIRAKU</span><span class="hzc-mb-xp">+80 XP</span></div>
+                <div class="hzc-mb-row"><span class="hzc-mb-shop">☕ ANTEIKU</span><span class="hzc-mb-xp">+150 XP</span></div>
+                <div class="hzc-mb-row"><span class="hzc-mb-shop">🦞 BARATIE</span><span class="hzc-mb-xp">+300 XP</span></div>
+                <div class="hzc-mb-divider"></div>
+                <div class="hzc-mb-footer">🍿 all food feeds card XP 🍿</div>
+              </div>
+            </div>
+          </div>
+          <div class="hzc-corner-glow" style="background:radial-gradient(circle,rgba(231,76,60,0.18),transparent 70%);"></div>
+        </div>
+
+        <div class="hbs-divider"><div class="hbs-div-line"></div><div class="hbs-div-icon">✦</div><div class="hbs-div-line"></div></div>
+
+        <!-- MEO CINEMA -->
+        <div class="hzc" onclick="enterHubZone('cinema')">
+          <div class="hzc-bg" style="background-image:url('https://media1.tenor.com/m/4xOYt5yvVNMAAAAC/demon-slayer-upper-six-fight.gif');"></div>
+          <div class="hzc-overlay" style="background:linear-gradient(115deg,rgba(15,10,0,0.92) 0%,rgba(12,8,0,0.72) 55%,rgba(8,5,0,0.28) 100%);"></div>
+          <div class="hzc-scanlines"></div>
+          <div class="hzc-cinema-marquee-top">
+            <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+          </div>
+          <div class="hzc-content">
+            <div class="hzc-left">
+              <div class="hzc-badge" style="--hzc-c:#f1c40f;">LOCATION 03</div>
+              <div class="hzc-title">🎬 Meo Cinema</div>
+              <div class="hzc-desc">Watch anime OPs together, react in real-time, and chat live with every fan in the theatre.</div>
+              <div class="hzc-tags">
+                <span class="hzc-tag" style="--ht:#f1c40f;">🎬 Anime OPs</span>
+                <span class="hzc-tag" style="--ht:#d4ac0d;">🔴 Live Chat</span>
+                <span class="hzc-tag" style="--ht:#f1c40f;">🍿 React Together</span>
+              </div>
+              <div class="hzc-enter" style="--hzce:#f1c40f;">Buy Ticket →</div>
+            </div>
+            <div class="hzc-right">
+              <div class="hzc-cinema-screen">
+                <div class="hzc-cs-scanlines"></div>
+                <div class="hzc-cs-body">
+                  <div class="hzc-cs-now">✦ NOW SHOWING ✦</div>
+                  <div class="hzc-cs-rule"></div>
+                  <div class="hzc-cs-entry" id="cinemaBoothEntry1">🩸 SPECIALZ</div>
+                  <div class="hzc-cs-entry" id="cinemaBoothEntry2">😈 Unravel</div>
+                  <div class="hzc-cs-entry" id="cinemaBoothEntry3">🏴‍☠️ We Are</div>
+                  <div class="hzc-cs-rule"></div>
+                  <div class="hzc-cs-footer">🎟️ &nbsp; 🍿 &nbsp; 🎟️</div>
                 </div>
-              </div>
-              <div class="hbs-booth-counter" style="--hbs-counter-border:#9b59b6;">
-                <span class="hbs-counter-tag">💬</span>
-                <span>Global chat</span>
-                <span class="hbs-dot">·</span>
-                <span>🌸 Card flexing</span>
-                <span class="hbs-dot">·</span>
-                <span>🧍 Social</span>
-              </div>
-            </div>
-            <div class="hbs-enter-btn" style="--hbs-btn-color:#9b59b6;">
-              Enter Plaza →
-            </div>
-          </div>
-        </div>
-
-        <!-- DIVIDER -->
-        <div class="hbs-divider">
-          <div class="hbs-div-line"></div>
-          <div class="hbs-div-icon">🗺️</div>
-          <div class="hbs-div-line"></div>
-        </div>
-
-        <!-- ═══════════════════════════════════════════════
-             SECTION: GACHA BOOTH
-        ═══════════════════════════════════════════════ -->
-        <div class="hbs-section" onclick="enterHubZone('gacha')">
-          <div class="hbs-banner" style="--hbs-bg:url('https://media1.tenor.com/m/j9NniiARmYMAAAAC/kakegurui-playing-cards.gif');--hbs-accent:#9b59b6;--hbs-accent2:#6c3483;">
-            <div class="hbs-banner-img"></div>
-            <div class="hbs-banner-overlay" style="background:linear-gradient(135deg,rgba(50,0,100,0.55),rgba(10,2,20,0.92));"></div>
-            <div class="hbs-banner-content">
-              <div class="hbs-section-label">LOCATION 02</div>
-              <div class="hbs-section-title">🎴 Gacha Booth</div>
-              <div class="hbs-section-sub">Pull cards · Rate-ups · Pity system</div>
-            </div>
-            <div class="hbs-pennants">
-              <span class="hbs-pennant">🎴</span>
-              <span class="hbs-pennant delay1">✨</span>
-              <span class="hbs-pennant delay2">⭐</span>
-              <span class="hbs-pennant delay3">✨</span>
-              <span class="hbs-pennant delay4">🎴</span>
-            </div>
-          </div>
-          <div class="hbs-booth-wrap">
-            <div class="hbs-booth" style="--hbs-roof:#4a1060;--hbs-valance:#7d3c98;">
-              <div class="hbs-roof">
-                <div class="hbs-roof-bar"></div>
-                <div class="hbs-roof-valance"></div>
-              </div>
-              <div class="hbs-booth-body">
-                <div class="hbs-booth-preview hbs-preview-gacha">
-                  <!-- Left: gumball machine -->
-                  <div class="hbs-gacha-left">
-                    <div class="hbs-gacha-machine">
-                      <div class="hbs-gm-globe">
-                        <div class="hbs-gm-shine"></div>
-                        <div class="hbs-gm-inner" id="boothGachaGlobe">✨</div>
-                      </div>
-                      <div class="hbs-gm-base"></div>
-                      <div class="hbs-gm-slot"></div>
-                    </div>
-                    <div class="hbs-gacha-banner-name">
-                      <div class="hbs-gbn-label">✦ NOW ROLLING ✦</div>
-                      <div class="hbs-gbn-name" id="boothGachaBannerName2">Loading...</div>
-                    </div>
-                  </div>
-                  <!-- Right: featured cards -->
-                  <div class="hbs-gacha-right" id="boothFeaturedCards">
-                    <div class="hbs-featured-label">RATE UP ▲</div>
-                    <div class="hbs-featured-cards-row" id="boothFeaturedRow">
-                      <div class="hbs-fc-placeholder">Loading cards...</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="hbs-booth-counter" style="--hbs-counter-border:#9b59b6;">
-                <span class="hbs-counter-tag">💰</span>
-                <span>50 coins × 1</span>
-                <span class="hbs-dot">·</span>
-                <span>200 coins × 5</span>
-                <span class="hbs-dot">·</span>
-                <span>✨ Pity tracked</span>
-              </div>
-            </div>
-            <div class="hbs-enter-btn" style="--hbs-btn-color:#9b59b6;">
-              Pull Cards →
-            </div>
-          </div>
-        </div>
-
-        <!-- DIVIDER -->
-        <div class="hbs-divider">
-          <div class="hbs-div-line"></div>
-          <div class="hbs-div-icon">🗺️</div>
-          <div class="hbs-div-line"></div>
-        </div>
-
-        <!-- ═══════════════════════════════════════════════
-             SECTION: FOOD CORNER
-        ═══════════════════════════════════════════════ -->
-        <div class="hbs-section" onclick="enterHubZone('food')">
-          <div class="hbs-banner" style="--hbs-bg:url('https://media1.tenor.com/m/PKQz3kmo2akAAAAC/welcome.gif');--hbs-accent:#e74c3c;--hbs-accent2:#922b21;">
-            <div class="hbs-banner-img"></div>
-            <div class="hbs-banner-overlay" style="background:linear-gradient(135deg,rgba(80,10,5,0.5),rgba(20,3,1,0.9));"></div>
-            <div class="hbs-banner-content">
-              <div class="hbs-section-label">LOCATION 03</div>
-              <div class="hbs-section-title">🍜 Food Corner</div>
-              <div class="hbs-section-sub">Feed your cards XP · 4 restaurants · Daily specials</div>
-            </div>
-            <div class="hbs-pennants">
-              <span class="hbs-pennant">🍜</span>
-              <span class="hbs-pennant delay1">🍳</span>
-              <span class="hbs-pennant delay2">☕</span>
-              <span class="hbs-pennant delay3">🍱</span>
-              <span class="hbs-pennant delay4">🍜</span>
-            </div>
-          </div>
-          <div class="hbs-booth-wrap">
-            <div class="hbs-booth" style="--hbs-roof:#922b21;--hbs-valance:#c0392b;">
-              <div class="hbs-roof">
-                <div class="hbs-roof-bar"></div>
-                <div class="hbs-roof-valance"></div>
-              </div>
-              <div class="hbs-booth-body">
-                <div class="hbs-booth-preview hbs-preview-food">
-                  <div class="hbs-menu-board">
-                    <div class="hbs-menu-title">✦ TODAY'S SPECIAL ✦</div>
-                    <div class="hbs-menu-divider"></div>
-                    <div class="hbs-menu-row"><span class="hbs-menu-shop">🍶 MAID CAFÉ</span><span class="hbs-menu-item">Heart Omurice +50XP</span></div>
-                    <div class="hbs-menu-row"><span class="hbs-menu-shop">🍥 ICHIRAKU</span><span class="hbs-menu-item">Naruto Ramen +80XP</span></div>
-                    <div class="hbs-menu-row"><span class="hbs-menu-shop">☕ ANTEIKU</span><span class="hbs-menu-item">Ghoul Blend +150XP</span></div>
-                    <div class="hbs-menu-row"><span class="hbs-menu-shop">🦞 BARATIE</span><span class="hbs-menu-item">Feast +300XP</span></div>
-                    <div class="hbs-menu-divider"></div>
-                    <div class="hbs-menu-footer">🍿 &nbsp; All food feeds card XP &nbsp; 🍿</div>
-                  </div>
-                </div>
-              </div>
-              <div class="hbs-booth-counter" style="--hbs-counter-border:#e74c3c;">
-                <span class="hbs-counter-tag">🧑‍🍳</span>
-                <span>Maid Café</span>
-                <span class="hbs-dot">·</span>
-                <span>Ichiraku</span>
-                <span class="hbs-dot">·</span>
-                <span>Anteiku</span>
-                <span class="hbs-dot">·</span>
-                <span>Baratie</span>
-              </div>
-            </div>
-            <div class="hbs-enter-btn" style="--hbs-btn-color:#e74c3c;">
-              Order Food →
-            </div>
-          </div>
-        </div>
-
-        <!-- DIVIDER -->
-        <div class="hbs-divider">
-          <div class="hbs-div-line"></div>
-          <div class="hbs-div-icon">🗺️</div>
-          <div class="hbs-div-line"></div>
-        </div>
-
-        <!-- ═══════════════════════════════════════════════
-             SECTION: MEO CINEMA
-        ═══════════════════════════════════════════════ -->
-        <div class="hbs-section" onclick="enterHubZone('cinema')">
-          <div class="hbs-banner" style="--hbs-bg:url('https://media1.tenor.com/m/4xOYt5yvVNMAAAAC/demon-slayer-upper-six-fight.gif');--hbs-accent:#f1c40f;--hbs-accent2:#b7950b;">
-            <div class="hbs-banner-img"></div>
-            <div class="hbs-banner-overlay" style="background:linear-gradient(135deg,rgba(40,25,0,0.5),rgba(8,5,0,0.92));"></div>
-            <div class="hbs-banner-content">
-              <div class="hbs-section-label">LOCATION 04</div>
-              <div class="hbs-section-title">🎬 Meo Cinema</div>
-              <div class="hbs-section-sub">Watch anime OPs · Live chat · React together</div>
-            </div>
-            <div class="hbs-marquee-lights">
-              <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
-            </div>
-            <div class="hbs-pennants">
-              <span class="hbs-pennant" style="--hp-color:#f1c40f;">🎬</span>
-              <span class="hbs-pennant delay1" style="--hp-color:#f1c40f;">🎟️</span>
-              <span class="hbs-pennant delay2" style="--hp-color:#f1c40f;">🍿</span>
-              <span class="hbs-pennant delay3" style="--hp-color:#f1c40f;">🎟️</span>
-              <span class="hbs-pennant delay4" style="--hp-color:#f1c40f;">🎬</span>
-            </div>
-          </div>
-          <div class="hbs-booth-wrap">
-            <div class="hbs-booth" style="--hbs-roof:#7d5700;--hbs-valance:#a04000;">
-              <div class="hbs-roof">
-                <div class="hbs-roof-marquee">
+                <div class="hzc-cinema-marquee-bottom">
                   <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
                 </div>
-                <div class="hbs-roof-bar"></div>
-                <div class="hbs-roof-valance"></div>
               </div>
-              <div class="hbs-booth-body">
-                <div class="hbs-booth-preview hbs-preview-cinema">
-                  <div class="hbs-cinema-screen">
-                    <div class="hbs-cs-scanlines"></div>
-                    <div class="hbs-cs-content">
-                      <div class="hbs-cs-now">✦ NOW SHOWING ✦</div>
-                      <div class="hbs-cs-divider"></div>
-                      <div class="hbs-cs-entry" id="cinemaBoothEntry1">🩸 SPECIALZ</div>
-                      <div class="hbs-cs-entry" id="cinemaBoothEntry2">😈 Unravel</div>
-                      <div class="hbs-cs-entry" id="cinemaBoothEntry3">🏴‍☠️ We Are</div>
-                      <div class="hbs-cs-divider"></div>
-                      <div class="hbs-cs-footer">🍿 &nbsp;&nbsp; 🎟️ &nbsp;&nbsp; 🍿</div>
-                    </div>
+            </div>
+          </div>
+          <div class="hzc-corner-glow" style="background:radial-gradient(circle,rgba(241,196,15,0.15),transparent 70%);"></div>
+        </div>
+
+        <div class="hbs-divider"><div class="hbs-div-line"></div><div class="hbs-div-icon">✦</div><div class="hbs-div-line"></div></div>
+
+        <!-- MEO ARCADE -->
+        <div class="hzc" onclick="enterHubZone('arcade')">
+          <div class="hzc-bg" style="background-image:url('https://media1.tenor.com/m/j9NniiARmYMAAAAC/kakegurui-playing-cards.gif');"></div>
+          <div class="hzc-overlay" style="background:linear-gradient(115deg,rgba(0,4,20,0.94) 0%,rgba(0,4,16,0.72) 55%,rgba(0,2,8,0.28) 100%);"></div>
+          <div class="hzc-scanlines"></div>
+          <div class="hzc-neon-rack">
+            <span class="hzc-neon" style="color:#5dade2;">GAME</span>
+            <span class="hzc-neon" style="color:#ff69b4;animation-delay:1s;">PLAY</span>
+            <span class="hzc-neon" style="color:#2ecc71;animation-delay:2s;">WIN</span>
+          </div>
+          <div class="hzc-content">
+            <div class="hzc-left">
+              <div class="hzc-badge" style="--hzc-c:#5dade2;">LOCATION 04</div>
+              <div class="hzc-title">🕹️ Meo Arcade</div>
+              <div class="hzc-desc">7 mini-games with daily coin prizes. A 10-minute cooldown between rounds — play smart and win big.</div>
+              <div class="hzc-tags">
+                <span class="hzc-tag" style="--ht:#5dade2;">⚡ Reaction Rush</span>
+                <span class="hzc-tag" style="--ht:#2980b9;">🧠 Memory Match</span>
+                <span class="hzc-tag" style="--ht:#5dade2;">❓ Anime Quiz</span>
+                <span class="hzc-tag" style="--ht:#2980b9;">🏆 +4 more</span>
+              </div>
+              <div class="hzc-enter" style="--hzce:#5dade2;">Insert Coin →</div>
+            </div>
+            <div class="hzc-right">
+              <div class="hzc-crt">
+                <div class="hzc-crt-scanlines"></div>
+                <div class="hzc-crt-body">
+                  <div class="hzc-crt-title">— INSERT COIN —</div>
+                  <div class="hzc-crt-games">
+                    <span>⚡ Reaction Rush</span>
+                    <span>🧠 Memory Match</span>
+                    <span>❓ Anime Quiz</span>
+                    <span>🔨 Whack-a-Mole</span>
+                    <span>⌨️ Type Racer</span>
+                    <span>🔢 Number Duel</span>
+                    <span>✊ Janken</span>
                   </div>
+                  <div class="hzc-crt-blink">▶ 7 GAMES AVAILABLE ◀</div>
                 </div>
               </div>
-              <div class="hbs-booth-counter" style="--hbs-counter-border:#f1c40f;">
-                <span class="hbs-counter-tag">🎬</span>
-                <span>Watch OPs</span>
-                <span class="hbs-dot">·</span>
-                <span>🔴 Live Chat</span>
-                <span class="hbs-dot">·</span>
-                <span>React together</span>
-              </div>
-            </div>
-            <div class="hbs-enter-btn" style="--hbs-btn-color:#f1c40f;">
-              Buy Ticket →
             </div>
           </div>
+          <div class="hzc-corner-glow" style="background:radial-gradient(circle,rgba(41,128,185,0.2),transparent 70%);"></div>
         </div>
 
-        <!-- DIVIDER -->
-        <div class="hbs-divider">
-          <div class="hbs-div-line"></div>
-          <div class="hbs-div-icon">🗺️</div>
-          <div class="hbs-div-line"></div>
-        </div>
+        <div class="hbs-divider"><div class="hbs-div-line"></div><div class="hbs-div-icon">✦</div><div class="hbs-div-line"></div></div>
 
-        <!-- ═══════════════════════════════════════════════
-             SECTION: MEO ARCADE
-        ═══════════════════════════════════════════════ -->
-        <div class="hbs-section" onclick="enterHubZone('arcade')">
-          <div class="hbs-banner" style="--hbs-bg:url('https://media1.tenor.com/m/j9NniiARmYMAAAAC/kakegurui-playing-cards.gif');--hbs-accent:#2980b9;--hbs-accent2:#1a5276;">
-            <div class="hbs-banner-img"></div>
-            <div class="hbs-banner-overlay" style="background:linear-gradient(135deg,rgba(0,10,30,0.65),rgba(0,2,8,0.94));"></div>
-            <div class="hbs-banner-content">
-              <div class="hbs-section-label">LOCATION 05</div>
-              <div class="hbs-section-title">🕹️ Meo Arcade</div>
-              <div class="hbs-section-sub">7 games · Win coins · Daily play</div>
+        <!-- PLAYER ROOMS -->
+        <div class="hzc" onclick="enterHubZone('rooms')">
+          <div class="hzc-bg" style="background-image:url('https://media1.tenor.com/m/Bv37u6GJKkkAAAAC/bar-feelre.gif');"></div>
+          <div class="hzc-overlay" style="background:linear-gradient(115deg,rgba(2,14,6,0.92) 0%,rgba(2,12,5,0.72) 55%,rgba(1,6,2,0.28) 100%);"></div>
+          <div class="hzc-scanlines"></div>
+          <div class="hzc-content">
+            <div class="hzc-left">
+              <div class="hzc-badge" style="--hzc-c:#27ae60;">LOCATION 05</div>
+              <div class="hzc-title">🏠 Player Rooms</div>
+              <div class="hzc-desc">Create your own personal room, decorate it with cards and posters, and invite friends to hang out.</div>
+              <div class="hzc-tags">
+                <span class="hzc-tag" style="--ht:#27ae60;">🏠 Create Room</span>
+                <span class="hzc-tag" style="--ht:#1d6e41;">🪴 Decorate</span>
+                <span class="hzc-tag" style="--ht:#27ae60;">✨ Invite Friends</span>
+              </div>
+              <div class="hzc-enter" style="--hzce:#27ae60;">Visit Rooms →</div>
             </div>
-            <div class="hbs-neon-signs">
-              <span class="hbs-neon" style="color:#5dade2;">GAME</span>
-              <span class="hbs-neon" style="color:#ff69b4;">PLAY</span>
-              <span class="hbs-neon" style="color:#2ecc71;">WIN</span>
-            </div>
-            <div class="hbs-pennants">
-              <span class="hbs-pennant" style="--hp-color:#5dade2;">🕹️</span>
-              <span class="hbs-pennant delay1" style="--hp-color:#ff69b4;">⚡</span>
-              <span class="hbs-pennant delay2" style="--hp-color:#2ecc71;">🏆</span>
-              <span class="hbs-pennant delay3" style="--hp-color:#ff69b4;">⚡</span>
-              <span class="hbs-pennant delay4" style="--hp-color:#5dade2;">🕹️</span>
+            <div class="hzc-right">
+              <div class="hzc-rooms-panel">
+                <div class="hzc-rooms-list">
+                  <div class="hzc-room-row"><div class="hzc-rr-dot green"></div><span class="hzc-rr-name">🧑‍💻 Player Room</span><span class="hzc-rr-status open">Open</span></div>
+                  <div class="hzc-room-row featured"><div class="hzc-rr-dot pink"></div><span class="hzc-rr-name">🌸 Sakura Lounge</span><span class="hzc-rr-status pink-s">2 inside</span></div>
+                  <div class="hzc-room-row"><div class="hzc-rr-dot green"></div><span class="hzc-rr-name">🎮 Game Den</span><span class="hzc-rr-status open">Open</span></div>
+                  <div class="hzc-room-row"><div class="hzc-rr-dot pink"></div><span class="hzc-rr-name">☕ Chill Room</span><span class="hzc-rr-status pink-s">1 inside</span></div>
+                </div>
+                <div class="hzc-rooms-live"><span class="online-dot"></span><span id="boothRoomCountNew">—</span> rooms open now</div>
+              </div>
             </div>
           </div>
-          <div class="hbs-booth-wrap">
-            <div class="hbs-booth" style="--hbs-roof:#0a3d62;--hbs-valance:#1a5276;">
-              <div class="hbs-roof">
-                <div class="hbs-roof-bar" style="background:linear-gradient(90deg,#0a3d62,#1a5276,#0a3d62);"></div>
-                <div class="hbs-roof-valance" style="background:linear-gradient(90deg,#1a5276,#2471a3,#1a5276);"></div>
+          <div class="hzc-corner-glow" style="background:radial-gradient(circle,rgba(39,174,96,0.18),transparent 70%);"></div>
+        </div>
+
+        <div class="hbs-divider"><div class="hbs-div-line"></div><div class="hbs-div-icon">✦</div><div class="hbs-div-line"></div></div>
+
+        <!-- TRADING & ARENA HUB -->
+        <div class="hzc" onclick="enterHubZone('arena')">
+          <div class="hzc-bg" style="background-image:url('https://media1.tenor.com/m/4xOYt5yvVNMAAAAC/demon-slayer-upper-six-fight.gif');"></div>
+          <div class="hzc-overlay" style="background:linear-gradient(115deg,rgba(25,8,0,0.93) 0%,rgba(18,6,0,0.72) 55%,rgba(8,3,0,0.28) 100%);"></div>
+          <div class="hzc-scanlines"></div>
+          <div class="hzc-content">
+            <div class="hzc-left">
+              <div class="hzc-badge" style="--hzc-c:#e67e22;">LOCATION 06</div>
+              <div class="hzc-title">⚔️ Trading & Arena</div>
+              <div class="hzc-desc">Challenge other players, swap cards, climb the leaderboard. Only the sharpest trainers survive.</div>
+              <div class="hzc-tags">
+                <span class="hzc-tag" style="--ht:#e67e22;">🔄 Trade Cards</span>
+                <span class="hzc-tag" style="--ht:#d35400;">⚔️ PvP Battles</span>
+                <span class="hzc-tag" style="--ht:#e67e22;">🏆 Leaderboard</span>
               </div>
-              <div class="hbs-booth-body" style="background:#000;">
-                <div class="hbs-booth-preview hbs-preview-arcade">
-                  <div class="hbs-arcade-crt">
-                    <div class="hbs-crt-scanlines"></div>
-                    <div class="hbs-crt-body">
-                      <div class="hbs-crt-title">INSERT COIN</div>
-                      <div class="hbs-crt-games">
-                        <span>⚡ Reaction Rush</span>
-                        <span>🧠 Memory Match</span>
-                        <span>❓ Anime Quiz</span>
-                        <span>🔨 Whack-a-Mole</span>
-                        <span>⌨️ Type Racer</span>
-                        <span>🔢 Number Duel</span>
-                        <span>✊ Janken</span>
-                      </div>
-                      <div class="hbs-crt-blink">▶ 7 GAMES AVAILABLE ◀</div>
-                    </div>
-                  </div>
+              <div class="hzc-enter" style="--hzce:#e67e22;">Enter Arena →</div>
+            </div>
+            <div class="hzc-right">
+              <div class="hzc-arena-split">
+                <div class="hzc-arena-half" style="border-color:rgba(230,126,34,0.35);">
+                  <div class="hzc-ah-icon">🔄</div>
+                  <div class="hzc-ah-label">Trade</div>
+                  <div class="hzc-ah-sub">Offer & swap<br>cards with players</div>
+                </div>
+                <div class="hzc-arena-vs">VS</div>
+                <div class="hzc-arena-half" style="border-color:rgba(231,76,60,0.35);">
+                  <div class="hzc-ah-icon">⚔️</div>
+                  <div class="hzc-ah-label">Battle</div>
+                  <div class="hzc-ah-sub">PvP duels &<br>ranked leaderboard</div>
                 </div>
               </div>
-              <div class="hbs-booth-counter" style="--hbs-counter-border:#2980b9;">
-                <span class="hbs-counter-tag">🪙</span>
-                <span>Win Coins</span>
-                <span class="hbs-dot">·</span>
-                <span>7 Games</span>
-                <span class="hbs-dot">·</span>
-                <span>10-min cooldown</span>
-              </div>
-            </div>
-            <div class="hbs-enter-btn" style="--hbs-btn-color:#2980b9;">
-              Play Games →
             </div>
           </div>
-        </div>
-
-        <!-- DIVIDER -->
-        <div class="hbs-divider">
-          <div class="hbs-div-line"></div>
-          <div class="hbs-div-icon">🗺️</div>
-          <div class="hbs-div-line"></div>
-        </div>
-
-        <!-- ═══════════════════════════════════════════════
-             SECTION: PLAYER ROOMS
-        ═══════════════════════════════════════════════ -->
-        <div class="hbs-section" onclick="enterHubZone('rooms')">
-          <div class="hbs-banner" style="--hbs-bg:url('https://media1.tenor.com/m/Bv37u6GJKkkAAAAC/bar-feelre.gif');--hbs-accent:#27ae60;--hbs-accent2:#145a32;">
-            <div class="hbs-banner-img"></div>
-            <div class="hbs-banner-overlay" style="background:linear-gradient(135deg,rgba(5,20,8,0.5),rgba(2,8,3,0.92));"></div>
-            <div class="hbs-banner-content">
-              <div class="hbs-section-label">LOCATION 06</div>
-              <div class="hbs-section-title">🏠 Player Rooms</div>
-              <div class="hbs-section-sub">Create your room · Decorate · Hang out</div>
-            </div>
-            <div class="hbs-pennants">
-              <span class="hbs-pennant" style="--hp-color:#27ae60;">🏠</span>
-              <span class="hbs-pennant delay1" style="--hp-color:#27ae60;">🪴</span>
-              <span class="hbs-pennant delay2" style="--hp-color:#27ae60;">✨</span>
-              <span class="hbs-pennant delay3" style="--hp-color:#27ae60;">🪴</span>
-              <span class="hbs-pennant delay4" style="--hp-color:#27ae60;">🏠</span>
-            </div>
-          </div>
-          <div class="hbs-booth-wrap">
-            <div class="hbs-booth" style="--hbs-roof:#145a32;--hbs-valance:#1d6e41;">
-              <div class="hbs-roof">
-                <div class="hbs-roof-bar"></div>
-                <div class="hbs-roof-valance"></div>
-              </div>
-              <div class="hbs-booth-body">
-                <div class="hbs-booth-preview hbs-preview-rooms">
-                  <div class="hbs-rooms-grid">
-                    <div class="hbs-room-card"><div class="hbs-rc-win green"></div><div class="hbs-rc-name">🧑‍💻 Player Room</div><div class="hbs-rc-tag">Open</div></div>
-                    <div class="hbs-room-card featured"><div class="hbs-rc-win pink"></div><div class="hbs-rc-name">🌸 Sakura Lounge</div><div class="hbs-rc-tag">2 inside</div></div>
-                    <div class="hbs-room-card"><div class="hbs-rc-win green delay1"></div><div class="hbs-rc-name">🎮 Game Den</div><div class="hbs-rc-tag">Open</div></div>
-                    <div class="hbs-room-card"><div class="hbs-rc-win pink delay2"></div><div class="hbs-rc-name">☕ Chill Room</div><div class="hbs-rc-tag">1 inside</div></div>
-                  </div>
-                  <div class="hbs-rooms-live"><span class="online-dot"></span><span id="boothRoomCountNew">—</span> rooms open</div>
-                </div>
-              </div>
-              <div class="hbs-booth-counter" style="--hbs-counter-border:#27ae60;">
-                <span class="hbs-counter-tag">🏠</span>
-                <span>Create</span>
-                <span class="hbs-dot">·</span>
-                <span>Decorate</span>
-                <span class="hbs-dot">·</span>
-                <span>Invite friends</span>
-              </div>
-            </div>
-            <div class="hbs-enter-btn" style="--hbs-btn-color:#27ae60;">
-              Visit Rooms →
-            </div>
-          </div>
-        </div>
-
-        <!-- DIVIDER -->
-        <div class="hbs-divider">
-          <div class="hbs-div-line"></div>
-          <div class="hbs-div-icon">🗺️</div>
-          <div class="hbs-div-line"></div>
-        </div>
-
-        <!-- ═══════════════════════════════════════════════
-             SECTION: TRADING & ARENA HUB
-        ═══════════════════════════════════════════════ -->
-        <div class="hbs-section" onclick="enterHubZone('arena')">
-          <div class="hbs-banner" style="--hbs-bg:url('https://media1.tenor.com/m/4xOYt5yvVNMAAAAC/demon-slayer-upper-six-fight.gif');--hbs-accent:#e67e22;--hbs-accent2:#6e2c00;">
-            <div class="hbs-banner-img"></div>
-            <div class="hbs-banner-overlay" style="background:linear-gradient(135deg,rgba(40,15,0,0.55),rgba(10,4,0,0.93));"></div>
-            <div class="hbs-banner-content">
-              <div class="hbs-section-label">LOCATION 07</div>
-              <div class="hbs-section-title">⚔️ Trading & Arena</div>
-              <div class="hbs-section-sub">Challenge players · Swap cards · Leaderboard</div>
-            </div>
-            <div class="hbs-pennants">
-              <span class="hbs-pennant" style="--hp-color:#e67e22;">⚔️</span>
-              <span class="hbs-pennant delay1" style="--hp-color:#e67e22;">🔄</span>
-              <span class="hbs-pennant delay2" style="--hp-color:#e67e22;">🏆</span>
-              <span class="hbs-pennant delay3" style="--hp-color:#e67e22;">🔄</span>
-              <span class="hbs-pennant delay4" style="--hp-color:#e67e22;">⚔️</span>
-            </div>
-          </div>
-          <div class="hbs-booth-wrap">
-            <div class="hbs-booth" style="--hbs-roof:#6e2c00;--hbs-valance:#a04000;">
-              <div class="hbs-roof">
-                <div class="hbs-roof-bar"></div>
-                <div class="hbs-roof-valance"></div>
-              </div>
-              <div class="hbs-booth-body">
-                <div class="hbs-booth-preview hbs-preview-arena">
-                  <div class="hbs-arena-split">
-                    <div class="hbs-arena-half trade">
-                      <div class="hbs-ah-icon">🔄</div>
-                      <div class="hbs-ah-title">Trade</div>
-                      <div class="hbs-ah-sub">Offer & swap<br>cards with players</div>
-                    </div>
-                    <div class="hbs-arena-vs">VS</div>
-                    <div class="hbs-arena-half battle">
-                      <div class="hbs-ah-icon">⚔️</div>
-                      <div class="hbs-ah-title">Challenge</div>
-                      <div class="hbs-ah-sub">PvP battles &<br>leaderboard</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="hbs-booth-counter" style="--hbs-counter-border:#e67e22;">
-                <span class="hbs-counter-tag">🔄</span>
-                <span>Trade Cards</span>
-                <span class="hbs-dot">·</span>
-                <span>⚔️ PvP</span>
-                <span class="hbs-dot">·</span>
-                <span>🏆 Rankings</span>
-              </div>
-            </div>
-            <div class="hbs-enter-btn" style="--hbs-btn-color:#e67e22;">
-              Enter Hub →
-            </div>
-          </div>
+          <div class="hzc-corner-glow" style="background:radial-gradient(circle,rgba(230,126,34,0.18),transparent 70%);"></div>
         </div>
 
       </div><!-- end hub-booth-sections -->
