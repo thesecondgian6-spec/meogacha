@@ -3070,6 +3070,66 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 @keyframes gradeReveal { from{transform:scale(0) rotate(-20deg);opacity:0;} to{transform:scale(1) rotate(0);opacity:1;} }
 
 /* ══════════════════════════════════════════
+   ACTIVITIES PAGE — improved panel
+══════════════════════════════════════════ */
+.act-page-header {
+  position: relative;
+  overflow: hidden;
+  border-radius: 20px;
+  margin-bottom: 28px;
+  padding: 28px 28px 22px;
+  background: linear-gradient(135deg, rgba(255,157,199,0.08), rgba(155,89,182,0.08));
+  border: 1px solid var(--border);
+}
+.act-page-header-bg {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 10% 50%, rgba(255,157,199,0.12), transparent 55%), radial-gradient(ellipse at 90% 50%, rgba(155,89,182,0.12), transparent 55%);
+  pointer-events: none;
+}
+.act-page-title {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: clamp(1.3em, 3vw, 1.8em);
+  font-weight: 900;
+  background: linear-gradient(135deg, var(--pink-pale), var(--pink), var(--purple));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 6px;
+  position: relative;
+}
+.act-page-sub { font-size: 0.88em; color: var(--text-dim); font-style: italic; position: relative; }
+.act-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; gap: 8px; }
+.activity-badge { font-family: 'JetBrains Mono', monospace; font-size: 0.6em; padding: 3px 9px; border-radius: 8px; letter-spacing: 0.05em; flex-shrink: 0; }
+.act-cd-pill { font-family: 'JetBrains Mono', monospace; font-size: 0.62em; color: var(--text-dim); background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 20px; padding: 2px 8px; white-space: nowrap; }
+.activity-card { border-color: var(--ac-border, var(--border)) !important; }
+.act-battle-card { background: linear-gradient(135deg, rgba(231,76,60,0.04), rgba(155,89,182,0.04)) !important; }
+.act-battle-card:hover { box-shadow: 0 12px 40px rgba(231,76,60,0.25) !important; }
+.act-battle-icon { filter: drop-shadow(0 0 14px rgba(231,76,60,0.6)) !important; }
+.act-battle-btn { background: linear-gradient(135deg, #c0392b, #8e44ad) !important; }
+.act-battle-btn:hover:not(:disabled) { box-shadow: 0 6px 24px rgba(231,76,60,0.4) !important; }
+.act-battle-rarity-hint { display: flex; align-items: center; gap: 5px; margin-bottom: 8px; flex-wrap: wrap; }
+.act-rarity-pip { font-family: 'JetBrains Mono', monospace; font-size: 0.58em; padding: 1px 7px; border-radius: 10px; color: #fff; font-weight: 700; letter-spacing: 0.03em; }
+.act-rarity-pip-boss { font-size: 0.9em; background: none !important; filter: drop-shadow(0 0 4px rgba(241,196,15,0.6)); }
+.act-rarity-hint-text { font-size: 0.7em; color: var(--text-dim); font-style: italic; }
+
+/* ── AI Battle Modal ── */
+#battleAIModal { position: fixed; inset: 0; z-index: 350; display: none; align-items: center; justify-content: center; background: rgba(0,0,0,0.9); backdrop-filter: blur(8px); padding: 16px; }
+#battleAIModal.active { display: flex; }
+.bai-box { background: linear-gradient(135deg, var(--bg2), var(--bg3)); border: 1px solid rgba(231,76,60,0.35); border-radius: 24px; max-width: 660px; width: 100%; max-height: 92vh; overflow-y: auto; padding: 28px; animation: modalIn 0.3s cubic-bezier(0.34,1.56,0.64,1); position: relative; }
+.bai-header { text-align: center; margin-bottom: 20px; }
+.bai-title { font-family: 'Cinzel Decorative', serif; font-size: 1.3em; background: linear-gradient(135deg, #e74c3c, #f39c12, #9b59b6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 4px; }
+.bai-sub { font-size: 0.82em; color: var(--text-dim); font-style: italic; }
+.bai-encounter-box { background: rgba(231,76,60,0.07); border: 1px solid rgba(231,76,60,0.2); border-radius: 14px; padding: 14px 16px; margin-bottom: 18px; display: none; animation: fadeIn 0.4s ease; }
+.bai-encounter-box.active { display: block; }
+.bai-encounter-label { font-family: 'JetBrains Mono', monospace; font-size: 0.65em; color: #e74c3c; letter-spacing: 0.08em; margin-bottom: 4px; }
+.bai-encounter-name { font-family: 'Cinzel Decorative', serif; font-size: 1em; color: var(--text); margin-bottom: 2px; }
+.bai-encounter-desc { font-size: 0.78em; color: var(--text-dim); font-style: italic; }
+.bai-encounter-boss { border-color: rgba(241,196,15,0.4) !important; background: rgba(241,196,15,0.06) !important; }
+.bai-encounter-boss .bai-encounter-label { color: #f1c40f !important; }
+.bai-close-btn { position: absolute; top: 14px; right: 16px; background: none; border: none; color: var(--text-dim); font-size: 1.2em; cursor: pointer; line-height: 1; }
+.bai-close-btn:hover { color: var(--pink); }
+
+/* ══════════════════════════════════════════
    TCG BATTLE SYSTEM
 ══════════════════════════════════════════ */
 /* Battle page */
@@ -9871,62 +9931,170 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 
   <!-- ACTIVITIES PAGE -->
   <div class="page" id="page-activities">
-    <div class="section-title">Daily Login</div>
-    <div class="daily-streak-banner">
-      <div class="daily-flame">🔥</div>
-      <div class="daily-streak-info">
-        <h3>🔥 <span id="streakCount">0</span>-Day Streak</h3>
-        <p id="streakSub">Log in every day to keep your streak and earn bonus coins!</p>
+
+    <!-- ── Activities Header ── -->
+    <div class="act-page-header">
+      <div class="act-page-header-bg"></div>
+      <div class="act-page-header-content">
+        <div class="act-page-title">⚔️ Activities</div>
+        <div class="act-page-sub">Battle, train, work & quest — earn coins and XP every day</div>
       </div>
     </div>
-    <div class="daily-calendar" id="dailyCalendar"><!-- filled by JS --></div>
-    <button class="daily-claim-btn" id="dailyClaimBtn" onclick="claimDailyReward()">✦ Claim Today's Reward</button>
 
-    <div class="section-title" style="margin-top:32px;">⚔️ Activities</div>
     <div class="activities-grid">
       <!-- WORK -->
-      <div class="activity-card" style="--ac-glow:rgba(241,196,15,0.12);--ac-glow2:rgba(241,196,15,0.06)">
-        <span class="activity-badge" style="background:rgba(241,196,15,0.15);color:#f1c40f;border:1px solid rgba(241,196,15,0.3);">COINS</span>
+      <div class="activity-card" style="--ac-glow:rgba(241,196,15,0.15);--ac-glow2:rgba(241,196,15,0.06);--ac-border:rgba(241,196,15,0.25);">
+        <div class="act-card-header">
+          <span class="activity-badge" style="background:rgba(241,196,15,0.15);color:#f1c40f;border:1px solid rgba(241,196,15,0.3);">💰 COINS</span>
+          <span class="act-cd-pill" id="workCooldown">✅ Ready</span>
+        </div>
         <span class="activity-type-icon">🧵</span>
         <div class="activity-name">Work</div>
-        <div class="activity-lore">"The cosplay won't sew itself, senpai — and those quintuplets won't tutor themselves either."</div>
-        <div class="activity-desc">Help Marin Kitagawa stitch her cosplay, tutor the Nakano quintuplets, or hustle through an anime-world part-time shift. Tap the glowing points before they fade!</div>
+        <div class="activity-lore">"The cosplay won't sew itself, senpai."</div>
+        <div class="activity-desc">Help Marin stitch cosplay, tutor the Nakano quintuplets, or hustle an anime part-time shift. Tap glowing points before they fade!</div>
         <div class="activity-reward">
           <span class="reward-tag">💰 75–200 🪙</span>
           <span class="reward-tag xp">⭐ 8–20 XP</span>
         </div>
-        <div class="activity-cooldown" id="workCooldown">Ready!</div>
         <button class="activity-btn btn-ripple" id="workBtn" onclick="openActivity('work')">🧵 Start Working</button>
       </div>
+
       <!-- TRAIN -->
-      <div class="activity-card" style="--ac-glow:rgba(52,152,219,0.12);--ac-glow2:rgba(52,152,219,0.05)">
-        <span class="activity-badge" style="background:rgba(52,152,219,0.15);color:#5dade2;border:1px solid rgba(52,152,219,0.3);">XP FOCUS</span>
+      <div class="activity-card" style="--ac-glow:rgba(52,152,219,0.15);--ac-glow2:rgba(52,152,219,0.05);--ac-border:rgba(52,152,219,0.25);">
+        <div class="act-card-header">
+          <span class="activity-badge" style="background:rgba(52,152,219,0.15);color:#5dade2;border:1px solid rgba(52,152,219,0.3);">⭐ XP</span>
+          <span class="act-cd-pill" id="trainCooldown">✅ Ready</span>
+        </div>
         <span class="activity-type-icon">⚡</span>
         <div class="activity-name">Train</div>
-        <div class="activity-lore">"Beyond your limits lies the power you were always meant to wield — but first, timing."</div>
-        <div class="activity-desc">Practice Water Breathing with Urokodaki, focus cursed energy under Gojo's watch, or master chakra with Kakashi. Hit the sweet spot on the timing ring to earn XP!</div>
+        <div class="activity-lore">"Beyond your limits lies the power you were always meant to wield."</div>
+        <div class="activity-desc">Practice Water Breathing, focus cursed energy under Gojo, or master chakra with Kakashi. Hit the sweet spot on the timing ring!</div>
         <div class="activity-reward">
           <span class="reward-tag">💰 12–30 🪙</span>
           <span class="reward-tag xp">⭐ 75–200 XP</span>
         </div>
-        <div class="activity-cooldown" id="trainCooldown">Ready!</div>
         <button class="activity-btn btn-ripple" id="trainBtn" onclick="openActivity('train')">⚡ Start Training</button>
       </div>
+
       <!-- QUEST -->
-      <div class="activity-card" style="--ac-glow:rgba(155,89,182,0.12);--ac-glow2:rgba(155,89,182,0.05)">
-        <span class="activity-badge" style="background:rgba(155,89,182,0.15);color:#c39bd3;border:1px solid rgba(155,89,182,0.3);">ADVENTURE</span>
+      <div class="activity-card" style="--ac-glow:rgba(155,89,182,0.15);--ac-glow2:rgba(155,89,182,0.05);--ac-border:rgba(155,89,182,0.25);">
+        <div class="act-card-header">
+          <span class="activity-badge" style="background:rgba(155,89,182,0.15);color:#c39bd3;border:1px solid rgba(155,89,182,0.3);">🗺️ ADVENTURE</span>
+          <span class="act-cd-pill" id="questCooldown">✅ Ready</span>
+        </div>
         <span class="activity-type-icon">🗺️</span>
         <div class="activity-name">Quest</div>
         <div class="activity-lore">"Every tile hides a fate — brave adventurer, will you flip them all?"</div>
-        <div class="activity-desc">Explore dungeon tiles as Kazuma, Tanjiro, or Bell Cranel. Flip tiles to uncover treasure, battle monsters, dodge traps — survive with your hearts intact!</div>
+        <div class="activity-desc">Explore dungeon tiles as Kazuma, Tanjiro, or Bell Cranel. Flip tiles to find treasure, fight monsters, and dodge traps!</div>
         <div class="activity-reward">
           <span class="reward-tag">💰 50–160 🪙</span>
           <span class="reward-tag xp">⭐ 38–120 XP</span>
         </div>
-        <div class="activity-cooldown" id="questCooldown">Ready!</div>
         <button class="activity-btn btn-ripple" id="questBtn" onclick="openActivity('quest')">🗺️ Begin Quest</button>
       </div>
+
+      <!-- BATTLE (AI) -->
+      <div class="activity-card act-battle-card" style="--ac-glow:rgba(231,76,60,0.18);--ac-glow2:rgba(231,76,60,0.06);--ac-border:rgba(231,76,60,0.3);">
+        <div class="act-card-header">
+          <span class="activity-badge" style="background:rgba(231,76,60,0.15);color:#e74c3c;border:1px solid rgba(231,76,60,0.3);">⚔️ BATTLE</span>
+          <span class="act-cd-pill" id="battleAICooldown">✅ Ready</span>
+        </div>
+        <span class="activity-type-icon act-battle-icon">⚔️</span>
+        <div class="activity-name">Battle</div>
+        <div class="act-battle-rarity-hint">
+          <span class="act-rarity-pip" style="background:#9b59b6;" title="SR+">SR</span>
+          <span class="act-rarity-pip" style="background:#f1c40f;" title="UR+">UR</span>
+          <span class="act-rarity-pip act-rarity-pip-boss" title="Boss chance!">👑</span>
+          <span class="act-rarity-hint-text">Higher rarity = tougher foes & bosses</span>
+        </div>
+        <div class="activity-lore">"The strongest don't just train — they prove it in blood and fire."</div>
+        <div class="activity-desc">Send your card to fight an AI opponent. Higher-rarity cards attract deadlier enemies — even fearsome boss encounters! Win to claim coins and XP.</div>
+        <div class="activity-reward">
+          <span class="reward-tag">💰 40–300 🪙</span>
+          <span class="reward-tag xp">⭐ 50–250 XP</span>
+          <span class="reward-tag" style="background:rgba(231,76,60,0.12);color:#e74c3c;border-color:rgba(231,76,60,0.3);">👑 Boss Chance</span>
+        </div>
+        <button class="activity-btn act-battle-btn btn-ripple" id="battleAIBtn" onclick="openBattleAI()">⚔️ Enter Battle</button>
+      </div>
     </div>
+
+  <!-- AI BATTLE MODAL -->
+  <div id="battleAIModal">
+    <div class="bai-box">
+      <button class="bai-close-btn" onclick="closeBattleAIModal()">✕</button>
+      <div class="bai-header">
+        <div class="bai-title">⚔️ Battle</div>
+        <div class="bai-sub">Your card vs an AI opponent — higher rarity attracts deadlier foes</div>
+      </div>
+      <!-- Encounter preview (shown after card picked) -->
+      <div class="bai-encounter-box" id="baiEncounterBox">
+        <div class="bai-encounter-label" id="baiEncounterLabel">NORMAL ENCOUNTER</div>
+        <div class="bai-encounter-name" id="baiEncounterName"></div>
+        <div class="bai-encounter-desc" id="baiEncounterDesc"></div>
+      </div>
+      <!-- Reuse the existing battle setup + fight sections -->
+      <div id="baiSetup" class="battle-setup-section active">
+        <div style="font-family:'Cinzel Decorative',serif;font-size:0.82em;color:var(--pink-pale);margin-bottom:10px;">Select Your Card</div>
+        <div class="battle-card-select-grid" id="baiBattleCardGrid"></div>
+        <div class="battle-selected-info" id="baiBattleSelectedInfo" style="margin-top:10px;font-size:0.82em;color:var(--text-dim);min-height:20px;"></div>
+        <button class="btn-primary" id="baiBattleStartBtn" onclick="startBattleAI()" disabled style="width:100%;margin-top:16px;font-size:0.82em;">⚔️ Enter Battle</button>
+      </div>
+      <div id="baiFight" class="battle-fight-section">
+        <!-- Arena -->
+        <div class="battle-arena-bg" id="baiBattleArena">
+          <div id="baiBattleVFX" style="position:absolute;inset:0;pointer-events:none;z-index:10;overflow:hidden;border-radius:24px;"></div>
+          <div class="battle-vs-header">
+            <div class="battle-player-side">
+              <div class="battle-card-display">
+                <img class="battle-card-img player-img" id="baiBattlePlayerImg" src="" alt=""/>
+                <div class="battle-attack-flash player-flash" id="baiBattlePlayerFlash"></div>
+              </div>
+              <div class="battle-card-name-tag" id="baiBattlePlayerName"></div>
+            </div>
+            <div class="battle-vs-badge">VS</div>
+            <div class="battle-enemy-side">
+              <div class="battle-card-display">
+                <img class="battle-card-img enemy-img" id="baiBattleEnemyImg" src="" alt=""/>
+                <div class="battle-attack-flash enemy-flash" id="baiBattleEnemyFlash"></div>
+              </div>
+              <div class="battle-card-name-tag" id="baiBattleEnemyName"></div>
+            </div>
+          </div>
+          <!-- HP Bars -->
+          <div class="battle-hp-section" id="baiBattleHPSection">
+            <div class="battle-combatant-row">
+              <span class="battle-combatant-label">You</span>
+              <div class="battle-hp-track"><div class="battle-hp-fill player-hp" id="baiBattlePlayerHPFill" style="width:100%"></div></div>
+              <span class="battle-hp-text" id="baiBattlePlayerHPText">100/100</span>
+            </div>
+            <div class="battle-combatant-row">
+              <span class="battle-combatant-label" id="baiBattleEnemyLabel">Enemy</span>
+              <div class="battle-hp-track"><div class="battle-hp-fill enemy-hp" id="baiBattleEnemyHPFill" style="width:100%"></div></div>
+              <span class="battle-hp-text" id="baiBattleEnemyHPText">100/100</span>
+            </div>
+          </div>
+          <!-- Status row -->
+          <div class="battle-status-row" id="baiBattleStatus"></div>
+          <!-- Battle log -->
+          <div class="battle-log" id="baiBattleLog"></div>
+          <!-- MP display -->
+          <div style="text-align:right;font-family:'JetBrains Mono',monospace;font-size:0.72em;color:#f1c40f;margin-bottom:8px;">⚡ MP: <span id="baiBattleMP">3</span></div>
+          <!-- Moves -->
+          <div class="battle-moves-grid" id="baiBattleMovesGrid"></div>
+          <!-- Outcome -->
+          <div class="battle-outcome-box" id="baiBattleOutcome" style="display:none;margin-top:18px;">
+            <div class="battle-outcome-title" id="baiBattleOutcomeTitle"></div>
+            <div style="font-size:0.85em;color:var(--text-dim);margin:6px 0 10px;" id="baiBattleOutcomeMsg"></div>
+            <div class="battle-outcome-rewards" id="baiBattleOutcomeRewards"></div>
+            <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:14px;">
+              <button class="btn-secondary" onclick="battleAIRematch()" style="font-size:0.78em;padding:8px 20px;">🔄 Rematch</button>
+              <button class="btn-secondary" onclick="closeBattleAIModal()" style="font-size:0.78em;padding:8px 20px;">✕ Close</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- ACTIVITY MODAL -->
   <div class="act-modal" id="actModal">
@@ -15262,7 +15430,7 @@ function closeDailyPopup(){
 // ══════════════════════════════════════════════
 // ACTIVITY SYSTEM (Work / Train / Quest)
 // ══════════════════════════════════════════════
-const COOLDOWNS = { work: 30*60*1000, train: 20*60*1000, quest: 45*60*1000 };
+const COOLDOWNS = { work: 30*60*1000, train: 20*60*1000, quest: 45*60*1000, battleai: 10*60*1000 };
 
 function getActKey(type){ return state.discordId ? `mg_act_${type}_${state.discordId}` : `mg_act_${type}_guest`; }
 function getLastAct(type){ const v=localStorage.getItem(getActKey(type)); return v?parseInt(v):0; }
@@ -15282,9 +15450,507 @@ function updateActivityCooldowns(){
     if(left>0){ if(cd)cd.textContent=`⏳ ${fmtTime(left)}`; if(btn)btn.disabled=true; }
     else { if(cd)cd.textContent='✅ Ready!'; if(btn)btn.disabled=false; }
   });
+  // Battle AI cooldown
+  const baiLeft = getCooldownLeft('battleai');
+  const baiCd = document.getElementById('battleAICooldown');
+  const baiBtn = document.getElementById('battleAIBtn');
+  if(baiLeft>0){ if(baiCd)baiCd.textContent=`⏳ ${fmtTime(baiLeft)}`; if(baiBtn)baiBtn.disabled=true; }
+  else { if(baiCd)baiCd.textContent='✅ Ready!'; if(baiBtn)baiBtn.disabled=false; }
 }
 
 setInterval(updateActivityCooldowns, 1000);
+
+// ══════════════════════════════════════════════
+// AI BATTLE ACTIVITY — Uses PvP battle system
+// 10-minute cooldown, enemy scales with card rarity
+// ══════════════════════════════════════════════
+
+// Enemy encounter table — boss chance scales with rarity
+const BAI_ENEMY_POOL = {
+  // [rarity_min, rarity_max, isBoss, label, desc]
+  normal: [
+    { label:'Forest Goblin',   desc:'A sneaky creature lurking in the dark woods.',      diff:'easy'   },
+    { label:'Shadow Wisp',     desc:'An ethereal spirit haunting the abandoned temple.', diff:'easy'   },
+    { label:'Stone Golem',     desc:'A lumbering construct of ancient cursed stone.',    diff:'normal' },
+    { label:'Dark Mage',       desc:'A rogue sorcerer hungry for forbidden power.',      diff:'normal' },
+    { label:'Blood Knight',    desc:'A fearless warrior who abandoned their honor.',     diff:'hard'   },
+    { label:'Cursed Samurai',  desc:'Bound by a dark oath, they strike with precision.', diff:'hard'   },
+  ],
+  boss: [
+    { label:'👑 Demon Lord Ryzen',   desc:'An ancient demon who has consumed ten thousand souls. Prepare yourself.',  diff:'hard' },
+    { label:'👑 Void Empress Nia',   desc:'She controls the space between worlds. Reality bends to her will.',        diff:'hard' },
+    { label:'👑 Fallen God Elarion', desc:'Once a celestial guardian, now consumed by darkness. His power is absolute.', diff:'hard' },
+    { label:'👑 Lich King Mordrath', desc:'Death incarnate. His mere presence drains the life from all around him.',  diff:'hard' },
+  ],
+};
+
+// Boss chance based on rarity (0=none → 7=very high)
+function _baiBossChance(rarity) {
+  const tbl = [0, 0.03, 0.06, 0.1, 0.18, 0.30, 0.50, 0.75];
+  return tbl[Math.min(rarity, 7)] || 0;
+}
+
+// Pick enemy encounter based on player card rarity
+function _baiPickEncounter(rarity) {
+  const isBoss = Math.random() < _baiBossChance(rarity);
+  if (isBoss) {
+    const pool = BAI_ENEMY_POOL.boss;
+    return { ...pool[Math.floor(Math.random() * pool.length)], isBoss: true };
+  }
+  // Normal enemies: higher rarity unlocks harder foes
+  let pool = BAI_ENEMY_POOL.normal;
+  if (rarity >= 5) pool = pool.filter(e => e.diff === 'hard');
+  else if (rarity >= 3) pool = pool.filter(e => e.diff !== 'easy');
+  else pool = pool.filter(e => e.diff === 'easy');
+  if (!pool.length) pool = BAI_ENEMY_POOL.normal;
+  return { ...pool[Math.floor(Math.random() * pool.length)], isBoss: false };
+}
+
+// Local state for AI battle
+let _baiState = {
+  selectedCardId: null,
+  encounter: null,
+  // battle state (mirrors battleState structure)
+  phase: 'setup',
+  playerCard: null, enemyCard: null,
+  playerHP: 100, playerMaxHP: 100, playerMP: 3,
+  enemyHP: 100, enemyMaxHP: 100,
+  turn: 1,
+  playerGuarding: false, enemyGuarding: false,
+  playerAtkBoost: 0, playerAtkBoostTurns: 0,
+  passiveAtkBoost: 0, passiveDefReduce: 0, passiveRegenAmt: 0, passiveDodge: 0,
+  defReducePct: 0, shieldHits: 0, immortalTurns: 0, dodgeHits: 0, phantomTurns: 0,
+  transformMult: 1, transformTurns: 0, copyActive: false, copyTurns: 0, stunEnemy: 0,
+  ironWillUsed: false, ironWillHP: 0, lastBurstFired: false, lastBurstValue: 0,
+  risingPowerStack: 0, risingPowerEvery: 0, risingPowerBonus: 0,
+  silentDrainAmt: 0, hiddenPierceBonus: 0, fearChance: 0,
+  phantomBarrageAbil: null,
+  statusEffects: [],
+  battleEnded: false, movesCooldown: false,
+};
+
+function openBattleAI() {
+  const left = getCooldownLeft('battleai');
+  if (left > 0) { showToast(`⏳ Battle on cooldown! Ready in ${fmtTime(left)}`); playErrorSound(); return; }
+  _baiState.selectedCardId = null;
+  _baiState.encounter = null;
+  _baiState.phase = 'setup';
+  document.getElementById('baiSetup').classList.add('active');
+  document.getElementById('baiFight').classList.remove('active');
+  document.getElementById('baiBattleOutcome').style.display = 'none';
+  document.getElementById('baiEncounterBox').classList.remove('active');
+  document.getElementById('baiBattleStartBtn').disabled = true;
+  document.getElementById('baiBattleSelectedInfo').innerHTML = '';
+  _baiRenderCardSelect();
+  document.getElementById('battleAIModal').classList.add('active');
+}
+
+function closeBattleAIModal() {
+  document.getElementById('battleAIModal').classList.remove('active');
+}
+
+function _baiRenderCardSelect() {
+  const grid = document.getElementById('baiBattleCardGrid');
+  if (!grid) return;
+  const owned = [...new Set(state.collection)];
+  if (!owned.length) {
+    grid.innerHTML = '<div style="color:var(--text-dim);font-style:italic;font-size:0.85em;grid-column:1/-1;text-align:center;padding:20px;">Pull some cards first! ʚɞ</div>';
+    return;
+  }
+  grid.innerHTML = owned.map(id => {
+    const c = (window.DEMO_CARDS || DEMO_CARDS).find(x => x.id === id);
+    if (!c) return '';
+    const color = RARITY_COLORS[c.rarity] || '#bdc3c7';
+    const sel = _baiState.selectedCardId === id;
+    return `<div class="battle-card-select-item${sel ? ' selected' : ''}" onclick="_baiSelectCard('${id}')" style="${sel ? 'border-color:#f1c40f;' : ''}">
+      <img src="${c.image}" alt="${c.name}" onerror="this.style.background='#1c0f26'"/>
+      <div class="battle-select-rarity" style="color:${color}">${c.rarityName}</div>
+      <div class="battle-card-select-label">${c.name}</div>
+    </div>`;
+  }).join('');
+}
+
+function _baiSelectCard(id) {
+  _baiState.selectedCardId = id;
+  const c = (window.DEMO_CARDS || DEMO_CARDS).find(x => x.id === id);
+  const color = RARITY_COLORS[c.rarity] || '#bdc3c7';
+  document.getElementById('baiBattleSelectedInfo').innerHTML = `<span style="color:${color}">${c.rarityName}</span> ${c.name} selected`;
+  document.getElementById('baiBattleStartBtn').disabled = false;
+
+  // Preview encounter
+  const enc = _baiPickEncounter(c.rarity);
+  _baiState.encounter = enc;
+  const box = document.getElementById('baiEncounterBox');
+  box.classList.add('active');
+  box.className = 'bai-encounter-box active' + (enc.isBoss ? ' bai-encounter-boss' : '');
+  document.getElementById('baiEncounterLabel').textContent = enc.isBoss ? '👑 BOSS ENCOUNTER' : '⚔️ NORMAL ENCOUNTER';
+  document.getElementById('baiEncounterName').textContent = enc.label;
+  document.getElementById('baiEncounterDesc').textContent = enc.desc;
+
+  _baiRenderCardSelect();
+}
+
+function startBattleAI() {
+  if (!_baiState.selectedCardId) return;
+  const playerCard = (window.DEMO_CARDS || DEMO_CARDS).find(x => x.id === _baiState.selectedCardId);
+  const enc = _baiState.encounter || _baiPickEncounter(playerCard.rarity);
+
+  // Pick enemy card — rarity influenced by encounter difficulty
+  const allCards = window.DEMO_CARDS || DEMO_CARDS;
+  let enemyCandidates = allCards.filter(c => c.id !== playerCard.id);
+  if (enc.isBoss) {
+    // Boss: try to pick card rarity >= player's rarity
+    const highTier = enemyCandidates.filter(c => c.rarity >= Math.max(playerCard.rarity, 4));
+    if (highTier.length) enemyCandidates = highTier;
+  } else if (enc.diff === 'hard') {
+    const hard = enemyCandidates.filter(c => c.rarity >= playerCard.rarity);
+    if (hard.length) enemyCandidates = hard;
+  } else if (enc.diff === 'easy') {
+    const easy = enemyCandidates.filter(c => c.rarity <= playerCard.rarity + 1);
+    if (easy.length) enemyCandidates = easy;
+  }
+  const enemyCard = enemyCandidates[Math.floor(Math.random() * enemyCandidates.length)];
+
+  const diffKey = enc.isBoss ? 'hard' : (enc.diff === 'hard' ? 'hard' : enc.diff === 'easy' ? 'easy' : 'normal');
+  const diff = BATTLE_DIFFICULTIES[diffKey];
+
+  const playerAbils = getCardAbilities(playerCard.id, playerCard.rarity);
+  const hpBoost    = playerAbils.filter(a=>a.battleEffect==='hpboost_passive'||a.battleEffect==='hpboost').reduce((s,a)=>s+a.value,0);
+  const atkBoostP  = playerAbils.filter(a=>a.battleEffect==='atkboost_passive').reduce((s,a)=>s+a.value,0);
+  const defReduceP = playerAbils.filter(a=>a.battleEffect==='shield_passive').reduce((s,a)=>s+a.value,0);
+  const regenP     = playerAbils.filter(a=>a.battleEffect==='regen_passive').reduce((s,a)=>s+a.value,0);
+  const dodgeP     = playerAbils.filter(a=>a.battleEffect==='dodge_passive').reduce((s,a)=>s+a.value,0)
+                   + playerAbils.filter(a=>a.battleEffect==='ghost_secret').reduce((s,a)=>s+a.value,0);
+  const ironWill   = playerAbils.find(a=>a.battleEffect==='iron_will');
+  const silentDrain = playerAbils.find(a=>a.battleEffect==='silent_drain');
+  const haunt       = playerAbils.find(a=>a.battleEffect==='haunt_secret');
+  const risingPower = playerAbils.find(a=>a.battleEffect==='rising_power');
+  const lastBurst   = playerAbils.find(a=>a.battleEffect==='last_burst');
+  const initStatusEffects = [];
+  if (haunt) initStatusEffects.push({type:'burn',icon:'👁️',label:`Haunted (${haunt.value}/turn)`,turns:99,dot:haunt.value,who:'enemy'});
+
+  const playerMaxHP = Math.round((80 + playerCard.rarity * 15)) + hpBoost;
+  const enemyMaxHP  = Math.round((80 + enemyCard.rarity  * 15) * diff.hpMult);
+
+  // Store into _baiState (mirrors battleState)
+  Object.assign(_baiState, {
+    phase: 'fight', playerCard, enemyCard, encounter: enc, diffKey,
+    playerHP: playerMaxHP, playerMaxHP,
+    playerMP: 3,
+    enemyHP: enemyMaxHP, enemyMaxHP,
+    turn: 1,
+    passiveRegenAmt: regenP, passiveAtkBoost: atkBoostP,
+    passiveDefReduce: defReduceP, passiveDodge: dodgeP,
+    playerGuarding: false, enemyGuarding: false,
+    playerAtkBoost: atkBoostP, playerAtkBoostTurns: 999,
+    defReducePct: defReduceP, shieldHits: 0, immortalTurns: 0,
+    dodgeHits: 0, phantomTurns: 0, transformMult: 1, transformTurns: 0,
+    copyActive: false, copyTurns: 0, stunEnemy: 0,
+    ironWillUsed: false, ironWillHP: ironWill ? ironWill.value : 0,
+    lastBurstFired: false, lastBurstValue: lastBurst ? lastBurst.value : 0,
+    risingPowerStack: 0, risingPowerEvery: risingPower ? (risingPower.chance||2) : 0,
+    risingPowerBonus: risingPower ? risingPower.value : 0,
+    silentDrainAmt: silentDrain ? silentDrain.value : 0,
+    phantomBarrageAbil: playerAbils.find(a=>a.battleEffect==='phantom_barrage')||null,
+    hiddenPierceBonus: playerAbils.find(a=>a.battleEffect==='hidden_pierce')?.value||0,
+    fearChance: playerAbils.find(a=>a.battleEffect==='fear_secret')?.value||0,
+    statusEffects: initStatusEffects,
+    battleEnded: false, movesCooldown: false,
+  });
+
+  // Switch views
+  document.getElementById('baiSetup').classList.remove('active');
+  document.getElementById('baiFight').classList.add('active');
+  document.getElementById('baiBattlePlayerImg').src = playerCard.image;
+  document.getElementById('baiBattlePlayerName').textContent = playerCard.name;
+  document.getElementById('baiBattleEnemyImg').src = enemyCard.image;
+  document.getElementById('baiBattleEnemyName').textContent = enc.isBoss ? `${enc.label}` : enemyCard.name;
+  document.getElementById('baiBattleEnemyLabel').textContent = enc.isBoss ? '👑 BOSS' : 'Enemy';
+  document.getElementById('baiBattleLog').innerHTML = '';
+  document.getElementById('baiBattleOutcome').style.display = 'none';
+
+  _baiUpdateHPBars();
+  _baiRenderMoves();
+
+  _baiLog(`⚡ ${playerCard.name} VS ${enc.isBoss ? enc.label : enemyCard.name}! The battle begins!`, 'system');
+  if (enc.isBoss) _baiLog(`👑 BOSS ENCOUNTER — ${enc.desc}`, 'enemy');
+  else _baiLog(`⚔️ Encounter: ${enc.label} — ${enc.desc}`, 'system');
+  playBattleStartSound();
+  if (atkBoostP > 0) _baiLog(`💪 Passive: +${atkBoostP}% ATK permanently!`, 'player');
+  if (defReduceP > 0) _baiLog(`🛡️ Passive: incoming damage -${defReduceP}%!`, 'player');
+  if (regenP > 0) _baiLog(`💚 Regen: +${regenP} HP/turn.`, 'player');
+  if (haunt) _baiLog(`👁️ Enemy is HAUNTED — ${haunt.value} damage every turn!`, 'player');
+
+  // Set cooldown when battle starts
+  setLastAct('battleai');
+  updateActivityCooldowns();
+}
+
+// ── Helpers that mirror the main battle system but use _baiState and bai* elements ──
+
+function _baiLog(msg, who) {
+  const log = document.getElementById('baiBattleLog');
+  if (!log) return;
+  const cls = who === 'player' ? 'log-player' : who === 'enemy' ? 'log-enemy' : 'log-system';
+  const div = document.createElement('div');
+  div.className = `battle-log-entry ${cls}`;
+  div.textContent = msg;
+  log.appendChild(div);
+  log.scrollTop = log.scrollHeight;
+}
+
+function _baiUpdateHPBars() {
+  const ps = _baiState;
+  const pfill = document.getElementById('baiBattlePlayerHPFill');
+  const efill = document.getElementById('baiBattleEnemyHPFill');
+  const ptxt  = document.getElementById('baiBattlePlayerHPText');
+  const etxt  = document.getElementById('baiBattleEnemyHPText');
+  if (pfill) pfill.style.width = `${Math.max(0, ps.playerHP / ps.playerMaxHP * 100)}%`;
+  if (efill) efill.style.width = `${Math.max(0, ps.enemyHP / ps.enemyMaxHP * 100)}%`;
+  if (ptxt)  ptxt.textContent  = `${Math.max(0, ps.playerHP)}/${ps.playerMaxHP}`;
+  if (etxt)  etxt.textContent  = `${Math.max(0, ps.enemyHP)}/${ps.enemyMaxHP}`;
+  // Low HP pulse
+  if (pfill) pfill.classList.toggle('low', ps.playerHP / ps.playerMaxHP < 0.25);
+  if (efill) efill.classList.toggle('low', ps.enemyHP  / ps.enemyMaxHP  < 0.25);
+  // MP display
+  const mp = document.getElementById('baiBattleMP');
+  if (mp) mp.textContent = ps.playerMP;
+}
+
+function _baiRenderMoves() {
+  const grid = document.getElementById('baiBattleMovesGrid');
+  if (!grid) return;
+  const ps = _baiState;
+  if (!ps || !ps.playerCard) { grid.innerHTML = ''; return; }
+  const moves = getCardMoves(ps.playerCard);
+  const locked = ps.movesCooldown || ps.battleEnded;
+  grid.innerHTML = moves.map(m => {
+    const isUlt = m.type === 'ult';
+    const noMP = m.mpCost > (ps.playerMP || 0);
+    const disabled = locked || noMP;
+    const borderClr = isUlt ? 'rgba(241,196,15,0.5)' : m.type === 'spc' ? 'rgba(255,157,199,0.4)' : m.type === 'def' ? 'rgba(93,173,226,0.35)' : 'var(--border)';
+    const mpBadge = m.mpCost > 0 ? `<span style="font-family:'JetBrains Mono',monospace;font-size:0.62em;color:#f1c40f;float:right;">${m.mpCost}MP</span>` : '';
+    return `<button class="battle-move-btn" onclick="_baiPlayerMove('${m.id}')" ${disabled ? 'disabled' : ''} style="border-color:${borderClr};">
+      <span class="move-name">${m.icon} ${m.name}${mpBadge}</span>
+      <span class="move-desc">${m.desc || ''}</span>
+      ${m.power && m.type === 'atk' ? `<span class="move-power">PWR ${m.power}</span>` : ''}
+    </button>`;
+  }).join('');
+}
+
+function _baiFlashCard(who) {
+  const id = who === 'player' ? 'baiBattlePlayerFlash' : 'baiBattleEnemyFlash';
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.classList.add(who === 'player' ? 'player-flash' : 'enemy-flash');
+  setTimeout(() => el.classList.remove('player-flash', 'enemy-flash'), 500);
+}
+
+async function _baiPlayerMove(moveId) {
+  const ps = _baiState;
+  if (ps.battleEnded || ps.movesCooldown) return;
+  ps.movesCooldown = true;
+  _baiRenderMoves();
+
+  const moves = getCardMoves(ps.playerCard);
+  const move = moves.find(m => m.id === moveId);
+  if (!move) { ps.movesCooldown = false; _baiRenderMoves(); return; }
+  if (move.mpCost > ps.playerMP) { _baiLog('❌ Not enough MP!', 'system'); ps.movesCooldown = false; _baiRenderMoves(); return; }
+  ps.playerMP -= move.mpCost;
+
+  const pName = ps.playerCard.name;
+  const eName = ps.encounter.isBoss ? ps.encounter.label : ps.enemyCard.name;
+  const diff = BATTLE_DIFFICULTIES[ps.diffKey || 'normal'];
+
+  // ── Player action ──
+  if (moveId === 'defend') {
+    ps.playerGuarding = true;
+    _baiLog(`🛡️ ${pName} takes a defensive stance!`, 'player');
+  } else if (moveId === 'heal') {
+    ps.playerHP = Math.min(ps.playerMaxHP, ps.playerHP + move.power);
+    _baiLog(`💊 ${pName} restores ${move.power} HP! (${ps.playerHP}/${ps.playerMaxHP})`, 'player');
+  } else if (moveId === 'focus') {
+    ps.playerAtkBoost = (ps.passiveAtkBoost || 0) + 30;
+    ps.playerAtkBoostTurns = 2;
+    ps.statusEffects.push({ type: 'boost', icon: '⬆️', label: 'ATK+30%', turns: 2 });
+    _baiLog(`✨ ${pName} focuses energy! ATK +30% for 2 turns!`, 'player');
+  } else if (moveId.startsWith('active_') || moveId.startsWith('ult_')) {
+    // Simplified ability dispatch for AI battle — reuse effect logic
+    const ab = move.abilityRef;
+    if (ab) {
+      // Fire cutscene using the same function
+      if (ab.tier === 'ultimate' || ab.tier === 'active') {
+        await playAbilityCutscene(ps.playerCard.id, ps.playerCard.rarity, ab.id).catch(()=>{});
+      }
+      // Dispatch effect — temporarily swap battleState for the duration
+      const saved = {...battleState};
+      Object.assign(battleState, ps, { phase:'fight' });
+      await dispatchAbilityEffect(ab, 'player').catch(()=>{});
+      // Read back HP/status changes
+      ps.playerHP = battleState.playerHP;
+      ps.enemyHP = battleState.enemyHP;
+      ps.playerMP = battleState.playerMP;
+      ps.statusEffects = battleState.statusEffects;
+      ps.playerAtkBoost = battleState.playerAtkBoost;
+      ps.playerAtkBoostTurns = battleState.playerAtkBoostTurns;
+      ps.stunEnemy = battleState.stunEnemy;
+      Object.assign(battleState, saved);
+      _baiLog(`${ab.icon} ${pName} uses ${ab.name}!`, 'player');
+    }
+  } else {
+    // Basic attacks
+    const basePow = move.power || 12;
+    let atk = Math.round(basePow * (1 + (ps.playerAtkBoost || 0) / 100) * (ps.transformMult || 1));
+    if (ps.risingPowerEvery > 0) {
+      ps.risingPowerStack++;
+      if (ps.risingPowerStack % ps.risingPowerEvery === 0) atk += ps.risingPowerBonus;
+    }
+    atk = Math.max(1, atk);
+    const crit = Math.random() < 0.12;
+    if (crit) { atk = Math.round(atk * 1.5); _baiLog(`💥 CRITICAL HIT!`, 'player'); }
+    _baiFlashCard('enemy');
+    ps.enemyHP -= atk;
+    _baiLog(`${move.icon} ${pName} uses ${move.name}! ${eName} takes ${atk} damage.${crit ? ' 💥 CRIT!' : ''}`, 'player');
+  }
+
+  // Boost tick-down
+  if (ps.playerAtkBoostTurns > 0 && ps.playerAtkBoostTurns < 999) {
+    ps.playerAtkBoostTurns--;
+    if (ps.playerAtkBoostTurns <= 0) { ps.playerAtkBoost = ps.passiveAtkBoost || 0; _baiLog(`ATK boost expired.`, 'system'); }
+  }
+
+  _baiUpdateHPBars();
+  if (ps.enemyHP <= 0) { await _baiEndBattle(true); return; }
+
+  await new Promise(r => setTimeout(r, 500));
+
+  // ── Enemy turn (stun check) ──
+  if (ps.stunEnemy > 0) {
+    ps.stunEnemy--;
+    _baiLog(`😵 ${eName} is stunned and cannot act!`, 'enemy');
+  } else {
+    // Apply haunt DoT
+    const hauntEffect = ps.statusEffects.find(e => e.type === 'burn' && e.who === 'enemy');
+    if (hauntEffect) {
+      ps.enemyHP -= hauntEffect.dot;
+      _baiLog(`👁️ ${eName} suffers ${hauntEffect.dot} haunt damage!`, 'enemy');
+    }
+    if (ps.enemyHP <= 0) { _baiUpdateHPBars(); await _baiEndBattle(true); return; }
+
+    // Enemy attack
+    const enemyBaseDmg = Math.round((10 + ps.enemyCard.rarity * 4) * diff.atkMult);
+    let enemyDmg = enemyBaseDmg + Math.floor(Math.random() * 10);
+    const isBoss = ps.encounter.isBoss;
+    if (isBoss && Math.random() < 0.15) {
+      enemyDmg = Math.round(enemyDmg * 2);
+      _baiLog(`👑 ${eName} unleashes a devastating attack!`, 'enemy');
+    }
+    const guardMult = ps.playerGuarding ? 0.45 : 1;
+    const defMult = 1 - (ps.defReducePct / 100 || 0);
+    // Dodge
+    const dodgeRoll = Math.random() < (ps.passiveDodge / 100 || 0);
+    if (dodgeRoll) {
+      _baiLog(`💨 ${pName} dodges ${eName}'s attack!`, 'player');
+    } else {
+      const finalDmg = Math.max(1, Math.round(enemyDmg * guardMult * defMult));
+      // Iron will
+      let actualDmg = finalDmg;
+      if (ps.ironWillHP > 0 && !ps.ironWillUsed && ps.playerHP - finalDmg <= 0) {
+        actualDmg = ps.playerHP - ps.ironWillHP;
+        ps.ironWillUsed = true;
+        _baiLog(`✊ Iron Will activates! ${pName} survives with ${ps.ironWillHP} HP!`, 'player');
+      }
+      ps.playerHP -= actualDmg;
+      _baiFlashCard('player');
+      _baiLog(`⚔️ ${eName} attacks ${pName} for ${actualDmg} damage.${ps.playerGuarding ? ' (guarded)' : ''}`, 'enemy');
+    }
+  }
+
+  // Regen
+  if (ps.passiveRegenAmt > 0) {
+    ps.playerHP = Math.min(ps.playerMaxHP, ps.playerHP + ps.passiveRegenAmt);
+  }
+  ps.playerGuarding = false;
+  ps.turn++;
+
+  // Tick status effects
+  ps.statusEffects = ps.statusEffects.map(e => ({ ...e, turns: e.turns - 1 })).filter(e => e.turns > 0 || e.turns === 99);
+
+  _baiUpdateHPBars();
+  _baiRenderStatusRow();
+
+  if (ps.playerHP <= 0) { await _baiEndBattle(false); return; }
+
+  ps.movesCooldown = false;
+  _baiRenderMoves();
+}
+
+function _baiRenderStatusRow() {
+  const row = document.getElementById('baiBattleStatus');
+  if (!row) return;
+  const ps = _baiState;
+  if (!ps.statusEffects || !ps.statusEffects.length) { row.innerHTML = ''; return; }
+  row.innerHTML = ps.statusEffects.map(e => `<span class="battle-status-chip" title="${e.label}">${e.icon} ${e.label}</span>`).join('');
+}
+
+async function _baiEndBattle(playerWon) {
+  const ps = _baiState;
+  ps.battleEnded = true;
+  ps.movesCooldown = true;
+  _baiRenderMoves();
+
+  const isBoss = ps.encounter && ps.encounter.isBoss;
+  const diffKey = ps.diffKey || 'normal';
+  const diff = BATTLE_DIFFICULTIES[diffKey];
+  const bossMult = isBoss ? 2.5 : 1;
+
+  if (playerWon) {
+    const coins = Math.round((40 + ps.playerCard.rarity * 12 + ps.enemyCard.rarity * 10) * diff.rewardMult * bossMult);
+    const xp    = Math.round((50 + ps.playerCard.rarity * 14 + ps.turn * 3) * diff.rewardMult * bossMult);
+    state.coins += coins;
+    updateCoins();
+    if (state.equippedId) {
+      state.xpMap[state.equippedId] = (state.xpMap[state.equippedId] || 0) + xp;
+      if (state.discordId && !state.isGuest) await saveXp(state.discordId, state.equippedId, state.xpMap[state.equippedId]);
+    }
+    if (state.discordId && !state.isGuest) await savePlayer();
+    if (state.isGuest) saveGuestState();
+    spawnParticles(isBoss ? 10 : 5, isBoss ? '#f1c40f' : '#ff9dc7');
+    playVictorySound();
+    _baiLog(`🏆 VICTORY! Earned +${coins}🪙 +${xp}XP${isBoss ? ' 👑 BOSS BONUS!' : ''}`, 'system');
+    document.getElementById('baiBattleOutcomeTitle').innerHTML = `<span class="battle-outcome-victory">⚡ VICTORY!${isBoss ? ' 👑' : ''} ⚡</span>`;
+    document.getElementById('baiBattleOutcomeMsg').textContent = `${ps.playerCard.name} triumphs after ${ps.turn} turns!`;
+    document.getElementById('baiBattleOutcomeRewards').innerHTML = `<span class="reward-tag">+${coins} 🪙</span>${state.equippedId ? `<span class="reward-tag xp">+${xp} XP</span>` : ''}${isBoss ? '<span class="reward-tag" style="color:#f1c40f;border-color:rgba(241,196,15,0.4);background:rgba(241,196,15,0.1);">👑 Boss Slayer!</span>' : ''}`;
+  } else {
+    const consolationCoins = Math.round(8 * diff.rewardMult);
+    const consolationXp    = Math.round(12 * diff.rewardMult);
+    state.coins += consolationCoins;
+    updateCoins();
+    if (state.equippedId) {
+      state.xpMap[state.equippedId] = (state.xpMap[state.equippedId] || 0) + consolationXp;
+      if (state.discordId && !state.isGuest) await saveXp(state.discordId, state.equippedId, state.xpMap[state.equippedId]);
+    }
+    if (state.discordId && !state.isGuest) await savePlayer();
+    if (state.isGuest) saveGuestState();
+    playDefeatSound();
+    _baiLog(`💀 Defeated... But you gained +${consolationCoins}🪙 for trying.`, 'enemy');
+    document.getElementById('baiBattleOutcomeTitle').innerHTML = '<span class="battle-outcome-defeat">💀 DEFEATED 💀</span>';
+    document.getElementById('baiBattleOutcomeMsg').textContent = `${isBoss ? ps.encounter.label : ps.enemyCard.name} was too powerful this time.`;
+    document.getElementById('baiBattleOutcomeRewards').innerHTML = `<span class="reward-tag">+${consolationCoins} 🪙</span><span style="color:var(--text-dim);font-size:0.85em;padding:4px 8px;">consolation</span>`;
+  }
+  document.getElementById('baiBattleOutcome').style.display = 'block';
+}
+
+function battleAIRematch() {
+  if (!_baiState.selectedCardId) { closeBattleAIModal(); return; }
+  // Check cooldown — already set; allow rematch view but they need to wait for next battle
+  document.getElementById('baiBattleOutcome').style.display = 'none';
+  document.getElementById('baiBattleLog').innerHTML = '';
+  document.getElementById('baiFight').classList.remove('active');
+  document.getElementById('baiSetup').classList.add('active');
+  _baiRenderCardSelect();
+}
+
 
 // ══════════════════════════════════════════════
 // MINIGAME SYSTEM — Work / Train / Quest
