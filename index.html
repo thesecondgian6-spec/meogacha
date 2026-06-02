@@ -469,7 +469,621 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .hmm-pin-name { font-size: 0.58em; color: var(--text-dim); font-family: 'JetBrains Mono', monospace; letter-spacing: 0.03em; }
 
 /* ══════════════════════════════════════════════════
-   HUB BOOTHS GRID
+   HUB BOOTH SECTIONS — full-width vertical layout
+══════════════════════════════════════════════════ */
+.hub-booth-sections {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding-bottom: 40px;
+}
+
+/* ── Each Section ── */
+.hbs-section {
+  cursor: pointer;
+  transition: filter 0.2s;
+  position: relative;
+}
+.hbs-section:hover { filter: brightness(1.06); }
+.hbs-section:active { filter: brightness(0.92); }
+
+/* ── Banner ── */
+.hbs-banner {
+  position: relative;
+  height: clamp(180px, 35vw, 300px);
+  overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+}
+.hbs-banner-img {
+  position: absolute;
+  inset: 0;
+  background-image: var(--hbs-bg);
+  background-size: cover;
+  background-position: center top;
+  z-index: 0;
+  transform: scale(1.05);
+  transition: transform 0.6s ease;
+}
+.hbs-section:hover .hbs-banner-img { transform: scale(1.1); }
+.hbs-banner-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(160deg, rgba(5,1,10,0.38) 0%, rgba(5,1,10,0.88) 100%);
+  z-index: 1;
+}
+.hbs-banner-content {
+  position: relative;
+  z-index: 3;
+  padding: 22px 28px 20px;
+  width: 100%;
+}
+.hbs-section-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.62em;
+  letter-spacing: 0.18em;
+  color: var(--hbs-accent, var(--pink));
+  opacity: 0.8;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+}
+.hbs-section-title {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: clamp(1.1em, 4vw, 1.9em);
+  font-weight: 900;
+  color: #fff;
+  text-shadow: 0 2px 20px rgba(0,0,0,0.9), 0 0 30px rgba(0,0,0,0.7);
+  margin-bottom: 5px;
+  line-height: 1.2;
+}
+.hbs-section-sub {
+  font-size: 0.82em;
+  color: rgba(255,255,255,0.65);
+  font-style: italic;
+}
+
+/* Pennants row on banner */
+.hbs-pennants {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 2;
+  display: flex;
+  justify-content: space-evenly;
+  padding: 0 5%;
+  pointer-events: none;
+}
+.hbs-pennant {
+  font-size: 1.3em;
+  filter: drop-shadow(0 0 6px rgba(0,0,0,0.7));
+  animation: hbsPennantSway 2.2s ease-in-out infinite;
+  transform-origin: top center;
+}
+.hbs-pennant.delay1 { animation-delay: 0.44s; }
+.hbs-pennant.delay2 { animation-delay: 0.88s; }
+.hbs-pennant.delay3 { animation-delay: 1.32s; }
+.hbs-pennant.delay4 { animation-delay: 1.76s; }
+@keyframes hbsPennantSway {
+  0%,100% { transform: rotate(-10deg) translateY(-2px); }
+  50%      { transform: rotate(10deg) translateY(4px); }
+}
+
+/* Cinema marquee on banner */
+.hbs-marquee-lights {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  z-index: 2;
+  display: flex;
+  justify-content: space-evenly;
+  padding: 6px 2%;
+  pointer-events: none;
+}
+.hbs-marquee-lights span {
+  width: 9px; height: 9px;
+  border-radius: 50%;
+  background: #f1c40f;
+  box-shadow: 0 0 10px rgba(241,196,15,1);
+  animation: hbsMarquee 0.9s ease-in-out infinite;
+}
+.hbs-marquee-lights span:nth-child(2) { animation-delay:0.11s; }
+.hbs-marquee-lights span:nth-child(3) { animation-delay:0.22s; }
+.hbs-marquee-lights span:nth-child(4) { animation-delay:0.33s; }
+.hbs-marquee-lights span:nth-child(5) { animation-delay:0.44s; }
+.hbs-marquee-lights span:nth-child(6) { animation-delay:0.55s; }
+.hbs-marquee-lights span:nth-child(7) { animation-delay:0.66s; }
+.hbs-marquee-lights span:nth-child(8) { animation-delay:0.77s; }
+@keyframes hbsMarquee { 0%,100%{opacity:1;transform:scale(1);} 50%{opacity:0.1;transform:scale(0.7);} }
+
+/* Arcade neon signs on banner */
+.hbs-neon-signs {
+  position: absolute;
+  top: 16px; right: 20px;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: flex-end;
+  pointer-events: none;
+}
+.hbs-neon {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75em;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-shadow: 0 0 10px currentColor, 0 0 20px currentColor;
+  animation: hbsNeonFlicker 3s ease-in-out infinite;
+}
+.hbs-neon:nth-child(2) { animation-delay: 1s; }
+.hbs-neon:nth-child(3) { animation-delay: 2s; }
+@keyframes hbsNeonFlicker { 0%,90%,100%{opacity:1;} 92%{opacity:0.3;} 95%{opacity:1;} 97%{opacity:0.2;} }
+
+/* ── Booth Wrap (below banner) ── */
+.hbs-booth-wrap {
+  display: flex;
+  flex-direction: column;
+  background: #06020c;
+  border-left: 1px solid rgba(255,255,255,0.05);
+  border-right: 1px solid rgba(255,255,255,0.05);
+}
+
+/* ── Booth (the actual stand) ── */
+.hbs-booth {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Roof */
+.hbs-roof {
+  position: relative;
+  overflow: hidden;
+}
+.hbs-roof-marquee {
+  display: flex;
+  justify-content: space-evenly;
+  padding: 5px 3% 3px;
+  background: rgba(0,0,0,0.3);
+}
+.hbs-roof-marquee span {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: #f1c40f;
+  box-shadow: 0 0 8px rgba(241,196,15,0.9);
+  animation: hbsMarquee 0.9s ease-in-out infinite;
+}
+.hbs-roof-marquee span:nth-child(2){animation-delay:0.11s}
+.hbs-roof-marquee span:nth-child(3){animation-delay:0.22s}
+.hbs-roof-marquee span:nth-child(4){animation-delay:0.33s}
+.hbs-roof-marquee span:nth-child(5){animation-delay:0.44s}
+.hbs-roof-marquee span:nth-child(6){animation-delay:0.55s}
+.hbs-roof-marquee span:nth-child(7){animation-delay:0.66s}
+.hbs-roof-marquee span:nth-child(8){animation-delay:0.77s}
+.hbs-roof-bar {
+  height: 28px;
+  background: linear-gradient(90deg, var(--hbs-roof,#4a1060), color-mix(in srgb, var(--hbs-roof,#4a1060) 70%, white 30%), var(--hbs-roof,#4a1060));
+  position: relative;
+}
+.hbs-roof-bar::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(255,255,255,0.08) 0%, transparent 100%);
+}
+.hbs-roof-valance {
+  height: 16px;
+  background: linear-gradient(90deg, var(--hbs-valance,#7d3c98), color-mix(in srgb, var(--hbs-valance,#7d3c98) 70%, white 30%), var(--hbs-valance,#7d3c98));
+  clip-path: polygon(0% 0%, 3.3% 100%, 6.6% 0%, 9.9% 100%, 13.2% 0%, 16.5% 100%, 19.8% 0%, 23.1% 100%, 26.4% 0%, 29.7% 100%, 33% 0%, 36.3% 100%, 39.6% 0%, 42.9% 100%, 46.2% 0%, 49.5% 100%, 52.8% 0%, 56.1% 100%, 59.4% 0%, 62.7% 100%, 66% 0%, 69.3% 100%, 72.6% 0%, 75.9% 100%, 79.2% 0%, 82.5% 100%, 85.8% 0%, 89.1% 100%, 92.4% 0%, 95.7% 100%, 100% 0%);
+}
+
+/* Booth body */
+.hbs-booth-body {
+  background: rgba(0,0,0,0.25);
+  border-top: 1px solid rgba(255,255,255,0.04);
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  min-height: 0;
+}
+.hbs-booth-preview {
+  padding: 18px 24px;
+  max-width: 900px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* ── LOBBY PREVIEW ── */
+.hbs-chat-bubbles {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 560px;
+  margin: 0 auto;
+}
+.hbs-bcb {
+  background: rgba(155,89,182,0.12);
+  border: 1px solid rgba(155,89,182,0.2);
+  border-radius: 16px 16px 16px 3px;
+  padding: 7px 14px;
+  font-size: 0.82em;
+  color: rgba(255,255,255,0.75);
+  max-width: 70%;
+  align-self: flex-start;
+  animation: hbsBubbleFloat 3s ease-in-out infinite;
+}
+.hbs-bcb.right {
+  align-self: flex-end;
+  border-radius: 16px 16px 3px 16px;
+  background: rgba(255,157,199,0.1);
+  border-color: rgba(255,157,199,0.2);
+  animation-delay: 1.5s;
+}
+.hbs-bcb:nth-child(3) { animation-delay: 0.75s; }
+.hbs-bcb:nth-child(4) { animation-delay: 2.25s; }
+@keyframes hbsBubbleFloat { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-3px);} }
+
+/* ── GACHA PREVIEW ── */
+.hbs-booth-preview.hbs-preview-gacha {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+}
+.hbs-gacha-left {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+.hbs-gacha-machine {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+.hbs-gm-globe {
+  width: 88px; height: 88px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, rgba(220,160,255,0.4), rgba(80,0,150,0.85));
+  border: 2px solid rgba(155,89,182,0.6);
+  box-shadow: 0 0 28px rgba(155,89,182,0.4), inset 0 0 20px rgba(155,89,182,0.15);
+  position: relative;
+  overflow: hidden;
+  animation: hbsGlobeGlow 3s ease-in-out infinite;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+@keyframes hbsGlobeGlow {
+  0%,100% { box-shadow: 0 0 28px rgba(155,89,182,0.4); }
+  50%      { box-shadow: 0 0 50px rgba(155,89,182,0.8), 0 0 80px rgba(155,89,182,0.3); }
+}
+.hbs-gm-shine {
+  position: absolute; top:10%; left:18%;
+  width: 28%; height: 24%;
+  background: rgba(255,255,255,0.2);
+  border-radius: 50%; transform: rotate(-30deg);
+}
+.hbs-gm-inner {
+  font-size: 2em;
+  animation: hbsGlobeFloat 3s ease-in-out infinite;
+  position: relative; z-index: 1;
+}
+@keyframes hbsGlobeFloat { 0%,100%{transform:scale(1) rotate(0deg);} 50%{transform:scale(1.15) rotate(12deg);} }
+.hbs-gm-base { width:64px; height:14px; background:linear-gradient(180deg,#7d3c98,#5b2c6f); border-radius:5px; }
+.hbs-gm-slot { width:28px; height:6px; background:#1a0024; border-radius:3px; border:1px solid #5b2c6f; }
+.hbs-gacha-banner-name { text-align:center; }
+.hbs-gbn-label {
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.58em; letter-spacing:0.15em;
+  color:rgba(200,150,255,0.7); margin-bottom:3px;
+}
+.hbs-gbn-name {
+  font-size:0.8em; color:rgba(255,255,255,0.7);
+  font-style:italic; max-width:120px; text-align:center;
+}
+
+/* Featured cards column */
+.hbs-gacha-right { flex: 1; min-width: 0; }
+.hbs-featured-label {
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.6em; letter-spacing:0.15em;
+  color:rgba(200,150,255,0.8);
+  margin-bottom:8px;
+  text-align:center;
+}
+.hbs-featured-cards-row {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.hbs-fc-card {
+  width: clamp(64px, 12vw, 90px);
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(155,89,182,0.3);
+  box-shadow: 0 0 14px rgba(155,89,182,0.2);
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s;
+  background: #1a0030;
+  cursor: pointer;
+}
+.hbs-fc-card:hover { transform: translateY(-4px) scale(1.04); border-color: var(--pink); }
+.hbs-fc-card img { width:100%; aspect-ratio:2/3; object-fit:cover; display:block; }
+.hbs-fc-info { padding: 3px 4px 4px; text-align:center; }
+.hbs-fc-name { font-size:0.55em; color:rgba(255,255,255,0.8); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.hbs-fc-rarity { font-size:0.5em; margin-top:1px; }
+.hbs-fc-rateup {
+  position:absolute; top:4px; right:3px;
+  font-size:0.45em; background:rgba(255,157,199,0.9);
+  color:#000; font-weight:700; border-radius:3px; padding:1px 4px;
+  font-family:'JetBrains Mono',monospace; letter-spacing:0.05em;
+}
+.hbs-fc-card { position:relative; }
+.hbs-fc-placeholder { color:var(--text-dim); font-size:0.8em; font-style:italic; }
+
+/* ── FOOD PREVIEW ── */
+.hbs-menu-board {
+  background: rgba(0,0,0,0.5);
+  border: 1px solid rgba(231,76,60,0.2);
+  border-radius: 12px;
+  padding: 14px 18px;
+  max-width: 560px;
+  margin: 0 auto;
+  width: 100%;
+}
+.hbs-menu-title {
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.68em; letter-spacing:0.14em;
+  color:#f1948a; text-align:center; margin-bottom:6px;
+}
+.hbs-menu-divider { height:1px; background:rgba(231,76,60,0.2); margin:7px 0; }
+.hbs-menu-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 3px 0;
+  font-size: 0.77em;
+  gap: 10px;
+}
+.hbs-menu-shop { color:rgba(231,76,60,0.8); font-family:'JetBrains Mono',monospace; font-size:0.85em; letter-spacing:0.05em; white-space:nowrap; }
+.hbs-menu-item { color:rgba(255,255,255,0.65); text-align:right; }
+.hbs-menu-footer { text-align:center; font-size:0.68em; color:rgba(231,76,60,0.5); margin-top:2px; letter-spacing:0.1em; }
+
+/* ── CINEMA PREVIEW ── */
+.hbs-cinema-screen {
+  background: #000;
+  border: 2px solid rgba(241,196,15,0.25);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 0 20px rgba(241,196,15,0.15), inset 0 0 30px rgba(0,0,0,0.9);
+  position: relative;
+  max-width: 460px;
+  margin: 0 auto;
+  width: 100%;
+}
+.hbs-cs-scanlines {
+  position:absolute; inset:0; z-index:2; pointer-events:none;
+  background: repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.25) 2px,rgba(0,0,0,0.25) 4px);
+}
+.hbs-cs-content {
+  position:relative; z-index:1;
+  padding: 14px 20px;
+  text-align: center;
+}
+.hbs-cs-now {
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.65em; letter-spacing:0.18em;
+  color:#f1c40f; margin-bottom:5px;
+}
+.hbs-cs-divider { height:1px; background:rgba(241,196,15,0.25); margin:6px 0; }
+.hbs-cs-entry {
+  font-size:0.9em; color:rgba(255,255,255,0.85);
+  padding: 3px 0;
+  animation: hbsEntryPulse 4s ease-in-out infinite;
+}
+.hbs-cs-entry:nth-child(3){ animation-delay:0.5s; }
+.hbs-cs-entry:nth-child(4){ animation-delay:1s; }
+@keyframes hbsEntryPulse { 0%,100%{opacity:0.7;} 50%{opacity:1;} }
+.hbs-cs-footer { font-size:0.75em; color:rgba(241,196,15,0.4); margin-top:3px; letter-spacing:0.2em; }
+
+/* ── ARCADE PREVIEW ── */
+.hbs-arcade-crt {
+  background: #000;
+  border: 2px solid rgba(41,128,185,0.4);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 0 24px rgba(41,128,185,0.25), inset 0 0 30px rgba(0,0,50,0.6);
+  position: relative;
+  max-width: 500px;
+  margin: 0 auto;
+  width: 100%;
+}
+.hbs-crt-scanlines {
+  position:absolute; inset:0; z-index:2; pointer-events:none;
+  background: repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.2) 2px,rgba(0,0,0,0.2) 4px);
+}
+.hbs-crt-body { position:relative; z-index:1; padding: 14px 18px; }
+.hbs-crt-title {
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.68em; letter-spacing:0.2em; color:#5dade2;
+  text-align:center; margin-bottom:10px;
+  animation: hbsCrtBlink 1.8s ease-in-out infinite;
+}
+@keyframes hbsCrtBlink { 0%,100%{opacity:1;} 50%{opacity:0.55;} }
+.hbs-crt-games {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 5px;
+  margin-bottom: 10px;
+}
+.hbs-crt-games span {
+  background: rgba(41,128,185,0.1);
+  border: 1px solid rgba(41,128,185,0.25);
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.62em; color:#85c1e9;
+  text-align:center;
+}
+.hbs-crt-blink {
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.6em; color:#f1c40f;
+  text-align:center;
+  animation: hbsBlinkTxt 1s step-end infinite;
+}
+@keyframes hbsBlinkTxt { 0%,100%{opacity:1;} 50%{opacity:0;} }
+
+/* ── ROOMS PREVIEW ── */
+.hbs-rooms-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  max-width: 480px; margin: 0 auto 10px; width: 100%;
+}
+.hbs-room-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(39,174,96,0.2);
+  border-radius: 10px;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.hbs-room-card.featured { border-color:rgba(255,157,199,0.35); background:rgba(255,157,199,0.04); }
+.hbs-rc-win {
+  width:22px; height:14px; border-radius:3px; flex-shrink:0;
+  animation: hbsWinGlow 2s ease-in-out infinite;
+}
+.hbs-rc-win.green { background:rgba(100,220,100,0.55); box-shadow:0 0 8px rgba(50,200,50,0.6); }
+.hbs-rc-win.green.delay1 { animation-delay:0.7s; }
+.hbs-rc-win.green.delay2 { animation-delay:1.4s; }
+.hbs-rc-win.pink { background:rgba(255,157,199,0.65); box-shadow:0 0 8px rgba(255,100,180,0.7); }
+@keyframes hbsWinGlow { 0%,100%{opacity:0.75;} 50%{opacity:1;} }
+.hbs-rc-name { font-size:0.72em; color:rgba(255,255,255,0.7); flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.hbs-rc-tag { font-size:0.6em; color:rgba(39,174,96,0.7); flex-shrink:0; font-family:'JetBrains Mono',monospace; }
+.hbs-room-card.featured .hbs-rc-tag { color:rgba(255,157,199,0.8); }
+.hbs-rooms-live {
+  text-align:center; font-size:0.75em;
+  color:rgba(39,174,96,0.7);
+  font-family:'JetBrains Mono',monospace;
+  display:flex; align-items:center; justify-content:center; gap:5px;
+  max-width:480px; margin:0 auto;
+}
+
+/* ── ARENA PREVIEW ── */
+.hbs-arena-split {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: 500px;
+  margin: 0 auto;
+  width: 100%;
+}
+.hbs-arena-half {
+  flex: 1;
+  text-align: center;
+  padding: 14px 10px;
+  border-radius: 12px;
+  background: rgba(0,0,0,0.3);
+}
+.hbs-arena-half.trade { border: 1px solid rgba(212,100,26,0.3); }
+.hbs-arena-half.battle { border: 1px solid rgba(231,76,60,0.3); }
+.hbs-ah-icon { font-size:2.2em; margin-bottom:4px; }
+.hbs-ah-title {
+  font-family:'Cinzel Decorative',serif;
+  font-size:0.78em; color:rgba(255,255,255,0.85);
+  margin-bottom:4px;
+}
+.hbs-ah-sub { font-size:0.65em; color:var(--text-dim); line-height:1.4; }
+.hbs-arena-vs {
+  font-family:'Cinzel Decorative',serif;
+  font-size:1.1em; color:rgba(230,126,34,0.7);
+  flex-shrink:0;
+}
+
+/* ── Booth Counter ── */
+.hbs-booth-counter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 5px;
+  padding: 8px 20px;
+  background: rgba(0,0,0,0.3);
+  border-top: 1px solid var(--hbs-counter-border, rgba(255,157,199,0.15));
+  font-size: 0.72em;
+  color: var(--text-dim);
+}
+.hbs-counter-tag { font-size:1.1em; }
+.hbs-dot { opacity:0.4; }
+
+/* ── Enter Button ── */
+.hbs-enter-btn {
+  padding: 12px 24px;
+  background: rgba(0,0,0,0.45);
+  border-top: 1px solid rgba(255,255,255,0.06);
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 0.7em;
+  letter-spacing: 0.1em;
+  color: var(--hbs-btn-color, var(--pink));
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  transition: background 0.2s, color 0.2s;
+}
+.hbs-enter-btn::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.04), transparent);
+  animation: hbsEnterSheen 2.8s linear infinite;
+}
+@keyframes hbsEnterSheen { 0%{transform:translateX(-100%);} 100%{transform:translateX(200%);} }
+.hbs-section:hover .hbs-enter-btn {
+  background: rgba(255,255,255,0.04);
+}
+
+/* ── DIVIDER ── */
+.hbs-divider {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 28px;
+  background: #06020c;
+  border-left: 1px solid rgba(255,255,255,0.04);
+  border-right: 1px solid rgba(255,255,255,0.04);
+  height: 36px;
+  cursor: default;
+  pointer-events: none;
+}
+.hbs-div-line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,157,199,0.15), rgba(255,157,199,0.25), rgba(255,157,199,0.15), transparent);
+}
+.hbs-div-icon {
+  font-size: 0.9em;
+  opacity: 0.5;
+  flex-shrink: 0;
+}
+
+/* ── MOBILE TWEAKS ── */
+@media(max-width:600px){
+  .hbs-banner { height: clamp(140px, 45vw, 200px); }
+  .hbs-banner-content { padding: 14px 16px 12px; }
+  .hbs-section-title { font-size: 1em; }
+  .hbs-booth-preview { padding: 12px 14px; }
+  .hbs-booth-preview.hbs-preview-gacha { flex-direction: column; gap: 12px; }
+  .hbs-gacha-left { flex-direction: row; gap: 16px; }
+  .hbs-gm-globe { width: 64px; height: 64px; }
+  .hbs-featured-cards-row { gap: 7px; }
+  .hbs-fc-card { width: clamp(56px, 20vw, 74px); }
+  .hbs-crt-games { grid-template-columns: repeat(2, 1fr); }
+  .hbs-rooms-grid { grid-template-columns: 1fr 1fr; }
+  .hbs-arena-split { gap: 8px; }
+  .hbs-divider { padding: 0 14px; height: 28px; }
+}
+
+/* ══════════════════════════════════════════════════
+   HUB BOOTHS GRID (legacy — kept for safety, unused)
 ══════════════════════════════════════════════════ */
 .hub-booths-grid {
   display: grid;
@@ -8537,261 +9151,466 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
         </div>
       </div>
 
-      <!-- ── BOOTH / STAND GRID ── -->
-      <div class="hub-booths-grid">
+      <!-- ── BOOTH SECTIONS ── -->
+      <div class="hub-booth-sections">
 
-        <!-- ══ GLOBAL LOBBY ══ -->
-        <div class="hub-booth hub-booth-lobby" onclick="enterHubZone('lobby')">
-          <div class="booth-roof">
-            <div class="booth-roof-pennant booth-pennant-1">💬</div>
-            <div class="booth-roof-pennant booth-pennant-2">🌸</div>
-            <div class="booth-roof-pennant booth-pennant-3">💬</div>
-            <div class="booth-roof-body"></div>
-            <div class="booth-roof-valance"></div>
-          </div>
-          <div class="booth-sign-top">💬 GLOBAL LOBBY</div>
-          <div class="booth-body">
-            <div class="booth-preview booth-preview-lobby">
-              <div class="booth-chat-bubbles">
-                <div class="bcb bcb-1">hello~</div>
-                <div class="bcb bcb-2">gg pull!</div>
-                <div class="bcb bcb-3">✦ flex ✦</div>
-              </div>
-              <div class="booth-npcs">
-                <div class="booth-npc">🧍</div>
-                <div class="booth-npc delay1">🧍‍♀️</div>
-                <div class="booth-npc">🧍</div>
-              </div>
+        <!-- ═══════════════════════════════════════════════
+             SECTION: MEO PLAZA (Lobby)
+        ═══════════════════════════════════════════════ -->
+        <div class="hbs-section" onclick="enterHubZone('lobby')">
+          <div class="hbs-banner" style="--hbs-bg:url('https://media1.tenor.com/m/vw9hHcFt0gIAAAAC/bbn2007.gif');--hbs-accent:#9b59b6;--hbs-accent2:#6c3483;">
+            <div class="hbs-banner-img"></div>
+            <div class="hbs-banner-overlay"></div>
+            <div class="hbs-banner-content">
+              <div class="hbs-section-label">LOCATION 01</div>
+              <div class="hbs-section-title">💬 Meo Plaza</div>
+              <div class="hbs-section-sub">Chat · Flex your cards · Meet players</div>
+            </div>
+            <div class="hbs-pennants">
+              <span class="hbs-pennant">💬</span>
+              <span class="hbs-pennant delay1">🌸</span>
+              <span class="hbs-pennant delay2">✦</span>
+              <span class="hbs-pennant delay3">🌸</span>
+              <span class="hbs-pennant delay4">💬</span>
             </div>
           </div>
-          <div class="booth-counter">
-            <div class="booth-counter-items">
-              <span>🌸</span><span>Chat</span><span>·</span><span>Flex</span><span>·</span><span>Meet</span>
-            </div>
-          </div>
-          <div class="booth-enter-strip">
-            <span class="booth-enter-label">Enter Plaza →</span>
-            <div class="booth-enter-glow"></div>
-          </div>
-        </div>
-
-        <!-- ══ GACHA BOOTH ══ -->
-        <div class="hub-booth hub-booth-gacha" onclick="enterHubZone('gacha')">
-          <div class="booth-roof" style="--booth-roof:#7c3dad;--booth-valance:#9b59b6;">
-            <div class="booth-roof-pennant booth-pennant-1">🎴</div>
-            <div class="booth-roof-pennant booth-pennant-2">✨</div>
-            <div class="booth-roof-pennant booth-pennant-3">🎴</div>
-            <div class="booth-roof-body"></div>
-            <div class="booth-roof-valance"></div>
-          </div>
-          <div class="booth-sign-top" style="--booth-sign-color:#c39bd3;">🎴 GACHA BOOTH</div>
-          <div class="booth-body">
-            <div class="booth-preview booth-preview-gacha">
-              <div class="booth-gacha-machine">
-                <div class="bgm-globe">
-                  <div class="bgm-shine"></div>
-                  <div class="bgm-cards-inside">
-                    <span>🌸</span><span>⚔️</span><span>🔥</span>
+          <div class="hbs-booth-wrap">
+            <div class="hbs-booth" style="--hbs-roof:#6c1a8a;--hbs-valance:#9b59b6;">
+              <div class="hbs-roof">
+                <div class="hbs-roof-bar"></div>
+                <div class="hbs-roof-valance"></div>
+              </div>
+              <div class="hbs-booth-body">
+                <div class="hbs-booth-preview hbs-preview-lobby">
+                  <div class="hbs-chat-bubbles">
+                    <div class="hbs-bcb">おはよう! 🌸</div>
+                    <div class="hbs-bcb right">just pulled a UR!!</div>
+                    <div class="hbs-bcb">gg!! flex it 👀</div>
+                    <div class="hbs-bcb right">✦ welcome to the hub ✦</div>
                   </div>
                 </div>
-                <div class="bgm-base"></div>
-                <div class="bgm-slot"></div>
               </div>
-              <div class="booth-banner-preview" id="boothGachaBanner">
-                <span class="bgp-rarity">✦ NOW ROLLING ✦</span>
-                <span class="bgp-name" id="boothBannerName">Loading...</span>
+              <div class="hbs-booth-counter" style="--hbs-counter-border:#9b59b6;">
+                <span class="hbs-counter-tag">💬</span>
+                <span>Global chat</span>
+                <span class="hbs-dot">·</span>
+                <span>🌸 Card flexing</span>
+                <span class="hbs-dot">·</span>
+                <span>🧍 Social</span>
               </div>
             </div>
-          </div>
-          <div class="booth-counter" style="--booth-counter-bg:rgba(155,89,182,0.12);--booth-counter-border:rgba(155,89,182,0.3);">
-            <div class="booth-counter-items">
-              <span>✨</span><span>50 coins × 1</span><span>·</span><span>200 × 5</span>
+            <div class="hbs-enter-btn" style="--hbs-btn-color:#9b59b6;">
+              Enter Plaza →
             </div>
-          </div>
-          <div class="booth-enter-strip" style="--booth-enter-glow:#9b59b6;">
-            <span class="booth-enter-label">Pull Cards →</span>
-            <div class="booth-enter-glow"></div>
           </div>
         </div>
 
-        <!-- ══ FOOD CORNER ══ -->
-        <div class="hub-booth hub-booth-food" onclick="enterHubZone('food')">
-          <div class="booth-roof" style="--booth-roof:#922b21;--booth-valance:#c0392b;">
-            <div class="booth-roof-pennant booth-pennant-1">🍜</div>
-            <div class="booth-roof-pennant booth-pennant-2">🍳</div>
-            <div class="booth-roof-pennant booth-pennant-3">🍜</div>
-            <div class="booth-roof-body"></div>
-            <div class="booth-roof-valance"></div>
-          </div>
-          <div class="booth-sign-top" style="--booth-sign-color:#f1948a;">🍜 FOOD CORNER</div>
-          <div class="booth-body">
-            <div class="booth-preview booth-preview-food">
-              <div class="booth-food-menu">
-                <div class="bfm-header">✦ TODAY'S MENU ✦</div>
-                <div class="bfm-divider"></div>
-                <div class="bfm-item">🍳 Heart Omurice</div>
-                <div class="bfm-item">🍜 Naruto Ramen</div>
-                <div class="bfm-item">☕ Anteiku Brew</div>
-                <div class="bfm-item">🦞 Baratie Feast</div>
-                <div class="bfm-divider"></div>
-                <div class="bfm-footer">🍿 Feeds your cards XP! 🍿</div>
-              </div>
-            </div>
-          </div>
-          <div class="booth-counter" style="--booth-counter-bg:rgba(192,57,43,0.12);--booth-counter-border:rgba(231,76,60,0.3);">
-            <div class="booth-counter-items">
-              <span>🧑‍🍳</span><span>Maid Café</span><span>·</span><span>Ichiraku</span><span>·</span><span>Baratie</span>
-            </div>
-          </div>
-          <div class="booth-enter-strip" style="--booth-enter-glow:#e74c3c;">
-            <span class="booth-enter-label">Order Food →</span>
-            <div class="booth-enter-glow"></div>
-          </div>
+        <!-- DIVIDER -->
+        <div class="hbs-divider">
+          <div class="hbs-div-line"></div>
+          <div class="hbs-div-icon">🗺️</div>
+          <div class="hbs-div-line"></div>
         </div>
 
-        <!-- ══ MEO CINEMA ══ -->
-        <div class="hub-booth hub-booth-cinema" onclick="enterHubZone('cinema')">
-          <div class="booth-roof" style="--booth-roof:#7d5700;--booth-valance:#a04000;">
-            <div class="booth-roof-marquee">
-              <span></span><span></span><span></span><span></span><span></span><span></span>
+        <!-- ═══════════════════════════════════════════════
+             SECTION: GACHA BOOTH
+        ═══════════════════════════════════════════════ -->
+        <div class="hbs-section" onclick="enterHubZone('gacha')">
+          <div class="hbs-banner" style="--hbs-bg:url('https://media1.tenor.com/m/j9NniiARmYMAAAAC/kakegurui-playing-cards.gif');--hbs-accent:#9b59b6;--hbs-accent2:#6c3483;">
+            <div class="hbs-banner-img"></div>
+            <div class="hbs-banner-overlay" style="background:linear-gradient(135deg,rgba(50,0,100,0.55),rgba(10,2,20,0.92));"></div>
+            <div class="hbs-banner-content">
+              <div class="hbs-section-label">LOCATION 02</div>
+              <div class="hbs-section-title">🎴 Gacha Booth</div>
+              <div class="hbs-section-sub">Pull cards · Rate-ups · Pity system</div>
             </div>
-            <div class="booth-roof-pennant booth-pennant-1">🎬</div>
-            <div class="booth-roof-pennant booth-pennant-2">🎟️</div>
-            <div class="booth-roof-pennant booth-pennant-3">🎬</div>
-            <div class="booth-roof-body"></div>
-            <div class="booth-roof-valance"></div>
+            <div class="hbs-pennants">
+              <span class="hbs-pennant">🎴</span>
+              <span class="hbs-pennant delay1">✨</span>
+              <span class="hbs-pennant delay2">⭐</span>
+              <span class="hbs-pennant delay3">✨</span>
+              <span class="hbs-pennant delay4">🎴</span>
+            </div>
           </div>
-          <div class="booth-sign-top" style="--booth-sign-color:#f1c40f;">🎬 MEO CINEMA</div>
-          <div class="booth-body">
-            <div class="booth-preview booth-preview-cinema">
-              <div class="booth-cinema-board">
-                <div class="bcb-top">✦ NOW SHOWING ✦</div>
-                <div class="bcb-divider"></div>
-                <div class="bcb-entry" id="cinemaBooth1">🩸 SPECIALZ</div>
-                <div class="bcb-entry" id="cinemaBooth2">😈 Unravel</div>
-                <div class="bcb-entry" id="cinemaBooth3">🏴‍☠️ We Are</div>
-                <div class="bcb-divider"></div>
-                <div class="bcb-bottom">🍿 &nbsp;&nbsp; 🎟️ &nbsp;&nbsp; 🍿</div>
+          <div class="hbs-booth-wrap">
+            <div class="hbs-booth" style="--hbs-roof:#4a1060;--hbs-valance:#7d3c98;">
+              <div class="hbs-roof">
+                <div class="hbs-roof-bar"></div>
+                <div class="hbs-roof-valance"></div>
               </div>
-            </div>
-          </div>
-          <div class="booth-counter" style="--booth-counter-bg:rgba(161,122,0,0.12);--booth-counter-border:rgba(241,196,15,0.3);">
-            <div class="booth-counter-items">
-              <span>🎬</span><span>Watch</span><span>·</span><span>React</span><span>·</span><span>Live Chat</span>
-            </div>
-          </div>
-          <div class="booth-enter-strip" style="--booth-enter-glow:#f1c40f;">
-            <span class="booth-enter-label">Buy Ticket →</span>
-            <div class="booth-enter-glow"></div>
-          </div>
-        </div>
-
-        <!-- ══ MEO ARCADE ══ -->
-        <div class="hub-booth hub-booth-arcade" onclick="enterHubZone('arcade')">
-          <div class="booth-roof" style="--booth-roof:#0a3d62;--booth-valance:#1a5276;">
-            <div class="booth-roof-body"></div>
-            <div class="booth-roof-valance"></div>
-          </div>
-          <div class="booth-sign-top booth-sign-neon" style="--booth-sign-color:#5dade2;">🕹️ MEO ARCADE</div>
-          <div class="booth-body">
-            <div class="booth-preview booth-preview-arcade">
-              <div class="booth-arcade-screen">
-                <div class="bas-scanlines"></div>
-                <div class="bas-content">
-                  <div class="bas-title">INSERT COIN</div>
-                  <div class="bas-games">
-                    <span class="bas-game">⚡Rush</span>
-                    <span class="bas-game">🧠Match</span>
-                    <span class="bas-game">❓Quiz</span>
-                    <span class="bas-game">🔨Bonk</span>
+              <div class="hbs-booth-body">
+                <div class="hbs-booth-preview hbs-preview-gacha">
+                  <!-- Left: gumball machine -->
+                  <div class="hbs-gacha-left">
+                    <div class="hbs-gacha-machine">
+                      <div class="hbs-gm-globe">
+                        <div class="hbs-gm-shine"></div>
+                        <div class="hbs-gm-inner" id="boothGachaGlobe">✨</div>
+                      </div>
+                      <div class="hbs-gm-base"></div>
+                      <div class="hbs-gm-slot"></div>
+                    </div>
+                    <div class="hbs-gacha-banner-name">
+                      <div class="hbs-gbn-label">✦ NOW ROLLING ✦</div>
+                      <div class="hbs-gbn-name" id="boothGachaBannerName2">Loading...</div>
+                    </div>
                   </div>
-                  <div class="bas-blink">▶ PLAY NOW ◀</div>
+                  <!-- Right: featured cards -->
+                  <div class="hbs-gacha-right" id="boothFeaturedCards">
+                    <div class="hbs-featured-label">RATE UP ▲</div>
+                    <div class="hbs-featured-cards-row" id="boothFeaturedRow">
+                      <div class="hbs-fc-placeholder">Loading cards...</div>
+                    </div>
+                  </div>
                 </div>
               </div>
+              <div class="hbs-booth-counter" style="--hbs-counter-border:#9b59b6;">
+                <span class="hbs-counter-tag">💰</span>
+                <span>50 coins × 1</span>
+                <span class="hbs-dot">·</span>
+                <span>200 coins × 5</span>
+                <span class="hbs-dot">·</span>
+                <span>✨ Pity tracked</span>
+              </div>
             </div>
-          </div>
-          <div class="booth-counter" style="--booth-counter-bg:rgba(26,82,118,0.15);--booth-counter-border:rgba(41,128,185,0.35);">
-            <div class="booth-counter-items">
-              <span>🪙</span><span>Win Coins</span><span>·</span><span>7 Games</span><span>·</span><span>Daily</span>
+            <div class="hbs-enter-btn" style="--hbs-btn-color:#9b59b6;">
+              Pull Cards →
             </div>
-          </div>
-          <div class="booth-enter-strip" style="--booth-enter-glow:#2980b9;">
-            <span class="booth-enter-label">Play Games →</span>
-            <div class="booth-enter-glow"></div>
           </div>
         </div>
 
-        <!-- ══ PLAYER ROOMS ══ -->
-        <div class="hub-booth hub-booth-rooms" onclick="enterHubZone('rooms')">
-          <div class="booth-roof" style="--booth-roof:#145a32;--booth-valance:#1d6e41;">
-            <div class="booth-roof-pennant booth-pennant-1">🏠</div>
-            <div class="booth-roof-pennant booth-pennant-2">🪴</div>
-            <div class="booth-roof-pennant booth-pennant-3">🏠</div>
-            <div class="booth-roof-body"></div>
-            <div class="booth-roof-valance"></div>
+        <!-- DIVIDER -->
+        <div class="hbs-divider">
+          <div class="hbs-div-line"></div>
+          <div class="hbs-div-icon">🗺️</div>
+          <div class="hbs-div-line"></div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════
+             SECTION: FOOD CORNER
+        ═══════════════════════════════════════════════ -->
+        <div class="hbs-section" onclick="enterHubZone('food')">
+          <div class="hbs-banner" style="--hbs-bg:url('https://media1.tenor.com/m/PKQz3kmo2akAAAAC/welcome.gif');--hbs-accent:#e74c3c;--hbs-accent2:#922b21;">
+            <div class="hbs-banner-img"></div>
+            <div class="hbs-banner-overlay" style="background:linear-gradient(135deg,rgba(80,10,5,0.5),rgba(20,3,1,0.9));"></div>
+            <div class="hbs-banner-content">
+              <div class="hbs-section-label">LOCATION 03</div>
+              <div class="hbs-section-title">🍜 Food Corner</div>
+              <div class="hbs-section-sub">Feed your cards XP · 4 restaurants · Daily specials</div>
+            </div>
+            <div class="hbs-pennants">
+              <span class="hbs-pennant">🍜</span>
+              <span class="hbs-pennant delay1">🍳</span>
+              <span class="hbs-pennant delay2">☕</span>
+              <span class="hbs-pennant delay3">🍱</span>
+              <span class="hbs-pennant delay4">🍜</span>
+            </div>
           </div>
-          <div class="booth-sign-top" style="--booth-sign-color:#58d68d;">🏠 PLAYER ROOMS</div>
-          <div class="booth-body">
-            <div class="booth-preview booth-preview-rooms">
-              <div class="booth-rooms-grid">
-                <div class="brg-room"><div class="brg-win lit-green"></div><div class="brg-tag">🧑‍💻 Player</div></div>
-                <div class="brg-room"><div class="brg-win lit-green delay1"></div><div class="brg-tag">🎮 Gamer</div></div>
-                <div class="brg-room featured"><div class="brg-win lit-pink"></div><div class="brg-tag">✦ Open</div></div>
-                <div class="brg-room"><div class="brg-win lit-green delay2"></div><div class="brg-tag">🌸 Player</div></div>
+          <div class="hbs-booth-wrap">
+            <div class="hbs-booth" style="--hbs-roof:#922b21;--hbs-valance:#c0392b;">
+              <div class="hbs-roof">
+                <div class="hbs-roof-bar"></div>
+                <div class="hbs-roof-valance"></div>
               </div>
-              <div class="booth-rooms-count"><span id="boothRoomCount">0</span> rooms open</div>
+              <div class="hbs-booth-body">
+                <div class="hbs-booth-preview hbs-preview-food">
+                  <div class="hbs-menu-board">
+                    <div class="hbs-menu-title">✦ TODAY'S SPECIAL ✦</div>
+                    <div class="hbs-menu-divider"></div>
+                    <div class="hbs-menu-row"><span class="hbs-menu-shop">🍶 MAID CAFÉ</span><span class="hbs-menu-item">Heart Omurice +50XP</span></div>
+                    <div class="hbs-menu-row"><span class="hbs-menu-shop">🍥 ICHIRAKU</span><span class="hbs-menu-item">Naruto Ramen +80XP</span></div>
+                    <div class="hbs-menu-row"><span class="hbs-menu-shop">☕ ANTEIKU</span><span class="hbs-menu-item">Ghoul Blend +150XP</span></div>
+                    <div class="hbs-menu-row"><span class="hbs-menu-shop">🦞 BARATIE</span><span class="hbs-menu-item">Feast +300XP</span></div>
+                    <div class="hbs-menu-divider"></div>
+                    <div class="hbs-menu-footer">🍿 &nbsp; All food feeds card XP &nbsp; 🍿</div>
+                  </div>
+                </div>
+              </div>
+              <div class="hbs-booth-counter" style="--hbs-counter-border:#e74c3c;">
+                <span class="hbs-counter-tag">🧑‍🍳</span>
+                <span>Maid Café</span>
+                <span class="hbs-dot">·</span>
+                <span>Ichiraku</span>
+                <span class="hbs-dot">·</span>
+                <span>Anteiku</span>
+                <span class="hbs-dot">·</span>
+                <span>Baratie</span>
+              </div>
             </div>
-          </div>
-          <div class="booth-counter" style="--booth-counter-bg:rgba(20,90,50,0.12);--booth-counter-border:rgba(39,174,96,0.3);">
-            <div class="booth-counter-items">
-              <span>🏠</span><span>Create</span><span>·</span><span>Decorate</span><span>·</span><span>Hang out</span>
+            <div class="hbs-enter-btn" style="--hbs-btn-color:#e74c3c;">
+              Order Food →
             </div>
-          </div>
-          <div class="booth-enter-strip" style="--booth-enter-glow:#27ae60;">
-            <span class="booth-enter-label">Visit Rooms →</span>
-            <div class="booth-enter-glow"></div>
           </div>
         </div>
 
-        <!-- ══ TRADING & ARENA HUB ══ -->
-        <div class="hub-booth hub-booth-arena" onclick="enterHubZone('arena')">
-          <div class="booth-roof" style="--booth-roof:#6e2c00;--booth-valance:#d4641a;">
-            <div class="booth-roof-pennant booth-pennant-1">⚔️</div>
-            <div class="booth-roof-pennant booth-pennant-2">🔄</div>
-            <div class="booth-roof-pennant booth-pennant-3">⚔️</div>
-            <div class="booth-roof-body"></div>
-            <div class="booth-roof-valance"></div>
+        <!-- DIVIDER -->
+        <div class="hbs-divider">
+          <div class="hbs-div-line"></div>
+          <div class="hbs-div-icon">🗺️</div>
+          <div class="hbs-div-line"></div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════
+             SECTION: MEO CINEMA
+        ═══════════════════════════════════════════════ -->
+        <div class="hbs-section" onclick="enterHubZone('cinema')">
+          <div class="hbs-banner" style="--hbs-bg:url('https://media1.tenor.com/m/4xOYt5yvVNMAAAAC/demon-slayer-upper-six-fight.gif');--hbs-accent:#f1c40f;--hbs-accent2:#b7950b;">
+            <div class="hbs-banner-img"></div>
+            <div class="hbs-banner-overlay" style="background:linear-gradient(135deg,rgba(40,25,0,0.5),rgba(8,5,0,0.92));"></div>
+            <div class="hbs-banner-content">
+              <div class="hbs-section-label">LOCATION 04</div>
+              <div class="hbs-section-title">🎬 Meo Cinema</div>
+              <div class="hbs-section-sub">Watch anime OPs · Live chat · React together</div>
+            </div>
+            <div class="hbs-marquee-lights">
+              <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+            </div>
+            <div class="hbs-pennants">
+              <span class="hbs-pennant" style="--hp-color:#f1c40f;">🎬</span>
+              <span class="hbs-pennant delay1" style="--hp-color:#f1c40f;">🎟️</span>
+              <span class="hbs-pennant delay2" style="--hp-color:#f1c40f;">🍿</span>
+              <span class="hbs-pennant delay3" style="--hp-color:#f1c40f;">🎟️</span>
+              <span class="hbs-pennant delay4" style="--hp-color:#f1c40f;">🎬</span>
+            </div>
           </div>
-          <div class="booth-sign-top" style="--booth-sign-color:#f0b27a;">⚔️ TRADING & ARENA</div>
-          <div class="booth-body">
-            <div class="booth-preview booth-preview-arena">
-              <div class="booth-arena-layout">
-                <div class="ba-half ba-trade">
-                  <div class="ba-half-icon">🔄</div>
-                  <div class="ba-half-label">Trade</div>
-                  <div class="ba-half-sub">Swap cards</div>
+          <div class="hbs-booth-wrap">
+            <div class="hbs-booth" style="--hbs-roof:#7d5700;--hbs-valance:#a04000;">
+              <div class="hbs-roof">
+                <div class="hbs-roof-marquee">
+                  <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
                 </div>
-                <div class="ba-divider">VS</div>
-                <div class="ba-half ba-battle">
-                  <div class="ba-half-icon">⚔️</div>
-                  <div class="ba-half-label">Challenge</div>
-                  <div class="ba-half-sub">PvP Battle</div>
+                <div class="hbs-roof-bar"></div>
+                <div class="hbs-roof-valance"></div>
+              </div>
+              <div class="hbs-booth-body">
+                <div class="hbs-booth-preview hbs-preview-cinema">
+                  <div class="hbs-cinema-screen">
+                    <div class="hbs-cs-scanlines"></div>
+                    <div class="hbs-cs-content">
+                      <div class="hbs-cs-now">✦ NOW SHOWING ✦</div>
+                      <div class="hbs-cs-divider"></div>
+                      <div class="hbs-cs-entry" id="cinemaBoothEntry1">🩸 SPECIALZ</div>
+                      <div class="hbs-cs-entry" id="cinemaBoothEntry2">😈 Unravel</div>
+                      <div class="hbs-cs-entry" id="cinemaBoothEntry3">🏴‍☠️ We Are</div>
+                      <div class="hbs-cs-divider"></div>
+                      <div class="hbs-cs-footer">🍿 &nbsp;&nbsp; 🎟️ &nbsp;&nbsp; 🍿</div>
+                    </div>
+                  </div>
                 </div>
               </div>
+              <div class="hbs-booth-counter" style="--hbs-counter-border:#f1c40f;">
+                <span class="hbs-counter-tag">🎬</span>
+                <span>Watch OPs</span>
+                <span class="hbs-dot">·</span>
+                <span>🔴 Live Chat</span>
+                <span class="hbs-dot">·</span>
+                <span>React together</span>
+              </div>
             </div>
-          </div>
-          <div class="booth-counter" style="--booth-counter-bg:rgba(110,44,0,0.15);--booth-counter-border:rgba(212,100,26,0.3);">
-            <div class="booth-counter-items">
-              <span>🔄</span><span>Trade Cards</span><span>·</span><span>⚔️</span><span>PvP Battle</span>
+            <div class="hbs-enter-btn" style="--hbs-btn-color:#f1c40f;">
+              Buy Ticket →
             </div>
-          </div>
-          <div class="booth-enter-strip" style="--booth-enter-glow:#e67e22;">
-            <span class="booth-enter-label">Enter Hub →</span>
-            <div class="booth-enter-glow"></div>
           </div>
         </div>
 
-      </div><!-- end hub-booths-grid -->
+        <!-- DIVIDER -->
+        <div class="hbs-divider">
+          <div class="hbs-div-line"></div>
+          <div class="hbs-div-icon">🗺️</div>
+          <div class="hbs-div-line"></div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════
+             SECTION: MEO ARCADE
+        ═══════════════════════════════════════════════ -->
+        <div class="hbs-section" onclick="enterHubZone('arcade')">
+          <div class="hbs-banner" style="--hbs-bg:url('https://media1.tenor.com/m/j9NniiARmYMAAAAC/kakegurui-playing-cards.gif');--hbs-accent:#2980b9;--hbs-accent2:#1a5276;">
+            <div class="hbs-banner-img"></div>
+            <div class="hbs-banner-overlay" style="background:linear-gradient(135deg,rgba(0,10,30,0.65),rgba(0,2,8,0.94));"></div>
+            <div class="hbs-banner-content">
+              <div class="hbs-section-label">LOCATION 05</div>
+              <div class="hbs-section-title">🕹️ Meo Arcade</div>
+              <div class="hbs-section-sub">7 games · Win coins · Daily play</div>
+            </div>
+            <div class="hbs-neon-signs">
+              <span class="hbs-neon" style="color:#5dade2;">GAME</span>
+              <span class="hbs-neon" style="color:#ff69b4;">PLAY</span>
+              <span class="hbs-neon" style="color:#2ecc71;">WIN</span>
+            </div>
+            <div class="hbs-pennants">
+              <span class="hbs-pennant" style="--hp-color:#5dade2;">🕹️</span>
+              <span class="hbs-pennant delay1" style="--hp-color:#ff69b4;">⚡</span>
+              <span class="hbs-pennant delay2" style="--hp-color:#2ecc71;">🏆</span>
+              <span class="hbs-pennant delay3" style="--hp-color:#ff69b4;">⚡</span>
+              <span class="hbs-pennant delay4" style="--hp-color:#5dade2;">🕹️</span>
+            </div>
+          </div>
+          <div class="hbs-booth-wrap">
+            <div class="hbs-booth" style="--hbs-roof:#0a3d62;--hbs-valance:#1a5276;">
+              <div class="hbs-roof">
+                <div class="hbs-roof-bar" style="background:linear-gradient(90deg,#0a3d62,#1a5276,#0a3d62);"></div>
+                <div class="hbs-roof-valance" style="background:linear-gradient(90deg,#1a5276,#2471a3,#1a5276);"></div>
+              </div>
+              <div class="hbs-booth-body" style="background:#000;">
+                <div class="hbs-booth-preview hbs-preview-arcade">
+                  <div class="hbs-arcade-crt">
+                    <div class="hbs-crt-scanlines"></div>
+                    <div class="hbs-crt-body">
+                      <div class="hbs-crt-title">INSERT COIN</div>
+                      <div class="hbs-crt-games">
+                        <span>⚡ Reaction Rush</span>
+                        <span>🧠 Memory Match</span>
+                        <span>❓ Anime Quiz</span>
+                        <span>🔨 Whack-a-Mole</span>
+                        <span>⌨️ Type Racer</span>
+                        <span>🔢 Number Duel</span>
+                        <span>✊ Janken</span>
+                      </div>
+                      <div class="hbs-crt-blink">▶ 7 GAMES AVAILABLE ◀</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="hbs-booth-counter" style="--hbs-counter-border:#2980b9;">
+                <span class="hbs-counter-tag">🪙</span>
+                <span>Win Coins</span>
+                <span class="hbs-dot">·</span>
+                <span>7 Games</span>
+                <span class="hbs-dot">·</span>
+                <span>10-min cooldown</span>
+              </div>
+            </div>
+            <div class="hbs-enter-btn" style="--hbs-btn-color:#2980b9;">
+              Play Games →
+            </div>
+          </div>
+        </div>
+
+        <!-- DIVIDER -->
+        <div class="hbs-divider">
+          <div class="hbs-div-line"></div>
+          <div class="hbs-div-icon">🗺️</div>
+          <div class="hbs-div-line"></div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════
+             SECTION: PLAYER ROOMS
+        ═══════════════════════════════════════════════ -->
+        <div class="hbs-section" onclick="enterHubZone('rooms')">
+          <div class="hbs-banner" style="--hbs-bg:url('https://media1.tenor.com/m/Bv37u6GJKkkAAAAC/bar-feelre.gif');--hbs-accent:#27ae60;--hbs-accent2:#145a32;">
+            <div class="hbs-banner-img"></div>
+            <div class="hbs-banner-overlay" style="background:linear-gradient(135deg,rgba(5,20,8,0.5),rgba(2,8,3,0.92));"></div>
+            <div class="hbs-banner-content">
+              <div class="hbs-section-label">LOCATION 06</div>
+              <div class="hbs-section-title">🏠 Player Rooms</div>
+              <div class="hbs-section-sub">Create your room · Decorate · Hang out</div>
+            </div>
+            <div class="hbs-pennants">
+              <span class="hbs-pennant" style="--hp-color:#27ae60;">🏠</span>
+              <span class="hbs-pennant delay1" style="--hp-color:#27ae60;">🪴</span>
+              <span class="hbs-pennant delay2" style="--hp-color:#27ae60;">✨</span>
+              <span class="hbs-pennant delay3" style="--hp-color:#27ae60;">🪴</span>
+              <span class="hbs-pennant delay4" style="--hp-color:#27ae60;">🏠</span>
+            </div>
+          </div>
+          <div class="hbs-booth-wrap">
+            <div class="hbs-booth" style="--hbs-roof:#145a32;--hbs-valance:#1d6e41;">
+              <div class="hbs-roof">
+                <div class="hbs-roof-bar"></div>
+                <div class="hbs-roof-valance"></div>
+              </div>
+              <div class="hbs-booth-body">
+                <div class="hbs-booth-preview hbs-preview-rooms">
+                  <div class="hbs-rooms-grid">
+                    <div class="hbs-room-card"><div class="hbs-rc-win green"></div><div class="hbs-rc-name">🧑‍💻 Player Room</div><div class="hbs-rc-tag">Open</div></div>
+                    <div class="hbs-room-card featured"><div class="hbs-rc-win pink"></div><div class="hbs-rc-name">🌸 Sakura Lounge</div><div class="hbs-rc-tag">2 inside</div></div>
+                    <div class="hbs-room-card"><div class="hbs-rc-win green delay1"></div><div class="hbs-rc-name">🎮 Game Den</div><div class="hbs-rc-tag">Open</div></div>
+                    <div class="hbs-room-card"><div class="hbs-rc-win pink delay2"></div><div class="hbs-rc-name">☕ Chill Room</div><div class="hbs-rc-tag">1 inside</div></div>
+                  </div>
+                  <div class="hbs-rooms-live"><span class="online-dot"></span><span id="boothRoomCountNew">—</span> rooms open</div>
+                </div>
+              </div>
+              <div class="hbs-booth-counter" style="--hbs-counter-border:#27ae60;">
+                <span class="hbs-counter-tag">🏠</span>
+                <span>Create</span>
+                <span class="hbs-dot">·</span>
+                <span>Decorate</span>
+                <span class="hbs-dot">·</span>
+                <span>Invite friends</span>
+              </div>
+            </div>
+            <div class="hbs-enter-btn" style="--hbs-btn-color:#27ae60;">
+              Visit Rooms →
+            </div>
+          </div>
+        </div>
+
+        <!-- DIVIDER -->
+        <div class="hbs-divider">
+          <div class="hbs-div-line"></div>
+          <div class="hbs-div-icon">🗺️</div>
+          <div class="hbs-div-line"></div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════
+             SECTION: TRADING & ARENA HUB
+        ═══════════════════════════════════════════════ -->
+        <div class="hbs-section" onclick="enterHubZone('arena')">
+          <div class="hbs-banner" style="--hbs-bg:url('https://media1.tenor.com/m/4xOYt5yvVNMAAAAC/demon-slayer-upper-six-fight.gif');--hbs-accent:#e67e22;--hbs-accent2:#6e2c00;">
+            <div class="hbs-banner-img"></div>
+            <div class="hbs-banner-overlay" style="background:linear-gradient(135deg,rgba(40,15,0,0.55),rgba(10,4,0,0.93));"></div>
+            <div class="hbs-banner-content">
+              <div class="hbs-section-label">LOCATION 07</div>
+              <div class="hbs-section-title">⚔️ Trading & Arena</div>
+              <div class="hbs-section-sub">Challenge players · Swap cards · Leaderboard</div>
+            </div>
+            <div class="hbs-pennants">
+              <span class="hbs-pennant" style="--hp-color:#e67e22;">⚔️</span>
+              <span class="hbs-pennant delay1" style="--hp-color:#e67e22;">🔄</span>
+              <span class="hbs-pennant delay2" style="--hp-color:#e67e22;">🏆</span>
+              <span class="hbs-pennant delay3" style="--hp-color:#e67e22;">🔄</span>
+              <span class="hbs-pennant delay4" style="--hp-color:#e67e22;">⚔️</span>
+            </div>
+          </div>
+          <div class="hbs-booth-wrap">
+            <div class="hbs-booth" style="--hbs-roof:#6e2c00;--hbs-valance:#a04000;">
+              <div class="hbs-roof">
+                <div class="hbs-roof-bar"></div>
+                <div class="hbs-roof-valance"></div>
+              </div>
+              <div class="hbs-booth-body">
+                <div class="hbs-booth-preview hbs-preview-arena">
+                  <div class="hbs-arena-split">
+                    <div class="hbs-arena-half trade">
+                      <div class="hbs-ah-icon">🔄</div>
+                      <div class="hbs-ah-title">Trade</div>
+                      <div class="hbs-ah-sub">Offer & swap<br>cards with players</div>
+                    </div>
+                    <div class="hbs-arena-vs">VS</div>
+                    <div class="hbs-arena-half battle">
+                      <div class="hbs-ah-icon">⚔️</div>
+                      <div class="hbs-ah-title">Challenge</div>
+                      <div class="hbs-ah-sub">PvP battles &<br>leaderboard</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="hbs-booth-counter" style="--hbs-counter-border:#e67e22;">
+                <span class="hbs-counter-tag">🔄</span>
+                <span>Trade Cards</span>
+                <span class="hbs-dot">·</span>
+                <span>⚔️ PvP</span>
+                <span class="hbs-dot">·</span>
+                <span>🏆 Rankings</span>
+              </div>
+            </div>
+            <div class="hbs-enter-btn" style="--hbs-btn-color:#e67e22;">
+              Enter Hub →
+            </div>
+          </div>
+        </div>
+
+      </div><!-- end hub-booth-sections -->
 
       <!-- Ground strip / ambience -->
       <div class="hmap-town">
@@ -14422,6 +15241,9 @@ function renderActiveBanner(){
   }
 }
 
+// Refresh booth featured cards when banner updates
+setTimeout(()=>{ if(typeof initHubBooths==='function') initHubBooths(); }, 50);
+
 // ── Update pity display (called after pulls) ──
 function updatePity(){
   const banner = getActiveBanner();
@@ -17738,7 +18560,8 @@ setTimeout(()=>{
     if(typeof renderCinemaPlaylist==='function') renderCinemaPlaylist();
   }
   returnToHubMap();
-  updateBoothBannerName();
+  // Give DEMO_CARDS a moment to be defined then render booth cards
+  setTimeout(initHubBooths, 400);
 }, 300);
 
 // ══════════════════════════════════════════════════════════════
@@ -17825,9 +18648,8 @@ function returnToHubMap(){
   });
   document.getElementById('hubMapView').style.display='';
   document.getElementById('hubBreadcrumb').style.display='none';
-  // Update room count on the booth
-  updateBoothRoomCount();
-  updateBoothBannerName();
+  // Refresh booth live data
+  initHubBooths();
 }
 
 function syncHubOnline(){
@@ -19918,6 +20740,126 @@ async function endJanken(){
   if(won||_jankenYou===_jankenAI) await giveArcadeReward(coins,xp,'Janken Royale');
 }
 
+function updateBoothRoomCount(){
+  const el = document.getElementById('boothRoomCountNew');
+  if(!el) return;
+  const rooms = document.querySelectorAll('#roomsGrid .room-card');
+  el.textContent = rooms.length || '—';
+}
+
+function updateBoothBannerName(){
+  // Update banner name in the gacha booth
+  ['boothBannerName2'].forEach(id=>{
+    const el = document.getElementById(id);
+    if(el){
+      const bannerTitle = document.querySelector('#pullBannerContainer .banner-name, #activeBannerTitle');
+      el.textContent = bannerTitle ? bannerTitle.textContent.trim() : 'Current Banner';
+    }
+  });
+}
+
+function renderBoothFeaturedCards(){
+  const row = document.getElementById('boothFeaturedRow');
+  const globeInner = document.getElementById('boothGachaGlobe');
+  if(!row) return;
+
+  const allCards = window.DEMO_CARDS || DEMO_CARDS || [];
+
+  // Try to get actual rate-up cards from the active banner first
+  let featured = [];
+  try {
+    const banner = getActiveBanner ? getActiveBanner() : null;
+    if(banner && banner.featured_cards){
+      const ids = parseFeaturedCards ? parseFeaturedCards(banner.featured_cards) : [];
+      featured = ids.map(id => allCards.find(c=>c.id===id)).filter(Boolean);
+    }
+    // Also update banner name
+    const nameEl = document.getElementById('boothGachaBannerName2');
+    if(nameEl && banner) nameEl.textContent = banner.name || 'Current Banner';
+  } catch(e){}
+
+  // Fallback: highest rarity cards
+  if(!featured.length){
+    featured = allCards
+      .filter(c => c.rarity >= 5)
+      .sort((a,b) => b.rarity - a.rarity)
+      .slice(0, 4);
+  } else {
+    // Pad to 4 if fewer featured
+    if(featured.length < 4){
+      const extras = allCards
+        .filter(c => c.rarity >= 4 && !featured.find(f=>f.id===c.id))
+        .sort((a,b) => b.rarity - a.rarity)
+        .slice(0, 4 - featured.length);
+      featured = [...featured, ...extras];
+    }
+  }
+
+  if(!featured.length){
+    row.innerHTML = '<div class="hbs-fc-placeholder">No cards yet</div>';
+    return;
+  }
+
+  // Update globe glow/emoji based on top card
+  if(globeInner && featured[0]){
+    const rarityEmojis = {7:'🌈',6:'👑',5:'⚡',4:'💜',3:'💚'};
+    globeInner.textContent = rarityEmojis[featured[0].rarity] || '✨';
+    const rarityGlows = {7:'255,50,255',6:'255,200,0',5:'255,120,0',4:'155,89,182',3:'80,180,80'};
+    const glow = rarityGlows[featured[0].rarity] || '155,89,182';
+    const globe = globeInner.closest('.hbs-gm-globe');
+    if(globe) globe.style.cssText += `;box-shadow:0 0 28px rgba(${glow},0.5),inset 0 0 20px rgba(${glow},0.12)`;
+  }
+
+  // Get rate-up IDs for badge
+  let rateUpIds = [];
+  try {
+    const b = getActiveBanner ? getActiveBanner() : null;
+    rateUpIds = b ? (parseFeaturedCards ? parseFeaturedCards(b.featured_cards) : []) : [];
+  } catch(e){}
+
+  row.innerHTML = featured.map(card => {
+    const color = (RARITY_COLORS && RARITY_COLORS[card.rarity]) || '#bdc3c7';
+    const img = (typeof getCardThumbnail === 'function') ? getCardThumbnail(card) : (card.thumbnail || card.image);
+    const isRateUp = rateUpIds.includes(card.id);
+    return `<div class="hbs-fc-card" style="border-color:${color}40;box-shadow:0 0 14px ${color}20;" onclick="event.stopPropagation();goTo('pull',null)">
+        ${isRateUp ? '<span class="hbs-fc-rateup">▲ UP</span>' : ''}
+        <img src="${img}" alt="${card.name}" loading="lazy" onerror="this.src='https://placehold.co/90x135/1a0030/9b59b6?text=?'"/>
+        <div class="hbs-fc-info">
+          <div class="hbs-fc-name">${card.name}</div>
+          <div class="hbs-fc-rarity" style="color:${color}">${card.rarityName||'[?]'}</div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function renderBoothCinemaPlaylist(){
+  // Sync the cinema "Now Showing" board in the booth with the real playlist
+  const entries = ['cinemaBoothEntry1','cinemaBoothEntry2','cinemaBoothEntry3'];
+  const playlist = document.querySelectorAll('#cinemaPlaylist .cp-item-title, #cinemaPlaylist .playlist-item');
+  if(!playlist.length) return;
+  const songEmojis = ['🩸','😈','🏴‍☠️','🔥','⚡','🌸','💀','🎌'];
+  playlist.forEach((el,i) => {
+    const target = document.getElementById(entries[i]);
+    if(target && i < entries.length){
+      const name = el.textContent.trim().slice(0,22);
+      target.textContent = (songEmojis[i%songEmojis.length]) + ' ' + name;
+    }
+  });
+  // Also sync the hbs- version
+  ['cinemaBoothEntry1','cinemaBoothEntry2','cinemaBoothEntry3'].forEach((id,i)=>{
+    const src = document.getElementById(id);
+    const dst = document.getElementById('hbs-cinema-entry-'+(i+1));
+    if(src && dst) dst.textContent = src.textContent;
+  });
+}
+
+function initHubBooths(){
+  renderBoothFeaturedCards();
+  updateBoothBannerName();
+  updateBoothRoomCount();
+  renderBoothCinemaPlaylist();
+}
+
 function switchArenaTab(tab, btn){
   ['trade','pvp','lb'].forEach(t=>{
     const el=document.getElementById('arenaPanel-'+t);
@@ -19928,22 +20870,6 @@ function switchArenaTab(tab, btn){
   if(tab==='pvp'){ loadLeaderboard('pvp'); }
   if(tab==='lb'){ loadLeaderboard('pvp'); }
   if(tab==='trade'){ loadMyTrades(); }
-}
-
-function updateBoothRoomCount(){
-  // Pull live room count from existing room list
-  const el=document.getElementById('boothRoomCount');
-  if(!el) return;
-  const rooms=document.querySelectorAll('#roomsGrid .room-card');
-  el.textContent=rooms.length||'—';
-}
-
-function updateBoothBannerName(){
-  const el=document.getElementById('boothBannerName');
-  if(!el) return;
-  // Pull from the current active banner title if rendered
-  const bannerTitle=document.querySelector('#pullBannerContainer .banner-card h2, #pullBannerContainer .banner-name');
-  el.textContent=bannerTitle?bannerTitle.textContent:'Current Banner';
 }
 
 // ══════════════════════════════════════════════
