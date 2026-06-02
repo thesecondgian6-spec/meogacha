@@ -15463,7 +15463,7 @@ const COOLDOWNS = { work: 30*60*1000, train: 20*60*1000, quest: 45*60*1000, batt
 function getActKey(type){ return state.discordId ? `mg_act_${type}_${state.discordId}` : `mg_act_${type}_guest`; }
 function getLastAct(type){ const v=localStorage.getItem(getActKey(type)); return v?parseInt(v):0; }
 function setLastAct(type){ localStorage.setItem(getActKey(type), Date.now().toString()); }
-function getCooldownLeft(type){ const cd=COOLDOWNS[type]; const last=getLastAct(type); const left=cd-(Date.now()-last); return left>0?left:0; }
+function getCooldownLeft(type){ if(state.isAdmin) return 0; const cd=COOLDOWNS[type]; const last=getLastAct(type); const left=cd-(Date.now()-last); return left>0?left:0; }
 
 function fmtTime(ms){
   const m=Math.floor(ms/60000), s=Math.floor((ms%60000)/1000);
@@ -15613,15 +15613,21 @@ function _baiSelectCard(id) {
     `<span style="color:${color}">${c.rarityName}</span> ${c.name} — enemies: <span style="color:var(--pink-pale);font-family:'JetBrains Mono',monospace;font-size:0.9em;">${bracketStr}</span>`;
   document.getElementById('baiBattleStartBtn').disabled = false;
 
-  // Preview encounter
+  // Preview encounter — show encounter type and rarity hint
   const enc = _baiPickEncounter(c.rarity);
   _baiState.encounter = enc;
+  const RARITY_NAMES_2 = {1:'N',2:'R',3:'SR',4:'SSR',5:'UR',6:'LR',7:'???'};
+  const sameRarity = RARITY_NAMES_2[pr] || `R${pr}`;
+  const lowerRarity = pr > 1 ? RARITY_NAMES_2[pr-1] : null;
+  const higherRarity = pr < 7 ? RARITY_NAMES_2[pr+1] : null;
+  const rarityHint = enc.isBoss
+    ? `any rarity ≥ ${sameRarity}`
+    : `mostly ${sameRarity}${lowerRarity||higherRarity ? ` · rare: ${[lowerRarity,higherRarity].filter(Boolean).join('/')}` : ''}`;
   const box = document.getElementById('baiEncounterBox');
-  box.classList.add('active');
   box.className = 'bai-encounter-box active' + (enc.isBoss ? ' bai-encounter-boss' : '');
-  document.getElementById('baiEncounterLabel').textContent = enc.isBoss ? '👑 BOSS ENCOUNTER' : '⚔️ NORMAL ENCOUNTER';
-  document.getElementById('baiEncounterName').textContent = enc.label;
-  document.getElementById('baiEncounterDesc').textContent = enc.desc;
+  document.getElementById('baiEncounterLabel').textContent = enc.isBoss ? '👑 BOSS ENCOUNTER' : '⚔️ ENCOUNTER PREVIEW';
+  document.getElementById('baiEncounterName').textContent = enc.isBoss ? enc.label : `${enc.label} encounter`;
+  document.getElementById('baiEncounterDesc').textContent = `Enemy rarity: ${rarityHint} · ${enc.desc}`;
 
   _baiRenderCardSelect();
 }
@@ -15631,31 +15637,32 @@ function startBattleAI() {
   const playerCard = (window.DEMO_CARDS || DEMO_CARDS).find(x => x.id === _baiState.selectedCardId);
   const enc = _baiState.encounter || _baiPickEncounter(playerCard.rarity);
 
-  // Enemy pool: ALL cards in the game (DB cards) filtered by rarity bracket
-  // N(1) → N/R(1-2), R(2) → N-SR(1-3), SR(3) → R-SSR(2-4),
-  // SSR(4) → SR-UR(3-5), UR(5) → SSR-LR(4-6), LR(6)+ / boss → SSR+(4-7)
+  // Enemy pool: weighted by rarity — same rarity as player gets 3× weight, ±1 gets 1× weight
   const allCards = window.DEMO_CARDS || DEMO_CARDS;
   const pr = playerCard.rarity;
-  let rarityMin, rarityMax;
-  if (enc.isBoss) {
-    rarityMin = Math.max(1, pr);
-    rarityMax = 7;
-  } else if (enc.diff === 'hard') {
-    rarityMin = Math.max(1, pr - 1);
-    rarityMax = Math.min(7, pr + 2);
-  } else if (enc.diff === 'easy') {
-    rarityMin = Math.max(1, pr - 1);
-    rarityMax = Math.min(7, pr + 1);
-  } else {
-    rarityMin = Math.max(1, pr - 1);
-    rarityMax = Math.min(7, pr + 1);
-  }
-  let enemyCandidates = allCards.filter(c => c.id !== playerCard.id && c.rarity >= rarityMin && c.rarity <= rarityMax);
-  if (!enemyCandidates.length) enemyCandidates = allCards.filter(c => c.id !== playerCard.id);
-  const enemyCard = enemyCandidates[Math.floor(Math.random() * enemyCandidates.length)];
+
+  // Build weighted pool: same rarity = 3 tickets, adjacent = 1 ticket each, boss allows higher
+  let weightedPool = [];
+  allCards.filter(c => c.id !== playerCard.id).forEach(c => {
+    if (enc.isBoss) {
+      if (c.rarity >= pr) weightedPool.push(c); // boss: any >= player rarity
+    } else {
+      const diff = c.rarity - pr;
+      if (diff === 0) { weightedPool.push(c, c, c); }       // same rarity: 3× chance
+      else if (diff === -1 || diff === 1) { weightedPool.push(c); } // ±1: 1× chance
+      // anything further is excluded
+    }
+  });
+  if (!weightedPool.length) weightedPool = allCards.filter(c => c.id !== playerCard.id);
+  const enemyCard = weightedPool[Math.floor(Math.random() * weightedPool.length)];
 
   const diffKey = enc.isBoss ? 'hard' : (enc.diff === 'hard' ? 'hard' : enc.diff === 'easy' ? 'easy' : 'normal');
   const diff = BATTLE_DIFFICULTIES[diffKey];
+
+  // Enemy display: card name + rarity tag
+  const enemyColor = RARITY_COLORS[enemyCard.rarity] || '#bdc3c7';
+  const enemyDisplayName = enemyCard.name;
+  const enemyRarityLabel = enemyCard.rarityName || `R${enemyCard.rarity}`;
 
   const playerAbils = getCardAbilities(playerCard.id, playerCard.rarity);
   const hpBoost    = playerAbils.filter(a=>a.battleEffect==='hpboost_passive'||a.battleEffect==='hpboost').reduce((s,a)=>s+a.value,0);
@@ -15707,17 +15714,20 @@ function startBattleAI() {
   document.getElementById('baiBattlePlayerImg').src = playerCard.image;
   document.getElementById('baiBattlePlayerName').textContent = playerCard.name;
   document.getElementById('baiBattleEnemyImg').src = enemyCard.image;
-  document.getElementById('baiBattleEnemyName').textContent = enc.isBoss ? `${enc.label}` : enemyCard.name;
-  document.getElementById('baiBattleEnemyLabel').textContent = enc.isBoss ? '👑 BOSS' : 'Enemy';
+  document.getElementById('baiBattleEnemyName').textContent = enemyDisplayName;
+  document.getElementById('baiBattleEnemyName').style.color = enemyColor;
+  document.getElementById('baiBattleEnemyLabel').innerHTML = enc.isBoss
+    ? `👑 BOSS <span style="color:${enemyColor};font-size:0.85em;">[${enemyRarityLabel}]</span>`
+    : `<span style="color:${enemyColor};font-size:0.85em;">[${enemyRarityLabel}]</span>`;
   document.getElementById('baiBattleLog').innerHTML = '';
   document.getElementById('baiBattleOutcome').style.display = 'none';
 
   _baiUpdateHPBars();
   _baiRenderMoves();
 
-  _baiLog(`⚡ ${playerCard.name} VS ${enc.isBoss ? enc.label : enemyCard.name}! The battle begins!`, 'system');
+  _baiLog(`⚡ ${playerCard.name} VS ${enemyDisplayName} [${enemyRarityLabel}]! The battle begins!`, 'system');
   if (enc.isBoss) _baiLog(`👑 BOSS ENCOUNTER — ${enc.desc}`, 'enemy');
-  else _baiLog(`⚔️ Encounter: ${enc.label} — ${enc.desc}`, 'system');
+  else _baiLog(`⚔️ Encounter: ${enc.label}`, 'system');
   playBattleStartSound();
   if (atkBoostP > 0) _baiLog(`💪 Passive: +${atkBoostP}% ATK permanently!`, 'player');
   if (defReduceP > 0) _baiLog(`🛡️ Passive: incoming damage -${defReduceP}%!`, 'player');
@@ -15982,7 +15992,7 @@ async function _baiEndBattle(playerWon) {
     playDefeatSound();
     _baiLog(`💀 Defeated... But you gained +${consolationCoins}🪙 for trying.`, 'enemy');
     document.getElementById('baiBattleOutcomeTitle').innerHTML = '<span class="battle-outcome-defeat">💀 DEFEATED 💀</span>';
-    document.getElementById('baiBattleOutcomeMsg').textContent = `${isBoss ? ps.encounter.label : ps.enemyCard.name} was too powerful this time.`;
+    document.getElementById('baiBattleOutcomeMsg').textContent = `${ps.enemyCard.name} [${ps.enemyCard.rarityName || ''}] was too powerful this time.`;
     document.getElementById('baiBattleOutcomeRewards').innerHTML = `<span class="reward-tag">+${consolationCoins} 🪙</span><span style="color:var(--text-dim);font-size:0.85em;padding:4px 8px;">consolation</span>`;
   }
   document.getElementById('baiBattleOutcome').style.display = 'flex';
