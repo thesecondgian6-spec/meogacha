@@ -5756,6 +5756,64 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 }
 .arena-player-action-btn.trade:hover { background:linear-gradient(135deg,rgba(255,157,199,0.22),rgba(192,132,184,0.22)); transform:translateY(-1px); }
 
+/* ── Arena panel grid layout ── */
+.arena-panel-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  align-items: start;
+}
+@media(max-width:700px){ .arena-panel-grid { grid-template-columns: 1fr; } }
+
+/* ── Arena box ── */
+.arena-box {
+  background: rgba(255,255,255,0.025);
+  border: 1px solid rgba(255,157,199,0.15);
+  border-radius: 16px;
+  overflow: hidden;
+}
+.arena-box-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 14px;
+  border-bottom: 1px solid rgba(255,157,199,0.1);
+  background: rgba(0,0,0,0.2);
+}
+.arena-box-icon { font-size: 1em; flex-shrink: 0; }
+.arena-box-title {
+  flex: 1;
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 0.68em;
+  color: var(--pink-pale);
+  letter-spacing: 0.04em;
+}
+.arena-box-refresh {
+  background: none; border: none;
+  color: rgba(255,157,199,0.5); font-size: 1em; cursor: pointer;
+  padding: 2px 6px; border-radius: 6px; transition: all 0.15s;
+}
+.arena-box-refresh:hover { color: var(--pink); background: rgba(255,157,199,0.1); }
+.arena-box-search {
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 12px;
+  border-bottom: 1px solid rgba(255,157,199,0.08);
+  background: rgba(0,0,0,0.15);
+}
+.arena-box-list {
+  overflow-y: auto;
+  max-height: 320px;
+  padding: 8px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,157,199,0.2) transparent;
+}
+.arena-box-list::-webkit-scrollbar { width: 4px; }
+.arena-box-list::-webkit-scrollbar-thumb { background: rgba(255,157,199,0.2); border-radius: 2px; }
+.arena-box-empty {
+  text-align: center; color: var(--text-dim);
+  font-style: italic; font-size: 0.82em; padding: 20px 10px;
+}
+
 @media(max-width:700px){
   .chat-layout{height:calc(100vh - 220px);}
   .chat-msg{padding:3px 10px;gap:8px;}
@@ -11232,8 +11290,11 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
         <div class="zone-petal zone-petal-3">🏆</div>
       </div>
       <div style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;">
-        <button class="filter-btn active" id="lbf-pvp" onclick="switchLeaderboard('pvp',this)">⚔️ PvP Wins</button>
-        <button class="filter-btn" id="lbf-cards" onclick="switchLeaderboard('cards',this)">🃏 Most Cards</button>
+        <button class="filter-btn active" id="lbf-pvp"    onclick="switchLeaderboard('pvp',this)">⚔️ PvP Wins</button>
+        <button class="filter-btn"        id="lbf-pulls"  onclick="switchLeaderboard('pulls',this)">🎴 Total Pulls</button>
+        <button class="filter-btn"        id="lbf-uniq"   onclick="switchLeaderboard('uniq',this)">✨ Uniques</button>
+        <button class="filter-btn"        id="lbf-coins"  onclick="switchLeaderboard('coins',this)">🪙 Richest</button>
+        <button class="filter-btn"        id="lbf-cards"  onclick="switchLeaderboard('cards',this)">🃏 Most Cards</button>
       </div>
       <div id="leaderboardList">
         <div style="text-align:center;color:var(--text-dim);font-style:italic;padding:30px;">Loading leaderboard... ✦</div>
@@ -11264,74 +11325,141 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 
       <!-- TRADE panel -->
       <div id="arenaPanel-trade">
-        <!-- Reuse trades content -->
-        <div class="trades-header-row">
-          <button class="btn-primary" onclick="openTradeModal()" style="font-size:0.85em;padding:9px 20px;">+ Offer a Trade</button>
-          <div style="font-size:0.8em;color:var(--text-dim);font-style:italic;">List a card you want to swap — others can accept</div>
-        </div>
+        <div class="arena-panel-grid">
 
-        <!-- Player search for direct trade -->
-        <div style="margin-top:18px;margin-bottom:4px;">
-          <div style="font-family:'Cinzel Decorative',serif;font-size:0.72em;color:var(--pink);margin-bottom:10px;letter-spacing:0.05em;">🔄 Direct Trade Request</div>
-          <div style="display:flex;align-items:center;gap:10px;">
-            <div style="flex:1;display:flex;align-items:center;background:rgba(255,255,255,0.05);border:1px solid rgba(255,157,199,0.2);border-radius:12px;padding:4px 14px;gap:8px;transition:border-color 0.2s;" id="tradeSearchWrap">
-              <span style="color:rgba(255,157,199,0.5);font-size:1em;">🔍</span>
-              <input id="tradePlayerSearch" placeholder="Search players to trade with…" maxlength="40"
-                style="flex:1;background:transparent;border:none;outline:none;color:var(--text);font-family:'Cormorant Garamond',serif;font-size:0.95em;padding:8px 0;"
-                oninput="filterArenaTradePlayers(this.value)"
-                onfocus="document.getElementById('tradeSearchWrap').style.borderColor='rgba(255,157,199,0.45)'"
-                onblur="document.getElementById('tradeSearchWrap').style.borderColor='rgba(255,157,199,0.2)'"
-              />
-              <button onclick="document.getElementById('tradePlayerSearch').value='';filterArenaTradePlayers('')" style="background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:0.85em;padding:4px;opacity:0.6;">✕</button>
+          <!-- LEFT: Player list / direct trade request -->
+          <div class="arena-box">
+            <div class="arena-box-header" style="border-color:rgba(255,157,199,0.3);">
+              <span class="arena-box-icon">🔄</span>
+              <span class="arena-box-title">Find a Trade Partner</span>
+              <button class="arena-box-refresh" onclick="loadArenaTradePlayerList()" title="Refresh">↺</button>
             </div>
-            <button class="btn-secondary" onclick="loadArenaTradePlayerList()" style="font-size:0.78em;padding:9px 14px;flex-shrink:0;">🔄</button>
+            <div class="arena-box-search">
+              <span style="color:rgba(255,157,199,0.5);">🔍</span>
+              <input id="tradePlayerSearch" placeholder="Search players…" maxlength="40"
+                style="flex:1;background:transparent;border:none;outline:none;color:var(--text);font-family:'Cormorant Garamond',serif;font-size:0.92em;padding:6px 0;"
+                oninput="filterArenaTradePlayers(this.value)"/>
+              <button onclick="document.getElementById('tradePlayerSearch').value='';filterArenaTradePlayers('')" style="background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:0.8em;padding:2px 4px;opacity:0.5;">✕</button>
+            </div>
+            <div class="arena-box-list" id="arenaTradePlayerList">
+              <div class="arena-box-empty">Loading players… ✦</div>
+            </div>
           </div>
-          <div id="arenaTradePlayerList" style="margin-top:10px;">
-            <div style="text-align:center;color:var(--text-dim);padding:20px;font-style:italic;font-size:0.85em;">Loading players… ✦</div>
-          </div>
-        </div>
 
-        <div class="section-title" style="margin-top:20px;">Open Trades</div>
-        <div id="tradeListArena">
-          <div style="text-align:center;color:var(--text-dim);padding:24px;font-style:italic;">Loading trades... ✦</div>
-        </div>
-        <div class="section-title" style="margin-top:24px;">My Trades</div>
-        <div id="myTradesArena">
-          <div style="text-align:center;color:var(--text-dim);padding:20px;font-style:italic;">No active trades ✦</div>
+          <!-- RIGHT: Trade activity -->
+          <div style="display:flex;flex-direction:column;gap:14px;">
+
+            <!-- Offer a trade -->
+            <div class="arena-box" style="border-color:rgba(255,157,199,0.2);">
+              <div class="arena-box-header" style="border-color:rgba(255,157,199,0.15);">
+                <span class="arena-box-icon">📤</span>
+                <span class="arena-box-title">Post a Trade</span>
+              </div>
+              <div style="padding:10px 14px 14px;">
+                <div style="font-size:0.82em;color:var(--text-dim);margin-bottom:10px;">List a card you own — other players can accept your offer.</div>
+                <button class="btn-primary" onclick="openTradeModal()" style="width:100%;font-size:0.82em;padding:9px;">+ Offer a Trade</button>
+              </div>
+            </div>
+
+            <!-- Incoming trade requests -->
+            <div class="arena-box" style="border-color:rgba(255,157,199,0.2);">
+              <div class="arena-box-header" style="border-color:rgba(255,157,199,0.15);">
+                <span class="arena-box-icon">📥</span>
+                <span class="arena-box-title">Incoming Requests</span>
+                <button class="arena-box-refresh" onclick="loadMyTrades()" title="Refresh">↺</button>
+              </div>
+              <div class="arena-box-list" id="tradeListArena" style="max-height:200px;">
+                <div class="arena-box-empty">Loading trades… ✦</div>
+              </div>
+            </div>
+
+            <!-- My active trades -->
+            <div class="arena-box" style="border-color:rgba(255,157,199,0.2);">
+              <div class="arena-box-header" style="border-color:rgba(255,157,199,0.15);">
+                <span class="arena-box-icon">📋</span>
+                <span class="arena-box-title">My Active Trades</span>
+              </div>
+              <div class="arena-box-list" id="myTradesArena" style="max-height:200px;">
+                <div class="arena-box-empty">No active trades ✦</div>
+              </div>
+            </div>
+
+          </div>
         </div>
       </div>
 
       <!-- PVP panel -->
       <div id="arenaPanel-pvp" style="display:none;">
-        <!-- Player search bar -->
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
-          <div style="flex:1;display:flex;align-items:center;background:rgba(255,255,255,0.05);border:1px solid rgba(230,126,34,0.25);border-radius:12px;padding:4px 14px;gap:8px;transition:border-color 0.2s;" id="pvpSearchWrap">
-            <span style="color:rgba(230,126,34,0.6);font-size:1em;">🔍</span>
-            <input id="pvpPlayerSearch" placeholder="Search players to challenge…" maxlength="40"
-              style="flex:1;background:transparent;border:none;outline:none;color:var(--text);font-family:'Cormorant Garamond',serif;font-size:0.95em;padding:8px 0;"
-              oninput="filterArenaPvpPlayers(this.value)"
-              onfocus="document.getElementById('pvpSearchWrap').style.borderColor='rgba(230,126,34,0.55)'"
-              onblur="document.getElementById('pvpSearchWrap').style.borderColor='rgba(230,126,34,0.25)'"
-            />
-            <button onclick="document.getElementById('pvpPlayerSearch').value='';filterArenaPvpPlayers('')" style="background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:0.85em;padding:4px;opacity:0.6;">✕</button>
+        <div class="arena-panel-grid">
+
+          <!-- LEFT: Player list to challenge -->
+          <div class="arena-box" style="border-color:rgba(230,126,34,0.3);">
+            <div class="arena-box-header" style="border-color:rgba(230,126,34,0.2);">
+              <span class="arena-box-icon">⚔️</span>
+              <span class="arena-box-title" style="color:#f0b27a;">Challenge a Player</span>
+              <button class="arena-box-refresh" onclick="loadArenaPvpPlayers()" title="Refresh" style="color:rgba(230,126,34,0.7);">↺</button>
+            </div>
+            <div class="arena-box-search" style="border-color:rgba(230,126,34,0.2);">
+              <span style="color:rgba(230,126,34,0.5);">🔍</span>
+              <input id="pvpPlayerSearch" placeholder="Search players to challenge…" maxlength="40"
+                style="flex:1;background:transparent;border:none;outline:none;color:var(--text);font-family:'Cormorant Garamond',serif;font-size:0.92em;padding:6px 0;"
+                oninput="filterArenaPvpPlayers(this.value)"/>
+              <button onclick="document.getElementById('pvpPlayerSearch').value='';filterArenaPvpPlayers('')" style="background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:0.8em;padding:2px 4px;opacity:0.5;">✕</button>
+            </div>
+            <div class="arena-box-list" id="arenaPvpPlayerList">
+              <div class="arena-box-empty">Loading players… ✦</div>
+            </div>
           </div>
-          <button class="btn-primary" onclick="loadArenaPvpPlayers()" style="background:linear-gradient(135deg,#e67e22,#d35400);padding:9px 16px;font-size:0.75em;flex-shrink:0;">🔄 Refresh</button>
-        </div>
-        <!-- Player list -->
-        <div id="arenaPvpPlayerList">
-          <div style="text-align:center;color:var(--text-dim);padding:40px 20px;font-style:italic;">Loading players… ✦</div>
-        </div>
-        <div class="section-title" style="margin-top:24px;">PvP Leaderboard</div>
-        <div id="arenaPvpLeaderboard">
-          <div style="text-align:center;color:var(--text-dim);padding:24px;font-style:italic;">Loading rankings... ✦</div>
+
+          <!-- RIGHT: Battle activity -->
+          <div style="display:flex;flex-direction:column;gap:14px;">
+
+            <!-- Active / pending challenges -->
+            <div class="arena-box" style="border-color:rgba(230,126,34,0.25);">
+              <div class="arena-box-header" style="border-color:rgba(230,126,34,0.15);">
+                <span class="arena-box-icon">📥</span>
+                <span class="arena-box-title" style="color:#f0b27a;">Incoming Challenges</span>
+                <button class="arena-box-refresh" onclick="loadArenaIncomingChallenges()" title="Refresh" style="color:rgba(230,126,34,0.7);">↺</button>
+              </div>
+              <div class="arena-box-list" id="arenaIncomingChallenges" style="max-height:220px;">
+                <div class="arena-box-empty">No incoming challenges ✦</div>
+              </div>
+            </div>
+
+            <!-- My sent challenges -->
+            <div class="arena-box" style="border-color:rgba(230,126,34,0.25);">
+              <div class="arena-box-header" style="border-color:rgba(230,126,34,0.15);">
+                <span class="arena-box-icon">📤</span>
+                <span class="arena-box-title" style="color:#f0b27a;">Sent Challenges</span>
+              </div>
+              <div class="arena-box-list" id="arenaSentChallenges" style="max-height:180px;">
+                <div class="arena-box-empty">No pending challenges ✦</div>
+              </div>
+            </div>
+
+            <!-- Mini PvP leaderboard -->
+            <div class="arena-box" style="border-color:rgba(230,126,34,0.25);">
+              <div class="arena-box-header" style="border-color:rgba(230,126,34,0.15);">
+                <span class="arena-box-icon">🏆</span>
+                <span class="arena-box-title" style="color:#f0b27a;">Top Warriors</span>
+              </div>
+              <div class="arena-box-list" id="arenaPvpLeaderboard" style="max-height:260px;">
+                <div class="arena-box-empty">Loading rankings… ✦</div>
+              </div>
+            </div>
+
+          </div>
         </div>
       </div>
 
       <!-- Leaderboard panel -->
       <div id="arenaPanel-lb" style="display:none;">
         <div style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;">
-          <button class="filter-btn active" id="anlbf-pvp" onclick="loadLeaderboard('pvp');this.parentNode.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active');">⚔️ PvP Wins</button>
-          <button class="filter-btn" id="anlbf-cards" onclick="loadLeaderboard('cards');this.parentNode.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active');">🃏 Most Cards</button>
+          <button class="filter-btn active" id="anlbf-pvp"   onclick="switchArenaLb('pvp',this)">⚔️ PvP Wins</button>
+          <button class="filter-btn"        id="anlbf-pulls" onclick="switchArenaLb('pulls',this)">🎴 Pulls</button>
+          <button class="filter-btn"        id="anlbf-uniq"  onclick="switchArenaLb('uniq',this)">✨ Uniques</button>
+          <button class="filter-btn"        id="anlbf-coins" onclick="switchArenaLb('coins',this)">🪙 Coins</button>
+          <button class="filter-btn"        id="anlbf-cards" onclick="switchArenaLb('cards',this)">🃏 Cards</button>
         </div>
         <div id="arenaLeaderboardList">
           <div style="text-align:center;color:var(--text-dim);font-style:italic;padding:30px;">Loading leaderboard... ✦</div>
@@ -19312,7 +19440,7 @@ function enterHubZone(zone){
   if(zone==='arcade') syncArcadeWallet();
   if(zone==='cinema') initCinemaChat();
   if(zone==='rooms') refreshRoomsList();
-  if(zone==='arena'){ loadMyTrades(); loadLeaderboard('pvp'); loadArenaTradePlayerList(); }
+  if(zone==='arena'){ loadMyTrades(); loadLeaderboard('pvp','arenaPvpLeaderboard'); loadArenaTradePlayerList(); }
 }
 
 function returnToHubMap(){
@@ -21635,8 +21763,11 @@ function switchArenaTab(tab, btn){
     if(el) el.style.display=t===tab?'':'none';
     if(b) b.classList.toggle('active',t===tab);
   });
-  if(tab==='pvp'){ loadLeaderboard('pvp'); loadArenaPvpPlayers(); }
-  if(tab==='lb'){ loadLeaderboard('pvp'); }
+  if(tab==='pvp'){
+    loadArenaPvpPlayers();
+    loadLeaderboard('pvp','arenaPvpLeaderboard');
+  }
+  if(tab==='lb'){ loadLeaderboard('pvp','arenaLeaderboardList'); }
   if(tab==='trade'){ loadMyTrades(); loadArenaTradePlayerList(); }
 }
 
@@ -23500,25 +23631,50 @@ function switchLeaderboard(type, btn){
   loadLeaderboard(type);
 }
 
-async function loadLeaderboard(type='pvp'){
-  const list = document.getElementById('leaderboardList');
+function switchArenaLb(type, btn){
+  document.querySelectorAll('[id^="anlbf-"]').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  loadLeaderboard(type, 'arenaLeaderboardList');
+}
+
+async function loadLeaderboard(type='pvp', targetId='leaderboardList'){
+  // Support both standalone leaderboard zone and arena leaderboard panel
+  const list = document.getElementById(targetId) || document.getElementById('leaderboardList');
   if(!list) return;
   list.innerHTML = '<div style="color:var(--text-dim);font-style:italic;text-align:center;padding:20px;">Loading... ✦</div>';
   try {
     let rows = [];
-    const sel = 'discord_id,username,avatar,pvp_wins,pvp_losses,equipped_card';
+    const sel = 'discord_id,username,avatar,profile_thumbnail,pvp_wins,pvp_losses,equipped_card,coins,total_pulls';
 
     if(type === 'pvp'){
       rows = await sb.get('players', {}, { select: sel, order: 'pvp_wins.desc', limit: 50 });
+    } else if(type === 'pulls'){
+      rows = await sb.get('players', {}, { select: sel, order: 'total_pulls.desc', limit: 50 });
+    } else if(type === 'coins'){
+      rows = await sb.get('players', {}, { select: sel, order: 'coins.desc', limit: 50 });
+    } else if(type === 'uniq'){
+      // Count distinct cards per player from collection
+      rows = await sb.get('players', {}, { select: sel, limit: 200 });
+      const collRows = await sb.get('collection', {}, { select: 'discord_id,card_id', limit: 10000 });
+      const uniqMap = {};
+      (collRows||[]).forEach(r=>{ if(!uniqMap[r.discord_id]) uniqMap[r.discord_id]=new Set(); uniqMap[r.discord_id].add(r.card_id); });
+      rows = (rows||[]).map(r=>({ ...r, _uniq: uniqMap[r.discord_id]?.size||0 })).sort((a,b)=>b._uniq-a._uniq).slice(0,50);
     } else {
+      // 'cards' — total owned including dupes
       rows = await sb.get('players', {}, { select: sel, limit: 200 });
       const collRows = await sb.get('collection', {}, { select: 'discord_id', limit: 10000 });
       const countMap = {};
       (collRows||[]).forEach(r=>{ countMap[r.discord_id] = (countMap[r.discord_id]||0)+1; });
-      rows = (rows||[]).map(r=>({ ...r, _cardCount: countMap[r.discord_id]||0 }))
-                       .sort((a,b)=>b._cardCount - a._cardCount)
-                       .slice(0,50);
+      rows = (rows||[]).map(r=>({ ...r, _cardCount: countMap[r.discord_id]||0 })).sort((a,b)=>b._cardCount - a._cardCount).slice(0,50);
     }
+
+    const statLabel = {
+      pvp:   p => `${p.pvp_wins||0}W / ${p.pvp_losses||0}L`,
+      pulls: p => `${(p.total_pulls||0).toLocaleString()} pulls`,
+      coins: p => `${(p.coins||0).toLocaleString()} 🪙`,
+      uniq:  p => `${p._uniq||0} unique cards`,
+      cards: p => `${p._cardCount||0} total cards`,
+    }[type] || (p => '');
 
     if(!rows.length){
       list.innerHTML = '<div style="color:var(--text-dim);font-style:italic;text-align:center;padding:20px;">No players yet ʚɞ — be the first!</div>';
@@ -23528,21 +23684,17 @@ async function loadLeaderboard(type='pvp'){
     rows.forEach((p,i)=>{
       const rankClass = i===0?'gold':i===1?'silver':i===2?'bronze':'';
       const rankLabel = i===0?'🥇':i===1?'🥈':i===2?'🥉':`#${i+1}`;
-      const statVal   = type==='pvp'
-        ? `${p.pvp_wins||0}W / ${p.pvp_losses||0}L`
-        : `${p._cardCount||0} cards`;
+      const av = p.profile_thumbnail || p.avatar || 'https://cdn.discordapp.com/embed/avatars/0.png';
       const equip = (window.DEMO_CARDS||[]).find(c=>c.id===p.equipped_card);
       const row   = document.createElement('div');
       row.className = 'leaderboard-row';
       row.onclick   = () => viewPlayerProfile(p.discord_id);
       row.innerHTML = `
         <div class="lb-rank ${rankClass}">${rankLabel}</div>
-        <img class="lb-avatar"
-          src="${p.avatar||'https://cdn.discordapp.com/embed/avatars/0.png'}"
-          onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'"/>
+        <img class="lb-avatar" src="${av}" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'"/>
         <div class="lb-name">${escapeHtml(p.username||'Summoner')}</div>
         ${equip ? `<img src="${equip.thumbnail||equip.image}" style="width:28px;height:38px;border-radius:5px;object-fit:cover;border:1px solid var(--border);" onerror="this.style.display='none'"/>` : ''}
-        <div class="lb-stat">${statVal}</div>`;
+        <div class="lb-stat">${statLabel(p)}</div>`;
       list.appendChild(row);
     });
   } catch(e){
@@ -23569,23 +23721,24 @@ function openCardById(cardId){
 let _arenaPvpAllPlayers  = [];
 let _arenaTradeAllPlayers = [];
 
+function _myDiscordId(){ return window.state?.discordId || ''; }
+
 function _renderArenaPlayerCard(p, mode){
-  const av = p.avatar || 'https://cdn.discordapp.com/embed/avatars/0.png';
+  if(p.discord_id === _myDiscordId()) return ''; // hide self
+  const av = p.profile_thumbnail || p.avatar || 'https://cdn.discordapp.com/embed/avatars/0.png';
   const name = escapeHtml(p.username || 'Summoner');
   const equip = (window.DEMO_CARDS||[]).find(c=>c.id===p.equipped_card);
-  const isMe = p.discord_id === (window.state?.discordId || '');
-  if(isMe) return '';
   const stat = mode==='pvp'
-    ? `<span style="color:rgba(230,126,34,0.8);font-size:0.72em;">⚔️ ${p.pvp_wins||0}W</span>`
-    : `<span style="color:var(--text-dim);font-size:0.72em;">🃏 Player</span>`;
+    ? `<span style="color:rgba(230,126,34,0.8);font-size:0.72em;">⚔️ ${p.pvp_wins||0}W / ${p.pvp_losses||0}L</span>`
+    : `<span style="color:var(--text-dim);font-size:0.72em;">🃏 ${escapeHtml(p.active_title||'Summoner')}</span>`;
   const actionBtn = mode==='pvp'
-    ? `<button class="arena-player-action-btn pvp" onclick="challengeToPvp('${p.discord_id}')">⚔️ Challenge</button>`
-    : `<button class="arena-player-action-btn trade" onclick="openTradeWithPlayer('${p.discord_id}')">🔄 Trade</button>`;
+    ? `<button class="arena-player-action-btn pvp" onclick="event.stopPropagation();challengeToPvp('${p.discord_id}')">⚔️ Challenge</button>`
+    : `<button class="arena-player-action-btn trade" onclick="event.stopPropagation();openTradeWithPlayer('${p.discord_id}')">🔄 Trade</button>`;
   const thumb = equip ? `<img src="${equip.thumbnail||equip.image}" style="width:28px;height:38px;border-radius:5px;object-fit:cover;border:1px solid var(--border);flex-shrink:0;" onerror="this.style.display='none'"/>` : '';
   return `<div class="arena-player-row" onclick="viewPlayerProfile('${p.discord_id}')">
     <img class="arena-player-av" src="${av}" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'"/>
     <div style="flex:1;min-width:0;">
-      <div style="font-size:0.9em;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${name}</div>
+      <div style="font-size:0.88em;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${name}</div>
       <div style="margin-top:2px;">${stat}</div>
     </div>
     ${thumb}
@@ -23596,13 +23749,14 @@ function _renderArenaPlayerCard(p, mode){
 async function loadArenaPvpPlayers(){
   const el = document.getElementById('arenaPvpPlayerList');
   if(!el) return;
-  el.innerHTML = '<div style="text-align:center;color:var(--text-dim);padding:32px;font-style:italic;">Loading players… ✦</div>';
+  el.innerHTML = '<div class="arena-box-empty">Loading players… ✦</div>';
   try {
-    const rows = await sb.get('players', {}, { select: 'discord_id,username,avatar,pvp_wins,pvp_losses,equipped_card', order: 'pvp_wins.desc', limit: 100 });
-    _arenaPvpAllPlayers = rows || [];
+    const rows = await sb.get('players', {}, { select: 'discord_id,username,avatar,profile_thumbnail,pvp_wins,pvp_losses,equipped_card,active_title', order: 'pvp_wins.desc', limit: 100 });
+    _arenaPvpAllPlayers = (rows||[]).filter(p=>p.discord_id !== _myDiscordId());
     renderArenaPvpPlayerList(_arenaPvpAllPlayers);
+    loadArenaIncomingChallenges();
   } catch(e){
-    el.innerHTML = `<div style="text-align:center;color:var(--text-dim);padding:20px;font-size:0.85em;">⚠️ Could not load players. <button onclick="loadArenaPvpPlayers()" style="background:var(--surface);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:5px 12px;cursor:pointer;font-size:0.85em;">↺ Retry</button></div>`;
+    el.innerHTML = `<div class="arena-box-empty">⚠️ Could not load players. <button onclick="loadArenaPvpPlayers()" style="background:var(--surface);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:4px 10px;cursor:pointer;font-size:0.82em;margin-top:6px;">↺ Retry</button></div>`;
   }
 }
 
@@ -23610,7 +23764,7 @@ function renderArenaPvpPlayerList(players){
   const el = document.getElementById('arenaPvpPlayerList');
   if(!el) return;
   const html = players.map(p => _renderArenaPlayerCard(p,'pvp')).filter(Boolean).join('');
-  el.innerHTML = html || '<div style="text-align:center;color:var(--text-dim);padding:24px;font-style:italic;">No other players found ʚɞ</div>';
+  el.innerHTML = html || '<div class="arena-box-empty">No other players found ʚɞ</div>';
 }
 
 function filterArenaPvpPlayers(query){
@@ -23622,13 +23776,13 @@ function filterArenaPvpPlayers(query){
 async function loadArenaTradePlayerList(){
   const el = document.getElementById('arenaTradePlayerList');
   if(!el) return;
-  el.innerHTML = '<div style="text-align:center;color:var(--text-dim);padding:24px;font-style:italic;font-size:0.85em;">Loading players… ✦</div>';
+  el.innerHTML = '<div class="arena-box-empty">Loading players… ✦</div>';
   try {
-    const rows = await sb.get('players', {}, { select: 'discord_id,username,avatar,equipped_card', limit: 100 });
-    _arenaTradeAllPlayers = rows || [];
+    const rows = await sb.get('players', {}, { select: 'discord_id,username,avatar,profile_thumbnail,equipped_card,active_title', limit: 100 });
+    _arenaTradeAllPlayers = (rows||[]).filter(p=>p.discord_id !== _myDiscordId());
     renderArenaTradePlayerList(_arenaTradeAllPlayers);
   } catch(e){
-    el.innerHTML = `<div style="text-align:center;color:var(--text-dim);padding:16px;font-size:0.85em;">⚠️ Could not load players.</div>`;
+    el.innerHTML = `<div class="arena-box-empty">⚠️ Could not load players.</div>`;
   }
 }
 
@@ -23636,13 +23790,67 @@ function renderArenaTradePlayerList(players){
   const el = document.getElementById('arenaTradePlayerList');
   if(!el) return;
   const html = players.map(p => _renderArenaPlayerCard(p,'trade')).filter(Boolean).join('');
-  el.innerHTML = html || '<div style="text-align:center;color:var(--text-dim);padding:16px;font-style:italic;font-size:0.85em;">No other players found ʚɞ</div>';
+  el.innerHTML = html || '<div class="arena-box-empty">No other players found ʚɞ</div>';
 }
 
 function filterArenaTradePlayers(query){
   const q = (query||'').toLowerCase().trim();
   const filtered = q ? _arenaTradeAllPlayers.filter(p=>(p.username||'').toLowerCase().includes(q)) : _arenaTradeAllPlayers;
   renderArenaTradePlayerList(filtered);
+}
+
+// ── Incoming / sent battle challenges ──
+async function loadArenaIncomingChallenges(){
+  const inEl = document.getElementById('arenaIncomingChallenges');
+  const outEl = document.getElementById('arenaSentChallenges');
+  const myId = _myDiscordId();
+  if(!myId || !inEl) return;
+  try {
+    const rows = await sb.get('pvp_challenges', {}, {
+      select: 'id,challenger_id,challenger_name,challenged_id,challenged_name,status,created_at',
+      order: 'created_at.desc', limit: 30
+    });
+    const all = rows || [];
+    const incoming = all.filter(r => r.challenged_id === myId && r.status === 'pending');
+    const sent     = all.filter(r => r.challenger_id  === myId && r.status === 'pending');
+
+    inEl.innerHTML = incoming.length ? incoming.map(r => `
+      <div class="arena-player-row" style="border-color:rgba(230,126,34,0.2);">
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:0.88em;font-weight:700;">${escapeHtml(r.challenger_name||'Summoner')}</div>
+          <div style="font-size:0.72em;color:rgba(230,126,34,0.7);margin-top:2px;">⚔️ challenges you!</div>
+        </div>
+        <div style="display:flex;gap:6px;">
+          <button class="arena-player-action-btn pvp" onclick="acceptPvpChallenge('${r.id}','${r.challenger_id}')">Accept</button>
+          <button class="arena-player-action-btn" onclick="declinePvpChallenge('${r.id}')" style="background:rgba(231,76,60,0.1);color:#e74c3c;border-color:rgba(231,76,60,0.3);font-size:0.8em;padding:5px 10px;">Decline</button>
+        </div>
+      </div>`).join('') : '<div class="arena-box-empty">No incoming challenges ✦</div>';
+
+    if(outEl){
+      outEl.innerHTML = sent.length ? sent.map(r => `
+        <div class="arena-player-row" style="border-color:rgba(230,126,34,0.15);">
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:0.88em;font-weight:700;">${escapeHtml(r.challenged_name||'Summoner')}</div>
+            <div style="font-size:0.72em;color:var(--text-dim);margin-top:2px;">⏳ Awaiting response…</div>
+          </div>
+          <button class="arena-player-action-btn" onclick="cancelPvpChallenge('${r.id}')" style="background:rgba(231,76,60,0.08);color:#e74c3c;border-color:rgba(231,76,60,0.25);font-size:0.78em;padding:5px 10px;">Cancel</button>
+        </div>`).join('') : '<div class="arena-box-empty">No pending challenges ✦</div>';
+    }
+  } catch(e){
+    if(inEl) inEl.innerHTML = '<div class="arena-box-empty">⚠️ Could not load challenges.</div>';
+  }
+}
+
+async function declinePvpChallenge(challengeId){
+  try { await sb.update('pvp_challenges',{status:'declined'},{id:challengeId}); }
+  catch(e){ console.warn('decline error',e); }
+  loadArenaIncomingChallenges();
+}
+
+async function cancelPvpChallenge(challengeId){
+  try { await sb.delete('pvp_challenges',{id:challengeId}); }
+  catch(e){ console.warn('cancel error',e); }
+  loadArenaIncomingChallenges();
 }
 
 // ══════════════════════════════════════════════════════════════
