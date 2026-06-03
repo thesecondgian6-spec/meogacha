@@ -2782,33 +2782,6 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   .admin-card-editor-grid {
     grid-template-columns: 1fr;
   }
-  /* Live Preview column: floats to top on mobile */
-  .admin-card-editor-grid > div:last-child {
-    order: -1;
-    position: static !important;
-  }
-  /* Compact horizontal preview on mobile */
-  #cardPreviewBox {
-    display: flex !important;
-    flex-direction: row !important;
-    overflow: hidden;
-    border-radius: 14px !important;
-    min-height: unset !important;
-  }
-  #cardPreviewBox > div:first-child {
-    width: 110px !important;
-    min-height: 150px !important;
-    flex-shrink: 0;
-  }
-  #cardPreviewBox > div:first-child img {
-    max-height: 150px !important;
-    width: 110px !important;
-    object-fit: cover;
-  }
-  #previewBody { flex: 1; padding: 10px 12px !important; }
-  #previewImgPlaceholder { padding: 20px 8px !important; font-size: 0.72em !important; }
-  /* Hide the collection thumb on mobile — saves space */
-  .admin-card-editor-grid > div:last-child > div:last-child { display: none; }
 }
 
 /* ── Admin panel mobile scaling: items tab, skin manager ── */
