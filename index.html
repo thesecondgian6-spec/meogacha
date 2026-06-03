@@ -12530,9 +12530,43 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
           <div class="stp-opt" data-type="card" onclick="setShopFormType('card',this)"><span>🃏</span><span>Card</span></div>
           <div class="stp-opt" data-type="title" onclick="setShopFormType('title',this)"><span>🎀</span><span>Title</span></div>
           <div class="stp-opt" data-type="skin" onclick="setShopFormType('skin',this)"><span>🎨</span><span>Skin</span></div>
+          <div class="stp-opt" data-type="gameitem" onclick="setShopFormType('gameitem',this)"><span>🎁</span><span>Game Item</span></div>
+        </div>
+
+        <!-- Game Item listing fields — shown when type=gameitem -->
+        <div id="shopFields_gameitem" class="shop-type-fields" style="display:none;margin-top:14px;">
+          <div class="admin-section-label" style="margin-bottom:10px;">List Existing Game Item</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+            <div>
+              <label class="admin-label">Item</label>
+              <select class="admin-input" id="shopListItem_key">
+                <option value="">— select item —</option>
+              </select>
+            </div>
+            <div>
+              <label class="admin-label">Price (🪙)</label>
+              <input class="admin-input" id="shopListItem_price" type="number" value="500" min="1"/>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;">
+            <div>
+              <label class="admin-label">Stock (-1 = ∞)</label>
+              <input class="admin-input" id="shopListItem_stock" type="number" value="-1"/>
+            </div>
+            <div style="display:flex;align-items:flex-end;padding-bottom:2px;">
+              <button class="btn-secondary" style="width:100%;font-size:0.8em;" onclick="addItemShopListing()">🛍️ List in Shop</button>
+            </div>
+          </div>
+          <div style="border-top:1px solid var(--border);padding-top:10px;">
+            <div class="admin-section-label" style="margin-bottom:8px;">Listed Game Items <span id="adminShopListingCount" style="color:var(--text-dim);font-size:0.78em;"></span></div>
+            <div id="adminShopListingList">
+              <div style="color:var(--text-dim);font-style:italic;font-size:0.82em;text-align:center;padding:14px;">None listed yet.</div>
+            </div>
+          </div>
         </div>
 
         <!-- Always-visible fields -->
+        <div id="shopStep2Fields">
         <div class="admin-section-label" style="margin-top:16px;">Step 2 — Fill Details</div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
           <div>
@@ -12651,38 +12685,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
             style="background:linear-gradient(135deg,var(--pink-deep),var(--purple));color:#fff;flex:1;">🛍️ Add Item</button>
           <button class="admin-btn" id="shopItemFormCancelBtn" onclick="cancelShopItemEdit()" style="display:none;">✕ Cancel</button>
         </div>
-
-        <!-- ── List Game Item in Shop ── -->
-        <div style="border-top:1px solid rgba(255,157,199,0.15);margin-top:20px;padding-top:16px;">
-          <div class="admin-section-label" style="margin-bottom:12px;">🎁 List Existing Game Item in Shop</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
-            <div>
-              <label class="admin-label">Item</label>
-              <select class="admin-input" id="shopListItem_key">
-                <option value="">— select item —</option>
-              </select>
-            </div>
-            <div>
-              <label class="admin-label">Price (🪙)</label>
-              <input class="admin-input" id="shopListItem_price" type="number" value="500" min="1"/>
-            </div>
-          </div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;">
-            <div>
-              <label class="admin-label">Stock (-1 = ∞)</label>
-              <input class="admin-input" id="shopListItem_stock" type="number" value="-1"/>
-            </div>
-            <div style="display:flex;align-items:flex-end;padding-bottom:2px;">
-              <button class="btn-secondary" style="width:100%;font-size:0.8em;" onclick="addItemShopListing()">🛍️ List in Shop</button>
-            </div>
-          </div>
-          <div style="border-top:1px solid var(--border);padding-top:10px;">
-            <div class="admin-section-label" style="margin-bottom:8px;">Listed Game Items <span id="adminShopListingCount" style="color:var(--text-dim);font-size:0.78em;"></span></div>
-            <div id="adminShopListingList">
-              <div style="color:var(--text-dim);font-style:italic;font-size:0.82em;text-align:center;padding:14px;">None listed yet.</div>
-            </div>
-          </div>
-        </div>
+        </div><!-- /shopStep2Fields -->
       </div>
 
       <!-- Shop Item List -->
@@ -26245,17 +26248,22 @@ function populateShopSkinSelect(){ /* skin id typed manually */ }
 function setShopFormType(type, el){
   _shopFormCurrentType = type;
   document.querySelectorAll('.stp-opt').forEach(o=>o.classList.toggle('active', o.dataset.type===type));
-  ['boost','xp','card','title','skin'].forEach(t=>{
+  ['boost','xp','card','title','skin','gameitem'].forEach(t=>{
     const p = document.getElementById('shopFields_'+t);
     if(p) p.style.display = t===type ? 'block' : 'none';
   });
+  // Hide Step 2 fields when game item mode is active (has its own form)
+  const step2Fields = document.getElementById('shopStep2Fields');
+  if(step2Fields) step2Fields.style.display = type === 'gameitem' ? 'none' : '';
   // Set sensible default emoji
-  const emojiMap = {boost:'🚀',xp:'📦',card:'🃏',title:'🎀',skin:'🎨'};
+  const emojiMap = {boost:'🚀',xp:'📦',card:'🃏',title:'🎀',skin:'🎨',gameitem:'🎁'};
   const emojiEl = document.getElementById('shopItemForm_emoji');
   if(emojiEl && (!emojiEl.value || emojiEl.value === '🎁' || Object.values(emojiMap).includes(emojiEl.value))){
     emojiEl.value = emojiMap[type]||'🎁';
   }
-  shopAutoDesc();
+  if(type !== 'gameitem') shopAutoDesc();
+  // Populate game items dropdown when switching to gameitem
+  if(type === 'gameitem') populateShopItemDropdown();
 }
 
 // Auto-generate description
