@@ -11936,6 +11936,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
       <button class="filter-btn" id="atab-items"     onclick="switchAdminTab('items',this)">🎁 Items</button>
       <button class="filter-btn" id="atab-anime"     onclick="switchAdminTab('anime',this)">📁 Anime Manager</button>
       <button class="filter-btn" id="atab-tools" onclick="switchAdminTab('tools',this)">🔧 Tools</button>
+      <button class="filter-btn" id="atab-worldboss" onclick="switchAdminTab('worldboss',this)">⚔️ World Boss</button>
     </div>
 
 <!-- ANIME MANAGER TAB -->
@@ -12711,6 +12712,66 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
           <button class="admin-btn danger" onclick="adminClearCollection()">🗑️ Clear My Collection</button>
         </div>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- WORLD BOSS ADMIN TAB -->
+<div id="adminTab-worldboss" style="display:none;">
+  <div class="admin-panel">
+    <h3 style="font-family:'Cinzel Decorative',serif;font-size:0.95em;color:#e74c3c;margin-bottom:18px;display:flex;align-items:center;gap:8px;">
+      ⚔️ World Boss Manager
+      <span style="font-size:0.65em;font-family:'JetBrains Mono',monospace;color:var(--text-dim);font-weight:400;">Cooperative raid boss for all players</span>
+    </h3>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start;">
+
+      <!-- Left: Spawn Form -->
+      <div>
+        <div class="admin-section-label">Spawn a New Boss</div>
+
+        <div style="margin-bottom:12px;">
+          <label class="admin-label">Boss Card <span class="admin-hint">(secret/disabled cards preferred)</span></label>
+          <select id="wbAdminCardId" class="admin-input" style="width:100%;">
+            <option value="">— Select a card —</option>
+          </select>
+        </div>
+
+        <div style="margin-bottom:12px;">
+          <label class="admin-label">Boss Name</label>
+          <input id="wbAdminBossName" class="admin-input" type="text" placeholder="e.g. Shadow Sovereign" style="width:100%;"/>
+        </div>
+
+        <div style="margin-bottom:12px;">
+          <label class="admin-label">Max HP <span class="admin-hint">(50,000 – 500,000 recommended)</span></label>
+          <input id="wbAdminMaxHp" class="admin-input" type="number" value="75000" min="1000" step="5000" style="width:100%;"/>
+        </div>
+
+        <div style="margin-bottom:12px;">
+          <label class="admin-label">Arena Background GIF URL <span class="admin-hint">(optional)</span></label>
+          <input id="wbAdminBgGif" class="admin-input" type="text" placeholder="https://..." style="width:100%;"/>
+        </div>
+
+        <div style="background:rgba(192,57,43,0.08);border:1px solid rgba(192,57,43,0.2);border-radius:10px;padding:10px 12px;margin-bottom:14px;font-size:0.72em;color:rgba(240,216,232,0.65);line-height:1.6;">
+          ⚠️ Spawning a boss retires any currently active boss.<br>
+          All logged-in players will see a pop-up notification.<br>
+          Trigger boss abilities manually from inside the arena.<br>
+          Boss card abilities must be configured in the Card Manager.
+        </div>
+
+        <button class="btn-primary" style="background:linear-gradient(135deg,#8b0000,#c0392b);width:100%;font-size:0.8em;" onclick="adminSpawnWorldBoss()">
+          ⚔️ Spawn World Boss
+        </button>
+      </div>
+
+      <!-- Right: Boss History -->
+      <div>
+        <div class="admin-section-label">Recent Encounters</div>
+        <div id="wbAdminBossList">
+          <div style="color:var(--text-dim);font-style:italic;font-size:0.82em;padding:14px;text-align:center;">Click the tab to load...</div>
+        </div>
+        <button class="btn-secondary" style="width:100%;margin-top:10px;font-size:0.75em;" onclick="loadAdminBossList()">↻ Refresh List</button>
+      </div>
+
     </div>
   </div>
 </div>
@@ -18897,7 +18958,7 @@ function showAdminNav(){
 }
 
 function switchAdminTab(tab, btn){
-  ['cards','banners','skins','shop','tools','items','anime'].forEach(t=>{
+  ['cards','banners','skins','shop','tools','items','anime','worldboss'].forEach(t=>{
     const el=document.getElementById('adminTab-'+t);
     const b=document.getElementById('atab-'+t);
     if(el)el.style.display=t===tab?'block':'none';
@@ -18915,6 +18976,7 @@ function switchAdminTab(tab, btn){
     populateEvoItemDropdown();
   }
   if(tab==='anime') { loadAdminAnimeList(); }
+  if(tab==='worldboss') { loadAdminBossList(); populateWbCardSelector(); }
 }
 
 // ── Upload file to Supabase Storage ──
@@ -29559,92 +29621,6 @@ function populateWbCardSelector() {
 })();
 </script>
 
-<!-- ══════════════════════════════════════════════════════════
-     WORLD BOSS — ADMIN TAB (injected into admin panel on load)
-     ══════════════════════════════════════════════════════════ -->
-<script>
-// Inject World Boss tab into the admin panel when admin navigates to it
-document.addEventListener('DOMContentLoaded', () => {
-  // Add the tab button
-  setTimeout(() => {
-    const tabRow = document.querySelector('#page-admin > .page > div[style*="flex"][style*="gap"]') ||
-                   document.querySelector('[id^="atab-cards"]')?.parentElement;
-    if(tabRow && !document.getElementById('atab-worldboss')) {
-      const btn = document.createElement('button');
-      btn.className = 'filter-btn';
-      btn.id = 'atab-worldboss';
-      btn.textContent = '⚔️ World Boss';
-      btn.setAttribute('onclick', "switchAdminTab('worldboss',this); setTimeout(()=>{loadAdminBossList();populateWbCardSelector();},100);");
-      tabRow.appendChild(btn);
-    }
-
-    // Inject tab content container
-    const adminPage = document.getElementById('page-admin');
-    if(adminPage && !document.getElementById('adminTab-worldboss')) {
-      const div = document.createElement('div');
-      div.id = 'adminTab-worldboss';
-      div.style.display = 'none';
-      div.innerHTML = `
-        <div class="admin-panel">
-          <h3 style="font-family:'Cinzel Decorative',serif;font-size:0.95em;color:#e74c3c;margin-bottom:18px;display:flex;align-items:center;gap:8px;">
-            ⚔️ World Boss Manager
-            <span style="font-size:0.65em;font-family:'JetBrains Mono',monospace;color:var(--text-dim);font-weight:400;">Cooperative raid boss for all players</span>
-          </h3>
-
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start;">
-            <!-- Spawn Form -->
-            <div>
-              <div class="admin-section-label">Spawn a New Boss</div>
-
-              <div class="wb-admin-form-row">
-                <label class="wb-admin-form-label">Boss Card <span class="wb-admin-hint">(secret/disabled cards preferred)</span></label>
-                <select id="wbAdminCardId" class="admin-input" style="width:100%;margin-bottom:0;" onclick="populateWbCardSelector()">
-                  <option value="">— Select a card —</option>
-                </select>
-              </div>
-
-              <div class="wb-admin-form-row">
-                <label class="wb-admin-form-label">Boss Name</label>
-                <input id="wbAdminBossName" class="admin-input" type="text" placeholder="e.g. Shadow Sovereign" style="width:100%;"/>
-              </div>
-
-              <div class="wb-admin-form-row">
-                <label class="wb-admin-form-label">Max HP <span class="wb-admin-hint">(50,000 – 500,000 recommended)</span></label>
-                <input id="wbAdminMaxHp" class="admin-input" type="number" value="75000" min="1000" step="5000" style="width:100%;"/>
-              </div>
-
-              <div class="wb-admin-form-row">
-                <label class="wb-admin-form-label">Arena Background GIF URL <span class="wb-admin-hint">(optional)</span></label>
-                <input id="wbAdminBgGif" class="admin-input" type="text" placeholder="https://..." style="width:100%;"/>
-              </div>
-
-              <div style="background:rgba(192,57,43,0.08);border:1px solid rgba(192,57,43,0.2);border-radius:10px;padding:10px 12px;margin-bottom:14px;font-size:0.72em;color:rgba(240,216,232,0.65);line-height:1.5;">
-                ⚠️ Spawning a boss retires any currently active boss.<br>
-                All logged-in players will receive a pop-up notification.<br>
-                Trigger the boss's ability manually using the in-arena button.<br>
-                Only abilities from the boss card's configured ability slots will fire.
-              </div>
-
-              <button class="btn-primary" style="background:linear-gradient(135deg,#8b0000,#c0392b);width:100%;font-size:0.8em;" onclick="adminSpawnWorldBoss()">
-                ⚔️ Spawn World Boss
-              </button>
-            </div>
-
-            <!-- Boss History -->
-            <div>
-              <div class="admin-section-label">Recent Encounters</div>
-              <div id="wbAdminBossList">
-                <div style="color:var(--text-dim);font-style:italic;font-size:0.82em;padding:14px;text-align:center;">Loading...</div>
-              </div>
-              <button class="btn-secondary" style="width:100%;margin-top:10px;font-size:0.75em;" onclick="loadAdminBossList()">↻ Refresh</button>
-            </div>
-          </div>
-        </div>`;
-      adminPage.appendChild(div);
-    }
-  }, 800);
-});
-</script>
 
 <!-- WORLD BOSS SQL MIGRATION (run once in Supabase SQL Editor):
 
