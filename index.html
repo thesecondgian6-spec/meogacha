@@ -2817,45 +2817,32 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
     display: block !important;
   }
   .admin-two-col-grid > * { margin-bottom: 16px; }
-  /* Items tab: 2-col grid → single column */
-  #adminTab-items > div[style*="grid-template-columns:1fr 1fr"],
-  #adminTab-items > div[style*="grid-template-columns: 1fr 1fr"] {
-    display: block !important;
-  }
-  /* Skin manager form: 2-col grids → single column */
-  #adminTab-skins .admin-panel > div[style*="grid-template-columns:1fr 1fr"],
-  #adminTab-skins .admin-panel > div[style*="grid-template-columns: 1fr 1fr"] {
-    display: block !important;
-  }
-  /* Admin panel padding reduction on mobile */
-  .admin-panel { padding: 16px 14px !important; border-radius: 14px !important; }
-  /* Ability slot 2-col grids → stacked */
-  .ab-slot > div[style*="grid-template-columns:1fr 1fr"],
-  .ab-slot > div[style*="grid-template-columns: 1fr 1fr"] {
-    display: block !important;
-  }
-  /* Effect type + tier row: stack vertically */
-  .ab-slot > div[style*="grid-template-columns:1fr 130px"],
-  .ab-slot > div[style*="grid-template-columns: 1fr 130px"] {
+  /* Card form + ability slot 2-col → stacked */
+  .admin-grid-2col,
+  .admin-grid-icon-name,
+  .admin-grid-effect-tier {
     display: flex !important;
     flex-direction: column !important;
     gap: 8px !important;
   }
-  /* Card form 2-col basic info → single col */
-  #cardFormPanel > div[style*="grid-template-columns:1fr 1fr"],
-  #cardFormPanel > div[style*="grid-template-columns: 1fr 1fr"] {
+  /* Icon input: full width on mobile */
+  .admin-grid-icon-name > div:first-child input { width: 100% !important; text-align: left !important; }
+  /* Admin panel padding reduction on mobile */
+  .admin-panel { padding: 16px 14px !important; border-radius: 14px !important; }
+  /* Items tab: 2-col grid → single column */
+  #adminTab-items > div[style*="grid-template-columns"] {
     display: block !important;
   }
-  /* Skin preview images row: allow wrap */
-  #skinFormPreviewWrap > div > div { flex-wrap: wrap !important; }
+  /* Skin manager form: 2-col grids → single column */
+  #adminTab-skins .admin-panel > div[style*="grid-template-columns"] {
+    display: block !important;
+  }
   /* Items give-player 2-col → block */
-  #adminTab-items .admin-panel > div > div[style*="grid-template-columns:1fr 1fr"],
-  #adminTab-items .admin-panel > div > div[style*="grid-template-columns: 1fr 1fr"] {
+  #adminTab-items .admin-panel > div > div[style*="grid-template-columns"] {
     display: block !important;
   }
   /* Anime manager 2-col grid → stacked */
-  #adminTab-anime > div[style*="grid-template-columns:1fr 1fr"],
-  #adminTab-anime > div[style*="grid-template-columns: 1fr 1fr"] {
+  #adminTab-anime > div[style*="grid-template-columns"] {
     display: block !important;
   }
   /* Admin tab bar: scrollable */
@@ -2871,36 +2858,121 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   #skinForm_cardId { width: 100% !important; }
 }
 
-/* ── Improved ability tier/effect select styling ── */
-.ab-tier-select option { padding: 4px 8px; }
-.ab-effect-select-wrap { position: relative; }
+/* ── Custom styled dropdown ── */
+.csd-wrap {
+  position: relative;
+  width: 100%;
+  user-select: none;
+}
+.csd-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 9px 12px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.92em;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+  min-height: 38px;
+}
+.csd-trigger:hover { border-color: var(--pink); background: rgba(255,157,199,0.06); }
+.csd-trigger.open  { border-color: var(--pink); background: rgba(255,157,199,0.08); border-radius: 8px 8px 0 0; }
+.csd-trigger-label { display: flex; align-items: center; gap: 7px; flex: 1; min-width: 0; }
+.csd-trigger-icon  { font-size: 1.1em; flex-shrink: 0; }
+.csd-trigger-text  { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.csd-trigger-sub   { font-size: 0.74em; color: var(--text-dim); font-style: italic; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.csd-arrow {
+  flex-shrink: 0;
+  font-size: 0.7em;
+  color: var(--text-dim);
+  transition: transform 0.2s;
+  margin-left: 4px;
+}
+.csd-trigger.open .csd-arrow { transform: rotate(180deg); }
+.csd-menu {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0; right: 0;
+  z-index: 200;
+  background: var(--bg2);
+  border: 1px solid var(--pink);
+  border-top: none;
+  border-radius: 0 0 12px 12px;
+  overflow: hidden;
+  max-height: 320px;
+  overflow-y: auto;
+  box-shadow: 0 12px 32px rgba(0,0,0,0.5);
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,157,199,0.3) transparent;
+}
+.csd-menu.open { display: block; animation: csdSlide 0.15s ease; }
+@keyframes csdSlide { from { opacity:0; transform:translateY(-6px); } to { opacity:1; transform:translateY(0); } }
+.csd-group-label {
+  padding: 7px 12px 4px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68em;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  border-top: 1px solid rgba(255,157,199,0.08);
+  background: rgba(255,255,255,0.02);
+}
+.csd-group-label:first-child { border-top: none; }
+.csd-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 14px;
+  cursor: pointer;
+  transition: background 0.12s;
+  border-left: 2px solid transparent;
+}
+.csd-option:hover { background: rgba(255,157,199,0.08); border-left-color: var(--pink); }
+.csd-option.selected { background: rgba(255,157,199,0.1); border-left-color: var(--pink); }
+.csd-option-icon { font-size: 1.1em; width: 22px; text-align: center; flex-shrink: 0; }
+.csd-option-body { flex: 1; min-width: 0; }
+.csd-option-name { font-size: 0.88em; color: var(--text); line-height: 1.2; }
+.csd-option-desc { font-size: 0.73em; color: var(--text-dim); font-style: italic; margin-top: 2px; line-height: 1.3; }
+/* Hidden real select synced with custom dropdown */
+.csd-native { display: none !important; }
 
-/* ── Effect description pill below select ── */
+/* ── Tier dropdown — compact pill style ── */
+.csd-tier-wrap .csd-trigger {
+  border-radius: 8px;
+  font-size: 0.88em;
+}
+.csd-tier-wrap .csd-menu { border-radius: 0 0 10px 10px; }
+.csd-tier-option-passive  { border-left-color: #3498db !important; }
+.csd-tier-option-active   { border-left-color: var(--pink) !important; }
+.csd-tier-option-ultimate { border-left-color: #f1c40f !important; }
+.csd-tier-option-passive .csd-option-name  { color: #5dade2; }
+.csd-tier-option-active .csd-option-name   { color: var(--pink); }
+.csd-tier-option-ultimate .csd-option-name { color: #f1c40f; }
+
+/* ── Effect description pill below effect dropdown ── */
 .ab-effect-desc-pill {
   display: flex;
   align-items: center;
   gap: 6px;
   padding: 5px 10px;
-  border-radius: 8px;
+  border-radius: 0 0 8px 8px;
   font-size: 0.74em;
   font-style: italic;
   color: var(--text-dim);
-  background: rgba(255,255,255,0.03);
+  background: rgba(255,255,255,0.02);
   border: 1px solid rgba(255,157,199,0.1);
-  margin-top: 4px;
-  min-height: 28px;
+  border-top: none;
+  min-height: 24px;
   line-height: 1.4;
+  transition: color 0.2s;
 }
-.ab-effect-desc-pill .pill-icon { font-size: 1.1em; flex-shrink: 0; }
-
-/* ── Tier select improved visual ── */
-.ab-tier-select {
-  font-weight: 600;
-  letter-spacing: 0.04em;
-}
-.ab-tier-passive  { border-color: rgba(52,152,219,0.5) !important; color: #5dade2 !important; }
-.ab-tier-active   { border-color: rgba(255,157,199,0.5) !important; color: var(--pink) !important; }
-.ab-tier-ultimate { border-color: rgba(241,196,15,0.5) !important; color: #f1c40f !important; }
+.ab-effect-desc-pill .pill-icon { font-size: 1.05em; flex-shrink: 0; }
 
 /* ── 5x PULL CAROUSEL ── */
 #multiPullScreen{position:fixed;inset:0;z-index:205;display:none;align-items:center;justify-content:flex-start;background:rgba(0,0,0,0.96);flex-direction:column;padding:24px 12px 24px;overflow-y:auto;}
@@ -12043,7 +12115,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
             <input type="hidden" id="editCardId_orig"/>
 
             <div class="admin-section-label">Basic Info</div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+            <div class="admin-grid-2col" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
               <div>
                 <label class="admin-label">Card ID * <span class="admin-hint">(unique, no spaces)</span></label>
                 <input class="admin-input" id="cardForm_id" placeholder="e.g. asta2" oninput="updateCardPreview()"/>
@@ -19436,6 +19508,146 @@ Object.entries(EFFECT_LIBRARY).forEach(([key, src]) => {
 const TEMPLATE_CATEGORIES = EFFECT_CATEGORIES;
 
 // ── Ability slots ──
+// ════════════════════════════════════════════════════════
+// ── CUSTOM STYLED DROPDOWN ENGINE (CSD) ──────────────────
+// ════════════════════════════════════════════════════════
+
+const CSD_TIER_DATA = [
+  { value:'passive',  icon:'🔵', name:'Passive',  desc:'Auto-triggers — no button, fires on its own.' },
+  { value:'active',   icon:'🟢', name:'Active',   desc:'Press to use — costs MP, guaranteed trigger.' },
+  { value:'ultimate', icon:'🟡', name:'Ultimate', desc:'Powerful active — high MP cost, max impact.' },
+];
+
+let _csdOpenId = null;
+
+function csdToggle(menuId) {
+  if(_csdOpenId && _csdOpenId !== menuId) csdClose(_csdOpenId);
+  const menu = document.getElementById(menuId);
+  if(!menu) return;
+  const isOpen = menu.classList.contains('open');
+  if(isOpen) { csdClose(menuId); } else { csdOpen(menuId); }
+}
+function csdOpen(menuId) {
+  const menu = document.getElementById(menuId);
+  const trigger = document.getElementById(menuId.replace('csd_','csd_').replace(/_(\d+)$/, '_trigger_$1').replace('csd_effect_trigger_','csd_effect_trigger_').replace('csd_tier_trigger_','csd_tier_trigger_'));
+  // find trigger by convention: menuId = "csd_effect_4" → trigger = "csd_effect_trigger_4"
+  const parts = menuId.split('_'); // ["csd","effect","4"] or ["csd","tier","4"]
+  const triggerId = `csd_${parts[1]}_trigger_${parts[2]}`;
+  const triggerEl = document.getElementById(triggerId);
+  if(menu) { menu.classList.add('open'); }
+  if(triggerEl) triggerEl.classList.add('open');
+  _csdOpenId = menuId;
+}
+function csdClose(menuId) {
+  const menu = document.getElementById(menuId);
+  const parts = menuId.split('_');
+  const triggerId = `csd_${parts[1]}_trigger_${parts[2]}`;
+  const triggerEl = document.getElementById(triggerId);
+  if(menu) menu.classList.remove('open');
+  if(triggerEl) triggerEl.classList.remove('open');
+  if(_csdOpenId === menuId) _csdOpenId = null;
+}
+
+// Close on outside click
+document.addEventListener('click', e => {
+  if(_csdOpenId && !e.target.closest('.csd-wrap')) csdClose(_csdOpenId);
+}, true);
+
+function csdSelectEffect(idx, key, label, icon, desc) {
+  // Update native select
+  const native = document.getElementById(`csd_effect_native_${idx}`);
+  if(native) { native.value = key; native.dispatchEvent(new Event('change')); }
+  // Update trigger display
+  const iconEl = document.getElementById(`csd_effect_icon_${idx}`);
+  const textEl = document.getElementById(`csd_effect_text_${idx}`);
+  if(iconEl) iconEl.textContent = icon;
+  if(textEl) textEl.textContent = label;
+  // Mark selected
+  document.querySelectorAll(`#csd_effect_${idx} .csd-option`).forEach(o =>
+    o.classList.toggle('selected', o.dataset.value === key));
+  csdClose(`csd_effect_${idx}`);
+}
+
+function csdSelectTier(idx, value, icon, name) {
+  const native = document.getElementById(`csd_tier_native_${idx}`);
+  if(native) { native.value = value; native.dispatchEvent(new Event('change')); }
+  const iconEl = document.getElementById(`csd_tier_icon_${idx}`);
+  const textEl = document.getElementById(`csd_tier_text_${idx}`);
+  if(iconEl) iconEl.textContent = icon;
+  if(textEl) textEl.textContent = name;
+  document.querySelectorAll(`#csd_tier_${idx} .csd-option`).forEach(o =>
+    o.classList.toggle('selected', o.dataset.value === value));
+  csdClose(`csd_tier_${idx}`);
+}
+
+function csdBuildEffectMenu(idx, currentKey) {
+  const menu = document.getElementById(`csd_effect_${idx}`);
+  if(!menu) return;
+  const catGroups = {};
+  Object.entries(ABILITY_TEMPLATES).forEach(([k,t])=>{
+    if(!catGroups[t.category]) catGroups[t.category]=[];
+    catGroups[t.category].push({k,t});
+  });
+  const PILL = EFFECT_PILL_DESC || {};
+  let html = '';
+  Object.entries(catGroups).forEach(([cat,items])=>{
+    const ci = TEMPLATE_CATEGORIES[cat];
+    html += `<div class="csd-group-label" style="color:${ci.color}">${ci.label}</div>`;
+    items.forEach(({k,t})=>{
+      const pd = PILL[k];
+      const desc = pd?.desc || '';
+      const icon = t.icon || pd?.icon || '✦';
+      html += `<div class="csd-option${k===currentKey?' selected':''}" data-value="${k}"
+        onclick="csdSelectEffect(${idx},'${k}',${JSON.stringify(t.label)},${JSON.stringify(icon)},${JSON.stringify(desc)})"
+        style="border-left-color:${k===currentKey?ci.color:'transparent'}">
+        <span class="csd-option-icon">${icon}</span>
+        <div class="csd-option-body">
+          <div class="csd-option-name" style="color:${ci.color}">${t.label}</div>
+          ${desc?`<div class="csd-option-desc">${desc}</div>`:''}
+        </div>
+      </div>`;
+    });
+  });
+  menu.innerHTML = html;
+}
+
+function csdBuildTierMenu(idx, currentTier) {
+  const menu = document.getElementById(`csd_tier_${idx}`);
+  if(!menu) return;
+  const tierColors = { passive:'#5dade2', active:'var(--pink)', ultimate:'#f1c40f' };
+  menu.innerHTML = CSD_TIER_DATA.map(t=>`
+    <div class="csd-option csd-tier-option-${t.value}${t.value===currentTier?' selected':''}" data-value="${t.value}"
+      onclick="csdSelectTier(${idx},'${t.value}',${JSON.stringify(t.icon)},${JSON.stringify(t.name)})">
+      <span class="csd-option-icon">${t.icon}</span>
+      <div class="csd-option-body">
+        <div class="csd-option-name" style="color:${tierColors[t.value]}">${t.name}</div>
+        <div class="csd-option-desc">${t.desc}</div>
+      </div>
+    </div>`).join('');
+}
+
+function csdInitSlot(idx, currentKey, currentTier) {
+  csdBuildEffectMenu(idx, currentKey);
+  csdBuildTierMenu(idx, currentTier);
+  // Set trigger display to current values
+  const tmpl = ABILITY_TEMPLATES[currentKey];
+  if(tmpl) {
+    const iconEl = document.getElementById(`csd_effect_icon_${idx}`);
+    const textEl = document.getElementById(`csd_effect_text_${idx}`);
+    if(iconEl) iconEl.textContent = tmpl.icon || '⚡';
+    if(textEl) textEl.textContent = tmpl.label;
+  }
+  const tierData = CSD_TIER_DATA.find(t=>t.value===currentTier);
+  if(tierData) {
+    const iconEl = document.getElementById(`csd_tier_icon_${idx}`);
+    const textEl = document.getElementById(`csd_tier_text_${idx}`);
+    if(iconEl) iconEl.textContent = tierData.icon;
+    if(textEl) textEl.textContent = tierData.name;
+  }
+}
+
+// ── END CSD ENGINE ──────────────────────────────────────
+
 let abilitySlotCount=0;
 
 function addAbilitySlot(prefill){
@@ -19490,7 +19702,7 @@ function addAbilitySlot(prefill){
       style="position:absolute;top:10px;right:10px;background:rgba(231,76,60,0.1);border:1px solid rgba(231,76,60,0.25);color:#e74c3c;width:24px;height:24px;border-radius:50%;cursor:pointer;font-size:0.85em;display:flex;align-items:center;justify-content:center;z-index:2;">✕</button>
 
     
-    <div style="display:grid;grid-template-columns:52px 1fr;gap:8px;margin-bottom:10px;">
+    <div class="admin-grid-icon-name" style="display:grid;grid-template-columns:52px 1fr;gap:8px;margin-bottom:10px;">
       <div>
         <label class="admin-label">Icon</label>
         <input class="admin-input ab-icon-input" value="${data.icon||'⚡'}" maxlength="4" style="text-align:center;font-size:1.3em;" oninput="updateCardPreview()"/>
@@ -19502,21 +19714,39 @@ function addAbilitySlot(prefill){
     </div>
 
     
-    <div style="display:grid;grid-template-columns:1fr 130px;gap:8px;margin-bottom:6px;">
+    <div class="admin-grid-effect-tier" style="display:grid;grid-template-columns:1fr 130px;gap:8px;margin-bottom:6px;">
       <div>
         <label class="admin-label">Effect Type <span class="admin-hint">— what does it do?</span></label>
-        <select class="admin-input ab-template-select" style="font-size:0.88em;" onchange="onAbilityTemplateChange(this,${idx})">
-          ${optionsHTML}
-        </select>
+        <div class="csd-wrap" id="csd_effect_wrap_${idx}">
+          <div class="csd-trigger" id="csd_effect_trigger_${idx}" onclick="csdToggle('csd_effect_${idx}')">
+            <span class="csd-trigger-label">
+              <span class="csd-trigger-icon" id="csd_effect_icon_${idx}">⚡</span>
+              <span class="csd-trigger-text" id="csd_effect_text_${idx}">Select effect…</span>
+            </span>
+            <span class="csd-arrow">▼</span>
+          </div>
+          <div class="csd-menu" id="csd_effect_${idx}"></div>
+          <select class="admin-input ab-template-select csd-native" id="csd_effect_native_${idx}" onchange="onAbilityTemplateChange(this,${idx})">${optionsHTML}</select>
+        </div>
         <div class="ab-effect-desc-pill" id="ab_effect_pill_${idx}"></div>
       </div>
       <div>
-        <label class="admin-label">Tier <span class="admin-hint">— changes how it fires</span></label>
-        <select class="admin-input ab-tier-select" onchange="onAbilityTierChange(this,${idx})">
-          <option value="passive"  ${prefillTier==='passive' ?'selected':''}>🔵 Passive — auto-triggers, no button</option>
-          <option value="active"   ${prefillTier==='active'  ?'selected':''}>🟢 Active — costs MP, press to use</option>
-          <option value="ultimate" ${prefillTier==='ultimate'?'selected':''}>🟡 Ultimate — powerful, high MP cost</option>
-        </select>
+        <label class="admin-label">Tier <span class="admin-hint">— how it fires</span></label>
+        <div class="csd-wrap csd-tier-wrap" id="csd_tier_wrap_${idx}">
+          <div class="csd-trigger" id="csd_tier_trigger_${idx}" onclick="csdToggle('csd_tier_${idx}')">
+            <span class="csd-trigger-label">
+              <span class="csd-trigger-icon" id="csd_tier_icon_${idx}">🟢</span>
+              <span class="csd-trigger-text" id="csd_tier_text_${idx}">active</span>
+            </span>
+            <span class="csd-arrow">▼</span>
+          </div>
+          <div class="csd-menu" id="csd_tier_${idx}"></div>
+          <select class="admin-input ab-tier-select csd-native" id="csd_tier_native_${idx}" onchange="onAbilityTierChange(this,${idx})">
+            <option value="passive"  ${prefillTier==='passive' ?'selected':''}>passive</option>
+            <option value="active"   ${prefillTier==='active'  ?'selected':''}>active</option>
+            <option value="ultimate" ${prefillTier==='ultimate'?'selected':''}>ultimate</option>
+          </select>
+        </div>
       </div>
     </div>
 
@@ -19534,7 +19764,7 @@ function addAbilitySlot(prefill){
     </div>
 
     
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+    <div class="admin-grid-2col" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
       <div>
         <label class="admin-label">Ability GIF <span class="admin-hint">(battle)</span></label>
         <div style="display:flex;gap:6px;">
@@ -19568,6 +19798,8 @@ function addAbilitySlot(prefill){
   buildAbilityParamsPanel(idx, prefillTemplateKey, {...data, tier: prefillTier}, el);
   updateTierHint(idx, prefillTier, prefillTemplateKey);
   updateEffectPill(idx, prefillTemplateKey, prefillTier);
+  // Init custom dropdowns
+  setTimeout(()=>csdInitSlot(idx, prefillTemplateKey, prefillTier), 0);
 }
 
 // TIER HINT MESSAGES
@@ -19637,25 +19869,43 @@ function updateTierHint(idx, tier, templateKey){
 function onAbilityTierChange(selectEl, idx){
   const slot = selectEl.closest('.ab-slot');
   const tier = selectEl.value;
-  const templateKey = slot.querySelector('.ab-template-select').value;
+  const templateKey = slot.querySelector('.ab-template-select')?.value || slot.querySelector('.csd-native[id^="csd_effect_native"]')?.value || 'strike';
   // Clear desc so it auto-regenerates for new tier
   const descEl = document.getElementById(`ab_desc_${idx}`);
   if(descEl) descEl.value='';
   updateTierHint(idx, tier, templateKey);
   updateEffectPill(idx, templateKey, tier);
   buildAbilityParamsPanel(idx, templateKey, {}, slot);
+  // Rebuild tier menu to update selected highlight
+  csdBuildTierMenu(idx, tier);
+  const td = CSD_TIER_DATA.find(t=>t.value===tier);
+  if(td) {
+    const iconEl=document.getElementById(`csd_tier_icon_${idx}`);
+    const textEl=document.getElementById(`csd_tier_text_${idx}`);
+    if(iconEl) iconEl.textContent=td.icon;
+    if(textEl) textEl.textContent=td.name;
+  }
 }
 
 function onAbilityTemplateChange(selectEl, idx){
   const key = selectEl.value;
   const slot = selectEl.closest('.ab-slot');
-  const tier = slot.querySelector('.ab-tier-select')?.value||'active';
+  const tier = slot.querySelector('.ab-tier-select')?.value || slot.querySelector('.csd-native[id^="csd_tier_native"]')?.value || 'active';
   // Clear desc
   const descEl = document.getElementById(`ab_desc_${idx}`);
   if(descEl) descEl.value='';
   updateTierHint(idx, tier, key);
   updateEffectPill(idx, key, tier);
   buildAbilityParamsPanel(idx, key, {}, slot);
+  // Rebuild effect menu to update selected highlight + update trigger display
+  csdBuildEffectMenu(idx, key);
+  const tmpl = ABILITY_TEMPLATES[key];
+  if(tmpl) {
+    const iconEl=document.getElementById(`csd_effect_icon_${idx}`);
+    const textEl=document.getElementById(`csd_effect_text_${idx}`);
+    if(iconEl) iconEl.textContent = tmpl.icon||'⚡';
+    if(textEl) textEl.textContent = tmpl.label;
+  }
   // Auto-fill GIF if blank
   const tmpl = ABILITY_TEMPLATES[key];
   if(tmpl){
