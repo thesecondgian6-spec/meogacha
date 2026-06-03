@@ -4852,7 +4852,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .admin-input{width:100%;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-family:'Cormorant Garamond',serif;font-size:0.92em;outline:none;transition:border-color 0.2s;box-sizing:border-box;}
 .admin-input:focus{border-color:var(--pink);}
 .admin-input option{background:var(--bg2);color:var(--text);}
-.admin-card-row{display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:10px 14px;transition:border-color 0.2s;}
+.admin-card-row{display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:10px 14px;transition:border-color 0.2s;overflow:hidden;}
 .admin-card-row:hover{border-color:rgba(255,157,199,0.35);}
 .admin-card-thumb{width:48px;height:68px;object-fit:cover;border-radius:8px;flex-shrink:0;border:2px solid var(--border);}
 .admin-card-info{flex:1;min-width:0;}
@@ -4862,6 +4862,10 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .admin-action-btn{padding:5px 12px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text-dim);cursor:pointer;font-size:0.78em;transition:all 0.2s;font-family:'Cormorant Garamond',serif;}
 .admin-action-btn:hover{border-color:var(--pink);color:var(--pink);}
 .admin-action-btn.danger:hover{border-color:#e74c3c;color:#e74c3c;}
+@media(max-width:700px){
+  .admin-card-row{flex-wrap:wrap;}
+  .admin-card-actions{width:100%;justify-content:flex-end;padding-left:60px;box-sizing:border-box;}
+}
 .admin-toggle-btn{padding:4px 10px;border-radius:20px;border:1px solid;cursor:pointer;font-size:0.72em;font-family:'JetBrains Mono',monospace;transition:all 0.2s;}
 .admin-ab-row{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:8px 12px;}
 .admin-ab-tier{font-size:0.7em;font-family:'JetBrains Mono',monospace;padding:2px 8px;border-radius:20px;border:1px solid;flex-shrink:0;}
@@ -12270,7 +12274,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;gap:8px;flex-wrap:wrap;">
               <h3 style="margin:0;">🃏 Cards <span id="adminCardCount" style="font-size:0.8em;color:var(--text-dim);font-family:'JetBrains Mono',monospace;"></span></h3>
               <div style="display:flex;gap:6px;">
-                <input class="admin-input" id="cardSearchInput" placeholder="Search..." style="width:130px;padding:6px 10px;font-size:0.85em;" oninput="renderAdminCardList()"/>
+                <input class="admin-input" id="cardSearchInput" placeholder="Search..." style="width:130px;max-width:calc(100vw - 160px);padding:6px 10px;font-size:0.85em;" oninput="renderAdminCardList()"/>
                 <button class="admin-btn" onclick="loadAdminCardList()" style="padding:6px 12px;font-size:0.82em;">🔄</button>
               </div>
             </div>
