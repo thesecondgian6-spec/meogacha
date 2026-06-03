@@ -19907,7 +19907,6 @@ function onAbilityTemplateChange(selectEl, idx){
     if(textEl) textEl.textContent = tmpl.label;
   }
   // Auto-fill GIF if blank
-  const tmpl = ABILITY_TEMPLATES[key];
   if(tmpl){
     const effectKey = tmpl.battle_effect[tier]||Object.values(tmpl.battle_effect)[0];
     const def = DEFAULT_AB_MEDIA[effectKey]||DEFAULT_AB_MEDIA['burst'];
