@@ -2771,10 +2771,10 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .admin-btn.danger:hover{background:rgba(231,76,60,0.2);}
 .admin-input{background:rgba(255,157,199,0.05);border:1px solid var(--border);border-radius:10px;padding:8px 14px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:0.85em;width:100%;margin-bottom:8px;}
 .admin-input:focus{outline:none;border-color:var(--pink);}
-/* Responsive admin card editor — full-width side-by-side on desktop, stacked on mobile */
+/* Responsive admin card editor — single column (preview removed) */
 .admin-card-editor-grid {
   display: grid;
-  grid-template-columns: 1fr 320px;
+  grid-template-columns: 1fr;
   gap: 20px;
   align-items: start;
 }
@@ -2832,7 +2832,12 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   #skinForm_cardId { width: 100% !important; }
   /* Prevent any admin content from overflowing the viewport */
   #page-admin { overflow-x: hidden; }
-  #page-admin * { max-width: 100%; }
+  /* Only constrain panels and form elements, not flex children */
+  #page-admin .admin-panel,
+  #page-admin .admin-input,
+  #page-admin .admin-btn,
+  #page-admin textarea,
+  #page-admin .csd-wrap { max-width: 100%; box-sizing: border-box; }
   /* Fix inline grid styles on banner/shop/items tabs */
   #adminTab-banners .admin-panel > div[style*="grid-template-columns"],
   #adminTab-shop .admin-panel > div[style*="grid-template-columns"],
@@ -10086,6 +10091,9 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
       <button class="shop-cat-btn" data-cat="skin" onclick="filterShop('skin',this)">
         <span class="sct-icon">🎨</span><span class="sct-label">Skins</span>
       </button>
+      <button class="shop-cat-btn" data-cat="gameitem" onclick="filterShop('gameitem',this)">
+        <span class="sct-icon">🎁</span><span class="sct-label">Game Items</span>
+      </button>
     </div>
 
     <!-- Active Boosts Banner -->
@@ -12975,7 +12983,30 @@ async function loadShopItems(){
 
 function getShopItems(){
   const items = window.SHOP_DB_ITEMS.length ? window.SHOP_DB_ITEMS : DEFAULT_SHOP_ITEMS;
-  return items.filter(i=>i.is_active!==false && i.enabled!==false);
+  const shopItems = items.filter(i=>i.is_active!==false && i.enabled!==false);
+
+  // Merge in game items from item_shop_listings + items table
+  const listings = (window.ITEM_SHOP_LIST || []).filter(l => l.is_active !== false);
+  const gameItems = listings.map(listing => {
+    const def = (window.GAME_ITEMS || []).find(g => g.item_key === listing.item_key);
+    if (!def) return null;
+    return {
+      id:          'gameitem_' + listing.id,
+      type:        'gameitem',
+      name:        def.name,
+      description: def.description || '',
+      emoji:       def.emoji || '🎁',
+      image_url:   def.image_url || '',
+      price:       listing.price,
+      stock:       listing.stock,
+      is_active:   true,
+      item_key:    listing.item_key,
+      listing_id:  listing.id,
+      rarity:      def.rarity,
+    };
+  }).filter(Boolean);
+
+  return [...shopItems, ...gameItems];
 }
 
 let _shopCurrentFilter = 'all';
@@ -13050,6 +13081,7 @@ function renderShopGrid(){
     card:      { label:'Card',         color:'#2ecc71',   accent:'rgba(46,204,113,0.12)',  border:'rgba(46,204,113,0.3)'  },
     title:     { label:'Title',        color:'#ff9dc7',   accent:'rgba(255,157,199,0.12)', border:'rgba(255,157,199,0.3)' },
     skin:      { label:'Card Skin',    color:'#c084b8',   accent:'rgba(192,132,184,0.12)', border:'rgba(192,132,184,0.3)' },
+    gameitem:  { label:'Item',         color:'#1abc9c',   accent:'rgba(26,188,156,0.12)',  border:'rgba(26,188,156,0.3)'  },
   };
 
   const now = Date.now();
@@ -13103,6 +13135,12 @@ function renderShopGrid(){
       if(state.collection && state.collection.includes(refId)){
         statusTag = `<div class="shop-item-status owned-status">🃏 In Collection</div>`;
       }
+    }
+    if(type === 'gameitem'){
+      const owned = (window.PLAYER_INVENTORY || {})[item.item_key] || 0;
+      if(owned > 0) statusTag = `<div class="shop-item-status owned-status">📦 Own: ${owned}</div>`;
+      if(item.stock === 0){ btnLabel = '✗ Sold Out'; btnDisabled=true; btnClass='shop-new-buy-btn disabled'; }
+      else if(item.stock > 0) typeLabel = `Item · ${item.stock} left`;
     }
 
     // ── Resolve thumbnail: prefer admin-set image_url, then look up card/skin art ──
@@ -13246,6 +13284,20 @@ async function buyShopItem(itemJson){
     }
     if(state.isGuest) saveGuestState();
     renderCollection(); renderShop(); return;
+  }
+
+  if(type === 'gameitem' && item.item_key){
+    const stockLabel = item.stock > 0 ? ` (${item.stock} left)` : '';
+    if(!confirm(`Buy "${item.name}"${stockLabel} for ${price} 🪙?`)) return;
+    state.coins -= price; updateCoins();
+    await giveItemToPlayer(state.discordId, item.item_key, 1);
+    showToast(`${item.emoji||'🎁'} "${item.name}" added to your inventory!`);
+    playShopSound(); playCoinSound();
+    if(state.discordId && !state.isGuest) await savePlayer();
+    if(state.isGuest) saveGuestState();
+    // Reload listings to reflect stock change
+    await loadGameItems();
+    renderShop(); return;
   }
 
   // Fallback
