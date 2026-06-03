@@ -43,6 +43,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .nav-btn:hover,.nav-btn.active{background:rgba(255,157,199,0.15);border-color:var(--pink);color:var(--pink);}
 .nav-coins{display:flex;align-items:center;gap:6px;background:rgba(241,196,15,0.1);border:1px solid rgba(241,196,15,0.3);border-radius:20px;padding:5px 14px;font-family:'JetBrains Mono',monospace;font-size:0.82em;color:#f1c40f;}
 .page{display:none;padding:32px;max-width:1100px;margin:0 auto;}
+@media(max-width:700px){.page{padding:16px 12px;}}
 .page.active{display:block;animation:fadeIn 0.4s ease;}
 @keyframes fadeIn{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
 .hero{text-align:center;padding:60px 20px 40px;position:relative;}
@@ -2856,6 +2857,26 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   .admin-input, .admin-btn { font-size: 0.88em !important; }
   /* Skin manager: card select full width */
   #skinForm_cardId { width: 100% !important; }
+  /* Prevent any admin content from overflowing the viewport */
+  #page-admin { overflow-x: hidden; }
+  #page-admin * { max-width: 100%; }
+  /* Fix inline grid styles on banner/shop/items tabs */
+  #adminTab-banners .admin-panel > div[style*="grid-template-columns"],
+  #adminTab-shop .admin-panel > div[style*="grid-template-columns"],
+  #adminTab-skins .admin-panel > div[style*="grid-template-columns"],
+  #adminTab-skins > div[style*="grid-template-columns"] {
+    grid-template-columns: 1fr !important;
+  }
+  /* Inline-style 2-col grids inside shop tab */
+  #adminTab-shop > div.admin-panel > div[style*="grid-template-columns:1fr 1fr"] {
+    grid-template-columns: 1fr !important;
+  }
+  /* Fix color swatch row wrap */
+  #cardFormPanel div[style*="display:flex"][style*="flex-wrap:wrap"] {
+    flex-wrap: wrap !important;
+  }
+  /* Upload button rows stay in row but don't overflow */
+  .upload-btn { flex-shrink: 0; }
 }
 
 /* ── Custom styled dropdown ── */
@@ -19647,6 +19668,206 @@ function csdInitSlot(idx, currentKey, currentTier) {
 }
 
 // ── END CSD ENGINE ──────────────────────────────────────
+
+// ── GENERIC CSD WRAPPER — upgrades plain <select class="admin-input"> to custom dropdowns ──
+// Usage: call csdWrapSelect(selectEl) or csdWrapAll(containerEl)
+// The native select is hidden but stays in DOM so form reads still work.
+
+(function(){
+  const _openWrappedId = { id: null };
+
+  function closeWrapped(id) {
+    const wrap = document.getElementById(id);
+    if (!wrap) return;
+    wrap.querySelector('.csd-trigger')?.classList.remove('open');
+    wrap.querySelector('.csd-menu')?.classList.remove('open');
+    if (_openWrappedId.id === id) _openWrappedId.id = null;
+  }
+
+  function openWrapped(id) {
+    if (_openWrappedId.id && _openWrappedId.id !== id) closeWrapped(_openWrappedId.id);
+    const wrap = document.getElementById(id);
+    if (!wrap) return;
+    wrap.querySelector('.csd-trigger')?.classList.add('open');
+    wrap.querySelector('.csd-menu')?.classList.add('open');
+    _openWrappedId.id = id;
+  }
+
+  function toggleWrapped(id) {
+    const wrap = document.getElementById(id);
+    if (!wrap) return;
+    const isOpen = wrap.querySelector('.csd-menu')?.classList.contains('open');
+    isOpen ? closeWrapped(id) : openWrapped(id);
+  }
+
+  document.addEventListener('click', e => {
+    if (_openWrappedId.id && !e.target.closest('.csd-wrap')) closeWrapped(_openWrappedId.id);
+  }, true);
+
+  // Render the trigger text from current select value
+  function syncTrigger(wrap, select) {
+    const opt = select.options[select.selectedIndex];
+    if (!opt) return;
+    const text = opt.dataset.label || opt.textContent.trim();
+    const icon = opt.dataset.icon || '';
+    const sub  = opt.dataset.sub  || '';
+    const iconEl = wrap.querySelector('.csd-trigger-icon');
+    const textEl = wrap.querySelector('.csd-trigger-text');
+    const subEl  = wrap.querySelector('.csd-trigger-sub');
+    if (iconEl) iconEl.textContent = icon;
+    if (textEl) textEl.textContent = text;
+    if (subEl)  { subEl.textContent = sub; subEl.style.display = sub ? '' : 'none'; }
+    // Update selected state in menu
+    wrap.querySelectorAll('.csd-option').forEach(o =>
+      o.classList.toggle('selected', o.dataset.value === opt.value));
+  }
+
+  function buildMenu(wrap, select) {
+    const menu = wrap.querySelector('.csd-menu');
+    if (!menu) return;
+    menu.innerHTML = '';
+    // Group by optgroup if present, else flat list
+    const groups = select.querySelectorAll('optgroup');
+    if (groups.length) {
+      groups.forEach(g => {
+        const gl = document.createElement('div');
+        gl.className = 'csd-group-label';
+        gl.textContent = g.label;
+        menu.appendChild(gl);
+        g.querySelectorAll('option').forEach(o => menu.appendChild(makeOption(wrap, select, o)));
+      });
+    } else {
+      select.querySelectorAll('option').forEach(o => menu.appendChild(makeOption(wrap, select, o)));
+    }
+  }
+
+  function makeOption(wrap, select, opt) {
+    const icon  = opt.dataset.icon  || extractEmoji(opt.textContent);
+    const label = opt.dataset.label || stripLeadingEmoji(opt.textContent.trim());
+    const desc  = opt.dataset.desc  || opt.dataset.sub || '';
+    const color = opt.dataset.color || '';
+    const div   = document.createElement('div');
+    div.className = 'csd-option' + (opt.selected ? ' selected' : '');
+    div.dataset.value = opt.value;
+    if (opt.disabled) { div.style.opacity = '0.4'; div.style.pointerEvents = 'none'; }
+    div.innerHTML = `
+      ${icon ? `<span class="csd-option-icon">${icon}</span>` : ''}
+      <div class="csd-option-body">
+        <div class="csd-option-name"${color?` style="color:${color}"`:''}>${label}</div>
+        ${desc ? `<div class="csd-option-desc">${desc}</div>` : ''}
+      </div>`;
+    div.addEventListener('click', () => {
+      select.value = opt.value;
+      select.dispatchEvent(new Event('change', {bubbles:true}));
+      syncTrigger(wrap, select);
+      closeWrapped(wrap.id);
+    });
+    return div;
+  }
+
+  // Emoji helpers
+  const EMOJI_RE = /^(\p{Emoji_Presentation}|\p{Extended_Pictographic})\s*/u;
+  function extractEmoji(str) {
+    const m = str.trim().match(EMOJI_RE);
+    return m ? m[1] : '';
+  }
+  function stripLeadingEmoji(str) {
+    return str.replace(EMOJI_RE, '').trim();
+  }
+
+  let _wrapIdx = 0;
+
+  window.csdWrapSelect = function(select) {
+    if (!select || select.dataset.csdWrapped) return;
+    select.dataset.csdWrapped = '1';
+
+    const id = 'csd_wrap_' + (_wrapIdx++);
+    const wrap = document.createElement('div');
+    wrap.className = 'csd-wrap';
+    wrap.id = id;
+
+    // Determine initial display
+    const opt = select.options[select.selectedIndex];
+    const icon  = opt ? (opt.dataset.icon  || extractEmoji(opt.textContent)) : '';
+    const label = opt ? (opt.dataset.label || stripLeadingEmoji(opt.textContent.trim())) : '—';
+    const sub   = opt ? (opt.dataset.sub   || '') : '';
+
+    wrap.innerHTML = `
+      <div class="csd-trigger" onclick="(function(id){const w=document.getElementById(id);const isOpen=w.querySelector('.csd-menu').classList.contains('open');isOpen?(w.querySelector('.csd-trigger').classList.remove('open'),w.querySelector('.csd-menu').classList.remove('open'),window.__csdWrapOpen=null):(window.__csdWrapClose&&window.__csdWrapClose(),w.querySelector('.csd-trigger').classList.add('open'),w.querySelector('.csd-menu').classList.add('open'),window.__csdWrapOpen=id,window.__csdWrapClose=function(){w.querySelector('.csd-trigger').classList.remove('open');w.querySelector('.csd-menu').classList.remove('open');window.__csdWrapOpen=null;window.__csdWrapClose=null;});}('${id}'))">
+        <span class="csd-trigger-label">
+          <span class="csd-trigger-icon">${icon}</span>
+          <span class="csd-trigger-text">${label}</span>
+        </span>
+        ${sub ? `<span class="csd-trigger-sub">${sub}</span>` : `<span class="csd-trigger-sub" style="display:none"></span>`}
+        <span class="csd-arrow">▼</span>
+      </div>
+      <div class="csd-menu"></div>`;
+
+    // Close on outside click (deduplicated via global flag)
+    select.parentNode.insertBefore(wrap, select);
+    wrap.appendChild(select);
+    select.classList.add('csd-native');
+
+    buildMenu(wrap, select);
+
+    // Re-sync when select changes externally (e.g. JS sets .value)
+    select.addEventListener('change', () => { buildMenu(wrap, select); syncTrigger(wrap, select); });
+
+    // Watch for option list changes (dynamic options like skinForm_cardId)
+    const obs = new MutationObserver(() => { buildMenu(wrap, select); syncTrigger(wrap, select); });
+    obs.observe(select, {childList: true, subtree: true});
+  };
+
+  window.csdWrapAll = function(container) {
+    container = container || document;
+    container.querySelectorAll('select.admin-input:not([data-csd-wrapped]):not([data-no-csd])').forEach(s => {
+      window.csdWrapSelect(s);
+    });
+  };
+
+  // Auto-wrap when admin page opens
+  const _origSwitch = window.switchAdminTab;
+  // We'll hook after DOM is ready
+  document.addEventListener('DOMContentLoaded', () => {
+    // Wrap all existing admin selects
+    const adminEl = document.getElementById('page-admin');
+    if (adminEl) window.csdWrapAll(adminEl);
+    // Also patch switchAdminTab to wrap newly revealed tabs
+    if (window.switchAdminTab) {
+      const orig = window.switchAdminTab;
+      window.switchAdminTab = function(tab, btn) {
+        orig.call(this, tab, btn);
+        const tabEl = document.getElementById('adminTab-' + tab);
+        if (tabEl) setTimeout(() => window.csdWrapAll(tabEl), 50);
+      };
+    }
+  });
+
+  // Fallback: wrap on load in case DOMContentLoaded already fired
+  if (document.readyState === 'complete' || document.readyState === 'interactive') {
+    setTimeout(() => {
+      const adminEl = document.getElementById('page-admin');
+      if (adminEl) window.csdWrapAll(adminEl);
+      if (window.switchAdminTab && !window.switchAdminTab._csdPatched) {
+        const orig = window.switchAdminTab;
+        window.switchAdminTab = function(tab, btn) {
+          orig.call(this, tab, btn);
+          const tabEl = document.getElementById('adminTab-' + tab);
+          if (tabEl) setTimeout(() => window.csdWrapAll(tabEl), 50);
+        };
+        window.switchAdminTab._csdPatched = true;
+      }
+    }, 0);
+  }
+
+  // Global outside-click: close any open wrapped CSD
+  document.addEventListener('click', e => {
+    if (window.__csdWrapOpen && !e.target.closest('.csd-wrap')) {
+      window.__csdWrapClose && window.__csdWrapClose();
+    }
+  }, true);
+})();
+// ── END GENERIC CSD WRAPPER ──────────────────────────────
 
 let abilitySlotCount=0;
 
