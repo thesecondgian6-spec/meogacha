@@ -12127,7 +12127,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 
     <!-- CARD MANAGER TAB -->
     <div id="adminTab-cards">
-      <div class="admin-card-editor-grid">
+      <div class="admin-card-editor-grid" style="grid-template-columns:1fr !important;">
 
         <!-- FORM COLUMN -->
         <div>
@@ -12300,41 +12300,6 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 
         </div>
 
-        <!-- PREVIEW COLUMN -->
-        <div style="position:sticky;top:80px;">
-          <div class="admin-section-label" style="text-align:center;margin-bottom:10px;">Live Preview</div>
-
-          <!-- Pull card preview -->
-          <div id="cardPreviewBox" style="background:var(--bg2);border:2px solid var(--border);border-radius:18px;overflow:hidden;transition:border-color 0.3s;">
-            <div style="position:relative;background:#1a0a22;min-height:180px;display:flex;align-items:center;justify-content:center;overflow:hidden;">
-              <img id="previewImg" src="" alt="" style="width:100%;max-height:240px;object-fit:cover;display:none;" onerror="this.style.display='none'"/>
-              <div id="previewImgPlaceholder" style="color:var(--text-dim);font-style:italic;font-size:0.82em;text-align:center;padding:40px 20px;">🎴 Card image<br/>appears here</div>
-            </div>
-            <div id="previewBody" style="padding:14px;">
-              <div id="previewRarityBadge" style="font-family:'JetBrains Mono',monospace;font-size:0.78em;margin-bottom:4px;color:#9b59b6;">🟣 [SSR] ★★★★</div>
-              <div id="previewName" style="font-family:'Cinzel Decorative',serif;font-size:1em;color:#fff;margin-bottom:2px;">Character Name</div>
-              <div id="previewSeries" style="font-style:italic;color:var(--text-dim);font-size:0.82em;margin-bottom:8px;">Series</div>
-              <div id="previewQuote" style="font-style:italic;color:var(--pink-pale);font-size:0.78em;border-left:2px solid var(--pink);padding-left:8px;line-height:1.5;margin-bottom:8px;display:none;"></div>
-              <div id="previewAbilities" style="display:flex;flex-direction:column;gap:3px;"></div>
-            </div>
-          </div>
-
-          <!-- Collection thumb -->
-          <div style="margin-top:14px;max-width:110px;margin-left:auto;margin-right:auto;">
-            <div class="admin-section-label" style="text-align:center;margin-bottom:6px;font-size:0.72em;">In Collection</div>
-            <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;">
-              <div style="position:relative;aspect-ratio:3/4;background:#1c0f26;display:flex;align-items:center;justify-content:center;overflow:hidden;">
-                <img id="previewThumbImg" src="" alt="" style="width:100%;height:100%;object-fit:cover;display:none;" onerror="this.style.display='none'"/>
-                <span id="previewThumbPlaceholder" style="color:var(--text-dim);font-size:0.7em;">img</span>
-                <span id="previewThumbRarity" style="position:absolute;top:3px;right:3px;background:rgba(0,0,0,0.8);border-radius:3px;padding:1px 4px;font-size:0.58em;font-family:'JetBrains Mono',monospace;color:#9b59b6;">[SSR]</span>
-              </div>
-              <div style="padding:5px 7px;">
-                <div id="previewThumbName" style="font-size:0.68em;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text);">Name</div>
-                <div id="previewThumbStars" style="font-size:0.6em;color:#9b59b6;">★★★★</div>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
 
@@ -12686,6 +12651,38 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
             style="background:linear-gradient(135deg,var(--pink-deep),var(--purple));color:#fff;flex:1;">🛍️ Add Item</button>
           <button class="admin-btn" id="shopItemFormCancelBtn" onclick="cancelShopItemEdit()" style="display:none;">✕ Cancel</button>
         </div>
+
+        <!-- ── List Game Item in Shop ── -->
+        <div style="border-top:1px solid rgba(255,157,199,0.15);margin-top:20px;padding-top:16px;">
+          <div class="admin-section-label" style="margin-bottom:12px;">🎁 List Existing Game Item in Shop</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+            <div>
+              <label class="admin-label">Item</label>
+              <select class="admin-input" id="shopListItem_key">
+                <option value="">— select item —</option>
+              </select>
+            </div>
+            <div>
+              <label class="admin-label">Price (🪙)</label>
+              <input class="admin-input" id="shopListItem_price" type="number" value="500" min="1"/>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;">
+            <div>
+              <label class="admin-label">Stock (-1 = ∞)</label>
+              <input class="admin-input" id="shopListItem_stock" type="number" value="-1"/>
+            </div>
+            <div style="display:flex;align-items:flex-end;padding-bottom:2px;">
+              <button class="btn-secondary" style="width:100%;font-size:0.8em;" onclick="addItemShopListing()">🛍️ List in Shop</button>
+            </div>
+          </div>
+          <div style="border-top:1px solid var(--border);padding-top:10px;">
+            <div class="admin-section-label" style="margin-bottom:8px;">Listed Game Items <span id="adminShopListingCount" style="color:var(--text-dim);font-size:0.78em;"></span></div>
+            <div id="adminShopListingList">
+              <div style="color:var(--text-dim);font-style:italic;font-size:0.82em;text-align:center;padding:14px;">None listed yet.</div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- Shop Item List -->
@@ -12699,37 +12696,6 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
         </div>
       </div>
 
-      <!-- Game Item Shop Listings -->
-      <div class="admin-panel" style="margin-top:16px;">
-        <h3 style="font-family:'Cinzel Decorative',serif;font-size:0.88em;margin-bottom:14px;">🎁 List Game Item in Shop</h3>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
-          <div>
-            <label class="admin-label">Item</label>
-            <select class="admin-input" id="shopListItem_key">
-              <option value="">— select item —</option>
-            </select>
-          </div>
-          <div>
-            <label class="admin-label">Price (🪙)</label>
-            <input class="admin-input" id="shopListItem_price" type="number" value="500" min="1"/>
-          </div>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
-          <div>
-            <label class="admin-label">Stock (-1 = ∞)</label>
-            <input class="admin-input" id="shopListItem_stock" type="number" value="-1"/>
-          </div>
-          <div style="display:flex;align-items:flex-end;padding-bottom:2px;">
-            <button class="btn-secondary" style="width:100%;font-size:0.8em;" onclick="addItemShopListing()">🛍️ List in Shop</button>
-          </div>
-        </div>
-        <div style="border-top:1px solid var(--border);margin-top:10px;padding-top:10px;">
-          <div class="admin-section-label" style="margin-bottom:8px;">Listed Game Items <span id="adminShopListingCount" style="color:var(--text-dim);font-size:0.78em;"></span></div>
-          <div id="adminShopListingList">
-            <div style="color:var(--text-dim);font-style:italic;font-size:0.82em;text-align:center;padding:14px;">None listed yet.</div>
-          </div>
-        </div>
-      </div>
     </div>
 
     <!-- TOOLS TAB -->
@@ -27650,6 +27616,18 @@ function populateShopItemDropdown() {
   el.innerHTML = '<option value="">— select item —</option>' +
     items.map(i => `<option value="${i.item_key}">${i.emoji||'🎁'} ${i.name}</option>`).join('');
   if(cur) el.value = cur;
+  // Re-sync CSD wrapper if already wrapped
+  if(el.dataset.csdWrapped) {
+    const wrap = el.closest('.csd-wrap');
+    if(wrap && window.csdWrapAll) {
+      // Trigger MutationObserver by dispatching change on select
+      el.dispatchEvent(new Event('change'));
+    }
+  } else if(window.csdWrapAll) {
+    // Wrap it now if not yet wrapped
+    const tabEl = document.getElementById('adminTab-shop');
+    if(tabEl) window.csdWrapAll(tabEl);
+  }
 }
 
 // Wire loadGameItems to refresh shop dropdown
