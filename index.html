@@ -28048,3 +28048,1645 @@ ALTER TABLE anime_collections ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "anon_read_anime"  ON anime_collections FOR SELECT USING (true);
 CREATE POLICY "anon_write_anime" ON anime_collections FOR ALL    USING (true);
 -->
+
+<!-- ══════════════════════════════════════════════════════════════════
+     ⚔️  WORLD BOSS SYSTEM
+     A cooperative raid-style boss fight for all logged-in players.
+     ══════════════════════════════════════════════════════════════════ -->
+
+<style>
+/* ════════════════════════════════════════
+   WORLD BOSS — SPAWN NOTIFICATION OVERLAY
+   ════════════════════════════════════════ */
+#wbSpawnOverlay {
+  position: fixed; inset: 0; z-index: 420;
+  display: none; align-items: center; justify-content: center;
+  background: rgba(0,0,0,0.0);
+  backdrop-filter: blur(0px);
+  transition: background 0.5s ease, backdrop-filter 0.5s ease;
+  flex-direction: column;
+}
+#wbSpawnOverlay.wb-notif-open {
+  background: rgba(0,0,0,0.88);
+  backdrop-filter: blur(14px);
+}
+.wb-notif-box {
+  max-width: 440px; width: 90%;
+  background: linear-gradient(160deg, #1a0808, #0d0610, #1a0505);
+  border: 1px solid rgba(192,57,43,0.5);
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 0 80px rgba(192,57,43,0.35), 0 0 160px rgba(192,57,43,0.1);
+  transform: scale(0.8) translateY(30px);
+  opacity: 0;
+  transition: transform 0.55s cubic-bezier(0.34,1.3,0.64,1), opacity 0.4s ease;
+  position: relative;
+}
+#wbSpawnOverlay.wb-notif-open .wb-notif-box {
+  transform: scale(1) translateY(0);
+  opacity: 1;
+}
+.wb-notif-boss-art {
+  width: 100%; height: 220px; object-fit: cover;
+  display: block;
+  filter: saturate(0.7) brightness(0.6) sepia(0.4) hue-rotate(-15deg);
+}
+.wb-notif-boss-art-placeholder {
+  width: 100%; height: 220px;
+  background: linear-gradient(135deg, #1a0808, #3d0c0c);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 5em;
+}
+.wb-notif-skull-bar {
+  position: absolute; top: 0; left: 0; right: 0; height: 220px;
+  background: linear-gradient(to bottom, rgba(192,57,43,0.15) 0%, rgba(0,0,0,0.6) 70%, rgba(0,0,0,0.95) 100%);
+  display: flex; align-items: flex-end; padding: 16px;
+}
+.wb-notif-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65em; letter-spacing: 0.3em;
+  color: rgba(192,57,43,0.9); text-transform: uppercase;
+  margin-bottom: 4px;
+  animation: wbLabelPulse 1.5s ease-in-out infinite;
+}
+@keyframes wbLabelPulse { 0%,100%{opacity:0.7;} 50%{opacity:1;} }
+.wb-notif-body { padding: 20px 24px 24px; }
+.wb-notif-boss-name {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: clamp(1.3em,5vw,2em); font-weight: 900;
+  color: #fff;
+  text-shadow: 0 0 30px rgba(192,57,43,0.8), 0 2px 20px rgba(0,0,0,1);
+  margin-bottom: 6px; letter-spacing: 0.04em;
+  animation: wbNameFlicker 3s linear infinite;
+}
+@keyframes wbNameFlicker {
+  0%,94%,96%,98%,100% { opacity:1; }
+  95%,97%,99%          { opacity:0.85; }
+}
+.wb-notif-hp-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.78em; color: rgba(192,57,43,0.9);
+  margin-bottom: 18px;
+}
+.wb-notif-desc {
+  font-size: 0.88em; font-style: italic;
+  color: rgba(240,216,232,0.7); line-height: 1.5;
+  margin-bottom: 20px;
+}
+.wb-notif-actions { display: flex; gap: 10px; }
+.wb-btn-join {
+  flex: 1;
+  background: linear-gradient(135deg, #8b0000, #c0392b);
+  border: none; border-radius: 24px; color: #fff;
+  font-family: 'Cinzel Decorative', serif; font-size: 0.8em;
+  font-weight: 700; padding: 13px 24px; cursor: pointer;
+  letter-spacing: 0.06em;
+  box-shadow: 0 4px 20px rgba(192,57,43,0.5);
+  transition: all 0.2s;
+}
+.wb-btn-join:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(192,57,43,0.6); }
+.wb-btn-ignore {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 24px; color: rgba(255,255,255,0.45);
+  font-family: 'Cormorant Garamond', serif; font-size: 0.85em;
+  padding: 13px 20px; cursor: pointer;
+  transition: all 0.2s;
+}
+.wb-btn-ignore:hover { color: rgba(255,255,255,0.7); background: rgba(255,255,255,0.1); }
+/* Red border scanline flash */
+.wb-notif-box::before {
+  content: '';
+  position: absolute; inset: 0; border-radius: 24px;
+  background: linear-gradient(transparent 50%, rgba(192,57,43,0.03) 50%);
+  background-size: 100% 4px;
+  pointer-events: none; z-index: 1; opacity: 0.5;
+}
+
+/* ════════════════════════════════════
+   WORLD BOSS — ARENA MODAL (full screen)
+   ════════════════════════════════════ */
+#wbArenaModal {
+  position: fixed; inset: 0; z-index: 410;
+  display: none; flex-direction: column;
+  background: #06020c;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  overflow: hidden;
+}
+#wbArenaModal.wb-arena-open { opacity: 1; }
+
+/* Boss background */
+.wb-arena-bg {
+  position: absolute; inset: 0; z-index: 0;
+  overflow: hidden;
+}
+.wb-arena-bg-img {
+  width: 100%; height: 100%; object-fit: cover;
+  filter: brightness(0.25) saturate(0.5) sepia(0.5) hue-rotate(-10deg);
+  animation: wbBgBreath 8s ease-in-out infinite;
+}
+@keyframes wbBgBreath { 0%,100%{transform:scale(1.0);} 50%{transform:scale(1.04);} }
+.wb-arena-bg-overlay {
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 50% 20%, rgba(80,0,0,0.4) 0%, rgba(6,2,12,0.7) 60%, rgba(6,2,12,0.95) 100%);
+}
+/* Animated vignette pulse when boss attacks */
+.wb-hit-flash {
+  position: absolute; inset: 0; z-index: 1;
+  background: rgba(192,57,43,0.0);
+  pointer-events: none;
+  transition: opacity 0.35s ease;
+}
+
+/* ── Top Header ── */
+.wb-header {
+  position: relative; z-index: 10;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 20px 10px;
+  background: linear-gradient(to bottom, rgba(6,2,12,0.9), transparent);
+}
+.wb-header-left { display: flex; align-items: center; gap: 10px; }
+.wb-boss-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.62em; letter-spacing: 0.2em;
+  color: #e74c3c; background: rgba(192,57,43,0.15);
+  border: 1px solid rgba(192,57,43,0.35);
+  border-radius: 20px; padding: 3px 10px;
+  animation: wbLabelPulse 2s ease-in-out infinite;
+}
+#wbBossName {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: clamp(0.9em, 3vw, 1.3em); font-weight: 900;
+  color: #fff; text-shadow: 0 0 20px rgba(192,57,43,0.6);
+  letter-spacing: 0.04em;
+}
+.wb-leave-btn {
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 8px; color: rgba(255,255,255,0.5);
+  font-size: 0.78em; padding: 6px 14px;
+  cursor: pointer; transition: all 0.2s;
+  font-family: 'Cormorant Garamond', serif;
+}
+.wb-leave-btn:hover { color: #e74c3c; border-color: rgba(231,76,60,0.4); background: rgba(231,76,60,0.1); }
+
+/* ── Boss HP Bar (BIG) ── */
+.wb-boss-hp-section {
+  position: relative; z-index: 10;
+  padding: 0 20px 10px;
+}
+.wb-boss-hp-label {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 5px;
+}
+.wb-boss-hp-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68em; letter-spacing: 0.12em; text-transform: uppercase;
+  color: rgba(231,76,60,0.8);
+}
+#wbBossHpText {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75em; color: #e74c3c;
+  font-weight: 700;
+}
+.wb-boss-hp-track {
+  height: 12px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 6px; overflow: hidden;
+  border: 1px solid rgba(192,57,43,0.2);
+  box-shadow: 0 0 10px rgba(192,57,43,0.15) inset;
+}
+#wbBossHpFill {
+  height: 100%; border-radius: 6px;
+  background: linear-gradient(90deg, #8b0000, #c0392b);
+  transition: width 0.6s ease;
+  box-shadow: 0 0 12px rgba(192,57,43,0.5);
+  position: relative;
+}
+#wbBossHpFill::after {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.15) 50%, transparent 100%);
+  background-size: 200% 100%;
+  animation: wbHpShimmer 2s linear infinite;
+}
+@keyframes wbHpShimmer { 0%{background-position:200% 0;} 100%{background-position:-200% 0;} }
+
+/* ── Arena Content ── */
+.wb-arena-main {
+  position: relative; z-index: 10;
+  flex: 1; display: flex; flex-direction: column;
+  overflow: hidden; padding: 0 16px;
+}
+/* Boss Image Center */
+.wb-boss-center {
+  flex: 1; display: flex; align-items: center; justify-content: center;
+  position: relative; min-height: 0;
+}
+#wbBossImgWrap {
+  position: relative; display: inline-block;
+}
+#wbBossCardImg {
+  height: clamp(140px, 22vh, 220px);
+  max-width: 180px;
+  object-fit: contain;
+  border-radius: 12px;
+  filter: saturate(0.65) brightness(0.75) sepia(0.4) hue-rotate(-5deg) drop-shadow(0 0 30px rgba(192,57,43,0.6));
+  animation: wbBossFloat 3s ease-in-out infinite;
+}
+@keyframes wbBossFloat { 0%,100%{transform:translateY(0) scale(1);} 50%{transform:translateY(-8px) scale(1.02);} }
+@keyframes wbBossHit {
+  0%{transform:translateX(0) scale(1);}
+  20%{transform:translateX(-10px) scale(0.97) brightness(2);}
+  40%{transform:translateX(8px) scale(1.01);}
+  60%{transform:translateX(-5px);}
+  100%{transform:translateX(0) scale(1);}
+}
+/* Orbiting danger aura */
+.wb-boss-aura {
+  position: absolute; inset: -20px;
+  border-radius: 50%;
+  border: 2px solid rgba(192,57,43,0.2);
+  animation: wbAuraRotate 8s linear infinite;
+}
+.wb-boss-aura::before {
+  content: '';
+  position: absolute; top: -4px; left: 50%;
+  width: 8px; height: 8px; border-radius: 50%;
+  background: #c0392b;
+  box-shadow: 0 0 12px #c0392b;
+  transform: translateX(-50%);
+}
+@keyframes wbAuraRotate { from{transform:rotate(0deg);} to{transform:rotate(360deg);} }
+
+/* Battle log */
+.wb-log-section {
+  height: 72px; overflow: hidden;
+  background: rgba(0,0,0,0.35);
+  border: 1px solid rgba(192,57,43,0.12);
+  border-radius: 10px; padding: 6px 10px;
+  margin-bottom: 10px;
+}
+.wb-log-entry {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65em; color: rgba(240,216,232,0.7);
+  line-height: 1.6; padding: 1px 0;
+  animation: wbLogFadeIn 0.3s ease;
+}
+.wb-log-entry:first-child { color: rgba(240,216,232,1); }
+@keyframes wbLogFadeIn { from{opacity:0;transform:translateY(-4px);} to{opacity:1;transform:translateY(0);} }
+
+/* ── Player Card Section ── */
+.wb-player-section {
+  position: relative; z-index: 10;
+  background: linear-gradient(to top, rgba(6,2,12,0.97) 0%, rgba(6,2,12,0.8) 100%);
+  border-top: 1px solid rgba(192,57,43,0.15);
+  padding: 12px 16px 16px;
+}
+.wb-player-row {
+  display: flex; gap: 12px; align-items: flex-start;
+  margin-bottom: 10px;
+}
+#wbMyCardWrap {
+  position: relative; flex-shrink: 0;
+}
+@keyframes wbPlayerHit {
+  0%{transform:translateX(0);}
+  25%{transform:translateX(6px) scale(1.04);}
+  50%{transform:translateX(-4px);}
+  100%{transform:translateX(0);}
+}
+.wb-my-card-img {
+  width: 54px; height: 76px;
+  object-fit: cover; border-radius: 8px;
+  border: 2px solid rgba(255,157,199,0.4);
+  box-shadow: 0 0 14px rgba(255,157,199,0.2);
+}
+.wb-my-card-placeholder {
+  width: 54px; height: 76px;
+  background: rgba(255,157,199,0.08);
+  border-radius: 8px; border: 2px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.5em; color: var(--text-dim);
+}
+/* Recovery overlay on player card */
+#wbRecoveryOverlay {
+  position: absolute; inset: 0; border-radius: 8px;
+  background: rgba(192,57,43,0.85);
+  display: none; flex-direction: column;
+  align-items: center; justify-content: center;
+  font-family: 'JetBrains Mono', monospace; color: #fff;
+}
+.wb-rec-ko { font-size: 0.6em; font-weight: 700; letter-spacing: 0.1em; }
+#wbRecoveryCountdown { font-size: 1.2em; font-weight: 700; }
+.wb-player-info { flex: 1; min-width: 0; }
+.wb-my-name {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 0.75em; color: var(--pink-pale);
+  margin-bottom: 4px; white-space: nowrap;
+  overflow: hidden; text-overflow: ellipsis;
+}
+.wb-my-hp-label {
+  display: flex; justify-content: space-between;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.62em; color: var(--text-dim);
+  margin-bottom: 4px;
+}
+#wbMyHpText { color: var(--pink); }
+.wb-my-hp-track {
+  height: 6px; background: rgba(255,255,255,0.06);
+  border-radius: 3px; overflow: hidden; margin-bottom: 8px;
+}
+#wbMyHpFill {
+  height: 100%; border-radius: 3px;
+  background: linear-gradient(90deg, #27ae60, #2ecc71);
+  transition: width 0.5s ease;
+}
+/* Attack buttons */
+.wb-moves {
+  display: flex; gap: 6px; flex-wrap: wrap;
+}
+.wb-move-btn {
+  flex: 1; min-width: 70px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 20px; color: var(--text);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65em; padding: 7px 10px;
+  cursor: pointer; transition: all 0.2s;
+  white-space: nowrap;
+}
+.wb-move-btn:hover:not(:disabled) {
+  background: rgba(192,57,43,0.2);
+  border-color: rgba(192,57,43,0.5);
+  color: #e74c3c;
+  transform: translateY(-1px);
+}
+.wb-move-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+.wb-move-btn.wb-primary-attack {
+  background: linear-gradient(135deg, rgba(139,0,0,0.4), rgba(192,57,43,0.4));
+  border-color: rgba(192,57,43,0.4);
+  color: #ff6b6b;
+}
+.wb-move-btn.wb-ability-btn {
+  background: linear-gradient(135deg, rgba(155,89,182,0.3), rgba(192,57,43,0.3));
+  border-color: rgba(155,89,182,0.35);
+  color: #c39bd3;
+}
+/* Admin trigger ability button */
+.wb-admin-ability-btn {
+  margin-top: 8px; width: 100%;
+  background: linear-gradient(135deg, rgba(241,196,15,0.15), rgba(192,57,43,0.15));
+  border: 1px solid rgba(241,196,15,0.3);
+  border-radius: 10px; color: #f1c40f;
+  font-family: 'JetBrains Mono', monospace; font-size: 0.7em;
+  padding: 8px; cursor: pointer; transition: all 0.2s;
+}
+.wb-admin-ability-btn:hover { background: rgba(241,196,15,0.2); }
+
+/* ── Participants side panel ── */
+.wb-partic-panel {
+  position: relative; z-index: 10;
+  background: rgba(6,2,12,0.75);
+  border-top: 1px solid rgba(255,157,199,0.1);
+  padding: 10px 16px 8px;
+  max-height: 140px; overflow-y: auto;
+  scrollbar-width: thin;
+}
+.wb-partic-panel-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6em; letter-spacing: 0.15em; text-transform: uppercase;
+  color: rgba(240,216,232,0.4); margin-bottom: 7px;
+}
+#wbParticList { display: flex; flex-direction: column; gap: 5px; }
+.wb-partic-row {
+  display: flex; align-items: center; gap: 7px;
+  padding: 5px 8px; border-radius: 8px;
+  background: rgba(255,255,255,0.03);
+  transition: background 0.2s;
+}
+.wb-partic-me { background: rgba(255,157,199,0.07) !important; border: 1px solid rgba(255,157,199,0.15); }
+.wb-partic-elim { opacity: 0.45; }
+.wb-partic-medal { font-size: 0.85em; width: 18px; flex-shrink: 0; text-align: center; }
+.wb-partic-avatar {
+  width: 28px; height: 38px; object-fit: cover;
+  border-radius: 5px; flex-shrink: 0;
+  border: 1px solid rgba(255,157,199,0.2);
+}
+.wb-partic-avatar-ph {
+  width: 28px; height: 38px; border-radius: 5px;
+  background: rgba(255,157,199,0.08); flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.9em; color: var(--text-dim);
+}
+.wb-partic-info { flex: 1; min-width: 0; }
+.wb-partic-name {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65em; color: var(--text);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  margin-bottom: 3px;
+}
+.wb-partic-dmg-bar {
+  height: 3px; background: rgba(255,255,255,0.06);
+  border-radius: 2px; overflow: hidden; margin-bottom: 2px;
+}
+.wb-partic-dmg-fill {
+  height: 100%; border-radius: 2px;
+  background: linear-gradient(90deg, #8b0000, #e74c3c);
+  transition: width 0.5s ease;
+}
+.wb-partic-stats {
+  display: flex; gap: 8px;
+  font-family: 'JetBrains Mono', monospace; font-size: 0.6em;
+}
+
+/* ── End Screen ── */
+#wbEndScreen {
+  position: absolute; inset: 0; z-index: 20;
+  display: none; align-items: center; justify-content: center;
+  background: rgba(6,2,12,0.97);
+  padding: 20px;
+}
+.wb-end-content {
+  max-width: 480px; width: 100%; text-align: center;
+}
+.wb-end-title {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: clamp(1.2em,5vw,2.2em); font-weight: 900;
+  background: linear-gradient(135deg, #f1c40f, #ff9dc7, #f1c40f);
+  background-size: 300%; -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer 4s linear infinite;
+  margin-bottom: 6px; letter-spacing: 0.06em;
+}
+.wb-end-sub {
+  font-style: italic; color: var(--text-dim);
+  font-size: 0.9em; margin-bottom: 24px;
+}
+.wb-end-top3 {
+  display: flex; gap: 12px; justify-content: center;
+  margin-bottom: 20px; flex-wrap: wrap;
+}
+.wb-end-hero {
+  display: flex; flex-direction: column; align-items: center; gap: 5px;
+  background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+  border-radius: 14px; padding: 12px 14px; min-width: 90px;
+}
+.wb-end-hero-me { border-color: var(--pink); background: rgba(255,157,199,0.08); }
+.wb-end-medal { font-size: 1.5em; }
+.wb-end-card-img {
+  width: 52px; height: 70px; object-fit: cover;
+  border-radius: 8px; border: 2px solid rgba(255,157,199,0.3);
+}
+.wb-end-card-placeholder {
+  width: 52px; height: 70px; background: rgba(255,157,199,0.08);
+  border-radius: 8px; display: flex; align-items: center;
+  justify-content: center; font-size: 1.5em; color: var(--text-dim);
+}
+.wb-end-hero-name {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65em; color: var(--text);
+  text-align: center; max-width: 80px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.wb-end-hero-dmg {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7em; color: #e74c3c; font-weight: 700;
+}
+.wb-end-my-result {
+  background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+  border-radius: 14px; padding: 14px 18px; margin-bottom: 20px;
+}
+.wb-end-rank-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.78em; color: var(--text-dim); margin-bottom: 8px;
+}
+.wb-end-drop-result {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.92em; line-height: 1.5;
+}
+.wb-drop-got { color: #f1c40f; }
+.wb-drop-miss { color: var(--text-dim); }
+
+/* ── Leave Confirmation ── */
+#wbLeaveConfirm {
+  position: absolute; inset: 0; z-index: 25;
+  display: none; align-items: center; justify-content: center;
+  background: rgba(6,2,12,0.92); backdrop-filter: blur(8px);
+}
+.wb-confirm-box {
+  max-width: 320px; width: 90%;
+  background: var(--bg3); border: 1px solid rgba(192,57,43,0.3);
+  border-radius: 18px; padding: 24px; text-align: center;
+  animation: modalIn 0.3s cubic-bezier(0.34,1.56,0.64,1);
+}
+.wb-confirm-title {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 1em; color: var(--pink-pale); margin-bottom: 8px;
+}
+.wb-confirm-desc {
+  font-size: 0.85em; font-style: italic;
+  color: var(--text-dim); line-height: 1.5; margin-bottom: 18px;
+}
+.wb-confirm-actions { display: flex; gap: 10px; }
+.wb-btn-confirm-leave {
+  flex: 1;
+  background: linear-gradient(135deg, #8b0000, #c0392b);
+  border: none; border-radius: 20px; color: #fff;
+  font-family: 'Cormorant Garamond', serif; font-size: 0.9em;
+  padding: 10px; cursor: pointer;
+}
+.wb-btn-cancel {
+  flex: 1;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 20px; color: var(--text);
+  font-family: 'Cormorant Garamond', serif; font-size: 0.9em;
+  padding: 10px; cursor: pointer;
+}
+
+/* ── Floating damage numbers ── */
+.wb-dmg-num {
+  position: absolute; z-index: 30;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700; font-size: 1.1em;
+  color: #ff6b6b;
+  pointer-events: none;
+  animation: wbDmgFloat 1.2s ease-out forwards;
+  text-shadow: 0 0 10px rgba(192,57,43,0.6);
+}
+.wb-dmg-crit {
+  color: #f1c40f; font-size: 1.4em;
+  text-shadow: 0 0 16px rgba(241,196,15,0.7);
+}
+@keyframes wbDmgFloat {
+  0%   { opacity: 1; transform: translateY(0) scale(0.8); }
+  15%  { opacity: 1; transform: translateY(-10px) scale(1.15); }
+  70%  { opacity: 0.9; transform: translateY(-40px); }
+  100% { opacity: 0; transform: translateY(-70px) scale(0.8); }
+}
+
+/* ── Primary button (end screen) ── */
+.wb-btn-primary {
+  background: linear-gradient(135deg, var(--pink-deep), var(--purple));
+  border: none; border-radius: 24px; color: #fff;
+  font-family: 'Cinzel Decorative', serif; font-size: 0.8em;
+  font-weight: 700; padding: 12px 32px; cursor: pointer;
+  box-shadow: 0 4px 20px var(--pink-glow);
+  transition: all 0.2s;
+}
+.wb-btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px var(--pink-glow); }
+
+/* ── Admin World Boss panel styles ── */
+.wb-admin-form-row { margin-bottom: 14px; }
+.wb-admin-form-label {
+  font-size: 0.72em; font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--pink); margin-bottom: 6px; display: block;
+}
+.wb-admin-hint {
+  font-size: 0.65em; color: var(--text-dim);
+  font-style: italic; font-family: serif; text-transform: none;
+}
+
+/* mobile tweaks */
+@media(max-width:480px) {
+  .wb-notif-boss-art { height: 170px; }
+  .wb-end-top3 { gap: 8px; }
+  .wb-end-hero { min-width: 76px; padding: 9px 10px; }
+}
+</style>
+
+<!-- ══ World Boss Spawn Notification ══ -->
+<div id="wbSpawnOverlay">
+  <div class="wb-notif-box">
+    <div style="position:relative;">
+      <img id="wbNotifBossImg" class="wb-notif-boss-art" src="" alt="" onerror="this.style.display='none';document.querySelector('.wb-notif-boss-art-placeholder').style.display='flex'"/>
+      <div class="wb-notif-boss-art-placeholder" style="display:none;">💀</div>
+      <div class="wb-notif-skull-bar">
+        <div>
+          <div class="wb-notif-label">⚠ World Boss Has Awakened</div>
+          <div id="wbNotifBossName" style="font-family:'Cinzel Decorative',serif;font-size:clamp(1.2em,5vw,1.8em);font-weight:900;color:#fff;text-shadow:0 0 30px rgba(192,57,43,0.9);letter-spacing:0.04em;"></div>
+        </div>
+      </div>
+    </div>
+    <div class="wb-notif-body">
+      <div id="wbNotifBossHp" class="wb-notif-hp-label"></div>
+      <div class="wb-notif-desc">A powerful enemy has appeared in the realm. All warriors are called to battle — fight together or fall alone.</div>
+      <div class="wb-notif-actions">
+        <button class="wb-btn-join" onclick="joinWorldBoss()">⚔️ Enter the Fight</button>
+        <button class="wb-btn-ignore" onclick="ignoreWorldBoss()">Not now</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ World Boss Arena ══ -->
+<div id="wbArenaModal">
+  <!-- Background -->
+  <div class="wb-arena-bg">
+    <img id="wbBossArenaImg" class="wb-arena-bg-img" src="" alt="" onerror="this.style.display='none'"/>
+    <div class="wb-arena-bg-overlay"></div>
+  </div>
+  <div id="wbHitFlash" class="wb-hit-flash"></div>
+
+  <!-- Leave Confirmation -->
+  <div id="wbLeaveConfirm">
+    <div class="wb-confirm-box">
+      <div class="wb-confirm-title">Leave the Battle?</div>
+      <div class="wb-confirm-desc">The World Boss will still be here if you return, but your contribution matters — every strike counts.</div>
+      <div class="wb-confirm-actions">
+        <button class="wb-btn-cancel" onclick="cancelLeaveConfirm()">Stay & Fight</button>
+        <button class="wb-btn-confirm-leave" onclick="leaveBossArena(true)">Leave</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- End Screen -->
+  <div id="wbEndScreen"></div>
+
+  <!-- Header -->
+  <div class="wb-header">
+    <div class="wb-header-left">
+      <span class="wb-boss-badge">WORLD BOSS</span>
+      <span id="wbBossName">???</span>
+    </div>
+    <button class="wb-leave-btn" onclick="leaveBossArena(false)">✕ Leave</button>
+  </div>
+
+  <!-- Boss HP -->
+  <div class="wb-boss-hp-section">
+    <div class="wb-boss-hp-label">
+      <span class="wb-boss-hp-title">⚔ Boss HP</span>
+      <span id="wbBossHpText">??? / ???</span>
+    </div>
+    <div class="wb-boss-hp-track">
+      <div id="wbBossHpFill" style="width:100%"></div>
+    </div>
+  </div>
+
+  <!-- Main Arena Area -->
+  <div class="wb-arena-main">
+    <!-- Boss Center -->
+    <div class="wb-boss-center">
+      <div id="wbBossImgWrap">
+        <div class="wb-boss-aura"></div>
+        <img id="wbBossCardImg" src="" alt="" onerror="this.style.opacity='0.3'"/>
+      </div>
+    </div>
+
+    <!-- Battle Log -->
+    <div class="wb-log-section">
+      <div id="wbBattleLog"></div>
+    </div>
+  </div>
+
+  <!-- Participant Tracker -->
+  <div class="wb-partic-panel">
+    <div class="wb-partic-panel-title">⚔ Raiders</div>
+    <div id="wbParticList"></div>
+  </div>
+
+  <!-- Player Controls -->
+  <div class="wb-player-section">
+    <div class="wb-player-row">
+      <!-- My Card -->
+      <div id="wbMyCardWrap">
+        <img id="wbMyCardImg" class="wb-my-card-img" src="" alt="" onerror="this.style.display='none'"/>
+        <div id="wbMyCardPlaceholder" class="wb-my-card-placeholder" style="display:none;">🎴</div>
+        <div id="wbRecoveryOverlay">
+          <div class="wb-rec-ko">KO</div>
+          <div id="wbRecoveryCountdown">10s</div>
+        </div>
+      </div>
+      <!-- My Stats & Moves -->
+      <div class="wb-player-info">
+        <div class="wb-my-name" id="wbMyNameLabel">—</div>
+        <div class="wb-my-hp-label">
+          <span>HP</span><span id="wbMyHpText">— / —</span>
+        </div>
+        <div class="wb-my-hp-track">
+          <div id="wbMyHpFill" style="width:100%"></div>
+        </div>
+        <div class="wb-moves">
+          <button id="wbAttackBtn" class="wb-move-btn wb-primary-attack" onclick="wbAttack('attack')">⚔️ Attack</button>
+          <button class="wb-move-btn" onclick="wbAttack('heavy')">💥 Heavy</button>
+          <button class="wb-move-btn wb-ability-btn" onclick="wbAttack('ability')">✨ Ability</button>
+        </div>
+        <!-- Admin only -->
+        <button id="wbAdminAbilityBtn" class="wb-admin-ability-btn" style="display:none;" onclick="adminTriggerBossAbility()">
+          👑 Trigger Boss Ability
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════════════
+// ⚔️  WORLD BOSS SYSTEM
+// ══════════════════════════════════════════════════════════════════
+
+// ── State ──
+let _wbChannel         = null;
+let _wbParticChannel   = null;
+let _wbCurrentBossId   = null;
+let _wbAttackCooldown  = false;
+let _wbBossAbilityTs   = 0;
+let _wbBossData        = null;
+let _wbParticData      = [];
+let _wbMyPartic        = null;
+let _wbRecoveryInterval= null;
+
+// ── Constants ──
+const WB_ATTACK_COOLDOWN_MS = 2500;
+const WB_RECOVERY_SECS      = 10;
+const WB_BASE_CARD_HP       = 130;
+const WB_SECRET_DROP_BASE   = 0.05;
+const WB_SECRET_DROP_TOP    = [0, 0.45, 0.25, 0.15]; // index = rank (1-based)
+
+// ═════════════════════════════════════════════
+// INIT — attach after login
+// ═════════════════════════════════════════════
+async function initWorldBossSystem() {
+  if(!state.discordId || state.isGuest) return;
+  const rt = getSupaRT();
+  if(!rt) return;
+
+  try {
+    // Global listener for boss spawns
+    rt.channel('wb-global-spawn')
+      .on('postgres_changes', {
+        event: '*', schema: 'public', table: 'world_bosses'
+      }, payload => {
+        const boss = payload.new || payload.old;
+        if(!boss) return;
+        if(payload.eventType === 'INSERT' && boss.status === 'waiting') {
+          showBossSpawnNotification(boss);
+        } else if(payload.eventType === 'UPDATE') {
+          if(_wbCurrentBossId === boss.id) {
+            handleBossUpdate(boss);
+          } else if(boss.status === 'waiting' && !_wbCurrentBossId) {
+            showBossSpawnNotification(boss);
+          }
+        }
+      })
+      .subscribe();
+
+    // Check if boss already active when user loads
+    checkExistingActiveBoss();
+  } catch(e) { /* silent fail — migration may not exist yet */ }
+}
+
+async function checkExistingActiveBoss() {
+  try {
+    const rt = getSupaRT();
+    const { data } = await rt.from('world_bosses')
+      .select('*').in('status',['waiting','active'])
+      .order('spawned_at',{ascending:false}).limit(1);
+    if(!data || !data.length) return;
+    const boss = data[0];
+    const { data: mine } = await rt.from('world_boss_participants')
+      .select('*').eq('boss_id',boss.id).eq('discord_id',state.discordId).limit(1);
+    if(mine && mine.length > 0) {
+      _wbCurrentBossId = boss.id;
+      enterBossArena(boss.id);
+    } else {
+      showBossSpawnNotification(boss);
+    }
+  } catch(_) { /* table might not exist yet */ }
+}
+
+// ═════════════════════════════════════════════
+// SPAWN NOTIFICATION
+// ═════════════════════════════════════════════
+function showBossSpawnNotification(boss) {
+  if(_wbCurrentBossId) return;
+  const overlay = document.getElementById('wbSpawnOverlay');
+  if(!overlay) return;
+
+  const img = document.getElementById('wbNotifBossImg');
+  const ph  = document.querySelector('.wb-notif-boss-art-placeholder');
+  if(img) {
+    if(boss.boss_image) {
+      img.src = boss.boss_image;
+      img.style.display = 'block';
+      if(ph) ph.style.display = 'none';
+    } else {
+      img.style.display = 'none';
+      if(ph) ph.style.display = 'flex';
+    }
+  }
+  const nameEl = document.getElementById('wbNotifBossName');
+  if(nameEl) nameEl.textContent = (boss.boss_name||'WORLD BOSS').toUpperCase();
+  const hpEl = document.getElementById('wbNotifBossHp');
+  if(hpEl) hpEl.textContent = (boss.max_hp||50000).toLocaleString() + ' HP';
+
+  overlay.dataset.bossId = boss.id;
+  overlay.style.display  = 'flex';
+  setTimeout(() => overlay.classList.add('wb-notif-open'), 20);
+
+  // Dramatic sound
+  try { playAbilityCutsceneSound('secret'); } catch(_) {}
+}
+
+function joinWorldBoss() {
+  const overlay = document.getElementById('wbSpawnOverlay');
+  const bossId  = overlay?.dataset?.bossId;
+  if(!bossId) return;
+  hideBossNotification();
+  enterBossArena(bossId);
+}
+
+function ignoreWorldBoss() { hideBossNotification(); }
+
+function hideBossNotification() {
+  const overlay = document.getElementById('wbSpawnOverlay');
+  if(!overlay) return;
+  overlay.classList.remove('wb-notif-open');
+  setTimeout(() => { overlay.style.display = 'none'; }, 450);
+}
+
+// ═════════════════════════════════════════════
+// ENTER ARENA
+// ═════════════════════════════════════════════
+async function enterBossArena(bossId) {
+  if(!state.discordId || state.isGuest) { showToast('Login to join the fight!'); return; }
+  if(!state.equippedId) { showToast('⚠️ Equip a card first!'); return; }
+
+  _wbCurrentBossId = bossId;
+  const rt   = getSupaRT();
+  const card = (window.DEMO_CARDS||[]).find(c=>c.id===state.equippedId);
+
+  // Populate my card UI
+  const myCardImg = document.getElementById('wbMyCardImg');
+  const myCardPh  = document.getElementById('wbMyCardPlaceholder');
+  if(myCardImg && card?.image) {
+    myCardImg.src = card.image;
+    myCardImg.style.display = 'block';
+    if(myCardPh) myCardPh.style.display = 'none';
+  } else {
+    if(myCardImg) myCardImg.style.display = 'none';
+    if(myCardPh)  myCardPh.style.display = 'flex';
+  }
+  const myNameLabel = document.getElementById('wbMyNameLabel');
+  if(myNameLabel) myNameLabel.textContent = state.username || 'Player';
+
+  // Show/hide admin ability button
+  const adminBtn = document.getElementById('wbAdminAbilityBtn');
+  if(adminBtn) adminBtn.style.display = state.isAdmin ? '' : 'none';
+
+  try {
+    const cardMaxHp = WB_BASE_CARD_HP + (card ? card.rarity * 16 : 0);
+    // Upsert participant (safe on reconnect)
+    await rt.from('world_boss_participants').upsert({
+      boss_id:        bossId,
+      discord_id:     state.discordId,
+      username:       state.username || 'Player',
+      card_id:        state.equippedId,
+      card_name:      card?.name  || '???',
+      card_image:     card?.image || '',
+      damage_dealt:   0,
+      player_hp:      cardMaxHp,
+      player_max_hp:  cardMaxHp,
+      is_eliminated:  false,
+      recovery_until: null
+    }, { onConflict: 'boss_id,discord_id', ignoreDuplicates: true });
+
+    // Activate boss if still in waiting state
+    await rt.from('world_bosses')
+      .update({ status: 'active' })
+      .eq('id', bossId).eq('status', 'waiting');
+
+    openBossArenaModal();
+    await refreshBossArena(bossId);
+    subscribeToBoss(bossId);
+
+    addBossLog(`⚔️ ${state.username||'Player'} has entered the fight!`);
+  } catch(e) {
+    showToast('❌ Could not join fight: ' + e.message);
+    _wbCurrentBossId = null;
+  }
+}
+
+function openBossArenaModal() {
+  const modal = document.getElementById('wbArenaModal');
+  if(!modal) return;
+  modal.style.display = 'flex';
+  setTimeout(() => modal.classList.add('wb-arena-open'), 20);
+}
+
+function leaveBossArena(confirmed = false) {
+  const confirmEl = document.getElementById('wbLeaveConfirm');
+  if(!confirmed) { if(confirmEl) confirmEl.style.display = 'flex'; return; }
+  if(confirmEl) confirmEl.style.display = 'none';
+  closeBossArena();
+}
+
+function cancelLeaveConfirm() {
+  const el = document.getElementById('wbLeaveConfirm');
+  if(el) el.style.display = 'none';
+}
+
+function closeBossArena() {
+  const modal = document.getElementById('wbArenaModal');
+  if(modal) {
+    modal.classList.remove('wb-arena-open');
+    setTimeout(() => { modal.style.display = 'none'; }, 400);
+  }
+  if(_wbChannel)      { try{_wbChannel.unsubscribe();}catch(_){} _wbChannel=null; }
+  if(_wbParticChannel){ try{_wbParticChannel.unsubscribe();}catch(_){} _wbParticChannel=null; }
+  clearInterval(_wbRecoveryInterval);
+  _wbCurrentBossId = null; _wbBossData = null;
+  _wbParticData    = []; _wbMyPartic = null;
+  _wbBossAbilityTs = 0; _wbAttackCooldown = false;
+  // Reset end screen
+  const endEl = document.getElementById('wbEndScreen');
+  if(endEl) { endEl.style.display = 'none'; endEl.innerHTML = ''; }
+}
+
+// ═════════════════════════════════════════════
+// REALTIME SUBSCRIPTIONS
+// ═════════════════════════════════════════════
+function subscribeToBoss(bossId) {
+  const rt = getSupaRT();
+  if(!rt) return;
+  if(_wbChannel)       { try{_wbChannel.unsubscribe();}catch(_){} }
+  if(_wbParticChannel) { try{_wbParticChannel.unsubscribe();}catch(_){} }
+
+  // Boss row — HP changes, ability triggers, status
+  _wbChannel = rt.channel('wb-boss-row-'+bossId)
+    .on('postgres_changes', {
+      event:'UPDATE', schema:'public', table:'world_bosses',
+      filter:`id=eq.${bossId}`
+    }, async payload => {
+      await handleBossUpdate(payload.new);
+    })
+    .subscribe();
+
+  // Participants — damage, HP, eliminations
+  _wbParticChannel = rt.channel('wb-partic-row-'+bossId)
+    .on('postgres_changes', {
+      event:'*', schema:'public', table:'world_boss_participants',
+      filter:`boss_id=eq.${bossId}`
+    }, async () => {
+      await refreshParticipants(bossId);
+    })
+    .subscribe();
+
+  // Recovery countdown tick
+  clearInterval(_wbRecoveryInterval);
+  _wbRecoveryInterval = setInterval(updateRecoveryUI, 500);
+}
+
+async function handleBossUpdate(boss) {
+  _wbBossData = boss;
+  renderBossHpBar(boss);
+
+  // ── Boss ability: plays on ALL participants' screens ──
+  const ab = boss.current_ability;
+  if(ab && ab.ts && ab.ts !== _wbBossAbilityTs && boss.status === 'active') {
+    _wbBossAbilityTs = ab.ts;
+    const modal = document.getElementById('wbArenaModal');
+    if(modal && modal.style.display !== 'none') {
+      try { await playAbilityCutscene(ab.cardId, ab.rarity||5, ab.abilityId); } catch(_) {}
+      await applyBossAbilityDamage(ab, boss);
+    }
+  }
+
+  if(boss.status === 'dead' && !document.getElementById('wbEndScreen')?.children.length) {
+    await refreshParticipants(boss.id);
+    await showBossDefeatedScreen(boss);
+  }
+}
+
+// ═════════════════════════════════════════════
+// REFRESH HELPERS
+// ═════════════════════════════════════════════
+async function refreshBossArena(bossId) {
+  const rt = getSupaRT();
+  try {
+    const { data: boss } = await rt.from('world_bosses').select('*').eq('id',bossId).single();
+    if(!boss) return;
+    _wbBossData = boss;
+    await refreshParticipants(bossId);
+    renderBossArena(boss);
+  } catch(_) {}
+}
+
+async function refreshParticipants(bossId) {
+  const rt = getSupaRT();
+  try {
+    const { data: partics } = await rt.from('world_boss_participants')
+      .select('*').eq('boss_id',bossId).order('damage_dealt',{ascending:false});
+    _wbParticData = partics || [];
+    _wbMyPartic   = _wbParticData.find(p=>p.discord_id===state.discordId)||null;
+    renderParticipantsList(_wbParticData);
+    renderMyCardStatus(_wbMyPartic);
+  } catch(_) {}
+}
+
+// ═════════════════════════════════════════════
+// PLAYER ATTACK
+// ═════════════════════════════════════════════
+async function wbAttack(action='attack') {
+  if(!_wbCurrentBossId || !_wbBossData) return;
+  if(_wbBossData.status !== 'active') { showToast('Boss is not active.'); return; }
+  if(_wbAttackCooldown) { showToast('⏳ Cooldown...'); return; }
+
+  // Recovery check
+  if(_wbMyPartic?.is_eliminated) {
+    const recUntil = _wbMyPartic.recovery_until ? new Date(_wbMyPartic.recovery_until).getTime() : 0;
+    if(Date.now() < recUntil) { showToast('💔 Still recovering! Wait your turn...'); return; }
+  }
+
+  _wbAttackCooldown = true;
+  const btn = document.getElementById('wbAttackBtn');
+  if(btn) { btn.disabled=true; btn.textContent='⏳...'; }
+
+  const rt   = getSupaRT();
+  const card = (window.DEMO_CARDS||[]).find(c=>c.id===state.equippedId);
+  const baseAtk = card ? card.rarity * 14 : 20;
+  const isCrit  = Math.random() < 0.10;
+  let dmg = 0, logMsg = '';
+
+  if(action === 'attack') {
+    dmg    = Math.floor(baseAtk * (isCrit ? 1.7 : 1) * (0.85 + Math.random()*0.3));
+    logMsg = isCrit
+      ? `💥 ${state.username} lands a CRITICAL STRIKE for ${dmg}!`
+      : `⚔️ ${state.username} attacks for ${dmg}!`;
+
+  } else if(action === 'heavy') {
+    if(Math.random() < 0.25) {
+      logMsg = `💨 ${state.username}'s heavy hit missed!`;
+    } else {
+      dmg    = Math.floor(baseAtk * (isCrit ? 2.0 : 1.55) * (0.9 + Math.random()*0.2));
+      logMsg = isCrit
+        ? `🔥 ${state.username} unleashes a DEVASTATING BLOW for ${dmg}!`
+        : `💥 ${state.username} HEAVY HIT for ${dmg}!`;
+    }
+
+  } else if(action === 'ability') {
+    const abils = getCardAbilities(state.equippedId, card?.rarity||1);
+    const ab    = abils[0];
+    if(!ab) { showToast('No ability found!'); resetWbCooldown(); return; }
+    dmg    = Math.floor((ab.value||baseAtk) * (0.9 + Math.random()*0.3));
+    logMsg = `${ab.icon||'✨'} ${state.username} uses ${ab.name} for ${dmg}!`;
+    // ── Player ability: ONLY plays on THIS player's screen ──
+    try { await playAbilityCutscene(state.equippedId, card?.rarity||1, ab.id); } catch(_) {}
+  }
+
+  try {
+    if(dmg > 0) {
+      wbBossHitEffect(dmg, isCrit);
+      if(isCrit) try{ spawnParticles(4,'#f1c40f'); }catch(_){}
+
+      const newHp  = Math.max(0, (_wbBossData.hp||0) - dmg);
+      const isKill = newHp <= 0;
+
+      // Update boss HP
+      const bossUpdate = { hp: newHp };
+      if(isKill) { bossUpdate.status='dead'; bossUpdate.killed_at=new Date().toISOString(); }
+      await rt.from('world_bosses').update(bossUpdate).eq('id',_wbCurrentBossId);
+
+      // Update my damage tally
+      const newDmg = (_wbMyPartic?.damage_dealt||0) + dmg;
+      await rt.from('world_boss_participants')
+        .update({ damage_dealt: newDmg })
+        .eq('boss_id',_wbCurrentBossId)
+        .eq('discord_id',state.discordId);
+
+      // Local state update
+      if(_wbBossData) _wbBossData.hp = newHp;
+      if(_wbMyPartic) _wbMyPartic.damage_dealt = newDmg;
+      renderBossHpBar(_wbBossData);
+    }
+    addBossLog(logMsg);
+  } catch(e) { showToast('❌ Attack error: '+(e.message||'')); }
+
+  setTimeout(resetWbCooldown, WB_ATTACK_COOLDOWN_MS);
+}
+
+function resetWbCooldown() {
+  _wbAttackCooldown = false;
+  const btn = document.getElementById('wbAttackBtn');
+  if(btn) { btn.disabled=false; btn.textContent='⚔️ Attack'; }
+}
+
+// ═════════════════════════════════════════════
+// BOSS ABILITY DAMAGE (applied locally per player)
+// ═════════════════════════════════════════════
+async function applyBossAbilityDamage(ab, boss) {
+  if(!_wbMyPartic || !_wbCurrentBossId) return;
+  if(_wbMyPartic.is_eliminated) return;
+
+  const rt = getSupaRT();
+  const bossCard = (window.DEMO_CARDS||[]).find(c=>c.id===boss.card_id);
+  const dmg  = Math.floor(((bossCard?.rarity||5)*22) * (0.75 + Math.random()*0.5));
+  const newHp= Math.max(0, (_wbMyPartic.player_hp||0) - dmg);
+  const isElim = newHp <= 0;
+  const recoveryUntil = isElim ? new Date(Date.now() + WB_RECOVERY_SECS*1000).toISOString() : null;
+
+  addBossLog(`💀 ${ab.name||'Boss'} punishes ${state.username} for ${dmg} damage!`);
+  wbPlayerHitEffect();
+
+  await rt.from('world_boss_participants').update({
+    player_hp:      newHp,
+    is_eliminated:  isElim,
+    recovery_until: recoveryUntil
+  }).eq('boss_id',_wbCurrentBossId).eq('discord_id',state.discordId);
+
+  if(_wbMyPartic) {
+    _wbMyPartic.player_hp      = newHp;
+    _wbMyPartic.is_eliminated  = isElim;
+    _wbMyPartic.recovery_until = recoveryUntil;
+  }
+
+  renderMyCardStatus(_wbMyPartic);
+
+  if(isElim) {
+    showToast('💔 ELIMINATED — Recovering in ' + WB_RECOVERY_SECS + 's...');
+    setTimeout(async () => {
+      if(!_wbCurrentBossId) return;
+      const maxHp  = _wbMyPartic?.player_max_hp || WB_BASE_CARD_HP;
+      const healHp = Math.floor(maxHp * 0.5);
+      try {
+        await rt.from('world_boss_participants').update({
+          player_hp: healHp, is_eliminated: false, recovery_until: null
+        }).eq('boss_id',_wbCurrentBossId).eq('discord_id',state.discordId);
+      } catch(_) {}
+      if(_wbMyPartic) {
+        _wbMyPartic.player_hp      = healHp;
+        _wbMyPartic.is_eliminated  = false;
+        _wbMyPartic.recovery_until = null;
+      }
+      renderMyCardStatus(_wbMyPartic);
+      showToast('⚡ RECOVERED — Back in the fight!');
+      addBossLog(`⚡ ${state.username} recovers and rejoins the battle!`);
+    }, WB_RECOVERY_SECS * 1000);
+  }
+}
+
+// ═════════════════════════════════════════════
+// ADMIN: TRIGGER BOSS ABILITY (broadcasts to all)
+// ═════════════════════════════════════════════
+async function adminTriggerBossAbility() {
+  if(!checkAdmin() || !_wbBossData) return;
+  const boss     = _wbBossData;
+  const bossCard = (window.DEMO_CARDS||[]).find(c=>c.id===boss.card_id);
+  if(!bossCard) { showToast('Boss card not found in DEMO_CARDS!'); return; }
+
+  const abilities = getCardAbilities(bossCard.id, bossCard.rarity);
+  if(!abilities.length) { showToast('This boss card has no abilities configured!'); return; }
+
+  // Weighted random by tier
+  const tier_w = {secret:6, ultimate:4, active:2, passive:1};
+  const weights = abilities.map(a=>tier_w[a.tier]||1);
+  const total   = weights.reduce((s,w)=>s+w,0);
+  let rand = Math.random()*total, chosen = abilities[0];
+  for(let i=0;i<abilities.length;i++){ rand-=weights[i]; if(rand<=0){chosen=abilities[i];break;} }
+
+  const rt = getSupaRT();
+  await rt.from('world_bosses').update({
+    current_ability: {
+      cardId:    bossCard.id,
+      rarity:    bossCard.rarity,
+      abilityId: chosen.id,
+      name:      chosen.name || 'Boss Ability',
+      icon:      chosen.icon || '💀',
+      ts:        Date.now()
+    }
+  }).eq('id', boss.id);
+
+  showToast(`🔥 Boss unleashes ${chosen.icon||''} ${chosen.name}!`);
+}
+
+// ═════════════════════════════════════════════
+// BOSS DEFEATED
+// ═════════════════════════════════════════════
+async function showBossDefeatedScreen(boss) {
+  const sorted  = [..._wbParticData].sort((a,b)=>(b.damage_dealt||0)-(a.damage_dealt||0));
+  const myRank  = sorted.findIndex(p=>p.discord_id===state.discordId)+1;
+  const medals  = ['🥇','🥈','🥉'];
+
+  let dropChance = WB_SECRET_DROP_BASE;
+  if(myRank >= 1 && myRank <= 3) dropChance = WB_SECRET_DROP_TOP[myRank] || WB_SECRET_DROP_BASE;
+  const gotDrop = Math.random() < dropChance;
+
+  const top3 = sorted.slice(0,3);
+  const coinReward = Math.floor((myRank===1?250 : myRank===2?180 : myRank===3?120 : 60) + (_wbMyPartic?.damage_dealt||0)/80);
+
+  const endEl = document.getElementById('wbEndScreen');
+  if(!endEl) return;
+
+  endEl.innerHTML = `
+    <div class="wb-end-content">
+      <div class="wb-end-title">⚔ BOSS SLAIN ⚔</div>
+      <div class="wb-end-sub">${escapeHtml(boss.boss_name||'World Boss')} has been defeated by the raiders!</div>
+      <div class="wb-end-top3">
+        ${top3.map((p,i)=>`
+          <div class="wb-end-hero ${p.discord_id===state.discordId?'wb-end-hero-me':''}">
+            <div class="wb-end-medal">${medals[i]||'#'+(i+1)}</div>
+            ${p.card_image
+              ? `<img src="${escapeHtml(p.card_image)}" class="wb-end-card-img" onerror="this.style.display='none'"/>`
+              : '<div class="wb-end-card-placeholder">🎴</div>'}
+            <div class="wb-end-hero-name">${escapeHtml(p.username||'Player')}</div>
+            <div class="wb-end-hero-dmg">${(p.damage_dealt||0).toLocaleString()}</div>
+          </div>`).join('')}
+      </div>
+      <div class="wb-end-my-result">
+        <div class="wb-end-rank-tag">Your Rank: #${myRank} of ${sorted.length} raiders</div>
+        <div class="wb-end-drop-result ${gotDrop?'wb-drop-got':'wb-drop-miss'}">
+          ${gotDrop
+            ? `✨ SECRET CARD DROPPED! (${Math.round(dropChance*100)}% chance)<br><span style="font-size:0.78em;opacity:0.8;">Added to your collection!</span>`
+            : `🎴 No secret drop this time (${Math.round(dropChance*100)}% chance)<br><span style="font-size:0.78em;opacity:0.8;">+${coinReward}🪙 battle reward</span>`
+          }
+        </div>
+      </div>
+      <button class="wb-btn-primary" onclick="closeBossArena()">Return to Hub</button>
+    </div>`;
+
+  endEl.style.display = 'flex';
+  try { spawnParticles(6,'#f1c40f'); } catch(_) {}
+
+  // Grant coin reward
+  state.coins = (state.coins||0) + coinReward;
+  updateCoins();
+  if(state.discordId && !state.isGuest) {
+    try { await sb.update('players',{coins:state.coins},{discord_id:state.discordId}); } catch(_) {}
+  }
+
+  // Drop the secret card
+  if(gotDrop && boss.card_id && state.discordId && !state.isGuest) {
+    try {
+      await saveCardToCollection(state.discordId, boss.card_id);
+      showToast(`🌟 SECRET CARD "${boss.boss_name}" added to collection!`);
+      try { spawnParticles(8,'#9b59b6'); } catch(_) {}
+    } catch(e) { showToast('Could not save secret card: '+e.message); }
+  } else {
+    showToast(`+${coinReward}🪙 battle reward!`);
+  }
+}
+
+// ═════════════════════════════════════════════
+// RENDER
+// ═════════════════════════════════════════════
+function renderBossArena(boss) {
+  const nameEl = document.getElementById('wbBossName');
+  const bgImg  = document.getElementById('wbBossArenaImg');
+  const cardImg= document.getElementById('wbBossCardImg');
+
+  if(nameEl) nameEl.textContent = (boss.boss_name||'WORLD BOSS').toUpperCase();
+  if(bgImg  && boss.boss_bg_gif) bgImg.src = boss.boss_bg_gif;
+  if(cardImg && boss.boss_image) cardImg.src = boss.boss_image;
+
+  renderBossHpBar(boss);
+}
+
+function renderBossHpBar(boss) {
+  const fill = document.getElementById('wbBossHpFill');
+  const text = document.getElementById('wbBossHpText');
+  if(!fill || !text || !boss) return;
+
+  const pct = Math.max(0, Math.min(100, ((boss.hp||0)/(boss.max_hp||1))*100));
+  fill.style.width = pct + '%';
+  if(pct > 60)      fill.style.background = 'linear-gradient(90deg,#8b0000,#c0392b)';
+  else if(pct > 30) fill.style.background = 'linear-gradient(90deg,#6c3483,#8e44ad)';
+  else              fill.style.background = 'linear-gradient(90deg,#1c2833,#6c3483)';
+
+  text.textContent = `${(boss.hp||0).toLocaleString()} / ${(boss.max_hp||0).toLocaleString()} HP`;
+}
+
+function renderMyCardStatus(myP) {
+  const fill = document.getElementById('wbMyHpFill');
+  const text = document.getElementById('wbMyHpText');
+  const rec  = document.getElementById('wbRecoveryOverlay');
+  if(!myP) return;
+
+  const pct = Math.max(0, Math.min(100, ((myP.player_hp||0)/(myP.player_max_hp||1))*100));
+  if(fill) {
+    fill.style.width = pct + '%';
+    fill.style.background = pct > 50
+      ? 'linear-gradient(90deg,#27ae60,#2ecc71)'
+      : pct > 20
+        ? 'linear-gradient(90deg,#d68910,#f1c40f)'
+        : 'linear-gradient(90deg,#922b21,#e74c3c)';
+  }
+  if(text) text.textContent = `${myP.player_hp||0} / ${myP.player_max_hp||0}`;
+  if(rec)  rec.style.display = myP.is_eliminated ? 'flex' : 'none';
+}
+
+function renderParticipantsList(partics) {
+  const list = document.getElementById('wbParticList');
+  if(!list) return;
+
+  const sorted = [...partics].sort((a,b)=>(b.damage_dealt||0)-(a.damage_dealt||0));
+  const maxDmg = sorted[0]?.damage_dealt || 1;
+  const medals = ['🥇','🥈','🥉'];
+
+  list.innerHTML = sorted.map((p,i) => {
+    const isMe  = p.discord_id === state.discordId;
+    const pct   = Math.round(((p.damage_dealt||0)/maxDmg)*100);
+    const hpPct = Math.round(((p.player_hp||0)/(p.player_max_hp||1))*100);
+    const hpColor = hpPct>50?'#2ecc71':hpPct>20?'#f1c40f':'#e74c3c';
+    return `
+      <div class="wb-partic-row ${isMe?'wb-partic-me':''} ${p.is_eliminated?'wb-partic-elim':''}">
+        <span class="wb-partic-medal">${medals[i]||''}</span>
+        ${p.card_image
+          ? `<img src="${escapeHtml(p.card_image)}" class="wb-partic-avatar" onerror="this.style.display='none'"/>`
+          : '<div class="wb-partic-avatar-ph">?</div>'}
+        <div class="wb-partic-info">
+          <div class="wb-partic-name">${escapeHtml(p.username||'Player')}${isMe?' <span style="color:var(--pink);font-size:0.8em;">(You)</span>':''}</div>
+          <div class="wb-partic-dmg-bar"><div class="wb-partic-dmg-fill" style="width:${pct}%"></div></div>
+          <div class="wb-partic-stats">
+            <span style="color:#e74c3c">${(p.damage_dealt||0).toLocaleString()} DMG</span>
+            <span style="color:${hpColor}">${p.is_eliminated?'💔 KO':hpPct+'% HP'}</span>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function updateRecoveryUI() {
+  if(!_wbMyPartic?.is_eliminated) return;
+  const el = document.getElementById('wbRecoveryCountdown');
+  if(!el) return;
+  const until = _wbMyPartic.recovery_until ? new Date(_wbMyPartic.recovery_until).getTime() : 0;
+  const left  = Math.max(0, Math.ceil((until-Date.now())/1000));
+  el.textContent = left > 0 ? left+'s' : '...';
+}
+
+function addBossLog(msg) {
+  const log = document.getElementById('wbBattleLog');
+  if(!log) return;
+  const entry = document.createElement('div');
+  entry.className = 'wb-log-entry';
+  entry.textContent = msg;
+  log.insertBefore(entry, log.firstChild);
+  while(log.children.length > 25) log.removeChild(log.lastChild);
+}
+
+// ═════════════════════════════════════════════
+// VISUAL EFFECTS
+// ═════════════════════════════════════════════
+function wbBossHitEffect(dmg, isCrit) {
+  const wrap = document.getElementById('wbBossImgWrap');
+  if(wrap) {
+    wrap.style.animation='none';
+    void wrap.offsetHeight;
+    wrap.style.animation='wbBossHit 0.35s ease';
+    setTimeout(()=>wrap.style.animation='',350);
+  }
+  const arena = document.getElementById('wbArenaModal');
+  if(!arena) return;
+  const num  = document.createElement('div');
+  num.className = 'wb-dmg-num'+(isCrit?' wb-dmg-crit':'');
+  num.textContent= (isCrit?'💥 ':'') + dmg.toLocaleString();
+  num.style.left = (20+Math.random()*55)+'%';
+  num.style.top  = (15+Math.random()*25)+'%';
+  num.style.position='absolute'; num.style.zIndex='30';
+  arena.appendChild(num);
+  setTimeout(()=>num.remove(),1300);
+}
+
+function wbPlayerHitEffect() {
+  const myCard = document.getElementById('wbMyCardWrap');
+  if(myCard){
+    myCard.style.animation='none';
+    void myCard.offsetHeight;
+    myCard.style.animation='wbPlayerHit 0.4s ease';
+    setTimeout(()=>myCard.style.animation='',400);
+  }
+  const flash = document.getElementById('wbHitFlash');
+  if(flash){ flash.style.background='rgba(192,57,43,0.4)'; setTimeout(()=>flash.style.background='rgba(192,57,43,0.0)',350); }
+}
+
+// ═════════════════════════════════════════════
+// ADMIN PANEL: WORLD BOSS TAB
+// ═════════════════════════════════════════════
+async function adminSpawnWorldBoss() {
+  if(!checkAdmin()) return;
+  const cardId  = document.getElementById('wbAdminCardId')?.value?.trim();
+  const name    = document.getElementById('wbAdminBossName')?.value?.trim() || 'World Boss';
+  const maxHp   = parseInt(document.getElementById('wbAdminMaxHp')?.value) || 50000;
+  const bgGif   = document.getElementById('wbAdminBgGif')?.value?.trim() || '';
+  if(!cardId){ showToast('⚠️ Select a boss card first!'); return; }
+  const bossCard = (window.DEMO_CARDS||[]).find(c=>c.id===cardId);
+  if(!bossCard){ showToast('⚠️ Card not found — load cards first.'); return; }
+
+  const rt = getSupaRT();
+  try {
+    // Retire existing active bosses
+    await rt.from('world_bosses').update({status:'dead'}).in('status',['waiting','active']);
+
+    const { data: nb, error } = await rt.from('world_bosses').insert({
+      card_id:    cardId,
+      boss_name:  name,
+      boss_image: bossCard.image||'',
+      boss_bg_gif:bgGif,
+      hp:     maxHp,
+      max_hp: maxHp,
+      status: 'waiting',
+      current_ability: null,
+      spawned_at: new Date().toISOString()
+    }).select().single();
+    if(error) throw error;
+    showToast(`⚔️ World Boss "${name}" spawned! Players will see the notification.`);
+    showBossSpawnNotification(nb);
+    loadAdminBossList();
+  } catch(e){ showToast('❌ Spawn failed: '+e.message); }
+}
+
+async function loadAdminBossList() {
+  const el = document.getElementById('wbAdminBossList');
+  if(!el) return;
+  const rt = getSupaRT();
+  try {
+    const { data } = await rt.from('world_bosses')
+      .select('*').order('spawned_at',{ascending:false}).limit(10);
+    if(!data || !data.length){
+      el.innerHTML='<div style="color:var(--text-dim);font-style:italic;font-size:0.82em;padding:14px;text-align:center;">No boss encounters yet.</div>';
+      return;
+    }
+    const sc={'waiting':'#f1c40f','active':'#e74c3c','dead':'#2ecc71'};
+    el.innerHTML = data.map(b=>`
+      <div style="border:1px solid var(--border);border-radius:10px;padding:10px 12px;margin-bottom:8px;display:flex;align-items:center;gap:10px;">
+        ${b.boss_image?`<img src="${escapeHtml(b.boss_image)}" style="width:34px;height:48px;object-fit:cover;border-radius:6px;flex-shrink:0;filter:saturate(0.5);" onerror="this.style.display='none'"/>` : '<div style="width:34px;height:48px;background:rgba(192,57,43,0.15);border-radius:6px;flex-shrink:0;display:flex;align-items:center;justify-content:center;">⚔️</div>'}
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:0.84em;font-weight:600;">${escapeHtml(b.boss_name||'Boss')}</div>
+          <div style="font-size:0.67em;color:var(--text-dim);">${(b.hp||0).toLocaleString()} / ${(b.max_hp||0).toLocaleString()} HP</div>
+        </div>
+        <span style="font-size:0.65em;font-family:'JetBrains Mono',monospace;color:${sc[b.status]||'#fff'};background:rgba(0,0,0,0.4);padding:2px 8px;border-radius:20px;flex-shrink:0;">${(b.status||'?').toUpperCase()}</span>
+        ${(b.status==='active'||b.status==='waiting')
+          ? `<button class="admin-action-btn danger" onclick="adminForceKillBoss('${b.id}')">💀</button>` : ''}
+      </div>`).join('');
+  } catch(e){
+    el.innerHTML='<div style="color:#e74c3c;font-size:0.8em;padding:10px;">⚠️ Run the World Boss SQL migration first — see bottom of file.</div>';
+  }
+}
+
+async function adminForceKillBoss(bossId){
+  if(!checkAdmin()) return;
+  if(!confirm('Force-kill this World Boss?')) return;
+  const rt = getSupaRT();
+  await rt.from('world_bosses').update({status:'dead',hp:0,killed_at:new Date().toISOString()}).eq('id',bossId);
+  showToast('💀 Boss force-killed');
+  loadAdminBossList();
+}
+
+function populateWbCardSelector() {
+  const sel = document.getElementById('wbAdminCardId');
+  if(!sel) return;
+  const all  = window.DEMO_CARDS||[];
+  // Prefer disabled/secret cards, fallback to all
+  const pool = all.filter(c=>c.pool_disabled||c.rarity>=6||(c.rarityName||'').toLowerCase().includes('secret'));
+  const list = pool.length ? pool : all;
+  if(!list.length){ sel.innerHTML='<option value="">— Load cards first —</option>'; return; }
+  sel.innerHTML = list.map(c=>`<option value="${c.id}">[${c.rarityName||'?'}] ${escapeHtml(c.name)}</option>`).join('');
+}
+
+// ═════════════════════════════════════════════
+// HOOK INTO loadAll
+// ═════════════════════════════════════════════
+(function() {
+  const orig = typeof loadAll === 'function' ? loadAll : null;
+  if(orig) {
+    window.loadAll = async function(discordId) {
+      await orig(discordId);
+      try { await initWorldBossSystem(); } catch(_) {}
+    };
+  }
+})();
+</script>
+
+<!-- ══════════════════════════════════════════════════════════
+     WORLD BOSS — ADMIN TAB (injected into admin panel on load)
+     ══════════════════════════════════════════════════════════ -->
+<script>
+// Inject World Boss tab into the admin panel when admin navigates to it
+document.addEventListener('DOMContentLoaded', () => {
+  // Add the tab button
+  setTimeout(() => {
+    const tabRow = document.querySelector('#page-admin > .page > div[style*="flex"][style*="gap"]') ||
+                   document.querySelector('[id^="atab-cards"]')?.parentElement;
+    if(tabRow && !document.getElementById('atab-worldboss')) {
+      const btn = document.createElement('button');
+      btn.className = 'filter-btn';
+      btn.id = 'atab-worldboss';
+      btn.textContent = '⚔️ World Boss';
+      btn.setAttribute('onclick', "switchAdminTab('worldboss',this); setTimeout(()=>{loadAdminBossList();populateWbCardSelector();},100);");
+      tabRow.appendChild(btn);
+    }
+
+    // Inject tab content container
+    const adminPage = document.getElementById('page-admin');
+    if(adminPage && !document.getElementById('adminTab-worldboss')) {
+      const div = document.createElement('div');
+      div.id = 'adminTab-worldboss';
+      div.style.display = 'none';
+      div.innerHTML = `
+        <div class="admin-panel">
+          <h3 style="font-family:'Cinzel Decorative',serif;font-size:0.95em;color:#e74c3c;margin-bottom:18px;display:flex;align-items:center;gap:8px;">
+            ⚔️ World Boss Manager
+            <span style="font-size:0.65em;font-family:'JetBrains Mono',monospace;color:var(--text-dim);font-weight:400;">Cooperative raid boss for all players</span>
+          </h3>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start;">
+            <!-- Spawn Form -->
+            <div>
+              <div class="admin-section-label">Spawn a New Boss</div>
+
+              <div class="wb-admin-form-row">
+                <label class="wb-admin-form-label">Boss Card <span class="wb-admin-hint">(secret/disabled cards preferred)</span></label>
+                <select id="wbAdminCardId" class="admin-input" style="width:100%;margin-bottom:0;" onclick="populateWbCardSelector()">
+                  <option value="">— Select a card —</option>
+                </select>
+              </div>
+
+              <div class="wb-admin-form-row">
+                <label class="wb-admin-form-label">Boss Name</label>
+                <input id="wbAdminBossName" class="admin-input" type="text" placeholder="e.g. Shadow Sovereign" style="width:100%;"/>
+              </div>
+
+              <div class="wb-admin-form-row">
+                <label class="wb-admin-form-label">Max HP <span class="wb-admin-hint">(50,000 – 500,000 recommended)</span></label>
+                <input id="wbAdminMaxHp" class="admin-input" type="number" value="75000" min="1000" step="5000" style="width:100%;"/>
+              </div>
+
+              <div class="wb-admin-form-row">
+                <label class="wb-admin-form-label">Arena Background GIF URL <span class="wb-admin-hint">(optional)</span></label>
+                <input id="wbAdminBgGif" class="admin-input" type="text" placeholder="https://..." style="width:100%;"/>
+              </div>
+
+              <div style="background:rgba(192,57,43,0.08);border:1px solid rgba(192,57,43,0.2);border-radius:10px;padding:10px 12px;margin-bottom:14px;font-size:0.72em;color:rgba(240,216,232,0.65);line-height:1.5;">
+                ⚠️ Spawning a boss retires any currently active boss.<br>
+                All logged-in players will receive a pop-up notification.<br>
+                Trigger the boss's ability manually using the in-arena button.<br>
+                Only abilities from the boss card's configured ability slots will fire.
+              </div>
+
+              <button class="btn-primary" style="background:linear-gradient(135deg,#8b0000,#c0392b);width:100%;font-size:0.8em;" onclick="adminSpawnWorldBoss()">
+                ⚔️ Spawn World Boss
+              </button>
+            </div>
+
+            <!-- Boss History -->
+            <div>
+              <div class="admin-section-label">Recent Encounters</div>
+              <div id="wbAdminBossList">
+                <div style="color:var(--text-dim);font-style:italic;font-size:0.82em;padding:14px;text-align:center;">Loading...</div>
+              </div>
+              <button class="btn-secondary" style="width:100%;margin-top:10px;font-size:0.75em;" onclick="loadAdminBossList()">↻ Refresh</button>
+            </div>
+          </div>
+        </div>`;
+      adminPage.appendChild(div);
+    }
+  }, 800);
+});
+</script>
+
+<!-- WORLD BOSS SQL MIGRATION (run once in Supabase SQL Editor):
+
+-- World Boss main table
+CREATE TABLE IF NOT EXISTS world_bosses (
+  id               uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  card_id          text NOT NULL,
+  boss_name        text DEFAULT 'World Boss',
+  boss_image       text DEFAULT '',
+  boss_bg_gif      text DEFAULT '',
+  hp               int  NOT NULL DEFAULT 50000,
+  max_hp           int  NOT NULL DEFAULT 50000,
+  status           text DEFAULT 'waiting',  -- waiting | active | dead
+  current_ability  jsonb DEFAULT NULL,       -- {cardId, rarity, abilityId, name, icon, ts}
+  spawned_at       timestamptz DEFAULT now(),
+  killed_at        timestamptz DEFAULT NULL
+);
+ALTER TABLE world_bosses ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "wb_read_all"  ON world_bosses FOR SELECT USING (true);
+CREATE POLICY "wb_write_all" ON world_bosses FOR ALL    USING (true);
+
+-- Participants table (one row per player per boss)
+CREATE TABLE IF NOT EXISTS world_boss_participants (
+  id             uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  boss_id        uuid REFERENCES world_bosses(id) ON DELETE CASCADE,
+  discord_id     text NOT NULL,
+  username       text DEFAULT '',
+  card_id        text DEFAULT '',
+  card_name      text DEFAULT '',
+  card_image     text DEFAULT '',
+  damage_dealt   int  DEFAULT 0,
+  player_hp      int  DEFAULT 130,
+  player_max_hp  int  DEFAULT 130,
+  is_eliminated  boolean DEFAULT false,
+  recovery_until timestamptz DEFAULT NULL,
+  joined_at      timestamptz DEFAULT now(),
+  UNIQUE(boss_id, discord_id)
+);
+ALTER TABLE world_boss_participants ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "wbp_read_all"  ON world_boss_participants FOR SELECT USING (true);
+CREATE POLICY "wbp_write_all" ON world_boss_participants FOR ALL    USING (true);
+
+-- Enable realtime for both tables in Supabase Dashboard:
+-- Database → Replication → supabase_realtime → add world_bosses + world_boss_participants
+-->
