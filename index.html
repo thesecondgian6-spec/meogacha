@@ -2810,6 +2810,98 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   .admin-card-editor-grid > div:last-child > div:last-child { display: none; }
 }
 
+/* ── Admin panel mobile scaling: items tab, skin manager ── */
+@media(max-width:700px){
+  /* Any admin 2-col grid → single column */
+  .admin-two-col-grid {
+    display: block !important;
+  }
+  .admin-two-col-grid > * { margin-bottom: 16px; }
+  /* Items tab: 2-col grid → single column */
+  #adminTab-items > div[style*="grid-template-columns:1fr 1fr"],
+  #adminTab-items > div[style*="grid-template-columns: 1fr 1fr"] {
+    display: block !important;
+  }
+  /* Skin manager form: 2-col grids → single column */
+  #adminTab-skins .admin-panel > div[style*="grid-template-columns:1fr 1fr"],
+  #adminTab-skins .admin-panel > div[style*="grid-template-columns: 1fr 1fr"] {
+    display: block !important;
+  }
+  /* Admin panel padding reduction on mobile */
+  .admin-panel { padding: 16px 14px !important; border-radius: 14px !important; }
+  /* Ability slot 2-col grids → stacked */
+  .ab-slot > div[style*="grid-template-columns:1fr 1fr"],
+  .ab-slot > div[style*="grid-template-columns: 1fr 1fr"] {
+    display: block !important;
+  }
+  /* Effect type + tier row: stack vertically */
+  .ab-slot > div[style*="grid-template-columns:1fr 130px"],
+  .ab-slot > div[style*="grid-template-columns: 1fr 130px"] {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+  }
+  /* Card form 2-col basic info → single col */
+  #cardFormPanel > div[style*="grid-template-columns:1fr 1fr"],
+  #cardFormPanel > div[style*="grid-template-columns: 1fr 1fr"] {
+    display: block !important;
+  }
+  /* Skin preview images row: allow wrap */
+  #skinFormPreviewWrap > div > div { flex-wrap: wrap !important; }
+  /* Items give-player 2-col → block */
+  #adminTab-items .admin-panel > div > div[style*="grid-template-columns:1fr 1fr"],
+  #adminTab-items .admin-panel > div > div[style*="grid-template-columns: 1fr 1fr"] {
+    display: block !important;
+  }
+  /* Anime manager 2-col grid → stacked */
+  #adminTab-anime > div[style*="grid-template-columns:1fr 1fr"],
+  #adminTab-anime > div[style*="grid-template-columns: 1fr 1fr"] {
+    display: block !important;
+  }
+  /* Admin tab bar: scrollable */
+  #page-admin > div[style*="display:flex"][style*="gap:8px"] {
+    overflow-x: auto !important;
+    padding-bottom: 6px;
+    flex-wrap: nowrap !important;
+    -webkit-overflow-scrolling: touch;
+  }
+  /* Ensure inputs/selects don't overflow on mobile */
+  .admin-input, .admin-btn { font-size: 0.88em !important; }
+  /* Skin manager: card select full width */
+  #skinForm_cardId { width: 100% !important; }
+}
+
+/* ── Improved ability tier/effect select styling ── */
+.ab-tier-select option { padding: 4px 8px; }
+.ab-effect-select-wrap { position: relative; }
+
+/* ── Effect description pill below select ── */
+.ab-effect-desc-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border-radius: 8px;
+  font-size: 0.74em;
+  font-style: italic;
+  color: var(--text-dim);
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,157,199,0.1);
+  margin-top: 4px;
+  min-height: 28px;
+  line-height: 1.4;
+}
+.ab-effect-desc-pill .pill-icon { font-size: 1.1em; flex-shrink: 0; }
+
+/* ── Tier select improved visual ── */
+.ab-tier-select {
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+.ab-tier-passive  { border-color: rgba(52,152,219,0.5) !important; color: #5dade2 !important; }
+.ab-tier-active   { border-color: rgba(255,157,199,0.5) !important; color: var(--pink) !important; }
+.ab-tier-ultimate { border-color: rgba(241,196,15,0.5) !important; color: #f1c40f !important; }
+
 /* ── 5x PULL CAROUSEL ── */
 #multiPullScreen{position:fixed;inset:0;z-index:205;display:none;align-items:center;justify-content:flex-start;background:rgba(0,0,0,0.96);flex-direction:column;padding:24px 12px 24px;overflow-y:auto;}
 #multiPullScreen.active{display:flex;}
@@ -11770,7 +11862,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 
 <!-- ANIME MANAGER TAB -->
 <div id="adminTab-anime" style="display:none;">
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start;">
+  <div class="admin-two-col-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start;">
 
     <!-- Left: Anime Form -->
     <div class="admin-panel">
@@ -11850,7 +11942,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 
 <!-- ITEMS MANAGER TAB -->
 <div id="adminTab-items" style="display:none;">
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start;">
+  <div class="admin-two-col-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start;">
 
     <!-- Left: Item Form -->
     <div class="admin-panel">
@@ -11874,11 +11966,11 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
         <div>
           <label class="admin-label">Rarity <span class="admin-hint">(affects drop rate)</span></label>
           <select class="admin-input" id="itemForm_rarity" onchange="autoFillItemDropChance()">
-            <option value="common">⚪ Common</option>
-            <option value="uncommon">🟢 Uncommon</option>
-            <option value="rare">🔵 Rare</option>
-            <option value="epic">🟣 Epic</option>
-            <option value="legendary">🟡 Legendary</option>
+            <option value="common">⚪ Common — drops often (~25%)</option>
+            <option value="uncommon">🟢 Uncommon — occasional drop (~12%)</option>
+            <option value="rare">🔵 Rare — infrequent drop (~5%)</option>
+            <option value="epic">🟣 Epic — hard to find (~2%)</option>
+            <option value="legendary">🟡 Legendary — extremely rare (&lt;1%)</option>
           </select>
         </div>
       </div>
@@ -12286,10 +12378,10 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
           <div>
             <label class="admin-label">Rarity / Tier</label>
             <select class="admin-input" id="skinForm_rarity">
-              <option value="common">⚪ Common</option>
-              <option value="rare" selected>💜 Rare</option>
-              <option value="epic">🟡 Epic</option>
-              <option value="legendary">🌈 Legendary</option>
+              <option value="common">⚪ Common — basic recolor or minor alt</option>
+              <option value="rare" selected>💜 Rare — distinct outfit or style change</option>
+              <option value="epic">🟡 Epic — major redesign or seasonal alt</option>
+              <option value="legendary">🌈 Legendary — animated, live2D, or special event</option>
             </select>
           </div>
           <div>
@@ -19416,14 +19508,14 @@ function addAbilitySlot(prefill){
         <select class="admin-input ab-template-select" style="font-size:0.88em;" onchange="onAbilityTemplateChange(this,${idx})">
           ${optionsHTML}
         </select>
+        <div class="ab-effect-desc-pill" id="ab_effect_pill_${idx}"></div>
       </div>
       <div>
         <label class="admin-label">Tier <span class="admin-hint">— changes how it fires</span></label>
         <select class="admin-input ab-tier-select" onchange="onAbilityTierChange(this,${idx})">
-          <option value="passive"  ${prefillTier==='passive' ?'selected':''}>passive</option>
-          <option value="active"   ${prefillTier==='active'  ?'selected':''}>active</option>
-          <option value="ultimate" ${prefillTier==='ultimate'?'selected':''}>ultimate</option>
-          <option value="secret"   ${prefillTier==='secret'  ?'selected':''}>secret</option>
+          <option value="passive"  ${prefillTier==='passive' ?'selected':''}>🔵 Passive — auto-triggers, no button</option>
+          <option value="active"   ${prefillTier==='active'  ?'selected':''}>🟢 Active — costs MP, press to use</option>
+          <option value="ultimate" ${prefillTier==='ultimate'?'selected':''}>🟡 Ultimate — powerful, high MP cost</option>
         </select>
       </div>
     </div>
@@ -19475,6 +19567,7 @@ function addAbilitySlot(prefill){
   // Build params panel — pass prefillTier inside data so it's available before DOM select is live
   buildAbilityParamsPanel(idx, prefillTemplateKey, {...data, tier: prefillTier}, el);
   updateTierHint(idx, prefillTier, prefillTemplateKey);
+  updateEffectPill(idx, prefillTemplateKey, prefillTier);
 }
 
 // TIER HINT MESSAGES
@@ -19483,6 +19576,54 @@ const TIER_HINTS = {
   active:   { icon:'🟢', msg:'Active — appears as a button in battle. Costs MP. Guaranteed to trigger when pressed.' },
   ultimate: { icon:'🟡', msg:'Ultimate — powerful active button, costs more MP. Dramatically stronger version of the effect.' },
 };
+
+// ── EFFECT DESCRIPTION PILL ──
+// Short 1-line summaries for each template key, shown below the effect dropdown
+const EFFECT_PILL_DESC = {
+  strike:      { icon:'⚔️', desc:'Deals a burst of raw direct damage to the enemy.' },
+  burst:       { icon:'💥', desc:'Attacks multiple times in a single turn — each hit rolls separately.' },
+  pierce:      { icon:'🗡️', desc:'Ignores part of the enemy\'s defense on impact.' },
+  burn:        { icon:'🔥', desc:'Sets the enemy on fire — deals damage-over-time each turn.' },
+  echo:        { icon:'⚡', desc:'Chains a follow-up hit after the main attack automatically.' },
+  copy:        { icon:'🪞', desc:'Copies the last ability the enemy used against you.' },
+  nullify:     { icon:'🚫', desc:'Cancels the enemy\'s next ability before it fires.' },
+  evasion:     { icon:'💨', desc:'Chance to completely dodge an incoming attack.' },
+  adaptation:  { icon:'🧬', desc:'Reduces all incoming damage — adapts the longer battle goes.' },
+  swap:        { icon:'🔀', desc:'Steals ATK from the opponent or inverts battle buffs.' },
+  gambit:      { icon:'🎲', desc:'Random effect — heal, burst damage, or stat boost. High risk, high reward.' },
+  confiscate:  { icon:'🔒', desc:'Stuns the enemy, preventing their next action.' },
+  regen:       { icon:'💚', desc:'Restores HP each turn automatically, or triggers a healing burst.' },
+  purify:      { icon:'✨', desc:'Cleanses all debuffs and negative statuses from yourself.' },
+  leech:       { icon:'🩸', desc:'Steals HP from the enemy — deals damage and heals you simultaneously.' },
+  drain:       { icon:'💀', desc:'Siphons life force — deals damage and converts it into your own HP.' },
+  curse:       { icon:'🌑', desc:'Applies damage-over-time that ticks at the start of each enemy turn.' },
+  stun:        { icon:'🌀', desc:'Immobilizes the enemy, skipping their next one or more turns.' },
+  shield:      { icon:'🛡️', desc:'Absorbs incoming damage before it reaches your real HP pool.' },
+  reflect:     { icon:'🔄', desc:'Bounces a portion of incoming damage back at the attacker.' },
+  counter:     { icon:'↩️', desc:'Automatically retaliates immediately when you take a hit.' },
+  fortify:     { icon:'❤️', desc:'Increases max HP permanently or grants a temporary HP buffer.' },
+  transform:   { icon:'✨', desc:'Powers up ATK temporarily or permanently through transformation.' },
+  berserk:     { icon:'🔥', desc:'Sacrifices HP to gain a massive ATK boost — high risk, huge damage.' },
+};
+
+function updateEffectPill(idx, templateKey, tier) {
+  const pill = document.getElementById(`ab_effect_pill_${idx}`);
+  if(!pill) return;
+  const info = EFFECT_PILL_DESC[templateKey];
+  const tmpl = ABILITY_TEMPLATES[templateKey];
+  if(!info && !tmpl) { pill.style.display='none'; return; }
+  const icon = info?.icon || tmpl?.icon || '✦';
+  // Use tier-specific hint from TIER behavior if available
+  const tierHint = tmpl ? (Object.values(tmpl.params||{})?.[0] ? null : null) : null;
+  const src = EFFECT_LIBRARY?.[templateKey];
+  const tierBehaviorHint = src?.tierBehavior?.[tier]?.hint;
+  const displayDesc = tierBehaviorHint || info?.desc || '';
+  const catColor = TEMPLATE_CATEGORIES[tmpl?.category]?.color || 'var(--text-dim)';
+  pill.style.display = 'flex';
+  pill.style.color = catColor;
+  pill.style.borderColor = catColor.replace(')',',0.2)').replace('rgb','rgba');
+  pill.innerHTML = `<span class="pill-icon">${icon}</span><span>${displayDesc}</span>`;
+}
 
 function updateTierHint(idx, tier, templateKey){
   const el = document.getElementById(`ab_tier_hint_${idx}`);
@@ -19501,6 +19642,7 @@ function onAbilityTierChange(selectEl, idx){
   const descEl = document.getElementById(`ab_desc_${idx}`);
   if(descEl) descEl.value='';
   updateTierHint(idx, tier, templateKey);
+  updateEffectPill(idx, templateKey, tier);
   buildAbilityParamsPanel(idx, templateKey, {}, slot);
 }
 
@@ -19512,6 +19654,7 @@ function onAbilityTemplateChange(selectEl, idx){
   const descEl = document.getElementById(`ab_desc_${idx}`);
   if(descEl) descEl.value='';
   updateTierHint(idx, tier, key);
+  updateEffectPill(idx, key, tier);
   buildAbilityParamsPanel(idx, key, {}, slot);
   // Auto-fill GIF if blank
   const tmpl = ABILITY_TEMPLATES[key];
