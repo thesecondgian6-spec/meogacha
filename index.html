@@ -10114,7 +10114,6 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
                 <img class="battle-card-img player-img" id="baiBattlePlayerImg" src="" alt=""/>
                 <div class="battle-attack-flash player-flash" id="baiBattlePlayerFlash"></div>
               </div>
-              <div class="battle-card-name-tag" id="baiBattlePlayerName"></div>
             </div>
             <div class="battle-vs-badge">VS</div>
             <div class="battle-enemy-side">
@@ -10122,7 +10121,8 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
                 <img class="battle-card-img enemy-img" id="baiBattleEnemyImg" src="" alt=""/>
                 <div class="battle-attack-flash enemy-flash" id="baiBattleEnemyFlash"></div>
               </div>
-              <div class="battle-card-name-tag" id="baiBattleEnemyName"></div>
+              <span id="baiBattlePlayerName" style="display:none"></span>
+              <span id="baiBattleEnemyName" style="display:none"></span>
             </div>
           </div>
           <!-- HP Bars -->
@@ -12039,6 +12039,9 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
               </label>
               <label style="display:flex;align-items:center;gap:6px;font-size:0.85em;color:var(--text-dim);cursor:pointer;">
                 <input type="checkbox" id="cardForm_limited" onchange="toggleLimitedFor()"/> Limited card
+              </label>
+              <label style="display:flex;align-items:center;gap:6px;font-size:0.85em;cursor:pointer;" title="Battle Cards appear in PvP and Activity battles. Cosmetic Cards are collection-only.">
+                <input type="checkbox" id="cardForm_for_battle" checked/> <span style="color:#e74c3c;">⚔️ Battle Card</span> <span style="color:var(--text-dim);font-size:0.85em;">(uncheck = Cosmetic only)</span>
               </label>
             </div>
             <div id="limitedForWrap" style="display:none;margin-bottom:10px;">
@@ -14199,6 +14202,7 @@ async function loadCards(){
       enabled:     r.enabled,
       limited:     r.limited,
       limitedFor:  r.limited_for,
+      forBattle:   r.for_battle !== false,
     }));
     console.log(`Loaded ${window.DEMO_CARDS.length} cards from DB`);
   }
@@ -15732,6 +15736,8 @@ async function startBattleAI() {
   const haunt       = playerAbils.find(a=>a.battleEffect==='haunt_secret');
   const risingPower = playerAbils.find(a=>a.battleEffect==='rising_power');
   const lastBurst   = playerAbils.find(a=>a.battleEffect==='last_burst');
+  const berserkP    = playerAbils.find(a=>a.battleEffect==='berserk_passive');
+  const reflectP    = playerAbils.find(a=>a.battleEffect==='reflect_passive');
   const initStatusEffects = [];
   if (haunt) initStatusEffects.push({type:'burn',icon:'👁️',label:`Haunted (${haunt.value}/turn)`,turns:99,dot:haunt.value,who:'enemy'});
 
@@ -15769,6 +15775,15 @@ async function startBattleAI() {
     phantomBarrageAbil: playerAbils.find(a=>a.battleEffect==='phantom_barrage')||null,
     hiddenPierceBonus: playerAbils.find(a=>a.battleEffect==='hidden_pierce')?.value||0,
     fearChance: playerAbils.find(a=>a.battleEffect==='fear_secret')?.value||0,
+    berserkPassive: berserkP||null,
+    reflectPassivePct: reflectP ? reflectP.value : 0,
+    reflectPassiveChance: reflectP ? (reflectP.chance||20) : 0,
+    reflectHits: 0, reflectTurns: 0, reflectPct: 0,
+    counterHits: 0, counterDmg: 0, counterTurns: 0, counterMult: 1,
+    purifyTurns: 0, nullifyTurns: 0,
+    berserkHpLoss: 0, berserkTurns: 0,
+    berserkPassiveFired: false,
+    swap_passive: playerAbils.find(a=>a.battleEffect==='swap_passive')||null,
     statusEffects: initStatusEffects,
     battleEnded: false, movesCooldown: false,
   });
@@ -17231,6 +17246,7 @@ function renderBattleCardSelect() {
   grid.innerHTML = owned.map(id=>{
     const c = (window.DEMO_CARDS||DEMO_CARDS).find(x=>x.id===id);
     if(!c) return '';
+    if(c.forBattle===false) return ''; // Cosmetic-only card
     const color = RARITY_COLORS[c.rarity]||'#bdc3c7';
     const sel = battleState.selectedCardId===id;
     return `<div class="battle-card-select-item${sel?' selected':''}" onclick="selectBattleCard('${id}')" style="${sel?'border-color:#f1c40f;':''}">
@@ -17259,7 +17275,7 @@ function selectDifficulty(diff, btn) {
 function startBattle() {
   if(!battleState.selectedCardId) return;
   const playerCard = (window.DEMO_CARDS||DEMO_CARDS).find(x=>x.id===battleState.selectedCardId);
-  const enemyCandidates = (window.DEMO_CARDS||DEMO_CARDS).filter(c=>c.id!==playerCard.id);
+  const enemyCandidates = (window.DEMO_CARDS||DEMO_CARDS).filter(c=>c.id!==playerCard.id && c.forBattle!==false);
   const enemyCard = enemyCandidates[Math.floor(Math.random()*enemyCandidates.length)];
   const diff = BATTLE_DIFFICULTIES[battleState.difficulty];
   const playerAbils = getCardAbilities(playerCard.id, playerCard.rarity);
@@ -17284,6 +17300,9 @@ function startBattle() {
   const lastBurst   = playerAbils.find(a=>a.battleEffect==='last_burst');
   // Phantom mirror (secret copy)
   const phantomMirror = playerAbils.find(a=>a.battleEffect==='phantom_mirror');
+  // New passives
+  const berserkP    = playerAbils.find(a=>a.battleEffect==='berserk_passive');
+  const reflectP    = playerAbils.find(a=>a.battleEffect==='reflect_passive');
 
   const playerMaxHP = Math.round((80 + playerCard.rarity * 15)) + hpBoost;
   const enemyMaxHP  = Math.round((80 + enemyCard.rarity  * 15) * diff.hpMult);
@@ -17329,6 +17348,15 @@ function startBattle() {
     phantomBarrageAbil: playerAbils.find(a=>a.battleEffect==='phantom_barrage')||null,
     hiddenPierceBonus:  playerAbils.find(a=>a.battleEffect==='hidden_pierce')?.value||0,
     fearChance:         playerAbils.find(a=>a.battleEffect==='fear_secret')?.value||0,
+    berserkPassive:     berserkP||null,
+    reflectPassivePct:  reflectP ? reflectP.value : 0,
+    reflectPassiveChance: reflectP ? (reflectP.chance||20) : 0,
+    reflectHits: 0, reflectTurns: 0, reflectPct: 0,
+    counterHits: 0, counterDmg: 0, counterTurns: 0, counterMult: 1,
+    purifyTurns: 0, nullifyTurns: 0,
+    berserkHpLoss: 0, berserkTurns: 0,
+    berserkPassiveFired: false,
+    swap_passive: playerAbils.find(a=>a.battleEffect==='swap_passive')||null,
     // ── status ──
     statusEffects:      initStatusEffects,
     battleEnded:        false,
@@ -17398,8 +17426,6 @@ function getCardMoves(card) {
   ];
   const extras = [];
   if(rarity >= 2) extras.push({ id:'power', name:'Power Blow', icon:'💥', type:'atk', desc:'Heavier strike.', power:22, mpCost:1 });
-  if(rarity >= 3) extras.push({ id:'focus', name:'Focus Energy', icon:'✨', type:'spc', desc:'Boost attack +30% for 2 turns.', power:0, mpCost:1 });
-  if(rarity >= 4) extras.push({ id:'heal',  name:'Quick Heal',   icon:'💊', type:'def', desc:'Restore 18 HP.', power:18, mpCost:1 });
 
   // Add ACTIVE abilities as individual move buttons
   abilities.filter(a=>a.tier==='active').forEach(ab=>{
@@ -17727,6 +17753,162 @@ async function dispatchAbilityEffect(ab, who) {
     await playMoveVFX('heal-action','player','player',val,false,pColor);
     battleLog(`${ab.icon} ${pName}: ${ab.name}! Max HP +${val} and fully healed!`, 'player');
 
+  // ─ ECHO effects ─
+  } else if(effect==='echo_active'){
+    const hits = 2;
+    let total = 0;
+    for(let i=0;i<hits;i++){
+      const d = applyAtkBoosts(val);
+      battleState.enemyHP -= d; total += d;
+      await playMoveVFX('atk','player','enemy',d,false,pColor);
+      await sleep(200);
+    }
+    playAttackSound('atk');
+    battleLog(`${ab.icon} ${pName}: ${ab.name}! Echo ×${hits} — ${total} total damage!`, 'player');
+    await triggerPassiveProcs(total);
+  } else if(effect==='echo_ult'){
+    const hits = ab.chance||5;
+    const dmgEa = val||18;
+    let total = 0;
+    for(let i=0;i<hits;i++){
+      const d = applyAtkBoosts(dmgEa);
+      battleState.enemyHP -= d; total += d;
+      await playMoveVFX('atk','player','enemy',d,false,pColor);
+      await sleep(150);
+    }
+    playAttackSound('ult'); spawnParticles(battleState.playerCard.rarity, pColor);
+    battleLog(`${ab.icon} ${pName}: ${ab.name}! ${hits}-hit echo barrage — ${total} total damage! ✦`, 'player');
+
+  // ─ REFLECT effects ─
+  } else if(effect==='reflect_active'){
+    battleState.reflectHits = (battleState.reflectHits||0) + 1;
+    battleState.reflectPct  = 100;
+    spawnShieldBubble('player');
+    await playMoveVFX('def','player','enemy',0,false,pColor);
+    battleLog(`${ab.icon} ${pName}: ${ab.name}! Next hit will be fully reflected!`, 'player');
+    battleState.statusEffects.push({type:'shield',icon:'🔄',label:'Reflect(1hit)',turns:1});
+  } else if(effect==='reflect_ult'){
+    const turns = val||2;
+    battleState.reflectTurns = turns;
+    battleState.reflectPct   = 100;
+    spawnShieldBubble('player');
+    await playMoveVFX('def','player','enemy',0,false,pColor);
+    battleLog(`${ab.icon} ${pName}: ${ab.name}! All incoming damage reflected for ${turns} turns! ✦`, 'player');
+    battleState.statusEffects.push({type:'shield',icon:'🔄',label:`Reflect(${turns}t)`,turns});
+
+  // ─ COUNTER effects ─
+  } else if(effect==='counter_active'){
+    battleState.counterHits  = (battleState.counterHits||0) + 1;
+    battleState.counterDmg   = val;
+    spawnShieldBubble('player');
+    await playMoveVFX('def','player','enemy',0,false,pColor);
+    battleLog(`${ab.icon} ${pName}: ${ab.name}! Will counter the next hit for ${val} damage!`, 'player');
+    battleState.statusEffects.push({type:'shield',icon:'↩️',label:`Counter(${val}dmg)`,turns:1});
+  } else if(effect==='counter_ult'){
+    const turns = ab.chance||2;
+    const mult  = val>5 ? val/100+1 : val||2;
+    battleState.counterTurns = turns;
+    battleState.counterMult  = mult;
+    spawnShieldBubble('player');
+    await playMoveVFX('def','player','enemy',0,false,pColor);
+    battleLog(`${ab.icon} ${pName}: ${ab.name}! All hits countered at ×${mult} for ${turns} turns! ✦`, 'player');
+    battleState.statusEffects.push({type:'shield',icon:'↩️',label:`Counter×${mult}(${turns}t)`,turns});
+
+  // ─ PURIFY effects ─
+  } else if(effect==='purify_active'){
+    const negTypes = ['burn','dot','stun','debuff'];
+    const removed  = battleState.statusEffects.filter(s=>negTypes.includes(s.type)&&s.who!=='enemy').length;
+    battleState.statusEffects = battleState.statusEffects.filter(s=>!negTypes.includes(s.type)||s.who==='enemy');
+    if(val>0){ battleState.playerHP = Math.min(battleState.playerMaxHP, battleState.playerHP+val); spawnHealEffect('player'); }
+    await playMoveVFX('spc','player','player',val,false,pColor);
+    battleLog(`${ab.icon} ${pName}: ${ab.name}! ${removed} debuff${removed!==1?'s':''} cleansed${val>0?` + ${val} HP`:''}!`, 'player');
+  } else if(effect==='purify_ult'){
+    const turns = val||3;
+    battleState.statusEffects = battleState.statusEffects.filter(s=>s.who==='enemy');
+    battleState.purifyTurns   = turns;
+    await playMoveVFX('spc','player','player',0,false,pColor);
+    spawnHealEffect('player');
+    battleLog(`${ab.icon} ${pName}: ${ab.name}! All debuffs cleared — immune for ${turns} turns! ✦`, 'player');
+    battleState.statusEffects.push({type:'boost',icon:'✨',label:`Purified(${turns}t)`,turns});
+
+  // ─ GAMBIT effect ─
+  } else if(effect==='gambit_active'){
+    const roll = Math.random();
+    await playMoveVFX('spc','player','enemy',0,false,pColor);
+    if(roll < 0.33){
+      const heal = Math.round(val*0.8)||20;
+      battleState.playerHP = Math.min(battleState.playerMaxHP, battleState.playerHP+heal);
+      spawnHealEffect('player'); spawnDmgNumber('player',heal,false,true);
+      battleLog(`${ab.icon} ${pName}: ${ab.name}! 🎲 HEAL — +${heal} HP!`, 'player');
+    } else if(roll < 0.66){
+      const dmg = applyAtkBoosts(val||35);
+      battleState.enemyHP -= dmg;
+      await playMoveVFX('ult','player','enemy',dmg,true,pColor);
+      battleLog(`${ab.icon} ${pName}: ${ab.name}! 🎲 DAMAGE — ${dmg} dmg!`, 'player');
+    } else {
+      const boost = 30; const turns = 2;
+      battleState.playerAtkBoost = (battleState.passiveAtkBoost||0) + boost;
+      battleState.playerAtkBoostTurns = turns;
+      spawnFocusEffect('player');
+      battleLog(`${ab.icon} ${pName}: ${ab.name}! 🎲 POWER — ATK +${boost}% for ${turns} turns!`, 'player');
+      battleState.statusEffects.push({type:'boost',icon:'🎲',label:`Gambit(ATK+${boost}%)`,turns});
+    }
+
+  // ─ SWAP / BERSERK effects ─
+  } else if(effect==='swap_active'){
+    const pct   = val||25;
+    const turns = ab.chance||2;
+    battleState.playerAtkBoost = (battleState.passiveAtkBoost||0) + pct;
+    battleState.playerAtkBoostTurns = turns;
+    spawnFocusEffect('player');
+    await playMoveVFX('spc','player','enemy',0,false,pColor);
+    battleLog(`${ab.icon} ${pName}: ${ab.name}! Swapped momentum — ATK +${pct}% for ${turns} turns!`, 'player');
+    battleState.statusEffects.push({type:'boost',icon:'🔀',label:`Swap(ATK+${pct}%)`,turns});
+
+  } else if(effect==='berserk_active'){
+    const hpCost = ab.chance||20;
+    const pct    = val||50;
+    const turns  = ab.turns||2;
+    battleState.playerHP = Math.max(1, battleState.playerHP - hpCost);
+    battleState.playerAtkBoost = (battleState.passiveAtkBoost||0) + pct;
+    battleState.playerAtkBoostTurns = turns;
+    spawnFocusEffect('player');
+    await playMoveVFX('ult','player','enemy',0,false,pColor);
+    battleLog(`${ab.icon} ${pName}: ${ab.name}! Sacrificed ${hpCost} HP — ATK +${pct}% for ${turns} turns!`, 'player');
+    battleState.statusEffects.push({type:'boost',icon:'🔥',label:`Berserk(ATK+${pct}%)`,turns});
+  } else if(effect==='berserk_ult'){
+    const mult    = val>5 ? val/100+1 : val||3;
+    const hpLoss  = ab.chance||15;
+    const turns   = ab.turns||3;
+    battleState.transformMult  = mult;
+    battleState.transformTurns = turns;
+    battleState.berserkHpLoss  = hpLoss;
+    battleState.berserkTurns   = turns;
+    spawnFocusEffect('player');
+    await playMoveVFX('ult','player','enemy',0,true,pColor);
+    battleLog(`${ab.icon} ${pName}: ${ab.name}! BERSERK — ×${mult} power for ${turns} turns! Lose ${hpLoss} HP/turn!`, 'player');
+    battleState.statusEffects.push({type:'boost',icon:'🔥',label:`Berserk×${mult}(${turns}t)`,turns});
+
+  // ─ NULLIFY effects (new keys) ─
+  } else if(effect==='nullify_active'){
+    const dmg = val||25;
+    battleState.enemyAbilBlocked = (battleState.enemyAbilBlocked||0) + 1;
+    if(dmg>0){ battleState.enemyHP -= dmg; await playMoveVFX('spc','player','enemy',dmg,false,pColor); }
+    battleLog(`${ab.icon} ${pName}: ${ab.name}! Enemy's next ability is nullified! ${dmg>0?`+${dmg} dmg`:''} `, 'player');
+    battleState.statusEffects.push({type:'shield',icon:'🚫',label:'Nullify(next)',turns:1});
+  } else if(effect==='nullify_ult'){
+    const turns = val||2;
+    battleState.nullifyTurns = turns;
+    await playMoveVFX('ult','player','enemy',0,false,pColor);
+    battleLog(`${ab.icon} ${pName}: ${ab.name}! Void field — enemy attacks deal 0 damage for ${turns} turns! ✦`, 'player');
+    battleState.statusEffects.push({type:'shield',icon:'🚫',label:`Nullify(${turns}t)`,turns});
+
+  // ─ REFLECT passive (new) ─
+  } else if(effect==='reflect_passive'){
+    // handled at init; this is here as safety fallback
+    spawnShieldBubble('player');
+    battleLog(`${ab.icon} ${pName}'s passive reflect is active!`, 'player');
+
   } else {
     // Fallback — treat as basic attack
     let dmg = applyAtkBoosts(val||20);
@@ -17958,6 +18140,42 @@ async function enemyTurn() {
       battleLog(`🪞 ${pName}'s copy passive triggers — reflects ${reflected} dmg!`, 'player');
     }
 
+    // ── Reflect passive proc ──
+    if(battleState.reflectPassivePct>0 && Math.random()*100 < (battleState.reflectPassiveChance||20)){
+      const ref = Math.round(dmg * battleState.reflectPassivePct/100);
+      battleState.enemyHP -= ref;
+      spawnShieldBubble('player'); spawnDmgNumber('enemy',ref,false,false);
+      battleLog(`🔄 ${pName}'s reflect passive triggers — ${ref} damage reflected!`, 'player');
+      dmg = Math.round(dmg * 0.6);
+    }
+
+    // ── Active reflect (full) ──
+    if(battleState.reflectHits>0){
+      battleState.reflectHits--;
+      const ref = Math.round(dmg * (battleState.reflectPct/100));
+      battleState.enemyHP -= ref;
+      spawnShieldBubble('player'); spawnDmgNumber('enemy',ref,false,false);
+      if(!battleState.reflectHits) battleState.statusEffects=battleState.statusEffects.filter(s=>!s.label.startsWith('Reflect'));
+      battleLog(`🔄 ${pName} reflects the attack — ${ref} damage bounced back!`, 'player');
+      dmg = 0;
+    } else if(battleState.reflectTurns>0){
+      const ref = Math.round(dmg * (battleState.reflectPct/100));
+      battleState.enemyHP -= ref;
+      spawnShieldBubble('player'); spawnDmgNumber('enemy',ref,false,false);
+      battleLog(`🔄 Reflect field — all ${ref} damage reflected!`, 'player');
+      dmg = 0;
+    }
+
+    // ── Swap passive proc (gain ATK when hit) ──
+    if(battleState.swap_passive && Math.random()*100 < (battleState.swap_passive.chance||25)){
+      const spct = battleState.swap_passive.value||20;
+      battleState.playerAtkBoost = (battleState.passiveAtkBoost||0) + spct;
+      battleState.playerAtkBoostTurns = 2;
+      battleState.statusEffects = battleState.statusEffects.filter(s=>!s.label.startsWith('Swap'));
+      battleState.statusEffects.push({type:'boost',icon:'🔀',label:`Swap(ATK+${spct}%)`,turns:2});
+      battleLog(`🔀 ${pName}'s swap passive fires — stole momentum! ATK +${spct}%!`, 'player');
+    }
+
     // ── Dodge checks ──
     const passiveDodgeRoll = battleState.passiveDodge>0 && Math.random()*100<battleState.passiveDodge;
     if(battleState.dodgeHits>0){
@@ -17980,8 +18198,32 @@ async function enemyTurn() {
       dmg = Math.round(dmg*0.3); // reduced pass-through
     }
 
-    // ── Active shield ──
-    if(battleState.shieldHits>0){
+    // ── Nullify turns (enemy attacks deal 0) ──
+    if(battleState.nullifyTurns>0){
+      battleLog(`🚫 ${pName}'s nullify field — ${eName}'s attack is void! (${battleState.nullifyTurns} turns left)`, 'player');
+      dmg = 0;
+    }
+
+    // ── Counter active stance ──
+    if(battleState.counterHits>0 && dmg>0){
+      battleState.counterHits--;
+      const cDmg = applyAtkBoosts(battleState.counterDmg||30);
+      battleState.enemyHP -= cDmg;
+      spawnDmgNumber('enemy',cDmg,true,false);
+      if(!battleState.counterHits) battleState.statusEffects=battleState.statusEffects.filter(s=>!s.label.startsWith('Counter'));
+      battleLog(`↩️ ${pName} counters! ${cDmg} damage back at ${eName}!`, 'player');
+    } else if(battleState.counterTurns>0 && dmg>0){
+      const cDmg = Math.round(dmg * battleState.counterMult);
+      battleState.enemyHP -= cDmg;
+      spawnDmgNumber('enemy',cDmg,true,false);
+      battleLog(`↩️ Counter mode — ${cDmg} reflected at ×${battleState.counterMult}!`, 'player');
+    }
+
+    // ── Purify immunity ──
+    if(battleState.purifyTurns>0){
+      battleState.statusEffects = battleState.statusEffects.filter(s=>s.who==='enemy'||s.type==='boost');
+      battleLog(`✨ ${pName} is purified — debuffs have no effect!`, 'player');
+    }
       battleState.shieldHits--;
       const reduce = battleState.activeShieldReduce||50;
       dmg = Math.round(dmg*(1-reduce/100));
@@ -18048,6 +18290,34 @@ async function doEndOfTurn(){
     spawnHealEffect('player'); spawnDmgNumber('player',battleState.passiveRegenAmt,false,true);
     battleLog(`💚 ${battleState.playerCard.name} regenerates ${battleState.passiveRegenAmt} HP!`, 'player');
   }
+  // ── Berserk passive: trigger once when HP drops low ──
+  if(battleState.berserkPassive && !battleState.berserkPassiveFired){
+    const threshold = battleState.berserkPassive.chance||30;
+    if(battleState.playerHP/battleState.playerMaxHP*100 <= threshold){
+      battleState.berserkPassiveFired = true;
+      const boost = battleState.berserkPassive.value||40;
+      battleState.passiveAtkBoost = (battleState.passiveAtkBoost||0) + boost;
+      battleState.playerAtkBoost  = (battleState.playerAtkBoost||0) + boost;
+      if(battleState.playerAtkBoostTurns < 999) battleState.playerAtkBoostTurns = 999;
+      battleState.statusEffects.push({type:'boost',icon:'🔥',label:`Berserk(ATK+${boost}%)`,turns:999});
+      battleLog(`🔥 ${battleState.playerCard.name}'s berserk passive triggers! ATK +${boost}% permanently!`, 'player');
+    }
+  }
+  // ── Berserk ult: drain HP each turn ──
+  if(battleState.berserkTurns>0){
+    battleState.berserkTurns--;
+    if(battleState.berserkHpLoss>0){
+      battleState.playerHP = Math.max(1, battleState.playerHP - battleState.berserkHpLoss);
+      spawnDmgNumber('player',battleState.berserkHpLoss,false,false);
+      battleLog(`🔥 Berserk rage burns — ${battleState.berserkHpLoss} HP lost!`, 'system');
+    }
+    if(!battleState.berserkTurns){ battleState.transformMult=1; battleState.transformTurns=0; battleState.statusEffects=battleState.statusEffects.filter(s=>!s.label.startsWith('Berserk×')); }
+  }
+  // ── Tick reflect / counter / nullify / purify ──
+  if(battleState.reflectTurns>0){ battleState.reflectTurns--; if(!battleState.reflectTurns){ battleState.reflectPct=0; battleState.statusEffects=battleState.statusEffects.filter(s=>!s.label.startsWith('Reflect')); } }
+  if(battleState.counterTurns>0){ battleState.counterTurns--; if(!battleState.counterTurns){ battleState.counterMult=1; battleState.statusEffects=battleState.statusEffects.filter(s=>!s.label.startsWith('Counter×')); } }
+  if(battleState.nullifyTurns>0){ battleState.nullifyTurns--; if(!battleState.nullifyTurns){ battleState.statusEffects=battleState.statusEffects.filter(s=>!s.label.startsWith('Nullify')); } }
+  if(battleState.purifyTurns>0){ battleState.purifyTurns--; if(!battleState.purifyTurns){ battleState.statusEffects=battleState.statusEffects.filter(s=>!s.label.startsWith('Purified')); } }
   // Tick immortal/phantom status display
   battleState.statusEffects = battleState.statusEffects.map(s=>{
     if(s.who==='enemy') return s;
@@ -18610,121 +18880,53 @@ function updateCardPreview(){
 // ══════════════════════════════════════════════
 const EFFECT_LIBRARY = {
 
+  // ── DAMAGE ──────────────────────────────────────────────────────────────
+
   strike: {
     label:'⚔️ Strike', category:'damage', icon:'⚔️',
     tierBehavior:{
-      passive:{ hint:'Chance to auto-strike whenever you attack, heal, or guard.',
+      passive:{ hint:'Chance to deal bonus damage on any attack.',
         params:[{key:'dmg',label:'Bonus Dmg',type:'number',min:5,max:80,step:5,default:15},
                 {key:'chance',label:'Proc Chance (%)',type:'number',min:5,max:60,step:5,default:25}],
-        effect:'passive_strike', descFn:(p)=>`${p.chance}% chance to follow up any action with a ${p.dmg}-damage strike.` },
-      active:{ hint:'Guaranteed precision strike. Costs MP.',
-        params:[{key:'dmg',label:'Damage',type:'number',min:10,max:120,step:5,default:35}],
-        effect:'active_strike', descFn:(p)=>`Deliver a precise strike dealing ${p.dmg} damage.` },
-      ultimate:{ hint:'Devastating multi-strike combo.',
-        params:[{key:'hits',label:'# of Hits',type:'number',min:2,max:8,step:1,default:4},
-                {key:'dmg',label:'Dmg Each',type:'number',min:10,max:80,step:5,default:20}],
-        effect:'ult_strike', descFn:(p)=>`Unleash ${p.hits} devastating strikes of ${p.dmg} damage each.` },
-      secret:{ hint:'Hidden finishing blow — enormous single hit.',
-        params:[{key:'dmg',label:'Secret Dmg',type:'number',min:60,max:250,step:10,default:100}],
-        effect:'secret_strike', descFn:(p)=>`??? A legendary strike dealing ${p.dmg} damage.` },
+        effect:'counter_strike', descFn:(p)=>`${p.chance}% chance for attacks to deal ${p.dmg} bonus damage.` },
+      active:{ hint:'Guaranteed powerful hit. Costs MP.',
+        params:[{key:'dmg',label:'Damage',type:'number',min:10,max:120,step:5,default:40}],
+        effect:'strike_active', descFn:(p)=>`Deliver a guaranteed powerful hit for ${p.dmg} damage.` },
+      ultimate:{ hint:'Massive strike dealing very high damage.',
+        params:[{key:'dmg',label:'Damage',type:'number',min:40,max:200,step:5,default:90}],
+        effect:'strike_ult', descFn:(p)=>`Unleash a massive strike dealing ${p.dmg} damage.` },
     },
   },
 
   burst: {
     label:'💥 Burst', category:'damage', icon:'💥',
     tierBehavior:{
-      passive:{ hint:'Chance for any attack to explode for extra damage.',
-        params:[{key:'mult',label:'Burst Multiplier (×)',type:'number',min:1.2,max:3,step:0.1,default:1.5},
-                {key:'chance',label:'Proc Chance (%)',type:'number',min:5,max:40,step:5,default:15}],
-        effect:'passive_burst', descFn:(p)=>`${p.chance}% chance for any attack to burst at ${p.mult}× damage.` },
-      active:{ hint:'A single massive explosion.',
+      passive:{ hint:'Chance to trigger a secondary explosion on any attack.',
+        params:[{key:'dmg',label:'Explosion Dmg',type:'number',min:5,max:60,step:5,default:18},
+                {key:'chance',label:'Proc Chance (%)',type:'number',min:5,max:40,step:5,default:20}],
+        effect:'burst_passive', descFn:(p)=>`${p.chance}% chance for attacks to trigger a secondary explosion for ${p.dmg} damage.` },
+      active:{ hint:'Explode the target for instant damage.',
         params:[{key:'dmg',label:'Burst Damage',type:'number',min:20,max:180,step:5,default:55}],
-        effect:'active_burst', descFn:(p)=>`Release a powerful burst dealing ${p.dmg} damage.` },
-      ultimate:{ hint:'Catastrophic explosion — big damage, self recoil.',
-        params:[{key:'dmg',label:'Explosion Dmg',type:'number',min:50,max:300,step:10,default:90},
-                {key:'recoil',label:'Self Recoil',type:'number',min:0,max:60,step:5,default:15}],
-        effect:'ult_burst', descFn:(p)=>`Go all-out — ${p.dmg} explosion damage. Take ${p.recoil} recoil.` },
-      secret:{ hint:'Mysterious burst that also burns the enemy.',
-        params:[{key:'dmg',label:'Dmg',type:'number',min:40,max:200,step:10,default:80}],
-        effect:'secret_burst', descFn:(p)=>`??? Burst of ${p.dmg} damage and the enemy is burned for 3 turns.` },
+        effect:'burst_active', descFn:(p)=>`Explode the target for ${p.dmg} instant damage.` },
+      ultimate:{ hint:'Huge focused explosion on the enemy — massive damage.',
+        params:[{key:'dmg',label:'Explosion Dmg',type:'number',min:60,max:300,step:10,default:100}],
+        effect:'burst_ult', descFn:(p)=>`Trigger a devastating focused explosion dealing ${p.dmg} damage.` },
     },
   },
 
-  copy: {
-    label:'🪞 Copy', category:'special', icon:'🪞',
+  pierce: {
+    label:'🗡️ Pierce', category:'damage', icon:'🗡️',
     tierBehavior:{
-      passive:{ hint:'Chance to automatically copy an ability when the enemy uses one on you.',
-        params:[{key:'chance',label:'Copy Chance (%)',type:'number',min:10,max:80,step:5,default:30}],
-        effect:'passive_copy', descFn:(p)=>`${p.chance}% chance to copy the enemy's ability when they use it against you.` },
-      active:{ hint:'Guaranteed copy and instant use of the enemy\'s last ability.',
-        params:[],
-        effect:'active_copy', descFn:()=>`Mirror the enemy — copy and immediately use their last ability.` },
-      ultimate:{ hint:'Copy AND amplify — the stolen ability fires at double power.',
-        params:[],
-        effect:'ult_copy', descFn:()=>`Copy the enemy's last ability and unleash it at 2× power.` },
-      secret:{ hint:'Permanently steal — you keep a copy of their ability the whole battle.',
-        params:[],
-        effect:'secret_copy', descFn:()=>`??? Steal the enemy's ability and keep it for the rest of this battle.` },
-    },
-  },
-
-  regen: {
-    label:'💚 Regen', category:'healing', icon:'💚',
-    tierBehavior:{
-      passive:{ hint:'Restore HP every turn automatically.',
-        params:[{key:'hp',label:'HP per Turn',type:'number',min:2,max:40,step:1,default:8}],
-        effect:'passive_regen', descFn:(p)=>`Regenerate ${p.hp} HP at the start of each turn.` },
-      active:{ hint:'Instantly restore a chunk of HP.',
-        params:[{key:'hp',label:'HP Restored',type:'number',min:10,max:120,step:5,default:35}],
-        effect:'active_regen', descFn:(p)=>`Restore ${p.hp} HP instantly.` },
-      ultimate:{ hint:'Massive instant heal + regen for several turns.',
-        params:[{key:'instant',label:'Instant Heal',type:'number',min:20,max:150,step:5,default:50},
-                {key:'regenHp',label:'Regen/Turn After',type:'number',min:5,max:40,step:5,default:15},
-                {key:'turns',label:'Regen Turns',type:'number',min:1,max:5,step:1,default:3}],
-        effect:'ult_regen', descFn:(p)=>`Restore ${p.instant} HP instantly, then regen ${p.regenHp} HP/turn for ${p.turns} turns.` },
-      secret:{ hint:'Double all healing for the entire battle.',
-        params:[],
-        effect:'secret_regen', descFn:()=>`??? All healing effects are doubled for the rest of the battle.` },
-    },
-  },
-
-  shield: {
-    label:'🛡️ Shield', category:'defense', icon:'🛡️',
-    tierBehavior:{
-      passive:{ hint:'Reduce all incoming damage by a flat amount.',
-        params:[{key:'reduce',label:'Damage Reduction',type:'number',min:2,max:30,step:2,default:8}],
-        effect:'passive_shield', descFn:(p)=>`Reduce all incoming damage by ${p.reduce}.` },
-      active:{ hint:'Absorb the next hit completely.',
-        params:[{key:'absorb',label:'Absorb Amount',type:'number',min:10,max:100,step:5,default:30}],
-        effect:'active_shield', descFn:(p)=>`Raise a barrier that absorbs up to ${p.absorb} damage from the next hit.` },
-      ultimate:{ hint:'Full invincibility for N turns — no damage gets through.',
-        params:[{key:'turns',label:'Immune Turns',type:'number',min:1,max:5,step:1,default:3}],
-        effect:'ult_shield', descFn:(p)=>`Become completely immune to all damage for ${p.turns} turn${p.turns>1?'s':''}.` },
-      secret:{ hint:'Reflect a portion of incoming damage back at the attacker.',
-        params:[{key:'reflectPct',label:'Reflect % of Dmg',type:'number',min:10,max:100,step:10,default:50}],
-        effect:'secret_shield', descFn:(p)=>`??? Reflect ${p.reflectPct}% of all incoming damage back to the attacker.` },
-    },
-  },
-
-  transform: {
-    label:'✨ Transform', category:'buff', icon:'✨',
-    tierBehavior:{
-      passive:{ hint:'Permanently boost ATK and DEF for the whole battle.',
-        params:[{key:'atkPct',label:'ATK Bonus (%)',type:'number',min:5,max:50,step:5,default:15},
-                {key:'defPct',label:'DEF Bonus (%)',type:'number',min:0,max:50,step:5,default:10}],
-        effect:'passive_transform', descFn:(p)=>`Transformed state — ATK +${p.atkPct}%, DEF +${p.defPct}% all battle.` },
-      active:{ hint:'Power up for a set number of turns.',
-        params:[{key:'mult',label:'Stat Multiplier (×)',type:'number',min:1.2,max:4,step:0.1,default:1.5},
-                {key:'turns',label:'Duration (turns)',type:'number',min:1,max:5,step:1,default:2}],
-        effect:'active_transform', descFn:(p)=>`Unleash your power — all stats ×${p.mult} for ${p.turns} turn${p.turns>1?'s':''}.` },
-      ultimate:{ hint:'Full transformation — huge damage strike + stat boost.',
-        params:[{key:'mult',label:'Multiplier (×)',type:'number',min:1.5,max:5,step:0.5,default:2},
-                {key:'turns',label:'Boost Turns',type:'number',min:1,max:5,step:1,default:3},
-                {key:'dmg',label:'Transform Strike',type:'number',min:20,max:150,step:5,default:60}],
-        effect:'ult_transform', descFn:(p)=>`Full transformation — deal ${p.dmg} damage, all stats ×${p.mult} for ${p.turns} turns.` },
-      secret:{ hint:'Hidden awakening — one devastating ×N final strike.',
-        params:[{key:'mult',label:'Final Multiplier (×)',type:'number',min:2,max:10,step:0.5,default:3}],
-        effect:'secret_transform', descFn:(p)=>`??? Hidden form awakens — next action strikes at ×${p.mult} power.` },
+      passive:{ hint:'Attacks have a chance to ignore part of the enemy Shield.',
+        params:[{key:'dmg',label:'True Dmg Bonus',type:'number',min:5,max:50,step:5,default:15},
+                {key:'chance',label:'Pierce Chance (%)',type:'number',min:5,max:50,step:5,default:20}],
+        effect:'pierce_passive', descFn:(p)=>`${p.chance}% chance for attacks to deal an extra ${p.dmg} true damage, ignoring shields.` },
+      active:{ hint:'Next attack ignores 50% of the enemy defenses.',
+        params:[{key:'dmg',label:'Strike Damage',type:'number',min:10,max:100,step:5,default:35}],
+        effect:'pierce_active', descFn:(p)=>`Strike for ${p.dmg} damage — bypasses 50% of enemy defenses.` },
+      ultimate:{ hint:'Ignore ALL defenses and deal bonus damage.',
+        params:[{key:'dmg',label:'Piercing Damage',type:'number',min:40,max:200,step:5,default:80}],
+        effect:'pierce_ult', descFn:(p)=>`Pierce through all defenses — deal ${p.dmg} damage ignoring Shield and resistances.` },
     },
   },
 
@@ -18739,74 +18941,297 @@ const EFFECT_LIBRARY = {
         params:[{key:'dmg',label:'Hit Damage',type:'number',min:5,max:60,step:5,default:20},
                 {key:'burnDmg',label:'Burn Dmg/Turn',type:'number',min:3,max:25,step:1,default:10},
                 {key:'turns',label:'Burn Turns',type:'number',min:1,max:5,step:1,default:3}],
-        effect:'active_burn', descFn:(p)=>`Strike for ${p.dmg} and ignite — ${p.burnDmg} burn per turn for ${p.turns} turns.` },
+        effect:'curse_active', descFn:(p)=>`Strike for ${p.dmg} and ignite — ${p.burnDmg} burn per turn for ${p.turns} turns.` },
       ultimate:{ hint:'Cursed inferno — massive damage + long burn.',
         params:[{key:'dmg',label:'Curse Damage',type:'number',min:30,max:200,step:10,default:70},
                 {key:'burnDmg',label:'Burn Dmg/Turn',type:'number',min:5,max:30,step:5,default:15},
                 {key:'turns',label:'Burn Turns',type:'number',min:2,max:6,step:1,default:4}],
-        effect:'ult_burn', descFn:(p)=>`Cursed inferno — ${p.dmg} damage + ${p.burnDmg} burn/turn for ${p.turns} turns.` },
-      secret:{ hint:'Mysterious curse that also drains enemy MP.',
-        params:[{key:'dmg',label:'Curse Dmg',type:'number',min:30,max:150,step:10,default:60}],
-        effect:'secret_burn', descFn:(p)=>`??? ${p.dmg} damage — enemy is cursed, losing 1 MP per turn.` },
+        effect:'curse_ult', descFn:(p)=>`Cursed inferno — ${p.dmg} damage + ${p.burnDmg} burn/turn for ${p.turns} turns.` },
     },
   },
 
-  drain: {
-    label:'🩸 Life Drain', category:'healing', icon:'🩸',
+  echo: {
+    label:'⚡ Echo', category:'damage', icon:'⚡',
     tierBehavior:{
-      passive:{ hint:'Steal a % of HP on every attack.',
-        params:[{key:'drainPct',label:'Drain % of Dmg',type:'number',min:5,max:50,step:5,default:20}],
-        effect:'passive_drain', descFn:(p)=>`Drain ${p.drainPct}% of all damage dealt back as HP.` },
-      active:{ hint:'Strike and steal life in one move.',
-        params:[{key:'dmg',label:'Strike Damage',type:'number',min:10,max:100,step:5,default:30},
-                {key:'heal',label:'HP Stolen',type:'number',min:5,max:80,step:5,default:20}],
-        effect:'active_drain', descFn:(p)=>`Drain life — deal ${p.dmg} damage and steal ${p.heal} HP.` },
-      ultimate:{ hint:'Soul drain — massive damage + big HP recovery.',
-        params:[{key:'dmg',label:'Damage',type:'number',min:30,max:200,step:10,default:70},
-                {key:'heal',label:'HP Recovered',type:'number',min:20,max:150,step:10,default:50}],
-        effect:'ult_drain', descFn:(p)=>`Soul drain — deal ${p.dmg} damage and restore ${p.heal} HP.` },
-      secret:{ hint:'Steal the power of the enemy\'s next attack.',
-        params:[{key:'dmg',label:'Stolen Power',type:'number',min:20,max:100,step:5,default:40}],
-        effect:'secret_drain', descFn:(p)=>`??? Steal ${p.dmg} power from the enemy's next strike and add it to yours.` },
+      passive:{ hint:'Chance to repeat an attack automatically.',
+        params:[{key:'dmg',label:'Echo Dmg',type:'number',min:5,max:50,step:5,default:20},
+                {key:'chance',label:'Echo Chance (%)',type:'number',min:5,max:60,step:5,default:25}],
+        effect:'multihit_passive', descFn:(p)=>`${p.chance}% chance for any attack to echo for ${p.dmg} extra damage.` },
+      active:{ hint:'Repeat your previous ability instantly.',
+        params:[{key:'dmg',label:'Echo Hit Dmg',type:'number',min:10,max:80,step:5,default:25}],
+        effect:'echo_active', descFn:(p)=>`Echo — deal ${p.dmg} damage twice in rapid succession.` },
+      ultimate:{ hint:'Every ability activates twice this turn.',
+        params:[{key:'hits',label:'# Echoes',type:'number',min:3,max:8,step:1,default:5},
+                {key:'dmg',label:'Dmg Each',type:'number',min:10,max:60,step:5,default:18}],
+        effect:'echo_ult', descFn:(p)=>`Echo barrage — deal ${p.dmg} damage ${p.hits} times.` },
+    },
+  },
+
+  // ── SPECIAL ─────────────────────────────────────────────────────────────
+
+  copy: {
+    label:'🪞 Copy', category:'special', icon:'🪞',
+    tierBehavior:{
+      passive:{ hint:'Chance to mimic an enemy skill or passive effect when hit.',
+        params:[{key:'chance',label:'Copy Chance (%)',type:'number',min:10,max:80,step:5,default:30}],
+        effect:'copy_passive', descFn:(p)=>`${p.chance}% chance to reflect incoming attacks when hit.` },
+      active:{ hint:'Temporarily copy the enemy active skill and use it.',
+        params:[],
+        effect:'copy_active', descFn:()=>`Copy the enemy's last action and immediately use it against them.` },
+      ultimate:{ hint:'Copy ALL enemy abilities for a short duration.',
+        params:[],
+        effect:'copy_ult', descFn:()=>`Perfect mirror — copy the enemy's last ability at 2× power.` },
     },
   },
 
   nullify: {
     label:'🚫 Nullify', category:'special', icon:'🚫',
     tierBehavior:{
-      passive:{ hint:'Random chance to completely negate incoming attacks.',
-        params:[{key:'chance',label:'Negate Chance (%)',type:'number',min:5,max:50,step:5,default:15}],
-        effect:'passive_nullify', descFn:(p)=>`${p.chance}% chance to completely negate any incoming attack.` },
-      active:{ hint:'Cancel the enemy\'s next action + deal damage.',
+      passive:{ hint:'Chance to cancel enemy effects when they hit you.',
+        params:[{key:'chance',label:'Cancel Chance (%)',type:'number',min:5,max:50,step:5,default:15}],
+        effect:'nullify_passive', descFn:(p)=>`${p.chance}% chance to nullify incoming enemy hits entirely.` },
+      active:{ hint:'Negate the next ability the enemy uses.',
         params:[{key:'dmg',label:'Nullify Strike',type:'number',min:0,max:80,step:5,default:25}],
-        effect:'active_nullify', descFn:(p)=>`Cancel the enemy's next action and deal ${p.dmg} damage.` },
-      ultimate:{ hint:'Void field — all enemy attacks deal zero damage for N turns.',
+        effect:'nullify_active', descFn:(p)=>`Negate the enemy's next action and deal ${p.dmg} damage.` },
+      ultimate:{ hint:'Disable all enemy abilities for several turns.',
         params:[{key:'turns',label:'Nullify Turns',type:'number',min:1,max:4,step:1,default:2}],
-        effect:'ult_nullify', descFn:(p)=>`Create a void field — enemy attacks deal zero damage for ${p.turns} turns.` },
-      secret:{ hint:'Silence — enemy loses all MP and cannot regen.',
-        params:[],
-        effect:'secret_nullify', descFn:()=>`??? Silence the enemy — they lose all MP and cannot regen for 2 turns.` },
+        effect:'nullify_ult', descFn:(p)=>`Create a void field — enemy attacks deal zero damage for ${p.turns} turns.` },
     },
   },
 
-  echo: {
-    label:'⚡ Echo Strike', category:'damage', icon:'⚡',
+  evasion: {
+    label:'💨 Evasion', category:'special', icon:'💨',
     tierBehavior:{
-      passive:{ hint:'Any attack has a chance to echo (fire again at reduced power).',
-        params:[{key:'chance',label:'Echo Chance (%)',type:'number',min:5,max:60,step:5,default:25},
-                {key:'power',label:'Echo Power (%)',type:'number',min:20,max:100,step:10,default:50}],
-        effect:'passive_echo', descFn:(p)=>`${p.chance}% chance for any attack to echo at ${p.power}% power.` },
-      active:{ hint:'Strike twice in succession.',
-        params:[{key:'dmg',label:'Dmg Each Hit',type:'number',min:10,max:80,step:5,default:25}],
-        effect:'active_echo', descFn:(p)=>`Strike twice — ${p.dmg} damage each hit.` },
-      ultimate:{ hint:'Rapid-fire multi-echo at full power.',
-        params:[{key:'hits',label:'# Echoes',type:'number',min:3,max:8,step:1,default:5},
-                {key:'dmg',label:'Dmg Each',type:'number',min:10,max:60,step:5,default:18}],
-        effect:'ult_echo', descFn:(p)=>`Echo ${p.hits} times — ${p.dmg} damage per echo.` },
-      secret:{ hint:'Infinite echo — keeps firing until it misses.',
-        params:[{key:'dmg',label:'Echo Dmg',type:'number',min:10,max:50,step:5,default:20},
-                {key:'stopChance',label:'Stop Chance (%)',type:'number',min:10,max:60,step:10,default:30}],
-        effect:'secret_echo', descFn:(p)=>`??? Echo ${p.dmg} dmg repeatedly — ${p.stopChance}% chance to stop each time.` },
+      passive:{ hint:'Chance to dodge incoming attacks entirely.',
+        params:[{key:'chance',label:'Dodge Chance (%)',type:'number',min:5,max:50,step:5,default:20}],
+        effect:'dodge_passive', descFn:(p)=>`${p.chance}% chance to dodge any incoming attack.` },
+      active:{ hint:'Guaranteed dodge for the next attack.',
+        params:[],
+        effect:'dodge_active', descFn:()=>`Guaranteed — automatically dodge the next incoming attack.` },
+      ultimate:{ hint:'Greatly increased dodge rate for several turns.',
+        params:[{key:'turns',label:'Duration (turns)',type:'number',min:1,max:4,step:1,default:2}],
+        effect:'phantom_ult', descFn:(p)=>`Enter a phantom state — all attacks miss for ${p.turns} turn${p.turns>1?'s':''}.` },
+    },
+  },
+
+  adaptation: {
+    label:'🧬 Adaptation', category:'special', icon:'🧬',
+    tierBehavior:{
+      passive:{ hint:'Gain resistance to repeated attack types throughout the battle.',
+        params:[{key:'reduce',label:'Damage Reduction',type:'number',min:2,max:20,step:2,default:8}],
+        effect:'shield_passive', descFn:(p)=>`Adapt — reduce all incoming damage by ${p.reduce} permanently.` },
+      active:{ hint:'Reduce damage from the last ability used against you.',
+        params:[{key:'hits',label:'Shield Hits',type:'number',min:1,max:3,step:1,default:1},
+                {key:'reduce',label:'Reduction %',type:'number',min:30,max:80,step:5,default:60}],
+        effect:'shield_active', descFn:(p)=>`Adapt — absorb the next ${p.hits} hit${p.hits>1?'s':''} at ${p.reduce}% reduction.` },
+      ultimate:{ hint:'Rapidly adapt to all incoming damage types.',
+        params:[{key:'turns',label:'Immune Turns',type:'number',min:1,max:3,step:1,default:2}],
+        effect:'immortal_ult', descFn:(p)=>`Full adaptation — become immune to all damage for ${p.turns} turn${p.turns>1?'s':''}.` },
+    },
+  },
+
+  swap: {
+    label:'🔀 Swap', category:'special', icon:'🔀',
+    tierBehavior:{
+      passive:{ hint:'Chance to gain a random ATK buff when hit.',
+        params:[{key:'chance',label:'Trigger Chance (%)',type:'number',min:5,max:50,step:5,default:25},
+                {key:'atkPct',label:'ATK Boost (%)',type:'number',min:5,max:40,step:5,default:20}],
+        effect:'swap_passive', descFn:(p)=>`${p.chance}% chance to steal momentum — gain ATK +${p.atkPct}% when hit.` },
+      active:{ hint:'Exchange one of your effects with the opponent.',
+        params:[{key:'atkPct',label:'ATK Steal (%)',type:'number',min:10,max:50,step:5,default:25},
+                {key:'turns',label:'Boost Turns',type:'number',min:1,max:3,step:1,default:2}],
+        effect:'swap_active', descFn:(p)=>`Swap — steal ATK +${p.atkPct}% from the enemy for ${p.turns} turn${p.turns>1?'s':''}.` },
+      ultimate:{ hint:'Completely swap ALL current buffs and debuffs with the opponent.',
+        params:[{key:'mult',label:'Stat Multiplier (×)',type:'number',min:1.5,max:3,step:0.5,default:2},
+                {key:'turns',label:'Duration (turns)',type:'number',min:1,max:3,step:1,default:2}],
+        effect:'transform_ult', descFn:(p)=>`Total reversal — invert the battle and gain ×${p.mult} stats for ${p.turns} turn${p.turns>1?'s':''}.` },
+    },
+  },
+
+  gambit: {
+    label:'🎲 Gambit', category:'special', icon:'🎲',
+    tierBehavior:{
+      passive:{ hint:'Chance to gain a random buff after using any ability.',
+        params:[{key:'chance',label:'Proc Chance (%)',type:'number',min:5,max:50,step:5,default:25},
+                {key:'dmg',label:'Burst Dmg if Triggered',type:'number',min:5,max:40,step:5,default:15}],
+        effect:'burst_passive', descFn:(p)=>`${p.chance}% chance after any action to trigger a random burst for ${p.dmg} damage.` },
+      active:{ hint:'Roll for a random effect — heal, damage boost, or MP recovery.',
+        params:[{key:'dmg',label:'Max Random Dmg',type:'number',min:10,max:80,step:5,default:35}],
+        effect:'gambit_active', descFn:(p)=>`Roll the dice — randomly trigger a heal, ${p.dmg} damage, or ATK boost.` },
+      ultimate:{ hint:'Jackpot state — become temporarily immortal with unlimited MP regen.',
+        params:[{key:'turns',label:'Immortal Turns',type:'number',min:1,max:3,step:1,default:1}],
+        effect:'immortal_ult', descFn:(p)=>`JACKPOT — become immortal and supercharged for ${p.turns} turn${p.turns>1?'s':''}.` },
+    },
+  },
+
+  confiscate: {
+    label:'🔒 Confiscate', category:'special', icon:'🔒',
+    tierBehavior:{
+      passive:{ hint:'Chance to stun the enemy briefly after being hit.',
+        params:[{key:'chance',label:'Proc Chance (%)',type:'number',min:5,max:40,step:5,default:15}],
+        effect:'stun_passive', descFn:(p)=>`${p.chance}% chance to confiscate the enemy momentum and stun them on hit.` },
+      active:{ hint:'Randomly disable an enemy ability temporarily.',
+        params:[{key:'turns',label:'Stun Turns',type:'number',min:1,max:3,step:1,default:1}],
+        effect:'stun_active', descFn:(p)=>`Confiscate — immobilize the enemy for ${p.turns} turn${p.turns>1?'s':''}.` },
+      ultimate:{ hint:'Disable 2 enemy abilities for an extended duration.',
+        params:[{key:'turns',label:'Stun Turns',type:'number',min:2,max:5,step:1,default:3}],
+        effect:'lockdown_ult', descFn:(p)=>`Confiscate all options — lock the enemy down for ${p.turns} turns, sealing their MP.` },
+    },
+  },
+
+  // ── HEALING ─────────────────────────────────────────────────────────────
+
+  regen: {
+    label:'💚 Regen', category:'healing', icon:'💚',
+    tierBehavior:{
+      passive:{ hint:'Regenerate HP every turn automatically.',
+        params:[{key:'hp',label:'HP per Turn',type:'number',min:2,max:40,step:1,default:8}],
+        effect:'regen_passive', descFn:(p)=>`Regenerate ${p.hp} HP at the start of each turn.` },
+      active:{ hint:'Trigger a healing effect instantly.',
+        params:[{key:'hp',label:'HP Restored',type:'number',min:10,max:120,step:5,default:35}],
+        effect:'regen_active', descFn:(p)=>`Trigger a healing surge — restore ${p.hp} HP.` },
+      ultimate:{ hint:'Massive heal and cleanse negative effects.',
+        params:[{key:'hp',label:'HP Restored',type:'number',min:20,max:150,step:5,default:60}],
+        effect:'regen_ult', descFn:(p)=>`Restore ${p.hp} HP and cleanse all negative status effects.` },
+    },
+  },
+
+  purify: {
+    label:'✨ Purify', category:'healing', icon:'✨',
+    tierBehavior:{
+      passive:{ hint:'Chance to resist incoming debuffs.',
+        params:[{key:'chance',label:'Resist Chance (%)',type:'number',min:5,max:60,step:5,default:25}],
+        effect:'purify_passive', descFn:(p)=>`${p.chance}% chance to resist any incoming debuff.` },
+      active:{ hint:'Remove all active debuffs from yourself.',
+        params:[{key:'hp',label:'Bonus Heal',type:'number',min:0,max:50,step:5,default:15}],
+        effect:'purify_active', descFn:(p)=>`Purify — remove all debuffs and restore ${p.hp} HP.` },
+      ultimate:{ hint:'Become completely immune to debuffs for several turns.',
+        params:[{key:'turns',label:'Immune Turns',type:'number',min:1,max:5,step:1,default:3}],
+        effect:'purify_ult', descFn:(p)=>`Become immune to all debuffs for ${p.turns} turn${p.turns>1?'s':''}.` },
+    },
+  },
+
+  leech: {
+    label:'🩸 Leech', category:'healing', icon:'🩸',
+    tierBehavior:{
+      passive:{ hint:'Recover HP whenever you deal damage.',
+        params:[{key:'drainPct',label:'Leech % of Dmg',type:'number',min:5,max:50,step:5,default:15}],
+        effect:'drain_passive', descFn:(p)=>`Leech ${p.drainPct}% of all damage dealt back as HP.` },
+      active:{ hint:'Steal health directly from the target.',
+        params:[{key:'dmg',label:'Strike Damage',type:'number',min:10,max:100,step:5,default:30},
+                {key:'heal',label:'HP Stolen',type:'number',min:5,max:80,step:5,default:25}],
+        effect:'drain_active', descFn:(p)=>`Steal life — deal ${p.dmg} damage and heal ${p.heal} HP.` },
+      ultimate:{ hint:'Massive life-stealing strike.',
+        params:[{key:'dmg',label:'Damage',type:'number',min:30,max:200,step:10,default:70},
+                {key:'heal',label:'HP Stolen',type:'number',min:20,max:150,step:10,default:55}],
+        effect:'drain_ult', descFn:(p)=>`Vampiric strike — deal ${p.dmg} damage and steal ${p.heal} HP.` },
+    },
+  },
+
+  // ── DEBUFFS ──────────────────────────────────────────────────────────────
+
+  drain: {
+    label:'💀 Life Drain', category:'special', icon:'💀',
+    tierBehavior:{
+      passive:{ hint:'Chance to absorb HP when attacking.',
+        params:[{key:'dmg',label:'HP Drained',type:'number',min:3,max:30,step:1,default:8},
+                {key:'chance',label:'Proc Chance (%)',type:'number',min:10,max:60,step:5,default:30}],
+        effect:'drain_passive', descFn:(p)=>`${p.chance}% chance to drain ${p.dmg} HP from the enemy on attack.` },
+      active:{ hint:'Drain enemy HP directly.',
+        params:[{key:'dmg',label:'Strike Damage',type:'number',min:10,max:100,step:5,default:30},
+                {key:'heal',label:'HP Stolen',type:'number',min:5,max:80,step:5,default:25}],
+        effect:'drain_active', descFn:(p)=>`Drain life — deal ${p.dmg} damage and steal ${p.heal} HP.` },
+      ultimate:{ hint:'Continuous life siphon — heals you while damaging them.',
+        params:[{key:'dmg',label:'Damage',type:'number',min:30,max:200,step:10,default:70},
+                {key:'heal',label:'HP Recovered',type:'number',min:20,max:150,step:10,default:55}],
+        effect:'drain_ult', descFn:(p)=>`Soul drain — deal ${p.dmg} damage and steal ${p.heal} HP.` },
+    },
+  },
+
+  curse: {
+    label:'🌑 Curse', category:'special', icon:'🌑',
+    tierBehavior:{
+      passive:{ hint:'Chance to place a damage-over-time curse on the enemy when attacking.',
+        params:[{key:'chance',label:'Curse Chance (%)',type:'number',min:5,max:50,step:5,default:20},
+                {key:'dot',label:'Curse Dmg/Turn',type:'number',min:3,max:20,step:1,default:8}],
+        effect:'curse_passive', descFn:(p)=>`${p.chance}% chance to curse the enemy on attack (${p.dot} damage/turn for 3 turns).` },
+      active:{ hint:'Curse the enemy with a damage-over-time effect.',
+        params:[{key:'dmg',label:'Initial Hit',type:'number',min:0,max:60,step:5,default:15},
+                {key:'dot',label:'Curse Dmg/Turn',type:'number',min:3,max:25,step:1,default:10},
+                {key:'turns',label:'Curse Turns',type:'number',min:1,max:5,step:1,default:3}],
+        effect:'curse_active', descFn:(p)=>`${p.dmg>0?`Deal ${p.dmg} and curse`:'Curse'} the enemy — ${p.dot} damage/turn for ${p.turns} turns.` },
+      ultimate:{ hint:'Powerful curse — enemy actions may fail entirely.',
+        params:[{key:'dmg',label:'Curse Damage',type:'number',min:20,max:120,step:5,default:50},
+                {key:'dot',label:'Curse Dmg/Turn',type:'number',min:5,max:30,step:5,default:15},
+                {key:'turns',label:'Curse Turns',type:'number',min:2,max:6,step:1,default:4}],
+        effect:'curse_ult', descFn:(p)=>`Deadly curse — ${p.dmg} damage + ${p.dot}/turn for ${p.turns} turns + 1-turn stun.` },
+    },
+  },
+
+  stun: {
+    label:'🌀 Stun', category:'special', icon:'🌀',
+    tierBehavior:{
+      passive:{ hint:'Chance to briefly immobilize the enemy when attacking.',
+        params:[{key:'chance',label:'Stun Chance (%)',type:'number',min:5,max:40,step:5,default:15}],
+        effect:'stun_passive', descFn:(p)=>`${p.chance}% chance to stun the enemy on hit, skipping their next move.` },
+      active:{ hint:'Immobilize the enemy for 1 turn.',
+        params:[{key:'dmg',label:'Strike Damage',type:'number',min:0,max:60,step:5,default:15}],
+        effect:'stun_active', descFn:(p)=>`${p.dmg>0?`Deal ${p.dmg} damage and stun`:'Stun'} the enemy — they skip their next turn.` },
+      ultimate:{ hint:'Repeatedly immobilize the enemy for several turns.',
+        params:[{key:'dmg',label:'Damage',type:'number',min:10,max:100,step:5,default:30},
+                {key:'turns',label:'Stun Turns',type:'number',min:2,max:5,step:1,default:3}],
+        effect:'lockdown_ult', descFn:(p)=>`${p.dmg>0?`Deal ${p.dmg} damage and lock`:'Lock'} down the enemy for ${p.turns} turns, sealing their MP.` },
+    },
+  },
+
+  // ── DEFENSE ──────────────────────────────────────────────────────────────
+
+  shield: {
+    label:'🛡️ Shield', category:'defense', icon:'🛡️',
+    tierBehavior:{
+      passive:{ hint:'Reduce all incoming damage by a flat amount.',
+        params:[{key:'reduce',label:'Damage Reduction',type:'number',min:2,max:30,step:2,default:8}],
+        effect:'shield_passive', descFn:(p)=>`Reduce all incoming damage by ${p.reduce}.` },
+      active:{ hint:'Create a shield that absorbs incoming damage.',
+        params:[{key:'absorb',label:'Absorb Amount',type:'number',min:10,max:100,step:5,default:30},
+                {key:'hits',label:'Shield Hits',type:'number',min:1,max:3,step:1,default:1}],
+        effect:'shield_active', descFn:(p)=>`Raise a barrier absorbing ${p.absorb}% damage from the next ${p.hits} hit${p.hits>1?'s':''}.` },
+      ultimate:{ hint:'Powerful shield lasting multiple turns.',
+        params:[{key:'turns',label:'Immune Turns',type:'number',min:1,max:5,step:1,default:3}],
+        effect:'immortal_ult', descFn:(p)=>`Become completely immune to all damage for ${p.turns} turn${p.turns>1?'s':''}.` },
+    },
+  },
+
+  reflect: {
+    label:'🔄 Reflect', category:'defense', icon:'🔄',
+    tierBehavior:{
+      passive:{ hint:'Chance to return part of incoming damage back at the attacker.',
+        params:[{key:'chance',label:'Reflect Chance (%)',type:'number',min:5,max:50,step:5,default:20},
+                {key:'pct',label:'Reflect % of Dmg',type:'number',min:10,max:60,step:5,default:30}],
+        effect:'reflect_passive', descFn:(p)=>`${p.chance}% chance to reflect ${p.pct}% of incoming damage back at the attacker.` },
+      active:{ hint:'Reflect the next attack entirely.',
+        params:[],
+        effect:'reflect_active', descFn:()=>`Mirror stance — reflect the next incoming attack fully back at the enemy.` },
+      ultimate:{ hint:'Reflect ALL damage back for a short duration.',
+        params:[{key:'turns',label:'Reflect Turns',type:'number',min:1,max:3,step:1,default:2}],
+        effect:'reflect_ult', descFn:(p)=>`Full mirror field — all incoming damage is reflected for ${p.turns} turn${p.turns>1?'s':''}.` },
+    },
+  },
+
+  counter: {
+    label:'↩️ Counter', category:'defense', icon:'↩️',
+    tierBehavior:{
+      passive:{ hint:'Chance to counterattack when hit.',
+        params:[{key:'dmg',label:'Counter Damage',type:'number',min:5,max:60,step:5,default:20},
+                {key:'chance',label:'Counter Chance (%)',type:'number',min:5,max:50,step:5,default:25}],
+        effect:'counter_strike', descFn:(p)=>`${p.chance}% chance to automatically counter with ${p.dmg} damage when hit.` },
+      active:{ hint:'Brace and counter the next hit.',
+        params:[{key:'dmg',label:'Counter Damage',type:'number',min:10,max:100,step:5,default:40}],
+        effect:'counter_active', descFn:(p)=>`Enter counter stance — respond to the next hit with a ${p.dmg}-damage counter.` },
+      ultimate:{ hint:'Counter ALL incoming attacks for a duration.',
+        params:[{key:'mult',label:'Multiplier (×)',type:'number',min:1.5,max:4,step:0.5,default:2},
+                {key:'turns',label:'Counter Turns',type:'number',min:1,max:3,step:1,default:2}],
+        effect:'counter_ult', descFn:(p)=>`Full counter mode — reflect all incoming damage at ×${p.mult} back at the enemy for ${p.turns} turn${p.turns>1?'s':''}.` },
     },
   },
 
@@ -18815,22 +19240,58 @@ const EFFECT_LIBRARY = {
     tierBehavior:{
       passive:{ hint:'Permanently raise max HP.',
         params:[{key:'hp',label:'Max HP Bonus',type:'number',min:10,max:150,step:5,default:30}],
-        effect:'passive_hpboost', descFn:(p)=>`Max HP permanently increased by ${p.hp}.` },
+        effect:'hpboost_passive', descFn:(p)=>`Max HP permanently increased by ${p.hp}.` },
       active:{ hint:'Gain a temporary HP buffer this turn.',
         params:[{key:'tempHp',label:'Temp HP',type:'number',min:10,max:80,step:5,default:30}],
-        effect:'active_fortify', descFn:(p)=>`Gain ${p.tempHp} temporary HP (absorbed before real HP takes damage).` },
+        effect:'hpboost_active', descFn:(p)=>`Gain ${p.tempHp} temporary HP (absorbed before real HP takes damage).` },
       ultimate:{ hint:'When HP gets low, ATK multiplies automatically.',
         params:[{key:'threshold',label:'Trigger HP (%)',type:'number',min:10,max:40,step:5,default:25},
                 {key:'atkMult',label:'ATK Multiplier (×)',type:'number',min:1.5,max:5,step:0.5,default:2}],
         effect:'ult_fortify', descFn:(p)=>`When HP falls below ${p.threshold}%, ATK multiplies ×${p.atkMult} for the rest of the battle.` },
-      secret:{ hint:'Last Stand — survive one lethal hit with 1 HP.',
-        params:[],
-        effect:'secret_fortify', descFn:()=>`??? Survive a fatal hit once per battle with exactly 1 HP remaining.` },
+    },
+  },
+
+  // ── POWER / BUFF ─────────────────────────────────────────────────────────
+
+  transform: {
+    label:'✨ Transform', category:'buff', icon:'✨',
+    tierBehavior:{
+      passive:{ hint:'Permanently boost ATK for the whole battle.',
+        params:[{key:'atkPct',label:'ATK Bonus (%)',type:'number',min:5,max:50,step:5,default:15}],
+        effect:'atkboost_passive', descFn:(p)=>`Transformed state — ATK +${p.atkPct}% all battle.` },
+      active:{ hint:'Power up for a set number of turns.',
+        params:[{key:'pct',label:'ATK Boost (%)',type:'number',min:10,max:80,step:5,default:35},
+                {key:'turns',label:'Duration (turns)',type:'number',min:1,max:5,step:1,default:2}],
+        effect:'atkboost_active', descFn:(p)=>`Transform — ATK +${p.pct}% for ${p.turns} turn${p.turns>1?'s':''}.` },
+      ultimate:{ hint:'Full transformation with major stat multiplier.',
+        params:[{key:'mult',label:'Multiplier (×)',type:'number',min:1.5,max:5,step:0.5,default:2},
+                {key:'turns',label:'Boost Turns',type:'number',min:1,max:5,step:1,default:3},
+                {key:'dmg',label:'Transform Strike',type:'number',min:20,max:150,step:5,default:60}],
+        effect:'transform_ult', descFn:(p)=>`Full transformation — deal ${p.dmg} damage, all stats ×${p.mult} for ${p.turns} turns.` },
+    },
+  },
+
+  berserk: {
+    label:'🔥 Berserk', category:'buff', icon:'🔥',
+    tierBehavior:{
+      passive:{ hint:'Gain bonus ATK when HP is low.',
+        params:[{key:'threshold',label:'Trigger HP (%)',type:'number',min:10,max:50,step:5,default:30},
+                {key:'atkPct',label:'ATK Bonus (%)',type:'number',min:10,max:80,step:5,default:40}],
+        effect:'berserk_passive', descFn:(p)=>`When HP drops below ${p.threshold}%, permanently gain ATK +${p.atkPct}%.` },
+      active:{ hint:'Sacrifice HP for a massive power boost.',
+        params:[{key:'hpCost',label:'HP Sacrifice',type:'number',min:5,max:50,step:5,default:20},
+                {key:'pct',label:'ATK Boost (%)',type:'number',min:20,max:100,step:5,default:50},
+                {key:'turns',label:'Boost Turns',type:'number',min:1,max:3,step:1,default:2}],
+        effect:'berserk_active', descFn:(p)=>`Sacrifice ${p.hpCost} HP — gain ATK +${p.pct}% for ${p.turns} turn${p.turns>1?'s':''}.` },
+      ultimate:{ hint:'Massive ATK boost — but lose HP each turn.',
+        params:[{key:'mult',label:'Dmg Multiplier (×)',type:'number',min:2,max:5,step:0.5,default:3},
+                {key:'hpLoss',label:'HP Loss/Turn',type:'number',min:5,max:30,step:5,default:15},
+                {key:'turns',label:'Duration (turns)',type:'number',min:1,max:4,step:1,default:3}],
+        effect:'berserk_ult', descFn:(p)=>`Berserk — ×${p.mult} damage for ${p.turns} turns, but lose ${p.hpLoss} HP each turn.` },
     },
   },
 
 };
-
 const EFFECT_CATEGORIES = {
   damage:  {label:'⚔️ Damage',       color:'#e74c3c'},
   healing: {label:'💚 Healing',       color:'#2ecc71'},
@@ -18851,7 +19312,7 @@ Object.entries(EFFECT_LIBRARY).forEach(([key, src]) => {
   const tb = src.tierBehavior || {};
   const params = {};
   const battle_effect = {};
-  ['passive','active','ultimate','secret'].forEach(tier => {
+  ['passive','active','ultimate'].forEach(tier => {
     const t = tb[tier] || tb['active'] || {};
     params[tier] = t.params || [];
     battle_effect[tier] = t.effect || (tier + '_' + key);
@@ -18860,7 +19321,6 @@ Object.entries(EFFECT_LIBRARY).forEach(([key, src]) => {
   const desc_passive  = tb.passive  ? (p) => tb.passive.descFn(p)  : null;
   const desc_active   = tb.active   ? (p) => tb.active.descFn(p)   : null;
   const desc_ultimate = tb.ultimate ? (p) => tb.ultimate.descFn(p) : null;
-  const desc_secret   = tb.secret   ? (p) => tb.secret.descFn(p)   : null;
   // valueFn: return first numeric param, or 0
   const valueFn = (p) => {
     const vals = Object.values(p).filter(v => typeof v === 'number');
@@ -18875,7 +19335,6 @@ Object.entries(EFFECT_LIBRARY).forEach(([key, src]) => {
     desc_passive,
     desc_active,
     desc_ultimate,
-    desc_secret,
     valueFn,
     mpFn:     null,
     chanceFn: (p) => (p.chance != null ? p.chance : 100),
@@ -19022,7 +19481,6 @@ const TIER_HINTS = {
   passive:  { icon:'🔵', msg:'Passive — fires automatically, no button needed. Often has a % chance to trigger on any move.' },
   active:   { icon:'🟢', msg:'Active — appears as a button in battle. Costs MP. Guaranteed to trigger when pressed.' },
   ultimate: { icon:'🟡', msg:'Ultimate — powerful active button, costs more MP. Dramatically stronger version of the effect.' },
-  secret:   { icon:'🟣', msg:'Secret — unique reactive trigger. Usually hidden or automatic, often with battle-changing power.' },
 };
 
 function updateTierHint(idx, tier, templateKey){
@@ -19236,6 +19694,7 @@ async function submitCardForm(){
     enabled:    document.getElementById('cardForm_enabled').checked,
     limited:    document.getElementById('cardForm_limited').checked,
     limited_for:document.getElementById('cardForm_limitedFor').value.trim(),
+    for_battle: document.getElementById('cardForm_for_battle').checked,
   };
 
   const btn=document.getElementById('cardFormSubmitBtn');
@@ -19283,6 +19742,7 @@ function cancelCardEdit(){
   document.getElementById('cardForm_colorpicker').value='#9b59b6';
   document.getElementById('cardForm_enabled').checked=true;
   document.getElementById('cardForm_limited').checked=false;
+  document.getElementById('cardForm_for_battle').checked=true;
   document.getElementById('limitedForWrap').style.display='none';
   // Clear ability slots
   document.getElementById('abilitySlots').innerHTML='';
@@ -19320,7 +19780,7 @@ function renderAdminCardList(){
       <div class="admin-card-info">
         <div class="admin-card-name">${c.name}</div>
         <div class="admin-card-meta"><span style="color:${color}">${c.rarity_name} ${c.rarity_stars}</span> · ${c.series}</div>
-        <div class="admin-card-meta" style="font-family:'JetBrains Mono',monospace;font-size:0.72em;">id: ${c.id}${c.limited?' · 💎 Limited':''}</div>
+        <div class="admin-card-meta" style="font-family:'JetBrains Mono',monospace;font-size:0.72em;">id: ${c.id}${c.limited?' · 💎 Limited':''}${c.for_battle===false?' · 🎀 Cosmetic':''}</div>
       </div>
       <div class="admin-card-actions">
         <button class="admin-toggle-btn" style="${enabledStyle}" onclick="adminToggleCard('${c.id}',${!c.enabled})">${c.enabled?'✅':'❌'}</button>
@@ -19359,6 +19819,7 @@ async function editCard(cardId){
   document.getElementById('cardForm_enabled').checked=c.enabled;
   document.getElementById('cardForm_limited').checked=c.limited;
   document.getElementById('cardForm_limitedFor').value=c.limited_for||'';
+  document.getElementById('cardForm_for_battle').checked=c.for_battle!==false;
   document.getElementById('limitedForWrap').style.display=c.limited?'':'none';
 
   // Load existing abilities
