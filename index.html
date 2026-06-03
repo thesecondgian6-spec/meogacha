@@ -18224,6 +18224,7 @@ async function enemyTurn() {
       battleState.statusEffects = battleState.statusEffects.filter(s=>s.who==='enemy'||s.type==='boost');
       battleLog(`✨ ${pName} is purified — debuffs have no effect!`, 'player');
     }
+    if(battleState.shieldHits>0){
       battleState.shieldHits--;
       const reduce = battleState.activeShieldReduce||50;
       dmg = Math.round(dmg*(1-reduce/100));
@@ -23873,7 +23874,7 @@ function listenForTrades(){
 }
 
 // ── INCOMING TRADE NOTIFICATION POPUP ──────────────────────────────
-function showIncomingTradeNotif(trade){
+async function showIncomingTradeNotif(trade){
   const existing = document.getElementById('incomingTradeNotif');
   if(existing) existing.remove();
   const offerCard = (window.DEMO_CARDS||[]).find(c=>c.id===trade.offer_card_id);
@@ -24290,7 +24291,7 @@ async function finalizeAcceptTrade(tradeId){
 }
 
 let _tradeExpiryTimer = null;
-function startTradeExpiry(tradeId){
+async function startTradeExpiry(tradeId){
   clearTradeConfirmTimer();
   // Auto-cancel after 60s if nobody accepts
   _tradeExpiryTimer = setTimeout(async ()=>{
@@ -24882,7 +24883,7 @@ async function takePvpTurn(action, battleId, abilityId){
   } catch(e){ showToast('❌ Move error: '+(e.message||'')); }
 }
 
-function listenToBattle(battleId){
+async function listenToBattle(battleId){
   const rt = getSupaRT();
   if(!rt) return;
   let lastCutsceneTs = 0;
