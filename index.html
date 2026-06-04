@@ -19764,8 +19764,11 @@ function csdBuildEffectMenu(idx, currentKey) {
       const pd = PILL[k];
       const desc = pd?.desc || '';
       const icon = t.icon || pd?.icon || '✦';
+      const labelEsc = t.label.replace(/&/g,'&amp;').replace(/"/g,'&quot;');
+      const iconEsc  = icon.replace(/&/g,'&amp;').replace(/"/g,'&quot;');
+      const descEsc  = desc.replace(/&/g,'&amp;').replace(/"/g,'&quot;');
       html += `<div class="csd-option${k===currentKey?' selected':''}" data-value="${k}"
-        onclick="csdSelectEffect(${idx},'${k}',${JSON.stringify(t.label)},${JSON.stringify(icon)},${JSON.stringify(desc)})"
+        data-idx="${idx}" data-key="${k}" data-label="${labelEsc}" data-icon="${iconEsc}" data-desc="${descEsc}" data-csd-effect="1"
         style="border-left-color:${k===currentKey?ci.color:'transparent'}">
         <span class="csd-option-icon">${icon}</span>
         <div class="csd-option-body">
@@ -19782,15 +19785,18 @@ function csdBuildTierMenu(idx, currentTier) {
   const menu = document.getElementById(`csd_tier_${idx}`);
   if(!menu) return;
   const tierColors = { passive:'#5dade2', active:'var(--pink)', ultimate:'#f1c40f' };
-  menu.innerHTML = CSD_TIER_DATA.map(t=>`
-    <div class="csd-option csd-tier-option-${t.value}${t.value===currentTier?' selected':''}" data-value="${t.value}"
-      onclick="csdSelectTier(${idx},'${t.value}',${JSON.stringify(t.icon)},${JSON.stringify(t.name)})">
+  menu.innerHTML = CSD_TIER_DATA.map(t=>{
+    const nameEsc = t.name.replace(/&/g,'&amp;').replace(/"/g,'&quot;');
+    const iconEsc = t.icon.replace(/&/g,'&amp;').replace(/"/g,'&quot;');
+    return `<div class="csd-option csd-tier-option-${t.value}${t.value===currentTier?' selected':''}" data-value="${t.value}"
+      data-idx="${idx}" data-tier-value="${t.value}" data-icon="${iconEsc}" data-name="${nameEsc}" data-csd-tier="1">
       <span class="csd-option-icon">${t.icon}</span>
       <div class="csd-option-body">
         <div class="csd-option-name" style="color:${tierColors[t.value]}">${t.name}</div>
         <div class="csd-option-desc">${t.desc}</div>
       </div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 }
 
 function csdInitSlot(idx, currentKey, currentTier) {
@@ -19812,6 +19818,29 @@ function csdInitSlot(idx, currentKey, currentTier) {
     if(textEl) textEl.textContent = tierData.name;
   }
 }
+
+// Delegated click handler for effect and tier options (avoids inline onclick quoting issues)
+document.addEventListener('click', function(e) {
+  const effectOpt = e.target.closest('[data-csd-effect="1"]');
+  if (effectOpt) {
+    const idx   = parseInt(effectOpt.dataset.idx);
+    const key   = effectOpt.dataset.key;
+    const label = effectOpt.dataset.label;
+    const icon  = effectOpt.dataset.icon;
+    const desc  = effectOpt.dataset.desc;
+    csdSelectEffect(idx, key, label, icon, desc);
+    return;
+  }
+  const tierOpt = e.target.closest('[data-csd-tier="1"]');
+  if (tierOpt) {
+    const idx   = parseInt(tierOpt.dataset.idx);
+    const value = tierOpt.dataset.tierValue;
+    const icon  = tierOpt.dataset.icon;
+    const name  = tierOpt.dataset.name;
+    csdSelectTier(idx, value, icon, name);
+    return;
+  }
+});
 
 // ── END CSD ENGINE ──────────────────────────────────────
 
