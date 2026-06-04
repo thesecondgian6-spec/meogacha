@@ -15973,8 +15973,8 @@ async function startBattleAI() {
   const hpBoost    = playerAbils.filter(a=>a.battleEffect==='hpboost_passive'||a.battleEffect==='hpboost').reduce((s,a)=>s+a.value,0);
   const atkBoostP  = playerAbils.filter(a=>a.battleEffect==='atkboost_passive').reduce((s,a)=>s+a.value,0);
   const defReduceP = playerAbils.filter(a=>a.battleEffect==='shield_passive').reduce((s,a)=>s+a.value,0);
-  const regenP     = playerAbils.filter(a=>a.battleEffect==='regen_passive').reduce((s,a)=>s+a.value,0);
-  const dodgeP     = playerAbils.filter(a=>a.battleEffect==='dodge_passive').reduce((s,a)=>s+a.value,0)
+  const regenP     = playerAbils.filter(a=>a.battleEffect==='regen_passive'||a.battleEffect==='regen').reduce((s,a)=>s+a.value,0);
+  const dodgeP     = playerAbils.filter(a=>a.battleEffect==='dodge_passive'||a.battleEffect==='dodge').reduce((s,a)=>s+a.value,0)
                    + playerAbils.filter(a=>a.battleEffect==='ghost_secret').reduce((s,a)=>s+a.value,0);
   const ironWill   = playerAbils.find(a=>a.battleEffect==='iron_will');
   const silentDrain = playerAbils.find(a=>a.battleEffect==='silent_drain');
@@ -15983,6 +15983,8 @@ async function startBattleAI() {
   const lastBurst   = playerAbils.find(a=>a.battleEffect==='last_burst');
   const berserkP    = playerAbils.find(a=>a.battleEffect==='berserk_passive');
   const reflectP    = playerAbils.find(a=>a.battleEffect==='reflect_passive');
+  // copy passive — Mimicry (bare 'copy') mirrors enemy last dmg when hit
+  const copyPassiveP = playerAbils.find(a=>a.battleEffect==='copy'||a.battleEffect==='copy_passive');
   const initStatusEffects = [];
   if (haunt) initStatusEffects.push({type:'burn',icon:'👁️',label:`Haunted (${haunt.value}/turn)`,turns:99,dot:haunt.value,who:'enemy'});
 
@@ -16029,6 +16031,8 @@ async function startBattleAI() {
     berserkHpLoss: 0, berserkTurns: 0,
     berserkPassiveFired: false,
     swap_passive: playerAbils.find(a=>a.battleEffect==='swap_passive')||null,
+    copy_passive: copyPassiveP||null,
+    doubleRegenActive: false,
     statusEffects: initStatusEffects,
     battleEnded: false, movesCooldown: false,
   });
@@ -16271,7 +16275,9 @@ async function _baiPlayerMove(moveId) {
 
   // Regen
   if (ps.passiveRegenAmt > 0) {
-    ps.playerHP = Math.min(ps.playerMaxHP, ps.playerHP + ps.passiveRegenAmt);
+    const regenAmt = ps.doubleRegenActive ? ps.passiveRegenAmt * 2 : ps.passiveRegenAmt;
+    ps.playerHP = Math.min(ps.playerMaxHP, ps.playerHP + regenAmt);
+    _baiLog(`💚 ${ps.playerCard.name} regenerates ${regenAmt} HP!`, 'player');
   }
   // MP recovery — +1 per turn, max 5
   const mpBefore = ps.playerMP;
@@ -17529,9 +17535,13 @@ function startBattle() {
   const hpBoost    = playerAbils.filter(a=>a.battleEffect==='hpboost_passive'||a.battleEffect==='hpboost').reduce((s,a)=>s+a.value,0);
   const atkBoostP  = playerAbils.filter(a=>a.battleEffect==='atkboost_passive').reduce((s,a)=>s+a.value,0);
   const defReduceP = playerAbils.filter(a=>a.battleEffect==='shield_passive').reduce((s,a)=>s+a.value,0);
-  const regenP     = playerAbils.filter(a=>a.battleEffect==='regen_passive').reduce((s,a)=>s+a.value,0);
-  const dodgeP     = playerAbils.filter(a=>a.battleEffect==='dodge_passive').reduce((s,a)=>s+a.value,0)
+  const regenP     = playerAbils.filter(a=>a.battleEffect==='regen_passive'||a.battleEffect==='regen').reduce((s,a)=>s+a.value,0);
+  const dodgeP     = playerAbils.filter(a=>a.battleEffect==='dodge_passive'||a.battleEffect==='dodge').reduce((s,a)=>s+a.value,0)
                    + playerAbils.filter(a=>a.battleEffect==='ghost_secret').reduce((s,a)=>s+a.value,0);
+  // copy passive — Mimicry (bare 'copy') mirrors enemy last dmg when hit
+  const copyPassiveMain = playerAbils.find(a=>a.battleEffect==='copy'||a.battleEffect==='copy_passive');
+  // doubleregen secret — doubles all passive healing this battle
+  const doubleRegenAbil = playerAbils.find(a=>a.battleEffect==='doubleregen');
 
   // Last-stand / iron will
   const ironWill   = playerAbils.find(a=>a.battleEffect==='iron_will');
@@ -17602,6 +17612,8 @@ function startBattle() {
     berserkHpLoss: 0, berserkTurns: 0,
     berserkPassiveFired: false,
     swap_passive: playerAbils.find(a=>a.battleEffect==='swap_passive')||null,
+    copy_passive: copyPassiveMain||null,
+    doubleRegenActive:  !!doubleRegenAbil,   // Yuta secret — doubles all healing
     // ── status ──
     statusEffects:      initStatusEffects,
     battleEnded:        false,
@@ -18154,6 +18166,76 @@ async function dispatchAbilityEffect(ab, who) {
     spawnShieldBubble('player');
     battleLog(`${ab.icon} ${pName}'s passive reflect is active!`, 'player');
 
+  // ─ ANTIMAGIC — pierce + nullify enemy shield ─
+  } else if(effect==='antimagic'){
+    let dmg = applyAtkBoosts(val||30);
+    // Ignore enemy shield/immortal
+    const hadShield = battleState.shieldHits > 0 || battleState.immortalTurns > 0;
+    battleState.shieldHits    = 0;
+    battleState.immortalTurns = 0;
+    battleState.statusEffects = battleState.statusEffects.filter(s=>s.type!=='shield');
+    battleState.enemyHP -= dmg;
+    await playMoveVFX('atk','player','enemy',dmg,false,pColor);
+    playAttackSound('atk');
+    battleLog(`${ab.icon} ${pName}: ${ab.name}! ${dmg} magic-piercing dmg${hadShield?' — enemy shields SHATTERED!':''}!`, 'player');
+    await triggerPassiveProcs(dmg);
+
+  // ─ CURSEBURST — heavy damage + burn (Yuta ult) ─
+  } else if(effect==='curseburst'){
+    let dmg = applyAtkBoosts(val||55);
+    const burnTurns = ab.chance||3;
+    battleState.enemyHP -= dmg;
+    battleState.statusEffects.push({type:'burn',icon:'💜',label:`Cursed(${burnTurns}t)`,turns:burnTurns,dot:12,who:'enemy'});
+    await playMoveVFX('ult','player','enemy',dmg,true,pColor);
+    playAttackSound('ult'); spawnParticles(battleState.playerCard.rarity, pColor);
+    battleLog(`${ab.icon} ${pName}: ${ab.name}! ${dmg} cursed damage + 💜 BURN ${burnTurns} turns!`, 'player');
+
+  // ─ DOUBLEREGEN — activate heal-doubling flag for whole battle (Yuta secret) ─
+  } else if(effect==='doubleregen'){
+    const baseHeal = Math.round(battleState.playerMaxHP * 0.15);
+    const healAmt  = battleState.doubleRegenActive ? baseHeal * 2 : baseHeal;
+    battleState.doubleRegenActive = true;
+    battleState.passiveRegenAmt   = Math.round((battleState.passiveRegenAmt||0) * 2) || 4;
+    battleState.playerHP = Math.min(battleState.playerMaxHP, battleState.playerHP + healAmt);
+    await playMoveVFX('heal-action','player','player',healAmt,false,pColor);
+    spawnHealEffect('player'); spawnDmgNumber('player',healAmt,false,true);
+    battleState.statusEffects.push({type:'boost',icon:'✨',label:'Regen×2(battle)',turns:999});
+    battleLog(`${ab.icon} ${pName}: ${ab.name}! +${healAmt} HP — ALL healing DOUBLED for the rest of battle! ✦`, 'player');
+
+  // ─ OFA100 / DEATHGAMBLE — coin-flip ultimate ─
+  } else if(effect==='ofa100'){
+    await playMoveVFX('ult','player','enemy',0,false,pColor);
+    const isHeads = Math.random() < 0.5;
+    if(isHeads){
+      const dmg  = applyAtkBoosts(val||70);
+      const heal = ab.chance||30;
+      battleState.enemyHP -= dmg;
+      const actualHeal = battleState.doubleRegenActive ? heal*2 : heal;
+      battleState.playerHP = Math.min(battleState.playerMaxHP, battleState.playerHP + actualHeal);
+      await playMoveVFX('ult','player','enemy',dmg,true,pColor);
+      spawnHealEffect('player'); spawnDmgNumber('player',actualHeal,false,true);
+      playAttackSound('ult'); spawnParticles(battleState.playerCard.rarity, pColor);
+      battleLog(`${ab.icon} ${pName}: ${ab.name}! 🪙 HEADS — ${dmg} damage + ${actualHeal} HP restored!`, 'player');
+    } else {
+      const recoil = 20;
+      battleState.playerHP = Math.max(1, battleState.playerHP - recoil);
+      spawnDmgNumber('player',recoil,false,false);
+      battleLog(`${ab.icon} ${pName}: ${ab.name}! 🪙 TAILS — took ${recoil} recoil damage... `, 'player');
+    }
+
+  // ─ COPY passive / MIMICRY — triggered at hit time; here just shows flavour ─
+  } else if(effect==='copy'){
+    // Passive copy procs on enemy hit; active use fires immediate reflect
+    const lastDmg = battleState.lastEnemyDmg||10;
+    const mirrored = Math.round(lastDmg * 0.85);
+    battleState.enemyHP -= mirrored;
+    battleState.copyActive = true;
+    battleState.copyTurns  = 2;
+    spawnDmgNumber('enemy',mirrored,false,false);
+    await playMoveVFX('spc','player','enemy',mirrored,false,pColor);
+    battleState.statusEffects.push({type:'boost',icon:'🪞',label:'Mimic(2t)',turns:2});
+    battleLog(`${ab.icon} ${pName}: ${ab.name}! Mirrored ${mirrored} damage + copy active for 2 turns!`, 'player');
+
   } else {
     // Fallback — treat as basic attack
     let dmg = applyAtkBoosts(val||20);
@@ -18376,13 +18458,14 @@ async function enemyTurn() {
     if(isCrit) dmg = Math.round(dmg*1.6);
     battleState.lastEnemyDmg = dmg; // store for copy effects
 
-    // ── Copy passive proc ──
-    const copyPassive = getCardAbilities(battleState.playerCard.id, battleState.playerCard.rarity).find(a=>a.battleEffect==='copy_passive');
+    // ── Copy passive proc (Mimicry — bare 'copy' or 'copy_passive') ──
+    const copyPassive = battleState.copy_passive ||
+      getCardAbilities(battleState.playerCard.id, battleState.playerCard.rarity).find(a=>a.battleEffect==='copy_passive'||a.battleEffect==='copy');
     if(copyPassive && Math.random()*100 < (copyPassive.chance||30)){
       const reflected = Math.round(dmg * 0.8);
       battleState.enemyHP -= reflected;
       spawnDmgNumber('enemy',reflected,false,false);
-      battleLog(`🪞 ${pName}'s copy passive triggers — reflects ${reflected} dmg!`, 'player');
+      battleLog(`🪞 ${pName}'s Mimicry triggers — mirrors ${reflected} dmg back!`, 'player');
     }
 
     // ── Reflect passive proc ──
@@ -18501,12 +18584,13 @@ async function enemyTurn() {
     const moveName = moves[Math.floor(Math.random()*moves.length)];
     battleLog(`⚔️ ${eName} uses ${moveName}! ${dmg} dmg${isCrit?' 💥 CRIT!':''}`, 'enemy');
 
-    // ── Copy active ──
+    // ── Copy active — fire the enemy's strike back at them ──
     if(battleState.copyActive){
-      const refl = Math.round(dmg*0.7);
-      battleState.enemyHP -= refl;
-      spawnDmgNumber('enemy',refl,false,false);
-      battleLog(`🪞 Copy active — ${refl} reflected!`, 'player');
+      const copiedDmg = applyAtkBoosts(Math.round(dmg * 0.9));
+      battleState.enemyHP -= copiedDmg;
+      await playMoveVFX('atk','player','enemy',copiedDmg,false,RARITY_COLORS[battleState.playerCard.rarity]||'#ff9dc7');
+      spawnDmgNumber('enemy',copiedDmg,false,false);
+      battleLog(`🪞 Mimicry copies ${eName}'s move — ${copiedDmg} damage back!`, 'player');
     }
     // ── Last-burst secret (low HP trigger) ──
     if(!battleState.lastBurstFired && battleState.lastBurstValue>0 && battleState.playerHP/battleState.playerMaxHP<0.4){
@@ -18532,9 +18616,10 @@ async function enemyTurn() {
 async function doEndOfTurn(){
   // ── Passive regen ──
   if(battleState.passiveRegenAmt>0){
-    battleState.playerHP = Math.min(battleState.playerMaxHP, battleState.playerHP+battleState.passiveRegenAmt);
-    spawnHealEffect('player'); spawnDmgNumber('player',battleState.passiveRegenAmt,false,true);
-    battleLog(`💚 ${battleState.playerCard.name} regenerates ${battleState.passiveRegenAmt} HP!`, 'player');
+    const regenAmt = battleState.doubleRegenActive ? battleState.passiveRegenAmt * 2 : battleState.passiveRegenAmt;
+    battleState.playerHP = Math.min(battleState.playerMaxHP, battleState.playerHP+regenAmt);
+    spawnHealEffect('player'); spawnDmgNumber('player',regenAmt,false,true);
+    battleLog(`💚 ${battleState.playerCard.name} regenerates ${regenAmt} HP!`, 'player');
   }
   // ── Berserk passive: trigger once when HP drops low ──
   if(battleState.berserkPassive && !battleState.berserkPassiveFired){
@@ -25417,6 +25502,20 @@ async function takePvpTurn(action, battleId, abilityId){
     const myCard = (window.DEMO_CARDS||[]).find(c=>c.id===(isP1?battle.card1_id:battle.card2_id));
     const myName = isP1 ? (bs.p1_name||'You') : (bs.p2_name||'You');
 
+    // ── Stun check — if this player is stunned, clear stun and skip turn ──
+    const myStunKey = isP1 ? 'p1_stunned' : 'p2_stunned';
+    if(bs[myStunKey]){
+      bs[myStunKey] = false;
+      if(!Array.isArray(bs.log)) bs.log = [];
+      bs.log.push(`😵 ${myName} is stunned and loses their turn!`);
+      const nextTurn = isP1 ? battle.player2_id : battle.player1_id;
+      await rt.from('pvp_battles').update({
+        battle_state: bs, current_turn: nextTurn, updated_at: new Date().toISOString()
+      }).eq('id', battleId);
+      showToast('😵 You were stunned — turn skipped!');
+      return;
+    }
+
     // ── MP tracking ──
     if(!bs.p1_mp && bs.p1_mp !== 0) bs.p1_mp = 3;
     if(!bs.p2_mp && bs.p2_mp !== 0) bs.p2_mp = 3;
@@ -25453,36 +25552,100 @@ async function takePvpTurn(action, battleId, abilityId){
       if(mpCost > myMp){ showToast('❌ Not enough MP!'); return; }
       bs[myMpKey] = Math.max(0, myMp - mpCost);
       usedAbility = ab;
-      dmg = Math.floor((ab ? (ab.value||baseAtk) : baseAtk) * (0.9 + Math.random()*0.3));
-      logMsg = `${ab ? ab.icon||'✨' : '✨'} ${myName} uses ${ab ? ab.name : 'Special'} for ${dmg} damage!`;
+
+      // ── Ability effect dispatch for PVP ──
+      const effect  = ab?.battleEffect || '';
+      const abVal   = ab?.value || 20;
+      const myHpKey = isP1 ? 'p1_hp' : 'p2_hp';
+      const oppHpKey= isP1 ? 'p2_hp' : 'p1_hp';
+
+      if(effect==='regen_active'||effect==='regen'||(effect==='regen_ult')){
+        // Heal self
+        const maxHp = myCard ? 80 + myCard.rarity*15 : 100;
+        const heal  = Math.min(abVal, maxHp - (bs[myHpKey]||0));
+        bs[myHpKey] = Math.min(maxHp, (bs[myHpKey]||0) + heal);
+        dmg = 0;
+        logMsg = `${ab.icon||'💊'} ${myName} uses ${ab.name}! +${heal} HP restored!`;
+      } else if(effect==='shield_active'||effect==='immortal_ult'){
+        // Grant a shield flag (absorbs next hit at 60% reduction)
+        bs[isP1?'p1_shield':'p2_shield'] = true;
+        dmg = 0;
+        logMsg = `${ab.icon||'🛡️'} ${myName} uses ${ab.name}! Shield activated — next hit reduced!`;
+      } else if(effect==='stun_active'||effect==='lockdown_ult'){
+        // Stun the opponent for their next turn
+        bs[isP1?'p2_stunned':'p1_stunned'] = true;
+        dmg = Math.floor(abVal * 0.5 * (0.9+Math.random()*0.3));
+        logMsg = `${ab.icon||'⚡'} ${myName} uses ${ab.name}! ${dmg?dmg+' dmg + ':''} ${isP1?bs.p2_name:bs.p1_name} is STUNNED next turn!`;
+      } else if(effect==='copy'||effect==='copy_active'||effect==='copy_ult'){
+        // Mirror the opponent's last recorded damage
+        const lastOppDmg = bs[isP1?'p2_last_dmg':'p1_last_dmg']||15;
+        dmg = Math.round(lastOppDmg * (effect==='copy_ult'?1.8:0.9));
+        logMsg = `${ab.icon||'🪞'} ${myName} uses ${ab.name}! Copied ${dmg} damage back!`;
+      } else if(effect==='doubleregen'||effect==='drain_active'||effect==='drain_ult'){
+        // Drain — damage + heal
+        dmg = Math.floor(abVal * (0.9+Math.random()*0.3));
+        const maxHp = myCard ? 80 + myCard.rarity*15 : 100;
+        const healD = Math.round(dmg * (effect==='drain_ult'?0.8:0.6));
+        bs[myHpKey] = Math.min(maxHp, (bs[myHpKey]||0) + healD);
+        logMsg = `${ab.icon||'🩸'} ${myName} uses ${ab.name}! ${dmg} dmg + ${healD} HP drained!`;
+      } else if(effect==='ofa100'){
+        // Coin flip
+        if(Math.random()<0.5){
+          dmg = Math.floor(abVal * (1.0+Math.random()*0.2));
+          const maxHp = myCard ? 80 + myCard.rarity*15 : 100;
+          const heal  = ab.chance||30;
+          bs[myHpKey] = Math.min(maxHp, (bs[myHpKey]||0) + heal);
+          logMsg = `${ab.icon||'💥'} ${myName}: ${ab.name}! 🪙 HEADS — ${dmg} dmg + ${heal} HP!`;
+        } else {
+          const recoil = 20;
+          bs[myHpKey] = Math.max(1, (bs[myHpKey]||0) - recoil);
+          dmg = 0;
+          logMsg = `${ab.icon||'💥'} ${myName}: ${ab.name}! 🪙 TAILS — took ${recoil} recoil!`;
+        }
+      } else if(effect==='curseburst'||effect==='curse_active'||effect==='curse_ult'){
+        // Heavy hit + apply burn DoT flag
+        dmg = Math.floor(abVal * (effect==='curseburst'?1.1:1) * (0.9+Math.random()*0.3));
+        bs[isP1?'p2_burned':'p1_burned'] = (ab.chance||2); // turns of burn
+        logMsg = `${ab.icon||'💜'} ${myName} uses ${ab.name}! ${dmg} cursed dmg + BURN ${ab.chance||2} turns!`;
+      } else if(effect==='antimagic'||effect==='pierce_active'||effect==='pierce_ult'){
+        // Pierce — ignore opponent shield
+        bs[isP1?'p2_shield':'p1_shield'] = false;
+        dmg = Math.floor(abVal * (0.9+Math.random()*0.3));
+        logMsg = `${ab.icon||'⚔️'} ${myName} uses ${ab.name}! ${dmg} PIERCING dmg — shield shattered!`;
+      } else {
+        // Generic damage ability
+        dmg = Math.floor(abVal * (0.9 + Math.random()*0.3));
+        logMsg = `${ab.icon||'✨'} ${myName} uses ${ab.name} for ${dmg} damage!`;
+      }
+      // Record this player's last dmg for copy abilities
+      bs[isP1?'p1_last_dmg':'p2_last_dmg'] = dmg;
 
       // ── Broadcast cutscene FIRST so BOTH players see it simultaneously ──
-      // Write last_cutscene with current_turn unchanged — opponent's listener will
-      // fire on ANY update, so they see the cutscene trigger right away.
       if(ab && myCard){
         const csPayload = { cardId: myCard.id, rarity: myCard.rarity, abilityId: ab.id, ts: Date.now() };
         bs.last_cutscene = csPayload;
-        // Push ONLY the cutscene trigger — do NOT flip current_turn yet
         await rt.from('pvp_battles').update({
           battle_state: { ...bs, cutscene_playing: true },
           updated_at: new Date().toISOString()
         }).eq('id', battleId);
-        // Both players now play the cutscene concurrently (opponent's listenToBattle fires simultaneously)
         await playAbilityCutscene(myCard.id, myCard.rarity, ab.id);
       }
 
-      // Re-fetch fresh state after cutscene (in case opponent did something)
+      // Re-fetch fresh state after cutscene
       const { data: freshBattle } = await rt.from('pvp_battles').select('*').eq('id',battleId).single();
       if(!freshBattle || freshBattle.status !== 'active'){ return; }
       if(freshBattle.current_turn !== state.discordId){ showToast("It's not your turn!"); return; }
       Object.assign(bs, freshBattle.battle_state);
-      bs.cutscene_playing = false; // clear flag before committing turn
+      bs.cutscene_playing = false;
 
     } else if(action === 'guard'){
       logMsg = `🛡️ ${myName} braces for impact!`;
       if(isP1) bs.p1_guarding = true; else bs.p2_guarding = true;
       bs[myMpKey] = Math.min(3, myMp + 1); // guard also regens 1 MP
     }
+
+    // ── Stun check — if opponent is stunned, they skip their next turn ──
+    // (handled by rendering; we write the flag and it's cleared on opponent's next turn)
 
     // ── Apply guard damage reduction ──
     const oppGuardKey = isP1 ? 'p2_guarding' : 'p1_guarding';
@@ -25491,9 +25654,27 @@ async function takePvpTurn(action, battleId, abilityId){
       logMsg += ' (blocked!)';
       bs[oppGuardKey] = false;
     }
+    // ── Apply opponent shield (absorbs 60% of hit) ──
+    const oppShieldKey = isP1 ? 'p2_shield' : 'p1_shield';
+    if(bs[oppShieldKey] && dmg > 0){
+      dmg = Math.floor(dmg * 0.4);
+      logMsg += ' (shield absorbed most of it!)';
+      bs[oppShieldKey] = false;
+    }
     // Clear own guard after taking a turn
     const myGuardKey = isP1 ? 'p1_guarding' : 'p2_guarding';
     bs[myGuardKey] = false;
+
+    // ── Apply burn DoT on opponent at end of their turn (tick now for attacker) ──
+    const oppBurnKey = isP1 ? 'p2_burned' : 'p1_burned';
+    if(bs[oppBurnKey] > 0){
+      const burnDot = 8;
+      const oppHpBurnKey = isP1 ? 'p2_hp' : 'p1_hp';
+      bs[oppHpBurnKey] = Math.max(0, (bs[oppHpBurnKey]||0) - burnDot);
+      bs[oppBurnKey]--;
+      if(!Array.isArray(bs.log)) bs.log = [];
+      bs.log.push(`🔥 Burn DoT — ${isP1?bs.p2_name:bs.p1_name} takes ${burnDot} burn damage! (${bs[oppBurnKey]} turns left)`);
+    }
 
     // ── Apply damage ──
     if(isP1){ bs.p2_hp = Math.max(0,(bs.p2_hp!=null?bs.p2_hp:0) - dmg); }
@@ -29208,7 +29389,29 @@ async function wbAttack(action='attack', abilityId=null) {
     const abils = getCardAbilities(state.equippedId, card?.rarity||1);
     const ab    = (abilityId ? abils.find(a=>a.id===abilityId) : null) || abils[0];
     if(!ab) { showToast('No ability!'); setWbButtonsDisabled(false); _wbAttackCooldown=false; return; }
-    dmg    = Math.floor((ab.value||baseAtk) * (0.9+Math.random()*0.3));
+    const effect = ab.battleEffect||'';
+    // Regen/shield abilities on boss don't deal damage — they heal the player locally
+    if(effect==='regen_active'||effect==='regen_ult'||effect==='regen'||effect==='shield_active'||effect==='immortal_ult'){
+      const healAmt = ab.value||20;
+      const myMaxHp = _wbMyPartic?.player_max_hp||130;
+      const newHp   = Math.min(myMaxHp, (_wbMyPartic?.player_hp||0)+healAmt);
+      logMsg = `${ab.icon||'💊'} ${state.username} uses ${ab.name}! +${healAmt} HP restored!`;
+      try {
+        await rt.from('world_boss_participants').update({player_hp:newHp}).eq('boss_id',_wbCurrentBossId).eq('discord_id',state.discordId);
+      } catch(_){}
+      if(_wbMyPartic) _wbMyPartic.player_hp = newHp;
+      renderMyCardStatus(_wbMyPartic);
+      addBossLog(logMsg);
+      try { await playAbilityCutscene(state.equippedId, card?.rarity||1, ab.id); } catch(_) {}
+      setTimeout(()=>{ _wbAttackCooldown=false; setWbButtonsDisabled(false); }, WB_ATTACK_COOLDOWN_MS);
+      return;
+    }
+    // Damage-dealing ability — scale by effect
+    const multiplier = (effect==='curseburst'||effect==='ofa100'||effect==='frenzy'||effect==='transform_ult') ? 1.5
+                     : (effect==='burst_ult'||effect==='pierce_ult'||effect==='strike_ult') ? 1.3
+                     : (effect==='copy'||effect==='copy_active'||effect==='copy_ult') ? 1.2
+                     : 1.0;
+    dmg    = Math.floor((ab.value||baseAtk) * multiplier * (0.85+Math.random()*0.3));
     logMsg = `${ab.icon||'✨'} ${state.username} uses ${ab.name} for ${dmg}!`;
     // Player abilities only play on THIS player's screen
     try { await playAbilityCutscene(state.equippedId, card?.rarity||1, ab.id); } catch(_) {}
@@ -29415,13 +29618,54 @@ async function applyBossAbilityDamage(ab, boss) {
   if(_wbMyPartic.is_eliminated) return;
   const rt      = getSupaRT();
   const bossCard= (window.DEMO_CARDS||[]).find(c=>c.id===boss.card_id);
-  const dmg     = Math.floor(((bossCard?.rarity||5)*17) * (0.75+Math.random()*0.5));
+  const rarity  = bossCard?.rarity||5;
+  const baseDmg = Math.floor((rarity*17) * (0.75+Math.random()*0.5));
+
+  // Look up the specific ability to choose dmg type
+  const abilities = bossCard ? getCardAbilities(bossCard.id, rarity) : [];
+  const abilObj   = abilities.find(a=>a.id===ab.abilityId) || null;
+  const effect    = abilObj?.battleEffect || '';
+
+  let dmg = baseDmg;
+  let extraLog = '';
+
+  if(effect==='curseburst'||effect==='burst_ult'||effect==='curse_ult'){
+    dmg = Math.floor(baseDmg * 1.35); // heavy
+    extraLog = ' 💜 + BURN applied!';
+    // Apply a burn flag so next tick hurts
+    if(_wbMyPartic) _wbMyPartic._burnTurns = (_wbMyPartic._burnTurns||0) + 2;
+  } else if(effect==='stun_active'||effect==='lockdown_ult'){
+    dmg = Math.floor(baseDmg * 0.6);
+    extraLog = ' ⚡ STUNNED — action locked for 5s!';
+    // Visually disable attack buttons briefly
+    setWbButtonsDisabled(true);
+    setTimeout(()=>setWbButtonsDisabled(false), 5000);
+  } else if(effect==='regen'||effect==='regen_active'||effect==='regen_ult'){
+    // Boss heals itself instead of damaging player
+    const healAmt = Math.floor(rarity * 120 * (0.8+Math.random()*0.4));
+    const newBossHp = Math.min(_wbBossData.max_hp||50000, (_wbBossData.hp||0) + healAmt);
+    try { await rt.from('world_bosses').update({hp:newBossHp}).eq('id',_wbCurrentBossId); } catch(_){}
+    if(_wbBossData) _wbBossData.hp = newBossHp;
+    renderBossHpBar(_wbBossData);
+    addBossLog(`💚 ${ab.name||'Boss'} recovers ${healAmt} HP!`);
+    setWbButtonsDisabled(false); _wbAttackCooldown=false;
+    return; // no damage to player
+  } else if(effect==='ofa100'||effect==='frenzy'||effect==='transform_ult'||effect==='berserk_ult'){
+    dmg = Math.floor(baseDmg * 1.6); // devastating
+    extraLog = ' 💥 DEVASTATING BLOW!';
+  } else if(effect==='copy'||effect==='copy_active'||effect==='copy_ult'){
+    // Boss copies last player's attack dmg
+    const lastPlayerDmg = _wbMyPartic?.damage_dealt ? Math.min(200, Math.floor((_wbMyPartic.damage_dealt||0)/5)) : baseDmg;
+    dmg = Math.max(baseDmg, lastPlayerDmg);
+    extraLog = ' 🪞 Copied your power!';
+  }
+
   const newHp   = Math.max(0, (_wbMyPartic.player_hp||0)-dmg);
   const isElim  = newHp <= 0;
   const recoveryUntil = isElim ? new Date(Date.now()+WB_RECOVERY_SECS*1000).toISOString() : null;
 
   wbPlayerHitEffect();
-  addBossLog(`💀 ${ab.name||'Boss Ability'} blasts ${state.username} for ${dmg}!`);
+  addBossLog(`💀 ${ab.name||'Boss Ability'} blasts ${state.username} for ${dmg}!${extraLog}`);
 
   try {
     await rt.from('world_boss_participants').update({
@@ -29430,7 +29674,6 @@ async function applyBossAbilityDamage(ab, boss) {
   } catch(_) {}
 
   if(_wbMyPartic){ _wbMyPartic.player_hp=newHp; _wbMyPartic.is_eliminated=isElim; _wbMyPartic.recovery_until=recoveryUntil; }
-  // Sync into _wbParticData so raiders list updates immediately
   const _adx = _wbParticData.findIndex(p=>p.discord_id===state.discordId);
   if(_adx>=0){ _wbParticData[_adx].player_hp=newHp; _wbParticData[_adx].is_eliminated=isElim; }
   renderMyCardStatus(_wbMyPartic);
