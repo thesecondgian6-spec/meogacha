@@ -19718,7 +19718,7 @@ function csdClose(menuId) {
 // Close on outside click
 document.addEventListener('click', e => {
   if(_csdOpenId && !e.target.closest('.csd-wrap')) csdClose(_csdOpenId);
-}, true);
+}, false);
 
 function csdSelectEffect(idx, key, label, icon, desc) {
   // Update native select
@@ -19848,7 +19848,7 @@ function csdInitSlot(idx, currentKey, currentTier) {
 
   document.addEventListener('click', e => {
     if (_openWrappedId.id && !e.target.closest('.csd-wrap')) closeWrapped(_openWrappedId.id);
-  }, true);
+  }, false);
 
   // Render the trigger text from current select value
   function syncTrigger(wrap, select) {
