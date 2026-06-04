@@ -19966,7 +19966,7 @@ function csdInitSlot(idx, currentKey, currentTier) {
 
   window.csdWrapAll = function(container) {
     container = container || document;
-    container.querySelectorAll('select.admin-input:not([data-csd-wrapped]):not([data-no-csd])').forEach(s => {
+    container.querySelectorAll('select.admin-input:not([data-csd-wrapped]):not([data-no-csd]):not(.csd-native)').forEach(s => {
       window.csdWrapSelect(s);
     });
   };
@@ -20011,7 +20011,7 @@ function csdInitSlot(idx, currentKey, currentTier) {
     if (window.__csdWrapOpen && !e.target.closest('.csd-wrap')) {
       window.__csdWrapClose && window.__csdWrapClose();
     }
-  }, true);
+  }, false);
 })();
 // ── END GENERIC CSD WRAPPER ──────────────────────────────
 
