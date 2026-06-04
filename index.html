@@ -16033,6 +16033,8 @@ async function startBattleAI() {
     swap_passive: playerAbils.find(a=>a.battleEffect==='swap_passive')||null,
     copy_passive: copyPassiveP||null,
     doubleRegenActive: false,
+    nextAttackGuaranteedCrit: playerAbils.some(a=>a.battleEffect==='firstcrit'),
+    lastEnemyAbility: null,
     statusEffects: initStatusEffects,
     battleEnded: false, movesCooldown: false,
   });
@@ -16199,6 +16201,15 @@ async function _baiPlayerMove(moveId) {
       ps.playerAtkBoost = battleState.playerAtkBoost;
       ps.playerAtkBoostTurns = battleState.playerAtkBoostTurns;
       ps.stunEnemy = battleState.stunEnemy;
+      ps.transformMult = battleState.transformMult;
+      ps.transformTurns = battleState.transformTurns;
+      ps.playerMaxHP = battleState.playerMaxHP;
+      ps.shieldHits = battleState.shieldHits;
+      ps.dodgeHits = battleState.dodgeHits;
+      ps.copyActive = battleState.copyActive;
+      ps.copyTurns = battleState.copyTurns;
+      ps.nextAttackGuaranteedCrit = battleState.nextAttackGuaranteedCrit;
+      ps.defReducePct = battleState.defReducePct;
       Object.assign(battleState, saved);
       _baiLog(`${ab.icon} ${pName} uses ${ab.name}!`, 'player');
     }
@@ -16211,7 +16222,7 @@ async function _baiPlayerMove(moveId) {
       if (ps.risingPowerStack % ps.risingPowerEvery === 0) atk += ps.risingPowerBonus;
     }
     atk = Math.max(1, atk);
-    const crit = Math.random() < 0.12;
+    const crit = ps.nextAttackGuaranteedCrit ? (ps.nextAttackGuaranteedCrit=false, true) : Math.random() < 0.12;
     if (crit) { atk = Math.round(atk * 1.5); _baiLog(`💥 CRITICAL HIT!`, 'player'); }
     _baiFlashCard('enemy');
     ps.enemyHP -= atk;
@@ -17614,6 +17625,8 @@ function startBattle() {
     swap_passive: playerAbils.find(a=>a.battleEffect==='swap_passive')||null,
     copy_passive: copyPassiveMain||null,
     doubleRegenActive:  !!doubleRegenAbil,   // Yuta secret — doubles all healing
+    nextAttackGuaranteedCrit: playerAbils.some(a=>a.battleEffect==='firstcrit'), // Frieren passive
+    lastEnemyAbility: null,  // tracks last ability used by enemy for copy
     // ── status ──
     statusEffects:      initStatusEffects,
     battleEnded:        false,
@@ -18223,18 +18236,204 @@ async function dispatchAbilityEffect(ab, who) {
       battleLog(`${ab.icon} ${pName}: ${ab.name}! 🪙 TAILS — took ${recoil} recoil damage... `, 'player');
     }
 
-  // ─ COPY passive / MIMICRY — triggered at hit time; here just shows flavour ─
+  // ─ COPY passive / MIMICRY — triggered at hit time; plays enemy's last ability cutscene ─
   } else if(effect==='copy'){
-    // Passive copy procs on enemy hit; active use fires immediate reflect
     const lastDmg = battleState.lastEnemyDmg||10;
     const mirrored = Math.round(lastDmg * 0.85);
-    battleState.enemyHP -= mirrored;
+    // Play the ENEMY's last used ability cutscene before applying the copy effect
+    if(battleState.lastEnemyAbility && battleState.enemyCard){
+      battleLog(`🪞 ${pName} copies ${battleState.enemyCard.name}'s ability!`, 'player');
+      try { await playAbilityCutscene(battleState.enemyCard.id, battleState.enemyCard.rarity, battleState.lastEnemyAbility.id); } catch(_){}
+      // Re-dispatch the enemy's last ability effect AS the player (mimic)
+      const copiedAb = { ...battleState.lastEnemyAbility, value: Math.round(battleState.lastEnemyAbility.value * 0.85) };
+      battleState.enemyHP -= mirrored;
+      spawnDmgNumber('enemy',mirrored,false,false);
+    } else {
+      battleState.enemyHP -= mirrored;
+      spawnDmgNumber('enemy',mirrored,false,false);
+      await playMoveVFX('spc','player','enemy',mirrored,false,pColor);
+    }
     battleState.copyActive = true;
     battleState.copyTurns  = 2;
-    spawnDmgNumber('enemy',mirrored,false,false);
-    await playMoveVFX('spc','player','enemy',mirrored,false,pColor);
     battleState.statusEffects.push({type:'boost',icon:'🪞',label:'Mimic(2t)',turns:2});
     battleLog(`${ab.icon} ${pName}: ${ab.name}! Mirrored ${mirrored} damage + copy active for 2 turns!`, 'player');
+
+  // ─ BURST (bare) — massive single hit ─
+  } else if(effect==='burst'){
+    let dmg = applyAtkBoosts(val||40);
+    const isCrit = Math.random() < 0.25;
+    if(isCrit) dmg = Math.round(dmg * 1.5);
+    if(battleState.enemyGuarding){ dmg=Math.round(dmg*0.55); battleState.enemyGuarding=false; }
+    battleState.enemyHP -= dmg;
+    await playMoveVFX('ult','player','enemy',dmg,isCrit,pColor);
+    playAttackSound('ult'); spawnParticles(battleState.playerCard.rarity, pColor);
+    battleLog(`${ab.icon} ${pName}: ${ab.name}! EXPLOSION — ${dmg} damage${isCrit?' 💥 CRIT!':''}!`, 'player');
+    await triggerPassiveProcs(dmg);
+
+  // ─ FRENZY (bare) — rapid multi-slash ─
+  } else if(effect==='frenzy'){
+    const hits = 5; const dmgEa = Math.round(val/hits)||12;
+    let total = 0;
+    for(let i=0;i<hits;i++){
+      const d = applyAtkBoosts(dmgEa);
+      battleState.enemyHP -= d; total += d;
+      await playMoveVFX('atk','player','enemy',d,false,pColor);
+      await sleep(160);
+    }
+    playAttackSound('ult'); spawnParticles(battleState.playerCard.rarity, pColor);
+    battleLog(`${ab.icon} ${pName}: ${ab.name}! ${hits}-hit frenzy — ${total} total damage! ✦`, 'player');
+    await triggerPassiveProcs(total);
+
+  // ─ SMASH (bare) — heavy punch ─
+  } else if(effect==='smash'){
+    let dmg = applyAtkBoosts(val||40);
+    const isCrit = Math.random() < 0.2;
+    if(isCrit) dmg = Math.round(dmg * 1.75);
+    if(battleState.enemyGuarding){ dmg=Math.round(dmg*0.55); battleState.enemyGuarding=false; }
+    battleState.enemyHP -= dmg;
+    await playMoveVFX('atk','player','enemy',dmg,isCrit,pColor);
+    playAttackSound('atk'); playHitSound(isCrit); spawnParticles(battleState.playerCard.rarity, pColor);
+    battleLog(`${ab.icon} ${pName}: ${ab.name}! ${dmg} damage${isCrit?' 💥 CRIT!':''}!`, 'player');
+    await triggerPassiveProcs(dmg);
+
+  // ─ MULTIHIT (bare) — hits twice ─
+  } else if(effect==='multihit'){
+    const hits = 2; const dmgEa = Math.round(val/hits)||15;
+    let total = 0;
+    for(let i=0;i<hits;i++){
+      const d = applyAtkBoosts(dmgEa);
+      battleState.enemyHP -= d; total += d;
+      await playMoveVFX('atk','player','enemy',d,false,pColor);
+      await sleep(220);
+    }
+    playAttackSound('atk');
+    battleLog(`${ab.icon} ${pName}: ${ab.name}! Double hit — ${total} total damage!`, 'player');
+    await triggerPassiveProcs(total);
+
+  // ─ PIERCE (bare) — true damage ignoring shields ─
+  } else if(effect==='pierce'){
+    let dmg = val||30;
+    // Bypass guard AND shield
+    battleState.shieldHits = 0; battleState.enemyGuarding = false;
+    battleState.enemyHP -= dmg;
+    await playMoveVFX('atk','player','enemy',dmg,false,pColor);
+    playAttackSound('atk');
+    battleLog(`${ab.icon} ${pName}: ${ab.name}! ${dmg} TRUE damage — pierces all defenses!`, 'player');
+    await triggerPassiveProcs(dmg);
+
+  // ─ DOUBLEATK — attack multiplier for one turn ─
+  } else if(effect==='doubleatk'){
+    const mult = val||2;
+    battleState.transformMult  = mult;
+    battleState.transformTurns = 1;
+    await playMoveVFX('spc','player','enemy',0,false,pColor);
+    spawnFocusEffect('player');
+    battleLog(`${ab.icon} ${pName}: ${ab.name}! ATK ×${mult} for this turn! ✦`, 'player');
+    battleState.statusEffects.push({type:'boost',icon:'🦷',label:`ATK×${mult}(1t)`,turns:1});
+
+  // ─ DEMONFORM (bare) — all stats multiplied ─
+  } else if(effect==='demonform'){
+    const mult  = val>10 ? val/100+1 : 1.5;
+    const turns = 2;
+    battleState.transformMult  = mult;
+    battleState.transformTurns = turns;
+    battleState.playerAtkBoost  = (battleState.passiveAtkBoost||0) + 50;
+    battleState.playerAtkBoostTurns = turns;
+    await playMoveVFX('ult','player','enemy',0,false,pColor);
+    spawnFocusEffect('player');
+    battleLog(`${ab.icon} ${pName}: ${ab.name}! Demon Power — all stats ×${mult} for ${turns} turns! 😈✦`, 'player');
+    battleState.statusEffects.push({type:'boost',icon:'😈',label:`Demon×${mult}(${turns}t)`,turns});
+
+  // ─ SPELLBOOST (passive active use) — boosts next spell damage ─
+  } else if(effect==='spellboost'){
+    const pct = val||20;
+    const turns = 2;
+    battleState.playerAtkBoost = (battleState.passiveAtkBoost||0) + pct;
+    battleState.playerAtkBoostTurns = turns;
+    await playMoveVFX('spc','player','enemy',0,false,pColor);
+    spawnFocusEffect('player');
+    battleLog(`${ab.icon} ${pName}: ${ab.name}! Spell DMG +${pct}% for ${turns} turns!`, 'player');
+    battleState.statusEffects.push({type:'boost',icon:'🧠',label:`Spell+${pct}%(${turns}t)`,turns});
+
+  // ─ DEFBOOST (passive) — reduces incoming damage ─
+  } else if(effect==='defboost'){
+    const pct = val||20;
+    battleState.defReducePct = (battleState.defReducePct||0) + pct;
+    battleState.passiveDefReduce = battleState.defReducePct;
+    spawnShieldBubble('player');
+    await playMoveVFX('def','player','enemy',0,false,pColor);
+    battleLog(`${ab.icon} ${pName}: ${ab.name}! DEF +${pct}% — all incoming damage reduced!`, 'player');
+    battleState.statusEffects.push({type:'shield',icon:'🛡️',label:`DEF+${pct}%`,turns:999});
+
+  // ─ HPBOOST (bare passive) — max HP increase ─
+  } else if(effect==='hpboost'){
+    const boost = val||25;
+    battleState.playerMaxHP += boost;
+    battleState.playerHP    += boost;
+    spawnHealEffect('player');
+    await playMoveVFX('heal-action','player','player',boost,false,pColor);
+    spawnDmgNumber('player',boost,false,true);
+    battleLog(`${ab.icon} ${pName}: ${ab.name}! Max HP +${boost}! Now at ${battleState.playerHP}/${battleState.playerMaxHP}!`, 'player');
+
+  // ─ ATKBOOST (bare) — ATK boost for turns ─
+  } else if(effect==='atkboost'){
+    const pct  = val||35;
+    const turns = ab.chance||2;
+    battleState.playerAtkBoost = (battleState.passiveAtkBoost||0) + pct;
+    battleState.playerAtkBoostTurns = turns;
+    await playMoveVFX('spc','player','enemy',0,false,pColor);
+    spawnFocusEffect('player');
+    battleLog(`${ab.icon} ${pName}: ${ab.name}! ATK +${pct}% for ${turns} turn(s)!`, 'player');
+    battleState.statusEffects = battleState.statusEffects.filter(s=>!s.label.startsWith('ATK+'));
+    battleState.statusEffects.push({type:'boost',icon:'⚡',label:`ATK+${pct}%`,turns});
+
+  // ─ FIRSTCRIT (passive) — guarantees next crit ─
+  } else if(effect==='firstcrit'){
+    battleState.nextAttackGuaranteedCrit = true;
+    await playMoveVFX('spc','player','enemy',0,false,pColor);
+    spawnFocusEffect('player');
+    battleLog(`${ab.icon} ${pName}: ${ab.name}! Next attack is a GUARANTEED CRIT! 💥`, 'player');
+    battleState.statusEffects.push({type:'boost',icon:'🎯',label:'Next:Crit',turns:1});
+
+  // ─ LIFESWAP — heal + deal damage (Frieren ult) ─
+  } else if(effect==='lifeswap'){
+    const healAmt = val||40;
+    const dmgAmt  = val||40;
+    battleState.playerHP = Math.min(battleState.playerMaxHP, battleState.playerHP + healAmt);
+    const neg = battleState.statusEffects.filter(s=>s.type==='burn'||s.type==='stun'||s.type==='dot').length;
+    battleState.statusEffects = battleState.statusEffects.filter(s=>s.type!=='burn'&&s.type!=='stun'&&s.type!=='dot');
+    battleState.enemyHP -= dmgAmt;
+    await playMoveVFX('ult','player','enemy',dmgAmt,false,pColor);
+    spawnHealEffect('player');
+    spawnDmgNumber('player',healAmt,false,true);
+    playAttackSound('ult'); spawnParticles(battleState.playerCard.rarity, pColor);
+    battleLog(`${ab.icon} ${pName}: ${ab.name}! +${healAmt} HP${neg>0?' + status cleansed':''}, ${dmgAmt} damage! ✦`, 'player');
+
+  // ─ VOIDSTEAL — stun + steal next move power (Frieren secret) ─
+  } else if(effect==='voidsteal'){
+    const dmg = val||30;
+    battleState.stunEnemy = (battleState.stunEnemy||0) + 1;
+    // Steal the enemy's ATK as a boost
+    const stolen = Math.round(dmg * 0.5);
+    battleState.playerAtkBoost = (battleState.passiveAtkBoost||0) + stolen;
+    battleState.playerAtkBoostTurns = 2;
+    battleState.enemyHP -= dmg;
+    await playMoveVFX('spc','player','enemy',dmg,false,pColor);
+    battleState.statusEffects.push({type:'stun',icon:'🌌',label:'Void Stun(1t)',turns:1,who:'enemy'});
+    battleState.statusEffects.push({type:'boost',icon:'🌌',label:`Void+${stolen}%`,turns:2});
+    battleLog(`${ab.icon} ${pName}: ${ab.name}! ${dmg} dmg — enemy STUNNED + stole ${stolen}% power! ??? ✦`, 'player');
+
+  // ─ FINALLEGACY — double power on final/low-HP strike (Deku secret) ─
+  } else if(effect==='finallegacy'){
+    const mult = val||2;
+    const isLowHP = battleState.playerHP < battleState.playerMaxHP * 0.3;
+    const appliedMult = isLowHP ? mult * 1.5 : mult;
+    battleState.transformMult  = appliedMult;
+    battleState.transformTurns = 1;
+    await playMoveVFX('ult','player','enemy',0,false,pColor);
+    spawnFocusEffect('player');
+    battleLog(`${ab.icon} ${pName}: ${ab.name}! All 8 predecessors lend power — ×${appliedMult} on next strike!${isLowHP?' (LOW HP BONUS!)':''}`, 'player');
+    battleState.statusEffects.push({type:'boost',icon:'🌟',label:`Legacy×${appliedMult}`,turns:1});
 
   } else {
     // Fallback — treat as basic attack
@@ -18336,6 +18535,11 @@ function applyAtkBoosts(dmg){
 }
 
 function checkCrit(){
+  if(battleState.nextAttackGuaranteedCrit){
+    battleState.nextAttackGuaranteedCrit = false;
+    battleState.statusEffects = battleState.statusEffects.filter(s=>s.label!=='Next:Crit');
+    return true;
+  }
   return Math.random()<0.15;
 }
 
@@ -18580,9 +18784,45 @@ async function enemyTurn() {
     playEnemyHitSound();
     await playMoveVFX('atk','enemy','player',dmg,isCrit,enemyColor);
     flashBattle('player'); shakeCard('player');
-    const moves = ['Storm Slash','Shadow Strike','Curse Bolt','Dark Wave','Soul Drain','Hellfire','Void Edge','Chaos Fang'];
-    const moveName = moves[Math.floor(Math.random()*moves.length)];
-    battleLog(`⚔️ ${eName} uses ${moveName}! ${dmg} dmg${isCrit?' 💥 CRIT!':''}`, 'enemy');
+
+    // ── Enemy uses their card's actual abilities (30% chance, harder difficulty more likely) ──
+    const enemyAbils = getCardAbilities(ec.id, ec.rarity).filter(a=>a.tier!=='passive');
+    const abilChance = diff === BATTLE_DIFFICULTIES.hard ? 0.35 : diff === BATTLE_DIFFICULTIES.normal ? 0.22 : 0.12;
+    if(enemyAbils.length > 0 && Math.random() < abilChance && !battleState.enemyAbilBlocked){
+      const tier_w = {secret:4, ultimate:3, active:2};
+      const weights = enemyAbils.map(a=>tier_w[a.tier]||1);
+      const total = weights.reduce((s,w)=>s+w,0);
+      let rand = Math.random()*total, chosenAbil = enemyAbils[0];
+      for(let i=0;i<enemyAbils.length;i++){ rand-=weights[i]; if(rand<=0){chosenAbil=enemyAbils[i];break;} }
+      battleState.lastEnemyAbility = chosenAbil;
+      battleLog(`⚔️ ${eName} unleashes ${chosenAbil.icon} ${chosenAbil.name}!`, 'enemy');
+      if(chosenAbil.tier==='ultimate'||chosenAbil.tier==='secret'){
+        try { await playAbilityCutscene(ec.id, ec.rarity, chosenAbil.id); } catch(_){}
+      }
+      // Apply the enemy ability's effect as bonus damage to the player
+      const abilDmg = Math.round((chosenAbil.value||20) * diff.atkMult * 0.7);
+      if(abilDmg > 0 && chosenAbil.battleEffect !== 'regen' && chosenAbil.battleEffect !== 'hpboost'){
+        let ad = abilDmg;
+        if(battleState.defReducePct>0) ad = Math.round(ad*(1-battleState.defReducePct/100));
+        if(battleState.shieldHits>0){ battleState.shieldHits--; ad=Math.round(ad*0.4); spawnShieldBubble('player'); }
+        battleState.playerHP = Math.max(battleState.playerHP - ad, 1); // abilities don't one-shot
+        spawnDmgNumber('player',ad,false,false);
+        battleLog(`💥 ${eName}'s ${chosenAbil.name} hits for ${ad} additional damage!`, 'enemy');
+      } else if(chosenAbil.battleEffect === 'regen' || chosenAbil.battleEffect === 'regen_active'){
+        const heal = Math.round((chosenAbil.value||20) * 1.2);
+        battleState.enemyHP = Math.min(battleState.enemyMaxHP, battleState.enemyHP + heal);
+        battleLog(`💚 ${eName} uses ${chosenAbil.name} — heals ${heal} HP!`, 'enemy');
+      }
+    } else if(battleState.enemyAbilBlocked){
+      battleState.enemyAbilBlocked = Math.max(0,(battleState.enemyAbilBlocked||1)-1);
+      const moves = ['Storm Slash','Shadow Strike','Curse Bolt','Dark Wave','Soul Drain','Hellfire','Void Edge','Chaos Fang'];
+      const moveName = moves[Math.floor(Math.random()*moves.length)];
+      battleLog(`🚫 ${eName}'s ability was nullified! Uses ${moveName} instead.`, 'enemy');
+    } else {
+      const moves = ['Storm Slash','Shadow Strike','Curse Bolt','Dark Wave','Soul Drain','Hellfire','Void Edge','Chaos Fang'];
+      const moveName = moves[Math.floor(Math.random()*moves.length)];
+      battleLog(`⚔️ ${eName} uses ${moveName}! ${dmg} dmg${isCrit?' 💥 CRIT!':''}`, 'enemy');
+    }
 
     // ── Copy active — fire the enemy's strike back at them ──
     if(battleState.copyActive){
@@ -25598,42 +25838,36 @@ async function takePvpTurn(action, battleId, abilityId){
       const abVal   = ab?.value || 20;
       const myHpKey = isP1 ? 'p1_hp' : 'p2_hp';
       const oppHpKey= isP1 ? 'p2_hp' : 'p1_hp';
+      const maxHp   = myCard ? 80 + myCard.rarity*15 : 100;
+      const oppName = isP1 ? (bs.p2_name||'Opponent') : (bs.p1_name||'Opponent');
 
       if(effect==='regen_active'||effect==='regen'||(effect==='regen_ult')){
-        // Heal self
-        const maxHp = myCard ? 80 + myCard.rarity*15 : 100;
         const heal  = Math.min(abVal, maxHp - (bs[myHpKey]||0));
         bs[myHpKey] = Math.min(maxHp, (bs[myHpKey]||0) + heal);
+        if(effect==='regen_ult') bs[isP1?'p1_burned':'p2_burned'] = 0;
         dmg = 0;
-        logMsg = `${ab.icon||'💊'} ${myName} uses ${ab.name}! +${heal} HP restored!`;
+        logMsg = `${ab.icon||'💊'} ${myName} uses ${ab.name}! +${heal} HP restored${effect==='regen_ult'?' + status cleansed!':'!'}`;
       } else if(effect==='shield_active'||effect==='immortal_ult'){
-        // Grant a shield flag (absorbs next hit at 60% reduction)
-        bs[isP1?'p1_shield':'p2_shield'] = true;
+        bs[isP1?'p1_shield':'p2_shield'] = effect==='immortal_ult' ? 'immortal' : true;
         dmg = 0;
-        logMsg = `${ab.icon||'🛡️'} ${myName} uses ${ab.name}! Shield activated — next hit reduced!`;
+        logMsg = `${ab.icon||'🛡️'} ${myName} uses ${ab.name}! ${effect==='immortal_ult'?'IMMORTAL shield':'Shield'} activated!`;
       } else if(effect==='stun_active'||effect==='lockdown_ult'){
-        // Stun the opponent for their next turn
         bs[isP1?'p2_stunned':'p1_stunned'] = true;
         dmg = Math.floor(abVal * 0.5 * (0.9+Math.random()*0.3));
-        logMsg = `${ab.icon||'⚡'} ${myName} uses ${ab.name}! ${dmg?dmg+' dmg + ':''} ${isP1?bs.p2_name:bs.p1_name} is STUNNED next turn!`;
+        logMsg = `${ab.icon||'⚡'} ${myName} uses ${ab.name}! ${dmg?dmg+' dmg + ':''} ${oppName} is STUNNED!`;
       } else if(effect==='copy'||effect==='copy_active'||effect==='copy_ult'){
-        // Mirror the opponent's last recorded damage
         const lastOppDmg = bs[isP1?'p2_last_dmg':'p1_last_dmg']||15;
         dmg = Math.round(lastOppDmg * (effect==='copy_ult'?1.8:0.9));
         logMsg = `${ab.icon||'🪞'} ${myName} uses ${ab.name}! Copied ${dmg} damage back!`;
       } else if(effect==='doubleregen'||effect==='drain_active'||effect==='drain_ult'){
-        // Drain — damage + heal
         dmg = Math.floor(abVal * (0.9+Math.random()*0.3));
-        const maxHp = myCard ? 80 + myCard.rarity*15 : 100;
         const healD = Math.round(dmg * (effect==='drain_ult'?0.8:0.6));
         bs[myHpKey] = Math.min(maxHp, (bs[myHpKey]||0) + healD);
         logMsg = `${ab.icon||'🩸'} ${myName} uses ${ab.name}! ${dmg} dmg + ${healD} HP drained!`;
       } else if(effect==='ofa100'){
-        // Coin flip
         if(Math.random()<0.5){
           dmg = Math.floor(abVal * (1.0+Math.random()*0.2));
-          const maxHp = myCard ? 80 + myCard.rarity*15 : 100;
-          const heal  = ab.chance||30;
+          const heal = ab.chance||30;
           bs[myHpKey] = Math.min(maxHp, (bs[myHpKey]||0) + heal);
           logMsg = `${ab.icon||'💥'} ${myName}: ${ab.name}! 🪙 HEADS — ${dmg} dmg + ${heal} HP!`;
         } else {
@@ -25642,16 +25876,83 @@ async function takePvpTurn(action, battleId, abilityId){
           dmg = 0;
           logMsg = `${ab.icon||'💥'} ${myName}: ${ab.name}! 🪙 TAILS — took ${recoil} recoil!`;
         }
-      } else if(effect==='curseburst'||effect==='curse_active'||effect==='curse_ult'){
-        // Heavy hit + apply burn DoT flag
-        dmg = Math.floor(abVal * (effect==='curseburst'?1.1:1) * (0.9+Math.random()*0.3));
-        bs[isP1?'p2_burned':'p1_burned'] = (ab.chance||2); // turns of burn
-        logMsg = `${ab.icon||'💜'} ${myName} uses ${ab.name}! ${dmg} cursed dmg + BURN ${ab.chance||2} turns!`;
-      } else if(effect==='antimagic'||effect==='pierce_active'||effect==='pierce_ult'){
-        // Pierce — ignore opponent shield
+      } else if(effect==='curseburst'||effect==='curse_active'||effect==='curse_ult'||effect==='curse'){
+        dmg = Math.floor(abVal * (effect==='curseburst'?1.2:effect==='curse_ult'?1.1:1) * (0.9+Math.random()*0.3));
+        bs[isP1?'p2_burned':'p1_burned'] = (ab.chance||3);
+        logMsg = `${ab.icon||'💜'} ${myName} uses ${ab.name}! ${dmg} cursed dmg + BURN ${ab.chance||3} turns!`;
+      } else if(effect==='antimagic'||effect==='pierce_active'||effect==='pierce_ult'||effect==='pierce'){
         bs[isP1?'p2_shield':'p1_shield'] = false;
+        dmg = Math.floor(abVal * (effect==='pierce_ult'?1.3:1) * (0.9+Math.random()*0.3));
+        logMsg = `${ab.icon||'⚔️'} ${myName} uses ${ab.name}! ${dmg} PIERCING dmg — shields shattered!`;
+      } else if(effect==='burst_active'||effect==='burst_ult'||effect==='burst'){
+        const isCritBurst = effect==='burst_ult' || Math.random()<0.25;
+        dmg = Math.floor(abVal * (isCritBurst?1.7:1.2) * (0.9+Math.random()*0.2));
+        if(effect==='burst_ult') bs[isP1?'p2_burned':'p1_burned'] = (ab.chance||2);
+        logMsg = `${ab.icon||'💥'} ${myName}: ${ab.name}! EXPLOSION — ${dmg} damage${isCritBurst?' 💥 CRIT!':''}${effect==='burst_ult'?' + BURN!':''}`;
+      } else if(effect==='frenzy'||effect==='multihit_active'||effect==='multihit_ult'||effect==='multihit'){
+        const hits = effect==='frenzy' ? 5 : (effect==='multihit' ? 2 : 3);
+        const dmgEa = Math.floor((ab.chance||Math.round(abVal/hits)) * (0.9+Math.random()*0.3));
+        dmg = dmgEa * hits;
+        logMsg = `${ab.icon||'🌀'} ${myName}: ${ab.name}! ${hits}-hit combo — ${dmg} total damage!`;
+      } else if(effect==='transform_ult'||effect==='demonform'||effect==='berserk_ult'){
+        const mult = effect==='demonform' ? 1.5 : (abVal>10?abVal/100+1:abVal||1.5);
+        dmg = Math.floor(myCard ? myCard.rarity * 10 * mult * (0.9+Math.random()*0.3) : abVal);
+        bs[isP1?'p1_transformed':'p2_transformed'] = true;
+        logMsg = `${ab.icon||'😈'} ${myName}: ${ab.name}! Power ×${mult} — ${dmg} damage! ✦`;
+      } else if(effect==='atkboost_active'||effect==='atkboost'||effect==='doubleatk'||effect==='swap_active'||effect==='berserk_active'){
+        const pct = effect==='doubleatk' ? 100 : (abVal||35);
+        const boostMult = 1 + pct/100;
+        dmg = Math.floor(myCard ? myCard.rarity * 10 * boostMult * (0.85+Math.random()*0.3) : abVal);
+        logMsg = `${ab.icon||'⚡'} ${myName}: ${ab.name}! ATK ×${boostMult.toFixed(1)} — ${dmg} damage!`;
+      } else if(effect==='smash'||effect==='strike_active'||effect==='strike_ult'){
+        const isCritSmash = effect==='strike_ult' || Math.random()<0.2;
+        dmg = Math.floor(abVal * (isCritSmash?1.75:1) * (0.9+Math.random()*0.3));
+        logMsg = `${ab.icon||'👊'} ${myName}: ${ab.name}! ${dmg} damage${isCritSmash?' 💥 CRIT!':''}!`;
+      } else if(effect==='hpboost'||effect==='hpboost_active'||effect==='ascend_ult'){
+        const boost = abVal||25;
+        bs[myHpKey] = Math.min((bs[myHpKey]||0) + boost + 20, maxHp);
+        dmg = 0;
+        logMsg = `${ab.icon||'❤️'} ${myName}: ${ab.name}! +${boost} Max HP — restored!`;
+      } else if(effect==='lifeswap'){
+        const lifeAmt = abVal||40;
+        bs[myHpKey] = Math.min(maxHp, (bs[myHpKey]||0) + lifeAmt);
+        bs[isP1?'p1_burned':'p2_burned'] = 0;
+        dmg = lifeAmt;
+        logMsg = `${ab.icon||'🌿'} ${myName}: ${ab.name}! +${lifeAmt} HP + ${lifeAmt} damage! ✦`;
+      } else if(effect==='voidsteal'){
+        bs[isP1?'p2_stunned':'p1_stunned'] = true;
         dmg = Math.floor(abVal * (0.9+Math.random()*0.3));
-        logMsg = `${ab.icon||'⚔️'} ${myName} uses ${ab.name}! ${dmg} PIERCING dmg — shield shattered!`;
+        logMsg = `${ab.icon||'🌌'} ${myName}: ${ab.name}! ${dmg} dmg + ${oppName} STUNNED + power stolen! ???`;
+      } else if(effect==='firstcrit'||effect==='analyze'){
+        dmg = Math.floor(myCard ? myCard.rarity * 10 * 1.75 * (0.9+Math.random()*0.2) : abVal * 1.75);
+        logMsg = `${ab.icon||'📖'} ${myName}: ${ab.name}! GUARANTEED CRIT — ${dmg} damage! 💥`;
+      } else if(effect==='spellboost'){
+        dmg = Math.floor(abVal * 1.2 * (0.9+Math.random()*0.3));
+        logMsg = `${ab.icon||'🧠'} ${myName}: ${ab.name}! Spell power surge — ${dmg} damage!`;
+      } else if(effect==='defboost'){
+        bs[isP1?'p1_defending':'p2_defending'] = true;
+        dmg = 0;
+        logMsg = `${ab.icon||'🛡️'} ${myName}: ${ab.name}! DEF +20% — taking less damage!`;
+      } else if(effect==='finallegacy'){
+        const myHpNow = bs[myHpKey]||0;
+        const isLow = myHpNow < maxHp * 0.3;
+        const mult = isLow ? (abVal||2) * 1.5 : (abVal||2);
+        dmg = Math.floor(myCard ? myCard.rarity * 10 * mult * (0.9+Math.random()*0.2) : abVal * mult);
+        logMsg = `${ab.icon||'🌟'} ${myName}: ${ab.name}! ×${mult} legacy power — ${dmg} damage!${isLow?' (LOW HP BONUS!)':''}`;
+      } else if(effect==='purify_active'||effect==='purify_ult'){
+        const heal = Math.round(maxHp*0.1);
+        bs[isP1?'p1_burned':'p2_burned'] = 0;
+        bs[myHpKey] = Math.min(maxHp, (bs[myHpKey]||0)+heal);
+        dmg = 0;
+        logMsg = `${ab.icon||'✨'} ${myName}: ${ab.name}! Status cleansed + ${heal} HP!`;
+      } else if(effect==='reflect_active'||effect==='reflect_ult'){
+        bs[isP1?'p1_reflect':'p2_reflect'] = true;
+        dmg = 0;
+        logMsg = `${ab.icon||'🔄'} ${myName}: ${ab.name}! Next hit will be REFLECTED!`;
+      } else if(effect==='dodge_active'||effect==='phantom_ult'){
+        bs[isP1?'p1_dodging':'p2_dodging'] = effect==='phantom_ult' ? 2 : 1;
+        dmg = 0;
+        logMsg = `${ab.icon||'💨'} ${myName}: ${ab.name}! Will dodge the next ${effect==='phantom_ult'?2:1} hit(s)!`;
       } else {
         // Generic damage ability
         dmg = Math.floor(abVal * (0.9 + Math.random()*0.3));
@@ -25694,12 +25995,40 @@ async function takePvpTurn(action, battleId, abilityId){
       logMsg += ' (blocked!)';
       bs[oppGuardKey] = false;
     }
-    // ── Apply opponent shield (absorbs 60% of hit) ──
+    // ── Apply opponent dodge ──
+    const oppDodgeKey = isP1 ? 'p2_dodging' : 'p1_dodging';
+    if((bs[oppDodgeKey]||0) > 0 && dmg > 0){
+      bs[oppDodgeKey] = Math.max(0, (bs[oppDodgeKey]||1) - 1);
+      logMsg += ` 💨 ${oppName} DODGED!`;
+      dmg = 0;
+    }
+    // ── Apply opponent reflect ──
+    const oppReflectKey = isP1 ? 'p2_reflect' : 'p1_reflect';
+    if(bs[oppReflectKey] && dmg > 0){
+      const reflected = Math.round(dmg * 0.8);
+      bs[myHpKey] = Math.max(0, (bs[myHpKey]||0) - reflected);
+      logMsg += ` 🔄 REFLECTED ${reflected} back!`;
+      dmg = 0;
+      bs[oppReflectKey] = false;
+    }
+    // ── Apply opponent shield (immortal = full block, normal = 60% reduction) ──
     const oppShieldKey = isP1 ? 'p2_shield' : 'p1_shield';
     if(bs[oppShieldKey] && dmg > 0){
-      dmg = Math.floor(dmg * 0.4);
-      logMsg += ' (shield absorbed most of it!)';
+      if(bs[oppShieldKey] === 'immortal'){
+        logMsg += ' ✨ IMMORTAL — nullified!';
+        dmg = 0;
+      } else {
+        dmg = Math.floor(dmg * 0.4);
+        logMsg += ' (shield absorbed most of it!)';
+      }
       bs[oppShieldKey] = false;
+    }
+    // ── Apply opponent defboost ──
+    const oppDefBoostKey = isP1 ? 'p2_defending' : 'p1_defending';
+    if(bs[oppDefBoostKey] && dmg > 0){
+      dmg = Math.floor(dmg * 0.8);
+      logMsg += ' (DEF boost reduced damage)';
+      bs[oppDefBoostKey] = false;
     }
     // Clear own guard after taking a turn
     const myGuardKey = isP1 ? 'p1_guarding' : 'p2_guarding';
@@ -29668,36 +29997,153 @@ async function applyBossAbilityDamage(ab, boss) {
 
   let dmg = baseDmg;
   let extraLog = '';
+  let noDamage = false;
 
-  if(effect==='curseburst'||effect==='burst_ult'||effect==='curse_ult'){
-    dmg = Math.floor(baseDmg * 1.35); // heavy
-    extraLog = ' 💜 + BURN applied!';
-    // Apply a burn flag so next tick hurts
-    if(_wbMyPartic) _wbMyPartic._burnTurns = (_wbMyPartic._burnTurns||0) + 2;
-  } else if(effect==='stun_active'||effect==='lockdown_ult'){
-    dmg = Math.floor(baseDmg * 0.6);
-    extraLog = ' ⚡ STUNNED — action locked for 5s!';
-    // Visually disable attack buttons briefly
-    setWbButtonsDisabled(true);
-    setTimeout(()=>setWbButtonsDisabled(false), 5000);
-  } else if(effect==='regen'||effect==='regen_active'||effect==='regen_ult'){
-    // Boss heals itself instead of damaging player
+  // ── BOSS SELF-BUFFS / HEALS ──
+  if(effect==='regen'||effect==='regen_active'||effect==='regen_ult'){
     const healAmt = Math.floor(rarity * 120 * (0.8+Math.random()*0.4));
     const newBossHp = Math.min(_wbBossData.max_hp||50000, (_wbBossData.hp||0) + healAmt);
     try { await rt.from('world_bosses').update({hp:newBossHp}).eq('id',_wbCurrentBossId); } catch(_){}
     if(_wbBossData) _wbBossData.hp = newBossHp;
     renderBossHpBar(_wbBossData);
-    addBossLog(`💚 ${ab.name||'Boss'} recovers ${healAmt} HP!`);
+    addBossLog(`💚 ${ab.name||'Boss'} recovers ${healAmt} HP! (${effect==='regen_ult'?'ULTIMATE ':''}Regen)`);
     setWbButtonsDisabled(false); _wbAttackCooldown=false;
-    return; // no damage to player
-  } else if(effect==='ofa100'||effect==='frenzy'||effect==='transform_ult'||effect==='berserk_ult'){
-    dmg = Math.floor(baseDmg * 1.6); // devastating
-    extraLog = ' 💥 DEVASTATING BLOW!';
+    return;
+
+  } else if(effect==='hpboost'||effect==='hpboost_active'||effect==='ascend_ult'){
+    // Boss fortifies itself (increases max HP)
+    const boost = Math.floor(rarity * 80);
+    const newMaxHp = (_wbBossData.max_hp||50000) + boost;
+    const newHpVal = Math.min(newMaxHp, (_wbBossData.hp||0) + boost);
+    try { await rt.from('world_bosses').update({hp:newHpVal,max_hp:newMaxHp}).eq('id',_wbCurrentBossId); } catch(_){}
+    if(_wbBossData){ _wbBossData.hp=newHpVal; _wbBossData.max_hp=newMaxHp; }
+    renderBossHpBar(_wbBossData);
+    addBossLog(`💪 ${ab.name||'Boss'} fortifies! Max HP +${boost}!`);
+    setWbButtonsDisabled(false); _wbAttackCooldown=false;
+    return;
+
+  } else if(effect==='defboost'||effect==='shield_active'||effect==='immortal_ult'){
+    // Boss gets temporary damage reduction (mark on boss data)
+    const shieldTurns = effect==='immortal_ult' ? 3 : 2;
+    try { await rt.from('world_bosses').update({current_ability:{...ab,shielded:true,shieldTurns,ts:ab.ts}}).eq('id',_wbCurrentBossId); } catch(_){}
+    addBossLog(`🛡️ ${ab.name||'Boss'} raises ${effect==='immortal_ult'?'IMMORTAL ':''} shield for ${shieldTurns} turns!`);
+    // Light damage still hits players
+    dmg = Math.floor(baseDmg * 0.3);
+    extraLog = ` 🛡️ Boss shielded for ${shieldTurns} turns!`;
+
+  // ── DEVASTATING ATTACKS ──
+  } else if(effect==='ofa100'){
+    // Coin flip — heads: massive dmg + boss heals; tails: nothing
+    const isHeads = Math.random() < 0.5;
+    if(isHeads){
+      dmg = Math.floor(baseDmg * 2.0);
+      const selfHeal = Math.floor(rarity * 60);
+      const newBossHp = Math.min(_wbBossData.max_hp||50000, (_wbBossData.hp||0) + selfHeal);
+      try { await rt.from('world_bosses').update({hp:newBossHp}).eq('id',_wbCurrentBossId); } catch(_){}
+      if(_wbBossData) _wbBossData.hp = newBossHp;
+      extraLog = ` 🪙 HEADS — DEVASTATION + ${selfHeal} boss HP restored!`;
+    } else {
+      dmg = Math.floor(baseDmg * 0.3);
+      extraLog = ' 🪙 TAILS — glancing blow!';
+    }
+
+  } else if(effect==='frenzy'||effect==='multihit_active'||effect==='multihit_ult'||effect==='multihit'){
+    const hits = effect==='frenzy' ? 5 : (effect==='multihit' ? 2 : 3);
+    dmg = Math.floor(baseDmg * 0.5) * hits; // multi-hit total
+    extraLog = ` ⚡ ${hits}-hit barrage!`;
+
+  } else if(effect==='transform_ult'||effect==='demonform'||effect==='berserk_ult'){
+    dmg = Math.floor(baseDmg * 1.8);
+    extraLog = ' 😈 BOSS TRANSFORMED — DEVASTATING BLOW!';
+    // Boss also heals a bit on transform
+    const selfHeal = Math.floor(rarity*40);
+    const newBossHp = Math.min(_wbBossData.max_hp||50000, (_wbBossData.hp||0)+selfHeal);
+    try { await rt.from('world_bosses').update({hp:newBossHp}).eq('id',_wbCurrentBossId); } catch(_){}
+    if(_wbBossData) _wbBossData.hp = newBossHp;
+
+  } else if(effect==='curseburst'||effect==='burst_ult'||effect==='curse_ult'||effect==='burst'){
+    dmg = Math.floor(baseDmg * 1.4);
+    extraLog = ' 💜 + BURN applied!';
+    if(_wbMyPartic) _wbMyPartic._burnTurns = (_wbMyPartic._burnTurns||0) + 3;
+
+  } else if(effect==='curse'||effect==='curse_active'){
+    dmg = Math.floor(baseDmg * 1.1);
+    extraLog = ' 💀 CURSED — 8 dmg/tick for 3 turns!';
+    if(_wbMyPartic) _wbMyPartic._burnTurns = (_wbMyPartic._burnTurns||0) + 3;
+
+  } else if(effect==='stun_active'||effect==='lockdown_ult'){
+    dmg = Math.floor(baseDmg * 0.6);
+    const stunMs = effect==='lockdown_ult' ? 8000 : 5000;
+    extraLog = ` ⚡ STUNNED — locked for ${stunMs/1000}s!`;
+    setWbButtonsDisabled(true);
+    setTimeout(()=>setWbButtonsDisabled(false), stunMs);
+
+  } else if(effect==='drain_active'||effect==='drain_ult'){
+    dmg = Math.floor(baseDmg * 1.2);
+    const drainHeal = Math.floor(dmg * 0.6);
+    const newBossHp = Math.min(_wbBossData.max_hp||50000, (_wbBossData.hp||0)+drainHeal);
+    try { await rt.from('world_bosses').update({hp:newBossHp}).eq('id',_wbCurrentBossId); } catch(_){}
+    if(_wbBossData) _wbBossData.hp = newBossHp;
+    extraLog = ` 🩸 DRAINED — boss healed ${drainHeal} HP!`;
+
+  } else if(effect==='pierce_active'||effect==='pierce_ult'||effect==='pierce'||effect==='antimagic'){
+    // Piercing ignores any shields players may have
+    dmg = Math.floor(baseDmg * (effect==='pierce_ult' ? 1.4 : 1.2));
+    extraLog = ' 🔱 Piercing — ignores all defenses!';
+
   } else if(effect==='copy'||effect==='copy_active'||effect==='copy_ult'){
-    // Boss copies last player's attack dmg
-    const lastPlayerDmg = _wbMyPartic?.damage_dealt ? Math.min(200, Math.floor((_wbMyPartic.damage_dealt||0)/5)) : baseDmg;
-    dmg = Math.max(baseDmg, lastPlayerDmg);
-    extraLog = ' 🪞 Copied your power!';
+    const lastPlayerDmg = _wbMyPartic?.damage_dealt ? Math.min(300, Math.floor((_wbMyPartic.damage_dealt||0)/4)) : baseDmg;
+    dmg = Math.max(baseDmg, Math.floor(lastPlayerDmg * (effect==='copy_ult'?1.5:1.1)));
+    extraLog = ` 🪞 Copied your power (${dmg})!`;
+
+  } else if(effect==='voidsteal'){
+    dmg = Math.floor(baseDmg * 1.1);
+    const stunMs = 4000;
+    extraLog = ' 🌌 VOID STEAL — stunned!';
+    setWbButtonsDisabled(true);
+    setTimeout(()=>setWbButtonsDisabled(false), stunMs);
+
+  } else if(effect==='lifeswap'){
+    // Boss trades — deals dmg AND heals
+    dmg = Math.floor(baseDmg * 1.0);
+    const lifeHeal = Math.floor(rarity * 80);
+    const newBossHp = Math.min(_wbBossData.max_hp||50000, (_wbBossData.hp||0)+lifeHeal);
+    try { await rt.from('world_bosses').update({hp:newBossHp}).eq('id',_wbCurrentBossId); } catch(_){}
+    if(_wbBossData) _wbBossData.hp = newBossHp;
+    extraLog = ` 🌿 Life drain — boss +${lifeHeal} HP!`;
+
+  } else if(effect==='smash'||effect==='strike_active'||effect==='strike_ult'){
+    dmg = Math.floor(baseDmg * (effect==='strike_ult' ? 1.5 : 1.2));
+    if(effect==='strike_ult') extraLog = ' 💥 CRIT STRIKE!';
+
+  } else if(effect==='doubleatk'||effect==='berserk_active'||effect==='atkboost'||effect==='atkboost_active'){
+    dmg = Math.floor(baseDmg * 1.6);
+    extraLog = ' 💪 POWERED UP STRIKE!';
+
+  } else if(effect==='finallegacy'){
+    // Bosses are always "low HP" eligible for legacy bonus
+    const bossHpPct = (_wbBossData.hp||0) / (_wbBossData.max_hp||50000);
+    const mult = bossHpPct < 0.3 ? 3 : 2;
+    dmg = Math.floor(baseDmg * mult);
+    extraLog = ` 🌟 FINAL LEGACY — ×${mult}!${bossHpPct<0.3?' (ENRAGED!)':''}`;
+
+  } else if(effect==='spellboost'||effect==='firstcrit'||effect==='analyze'){
+    dmg = Math.floor(baseDmg * 1.3);
+    extraLog = ' 📖 CRITICAL ANALYSIS — guaranteed hit!';
+
+  } else if(effect==='reflect_active'||effect==='reflect_ult'){
+    // Boss activates reflect — next player attack will bounce back (just deal moderate dmg here)
+    dmg = Math.floor(baseDmg * 0.5);
+    extraLog = ' 🔄 REFLECT FIELD ACTIVATED — attack it carefully!';
+
+  } else if(effect==='phantom_ult'||effect==='dodge_active'){
+    // Boss dodges retaliations temporarily
+    dmg = Math.floor(baseDmg * 0.8);
+    extraLog = ' 👻 Boss phases out — miss chance next turn!';
+
+  } else {
+    // Generic — moderate damage
+    dmg = baseDmg;
   }
 
   const newHp   = Math.max(0, (_wbMyPartic.player_hp||0)-dmg);
