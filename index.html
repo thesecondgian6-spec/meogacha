@@ -17905,6 +17905,21 @@ async function playerMove(moveId) {
 // ══════════════════════════════════════════════
 // ABILITY EFFECT DISPATCHER
 // ══════════════════════════════════════════════
+// ── Copy helper: robust enemy ability list that works with DB + static cards ──
+function _getCopyableEnemyAbils(card, includeUlt=false){
+  if(!card) return [];
+  const db = (window.DB_ABILITIES && window.DB_ABILITIES[card.id]) || [];
+  const st = (typeof CARD_ABILITIES !== 'undefined' && CARD_ABILITIES[card.id]) || [];
+  const all = db.length ? db : st;
+  const cnt = (typeof ABILITY_COUNTS !== 'undefined' && ABILITY_COUNTS[card.rarity]) || all.length;
+  return all.slice(0, cnt).filter(a => {
+    const t = (a.tier || a.type || '').toLowerCase();
+    if(t === 'passive') return false;
+    if(!includeUlt && (t === 'ultimate' || t === 'secret')) return false;
+    return true;
+  });
+}
+
 async function dispatchAbilityEffect(ab, who) {
   const pName  = battleState.playerCard.name;
   const eName  = battleState.enemyCard.name;
@@ -18041,19 +18056,19 @@ async function dispatchAbilityEffect(ab, who) {
   // ─ COPY effects ─
   } else if(effect==='copy_active'){
     // Guaranteed copy of a random non-ultimate enemy ability
-    const enemyAbilsCopyA = getCardAbilities(battleState.enemyCard.id, battleState.enemyCard.rarity)
-      .filter(a=>a.tier!=='ultimate'&&a.tier!=='secret'&&a.tier!=='passive');
+    const enemyAbilsCopyA = _getCopyableEnemyAbils(battleState.enemyCard, false);
     if(enemyAbilsCopyA.length){
       const picked = enemyAbilsCopyA[Math.floor(Math.random()*enemyAbilsCopyA.length)];
       battleLog(`${ab.icon} ${pName}: ${ab.name}! Copies ${eName}'s 【${picked.name}】!`, 'player');
       await playMoveVFX('spc','player','enemy',0,false,pColor);
+      // Play the ENEMY card's cutscene for the picked ability
       try { await playAbilityCutscene(battleState.enemyCard.id, battleState.enemyCard.rarity, picked.id); } catch(_){}
-      // Dispatch as player ability — flip dmg targets
+      // Dispatch the copied effect — treat as if the player used it
       const copiedAb = {...picked, value: Math.round((picked.value||20)*0.9)};
       await dispatchAbilityEffect(copiedAb, 'player');
       battleLog(`🪞 Copy resolved — ${picked.name} used!`, 'player');
     } else {
-      // No copyable abilities — do a mirror strike instead
+      // No copyable abilities found — mirror strike
       const mDmg = applyAtkBoosts(battleState.lastEnemyDmg||15);
       battleState.enemyHP -= mDmg;
       await playMoveVFX('spc','player','enemy',mDmg,false,pColor);
@@ -18062,8 +18077,7 @@ async function dispatchAbilityEffect(ab, who) {
     battleState.statusEffects.push({type:'boost',icon:'🪞',label:'Copied',turns:1});
   } else if(effect==='copy_ult'){
     // Show ability selection screen — player picks ANY enemy ability including ultimate
-    const enemyAbilsCopyU = getCardAbilities(battleState.enemyCard.id, battleState.enemyCard.rarity)
-      .filter(a=>a.tier!=='passive'); // can copy active, ultimate, secret — but NOT passive
+    const enemyAbilsCopyU = _getCopyableEnemyAbils(battleState.enemyCard, true);
     await playMoveVFX('ult','player','enemy',0,false,pColor);
     battleLog(`${ab.icon} ${pName}: ${ab.name}! PERFECT MIRROR — choose an ability to copy!`, 'player');
     if(enemyAbilsCopyU.length){
@@ -18599,8 +18613,7 @@ async function dispatchAbilityEffect(ab, who) {
 
   // ─ COPY (bare, used as active slot) — same as copy_active ─
   } else if(effect==='copy'){
-    const enemyAbilsCopyB = getCardAbilities(battleState.enemyCard.id, battleState.enemyCard.rarity)
-      .filter(a=>a.tier!=='ultimate'&&a.tier!=='secret'&&a.tier!=='passive');
+    const enemyAbilsCopyB = _getCopyableEnemyAbils(battleState.enemyCard, false);
     if(enemyAbilsCopyB.length){
       const picked = enemyAbilsCopyB[Math.floor(Math.random()*enemyAbilsCopyB.length)];
       battleLog(`${ab.icon} ${pName}: ${ab.name}! Copies ${eName}'s 【${picked.name}】!`, 'player');
@@ -18618,8 +18631,7 @@ async function dispatchAbilityEffect(ab, who) {
   // ─ COPY_PASSIVE — passive slot (registered at battle start, procs each turn) ─
   } else if(effect==='copy_passive'){
     // When manually triggered in the ability button (edge case): copy a random non-ult
-    const enemyAbilsCopyP = getCardAbilities(battleState.enemyCard.id, battleState.enemyCard.rarity)
-      .filter(a=>a.tier!=='ultimate'&&a.tier!=='secret'&&a.tier!=='passive');
+    const enemyAbilsCopyP = _getCopyableEnemyAbils(battleState.enemyCard, false);
     if(enemyAbilsCopyP.length){
       const picked = enemyAbilsCopyP[Math.floor(Math.random()*enemyAbilsCopyP.length)];
       battleLog(`${ab.icon} ${pName}: ${ab.name}! Passive mimicry — copies 【${picked.name}】!`, 'player');
@@ -19056,8 +19068,7 @@ async function enemyTurn() {
     const copyPassiveAbil = battleState.copy_passive ||
       getCardAbilities(battleState.playerCard.id, battleState.playerCard.rarity).find(a=>a.battleEffect==='copy_passive'||a.battleEffect==='copy');
     if(copyPassiveAbil && Math.random()*100 < (copyPassiveAbil.chance||30)){
-      const enemyAbilsForCopy = getCardAbilities(battleState.enemyCard.id, battleState.enemyCard.rarity)
-        .filter(a=>a.tier!=='ultimate'&&a.tier!=='secret'&&a.tier!=='passive');
+      const enemyAbilsForCopy = _getCopyableEnemyAbils(battleState.enemyCard, false);
       if(enemyAbilsForCopy.length){
         const picked = enemyAbilsForCopy[Math.floor(Math.random()*enemyAbilsForCopy.length)];
         battleLog(`🪞 ${pName}'s Mimicry triggers — copies ${eName}'s 【${picked.name}】!`, 'player');
@@ -30420,7 +30431,7 @@ async function wbAttack(action='attack', abilityId=null) {
       if(effect==='copy_ult'){
         // Show boss ability picker — get boss's ability list
         const bossAbils = _wbBossData?.card_id
-          ? getCardAbilities(_wbBossData.card_id, bossRarity).filter(a=>a.tier!=='passive')
+          ? _getCopyableEnemyAbils({id: _wbBossData.card_id, rarity: bossRarity}, true)
           : [];
         if(bossAbils.length){
           // Create a fake boss card object for the selection screen
@@ -30454,13 +30465,56 @@ async function wbAttack(action='attack', abilityId=null) {
           logMsg = `🪞 ${state.username}: Perfect Mirror — ${dmg}!`;
         }
       } else {
-        // Active/passive copy: mirror boss's last known damage
-        const extraCopyDmg = Math.floor(Math.min(500, totalDealt/8));
-        dmg = Math.floor(baseAtk * 0.9) + extraCopyDmg;
-        logMsg = `🪞 ${state.username} mirrors boss power — ${dmg} total!`;
+        // Active copy: pick a random non-ultimate boss ability, play ITS cutscene, then deal its damage
+        const bossAbilsActive = _wbBossData?.card_id
+          ? _getCopyableEnemyAbils({id: _wbBossData.card_id, rarity: _wbBossData?.rarity||5}, false)
+          : [];
+        if(bossAbilsActive.length){
+          const pickedA = bossAbilsActive[Math.floor(Math.random() * bossAbilsActive.length)];
+          logMsg = `🪞 ${state.username}: ${ab.name}! Copies boss's 【${pickedA.name}】!`;
+          addBossLog(logMsg);
+          // Play the BOSS's ability cutscene
+          try { await playAbilityCutscene(_wbBossData.card_id, _wbBossData.rarity||5, pickedA.id); } catch(_){}
+          // Scale damage from copied ability value
+          dmg = Math.floor((pickedA.value||baseAtk) * 0.9 * (0.85 + Math.random()*0.3));
+          logMsg = `🪞 ${state.username} copied [${pickedA.name}] — ${dmg} dmg!`;
+        } else {
+          // No boss abilities found — mirror last known damage
+          const extraCopyDmg = Math.floor(Math.min(500, totalDealt/8));
+          dmg = Math.floor(baseAtk * 0.9) + extraCopyDmg;
+          logMsg = `🪞 ${state.username} mirrors boss power — ${dmg}!`;
+          // Still play own cutscene as fallback
+          try { await playAbilityCutscene(state.equippedId, card?.rarity||1, ab.id); } catch(_) {}
+        }
+        // Skip own cutscene below — already played boss's
+        setTimeout(()=>{ _wbAttackCooldown=false; setWbButtonsDisabled(false); }, WB_ATTACK_COOLDOWN_MS);
+        // Commit damage and return early
+        if(dmg > 0){
+          wbBossHitEffect(dmg, false);
+          const newHpCopy = Math.max(0, (_wbBossData.hp||0)-dmg);
+          const isKillCopy = newHpCopy <= 0;
+          const bossUpdateCopy = { hp: newHpCopy };
+          if(isKillCopy){ bossUpdateCopy.status='dead'; bossUpdateCopy.killed_at=new Date().toISOString(); }
+          try { await rt.from('world_bosses').update(bossUpdateCopy).eq('id',_wbCurrentBossId); } catch(_){}
+          const newDmgCopy = ((_wbMyPartic?.damage_dealt)||0)+dmg;
+          try { await rt.from('world_boss_participants').update({damage_dealt:newDmgCopy}).eq('boss_id',_wbCurrentBossId).eq('discord_id',state.discordId); } catch(_){}
+          if(_wbBossData) _wbBossData.hp = newHpCopy;
+          if(_wbBossData && isKillCopy) _wbBossData.status='dead';
+          if(_wbMyPartic) _wbMyPartic.damage_dealt = newDmgCopy;
+          renderBossHpBar(_wbBossData);
+          addBossLog(logMsg);
+          if(isKillCopy){
+            stopBossAITimer(); setWbButtonsDisabled(false); _wbAttackCooldown=false;
+            await refreshParticipants(_wbCurrentBossId);
+            await showBossDefeatedScreen(_wbBossData);
+          }
+        } else {
+          addBossLog(logMsg);
+        }
+        return;
       }
     }
-    // Player abilities only play on THIS player's screen
+    // Player abilities only play on THIS player's screen (non-copy path)
     try { await playAbilityCutscene(state.equippedId, card?.rarity||1, ab.id); } catch(_) {}
   }
 
