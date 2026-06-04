@@ -28558,6 +28558,14 @@ CREATE POLICY "anon_write_anime" ON anime_collections FOR ALL    USING (true);
   background: linear-gradient(90deg, #8b0000, #e74c3c);
   transition: width 0.5s ease;
 }
+.wb-partic-hp-bar {
+  height: 4px; background: rgba(255,255,255,0.06);
+  border-radius: 2px; overflow: hidden; margin-bottom: 3px;
+}
+.wb-partic-hp-fill {
+  height: 100%; border-radius: 2px;
+  transition: width 0.5s ease, background 0.5s ease;
+}
 .wb-partic-stats {
   display: flex; gap: 8px;
   font-family: 'JetBrains Mono', monospace; font-size: 0.6em;
@@ -28989,6 +28997,14 @@ function hideBossNotification() {
 // ═════════════════════════════════════════════
 // ENTER ARENA
 // ═════════════════════════════════════════════
+function getCardBattleHP(cardId, rarity) {
+  // Base + rarity scaling + level scaling (level 1-10 from xpMap)
+  const xp    = (state.xpMap && state.xpMap[cardId]) || 0;
+  const level = typeof calcLevel === 'function' ? calcLevel(xp) : 1;
+  return 200 + (rarity || 1) * 50 + level * 30;
+  // Examples: rarity5 lv1=450, rarity5 lv10=750, rarity6 lv10=800
+}
+
 async function enterBossArena(bossId) {
   if(!state.discordId || state.isGuest) { showToast('Login to join!'); return; }
   if(!state.equippedId) { showToast('⚠️ Equip a card first!'); return; }
@@ -29012,7 +29028,7 @@ async function enterBossArena(bossId) {
   renderAbilityButtons();
 
   try {
-    const cardMaxHp = WB_BASE_CARD_HP + (card ? card.rarity*16 : 0);
+    const cardMaxHp = getCardBattleHP(state.equippedId, card?.rarity || 3);
     await rt.from('world_boss_participants').upsert({
       boss_id:bossId, discord_id:state.discordId,
       username:state.username||'Player', card_id:state.equippedId,
@@ -29312,7 +29328,7 @@ async function triggerBossSkillAI(isHeavy) {
   if(!rt || !_wbCurrentBossId || !_wbBossData) return;
   const bossCard = (window.DEMO_CARDS||[]).find(c=>c.id===_wbBossData.card_id);
   const rarity   = bossCard?.rarity || 5;
-  const baseDmg  = rarity * (isHeavy ? 18 : 11);
+  const baseDmg  = rarity * (isHeavy ? 13 : 8);
   const dmg      = Math.floor(baseDmg * (0.75 + Math.random()*0.5));
   const skill = {
     category: 'skill', type: isHeavy ? 'heavy' : 'quick',
@@ -29386,7 +29402,11 @@ async function handleBossSkillDamage(skill) {
   } catch(_) {}
 
   if(_wbMyPartic) { _wbMyPartic.player_hp=newHp; _wbMyPartic.is_eliminated=isElim; _wbMyPartic.recovery_until=recoveryUntil; }
+  // Sync into _wbParticData so raiders list updates immediately
+  const _sdx = _wbParticData.findIndex(p=>p.discord_id===state.discordId);
+  if(_sdx>=0){ _wbParticData[_sdx].player_hp=newHp; _wbParticData[_sdx].is_eliminated=isElim; }
   renderMyCardStatus(_wbMyPartic);
+  renderParticipantsList(_wbParticData);
   if(isElim) { showToast('💔 Knocked out! Recovering in '+WB_RECOVERY_SECS+'s...'); schedulePlayerRecovery(); }
 }
 
@@ -29395,7 +29415,7 @@ async function applyBossAbilityDamage(ab, boss) {
   if(_wbMyPartic.is_eliminated) return;
   const rt      = getSupaRT();
   const bossCard= (window.DEMO_CARDS||[]).find(c=>c.id===boss.card_id);
-  const dmg     = Math.floor(((bossCard?.rarity||5)*22) * (0.75+Math.random()*0.5));
+  const dmg     = Math.floor(((bossCard?.rarity||5)*17) * (0.75+Math.random()*0.5));
   const newHp   = Math.max(0, (_wbMyPartic.player_hp||0)-dmg);
   const isElim  = newHp <= 0;
   const recoveryUntil = isElim ? new Date(Date.now()+WB_RECOVERY_SECS*1000).toISOString() : null;
@@ -29410,7 +29430,11 @@ async function applyBossAbilityDamage(ab, boss) {
   } catch(_) {}
 
   if(_wbMyPartic){ _wbMyPartic.player_hp=newHp; _wbMyPartic.is_eliminated=isElim; _wbMyPartic.recovery_until=recoveryUntil; }
+  // Sync into _wbParticData so raiders list updates immediately
+  const _adx = _wbParticData.findIndex(p=>p.discord_id===state.discordId);
+  if(_adx>=0){ _wbParticData[_adx].player_hp=newHp; _wbParticData[_adx].is_eliminated=isElim; }
   renderMyCardStatus(_wbMyPartic);
+  renderParticipantsList(_wbParticData);
   if(isElim) { showToast('💔 Eliminated by boss ability! Recovering in '+WB_RECOVERY_SECS+'s...'); schedulePlayerRecovery(); }
 }
 
@@ -29545,6 +29569,7 @@ function renderParticipantsList(partics) {
       <div class="wb-partic-info">
         <div class="wb-partic-name">${escapeHtml(p.username||'Player')}${isMe?' <span style="color:var(--pink);font-size:0.8em;">(You)</span>':''}</div>
         <div class="wb-partic-dmg-bar"><div class="wb-partic-dmg-fill" style="width:${pct}%"></div></div>
+        <div class="wb-partic-hp-bar"><div class="wb-partic-hp-fill" style="width:${hpPct}%;background:${hpClr}"></div></div>
         <div class="wb-partic-stats">
           <span style="color:#e74c3c">${(p.damage_dealt||0).toLocaleString()} DMG</span>
           <span style="color:${hpClr}">${p.is_eliminated?'💔 KO':hpPct+'% HP'}</span>
