@@ -12712,10 +12712,8 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
           <button class="admin-btn danger" onclick="adminClearCollection()">🗑️ Clear My Collection</button>
         </div>
       </div>
-    </div>
-  </div>
-</div>
 
+    </div>
 <!-- WORLD BOSS ADMIN TAB -->
 <div id="adminTab-worldboss" style="display:none;">
   <div class="admin-panel">
@@ -12775,6 +12773,9 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
     </div>
   </div>
 </div>
+  </div>
+</div>
+
 
 <script>
 // ══════════════════════════════════════════════
@@ -28747,7 +28748,7 @@ CREATE POLICY "anon_write_anime" ON anime_collections FOR ALL    USING (true);
 <div id="wbArenaModal">
   <!-- Background -->
   <div class="wb-arena-bg">
-    <img id="wbBossArenaImg" class="wb-arena-bg-img" src="" alt="" onerror="this.style.display='none'"/>
+    <img id="wbBossArenaImg" class="wb-arena-bg-img" alt="" style="display:none"/>
     <div class="wb-arena-bg-overlay"></div>
   </div>
   <div id="wbHitFlash" class="wb-hit-flash"></div>
@@ -28831,10 +28832,10 @@ CREATE POLICY "anon_write_anime" ON anime_collections FOR ALL    USING (true);
           <div id="wbMyHpFill" style="width:100%"></div>
         </div>
         <div class="wb-moves">
-          <button id="wbAttackBtn" class="wb-move-btn wb-primary-attack" onclick="wbAttack('attack')">⚔️ Attack</button>
-          <button class="wb-move-btn" onclick="wbAttack('heavy')">💥 Heavy</button>
-          <button class="wb-move-btn wb-ability-btn" onclick="wbAttack('ability')">✨ Ability</button>
+          <button class="wb-move-btn wb-primary-attack wb-all-attack-btns" data-action="attack" onclick="wbAttack('attack')">⚔️ Attack</button>
+          <button class="wb-move-btn wb-all-attack-btns" data-action="heavy" onclick="wbAttack('heavy')">💥 Heavy</button>
         </div>
+        <div class="wb-moves" id="wbAbilityButtons" style="margin-top:5px;"></div>
         <!-- Admin only -->
         <button id="wbAdminAbilityBtn" class="wb-admin-ability-btn" style="display:none;" onclick="adminTriggerBossAbility()">
           👑 Trigger Boss Ability
@@ -28846,58 +28847,55 @@ CREATE POLICY "anon_write_anime" ON anime_collections FOR ALL    USING (true);
 
 <script>
 // ══════════════════════════════════════════════════════════════════
-// ⚔️  WORLD BOSS SYSTEM
+// ⚔️  WORLD BOSS SYSTEM — v2 (all bugs fixed + AI boss)
 // ══════════════════════════════════════════════════════════════════
 
 // ── State ──
-let _wbChannel         = null;
-let _wbParticChannel   = null;
-let _wbCurrentBossId   = null;
-let _wbAttackCooldown  = false;
-let _wbBossAbilityTs   = 0;
-let _wbBossData        = null;
-let _wbParticData      = [];
-let _wbMyPartic        = null;
-let _wbRecoveryInterval= null;
+let _wbChannel          = null;
+let _wbParticChannel    = null;
+let _wbCurrentBossId    = null;
+let _wbAttackCooldown   = false;
+let _wbBossAbilityTs    = 0;
+let _wbBossData         = null;
+let _wbParticData       = [];
+let _wbMyPartic         = null;
+let _wbRecoveryInterval = null;
+let _wbBossAiTimer      = null;
+let _wbLastBossSkillTs  = 0;
+let _wbLastBossAbilityTs= 0;
 
 // ── Constants ──
-const WB_ATTACK_COOLDOWN_MS = 2500;
-const WB_RECOVERY_SECS      = 10;
-const WB_BASE_CARD_HP       = 130;
-const WB_SECRET_DROP_BASE   = 0.05;
-const WB_SECRET_DROP_TOP    = [0, 0.45, 0.25, 0.15]; // index = rank (1-based)
+const WB_ATTACK_COOLDOWN_MS  = 2500;
+const WB_RECOVERY_SECS       = 10;
+const WB_BASE_CARD_HP        = 130;
+const WB_SECRET_DROP_BASE    = 0.05;
+const WB_SECRET_DROP_TOP     = [0, 0.45, 0.25, 0.15];
+const WB_BOSS_SKILL_MIN_MS   = 8000;
+const WB_BOSS_SKILL_MAX_MS   = 14000;
+const WB_BOSS_ABILITY_MIN_MS = 25000;
+const WB_BOSS_ABILITY_MAX_MS = 45000;
 
 // ═════════════════════════════════════════════
-// INIT — attach after login
+// INIT
 // ═════════════════════════════════════════════
 async function initWorldBossSystem() {
   if(!state.discordId || state.isGuest) return;
   const rt = getSupaRT();
   if(!rt) return;
-
   try {
-    // Global listener for boss spawns
     rt.channel('wb-global-spawn')
-      .on('postgres_changes', {
-        event: '*', schema: 'public', table: 'world_bosses'
-      }, payload => {
+      .on('postgres_changes', { event:'*', schema:'public', table:'world_bosses' }, payload => {
         const boss = payload.new || payload.old;
         if(!boss) return;
         if(payload.eventType === 'INSERT' && boss.status === 'waiting') {
           showBossSpawnNotification(boss);
         } else if(payload.eventType === 'UPDATE') {
-          if(_wbCurrentBossId === boss.id) {
-            handleBossUpdate(boss);
-          } else if(boss.status === 'waiting' && !_wbCurrentBossId) {
-            showBossSpawnNotification(boss);
-          }
+          if(_wbCurrentBossId === boss.id) handleBossUpdate(boss);
+          else if(boss.status === 'waiting' && !_wbCurrentBossId) showBossSpawnNotification(boss);
         }
-      })
-      .subscribe();
-
-    // Check if boss already active when user loads
+      }).subscribe();
     checkExistingActiveBoss();
-  } catch(e) { /* silent fail — migration may not exist yet */ }
+  } catch(_) {}
 }
 
 async function checkExistingActiveBoss() {
@@ -28910,48 +28908,33 @@ async function checkExistingActiveBoss() {
     const boss = data[0];
     const { data: mine } = await rt.from('world_boss_participants')
       .select('*').eq('boss_id',boss.id).eq('discord_id',state.discordId).limit(1);
-    if(mine && mine.length > 0) {
-      _wbCurrentBossId = boss.id;
-      enterBossArena(boss.id);
-    } else {
-      showBossSpawnNotification(boss);
-    }
-  } catch(_) { /* table might not exist yet */ }
+    if(mine && mine.length > 0) { _wbCurrentBossId = boss.id; enterBossArena(boss.id); }
+    else showBossSpawnNotification(boss);
+  } catch(_) {}
 }
 
 // ═════════════════════════════════════════════
-// SPAWN NOTIFICATION
+// NOTIFICATION
 // ═════════════════════════════════════════════
 function showBossSpawnNotification(boss) {
   if(_wbCurrentBossId) return;
   const overlay = document.getElementById('wbSpawnOverlay');
   if(!overlay) return;
-
   const img = document.getElementById('wbNotifBossImg');
   const ph  = document.querySelector('.wb-notif-boss-art-placeholder');
   if(img) {
-    if(boss.boss_image) {
-      img.src = boss.boss_image;
-      img.style.display = 'block';
-      if(ph) ph.style.display = 'none';
-    } else {
-      img.style.display = 'none';
-      if(ph) ph.style.display = 'flex';
-    }
+    if(boss.boss_image) { img.src=boss.boss_image; img.style.display='block'; if(ph)ph.style.display='none'; }
+    else { img.style.display='none'; if(ph)ph.style.display='flex'; }
   }
   const nameEl = document.getElementById('wbNotifBossName');
   if(nameEl) nameEl.textContent = (boss.boss_name||'WORLD BOSS').toUpperCase();
   const hpEl = document.getElementById('wbNotifBossHp');
   if(hpEl) hpEl.textContent = (boss.max_hp||50000).toLocaleString() + ' HP';
-
   overlay.dataset.bossId = boss.id;
   overlay.style.display  = 'flex';
   setTimeout(() => overlay.classList.add('wb-notif-open'), 20);
-
-  // Dramatic sound
   try { playAbilityCutsceneSound('secret'); } catch(_) {}
 }
-
 function joinWorldBoss() {
   const overlay = document.getElementById('wbSpawnOverlay');
   const bossId  = overlay?.dataset?.bossId;
@@ -28959,76 +28942,74 @@ function joinWorldBoss() {
   hideBossNotification();
   enterBossArena(bossId);
 }
-
 function ignoreWorldBoss() { hideBossNotification(); }
-
 function hideBossNotification() {
   const overlay = document.getElementById('wbSpawnOverlay');
   if(!overlay) return;
   overlay.classList.remove('wb-notif-open');
-  setTimeout(() => { overlay.style.display = 'none'; }, 450);
+  setTimeout(() => { overlay.style.display='none'; }, 450);
 }
 
 // ═════════════════════════════════════════════
 // ENTER ARENA
 // ═════════════════════════════════════════════
 async function enterBossArena(bossId) {
-  if(!state.discordId || state.isGuest) { showToast('Login to join the fight!'); return; }
+  if(!state.discordId || state.isGuest) { showToast('Login to join!'); return; }
   if(!state.equippedId) { showToast('⚠️ Equip a card first!'); return; }
-
   _wbCurrentBossId = bossId;
   const rt   = getSupaRT();
   const card = (window.DEMO_CARDS||[]).find(c=>c.id===state.equippedId);
 
-  // Populate my card UI
+  // Set up player card UI
   const myCardImg = document.getElementById('wbMyCardImg');
   const myCardPh  = document.getElementById('wbMyCardPlaceholder');
-  if(myCardImg && card?.image) {
-    myCardImg.src = card.image;
-    myCardImg.style.display = 'block';
-    if(myCardPh) myCardPh.style.display = 'none';
-  } else {
-    if(myCardImg) myCardImg.style.display = 'none';
-    if(myCardPh)  myCardPh.style.display = 'flex';
-  }
-  const myNameLabel = document.getElementById('wbMyNameLabel');
-  if(myNameLabel) myNameLabel.textContent = state.username || 'Player';
+  if(card?.image) { if(myCardImg){myCardImg.src=card.image;myCardImg.style.display='block';} if(myCardPh)myCardPh.style.display='none'; }
+  else { if(myCardImg)myCardImg.style.display='none'; if(myCardPh)myCardPh.style.display='flex'; }
+  const lbl = document.getElementById('wbMyNameLabel');
+  if(lbl) lbl.textContent = state.username||'Player';
 
-  // Show/hide admin ability button
+  // Admin ability button
   const adminBtn = document.getElementById('wbAdminAbilityBtn');
   if(adminBtn) adminBtn.style.display = state.isAdmin ? '' : 'none';
 
-  try {
-    const cardMaxHp = WB_BASE_CARD_HP + (card ? card.rarity * 16 : 0);
-    // Upsert participant (safe on reconnect)
-    await rt.from('world_boss_participants').upsert({
-      boss_id:        bossId,
-      discord_id:     state.discordId,
-      username:       state.username || 'Player',
-      card_id:        state.equippedId,
-      card_name:      card?.name  || '???',
-      card_image:     card?.image || '',
-      damage_dealt:   0,
-      player_hp:      cardMaxHp,
-      player_max_hp:  cardMaxHp,
-      is_eliminated:  false,
-      recovery_until: null
-    }, { onConflict: 'boss_id,discord_id', ignoreDuplicates: true });
+  // Render this card's abilities
+  renderAbilityButtons();
 
-    // Activate boss if still in waiting state
-    await rt.from('world_bosses')
-      .update({ status: 'active' })
-      .eq('id', bossId).eq('status', 'waiting');
+  try {
+    const cardMaxHp = WB_BASE_CARD_HP + (card ? card.rarity*16 : 0);
+    await rt.from('world_boss_participants').upsert({
+      boss_id:bossId, discord_id:state.discordId,
+      username:state.username||'Player', card_id:state.equippedId,
+      card_name:card?.name||'???', card_image:card?.image||'',
+      damage_dealt:0, player_hp:cardMaxHp, player_max_hp:cardMaxHp,
+      is_eliminated:false, recovery_until:null
+    }, { onConflict:'boss_id,discord_id', ignoreDuplicates:true });
+
+    await rt.from('world_bosses').update({status:'active'}).eq('id',bossId).eq('status','waiting');
 
     openBossArenaModal();
     await refreshBossArena(bossId);
     subscribeToBoss(bossId);
-
+    startBossAITimer();
     addBossLog(`⚔️ ${state.username||'Player'} has entered the fight!`);
   } catch(e) {
-    showToast('❌ Could not join fight: ' + e.message);
+    showToast('❌ Could not join: '+e.message);
     _wbCurrentBossId = null;
   }
+}
+
+function renderAbilityButtons() {
+  const container = document.getElementById('wbAbilityButtons');
+  if(!container) return;
+  const card = (window.DEMO_CARDS||[]).find(c=>c.id===state.equippedId);
+  if(!card) { container.innerHTML=''; return; }
+  const abils = getCardAbilities(state.equippedId, card.rarity);
+  if(!abils.length) { container.innerHTML='<span style="font-size:0.62em;color:var(--text-dim);padding:4px;">No abilities</span>'; return; }
+  container.innerHTML = abils.map(ab =>
+    `<button class="wb-move-btn wb-ability-btn wb-all-attack-btns" data-action="ability" data-abil-id="${escapeHtml(ab.id)}" onclick="wbAttack('ability','${escapeHtml(ab.id)}')" title="${escapeHtml(ab.desc||'')}">
+      ${ab.icon||'✨'} ${escapeHtml(ab.name||'Ability')}
+    </button>`
+  ).join('');
 }
 
 function openBossArenaModal() {
@@ -29037,66 +29018,47 @@ function openBossArenaModal() {
   modal.style.display = 'flex';
   setTimeout(() => modal.classList.add('wb-arena-open'), 20);
 }
-
-function leaveBossArena(confirmed = false) {
+function leaveBossArena(confirmed=false) {
   const confirmEl = document.getElementById('wbLeaveConfirm');
-  if(!confirmed) { if(confirmEl) confirmEl.style.display = 'flex'; return; }
-  if(confirmEl) confirmEl.style.display = 'none';
+  if(!confirmed) { if(confirmEl) confirmEl.style.display='flex'; return; }
+  if(confirmEl) confirmEl.style.display='none';
   closeBossArena();
 }
-
 function cancelLeaveConfirm() {
   const el = document.getElementById('wbLeaveConfirm');
-  if(el) el.style.display = 'none';
+  if(el) el.style.display='none';
 }
-
 function closeBossArena() {
   const modal = document.getElementById('wbArenaModal');
-  if(modal) {
-    modal.classList.remove('wb-arena-open');
-    setTimeout(() => { modal.style.display = 'none'; }, 400);
-  }
+  if(modal) { modal.classList.remove('wb-arena-open'); setTimeout(()=>{modal.style.display='none';},400); }
   if(_wbChannel)      { try{_wbChannel.unsubscribe();}catch(_){} _wbChannel=null; }
   if(_wbParticChannel){ try{_wbParticChannel.unsubscribe();}catch(_){} _wbParticChannel=null; }
   clearInterval(_wbRecoveryInterval);
-  _wbCurrentBossId = null; _wbBossData = null;
-  _wbParticData    = []; _wbMyPartic = null;
-  _wbBossAbilityTs = 0; _wbAttackCooldown = false;
-  // Reset end screen
+  stopBossAITimer();
+  _wbCurrentBossId=null; _wbBossData=null; _wbParticData=[]; _wbMyPartic=null;
+  _wbBossAbilityTs=0; _wbAttackCooldown=false;
   const endEl = document.getElementById('wbEndScreen');
-  if(endEl) { endEl.style.display = 'none'; endEl.innerHTML = ''; }
+  if(endEl){ endEl.style.display='none'; endEl.innerHTML=''; }
 }
 
 // ═════════════════════════════════════════════
-// REALTIME SUBSCRIPTIONS
+// REALTIME
 // ═════════════════════════════════════════════
 function subscribeToBoss(bossId) {
-  const rt = getSupaRT();
-  if(!rt) return;
-  if(_wbChannel)       { try{_wbChannel.unsubscribe();}catch(_){} }
-  if(_wbParticChannel) { try{_wbParticChannel.unsubscribe();}catch(_){} }
+  const rt = getSupaRT(); if(!rt) return;
+  if(_wbChannel)      { try{_wbChannel.unsubscribe();}catch(_){} }
+  if(_wbParticChannel){ try{_wbParticChannel.unsubscribe();}catch(_){} }
 
-  // Boss row — HP changes, ability triggers, status
   _wbChannel = rt.channel('wb-boss-row-'+bossId)
-    .on('postgres_changes', {
-      event:'UPDATE', schema:'public', table:'world_bosses',
-      filter:`id=eq.${bossId}`
-    }, async payload => {
-      await handleBossUpdate(payload.new);
-    })
+    .on('postgres_changes',{event:'UPDATE',schema:'public',table:'world_bosses',filter:`id=eq.${bossId}`},
+      async payload => { await handleBossUpdate(payload.new); })
     .subscribe();
 
-  // Participants — damage, HP, eliminations
   _wbParticChannel = rt.channel('wb-partic-row-'+bossId)
-    .on('postgres_changes', {
-      event:'*', schema:'public', table:'world_boss_participants',
-      filter:`boss_id=eq.${bossId}`
-    }, async () => {
-      await refreshParticipants(bossId);
-    })
+    .on('postgres_changes',{event:'*',schema:'public',table:'world_boss_participants',filter:`boss_id=eq.${bossId}`},
+      async () => { await refreshParticipants(bossId); })
     .subscribe();
 
-  // Recovery countdown tick
   clearInterval(_wbRecoveryInterval);
   _wbRecoveryInterval = setInterval(updateRecoveryUI, 500);
 }
@@ -29105,29 +29067,39 @@ async function handleBossUpdate(boss) {
   _wbBossData = boss;
   renderBossHpBar(boss);
 
-  // ── Boss ability: plays on ALL participants' screens ──
+  // Boss action (skill or ability) — fires on ALL participants' screens
   const ab = boss.current_ability;
   if(ab && ab.ts && ab.ts !== _wbBossAbilityTs && boss.status === 'active') {
     _wbBossAbilityTs = ab.ts;
     const modal = document.getElementById('wbArenaModal');
     if(modal && modal.style.display !== 'none') {
-      try { await playAbilityCutscene(ab.cardId, ab.rarity||5, ab.abilityId); } catch(_) {}
-      await applyBossAbilityDamage(ab, boss);
+      if(ab.category === 'skill') {
+        // Basic attack — show VFX + log, apply damage to THIS player
+        wbBossSkillFlash(ab);
+        addBossLog(`${ab.icon||'⚔️'} Boss uses ${ab.name||'Strike'}!`);
+        await handleBossSkillDamage(ab);
+      } else {
+        // Ability — cutscene plays on ALL screens, then damage
+        try { await playAbilityCutscene(ab.cardId, ab.rarity||5, ab.abilityId); } catch(_) {}
+        await applyBossAbilityDamage(ab, boss);
+      }
     }
   }
 
-  if(boss.status === 'dead' && !document.getElementById('wbEndScreen')?.children.length) {
-    await refreshParticipants(boss.id);
-    await showBossDefeatedScreen(boss);
+  // Boss death
+  if(boss.status === 'dead') {
+    const endEl = document.getElementById('wbEndScreen');
+    if(endEl && !endEl.children.length) {
+      stopBossAITimer();
+      await refreshParticipants(boss.id);
+      await showBossDefeatedScreen(boss);
+    }
   }
 }
 
-// ═════════════════════════════════════════════
-// REFRESH HELPERS
-// ═════════════════════════════════════════════
 async function refreshBossArena(bossId) {
-  const rt = getSupaRT();
   try {
+    const rt = getSupaRT();
     const { data: boss } = await rt.from('world_bosses').select('*').eq('id',bossId).single();
     if(!boss) return;
     _wbBossData = boss;
@@ -29135,10 +29107,9 @@ async function refreshBossArena(bossId) {
     renderBossArena(boss);
   } catch(_) {}
 }
-
 async function refreshParticipants(bossId) {
-  const rt = getSupaRT();
   try {
+    const rt = getSupaRT();
     const { data: partics } = await rt.from('world_boss_participants')
       .select('*').eq('boss_id',bossId).order('damage_dealt',{ascending:false});
     _wbParticData = partics || [];
@@ -29151,50 +29122,43 @@ async function refreshParticipants(bossId) {
 // ═════════════════════════════════════════════
 // PLAYER ATTACK
 // ═════════════════════════════════════════════
-async function wbAttack(action='attack') {
+async function wbAttack(action='attack', abilityId=null) {
   if(!_wbCurrentBossId || !_wbBossData) return;
   if(_wbBossData.status !== 'active') { showToast('Boss is not active.'); return; }
   if(_wbAttackCooldown) { showToast('⏳ Cooldown...'); return; }
-
-  // Recovery check
   if(_wbMyPartic?.is_eliminated) {
     const recUntil = _wbMyPartic.recovery_until ? new Date(_wbMyPartic.recovery_until).getTime() : 0;
-    if(Date.now() < recUntil) { showToast('💔 Still recovering! Wait your turn...'); return; }
+    if(Date.now() < recUntil) { showToast('💔 Still recovering...'); return; }
   }
 
   _wbAttackCooldown = true;
-  const btn = document.getElementById('wbAttackBtn');
-  if(btn) { btn.disabled=true; btn.textContent='⏳...'; }
+  setWbButtonsDisabled(true, action, abilityId);
 
   const rt   = getSupaRT();
   const card = (window.DEMO_CARDS||[]).find(c=>c.id===state.equippedId);
-  const baseAtk = card ? card.rarity * 14 : 20;
+  const baseAtk = card ? card.rarity*14 : 20;
   const isCrit  = Math.random() < 0.10;
   let dmg = 0, logMsg = '';
 
   if(action === 'attack') {
-    dmg    = Math.floor(baseAtk * (isCrit ? 1.7 : 1) * (0.85 + Math.random()*0.3));
-    logMsg = isCrit
-      ? `💥 ${state.username} lands a CRITICAL STRIKE for ${dmg}!`
-      : `⚔️ ${state.username} attacks for ${dmg}!`;
+    dmg    = Math.floor(baseAtk * (isCrit?1.7:1) * (0.85+Math.random()*0.3));
+    logMsg = isCrit ? `💥 ${state.username} CRITICAL for ${dmg}!` : `⚔️ ${state.username} attacks for ${dmg}!`;
 
   } else if(action === 'heavy') {
     if(Math.random() < 0.25) {
-      logMsg = `💨 ${state.username}'s heavy hit missed!`;
+      logMsg = `💨 ${state.username}'s heavy swing missed!`;
     } else {
-      dmg    = Math.floor(baseAtk * (isCrit ? 2.0 : 1.55) * (0.9 + Math.random()*0.2));
-      logMsg = isCrit
-        ? `🔥 ${state.username} unleashes a DEVASTATING BLOW for ${dmg}!`
-        : `💥 ${state.username} HEAVY HIT for ${dmg}!`;
+      dmg    = Math.floor(baseAtk * (isCrit?2.0:1.55) * (0.9+Math.random()*0.2));
+      logMsg = isCrit ? `🔥 ${state.username} DEVASTATING BLOW for ${dmg}!` : `💥 ${state.username} HEAVY HIT for ${dmg}!`;
     }
 
   } else if(action === 'ability') {
     const abils = getCardAbilities(state.equippedId, card?.rarity||1);
-    const ab    = abils[0];
-    if(!ab) { showToast('No ability found!'); resetWbCooldown(); return; }
-    dmg    = Math.floor((ab.value||baseAtk) * (0.9 + Math.random()*0.3));
+    const ab    = (abilityId ? abils.find(a=>a.id===abilityId) : null) || abils[0];
+    if(!ab) { showToast('No ability!'); setWbButtonsDisabled(false); _wbAttackCooldown=false; return; }
+    dmg    = Math.floor((ab.value||baseAtk) * (0.9+Math.random()*0.3));
     logMsg = `${ab.icon||'✨'} ${state.username} uses ${ab.name} for ${dmg}!`;
-    // ── Player ability: ONLY plays on THIS player's screen ──
+    // Player abilities only play on THIS player's screen
     try { await playAbilityCutscene(state.equippedId, card?.rarity||1, ab.id); } catch(_) {}
   }
 
@@ -29203,157 +29167,262 @@ async function wbAttack(action='attack') {
       wbBossHitEffect(dmg, isCrit);
       if(isCrit) try{ spawnParticles(4,'#f1c40f'); }catch(_){}
 
-      const newHp  = Math.max(0, (_wbBossData.hp||0) - dmg);
+      const newHp  = Math.max(0, (_wbBossData.hp||0)-dmg);
       const isKill = newHp <= 0;
-
-      // Update boss HP
       const bossUpdate = { hp: newHp };
       if(isKill) { bossUpdate.status='dead'; bossUpdate.killed_at=new Date().toISOString(); }
+
       await rt.from('world_bosses').update(bossUpdate).eq('id',_wbCurrentBossId);
 
-      // Update my damage tally
-      const newDmg = (_wbMyPartic?.damage_dealt||0) + dmg;
+      const newDmg = (_wbMyPartic?.damage_dealt||0)+dmg;
       await rt.from('world_boss_participants')
-        .update({ damage_dealt: newDmg })
-        .eq('boss_id',_wbCurrentBossId)
-        .eq('discord_id',state.discordId);
+        .update({damage_dealt:newDmg})
+        .eq('boss_id',_wbCurrentBossId).eq('discord_id',state.discordId);
 
-      // Local state update
+      // Update local state immediately — don't wait for realtime
       if(_wbBossData) _wbBossData.hp = newHp;
+      if(_wbBossData && isKill) _wbBossData.status = 'dead';
       if(_wbMyPartic) _wbMyPartic.damage_dealt = newDmg;
+      const idx = _wbParticData.findIndex(p=>p.discord_id===state.discordId);
+      if(idx>=0) _wbParticData[idx].damage_dealt = newDmg;
+
       renderBossHpBar(_wbBossData);
+      renderParticipantsList(_wbParticData);
+
+      if(isKill) {
+        stopBossAITimer();
+        setWbButtonsDisabled(false); _wbAttackCooldown=false;
+        await refreshParticipants(_wbCurrentBossId);
+        await showBossDefeatedScreen(_wbBossData);
+        return;
+      }
     }
     addBossLog(logMsg);
   } catch(e) { showToast('❌ Attack error: '+(e.message||'')); }
 
-  setTimeout(resetWbCooldown, WB_ATTACK_COOLDOWN_MS);
+  setTimeout(() => { _wbAttackCooldown=false; setWbButtonsDisabled(false); }, WB_ATTACK_COOLDOWN_MS);
 }
 
-function resetWbCooldown() {
-  _wbAttackCooldown = false;
-  const btn = document.getElementById('wbAttackBtn');
-  if(btn) { btn.disabled=false; btn.textContent='⚔️ Attack'; }
-}
-
-// ═════════════════════════════════════════════
-// BOSS ABILITY DAMAGE (applied locally per player)
-// ═════════════════════════════════════════════
-async function applyBossAbilityDamage(ab, boss) {
-  if(!_wbMyPartic || !_wbCurrentBossId) return;
-  if(_wbMyPartic.is_eliminated) return;
-
-  const rt = getSupaRT();
-  const bossCard = (window.DEMO_CARDS||[]).find(c=>c.id===boss.card_id);
-  const dmg  = Math.floor(((bossCard?.rarity||5)*22) * (0.75 + Math.random()*0.5));
-  const newHp= Math.max(0, (_wbMyPartic.player_hp||0) - dmg);
-  const isElim = newHp <= 0;
-  const recoveryUntil = isElim ? new Date(Date.now() + WB_RECOVERY_SECS*1000).toISOString() : null;
-
-  addBossLog(`💀 ${ab.name||'Boss'} punishes ${state.username} for ${dmg} damage!`);
-  wbPlayerHitEffect();
-
-  await rt.from('world_boss_participants').update({
-    player_hp:      newHp,
-    is_eliminated:  isElim,
-    recovery_until: recoveryUntil
-  }).eq('boss_id',_wbCurrentBossId).eq('discord_id',state.discordId);
-
-  if(_wbMyPartic) {
-    _wbMyPartic.player_hp      = newHp;
-    _wbMyPartic.is_eliminated  = isElim;
-    _wbMyPartic.recovery_until = recoveryUntil;
-  }
-
-  renderMyCardStatus(_wbMyPartic);
-
-  if(isElim) {
-    showToast('💔 ELIMINATED — Recovering in ' + WB_RECOVERY_SECS + 's...');
-    setTimeout(async () => {
-      if(!_wbCurrentBossId) return;
-      const maxHp  = _wbMyPartic?.player_max_hp || WB_BASE_CARD_HP;
-      const healHp = Math.floor(maxHp * 0.5);
-      try {
-        await rt.from('world_boss_participants').update({
-          player_hp: healHp, is_eliminated: false, recovery_until: null
-        }).eq('boss_id',_wbCurrentBossId).eq('discord_id',state.discordId);
-      } catch(_) {}
-      if(_wbMyPartic) {
-        _wbMyPartic.player_hp      = healHp;
-        _wbMyPartic.is_eliminated  = false;
-        _wbMyPartic.recovery_until = null;
+function setWbButtonsDisabled(disabled, action=null, abilityId=null) {
+  document.querySelectorAll('.wb-all-attack-btns').forEach(btn => {
+    if(disabled) {
+      btn.disabled = true;
+      const isActive = (btn.dataset.action === action && (action!=='ability' || btn.dataset.abilId===abilityId));
+      if(isActive) {
+        btn._origText = btn.innerHTML;
+        btn.innerHTML = '⏳ ...';
+      } else {
+        btn.style.opacity = '0.3';
       }
-      renderMyCardStatus(_wbMyPartic);
-      showToast('⚡ RECOVERED — Back in the fight!');
-      addBossLog(`⚡ ${state.username} recovers and rejoins the battle!`);
-    }, WB_RECOVERY_SECS * 1000);
-  }
+    } else {
+      btn.disabled = false;
+      btn.style.opacity = '';
+      if(btn._origText) { btn.innerHTML=btn._origText; delete btn._origText; }
+    }
+  });
 }
 
 // ═════════════════════════════════════════════
-// ADMIN: TRIGGER BOSS ABILITY (broadcasts to all)
+// BOSS AI
 // ═════════════════════════════════════════════
-async function adminTriggerBossAbility() {
-  if(!checkAdmin() || !_wbBossData) return;
-  const boss     = _wbBossData;
-  const bossCard = (window.DEMO_CARDS||[]).find(c=>c.id===boss.card_id);
-  if(!bossCard) { showToast('Boss card not found in DEMO_CARDS!'); return; }
+function isBossAIHost() {
+  if(!_wbParticData.length || !_wbBossData) return false;
+  if(state.isAdmin) return true;
+  const sorted = [..._wbParticData].sort((a,b)=>new Date(a.joined_at||0)-new Date(b.joined_at||0));
+  return sorted[0]?.discord_id === state.discordId;
+}
 
+function startBossAITimer() {
+  stopBossAITimer();
+  _wbLastBossSkillTs    = Date.now() + 3000; // 3s grace before first attack
+  _wbLastBossAbilityTs  = Date.now() + 5000; // 5s grace before first ability
+  scheduleBossAITick();
+}
+function stopBossAITimer() {
+  if(_wbBossAiTimer) { clearTimeout(_wbBossAiTimer); _wbBossAiTimer=null; }
+}
+function scheduleBossAITick() {
+  if(!_wbCurrentBossId) return;
+  const delay = 3000 + Math.floor(Math.random()*2000);
+  _wbBossAiTimer = setTimeout(async () => {
+    try { await runBossAITick(); } catch(_) {}
+    scheduleBossAITick();
+  }, delay);
+}
+
+async function runBossAITick() {
+  if(!_wbBossData || _wbBossData.status !== 'active' || !_wbCurrentBossId) return;
+  if(!isBossAIHost()) return;
+
+  const now            = Date.now();
+  const skillInterval  = WB_BOSS_SKILL_MIN_MS + Math.floor(Math.random()*(WB_BOSS_SKILL_MAX_MS-WB_BOSS_SKILL_MIN_MS));
+  const abilityInterval= WB_BOSS_ABILITY_MIN_MS + Math.floor(Math.random()*(WB_BOSS_ABILITY_MAX_MS-WB_BOSS_ABILITY_MIN_MS));
+
+  // Ability takes priority over skill but is rarer
+  if(now - _wbLastBossAbilityTs > abilityInterval) {
+    _wbLastBossAbilityTs = now;
+    _wbLastBossSkillTs   = now; // reset skill so they don't stack
+    await triggerBossAbilityAI();
+    return;
+  }
+  if(now - _wbLastBossSkillTs > skillInterval) {
+    _wbLastBossSkillTs = now;
+    await triggerBossSkillAI(Math.random() < 0.3);
+  }
+}
+
+async function triggerBossSkillAI(isHeavy) {
+  const rt = getSupaRT();
+  if(!rt || !_wbCurrentBossId || !_wbBossData) return;
+  const bossCard = (window.DEMO_CARDS||[]).find(c=>c.id===_wbBossData.card_id);
+  const rarity   = bossCard?.rarity || 5;
+  const baseDmg  = rarity * (isHeavy ? 18 : 11);
+  const dmg      = Math.floor(baseDmg * (0.75 + Math.random()*0.5));
+  try {
+    await rt.from('world_bosses').update({
+      current_ability: {
+        category: 'skill',
+        type:     isHeavy ? 'heavy' : 'quick',
+        name:     isHeavy ? 'Heavy Strike' : 'Quick Strike',
+        icon:     isHeavy ? '💥' : '⚔️',
+        dmg:      dmg,
+        ts:       Date.now()
+      }
+    }).eq('id', _wbCurrentBossId);
+  } catch(_) {}
+}
+
+async function triggerBossAbilityAI() {
+  const rt = getSupaRT();
+  if(!rt || !_wbBossData) return;
+  const bossCard = (window.DEMO_CARDS||[]).find(c=>c.id===_wbBossData.card_id);
+  if(!bossCard) { await triggerBossSkillAI(true); return; }
   const abilities = getCardAbilities(bossCard.id, bossCard.rarity);
-  if(!abilities.length) { showToast('This boss card has no abilities configured!'); return; }
+  if(!abilities.length) { await triggerBossSkillAI(true); return; }
 
   // Weighted random by tier
-  const tier_w = {secret:6, ultimate:4, active:2, passive:1};
+  const tier_w = {secret:5, ultimate:3, active:2, passive:1};
   const weights = abilities.map(a=>tier_w[a.tier]||1);
   const total   = weights.reduce((s,w)=>s+w,0);
   let rand = Math.random()*total, chosen = abilities[0];
   for(let i=0;i<abilities.length;i++){ rand-=weights[i]; if(rand<=0){chosen=abilities[i];break;} }
 
-  const rt = getSupaRT();
-  await rt.from('world_bosses').update({
-    current_ability: {
-      cardId:    bossCard.id,
-      rarity:    bossCard.rarity,
-      abilityId: chosen.id,
-      name:      chosen.name || 'Boss Ability',
-      icon:      chosen.icon || '💀',
-      ts:        Date.now()
-    }
-  }).eq('id', boss.id);
+  try {
+    await rt.from('world_bosses').update({
+      current_ability: {
+        category:  'ability',
+        cardId:    bossCard.id,
+        rarity:    bossCard.rarity,
+        abilityId: chosen.id,
+        name:      chosen.name||'Boss Ability',
+        icon:      chosen.icon||'💀',
+        ts:        Date.now()
+      }
+    }).eq('id', _wbCurrentBossId);
+  } catch(_) {}
+}
 
-  showToast(`🔥 Boss unleashes ${chosen.icon||''} ${chosen.name}!`);
+// Admin manual trigger (calls same internal function)
+async function adminTriggerBossAbility() {
+  if(!checkAdmin() || !_wbBossData) return;
+  await triggerBossAbilityAI();
+  showToast('🔥 Boss ability triggered!');
+}
+
+// ═════════════════════════════════════════════
+// BOSS DAMAGE TO PLAYERS
+// ═════════════════════════════════════════════
+async function handleBossSkillDamage(skill) {
+  if(!_wbMyPartic || !_wbCurrentBossId) return;
+  if(_wbMyPartic.is_eliminated) return;
+  const rt    = getSupaRT();
+  const dmg   = skill.dmg || 20;
+  const newHp = Math.max(0, (_wbMyPartic.player_hp||0) - dmg);
+  const isElim= newHp <= 0;
+  const recoveryUntil = isElim ? new Date(Date.now()+WB_RECOVERY_SECS*1000).toISOString() : null;
+
+  wbPlayerHitEffect();
+  addBossLog(`${skill.icon||'⚔️'} Boss ${skill.name||'strikes'} ${state.username} for ${dmg}!`);
+
+  try {
+    await rt.from('world_boss_participants').update({
+      player_hp:newHp, is_eliminated:isElim, recovery_until:recoveryUntil
+    }).eq('boss_id',_wbCurrentBossId).eq('discord_id',state.discordId);
+  } catch(_) {}
+
+  if(_wbMyPartic) { _wbMyPartic.player_hp=newHp; _wbMyPartic.is_eliminated=isElim; _wbMyPartic.recovery_until=recoveryUntil; }
+  renderMyCardStatus(_wbMyPartic);
+  if(isElim) { showToast('💔 Knocked out! Recovering in '+WB_RECOVERY_SECS+'s...'); schedulePlayerRecovery(); }
+}
+
+async function applyBossAbilityDamage(ab, boss) {
+  if(!_wbMyPartic || !_wbCurrentBossId) return;
+  if(_wbMyPartic.is_eliminated) return;
+  const rt      = getSupaRT();
+  const bossCard= (window.DEMO_CARDS||[]).find(c=>c.id===boss.card_id);
+  const dmg     = Math.floor(((bossCard?.rarity||5)*22) * (0.75+Math.random()*0.5));
+  const newHp   = Math.max(0, (_wbMyPartic.player_hp||0)-dmg);
+  const isElim  = newHp <= 0;
+  const recoveryUntil = isElim ? new Date(Date.now()+WB_RECOVERY_SECS*1000).toISOString() : null;
+
+  wbPlayerHitEffect();
+  addBossLog(`💀 ${ab.name||'Boss Ability'} blasts ${state.username} for ${dmg}!`);
+
+  try {
+    await rt.from('world_boss_participants').update({
+      player_hp:newHp, is_eliminated:isElim, recovery_until:recoveryUntil
+    }).eq('boss_id',_wbCurrentBossId).eq('discord_id',state.discordId);
+  } catch(_) {}
+
+  if(_wbMyPartic){ _wbMyPartic.player_hp=newHp; _wbMyPartic.is_eliminated=isElim; _wbMyPartic.recovery_until=recoveryUntil; }
+  renderMyCardStatus(_wbMyPartic);
+  if(isElim) { showToast('💔 Eliminated by boss ability! Recovering in '+WB_RECOVERY_SECS+'s...'); schedulePlayerRecovery(); }
+}
+
+function schedulePlayerRecovery() {
+  setTimeout(async () => {
+    if(!_wbCurrentBossId) return;
+    const rt     = getSupaRT();
+    const maxHp  = _wbMyPartic?.player_max_hp || WB_BASE_CARD_HP;
+    const healHp = Math.floor(maxHp * 0.5);
+    try {
+      await rt.from('world_boss_participants').update({
+        player_hp:healHp, is_eliminated:false, recovery_until:null
+      }).eq('boss_id',_wbCurrentBossId).eq('discord_id',state.discordId);
+    } catch(_) {}
+    if(_wbMyPartic){ _wbMyPartic.player_hp=healHp; _wbMyPartic.is_eliminated=false; _wbMyPartic.recovery_until=null; }
+    renderMyCardStatus(_wbMyPartic);
+    showToast('⚡ Recovered! Back in the fight!');
+    addBossLog(`⚡ ${state.username||'Player'} recovers!`);
+  }, WB_RECOVERY_SECS*1000);
 }
 
 // ═════════════════════════════════════════════
 // BOSS DEFEATED
 // ═════════════════════════════════════════════
 async function showBossDefeatedScreen(boss) {
-  const sorted  = [..._wbParticData].sort((a,b)=>(b.damage_dealt||0)-(a.damage_dealt||0));
-  const myRank  = sorted.findIndex(p=>p.discord_id===state.discordId)+1;
-  const medals  = ['🥇','🥈','🥉'];
-
+  const sorted   = [..._wbParticData].sort((a,b)=>(b.damage_dealt||0)-(a.damage_dealt||0));
+  const myRank   = sorted.findIndex(p=>p.discord_id===state.discordId)+1;
+  const medals   = ['🥇','🥈','🥉'];
   let dropChance = WB_SECRET_DROP_BASE;
-  if(myRank >= 1 && myRank <= 3) dropChance = WB_SECRET_DROP_TOP[myRank] || WB_SECRET_DROP_BASE;
+  if(myRank>=1&&myRank<=3) dropChance = WB_SECRET_DROP_TOP[myRank]||WB_SECRET_DROP_BASE;
   const gotDrop = Math.random() < dropChance;
-
+  const coinReward = Math.floor((myRank===1?250:myRank===2?180:myRank===3?120:60)+(_wbMyPartic?.damage_dealt||0)/80);
   const top3 = sorted.slice(0,3);
-  const coinReward = Math.floor((myRank===1?250 : myRank===2?180 : myRank===3?120 : 60) + (_wbMyPartic?.damage_dealt||0)/80);
 
   const endEl = document.getElementById('wbEndScreen');
   if(!endEl) return;
-
   endEl.innerHTML = `
     <div class="wb-end-content">
       <div class="wb-end-title">⚔ BOSS SLAIN ⚔</div>
-      <div class="wb-end-sub">${escapeHtml(boss.boss_name||'World Boss')} has been defeated by the raiders!</div>
+      <div class="wb-end-sub">${escapeHtml(boss.boss_name||'World Boss')} has fallen!</div>
       <div class="wb-end-top3">
         ${top3.map((p,i)=>`
           <div class="wb-end-hero ${p.discord_id===state.discordId?'wb-end-hero-me':''}">
             <div class="wb-end-medal">${medals[i]||'#'+(i+1)}</div>
-            ${p.card_image
-              ? `<img src="${escapeHtml(p.card_image)}" class="wb-end-card-img" onerror="this.style.display='none'"/>`
-              : '<div class="wb-end-card-placeholder">🎴</div>'}
+            ${p.card_image?`<img src="${escapeHtml(p.card_image)}" class="wb-end-card-img" onerror="this.style.display='none'"/>`:'<div class="wb-end-card-placeholder">🎴</div>'}
             <div class="wb-end-hero-name">${escapeHtml(p.username||'Player')}</div>
-            <div class="wb-end-hero-dmg">${(p.damage_dealt||0).toLocaleString()}</div>
+            <div class="wb-end-hero-dmg">${(p.damage_dealt||0).toLocaleString()} DMG</div>
           </div>`).join('')}
       </div>
       <div class="wb-end-my-result">
@@ -29361,33 +29430,23 @@ async function showBossDefeatedScreen(boss) {
         <div class="wb-end-drop-result ${gotDrop?'wb-drop-got':'wb-drop-miss'}">
           ${gotDrop
             ? `✨ SECRET CARD DROPPED! (${Math.round(dropChance*100)}% chance)<br><span style="font-size:0.78em;opacity:0.8;">Added to your collection!</span>`
-            : `🎴 No secret drop this time (${Math.round(dropChance*100)}% chance)<br><span style="font-size:0.78em;opacity:0.8;">+${coinReward}🪙 battle reward</span>`
-          }
+            : `🎴 No drop this time (${Math.round(dropChance*100)}% chance)<br><span style="font-size:0.78em;opacity:0.8;">+${coinReward}🪙 reward</span>`}
         </div>
       </div>
       <button class="wb-btn-primary" onclick="closeBossArena()">Return to Hub</button>
     </div>`;
-
   endEl.style.display = 'flex';
   try { spawnParticles(6,'#f1c40f'); } catch(_) {}
 
-  // Grant coin reward
-  state.coins = (state.coins||0) + coinReward;
+  state.coins = (state.coins||0)+coinReward;
   updateCoins();
-  if(state.discordId && !state.isGuest) {
+  if(state.discordId&&!state.isGuest) {
     try { await sb.update('players',{coins:state.coins},{discord_id:state.discordId}); } catch(_) {}
   }
-
-  // Drop the secret card
-  if(gotDrop && boss.card_id && state.discordId && !state.isGuest) {
-    try {
-      await saveCardToCollection(state.discordId, boss.card_id);
-      showToast(`🌟 SECRET CARD "${boss.boss_name}" added to collection!`);
-      try { spawnParticles(8,'#9b59b6'); } catch(_) {}
-    } catch(e) { showToast('Could not save secret card: '+e.message); }
-  } else {
-    showToast(`+${coinReward}🪙 battle reward!`);
-  }
+  if(gotDrop&&boss.card_id&&state.discordId&&!state.isGuest) {
+    try { await saveCardToCollection(state.discordId,boss.card_id); showToast(`🌟 Secret card added!`); try{spawnParticles(8,'#9b59b6');}catch(_){} }
+    catch(e) { showToast('Could not save card: '+e.message); }
+  } else { showToast(`+${coinReward}🪙 battle reward!`); }
 }
 
 // ═════════════════════════════════════════════
@@ -29395,27 +29454,28 @@ async function showBossDefeatedScreen(boss) {
 // ═════════════════════════════════════════════
 function renderBossArena(boss) {
   const nameEl = document.getElementById('wbBossName');
-  const bgImg  = document.getElementById('wbBossArenaImg');
-  const cardImg= document.getElementById('wbBossCardImg');
-
   if(nameEl) nameEl.textContent = (boss.boss_name||'WORLD BOSS').toUpperCase();
-  if(bgImg  && boss.boss_bg_gif) bgImg.src = boss.boss_bg_gif;
-  if(cardImg && boss.boss_image) cardImg.src = boss.boss_image;
 
+  // Background: prefer bg_gif, fall back to boss_image
+  const bgImg = document.getElementById('wbBossArenaImg');
+  if(bgImg) {
+    const bgSrc = (boss.boss_bg_gif||'').trim() || (boss.boss_image||'').trim();
+    if(bgSrc) { bgImg.src=bgSrc; bgImg.style.display='block'; }
+    else bgImg.style.display='none';
+  }
+
+  const cardImg = document.getElementById('wbBossCardImg');
+  if(cardImg && boss.boss_image) cardImg.src = boss.boss_image;
   renderBossHpBar(boss);
 }
 
 function renderBossHpBar(boss) {
   const fill = document.getElementById('wbBossHpFill');
   const text = document.getElementById('wbBossHpText');
-  if(!fill || !text || !boss) return;
-
-  const pct = Math.max(0, Math.min(100, ((boss.hp||0)/(boss.max_hp||1))*100));
-  fill.style.width = pct + '%';
-  if(pct > 60)      fill.style.background = 'linear-gradient(90deg,#8b0000,#c0392b)';
-  else if(pct > 30) fill.style.background = 'linear-gradient(90deg,#6c3483,#8e44ad)';
-  else              fill.style.background = 'linear-gradient(90deg,#1c2833,#6c3483)';
-
+  if(!fill||!text||!boss) return;
+  const pct = Math.max(0,Math.min(100,((boss.hp||0)/(boss.max_hp||1))*100));
+  fill.style.width = pct+'%';
+  fill.style.background = pct>60?'linear-gradient(90deg,#8b0000,#c0392b)':pct>30?'linear-gradient(90deg,#6c3483,#8e44ad)':'linear-gradient(90deg,#1c2833,#6c3483)';
   text.textContent = `${(boss.hp||0).toLocaleString()} / ${(boss.max_hp||0).toLocaleString()} HP`;
 }
 
@@ -29424,48 +29484,38 @@ function renderMyCardStatus(myP) {
   const text = document.getElementById('wbMyHpText');
   const rec  = document.getElementById('wbRecoveryOverlay');
   if(!myP) return;
-
-  const pct = Math.max(0, Math.min(100, ((myP.player_hp||0)/(myP.player_max_hp||1))*100));
+  const pct = Math.max(0,Math.min(100,((myP.player_hp||0)/(myP.player_max_hp||1))*100));
   if(fill) {
-    fill.style.width = pct + '%';
-    fill.style.background = pct > 50
-      ? 'linear-gradient(90deg,#27ae60,#2ecc71)'
-      : pct > 20
-        ? 'linear-gradient(90deg,#d68910,#f1c40f)'
-        : 'linear-gradient(90deg,#922b21,#e74c3c)';
+    fill.style.width=pct+'%';
+    fill.style.background=pct>50?'linear-gradient(90deg,#27ae60,#2ecc71)':pct>20?'linear-gradient(90deg,#d68910,#f1c40f)':'linear-gradient(90deg,#922b21,#e74c3c)';
   }
-  if(text) text.textContent = `${myP.player_hp||0} / ${myP.player_max_hp||0}`;
-  if(rec)  rec.style.display = myP.is_eliminated ? 'flex' : 'none';
+  if(text) text.textContent=`${myP.player_hp||0} / ${myP.player_max_hp||0}`;
+  if(rec)  rec.style.display=myP.is_eliminated?'flex':'none';
 }
 
 function renderParticipantsList(partics) {
   const list = document.getElementById('wbParticList');
   if(!list) return;
-
   const sorted = [...partics].sort((a,b)=>(b.damage_dealt||0)-(a.damage_dealt||0));
-  const maxDmg = sorted[0]?.damage_dealt || 1;
+  const maxDmg = sorted[0]?.damage_dealt||1;
   const medals = ['🥇','🥈','🥉'];
-
-  list.innerHTML = sorted.map((p,i) => {
-    const isMe  = p.discord_id === state.discordId;
+  list.innerHTML = sorted.map((p,i)=>{
+    const isMe  = p.discord_id===state.discordId;
     const pct   = Math.round(((p.damage_dealt||0)/maxDmg)*100);
     const hpPct = Math.round(((p.player_hp||0)/(p.player_max_hp||1))*100);
-    const hpColor = hpPct>50?'#2ecc71':hpPct>20?'#f1c40f':'#e74c3c';
-    return `
-      <div class="wb-partic-row ${isMe?'wb-partic-me':''} ${p.is_eliminated?'wb-partic-elim':''}">
-        <span class="wb-partic-medal">${medals[i]||''}</span>
-        ${p.card_image
-          ? `<img src="${escapeHtml(p.card_image)}" class="wb-partic-avatar" onerror="this.style.display='none'"/>`
-          : '<div class="wb-partic-avatar-ph">?</div>'}
-        <div class="wb-partic-info">
-          <div class="wb-partic-name">${escapeHtml(p.username||'Player')}${isMe?' <span style="color:var(--pink);font-size:0.8em;">(You)</span>':''}</div>
-          <div class="wb-partic-dmg-bar"><div class="wb-partic-dmg-fill" style="width:${pct}%"></div></div>
-          <div class="wb-partic-stats">
-            <span style="color:#e74c3c">${(p.damage_dealt||0).toLocaleString()} DMG</span>
-            <span style="color:${hpColor}">${p.is_eliminated?'💔 KO':hpPct+'% HP'}</span>
-          </div>
+    const hpClr = hpPct>50?'#2ecc71':hpPct>20?'#f1c40f':'#e74c3c';
+    return `<div class="wb-partic-row ${isMe?'wb-partic-me':''} ${p.is_eliminated?'wb-partic-elim':''}">
+      <span class="wb-partic-medal">${medals[i]||''}</span>
+      ${p.card_image?`<img src="${escapeHtml(p.card_image)}" class="wb-partic-avatar" onerror="this.style.display='none'"/>`:'<div class="wb-partic-avatar-ph">?</div>'}
+      <div class="wb-partic-info">
+        <div class="wb-partic-name">${escapeHtml(p.username||'Player')}${isMe?' <span style="color:var(--pink);font-size:0.8em;">(You)</span>':''}</div>
+        <div class="wb-partic-dmg-bar"><div class="wb-partic-dmg-fill" style="width:${pct}%"></div></div>
+        <div class="wb-partic-stats">
+          <span style="color:#e74c3c">${(p.damage_dealt||0).toLocaleString()} DMG</span>
+          <span style="color:${hpClr}">${p.is_eliminated?'💔 KO':hpPct+'% HP'}</span>
         </div>
-      </div>`;
+      </div>
+    </div>`;
   }).join('');
 }
 
@@ -29474,18 +29524,16 @@ function updateRecoveryUI() {
   const el = document.getElementById('wbRecoveryCountdown');
   if(!el) return;
   const until = _wbMyPartic.recovery_until ? new Date(_wbMyPartic.recovery_until).getTime() : 0;
-  const left  = Math.max(0, Math.ceil((until-Date.now())/1000));
-  el.textContent = left > 0 ? left+'s' : '...';
+  el.textContent = Math.max(0,Math.ceil((until-Date.now())/1000))+'s';
 }
 
 function addBossLog(msg) {
   const log = document.getElementById('wbBattleLog');
   if(!log) return;
   const entry = document.createElement('div');
-  entry.className = 'wb-log-entry';
-  entry.textContent = msg;
+  entry.className='wb-log-entry'; entry.textContent=msg;
   log.insertBefore(entry, log.firstChild);
-  while(log.children.length > 25) log.removeChild(log.lastChild);
+  while(log.children.length>25) log.removeChild(log.lastChild);
 }
 
 // ═════════════════════════════════════════════
@@ -29493,67 +29541,52 @@ function addBossLog(msg) {
 // ═════════════════════════════════════════════
 function wbBossHitEffect(dmg, isCrit) {
   const wrap = document.getElementById('wbBossImgWrap');
-  if(wrap) {
-    wrap.style.animation='none';
-    void wrap.offsetHeight;
-    wrap.style.animation='wbBossHit 0.35s ease';
-    setTimeout(()=>wrap.style.animation='',350);
-  }
+  if(wrap){ wrap.style.animation='none'; void wrap.offsetHeight; wrap.style.animation='wbBossHit 0.35s ease'; setTimeout(()=>wrap.style.animation='',350); }
   const arena = document.getElementById('wbArenaModal');
   if(!arena) return;
-  const num  = document.createElement('div');
-  num.className = 'wb-dmg-num'+(isCrit?' wb-dmg-crit':'');
-  num.textContent= (isCrit?'💥 ':'') + dmg.toLocaleString();
-  num.style.left = (20+Math.random()*55)+'%';
-  num.style.top  = (15+Math.random()*25)+'%';
-  num.style.position='absolute'; num.style.zIndex='30';
+  const num = document.createElement('div');
+  num.className='wb-dmg-num'+(isCrit?' wb-dmg-crit':'');
+  num.textContent=(isCrit?'💥 ':'')+dmg.toLocaleString();
+  num.style.cssText=`position:absolute;z-index:30;left:${20+Math.random()*55}%;top:${15+Math.random()*25}%`;
   arena.appendChild(num);
   setTimeout(()=>num.remove(),1300);
 }
-
 function wbPlayerHitEffect() {
   const myCard = document.getElementById('wbMyCardWrap');
-  if(myCard){
-    myCard.style.animation='none';
-    void myCard.offsetHeight;
-    myCard.style.animation='wbPlayerHit 0.4s ease';
-    setTimeout(()=>myCard.style.animation='',400);
-  }
+  if(myCard){ myCard.style.animation='none'; void myCard.offsetHeight; myCard.style.animation='wbPlayerHit 0.4s ease'; setTimeout(()=>myCard.style.animation='',400); }
   const flash = document.getElementById('wbHitFlash');
   if(flash){ flash.style.background='rgba(192,57,43,0.4)'; setTimeout(()=>flash.style.background='rgba(192,57,43,0.0)',350); }
 }
+function wbBossSkillFlash(skill) {
+  const flash = document.getElementById('wbHitFlash');
+  if(flash){
+    flash.style.background=skill.type==='heavy'?'rgba(155,89,182,0.35)':'rgba(192,57,43,0.25)';
+    setTimeout(()=>flash.style.background='rgba(192,57,43,0.0)',400);
+  }
+}
 
 // ═════════════════════════════════════════════
-// ADMIN PANEL: WORLD BOSS TAB
+// ADMIN: SPAWN BOSS PANEL
 // ═════════════════════════════════════════════
 async function adminSpawnWorldBoss() {
   if(!checkAdmin()) return;
   const cardId  = document.getElementById('wbAdminCardId')?.value?.trim();
-  const name    = document.getElementById('wbAdminBossName')?.value?.trim() || 'World Boss';
-  const maxHp   = parseInt(document.getElementById('wbAdminMaxHp')?.value) || 50000;
-  const bgGif   = document.getElementById('wbAdminBgGif')?.value?.trim() || '';
+  const name    = document.getElementById('wbAdminBossName')?.value?.trim()||'World Boss';
+  const maxHp   = parseInt(document.getElementById('wbAdminMaxHp')?.value)||50000;
+  const bgGif   = document.getElementById('wbAdminBgGif')?.value?.trim()||'';
   if(!cardId){ showToast('⚠️ Select a boss card first!'); return; }
-  const bossCard = (window.DEMO_CARDS||[]).find(c=>c.id===cardId);
+  const bossCard=(window.DEMO_CARDS||[]).find(c=>c.id===cardId);
   if(!bossCard){ showToast('⚠️ Card not found — load cards first.'); return; }
-
   const rt = getSupaRT();
   try {
-    // Retire existing active bosses
     await rt.from('world_bosses').update({status:'dead'}).in('status',['waiting','active']);
-
-    const { data: nb, error } = await rt.from('world_bosses').insert({
-      card_id:    cardId,
-      boss_name:  name,
-      boss_image: bossCard.image||'',
-      boss_bg_gif:bgGif,
-      hp:     maxHp,
-      max_hp: maxHp,
-      status: 'waiting',
-      current_ability: null,
-      spawned_at: new Date().toISOString()
+    const { data:nb, error } = await rt.from('world_bosses').insert({
+      card_id:cardId, boss_name:name, boss_image:bossCard.image||'',
+      boss_bg_gif:bgGif, hp:maxHp, max_hp:maxHp, status:'waiting',
+      current_ability:null, spawned_at:new Date().toISOString()
     }).select().single();
     if(error) throw error;
-    showToast(`⚔️ World Boss "${name}" spawned! Players will see the notification.`);
+    showToast(`⚔️ World Boss "${name}" spawned!`);
     showBossSpawnNotification(nb);
     loadAdminBossList();
   } catch(e){ showToast('❌ Spawn failed: '+e.message); }
@@ -29564,14 +29597,10 @@ async function loadAdminBossList() {
   if(!el) return;
   const rt = getSupaRT();
   try {
-    const { data } = await rt.from('world_bosses')
-      .select('*').order('spawned_at',{ascending:false}).limit(10);
-    if(!data || !data.length){
-      el.innerHTML='<div style="color:var(--text-dim);font-style:italic;font-size:0.82em;padding:14px;text-align:center;">No boss encounters yet.</div>';
-      return;
-    }
-    const sc={'waiting':'#f1c40f','active':'#e74c3c','dead':'#2ecc71'};
-    el.innerHTML = data.map(b=>`
+    const { data } = await rt.from('world_bosses').select('*').order('spawned_at',{ascending:false}).limit(10);
+    if(!data||!data.length){ el.innerHTML='<div style="color:var(--text-dim);font-style:italic;font-size:0.82em;padding:14px;text-align:center;">No boss encounters yet.</div>'; return; }
+    const sc={waiting:'#f1c40f',active:'#e74c3c',dead:'#2ecc71'};
+    el.innerHTML=data.map(b=>`
       <div style="border:1px solid var(--border);border-radius:10px;padding:10px 12px;margin-bottom:8px;display:flex;align-items:center;gap:10px;">
         ${b.boss_image?`<img src="${escapeHtml(b.boss_image)}" style="width:34px;height:48px;object-fit:cover;border-radius:6px;flex-shrink:0;filter:saturate(0.5);" onerror="this.style.display='none'"/>` : '<div style="width:34px;height:48px;background:rgba(192,57,43,0.15);border-radius:6px;flex-shrink:0;display:flex;align-items:center;justify-content:center;">⚔️</div>'}
         <div style="flex:1;min-width:0;">
@@ -29579,41 +29608,36 @@ async function loadAdminBossList() {
           <div style="font-size:0.67em;color:var(--text-dim);">${(b.hp||0).toLocaleString()} / ${(b.max_hp||0).toLocaleString()} HP</div>
         </div>
         <span style="font-size:0.65em;font-family:'JetBrains Mono',monospace;color:${sc[b.status]||'#fff'};background:rgba(0,0,0,0.4);padding:2px 8px;border-radius:20px;flex-shrink:0;">${(b.status||'?').toUpperCase()}</span>
-        ${(b.status==='active'||b.status==='waiting')
-          ? `<button class="admin-action-btn danger" onclick="adminForceKillBoss('${b.id}')">💀</button>` : ''}
+        ${(b.status==='active'||b.status==='waiting')?`<button class="admin-action-btn danger" onclick="adminForceKillBoss('${b.id}')">💀</button>`:''}
       </div>`).join('');
-  } catch(e){
-    el.innerHTML='<div style="color:#e74c3c;font-size:0.8em;padding:10px;">⚠️ Run the World Boss SQL migration first — see bottom of file.</div>';
-  }
+  } catch(e){ el.innerHTML='<div style="color:#e74c3c;font-size:0.8em;padding:10px;">⚠️ Run the World Boss SQL migration first.</div>'; }
 }
 
 async function adminForceKillBoss(bossId){
   if(!checkAdmin()) return;
-  if(!confirm('Force-kill this World Boss?')) return;
-  const rt = getSupaRT();
+  if(!confirm('Force-kill this boss?')) return;
+  const rt=getSupaRT();
   await rt.from('world_bosses').update({status:'dead',hp:0,killed_at:new Date().toISOString()}).eq('id',bossId);
-  showToast('💀 Boss force-killed');
-  loadAdminBossList();
+  showToast('💀 Boss killed'); loadAdminBossList();
 }
 
 function populateWbCardSelector() {
   const sel = document.getElementById('wbAdminCardId');
   if(!sel) return;
   const all  = window.DEMO_CARDS||[];
-  // Prefer disabled/secret cards, fallback to all
   const pool = all.filter(c=>c.pool_disabled||c.rarity>=6||(c.rarityName||'').toLowerCase().includes('secret'));
   const list = pool.length ? pool : all;
   if(!list.length){ sel.innerHTML='<option value="">— Load cards first —</option>'; return; }
-  sel.innerHTML = list.map(c=>`<option value="${c.id}">[${c.rarityName||'?'}] ${escapeHtml(c.name)}</option>`).join('');
+  sel.innerHTML=list.map(c=>`<option value="${c.id}">[${c.rarityName||'?'}] ${escapeHtml(c.name)}</option>`).join('');
 }
 
 // ═════════════════════════════════════════════
 // HOOK INTO loadAll
 // ═════════════════════════════════════════════
-(function() {
-  const orig = typeof loadAll === 'function' ? loadAll : null;
-  if(orig) {
-    window.loadAll = async function(discordId) {
+(function(){
+  const orig = typeof loadAll==='function' ? loadAll : null;
+  if(orig){
+    window.loadAll = async function(discordId){
       await orig(discordId);
       try { await initWorldBossSystem(); } catch(_) {}
     };
