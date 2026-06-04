@@ -17908,8 +17908,20 @@ async function playerMove(moveId) {
 // ── Copy helper: robust enemy ability list that works with DB + static cards ──
 function _getCopyableEnemyAbils(card, includeUlt=false){
   if(!card) return [];
-  const db = (window.DB_ABILITIES && window.DB_ABILITIES[card.id]) || [];
-  const st = (typeof CARD_ABILITIES !== 'undefined' && CARD_ABILITIES[card.id]) || [];
+  // Try DB abilities by numeric id first
+  let db = (window.DB_ABILITIES && window.DB_ABILITIES[card.id]) || [];
+  // Also try string id (e.g. hardcoded cards use string keys like 'yuta')
+  if(!db.length && card.id && window.DB_ABILITIES){
+    db = window.DB_ABILITIES[String(card.id)] || [];
+  }
+  // Fallback 1: static CARD_ABILITIES by id
+  let st = (typeof CARD_ABILITIES !== 'undefined' && CARD_ABILITIES[card.id]) || [];
+  // Fallback 2: static CARD_ABILITIES by name (for DB cards where id is integer but name matches)
+  if(!st.length && card.name && typeof CARD_ABILITIES !== 'undefined'){
+    const nameKey = Object.keys(CARD_ABILITIES).find(k =>
+      CARD_ABILITIES[k] && card.name && k.toLowerCase() === card.name.toLowerCase().replace(/\s+/g,''));
+    if(nameKey) st = CARD_ABILITIES[nameKey];
+  }
   const all = db.length ? db : st;
   const cnt = (typeof ABILITY_COUNTS !== 'undefined' && ABILITY_COUNTS[card.rarity]) || all.length;
   return all.slice(0, cnt).filter(a => {
@@ -18063,10 +18075,15 @@ async function dispatchAbilityEffect(ab, who) {
       await playMoveVFX('spc','player','enemy',0,false,pColor);
       // Play the ENEMY card's cutscene for the picked ability
       try { await playAbilityCutscene(battleState.enemyCard.id, battleState.enemyCard.rarity, picked.id); } catch(_){}
-      // Dispatch the copied effect — treat as if the player used it
-      const copiedAb = {...picked, value: Math.round((picked.value||20)*0.9)};
+      // Dispatch the copied effect — treat as if the player used it (at 90% value)
+      const _copyBuffEffects = ['regen_active','regen_ult','regen','shield_active','hpboost','hpboost_active',
+        'ascend_ult','defboost','purify_active','purify_ult','immortal_ult','atkboost_active','transform_ult',
+        'demonform','berserk_active','berserk_ult','reflect_active','reflect_ult','counter_active','counter_ult',
+        'dodge_active','phantom_ult','nullify_active','fortify_ult','ult_fortify'];
+      const isBuff = _copyBuffEffects.includes(picked.battleEffect);
+      const copiedAb = {...picked, value: isBuff ? picked.value : Math.round((picked.value||20)*0.9)};
       await dispatchAbilityEffect(copiedAb, 'player');
-      battleLog(`🪞 Copy resolved — ${picked.name} used!`, 'player');
+      battleLog(`🪞 Copy resolved — ${picked.name} ${isBuff ? 'buff applied' : 'used'}!`, 'player');
     } else {
       // No copyable abilities found — mirror strike
       const mDmg = applyAtkBoosts(battleState.lastEnemyDmg||15);
@@ -18085,9 +18102,14 @@ async function dispatchAbilityEffect(ab, who) {
       if(chosen){
         battleLog(`🪞 ${pName} copies ${eName}'s 【${chosen.name}】!`, 'player');
         try { await playAbilityCutscene(battleState.enemyCard.id, battleState.enemyCard.rarity, chosen.id); } catch(_){}
-        const copiedAbU = {...chosen, value: Math.round((chosen.value||20)*1.1)}; // 10% boost
+        const _ultBuffEffects = ['regen_active','regen_ult','regen','shield_active','hpboost','hpboost_active',
+          'ascend_ult','defboost','purify_active','purify_ult','immortal_ult','atkboost_active','transform_ult',
+          'demonform','berserk_active','berserk_ult','reflect_active','reflect_ult','counter_active','counter_ult',
+          'dodge_active','phantom_ult','nullify_active','fortify_ult','ult_fortify'];
+        const isUltBuff = _ultBuffEffects.includes(chosen.battleEffect);
+        const copiedAbU = {...chosen, value: isUltBuff ? chosen.value : Math.round((chosen.value||20)*1.1)}; // 10% boost for damage
         await dispatchAbilityEffect(copiedAbU, 'player');
-        battleLog(`🪞 Ultimate Copy resolved — ${chosen.name} unleashed!`, 'player');
+        battleLog(`🪞 Ultimate Copy resolved — ${chosen.name} ${isUltBuff ? 'buff applied at full power' : 'unleashed'}!`, 'player');
       }
     } else {
       const mDmg = applyAtkBoosts((battleState.lastEnemyDmg||15)*2);
@@ -26404,28 +26426,55 @@ async function takePvpTurn(action, battleId, abilityId){
         // PVP Copy: mirrors opponent's last used ability effect
         const lastOppDmg = bs[isP1?'p2_last_dmg':'p1_last_dmg']||15;
         const lastOppAbilEffect = bs[isP1?'p2_last_abil_effect':'p1_last_abil_effect']||'';
+        const oppCard = isP1
+          ? (window.DEMO_CARDS||DEMO_CARDS).find(c=>c.name===(bs.p2_name||''))
+          : (window.DEMO_CARDS||DEMO_CARDS).find(c=>c.name===(bs.p1_name||''));
         if(effect==='copy_ult'){
-          // Copy ult: apply opponent's last ability effect to them at full power
-          if(lastOppAbilEffect && lastOppAbilEffect!=='regen_active'&&lastOppAbilEffect!=='regen'
-             &&lastOppAbilEffect!=='shield_active'&&lastOppAbilEffect!=='immortal_ult'){
-            dmg = Math.round(lastOppDmg * 1.5);
-            logMsg = `🪞 ${myName}: PERFECT MIRROR! Copied [${lastOppAbilEffect}] — ${dmg} reflected + full effect!`;
+          // Show ability selection screen — pick an opponent ability interactively
+          const oppAbilsPvp = oppCard ? _getCopyableEnemyAbils(oppCard, true) : [];
+          if(oppAbilsPvp.length){
+            const chosenPvp = await showCopySelectionScreen(oppAbilsPvp, oppCard||{name:oppName}).catch(()=>null);
+            if(chosenPvp){
+              const _pvpBuffFx = ['regen_active','regen_ult','regen','shield_active','hpboost','hpboost_active',
+                'ascend_ult','defboost','purify_active','purify_ult','immortal_ult','atkboost_active','transform_ult',
+                'demonform','berserk_active','berserk_ult','reflect_active','reflect_ult','counter_active','counter_ult',
+                'dodge_active','phantom_ult','nullify_active','fortify_ult','ult_fortify'];
+              if(_pvpBuffFx.includes(chosenPvp.battleEffect)){
+                // Buff — grant heal/shield to self instead of damage
+                const pvpBuffAmt = Math.floor((chosenPvp.value||20) * 1.1);
+                bs[myHpKey] = Math.min(maxHp, (bs[myHpKey]||0) + pvpBuffAmt);
+                dmg = 0;
+                logMsg = `🪞 ${myName}: PERFECT MIRROR steals 【${chosenPvp.name}】 — +${pvpBuffAmt} HP!`;
+              } else {
+                dmg = Math.round((chosenPvp.value||baseAtk) * 1.1);
+                logMsg = `🪞 ${myName}: PERFECT MIRROR copies 【${chosenPvp.name}】 — ${dmg} dmg!`;
+              }
+              if(lastOppAbilEffect==='stun_active'||lastOppAbilEffect==='lockdown_ult'){
+                bs[isP1?'p2_stunned':'p1_stunned'] = true;
+                logMsg += ' + STUN reflected!';
+              }
+            } else {
+              // Cancelled — fallback mirror
+              dmg = Math.round(lastOppDmg * 1.5);
+              logMsg = `🪞 ${myName}: Mirror strike — ${dmg}!`;
+            }
           } else {
-            // Opponent used a buff — steal the idea, do max damage
-            dmg = Math.round(baseAtk * 1.6);
-            const ultHeal = Math.round(abVal * 0.3);
-            bs[myHpKey] = Math.min(maxHp, (bs[myHpKey]||0) + ultHeal);
-            logMsg = `🪞 ${myName}: PERFECT MIRROR! ${dmg} dmg + ${ultHeal} HP stolen!`;
+            // No abilities found — fall back to last damage mirror
+            if(lastOppAbilEffect && lastOppAbilEffect!=='regen_active'&&lastOppAbilEffect!=='regen'
+               &&lastOppAbilEffect!=='shield_active'&&lastOppAbilEffect!=='immortal_ult'){
+              dmg = Math.round(lastOppDmg * 1.5);
+              logMsg = `🪞 ${myName}: PERFECT MIRROR! Copied [${lastOppAbilEffect}] — ${dmg} reflected + full effect!`;
+            } else {
+              dmg = Math.round(baseAtk * 1.6);
+              const ultHeal = Math.round(abVal * 0.3);
+              bs[myHpKey] = Math.min(maxHp, (bs[myHpKey]||0) + ultHeal);
+              logMsg = `🪞 ${myName}: PERFECT MIRROR! ${dmg} dmg + ${ultHeal} HP stolen!`;
+            }
           }
           // Also apply: if they had a burn on us, we copy a burn on them
           if(bs[isP1?'p1_burned':'p2_burned']>0){
             bs[isP1?'p2_burned':'p1_burned'] = (bs[isP1?'p2_burned':'p1_burned']||0) + 2;
             logMsg += ' + Curse copied!';
-          }
-          // Stun if they stunned us last
-          if(lastOppAbilEffect==='stun_active'||lastOppAbilEffect==='lockdown_ult'){
-            bs[isP1?'p2_stunned':'p1_stunned'] = true;
-            logMsg += ' + STUN reflected!';
           }
         } else {
           // Active copy: mirror last opponent damage at 90%, also copy any status
@@ -30441,7 +30490,10 @@ async function wbAttack(action='attack', abilityId=null) {
             // Apply copied ability as player buff/damage
             const copyMultWB = 1.2;
             const copyDmgWB = Math.floor((chosen.value||baseAtk) * copyMultWB);
-            const isSelfCopy = ['regen_active','regen_ult','regen','shield_active','hpboost','ascend_ult','defboost','purify_active','purify_ult','immortal_ult'].includes(chosen.battleEffect);
+            const isSelfCopy = ['regen_active','regen_ult','regen','shield_active','hpboost','hpboost_active',
+              'ascend_ult','defboost','purify_active','purify_ult','immortal_ult','atkboost_active','transform_ult',
+              'demonform','berserk_active','berserk_ult','reflect_active','reflect_ult','counter_active','counter_ult',
+              'dodge_active','phantom_ult','nullify_active','fortify_ult','ult_fortify'].includes(chosen.battleEffect);
             if(isSelfCopy){
               const copyHeal = Math.floor((chosen.value||20) * 1.1);
               const myMaxHpC = _wbMyPartic?.player_max_hp||130;
@@ -30465,7 +30517,7 @@ async function wbAttack(action='attack', abilityId=null) {
           logMsg = `🪞 ${state.username}: Perfect Mirror — ${dmg}!`;
         }
       } else {
-        // Active copy: pick a random non-ultimate boss ability, play ITS cutscene, then deal its damage
+        // Active copy: pick a random non-ultimate boss ability, play ITS cutscene, then apply its effect
         const bossAbilsActive = _wbBossData?.card_id
           ? _getCopyableEnemyAbils({id: _wbBossData.card_id, rarity: _wbBossData?.rarity||5}, false)
           : [];
@@ -30475,9 +30527,27 @@ async function wbAttack(action='attack', abilityId=null) {
           addBossLog(logMsg);
           // Play the BOSS's ability cutscene
           try { await playAbilityCutscene(_wbBossData.card_id, _wbBossData.rarity||5, pickedA.id); } catch(_){}
-          // Scale damage from copied ability value
-          dmg = Math.floor((pickedA.value||baseAtk) * 0.9 * (0.85 + Math.random()*0.3));
-          logMsg = `🪞 ${state.username} copied [${pickedA.name}] — ${dmg} dmg!`;
+          // Check if the copied ability is a self-buff — apply to player instead of dealing dmg
+          const _wbCopyBuffEffects = ['regen_active','regen_ult','regen','shield_active','hpboost','hpboost_active',
+            'ascend_ult','defboost','purify_active','purify_ult','immortal_ult','atkboost_active','transform_ult',
+            'demonform','berserk_active','berserk_ult','reflect_active','reflect_ult','counter_active','counter_ult',
+            'dodge_active','phantom_ult','nullify_active','fortify_ult','ult_fortify'];
+          const isCopyBuff = _wbCopyBuffEffects.includes(pickedA.battleEffect);
+          if(isCopyBuff){
+            // Apply the buff to the player
+            const copyHealA = Math.floor((pickedA.value||20) * 1.0);
+            const myMaxHpCA = _wbMyPartic?.player_max_hp||130;
+            const newHpCA = Math.min(myMaxHpCA, (_wbMyPartic?.player_hp||0)+copyHealA);
+            try { await rt.from('world_boss_participants').update({player_hp:newHpCA}).eq('boss_id',_wbCurrentBossId).eq('discord_id',state.discordId); } catch(_){}
+            if(_wbMyPartic) _wbMyPartic.player_hp = newHpCA;
+            renderMyCardStatus(_wbMyPartic);
+            dmg = 0;
+            logMsg = `🪞 ${state.username} steals 【${pickedA.name}】 from boss — buff applied! +${copyHealA} HP!`;
+          } else {
+            // Scale damage from copied ability value
+            dmg = Math.floor((pickedA.value||baseAtk) * 0.9 * (0.85 + Math.random()*0.3));
+            logMsg = `🪞 ${state.username} copied [${pickedA.name}] — ${dmg} dmg!`;
+          }
         } else {
           // No boss abilities found — mirror last known damage
           const extraCopyDmg = Math.floor(Math.min(500, totalDealt/8));
