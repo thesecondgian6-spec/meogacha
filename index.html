@@ -20492,8 +20492,16 @@ async function submitCardForm(){
   const btn=document.getElementById('cardFormSubmitBtn');
   btn.textContent='Saving...';btn.disabled=true;
   try{
-    const ok=await sb.upsert('cards',cardData);
-    if(!ok)throw new Error('Upsert failed');
+    const cardRes = await fetch(`${SUPABASE_URL}/rest/v1/cards?on_conflict=id`,{
+      method:'POST',
+      headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json','Prefer':'resolution=merge-duplicates,return=minimal'},
+      body:JSON.stringify(cardData)
+    });
+    if(!cardRes.ok){
+      const errBody = await cardRes.json().catch(()=>null);
+      const detail = errBody?.message || errBody?.hint || errBody?.details || JSON.stringify(errBody) || cardRes.statusText;
+      throw new Error('Cards upsert failed ('+cardRes.status+'): '+detail);
+    }
 
     // Save abilities
     const abilities=collectAbilitySlots();
