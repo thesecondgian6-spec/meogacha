@@ -19758,7 +19758,7 @@ function csdBuildEffectMenu(idx, currentKey) {
   const PILL = EFFECT_PILL_DESC || {};
   let html = '';
   Object.entries(catGroups).forEach(([cat,items])=>{
-    const ci = TEMPLATE_CATEGORIES[cat];
+    const ci = TEMPLATE_CATEGORIES[cat] || {label: cat, color: 'var(--text-dim)'};
     html += `<div class="csd-group-label" style="color:${ci.color}">${ci.label}</div>`;
     items.forEach(({k,t})=>{
       const pd = PILL[k];
@@ -20030,12 +20030,15 @@ function addAbilitySlot(prefill){
   const prefillEffect = data.battleEffect||data.battle_effect||'';
   // Map old-style effects to new template keys for backwards compatibility
   const LEGACY_EFFECT_MAP = {
-    'regen':'regen', 'doubleregen':'regen', 'hpboost':'hpboost', 'atkboost':'powerup',
-    'defboost':'shield', 'burst':'burst', 'smash':'strike', 'multihit':'multihit',
-    'pierce':'pierce', 'antimagic':'pierce', 'frenzy':'multihit', 'demonform':'powerup',
-    'ofa100':'strike', 'lifeswap':'lifedrain', 'copy':'copy', 'dodge':'dodge',
-    'firstcrit':'strike', 'spellboost':'powerup', 'curseburst':'curse', 'curse':'curse',
-    'finallegacy':'strike', 'voidsteal':'stun', 'doubleatk':'powerup',
+    'regen':'regen', 'doubleregen':'regen', 'hpboost':'fortify', 'atkboost':'transform',
+    'defboost':'adaptation', 'burst':'burst', 'smash':'strike', 'multihit':'echo',
+    'pierce':'pierce', 'antimagic':'pierce', 'frenzy':'echo', 'demonform':'transform',
+    'ofa100':'gambit', 'lifeswap':'leech', 'copy':'copy', 'dodge':'evasion',
+    'firstcrit':'strike', 'spellboost':'transform', 'curseburst':'burn', 'curse':'burn',
+    'finallegacy':'strike', 'voidsteal':'stun', 'doubleatk':'berserk',
+    'shield':'adaptation', 'stun':'stun', 'drain':'drain', 'counter':'counter',
+    'reflect':'reflect', 'purify':'purify', 'nullify':'nullify', 'swap':'swap',
+    'gambit':'gambit', 'berserk':'berserk', 'echo':'echo', 'burn':'burn',
   };
   let prefillTemplateKey = 'strike';
   if(prefillEffect){
@@ -20058,7 +20061,7 @@ function addAbilitySlot(prefill){
     catGroups[t.category].push({k,t});
   });
   const optionsHTML = Object.entries(catGroups).map(([cat,items])=>{
-    const ci = TEMPLATE_CATEGORIES[cat];
+    const ci = TEMPLATE_CATEGORIES[cat] || {label: cat, color: 'var(--text-dim)'};
     return `<optgroup label="${ci.label}">${items.map(({k,t})=>`<option value="${k}" ${k===prefillTemplateKey?'selected':''}>${t.label}</option>`).join('')}</optgroup>`;
   }).join('');
 
