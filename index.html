@@ -28478,7 +28478,6 @@ CREATE POLICY "anon_write_anime" ON anime_collections FOR ALL    USING (true);
   font-family: 'JetBrains Mono', monospace;
   font-size: 0.65em; padding: 7px 10px;
   cursor: pointer; transition: all 0.2s;
-  white-space: nowrap;
 }
 .wb-move-btn:hover:not(:disabled) {
   background: rgba(192,57,43,0.2);
@@ -28717,6 +28716,43 @@ CREATE POLICY "anon_write_anime" ON anime_collections FOR ALL    USING (true);
   .wb-notif-boss-art { height: 170px; }
   .wb-end-top3 { gap: 8px; }
   .wb-end-hero { min-width: 76px; padding: 9px 10px; }
+
+  /* Attack + heavy buttons — two equal columns */
+  .wb-moves:first-of-type {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr;
+    gap: 5px;
+  }
+
+  /* Ability buttons — 2-per-row grid */
+  #wbAbilityButtons {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px;
+    margin-top: 4px;
+  }
+  #wbAbilityButtons .wb-move-btn {
+    flex: unset;
+    font-size: 0.58em;
+    padding: 6px 5px;
+    min-height: 32px;
+    white-space: normal;
+    word-break: break-word;
+    text-align: center;
+    line-height: 1.2;
+    overflow: hidden;
+    /* clamp to 2 lines then ellipsis */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+
+  /* Player section — tighter on mobile */
+  .wb-player-section { padding: 8px 12px 12px; }
+  .wb-player-row { gap: 9px; }
+  .wb-my-card-img { width: 46px; height: 64px; }
+  .wb-moves { gap: 4px; }
+  .wb-move-btn { font-size: 0.62em; padding: 7px 6px; min-width: 0; }
 }
 </style>
 
@@ -29278,18 +29314,18 @@ async function triggerBossSkillAI(isHeavy) {
   const rarity   = bossCard?.rarity || 5;
   const baseDmg  = rarity * (isHeavy ? 18 : 11);
   const dmg      = Math.floor(baseDmg * (0.75 + Math.random()*0.5));
-  try {
-    await rt.from('world_bosses').update({
-      current_ability: {
-        category: 'skill',
-        type:     isHeavy ? 'heavy' : 'quick',
-        name:     isHeavy ? 'Heavy Strike' : 'Quick Strike',
-        icon:     isHeavy ? '💥' : '⚔️',
-        dmg:      dmg,
-        ts:       Date.now()
-      }
-    }).eq('id', _wbCurrentBossId);
-  } catch(_) {}
+  const skill = {
+    category: 'skill', type: isHeavy ? 'heavy' : 'quick',
+    name: isHeavy ? 'Heavy Strike' : 'Quick Strike',
+    icon: isHeavy ? '💥' : '⚔️', dmg, ts: Date.now()
+  };
+  // Write to DB so OTHER participants get it via realtime
+  try { await rt.from('world_bosses').update({ current_ability: skill }).eq('id', _wbCurrentBossId); } catch(_) {}
+  // Apply on THIS (host) client immediately — don't wait for realtime
+  _wbBossAbilityTs = skill.ts;  // prevent double-apply when realtime fires back
+  wbBossSkillFlash(skill);
+  addBossLog(`${skill.icon} Boss uses ${skill.name} on all raiders!`);
+  await handleBossSkillDamage(skill);
 }
 
 async function triggerBossAbilityAI() {
@@ -29307,19 +29343,18 @@ async function triggerBossAbilityAI() {
   let rand = Math.random()*total, chosen = abilities[0];
   for(let i=0;i<abilities.length;i++){ rand-=weights[i]; if(rand<=0){chosen=abilities[i];break;} }
 
-  try {
-    await rt.from('world_bosses').update({
-      current_ability: {
-        category:  'ability',
-        cardId:    bossCard.id,
-        rarity:    bossCard.rarity,
-        abilityId: chosen.id,
-        name:      chosen.name||'Boss Ability',
-        icon:      chosen.icon||'💀',
-        ts:        Date.now()
-      }
-    }).eq('id', _wbCurrentBossId);
-  } catch(_) {}
+  const ab = {
+    category: 'ability', cardId: bossCard.id, rarity: bossCard.rarity,
+    abilityId: chosen.id, name: chosen.name||'Boss Ability',
+    icon: chosen.icon||'💀', ts: Date.now()
+  };
+  // Write to DB so OTHER participants get it via realtime
+  try { await rt.from('world_bosses').update({ current_ability: ab }).eq('id', _wbCurrentBossId); } catch(_) {}
+  // Play on THIS (host) client immediately — don't wait for realtime
+  _wbBossAbilityTs = ab.ts;  // prevent double-apply when realtime fires back
+  addBossLog(`${ab.icon} Boss unleashes ${ab.name}!`);
+  try { await playAbilityCutscene(ab.cardId, ab.rarity, ab.abilityId); } catch(_) {}
+  if(_wbBossData) await applyBossAbilityDamage(ab, _wbBossData);
 }
 
 // Admin manual trigger (calls same internal function)
