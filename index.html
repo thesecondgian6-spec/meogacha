@@ -12728,7 +12728,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
       ⚔️ World Boss Manager
       <span style="font-size:0.65em;font-family:'JetBrains Mono',monospace;color:var(--text-dim);font-weight:400;">Cooperative raid boss for all players</span>
     </h3>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start;">
+    <div class="wb-admin-grid">
 
       <!-- Left: Spawn Form -->
       <div>
@@ -12777,6 +12777,33 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
         <button class="btn-secondary" style="width:100%;margin-top:10px;font-size:0.75em;" onclick="loadAdminBossList()">↻ Refresh List</button>
       </div>
 
+    </div>
+
+    <!-- Music Manager -->
+    <div style="margin-top:22px;">
+      <div class="admin-section-label" style="margin-bottom:12px;">🎵 Arena BGM Manager</div>
+      <div style="background:rgba(241,196,15,0.05);border:1px solid rgba(241,196,15,0.18);border-radius:14px;padding:16px;">
+        <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;margin-bottom:10px;">
+          <div style="flex:1;min-width:180px;">
+            <label class="admin-label">Audio URL <span class="admin-hint">(.mp3, .ogg, youtube embed, etc.)</span></label>
+            <input id="wbMusicUrlInput" class="admin-input" type="text" placeholder="https://..." style="width:100%;"/>
+          </div>
+          <button class="btn-secondary" style="font-size:0.75em;padding:8px 16px;flex-shrink:0;" onclick="wbAdminLoadMusicUrl()">▶ Load URL</button>
+          <label class="btn-secondary" style="font-size:0.75em;padding:8px 16px;flex-shrink:0;cursor:pointer;display:flex;align-items:center;gap:5px;">
+            📂 Import File
+            <input type="file" accept="audio/*" style="display:none;" onchange="wbAdminLoadMusicFile(this)"/>
+          </label>
+        </div>
+        <div id="wbAdminMusicControls" style="display:none;align-items:center;gap:10px;flex-wrap:wrap;">
+          <button class="admin-action-btn" id="wbAdminPlayPauseBtn" onclick="wbTogglePlayPause()" style="font-size:1em;">⏸</button>
+          <span id="wbAdminMusicName" style="font-family:'JetBrains Mono',monospace;font-size:0.7em;color:var(--pink);flex:1;min-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">—</span>
+          <label style="font-family:'JetBrains Mono',monospace;font-size:0.65em;color:var(--text-dim);display:flex;align-items:center;gap:6px;">
+            Vol <input type="range" min="0" max="1" step="0.01" value="0.5" style="width:70px;accent-color:#c0392b;" id="wbAdminMusicVol" oninput="wbSetVolume(this.value)"/>
+          </label>
+          <button class="admin-action-btn danger" onclick="wbStopMusicAdmin()" style="font-size:0.85em;" title="Stop">⏹ Stop</button>
+        </div>
+        <div style="font-size:0.68em;color:var(--text-dim);font-style:italic;margin-top:8px;">Music loaded here persists in the arena for your session. Players must load their own music.</div>
+      </div>
     </div>
   </div>
 </div>
@@ -29754,19 +29781,17 @@ CREATE POLICY "anon_write_anime" ON anime_collections FOR ALL    USING (true);
   backdrop-filter: blur(14px);
 }
 .wb-notif-box {
-  max-width: 440px; width: 90%;
+  max-width: 440px; width: 100%;
   background: linear-gradient(160deg, #1a0808, #0d0610, #1a0505);
   border: 1px solid rgba(192,57,43,0.5);
   border-radius: 24px;
+  min-width: 0; box-sizing: border-box;
   overflow: hidden;
   box-shadow: 0 0 80px rgba(192,57,43,0.35), 0 0 160px rgba(192,57,43,0.1);
   transform: scale(0.8) translateY(30px);
   opacity: 0;
   transition: transform 0.55s cubic-bezier(0.34,1.3,0.64,1), opacity 0.4s ease;
   position: relative;
-  /* prevent horizontal stretching from long text */
-  min-width: 0;
-  box-sizing: border-box;
 }
 #wbSpawnOverlay.wb-notif-open .wb-notif-box {
   transform: scale(1) translateY(0);
@@ -29804,11 +29829,6 @@ CREATE POLICY "anon_write_anime" ON anime_collections FOR ALL    USING (true);
   text-shadow: 0 0 30px rgba(192,57,43,0.8), 0 2px 20px rgba(0,0,0,1);
   margin-bottom: 6px; letter-spacing: 0.04em;
   animation: wbNameFlicker 3s linear infinite;
-  /* prevent long names from stretching layout */
-  word-break: break-word;
-  overflow-wrap: break-word;
-  hyphens: auto;
-  max-width: 100%;
 }
 @keyframes wbNameFlicker {
   0%,94%,96%,98%,100% { opacity:1; }
@@ -29857,6 +29877,9 @@ CREATE POLICY "anon_write_anime" ON anime_collections FOR ALL    USING (true);
 /* ════════════════════════════════════
    WORLD BOSS — ARENA MODAL (full screen)
    ════════════════════════════════════ */
+/* Effect color variable — set by JS */
+:root { --wb-effect-color: #c0392b; --wb-effect-rgb: 192,57,43; }
+
 #wbArenaModal {
   position: fixed; inset: 0; z-index: 410;
   display: none; flex-direction: column;
@@ -29867,74 +29890,80 @@ CREATE POLICY "anon_write_anime" ON anime_collections FOR ALL    USING (true);
 }
 #wbArenaModal.wb-arena-open { opacity: 1; }
 
-/* Boss background */
+/* ── Background layers ── */
 .wb-arena-bg {
   position: absolute; inset: 0; z-index: 0;
   overflow: hidden;
 }
+/* Full-screen GIF background */
 .wb-arena-bg-img {
   width: 100%; height: 100%; object-fit: cover;
-  filter: brightness(0.22) saturate(0.6) sepia(0.5) hue-rotate(-10deg);
+  filter: brightness(0.18) saturate(0.5) sepia(0.3);
   animation: wbBgBreath 8s ease-in-out infinite;
-  transform-origin: center center;
+  transform-origin: center;
 }
 @keyframes wbBgBreath { 0%,100%{transform:scale(1.0);} 50%{transform:scale(1.06);} }
-/* Multi-layer atmospheric overlay */
+/* Atmospheric dark overlay */
 .wb-arena-bg-overlay {
   position: absolute; inset: 0;
   background:
-    radial-gradient(ellipse at 50% 0%, rgba(192,57,43,0.22) 0%, transparent 55%),
-    radial-gradient(ellipse at 50% 100%, rgba(80,0,0,0.5) 0%, transparent 60%),
-    linear-gradient(to bottom, rgba(6,2,12,0.5) 0%, rgba(6,2,12,0.35) 40%, rgba(6,2,12,0.7) 75%, rgba(6,2,12,0.98) 100%);
+    radial-gradient(ellipse at 50% 0%, rgba(var(--wb-effect-rgb),0.18) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 100%, rgba(0,0,0,0.65) 0%, transparent 60%),
+    linear-gradient(to bottom, rgba(6,2,12,0.55) 0%, rgba(6,2,12,0.2) 35%, rgba(6,2,12,0.65) 75%, rgba(6,2,12,0.98) 100%);
 }
-/* Scanlines overlay for cinematic feel */
-.wb-arena-bg-scanlines {
+/* Scanlines */
+.wb-arena-scanlines {
   position: absolute; inset: 0; z-index: 1;
-  background: repeating-linear-gradient(
-    0deg,
-    transparent,
-    transparent 2px,
-    rgba(0,0,0,0.04) 2px,
-    rgba(0,0,0,0.04) 4px
-  );
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.045) 2px, rgba(0,0,0,0.045) 4px);
   pointer-events: none;
 }
-/* Animated red corner vignettes */
-.wb-arena-bg-vignette {
+/* Pulsing vignette */
+.wb-arena-vignette {
   position: absolute; inset: 0; z-index: 1;
-  background: radial-gradient(ellipse at 50% 50%, transparent 40%, rgba(80,0,0,0.55) 100%);
+  background: radial-gradient(ellipse at 50% 50%, transparent 38%, rgba(var(--wb-effect-rgb),0.45) 100%);
   animation: wbVignettePulse 4s ease-in-out infinite;
   pointer-events: none;
 }
-@keyframes wbVignettePulse {
-  0%,100% { opacity: 0.6; }
-  50% { opacity: 1; }
+@keyframes wbVignettePulse { 0%,100%{opacity:0.5;} 50%{opacity:1;} }
+
+/* ── Speed lines (top & bottom) ── */
+.wb-speedlines {
+  position: absolute; left: 0; right: 0; z-index: 2;
+  height: 110px; overflow: hidden; pointer-events: none;
 }
-/* Lightning particle layer */
-.wb-arena-lightning {
-  position: absolute; inset: 0; z-index: 2;
-  pointer-events: none;
-  overflow: hidden;
-}
-.wb-lightning-bolt {
-  position: absolute;
-  width: 2px;
-  background: linear-gradient(to bottom, transparent, rgba(192,57,43,0.8), rgba(255,100,60,0.4), transparent);
-  border-radius: 2px;
-  animation: wbLightningFade 0s ease forwards;
+.wb-speedlines-top { top: 0; }
+.wb-speedlines-bottom { bottom: 0; transform: scaleY(-1); }
+.wb-speedlines svg { width: 100%; height: 100%; }
+.wb-speedline {
+  stroke: var(--wb-effect-color);
+  stroke-width: 1.5;
   opacity: 0;
+  animation: wbSpeedlineAnim var(--dur, 0.6s) linear infinite;
+  animation-delay: var(--delay, 0s);
 }
-@keyframes wbLightningFade {
-  0% { opacity: 0.9; transform: scaleX(1); }
-  30% { opacity: 0.6; transform: scaleX(1.5); }
-  100% { opacity: 0; transform: scaleX(0.5); }
+@keyframes wbSpeedlineAnim {
+  0%   { opacity: 0; stroke-dashoffset: 0; }
+  10%  { opacity: 0.55; }
+  90%  { opacity: 0.4; }
+  100% { opacity: 0; stroke-dashoffset: -320; }
 }
-/* Animated vignette pulse when boss attacks */
+
+/* ── Lightning layer ── */
+.wb-arena-lightning { position: absolute; inset: 0; z-index: 3; pointer-events: none; overflow: hidden; }
+.wb-lightning-bolt {
+  position: absolute; width: 2px;
+  background: linear-gradient(to bottom, transparent, var(--wb-effect-color), rgba(var(--wb-effect-rgb),0.3), transparent);
+  border-radius: 2px; opacity: 0;
+  animation: wbLightningFade var(--dur,0.4s) ease forwards;
+}
+@keyframes wbLightningFade { 0%{opacity:0.9;} 40%{opacity:0.5;} 100%{opacity:0;} }
+
+/* ── Hit flash ── */
 .wb-hit-flash {
-  position: absolute; inset: 0; z-index: 5;
-  background: rgba(192,57,43,0.0);
+  position: absolute; inset: 0; z-index: 4;
+  background: rgba(var(--wb-effect-rgb),0.0);
   pointer-events: none;
-  transition: background 0.08s ease-out;
+  transition: background 0.06s ease-out;
 }
 
 /* ── Top Header ── */
@@ -29942,22 +29971,24 @@ CREATE POLICY "anon_write_anime" ON anime_collections FOR ALL    USING (true);
   position: relative; z-index: 10;
   display: flex; align-items: center; justify-content: space-between;
   padding: 14px 20px 10px;
-  background: linear-gradient(to bottom, rgba(6,2,12,0.9), transparent);
+  background: linear-gradient(to bottom, rgba(6,2,12,0.92), transparent);
 }
-.wb-header-left { display: flex; align-items: center; gap: 10px; }
+.wb-header-left { display: flex; align-items: center; gap: 10px; min-width:0; }
 .wb-boss-badge {
   font-family: 'JetBrains Mono', monospace;
   font-size: 0.62em; letter-spacing: 0.2em;
-  color: #e74c3c; background: rgba(192,57,43,0.15);
-  border: 1px solid rgba(192,57,43,0.35);
+  color: var(--wb-effect-color); background: rgba(var(--wb-effect-rgb),0.12);
+  border: 1px solid rgba(var(--wb-effect-rgb),0.35);
   border-radius: 20px; padding: 3px 10px;
   animation: wbLabelPulse 2s ease-in-out infinite;
+  flex-shrink: 0;
 }
 #wbBossName {
   font-family: 'Cinzel Decorative', serif;
-  font-size: clamp(0.9em, 3vw, 1.3em); font-weight: 900;
-  color: #fff; text-shadow: 0 0 20px rgba(192,57,43,0.6);
+  font-size: clamp(0.85em, 2.8vw, 1.3em); font-weight: 900;
+  color: #fff; text-shadow: 0 0 20px rgba(var(--wb-effect-rgb),0.7);
   letter-spacing: 0.04em;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .wb-leave-btn {
   background: rgba(255,255,255,0.07);
@@ -29965,181 +29996,141 @@ CREATE POLICY "anon_write_anime" ON anime_collections FOR ALL    USING (true);
   border-radius: 8px; color: rgba(255,255,255,0.5);
   font-size: 0.78em; padding: 6px 14px;
   cursor: pointer; transition: all 0.2s;
-  font-family: 'Cormorant Garamond', serif;
+  font-family: 'Cormorant Garamond', serif; flex-shrink: 0;
 }
 .wb-leave-btn:hover { color: #e74c3c; border-color: rgba(231,76,60,0.4); background: rgba(231,76,60,0.1); }
 
-/* ── Boss HP Bar (BIG) ── */
-.wb-boss-hp-section {
-  position: relative; z-index: 10;
-  padding: 0 20px 10px;
-}
-.wb-boss-hp-label {
-  display: flex; justify-content: space-between; align-items: center;
-  margin-bottom: 5px;
-}
-.wb-boss-hp-title {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.68em; letter-spacing: 0.12em; text-transform: uppercase;
-  color: rgba(231,76,60,0.8);
-}
-#wbBossHpText {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.75em; color: #e74c3c;
-  font-weight: 700;
-}
-.wb-boss-hp-track {
-  height: 12px;
-  background: rgba(255,255,255,0.06);
-  border-radius: 6px; overflow: hidden;
-  border: 1px solid rgba(192,57,43,0.2);
-  box-shadow: 0 0 10px rgba(192,57,43,0.15) inset;
-}
-#wbBossHpFill {
-  height: 100%; border-radius: 6px;
-  background: linear-gradient(90deg, #8b0000, #c0392b);
-  transition: width 0.6s ease;
-  box-shadow: 0 0 12px rgba(192,57,43,0.5);
-  position: relative;
-}
-#wbBossHpFill::after {
-  content: '';
-  position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.15) 50%, transparent 100%);
-  background-size: 200% 100%;
-  animation: wbHpShimmer 2s linear infinite;
-}
+/* ── Boss HP Bar ── */
+.wb-boss-hp-section { position: relative; z-index: 10; padding: 0 20px 10px; }
+.wb-boss-hp-label { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+.wb-boss-hp-title { font-family: 'JetBrains Mono', monospace; font-size: 0.68em; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(var(--wb-effect-rgb),0.8); }
+#wbBossHpText { font-family: 'JetBrains Mono', monospace; font-size: 0.75em; color: var(--wb-effect-color); font-weight: 700; }
+.wb-boss-hp-track { height: 12px; background: rgba(255,255,255,0.06); border-radius: 6px; overflow: hidden; border: 1px solid rgba(var(--wb-effect-rgb),0.2); box-shadow: 0 0 10px rgba(var(--wb-effect-rgb),0.12) inset; }
+#wbBossHpFill { height: 100%; border-radius: 6px; background: linear-gradient(90deg, #8b0000, var(--wb-effect-color)); transition: width 0.6s ease; box-shadow: 0 0 12px rgba(var(--wb-effect-rgb),0.5); position: relative; }
+#wbBossHpFill::after { content:''; position:absolute; inset:0; background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,0.18) 50%,transparent 100%); background-size:200% 100%; animation:wbHpShimmer 2s linear infinite; }
 @keyframes wbHpShimmer { 0%{background-position:200% 0;} 100%{background-position:-200% 0;} }
 
 /* ── Arena Content ── */
-.wb-arena-main {
-  position: relative; z-index: 10;
-  flex: 1; display: flex; flex-direction: column;
-  overflow: hidden; padding: 0 16px;
-}
-/* Boss Image Center — cinematic portrait */
+.wb-arena-main { position: relative; z-index: 10; flex: 1; display: flex; flex-direction: column; overflow: hidden; padding: 0 16px; }
+
+/* ── Boss Center: card thumbnail portrait ── */
 .wb-boss-center {
   flex: 1; display: flex; align-items: center; justify-content: center;
   position: relative; min-height: 0;
-  overflow: hidden;
-}
-/* Full-height boss portrait behind everything */
-.wb-boss-portrait-bg {
-  position: absolute; inset: 0;
-  display: flex; align-items: center; justify-content: center;
-  overflow: hidden;
-}
-.wb-boss-portrait-bg-img {
-  height: 100%; width: 100%;
-  object-fit: contain; object-position: center bottom;
-  filter: brightness(0.15) saturate(0.3) blur(2px);
-  transform: scale(1.08);
-  opacity: 0.7;
 }
 #wbBossImgWrap {
   position: relative; display: flex; flex-direction: column;
   align-items: center; justify-content: flex-end;
-  height: 100%; width: 100%;
-  padding-bottom: 8px;
+  height: 100%; width: 100%; padding-bottom: 6px;
 }
-/* The main boss card image — tall portrait */
-#wbBossCardImg {
-  height: clamp(160px, 30vh, 280px);
-  max-width: 200px;
-  object-fit: contain;
-  border-radius: 14px;
-  filter: saturate(0.75) brightness(0.82) drop-shadow(0 0 18px rgba(192,57,43,0.7)) drop-shadow(0 0 40px rgba(192,57,43,0.35)) drop-shadow(0 8px 32px rgba(0,0,0,0.9));
+
+/* ── Card Thumbnail (proper card frame) ── */
+.wb-boss-card-frame {
+  position: relative;
+  display: inline-flex; flex-direction: column;
+  align-items: center;
   animation: wbBossFloat 3s ease-in-out infinite;
-  position: relative; z-index: 3;
-  border: 1px solid rgba(192,57,43,0.3);
-  box-shadow: 0 0 0 1px rgba(255,80,40,0.15), inset 0 0 20px rgba(192,57,43,0.1);
+  z-index: 5;
+  filter: drop-shadow(0 0 20px rgba(var(--wb-effect-rgb),0.7)) drop-shadow(0 0 50px rgba(var(--wb-effect-rgb),0.35)) drop-shadow(0 12px 40px rgba(0,0,0,0.9));
 }
+#wbBossCardImg {
+  height: clamp(160px, 30vh, 270px);
+  width: auto;
+  max-width: clamp(115px, 21vw, 195px);
+  object-fit: cover;
+  border-radius: 10px;
+  display: block;
+  /* rarity border set by JS via --wb-card-border-color */
+  border: 2.5px solid var(--wb-card-border-color, rgba(var(--wb-effect-rgb),0.8));
+  box-shadow:
+    0 0 0 1px rgba(0,0,0,0.6),
+    inset 0 0 14px rgba(var(--wb-effect-rgb),0.12),
+    0 0 24px var(--wb-card-border-color, rgba(var(--wb-effect-rgb),0.5));
+}
+/* Card name tag at the bottom of the card */
+.wb-boss-card-nametag {
+  position: absolute; bottom: -2px; left: 50%; transform: translateX(-50%);
+  background: linear-gradient(135deg, rgba(6,2,12,0.95), rgba(var(--wb-effect-rgb),0.2));
+  border: 1px solid rgba(var(--wb-effect-rgb),0.4);
+  border-top: none; border-radius: 0 0 8px 8px;
+  padding: 3px 10px 4px;
+  font-family: 'JetBrains Mono', monospace; font-size: 0.55em;
+  color: rgba(255,255,255,0.9); letter-spacing: 0.06em;
+  white-space: nowrap; text-shadow: 0 0 8px rgba(var(--wb-effect-rgb),0.8);
+  width: 100%; text-align: center;
+  box-sizing: border-box;
+}
+/* Rarity pip above card */
+.wb-boss-rarity-pip {
+  font-family: 'JetBrains Mono', monospace; font-size: 0.58em;
+  color: var(--wb-card-border-color, var(--wb-effect-color));
+  text-shadow: 0 0 10px var(--wb-card-border-color, var(--wb-effect-color));
+  letter-spacing: 0.12em;
+  margin-bottom: 5px;
+  animation: wbLabelPulse 2s ease-in-out infinite;
+}
+
 @keyframes wbBossFloat { 0%,100%{transform:translateY(0) scale(1);} 50%{transform:translateY(-10px) scale(1.015);} }
 @keyframes wbBossHit {
-  0%{transform:translateX(0) scale(1) brightness(1);}
-  10%{transform:translateX(-12px) scale(0.96);filter:saturate(0.75) brightness(2.5) hue-rotate(-20deg) drop-shadow(0 0 30px #fff);}
-  30%{transform:translateX(10px) scale(1.02);}
-  60%{transform:translateX(-4px);}
+  0%  {transform:translateX(0) scale(1);}
+  12% {transform:translateX(-13px) scale(0.95); filter:drop-shadow(0 0 30px #fff) brightness(2.5);}
+  35% {transform:translateX(10px) scale(1.02);}
+  65% {transform:translateX(-4px);}
   100%{transform:translateX(0) scale(1);}
 }
-/* Glowing ground shadow under boss */
+
+/* Ground glow */
 .wb-boss-ground-glow {
-  position: absolute; bottom: 4px; left: 50%; transform: translateX(-50%);
-  width: 140px; height: 20px;
-  background: radial-gradient(ellipse at center, rgba(192,57,43,0.55) 0%, transparent 70%);
-  border-radius: 50%; z-index: 2;
+  position: absolute; bottom: 2px; left: 50%; transform: translateX(-50%);
+  width: 120px; height: 18px;
+  background: radial-gradient(ellipse at center, rgba(var(--wb-effect-rgb),0.55) 0%, transparent 70%);
+  border-radius: 50%; z-index: 4;
   animation: wbGroundGlow 3s ease-in-out infinite;
 }
-@keyframes wbGroundGlow { 0%,100%{opacity:0.6;width:130px;} 50%{opacity:1;width:155px;} }
-/* Orbiting danger aura — enhanced */
+@keyframes wbGroundGlow { 0%,100%{opacity:0.5;width:100px;} 50%{opacity:1;width:140px;} }
+
+/* Orbiting aura rings */
 .wb-boss-aura {
-  position: absolute; inset: -24px;
-  border-radius: 50%;
-  border: 1px solid rgba(192,57,43,0.25);
-  animation: wbAuraRotate 8s linear infinite;
-  z-index: 4;
+  position: absolute; inset: -22px; border-radius: 50%;
+  border: 1px solid rgba(var(--wb-effect-rgb),0.28);
+  animation: wbAuraRotate 8s linear infinite; z-index: 6;
 }
 .wb-boss-aura::before {
-  content: '';
-  position: absolute; top: -5px; left: 50%;
-  width: 10px; height: 10px; border-radius: 50%;
-  background: #c0392b;
-  box-shadow: 0 0 16px #c0392b, 0 0 30px rgba(192,57,43,0.5);
+  content:''; position:absolute; top:-5px; left:50%;
+  width:10px; height:10px; border-radius:50%;
+  background: var(--wb-effect-color);
+  box-shadow: 0 0 16px var(--wb-effect-color), 0 0 32px rgba(var(--wb-effect-rgb),0.4);
   transform: translateX(-50%);
 }
-.wb-boss-aura::after {
-  content: '';
-  position: absolute; bottom: -5px; right: 25%;
-  width: 6px; height: 6px; border-radius: 50%;
-  background: rgba(192,57,43,0.6);
-  box-shadow: 0 0 10px #c0392b;
-}
-@keyframes wbAuraRotate { from{transform:rotate(0deg);} to{transform:rotate(360deg);} }
-/* Second counter-rotating aura ring */
 .wb-boss-aura2 {
-  position: absolute; inset: -38px;
-  border-radius: 50%;
-  border: 1px solid rgba(155,89,182,0.15);
-  animation: wbAuraRotate 14s linear infinite reverse;
-  z-index: 4;
+  position: absolute; inset: -38px; border-radius: 50%;
+  border: 1px solid rgba(155,89,182,0.14);
+  animation: wbAuraRotate 14s linear infinite reverse; z-index: 6;
 }
 .wb-boss-aura2::before {
-  content: '';
-  position: absolute; top: 30%; left: -5px;
-  width: 7px; height: 7px; border-radius: 50%;
-  background: rgba(155,89,182,0.7);
-  box-shadow: 0 0 12px rgba(155,89,182,0.8);
+  content:''; position:absolute; top:25%; left:-5px;
+  width:6px; height:6px; border-radius:50%;
+  background: rgba(155,89,182,0.8);
+  box-shadow: 0 0 10px rgba(155,89,182,0.9);
 }
-/* Ember particles above boss */
+@keyframes wbAuraRotate { from{transform:rotate(0deg);} to{transform:rotate(360deg);} }
+
+/* Ember particles */
 .wb-ember {
-  position: absolute; z-index: 5;
-  width: 3px; height: 3px; border-radius: 50%;
-  background: rgba(255,100,40,0.9);
-  box-shadow: 0 0 6px rgba(255,80,20,0.8);
-  pointer-events: none;
-  animation: wbEmberRise var(--dur, 2s) ease-out forwards;
-  opacity: 0;
+  position: absolute; z-index: 7; pointer-events: none; border-radius: 50%;
+  background: var(--wb-effect-color);
+  box-shadow: 0 0 6px rgba(var(--wb-effect-rgb),0.9);
+  animation: wbEmberRise var(--dur,2s) ease-out forwards; opacity: 0;
 }
 @keyframes wbEmberRise {
-  0%   { opacity: 0.9; transform: translate(0, 0) scale(1); }
-  50%  { opacity: 0.7; transform: translate(var(--dx, 10px), -50px) scale(0.8); }
-  100% { opacity: 0; transform: translate(var(--dx2, -5px), -110px) scale(0.3); }
+  0%  {opacity:0.95;transform:translate(0,0) scale(1);}
+  50% {opacity:0.7;transform:translate(var(--dx,10px),-55px) scale(0.75);}
+  100%{opacity:0;transform:translate(var(--dx2,-5px),-115px) scale(0.2);}
 }
 
 /* Battle log */
-.wb-log-section {
-  height: 72px; overflow: hidden;
-  background: rgba(0,0,0,0.35);
-  border: 1px solid rgba(192,57,43,0.12);
-  border-radius: 10px; padding: 6px 10px;
-  margin-bottom: 10px;
-}
-.wb-log-entry {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.65em; color: rgba(240,216,232,0.7);
-  line-height: 1.6; padding: 1px 0;
-  animation: wbLogFadeIn 0.3s ease;
-}
+.wb-log-section { height: 72px; overflow: hidden; background: rgba(0,0,0,0.4); border: 1px solid rgba(var(--wb-effect-rgb),0.12); border-radius: 10px; padding: 6px 10px; margin-bottom: 10px; }
+.wb-log-entry { font-family: 'JetBrains Mono', monospace; font-size: 0.65em; color: rgba(240,216,232,0.7); line-height: 1.6; padding: 1px 0; animation: wbLogFadeIn 0.3s ease; }
 .wb-log-entry:first-child { color: rgba(240,216,232,1); }
 @keyframes wbLogFadeIn { from{opacity:0;transform:translateY(-4px);} to{opacity:1;transform:translateY(0);} }
 
@@ -30147,35 +30138,14 @@ CREATE POLICY "anon_write_anime" ON anime_collections FOR ALL    USING (true);
 .wb-player-section {
   position: relative; z-index: 10;
   background: linear-gradient(to top, rgba(6,2,12,0.97) 0%, rgba(6,2,12,0.8) 100%);
-  border-top: 1px solid rgba(192,57,43,0.15);
+  border-top: 1px solid rgba(var(--wb-effect-rgb),0.15);
   padding: 12px 16px 16px;
 }
-.wb-player-row {
-  display: flex; gap: 12px; align-items: flex-start;
-  margin-bottom: 10px;
-}
-#wbMyCardWrap {
-  position: relative; flex-shrink: 0;
-}
-@keyframes wbPlayerHit {
-  0%{transform:translateX(0);}
-  25%{transform:translateX(6px) scale(1.04);}
-  50%{transform:translateX(-4px);}
-  100%{transform:translateX(0);}
-}
-.wb-my-card-img {
-  width: 54px; height: 76px;
-  object-fit: cover; border-radius: 8px;
-  border: 2px solid rgba(255,157,199,0.4);
-  box-shadow: 0 0 14px rgba(255,157,199,0.2);
-}
-.wb-my-card-placeholder {
-  width: 54px; height: 76px;
-  background: rgba(255,157,199,0.08);
-  border-radius: 8px; border: 2px solid var(--border);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 1.5em; color: var(--text-dim);
-}
+.wb-player-row { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 10px; }
+#wbMyCardWrap { position: relative; flex-shrink: 0; }
+@keyframes wbPlayerHit { 0%{transform:translateX(0);} 25%{transform:translateX(6px) scale(1.04);} 50%{transform:translateX(-4px);} 100%{transform:translateX(0);} }
+.wb-my-card-img { width: 54px; height: 76px; object-fit: cover; border-radius: 8px; border: 2px solid rgba(255,157,199,0.4); box-shadow: 0 0 14px rgba(255,157,199,0.2); }
+.wb-my-card-placeholder { width: 54px; height: 76px; background: rgba(255,157,199,0.08); border-radius: 8px; border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 1.5em; color: var(--text-dim); }
 /* Recovery overlay on player card */
 #wbRecoveryOverlay {
   position: absolute; inset: 0; border-radius: 8px;
@@ -30451,6 +30421,22 @@ CREATE POLICY "anon_write_anime" ON anime_collections FOR ALL    USING (true);
 .wb-btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px var(--pink-glow); }
 
 /* ── Admin World Boss panel styles ── */
+.wb-admin-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 20px; align-items: start;
+}
+@media(max-width:600px) {
+  .wb-admin-grid { grid-template-columns: 1fr; }
+}
+.wb-admin-boss-row {
+  border: 1px solid var(--border); border-radius: 10px;
+  padding: 10px 12px; margin-bottom: 8px;
+  display: flex; align-items: center; gap: 8px;
+  overflow: hidden; /* prevent cutoff */
+}
+.wb-admin-boss-actions {
+  display: flex; gap: 4px; flex-shrink: 0; align-items: center;
+}
 .wb-admin-form-row { margin-bottom: 14px; }
 .wb-admin-form-label {
   font-size: 0.72em; font-family: 'JetBrains Mono', monospace;
@@ -30460,84 +30446,6 @@ CREATE POLICY "anon_write_anime" ON anime_collections FOR ALL    USING (true);
 .wb-admin-hint {
   font-size: 0.65em; color: var(--text-dim);
   font-style: italic; font-family: serif; text-transform: none;
-}
-
-/* ── Music mini-player ── */
-.wb-music-btn-wrap { position: relative; }
-.wb-music-btn {
-  background: rgba(255,255,255,0.07);
-  border: 1px solid rgba(255,255,255,0.12);
-  border-radius: 8px; color: rgba(255,255,255,0.6);
-  font-size: 1em; padding: 5px 9px;
-  cursor: pointer; transition: all 0.2s;
-  line-height: 1;
-}
-.wb-music-btn:hover, .wb-music-btn.active { color: #f1c40f; border-color: rgba(241,196,15,0.4); background: rgba(241,196,15,0.1); }
-.wb-music-panel {
-  position: absolute; top: calc(100% + 8px); right: 0;
-  width: 240px;
-  background: rgba(10,4,18,0.97);
-  border: 1px solid rgba(192,57,43,0.3);
-  border-radius: 14px; padding: 12px 14px;
-  z-index: 50;
-  display: none;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.6);
-  animation: modalIn 0.2s cubic-bezier(0.34,1.3,0.64,1);
-}
-.wb-music-panel.open { display: block; }
-.wb-music-panel-title {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.6em; letter-spacing: 0.2em; text-transform: uppercase;
-  color: rgba(192,57,43,0.8); margin-bottom: 10px;
-}
-.wb-music-import-row { display: flex; gap: 6px; align-items: center; }
-.wb-music-url-input {
-  flex: 1; background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.12);
-  border-radius: 8px; color: var(--text);
-  font-family: 'JetBrains Mono', monospace; font-size: 0.62em;
-  padding: 6px 8px; outline: none;
-  min-width: 0;
-}
-.wb-music-url-input:focus { border-color: rgba(192,57,43,0.5); }
-.wb-music-load-btn {
-  background: rgba(192,57,43,0.25); border: 1px solid rgba(192,57,43,0.4);
-  border-radius: 8px; color: #e74c3c;
-  font-family: 'JetBrains Mono', monospace; font-size: 0.62em;
-  padding: 6px 10px; cursor: pointer; white-space: nowrap;
-  transition: all 0.2s; flex-shrink: 0;
-}
-.wb-music-load-btn:hover { background: rgba(192,57,43,0.4); }
-.wb-music-file-label {
-  font-family: 'JetBrains Mono', monospace; font-size: 0.62em;
-  color: rgba(240,216,232,0.5); cursor: pointer;
-  padding: 5px 8px;
-  border: 1px dashed rgba(255,255,255,0.12);
-  border-radius: 8px; width: 100%;
-  text-align: center; transition: all 0.2s;
-  display: block;
-}
-.wb-music-file-label:hover { color: var(--pink); border-color: rgba(255,157,199,0.3); }
-.wb-music-controls {
-  margin-top: 8px; display: flex; gap: 6px; align-items: center;
-  padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.06);
-}
-.wb-music-ctrl-btn {
-  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 6px; color: rgba(255,255,255,0.6);
-  font-size: 0.85em; padding: 4px 7px; cursor: pointer;
-  transition: all 0.15s; flex-shrink: 0;
-}
-.wb-music-ctrl-btn:hover { background: rgba(255,255,255,0.12); color: #fff; }
-.wb-music-track-name {
-  flex: 1; min-width: 0;
-  font-family: 'JetBrains Mono', monospace; font-size: 0.58em;
-  color: rgba(240,216,232,0.6);
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
-.wb-music-vol {
-  width: 52px; accent-color: #c0392b;
-  cursor: pointer; flex-shrink: 0;
 }
 
 /* mobile tweaks */
@@ -30592,9 +30500,9 @@ CREATE POLICY "anon_write_anime" ON anime_collections FOR ALL    USING (true);
       <img id="wbNotifBossImg" class="wb-notif-boss-art" src="" alt="" onerror="this.style.display='none';document.querySelector('.wb-notif-boss-art-placeholder').style.display='flex'"/>
       <div class="wb-notif-boss-art-placeholder" style="display:none;">💀</div>
       <div class="wb-notif-skull-bar">
-        <div>
+        <div style="min-width:0;overflow:hidden;">
           <div class="wb-notif-label">⚠ World Boss Has Awakened</div>
-          <div id="wbNotifBossName" style="font-family:'Cinzel Decorative',serif;font-size:clamp(1.2em,5vw,1.8em);font-weight:900;color:#fff;text-shadow:0 0 30px rgba(192,57,43,0.9);letter-spacing:0.04em;word-break:break-word;overflow-wrap:break-word;max-width:100%;"></div>
+          <div id="wbNotifBossName" style="font-family:'Cinzel Decorative',serif;font-size:clamp(1.1em,4.5vw,1.8em);font-weight:900;color:#fff;text-shadow:0 0 30px rgba(192,57,43,0.9);letter-spacing:0.04em;word-break:break-word;overflow-wrap:break-word;max-width:100%;"></div>
         </div>
       </div>
     </div>
@@ -30611,15 +30519,27 @@ CREATE POLICY "anon_write_anime" ON anime_collections FOR ALL    USING (true);
 
 <!-- ══ World Boss Arena ══ -->
 <div id="wbArenaModal">
-  <!-- Background -->
+  <!-- Background layers -->
   <div class="wb-arena-bg">
     <img id="wbBossArenaImg" class="wb-arena-bg-img" alt="" style="display:none"/>
     <div class="wb-arena-bg-overlay"></div>
-    <div class="wb-arena-bg-scanlines"></div>
-    <div class="wb-arena-bg-vignette"></div>
+    <div class="wb-arena-scanlines"></div>
+    <div class="wb-arena-vignette"></div>
     <div class="wb-arena-lightning" id="wbLightningLayer"></div>
   </div>
   <div id="wbHitFlash" class="wb-hit-flash"></div>
+
+  <!-- Speed Lines Top -->
+  <div class="wb-speedlines wb-speedlines-top">
+    <svg viewBox="0 0 400 110" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" id="wbSpeedTop">
+      <!-- lines injected by JS -->
+    </svg>
+  </div>
+  <!-- Speed Lines Bottom -->
+  <div class="wb-speedlines wb-speedlines-bottom">
+    <svg viewBox="0 0 400 110" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" id="wbSpeedBottom">
+    </svg>
+  </div>
 
   <!-- Leave Confirmation -->
   <div id="wbLeaveConfirm">
@@ -30642,32 +30562,7 @@ CREATE POLICY "anon_write_anime" ON anime_collections FOR ALL    USING (true);
       <span class="wb-boss-badge">WORLD BOSS</span>
       <span id="wbBossName">???</span>
     </div>
-    <div style="display:flex;align-items:center;gap:8px;">
-      <!-- Music mini-player -->
-      <div class="wb-music-btn-wrap">
-        <button class="wb-music-btn" id="wbMusicToggleBtn" onclick="toggleWbMusicPanel()" title="Arena Music">🎵</button>
-        <div class="wb-music-panel" id="wbMusicPanel">
-          <div class="wb-music-panel-title">⚔ Arena BGM</div>
-          <div class="wb-music-import-row">
-            <input id="wbMusicUrlInput" class="wb-music-url-input" type="text" placeholder="Paste audio URL (.mp3, .ogg…)"/>
-            <button class="wb-music-load-btn" onclick="wbLoadMusicFromUrl()">Load</button>
-          </div>
-          <div class="wb-music-import-row" style="margin-top:4px;">
-            <label class="wb-music-file-label">
-              📂 Import file
-              <input type="file" accept="audio/*" style="display:none;" onchange="wbLoadMusicFromFile(this)"/>
-            </label>
-          </div>
-          <div class="wb-music-controls" id="wbMusicControls" style="display:none;">
-            <button class="wb-music-ctrl-btn" id="wbPlayPauseBtn" onclick="wbTogglePlayPause()">⏸</button>
-            <div class="wb-music-track-name" id="wbMusicTrackName">—</div>
-            <input type="range" min="0" max="1" step="0.01" value="0.5" class="wb-music-vol" id="wbMusicVol" oninput="wbSetVolume(this.value)" title="Volume"/>
-            <button class="wb-music-ctrl-btn" onclick="wbStopMusic()" title="Stop">⏹</button>
-          </div>
-        </div>
-      </div>
-      <button class="wb-leave-btn" onclick="leaveBossArena(false)">✕ Leave</button>
-    </div>
+    <button class="wb-leave-btn" onclick="leaveBossArena(false)">✕ Leave</button>
   </div>
 
   <!-- Boss HP -->
@@ -30683,16 +30578,19 @@ CREATE POLICY "anon_write_anime" ON anime_collections FOR ALL    USING (true);
 
   <!-- Main Arena Area -->
   <div class="wb-arena-main">
-    <!-- Boss Center -->
+    <!-- Boss Center: Card Thumbnail with frame -->
     <div class="wb-boss-center">
-      <!-- Blurred ghost portrait behind -->
-      <div class="wb-boss-portrait-bg">
-        <img id="wbBossPortraitGhost" class="wb-boss-portrait-bg-img" src="" alt="" style="display:none"/>
-      </div>
       <div id="wbBossImgWrap">
         <div class="wb-boss-aura"></div>
         <div class="wb-boss-aura2"></div>
-        <img id="wbBossCardImg" src="" alt="" onerror="this.style.opacity='0.3'"/>
+        <!-- Card frame -->
+        <div class="wb-boss-card-frame" id="wbBossCardFrame">
+          <div class="wb-boss-rarity-pip" id="wbBossRarityPip"></div>
+          <div style="position:relative;">
+            <img id="wbBossCardImg" src="" alt="" onerror="this.style.opacity='0.3'"/>
+            <div class="wb-boss-card-nametag" id="wbBossCardNametag"></div>
+          </div>
+        </div>
         <div class="wb-boss-ground-glow"></div>
       </div>
     </div>
@@ -30924,113 +30822,8 @@ function openBossArenaModal() {
   if(!modal) return;
   modal.style.display = 'flex';
   setTimeout(() => modal.classList.add('wb-arena-open'), 20);
-  startWbCinematicEffects();
-}
-
-// ── Cinematic Effects ──
-let _wbLightningTimer = null;
-let _wbEmberTimer = null;
-function startWbCinematicEffects() {
-  stopWbCinematicEffects();
-  // Lightning
-  _wbLightningTimer = setInterval(() => {
-    if(Math.random() < 0.3) spawnWbLightning();
-  }, 1800);
-  // Embers
-  _wbEmberTimer = setInterval(() => {
-    if(Math.random() < 0.7) spawnWbEmber();
-  }, 600);
-}
-function stopWbCinematicEffects() {
-  if(_wbLightningTimer) { clearInterval(_wbLightningTimer); _wbLightningTimer=null; }
-  if(_wbEmberTimer) { clearInterval(_wbEmberTimer); _wbEmberTimer=null; }
-}
-function spawnWbLightning() {
-  const layer = document.getElementById('wbLightningLayer');
-  if(!layer) return;
-  const bolt = document.createElement('div');
-  bolt.className = 'wb-lightning-bolt';
-  const x = 10 + Math.random()*80;
-  const h = 40 + Math.random()*120;
-  const top = Math.random()*50;
-  bolt.style.cssText = `left:${x}%;top:${top}%;height:${h}px;width:${1+Math.random()*2}px;animation-duration:${0.3+Math.random()*0.4}s;`;
-  layer.appendChild(bolt);
-  setTimeout(()=>bolt.remove(), 700);
-}
-function spawnWbEmber() {
-  const wrap = document.getElementById('wbBossImgWrap');
-  if(!wrap) return;
-  const ember = document.createElement('div');
-  ember.className = 'wb-ember';
-  const dx  = (Math.random()-0.5)*60;
-  const dx2 = (Math.random()-0.5)*40;
-  const dur = 1.5 + Math.random()*1.5;
-  const x   = 30 + Math.random()*40;
-  ember.style.cssText = `--dx:${dx}px;--dx2:${dx2}px;--dur:${dur}s;left:${x}%;bottom:20%;width:${2+Math.random()*3}px;height:${2+Math.random()*3}px;`;
-  wrap.appendChild(ember);
-  setTimeout(()=>ember.remove(), dur*1000+100);
-}
-// Sync ghost portrait when boss image updates
-function wbSyncGhostPortrait(src) {
-  const ghost = document.getElementById('wbBossPortraitGhost');
-  if(!ghost) return;
-  if(src) { ghost.src=src; ghost.style.display='block'; }
-  else ghost.style.display='none';
-}
-
-// ── Arena Music Player ──
-let _wbAudio = null;
-let _wbMusicName = '—';
-
-function toggleWbMusicPanel() {
-  const panel = document.getElementById('wbMusicPanel');
-  const btn = document.getElementById('wbMusicToggleBtn');
-  if(!panel) return;
-  panel.classList.toggle('open');
-  btn && btn.classList.toggle('active', panel.classList.contains('open'));
-}
-function wbLoadMusicFromUrl() {
-  const url = (document.getElementById('wbMusicUrlInput')?.value||'').trim();
-  if(!url){ showToast('⚠️ Paste an audio URL first'); return; }
-  const name = url.split('/').pop().split('?')[0] || 'Custom Track';
-  wbPlayMusicSrc(url, name);
-}
-function wbLoadMusicFromFile(input) {
-  const file = input?.files?.[0];
-  if(!file){ return; }
-  const url = URL.createObjectURL(file);
-  wbPlayMusicSrc(url, file.name);
-}
-function wbPlayMusicSrc(src, name) {
-  stopWbMusic();
-  _wbAudio = new Audio(src);
-  _wbAudio.volume = parseFloat(document.getElementById('wbMusicVol')?.value||0.5);
-  _wbAudio.loop = true;
-  _wbAudio.play().then(()=>{
-    _wbMusicName = name;
-    const nameEl = document.getElementById('wbMusicTrackName');
-    if(nameEl) nameEl.textContent = name;
-    const controls = document.getElementById('wbMusicControls');
-    if(controls) controls.style.display='flex';
-    const playBtn = document.getElementById('wbPlayPauseBtn');
-    if(playBtn) playBtn.textContent='⏸';
-    showToast('🎵 Now playing: '+name.slice(0,30));
-  }).catch(e=>showToast('❌ Could not play audio: '+e.message));
-}
-function wbTogglePlayPause() {
-  if(!_wbAudio) return;
-  const btn = document.getElementById('wbPlayPauseBtn');
-  if(_wbAudio.paused){ _wbAudio.play(); if(btn) btn.textContent='⏸'; }
-  else { _wbAudio.pause(); if(btn) btn.textContent='▶'; }
-}
-function wbSetVolume(v) { if(_wbAudio) _wbAudio.volume=parseFloat(v); }
-function wbStopMusic() {
-  stopWbMusic();
-  const controls = document.getElementById('wbMusicControls');
-  if(controls) controls.style.display='none';
-}
-function stopWbMusic() {
-  if(_wbAudio){ _wbAudio.pause(); _wbAudio.src=''; _wbAudio=null; }
+  _wbBuildSpeedLines();
+  _wbStartCinematic();
 }
 function leaveBossArena(confirmed=false) {
   const confirmEl = document.getElementById('wbLeaveConfirm');
@@ -31049,7 +30842,7 @@ function closeBossArena() {
   if(_wbParticChannel){ try{_wbParticChannel.unsubscribe();}catch(_){} _wbParticChannel=null; }
   clearInterval(_wbRecoveryInterval);
   stopBossAITimer();
-  stopWbCinematicEffects();
+  _wbStopCinematic();
   stopWbMusic();
   _wbCurrentBossId=null; _wbBossData=null; _wbParticData=[]; _wbMyPartic=null;
   _wbBossAbilityTs=0; _wbAttackCooldown=false;
@@ -31922,11 +31715,34 @@ async function showBossDefeatedScreen(boss) {
 // ═════════════════════════════════════════════
 // RENDER
 // ═════════════════════════════════════════════
+// Rarity → color map
+const WB_RARITY_COLORS = {
+  '[N]':   '#bdc3c7', '[R]':  '#2ecc71', '[SR]':  '#3498db',
+  '[SSR]': '#9b59b6', '[UR]': '#f1c40f', '[LR]':  '#ff6b9d', '[S]': '#1abc9c'
+};
+function _wbRarityColor(rarityName, cardColor) {
+  if(rarityName && WB_RARITY_COLORS[rarityName]) return WB_RARITY_COLORS[rarityName];
+  if(cardColor) return cardColor;
+  return '#c0392b';
+}
+function _wbHexToRgb(hex) {
+  const r=/^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return r ? `${parseInt(r[1],16)},${parseInt(r[2],16)},${parseInt(r[3],16)}` : '192,57,43';
+}
+function _wbSetEffectColor(hex) {
+  const root = document.documentElement;
+  root.style.setProperty('--wb-effect-color', hex);
+  root.style.setProperty('--wb-effect-rgb', _wbHexToRgb(hex));
+  root.style.setProperty('--wb-card-border-color', hex);
+  // rebuild speedlines with new color
+  _wbBuildSpeedLines();
+}
+
 function renderBossArena(boss) {
   const nameEl = document.getElementById('wbBossName');
   if(nameEl) nameEl.textContent = (boss.boss_name||'WORLD BOSS').toUpperCase();
 
-  // Background: prefer bg_gif, fall back to boss_image
+  // Background GIF (full screen, dimmed)
   const bgImg = document.getElementById('wbBossArenaImg');
   if(bgImg) {
     const bgSrc = (boss.boss_bg_gif||'').trim() || (boss.boss_image||'').trim();
@@ -31934,8 +31750,26 @@ function renderBossArena(boss) {
     else bgImg.style.display='none';
   }
 
+  // Card thumbnail as main boss portrait
   const cardImg = document.getElementById('wbBossCardImg');
-  if(cardImg && boss.boss_image) { cardImg.src = boss.boss_image; wbSyncGhostPortrait(boss.boss_image); }
+  if(cardImg && boss.boss_image) cardImg.src = boss.boss_image;
+
+  // Nametag on card
+  const nametag = document.getElementById('wbBossCardNametag');
+  if(nametag) nametag.textContent = boss.boss_name || '';
+
+  // Rarity pip + color theming from the card data
+  const cardData = (window.DEMO_CARDS||[]).find(c=>c.id===boss.card_id);
+  const rarityName = cardData?.rarityName || '';
+  const rarityStars = cardData?.rarityStars || '';
+  const cardColor   = cardData?.color || '';
+  const effectColor = _wbRarityColor(rarityName, cardColor);
+
+  _wbSetEffectColor(effectColor);
+
+  const rarityPip = document.getElementById('wbBossRarityPip');
+  if(rarityPip) rarityPip.textContent = rarityName ? `${rarityName} ${rarityStars}`.trim() : '';
+
   renderBossHpBar(boss);
 }
 
@@ -32072,17 +31906,16 @@ async function loadAdminBossList() {
     if(!data||!data.length){ el.innerHTML='<div style="color:var(--text-dim);font-style:italic;font-size:0.82em;padding:14px;text-align:center;">No boss encounters yet.</div>'; return; }
     const sc={waiting:'#f1c40f',active:'#e74c3c',dead:'#2ecc71'};
     el.innerHTML=data.map(b=>`
-      <div style="border:1px solid var(--border);border-radius:10px;padding:10px 12px;margin-bottom:8px;display:flex;align-items:center;gap:10px;">
+      <div class="wb-admin-boss-row">
         ${b.boss_image?`<img src="${escapeHtml(b.boss_image)}" style="width:34px;height:48px;object-fit:cover;border-radius:6px;flex-shrink:0;filter:saturate(0.5);" onerror="this.style.display='none'"/>` : '<div style="width:34px;height:48px;background:rgba(192,57,43,0.15);border-radius:6px;flex-shrink:0;display:flex;align-items:center;justify-content:center;">⚔️</div>'}
         <div style="flex:1;min-width:0;">
-          <div style="font-size:0.84em;font-weight:600;">${escapeHtml(b.boss_name||'Boss')}</div>
+          <div style="font-size:0.84em;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(b.boss_name||'Boss')}</div>
           <div style="font-size:0.67em;color:var(--text-dim);">${(b.hp||0).toLocaleString()} / ${(b.max_hp||0).toLocaleString()} HP</div>
         </div>
-        <span style="font-size:0.65em;font-family:'JetBrains Mono',monospace;color:${sc[b.status]||'#fff'};background:rgba(0,0,0,0.4);padding:2px 8px;border-radius:20px;flex-shrink:0;">${(b.status||'?').toUpperCase()}</span>
-        <div style="display:flex;gap:4px;flex-shrink:0;align-items:center;">
-          <button class="admin-action-btn" onclick="adminVisitBoss('${b.id}')" title="View boss details" style="background:rgba(52,152,219,0.15);border-color:rgba(52,152,219,0.35);color:#3498db;">👁</button>
-          ${(b.status==='active'||b.status==='waiting')?`<button class="admin-action-btn danger" onclick="adminForceKillBoss('${b.id}')" title="Force kill">💀</button>`:''}
-          <button class="admin-action-btn danger" onclick="adminDeleteBoss('${b.id}')" title="Delete from database" style="background:rgba(127,0,0,0.18);border-color:rgba(200,0,0,0.35);color:#c0392b;font-size:0.95em;">🗑</button>
+        <span style="font-size:0.62em;font-family:'JetBrains Mono',monospace;color:${sc[b.status]||'#fff'};background:rgba(0,0,0,0.4);padding:2px 7px;border-radius:20px;flex-shrink:0;">${(b.status||'?').toUpperCase()}</span>
+        <div class="wb-admin-boss-actions">
+          ${(b.status==='active'||b.status==='waiting')?`<button class="admin-action-btn" onclick="adminEnterBossArena('${b.id}')" title="Enter arena" style="font-size:0.85em;">👁</button><button class="admin-action-btn danger" onclick="adminForceKillBoss('${b.id}')" title="Force kill" style="font-size:0.85em;">💀</button>`:''}
+          <button class="admin-action-btn danger" onclick="adminDeleteBoss('${b.id}')" title="Delete" style="font-size:0.85em;background:rgba(100,0,0,0.2);border-color:rgba(180,30,30,0.4);">🗑</button>
         </div>
       </div>`).join('');
   } catch(e){ el.innerHTML='<div style="color:#e74c3c;font-size:0.8em;padding:10px;">⚠️ Run the World Boss SQL migration first.</div>'; }
@@ -32096,29 +31929,19 @@ async function adminForceKillBoss(bossId){
   showToast('💀 Boss killed'); loadAdminBossList();
 }
 
-async function adminVisitBoss(bossId){
-  if(!checkAdmin()) return;
-  const rt=getSupaRT();
-  try {
-    const {data,error} = await rt.from('world_bosses').select('*').eq('id',bossId).single();
-    if(error||!data) { showToast('⚠️ Boss not found'); return; }
-    const spawned=data.spawned_at?new Date(data.spawned_at).toLocaleString():'—';
-    const killed=data.killed_at?new Date(data.killed_at).toLocaleString():'—';
-    const hpPct=data.max_hp?Math.round((data.hp/data.max_hp)*100):0;
-    const info=`⚔️ Boss Details\n\nName: ${data.boss_name||'Boss'}\nID: ${data.id}\nStatus: ${(data.status||'?').toUpperCase()}\nHP: ${(data.hp||0).toLocaleString()} / ${(data.max_hp||0).toLocaleString()} (${hpPct}%)\nCard ID: ${data.card_id||'—'}\nBg GIF: ${data.boss_bg_gif||'(none)'}\nSpawned: ${spawned}\nKilled: ${killed}`;
-    alert(info);
-  } catch(e){ showToast('❌ Could not fetch: '+e.message); }
+function adminEnterBossArena(bossId) {
+  hideBossNotification();
+  enterBossArena(bossId);
 }
 
 async function adminDeleteBoss(bossId){
   if(!checkAdmin()) return;
-  if(!confirm('Permanently DELETE this boss and all its raid data? This cannot be undone.')) return;
+  if(!confirm('Permanently DELETE this boss and all its raid participation data? Cannot be undone.')) return;
   const rt=getSupaRT();
   try {
     const {error} = await rt.from('world_bosses').delete().eq('id',bossId);
     if(error) throw error;
-    showToast('🗑 Boss deleted permanently');
-    loadAdminBossList();
+    showToast('🗑 Boss deleted'); loadAdminBossList();
   } catch(e){ showToast('❌ Delete failed: '+e.message); }
 }
 
@@ -32133,6 +31956,131 @@ function populateWbCardSelector() {
 }
 
 // ═════════════════════════════════════════════
+// ═════════════════════════════════════════════
+// CINEMATIC EFFECTS
+// ═════════════════════════════════════════════
+let _wbCinematicTimers = [];
+
+function _wbStartCinematic() {
+  _wbStopCinematic();
+  // Lightning bolts
+  _wbCinematicTimers.push(setInterval(() => {
+    if(Math.random() < 0.35) _wbSpawnLightning();
+  }, 1600));
+  // Ember particles
+  _wbCinematicTimers.push(setInterval(() => {
+    if(Math.random() < 0.75) _wbSpawnEmber();
+  }, 550));
+}
+
+function _wbStopCinematic() {
+  _wbCinematicTimers.forEach(t=>clearInterval(t));
+  _wbCinematicTimers=[];
+  const ll=document.getElementById('wbLightningLayer');
+  if(ll) ll.innerHTML='';
+}
+
+function _wbSpawnLightning() {
+  const layer=document.getElementById('wbLightningLayer');
+  if(!layer) return;
+  const bolt=document.createElement('div');
+  bolt.className='wb-lightning-bolt';
+  const x=8+Math.random()*84;
+  const h=35+Math.random()*110;
+  const top=Math.random()*45;
+  const dur=(0.25+Math.random()*0.35).toFixed(2);
+  bolt.style.cssText=`left:${x}%;top:${top}%;height:${h}px;width:${1+Math.random()*2.5}px;--dur:${dur}s;`;
+  layer.appendChild(bolt);
+  setTimeout(()=>bolt.remove(),700);
+}
+
+function _wbSpawnEmber() {
+  const wrap=document.getElementById('wbBossImgWrap');
+  if(!wrap) return;
+  const e=document.createElement('div');
+  e.className='wb-ember';
+  const dx =(Math.random()-0.5)*70;
+  const dx2=(Math.random()-0.5)*45;
+  const dur=(1.4+Math.random()*1.6).toFixed(2);
+  const sz =2+Math.random()*3;
+  e.style.cssText=`--dx:${dx}px;--dx2:${dx2}px;--dur:${dur}s;left:${30+Math.random()*40}%;bottom:${15+Math.random()*20}%;width:${sz}px;height:${sz}px;`;
+  wrap.appendChild(e);
+  setTimeout(()=>e.remove(),(parseFloat(dur)+0.1)*1000);
+}
+
+// Speed lines: built once on open, rebuilt on color change
+function _wbBuildSpeedLines() {
+  ['wbSpeedTop','wbSpeedBottom'].forEach(id=>{
+    const svg=document.getElementById(id);
+    if(!svg) return;
+    svg.innerHTML='';
+    const ns='http://www.w3.org/2000/svg';
+    const count=18;
+    for(let i=0;i<count;i++){
+      const line=document.createElementNS(ns,'line');
+      const x=Math.random()*400;
+      const y=Math.random()*110;
+      const len=60+Math.random()*160;
+      const dur=(0.4+Math.random()*0.5).toFixed(2);
+      const delay=(Math.random()*0.6).toFixed(2);
+      const opacity=(0.2+Math.random()*0.45).toFixed(2);
+      line.setAttribute('x1',x);
+      line.setAttribute('y1',y);
+      line.setAttribute('x2',x+len);
+      line.setAttribute('y2',y+Math.random()*8-4);
+      line.setAttribute('class','wb-speedline');
+      line.setAttribute('stroke-dasharray', len);
+      line.setAttribute('stroke-dashoffset', 0);
+      line.style.cssText=`--dur:${dur}s;--delay:${delay}s;opacity:${opacity};animation-delay:${delay}s;`;
+      svg.appendChild(line);
+    }
+  });
+}
+
+// ═════════════════════════════════════════════
+// ARENA MUSIC (managed from admin panel)
+// ═════════════════════════════════════════════
+let _wbAudio = null;
+function wbAdminLoadMusicUrl() {
+  const url=(document.getElementById('wbMusicUrlInput')?.value||'').trim();
+  if(!url){showToast('⚠️ Paste an audio URL first');return;}
+  wbPlayMusicSrc(url, url.split('/').pop().split('?')[0]||'Custom Track');
+}
+function wbAdminLoadMusicFile(input) {
+  const file=input?.files?.[0]; if(!file) return;
+  wbPlayMusicSrc(URL.createObjectURL(file), file.name);
+}
+function wbPlayMusicSrc(src, name) {
+  if(_wbAudio){_wbAudio.pause();_wbAudio.src='';_wbAudio=null;}
+  _wbAudio=new Audio(src);
+  const vol=parseFloat(document.getElementById('wbAdminMusicVol')?.value||0.5);
+  _wbAudio.volume=vol; _wbAudio.loop=true;
+  _wbAudio.play().then(()=>{
+    const ctrl=document.getElementById('wbAdminMusicControls');
+    const nm  =document.getElementById('wbAdminMusicName');
+    const pb  =document.getElementById('wbAdminPlayPauseBtn');
+    if(ctrl) ctrl.style.display='flex';
+    if(nm)   nm.textContent=name;
+    if(pb)   pb.textContent='⏸';
+    showToast('🎵 Now playing: '+name.slice(0,30));
+  }).catch(e=>showToast('❌ Cannot play audio: '+e.message));
+}
+function wbTogglePlayPause() {
+  if(!_wbAudio) return;
+  const pb=document.getElementById('wbAdminPlayPauseBtn');
+  if(_wbAudio.paused){_wbAudio.play();if(pb)pb.textContent='⏸';}
+  else{_wbAudio.pause();if(pb)pb.textContent='▶';}
+}
+function wbSetVolume(v){if(_wbAudio)_wbAudio.volume=parseFloat(v);}
+function wbStopMusicAdmin(){
+  stopWbMusic();
+  const ctrl=document.getElementById('wbAdminMusicControls');
+  if(ctrl) ctrl.style.display='none';
+}
+function stopWbMusic(){
+  if(_wbAudio){_wbAudio.pause();_wbAudio.src='';_wbAudio=null;}
+}
+
 // HOOK INTO loadAll
 // ═════════════════════════════════════════════
 (function(){
