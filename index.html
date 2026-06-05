@@ -12811,20 +12811,17 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
             📂 File <input type="file" accept="audio/*" style="display:none;" onchange="wbAdminLoadMusicFile(this)"/>
           </label>
         </div>
-        <!-- YouTube iframe (hidden audio embed) -->
-        <div id="wbYtEmbedWrap" style="display:none;border-radius:8px;overflow:hidden;margin-bottom:8px;">
-          <iframe id="wbYtEmbed" width="100%" height="80" frameborder="0" allow="autoplay" style="display:block;border-radius:8px;"></iframe>
-        </div>
+        <!-- Music status (no playback here — music only plays inside the arena) -->
         <div id="wbAdminMusicControls" style="display:none;align-items:center;gap:8px;flex-wrap:wrap;">
-          <button class="admin-action-btn" id="wbAdminPlayPauseBtn" onclick="wbTogglePlayPause()" style="font-size:1em;min-width:34px;">⏸</button>
+          <span style="font-size:1em;">🎵</span>
           <span id="wbAdminMusicName" style="font-family:'JetBrains Mono',monospace;font-size:0.68em;color:var(--pink);flex:1;min-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">—</span>
           <label style="font-family:'JetBrains Mono',monospace;font-size:0.65em;color:var(--text-dim);display:flex;align-items:center;gap:5px;flex-shrink:0;">
-            🔊 <input type="range" min="0" max="1" step="0.01" value="0.5" style="width:60px;accent-color:#c0392b;" id="wbAdminMusicVol" oninput="wbSetVolume(this.value)"/>
+            🔊 <input type="range" min="0" max="1" step="0.01" value="0.5" style="width:60px;accent-color:#c0392b;" id="wbAdminMusicVol" oninput="wbSetArenaVolume(this.value)"/>
           </label>
-          <button class="admin-action-btn danger" onclick="wbStopMusicAdmin()" title="Stop & clear">⏹</button>
+          <button class="admin-action-btn danger" onclick="wbStopMusicAdmin()" title="Clear music">⏹</button>
         </div>
         <div style="font-size:0.66em;color:var(--text-dim);margin-top:6px;font-style:italic;">
-          YouTube: paste the watch URL and it embeds an audio player. Direct links: .mp3, .ogg, etc. File import works for local audio.
+          Music plays only inside the arena — not here. YouTube URL or direct .mp3/.ogg links supported.
         </div>
       </div>
     </div>
@@ -30810,7 +30807,7 @@ function closeBossArena() {
   clearInterval(_wbRecoveryInterval);
   stopBossAITimer();
   _wbStopCinematic();
-  _wbPauseMusic();      // pause (not stop) so admin can resume later
+  _wbStopArenaMusic();  // fully stop & destroy arena audio on leave
   _wbCurrentBossId=null; _wbBossData=null; _wbParticData=[]; _wbMyPartic=null;
   _wbBossAbilityTs=0; _wbAttackCooldown=false;
   const endEl = document.getElementById('wbEndScreen');
@@ -31933,99 +31930,134 @@ function _wbBuildSpeedLines(){
 }
 
 // ══════════════════════════════════════════════
-// MUSIC SYSTEM (admin-managed, auto-plays in arena)
+// MUSIC SYSTEM (admin configures, arena plays)
+// Music ONLY plays inside the world boss arena modal.
+// Loading/importing in the admin panel stores the config silently.
 // ══════════════════════════════════════════════
-let _wbAudio   = null;   // HTMLAudioElement for direct files
-let _wbYtMode  = false;  // true when YouTube embed is active
-let _wbMusicSrc = '';    // stored src for re-entry replay
+let _wbAudio    = null;   // HTMLAudioElement for direct-file playback (arena only)
+let _wbYtMode   = false;  // true when YouTube is the music source
+let _wbYtVideoId = '';    // stored YouTube video ID
+let _wbMusicSrc  = '';    // stored direct audio src (blob URL or http URL)
+let _wbMusicName = '';    // display name for the track
+let _wbArenaYtIframe = null; // dynamically created iframe inside arena
 
+// ── Admin panel: configure music (no playback) ──────────────────────────────
 function wbAdminLoadMusicUrl(){
   const raw=(document.getElementById('wbMusicUrlInput')?.value||'').trim();
   if(!raw){showToast('⚠️ Paste a URL first');return;}
-  // Detect YouTube
   const ytMatch=raw.match(/(?:youtube\.com\/watch\?.*v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
   if(ytMatch){
-    _wbLoadYoutube(ytMatch[1], raw);
+    _wbConfigYoutube(ytMatch[1], raw);
   } else {
-    _wbLoadDirectAudio(raw, raw.split('/').pop().split('?')[0]||'Audio Track');
+    _wbConfigDirectAudio(raw, raw.split('/').pop().split('?')[0]||'Audio Track');
   }
 }
 function wbAdminLoadMusicFile(input){
   const file=input?.files?.[0]; if(!file)return;
-  _wbLoadDirectAudio(URL.createObjectURL(file), file.name);
+  _wbConfigDirectAudio(URL.createObjectURL(file), file.name);
 }
-function _wbLoadYoutube(videoId, originalUrl){
-  _wbStopAllMusic();
+function _wbConfigYoutube(videoId, originalUrl){
+  // Stop any currently playing arena audio first
+  _wbDestroyArenaAudio();
   _wbYtMode=true;
+  _wbYtVideoId=videoId;
   _wbMusicSrc=originalUrl;
-  const wrap=document.getElementById('wbYtEmbedWrap');
-  const iframe=document.getElementById('wbYtEmbed');
-  if(!iframe)return;
-  // autoplay=1 + mute=0 for audio; note browsers may require mute=1 first on some platforms
-  iframe.src=`https://www.youtube.com/embed/${videoId}?autoplay=1&loop=1&playlist=${videoId}&controls=1&rel=0&modestbranding=1`;
-  if(wrap) wrap.style.display='block';
-  _wbShowMusicControls(`▶ YouTube: ${videoId}`);
-  showToast('🎵 YouTube music loaded — plays in arena');
+  _wbMusicName=`YouTube: ${videoId}`;
+  _wbShowAdminMusicStatus(_wbMusicName);
+  showToast('🎵 YouTube track saved — will play in arena');
 }
-function _wbLoadDirectAudio(src, name){
-  _wbStopAllMusic();
+function _wbConfigDirectAudio(src, name){
+  // Stop any currently playing arena audio first
+  _wbDestroyArenaAudio();
   _wbYtMode=false;
+  _wbYtVideoId='';
   _wbMusicSrc=src;
-  _wbAudio=new Audio(src);
-  _wbAudio.volume=parseFloat(document.getElementById('wbAdminMusicVol')?.value||.5);
-  _wbAudio.loop=true;
-  _wbAudio.play().then(()=>{
-    _wbShowMusicControls(name);
-    showToast('🎵 Now playing: '+name.slice(0,30));
-  }).catch(e=>showToast('❌ Cannot play: '+e.message));
+  _wbMusicName=name;
+  _wbShowAdminMusicStatus(name);
+  showToast('🎵 Track saved — will play in arena');
 }
-function _wbShowMusicControls(label){
+function _wbShowAdminMusicStatus(label){
   const ctrl=document.getElementById('wbAdminMusicControls');
   const nm=document.getElementById('wbAdminMusicName');
-  const pb=document.getElementById('wbAdminPlayPauseBtn');
   if(ctrl) ctrl.style.display='flex';
   if(nm)   nm.textContent=label;
-  if(pb)   pb.textContent='⏸';
 }
-function _wbAutoPlayMusic(){
-  // Called when entering arena — resume/play if music is loaded
-  if(_wbYtMode){
-    // YouTube iframe auto-starts; just ensure it's visible
-    const wrap=document.getElementById('wbYtEmbedWrap');
-    const iframe=document.getElementById('wbYtEmbed');
-    if(wrap && iframe && iframe.src && iframe.src!=='about:blank') wrap.style.display='block';
-  } else if(_wbAudio){
-    if(_wbAudio.paused){ _wbAudio.play().catch(()=>{}); }
-    const pb=document.getElementById('wbAdminPlayPauseBtn'); if(pb)pb.textContent='⏸';
-  }
-}
-function _wbPauseMusic(){
-  if(!_wbYtMode && _wbAudio && !_wbAudio.paused){
-    _wbAudio.pause();
-    const pb=document.getElementById('wbAdminPlayPauseBtn'); if(pb)pb.textContent='▶';
-  }
-  // YouTube keeps playing in the background (admin panel); that's intentional
-}
-function wbTogglePlayPause(){
-  if(_wbYtMode) return; // YouTube controlled via iframe controls
-  if(!_wbAudio) return;
-  const pb=document.getElementById('wbAdminPlayPauseBtn');
-  if(_wbAudio.paused){_wbAudio.play();if(pb)pb.textContent='⏸';}
-  else{_wbAudio.pause();if(pb)pb.textContent='▶';}
-}
-function wbSetVolume(v){
+function wbSetArenaVolume(v){
+  // Adjust volume of currently playing arena audio in real-time
   if(_wbAudio) _wbAudio.volume=parseFloat(v);
+  if(_wbArenaYtIframe){
+    // YouTube iframe volume cannot be controlled via src params after load;
+    // we do our best by storing it for next play.
+  }
 }
-function wbStopMusicAdmin(){ _wbStopAllMusic(); }
-function _wbStopAllMusic(){
+function wbStopMusicAdmin(){ _wbClearMusicConfig(); }
+
+// ── Arena: start / stop music ────────────────────────────────────────────────
+function _wbAutoPlayMusic(){
+  // Called when entering the arena — start playback fresh
+  if(!_wbMusicSrc && !_wbYtVideoId) return; // nothing configured
+  const vol=parseFloat(document.getElementById('wbAdminMusicVol')?.value||0.5);
+  if(_wbYtMode && _wbYtVideoId){
+    _wbStartArenaYoutube(_wbYtVideoId, vol);
+  } else if(_wbMusicSrc){
+    _wbStartArenaDirectAudio(_wbMusicSrc, vol);
+  }
+}
+function _wbStartArenaYoutube(videoId, vol){
+  // Inject a hidden iframe into the arena modal for playback
+  _wbDestroyArenaYtIframe();
+  const arena=document.getElementById('wbArenaModal');
+  if(!arena) return;
+  const wrap=document.createElement('div');
+  wrap.id='wbArenaYtWrap';
+  wrap.style.cssText='position:absolute;width:1px;height:1px;overflow:hidden;opacity:0;pointer-events:none;';
+  const iframe=document.createElement('iframe');
+  iframe.width='1'; iframe.height='1'; iframe.frameBorder='0';
+  iframe.allow='autoplay';
+  iframe.src=`https://www.youtube.com/embed/${videoId}?autoplay=1&loop=1&playlist=${videoId}&controls=0&rel=0&modestbranding=1`;
+  wrap.appendChild(iframe);
+  arena.appendChild(wrap);
+  _wbArenaYtIframe=iframe;
+}
+function _wbStartArenaDirectAudio(src, vol){
+  _wbDestroyArenaAudio();
+  _wbAudio=new Audio(src);
+  _wbAudio.volume=vol;
+  _wbAudio.loop=true;
+  _wbAudio.play().catch(()=>{});
+}
+function _wbStopArenaMusic(){
+  // Fully stop and destroy arena audio/iframe — called on arena leave
+  _wbDestroyArenaAudio();
+  _wbDestroyArenaYtIframe();
+}
+function _wbDestroyArenaAudio(){
   if(_wbAudio){_wbAudio.pause();_wbAudio.src='';_wbAudio=null;}
-  const iframe=document.getElementById('wbYtEmbed');
-  if(iframe){iframe.src='about:blank';}
-  const wrap=document.getElementById('wbYtEmbedWrap'); if(wrap) wrap.style.display='none';
-  const ctrl=document.getElementById('wbAdminMusicControls'); if(ctrl) ctrl.style.display='none';
-  _wbYtMode=false; _wbMusicSrc='';
 }
-function stopWbMusic(){ /* alias used elsewhere */ _wbStopAllMusic(); }
+function _wbDestroyArenaYtIframe(){
+  if(_wbArenaYtIframe){
+    _wbArenaYtIframe.src='about:blank';
+    _wbArenaYtIframe.parentElement?.remove();
+    _wbArenaYtIframe=null;
+  }
+  // Also remove by id in case reference was lost
+  const old=document.getElementById('wbArenaYtWrap');
+  if(old) old.remove();
+}
+function _wbClearMusicConfig(){
+  // Clears stored config and stops any active playback
+  _wbStopArenaMusic();
+  _wbYtMode=false; _wbYtVideoId=''; _wbMusicSrc=''; _wbMusicName='';
+  const ctrl=document.getElementById('wbAdminMusicControls'); if(ctrl) ctrl.style.display='none';
+  const nm=document.getElementById('wbAdminMusicName'); if(nm) nm.textContent='—';
+}
+// Legacy alias — used elsewhere
+function _wbPauseMusic(){ _wbStopArenaMusic(); }
+function _wbStopAllMusic(){ _wbClearMusicConfig(); }
+function stopWbMusic(){ _wbStopArenaMusic(); }
+// wbTogglePlayPause is no longer in admin panel; keep stub to avoid errors
+function wbTogglePlayPause(){}
+function wbSetVolume(v){ wbSetArenaVolume(v); }
 
 // Admin actions
 function adminEnterBossArena(bossId){ hideBossNotification(); enterBossArena(bossId); }
