@@ -16161,6 +16161,87 @@ function _baiFlashCard(who) {
   setTimeout(() => el.classList.remove('player-flash', 'enemy-flash'), 500);
 }
 
+// ── VS AI: apply a copied enemy ability directly onto _baiState (ps) ──
+async function _baiApplyCopiedAbil(ps, ab, pName, eName, mult=1.0) {
+  const effect = ab.battleEffect || '';
+  const val = Math.round((ab.value || 20) * mult);
+
+  if (COPY_SELF_BUFF_EFFECTS.has(effect)) {
+    // Buff — applies to the player
+    if (['regen','regen_active','regen_ult'].includes(effect)) {
+      ps.playerHP = Math.min(ps.playerMaxHP, ps.playerHP + val);
+      _baiLog(`🪞 ${pName} copied [${ab.name}] — +${val} HP!`, 'player');
+    } else if (['hpboost','hpboost_active','hpboost_passive','ascend_ult'].includes(effect)) {
+      ps.playerMaxHP += val;
+      ps.playerHP = Math.min(ps.playerMaxHP, ps.playerHP + val);
+      _baiLog(`🪞 ${pName} copied [${ab.name}] — Max HP +${val}!`, 'player');
+    } else if (['shield_active','immortal_ult','defboost'].includes(effect)) {
+      ps.shieldHits = (ps.shieldHits || 0) + 2;
+      ps.statusEffects.push({type:'shield',icon:'🛡️',label:'CopiedShield(2)',turns:2});
+      _baiLog(`🪞 ${pName} copied [${ab.name}] — Shield x2 activated!`, 'player');
+    } else if (['atkboost','atkboost_active','atkboost_passive','spellboost','focus'].includes(effect)) {
+      ps.playerAtkBoost = (ps.passiveAtkBoost || 0) + val;
+      ps.playerAtkBoostTurns = 3;
+      ps.statusEffects.push({type:'boost',icon:'⚡',label:`ATK+${val}%(3t)`,turns:3});
+      _baiLog(`🪞 ${pName} copied [${ab.name}] — ATK +${val}% for 3 turns!`, 'player');
+    } else if (['berserk_active','berserk_ult','transform_ult','demonform','frenzy'].includes(effect)) {
+      ps.transformMult = val > 5 ? val/100+1 : val||1.5;
+      ps.transformTurns = 2;
+      ps.statusEffects.push({type:'boost',icon:'🔥',label:`×${ps.transformMult}(2t)`,turns:2});
+      _baiLog(`🪞 ${pName} copied [${ab.name}] — ×${ps.transformMult} ATK for 2 turns!`, 'player');
+    } else if (['purify_active','purify_ult'].includes(effect)) {
+      const negTypes = ['burn','dot','stun','debuff'];
+      const removed = ps.statusEffects.filter(s=>negTypes.includes(s.type)&&s.who!=='enemy').length;
+      ps.statusEffects = ps.statusEffects.filter(s=>!negTypes.includes(s.type)||s.who==='enemy');
+      const healAmt = Math.round(val * 0.5);
+      ps.playerHP = Math.min(ps.playerMaxHP, ps.playerHP + healAmt);
+      _baiLog(`🪞 ${pName} copied [${ab.name}] — ${removed} debuff(s) cleansed + ${healAmt} HP!`, 'player');
+    } else if (['nullify_active','nullify_ult'].includes(effect)) {
+      ps.enemyAbilBlocked = (ps.enemyAbilBlocked||0) + (effect==='nullify_ult' ? 2 : 1);
+      ps.statusEffects.push({type:'shield',icon:'🚫',label:'Nullify',turns:effect==='nullify_ult'?2:1});
+      _baiLog(`🪞 ${pName} copied [${ab.name}] — enemy ability nullified!`, 'player');
+    } else if (['reflect_active','reflect_ult'].includes(effect)) {
+      ps.reflectHits = (ps.reflectHits||0) + (effect==='reflect_ult' ? 3 : 1);
+      ps.reflectPct = ab.chance || 100;
+      _baiLog(`🪞 ${pName} copied [${ab.name}] — Reflect ×${ps.reflectHits} hits!`, 'player');
+    } else if (['counter_active','counter_ult'].includes(effect)) {
+      ps.counterHits = (ps.counterHits||0) + (effect==='counter_ult' ? 3 : 1);
+      ps.counterDmg = val;
+      _baiLog(`🪞 ${pName} copied [${ab.name}] — Counter ×${ps.counterHits} hits!`, 'player');
+    } else {
+      // Generic self-buff fallback
+      const h = Math.round(val * 0.4);
+      ps.playerHP = Math.min(ps.playerMaxHP, ps.playerHP + h);
+      ps.playerAtkBoost = (ps.passiveAtkBoost||0) + 15;
+      ps.playerAtkBoostTurns = 2;
+      _baiLog(`🪞 ${pName} copied [${ab.name}] buff — +${h} HP + ATK boost!`, 'player');
+    }
+  } else {
+    // Damage ability — hits the enemy
+    const dmg = Math.max(1, Math.round(val * (0.85 + Math.random()*0.3)));
+    ps.enemyHP -= dmg;
+    _baiLog(`🪞 ${pName} copies [${ab.name}] — ${dmg} dmg to ${eName}!`, 'player');
+    // Carry over status effects from copied damage abilities
+    if (['curse_active','curse_ult','curseburst'].includes(effect)) {
+      ps.statusEffects.push({type:'burn',icon:'💀',label:'Cursed(3t)',turns:3,dot:Math.round(val*0.15),who:'enemy'});
+      _baiLog(`💀 Curse copied!`, 'player');
+    }
+    if (['stun_active','lockdown_ult'].includes(effect)) {
+      ps.stunEnemy = (ps.stunEnemy||0) + 1;
+      _baiLog(`⚡ Stun copied!`, 'player');
+    }
+    if (['burn','burn_active','passive_burn'].includes(effect)) {
+      ps.statusEffects.push({type:'burn',icon:'🔥',label:'Burned(3t)',turns:3,dot:Math.round(val*0.2),who:'enemy'});
+      _baiLog(`🔥 Burn copied!`, 'player');
+    }
+    if (['drain_active','drain_ult','leech'].includes(effect)) {
+      const leech = Math.round(dmg * 0.5);
+      ps.playerHP = Math.min(ps.playerMaxHP, ps.playerHP + leech);
+      _baiLog(`🩸 Drain copied — +${leech} HP!`, 'player');
+    }
+  }
+}
+
 async function _baiPlayerMove(moveId) {
   const ps = _baiState;
   if (ps.battleEnded || ps.movesCooldown) return;
@@ -16190,34 +16271,78 @@ async function _baiPlayerMove(moveId) {
     ps.statusEffects.push({ type: 'boost', icon: '⬆️', label: 'ATK+30%', turns: 2 });
     _baiLog(`✨ ${pName} focuses energy! ATK +30% for 2 turns!`, 'player');
   } else if (moveId.startsWith('active_') || moveId.startsWith('ult_')) {
-    // Simplified ability dispatch for AI battle — reuse effect logic
     const ab = move.abilityRef;
     if (ab) {
-      // For copy abilities, skip pre-cutscene — dispatchAbilityEffect plays the chosen ability's cutscene internally
-      const isCopyAbil = ab.battleEffect==='copy'||ab.battleEffect==='copy_active'||ab.battleEffect==='copy_ult'||ab.battleEffect==='copy_passive';
-      if (!isCopyAbil && (ab.tier === 'ultimate' || ab.tier === 'active')) {
-        await playAbilityCutscene(ps.playerCard.id, ps.playerCard.rarity, ab.id).catch(()=>{});
+      const effect = ab.battleEffect || '';
+      const isCopyAbil = effect==='copy'||effect==='copy_active'||effect==='copy_ult'||effect==='copy_passive';
+
+      if (isCopyAbil) {
+        // ── Copy: handle entirely here, no state-swap needed ──
+        const enemyCard = ps.enemyCard;
+        if (effect === 'copy_ult') {
+          // Show selection screen — player picks any enemy ability (including ultimate)
+          const abils = _getCopyableEnemyAbils(enemyCard, true);
+          _baiLog(`${ab.icon} ${pName}: ${ab.name}! PERFECT MIRROR — choose an ability to copy!`, 'player');
+          if (abils.length) {
+            const chosen = await showCopySelectionScreen(abils, enemyCard).catch(()=>null);
+            if (chosen) {
+              _baiLog(`🪞 ${pName} copies ${eName}'s 【${chosen.name}】!`, 'player');
+              try { await playAbilityCutscene(enemyCard.id, enemyCard.rarity, chosen.id); } catch(_){}
+              await _baiApplyCopiedAbil(ps, chosen, pName, eName, 1.1);
+            } else {
+              // Cancelled — mirror strike
+              const mDmg = Math.round((ps.lastEnemyDmg||15) * 2);
+              ps.enemyHP -= mDmg;
+              _baiLog(`🪞 ${pName}: Mirror strike — ${mDmg} dmg!`, 'player');
+            }
+          } else {
+            const mDmg = Math.round((ps.lastEnemyDmg||15) * 2);
+            ps.enemyHP -= mDmg;
+            _baiLog(`🪞 ${pName}: Perfect Mirror — ${mDmg} reflected!`, 'player');
+          }
+        } else {
+          // Active / passive-slot — guaranteed copy of random non-ult ability
+          const abils = _getCopyableEnemyAbils(enemyCard, false);
+          if (abils.length) {
+            const picked = abils[Math.floor(Math.random() * abils.length)];
+            _baiLog(`🪞 ${pName}: ${ab.name}! Copies ${eName}'s 【${picked.name}】!`, 'player');
+            try { await playAbilityCutscene(enemyCard.id, enemyCard.rarity, picked.id); } catch(_){}
+            await _baiApplyCopiedAbil(ps, picked, pName, eName, effect==='copy_passive' ? 0.75 : 0.9);
+          } else {
+            const mDmg = Math.round((ps.lastEnemyDmg||15) * 0.9);
+            ps.enemyHP -= mDmg;
+            _baiLog(`🪞 ${pName}: No ability to copy — mirror strike ${mDmg}!`, 'player');
+          }
+        }
+
+      } else {
+        // ── All other abilities — state-swap dispatch ──
+        if (ab.tier === 'ultimate' || ab.tier === 'active') {
+          await playAbilityCutscene(ps.playerCard.id, ps.playerCard.rarity, ab.id).catch(()=>{});
+        }
+        const saved = {...battleState};
+        Object.assign(battleState, ps, { phase:'fight' });
+        try {
+          await dispatchAbilityEffect(ab, 'player');
+        } catch(e) {
+          console.error('dispatchAbilityEffect error:', e);
+          _baiLog(`⚠️ ${ab.name} fizzled (error: ${e.message})`, 'system');
+        }
+        const syncFields = [
+          'playerHP','enemyHP','playerMP','statusEffects','playerAtkBoost','playerAtkBoostTurns',
+          'stunEnemy','transformMult','transformTurns','playerMaxHP','shieldHits','dodgeHits',
+          'copyActive','copyTurns','nextAttackGuaranteedCrit','defReducePct','passiveRegenAmt',
+          'passiveAtkBoost','passiveDefReduce','passiveDodge','reflectHits','reflectTurns',
+          'reflectPct','counterHits','counterDmg','counterTurns','counterMult','purifyTurns',
+          'nullifyTurns','enemyAbilBlocked','immortalTurns','phantomTurns','berserkTurns',
+          'berserkHpLoss','ironWillUsed','lastBurstFired','doubleRegenActive','lastEnemyAbility',
+          'berserkPassive','berserkPassiveFired','_fortifyMult','_fortifyThreshold','_fortifyFired',
+          'silentDrainAmt','risingPowerStack','risingPowerEvery','risingPowerBonus'
+        ];
+        for(const f of syncFields){ if(battleState[f] !== undefined) ps[f] = battleState[f]; }
+        Object.assign(battleState, saved);
+        _baiLog(`${ab.icon} ${pName} uses ${ab.name}!`, 'player');
       }
-      // Dispatch effect — temporarily swap battleState for the duration
-      const saved = {...battleState};
-      Object.assign(battleState, ps, { phase:'fight' });
-      await dispatchAbilityEffect(ab, 'player').catch(()=>{});
-      // Read back HP/status changes
-      // Sync ALL state fields back from the shared battleState after dispatch
-      const syncFields = [
-        'playerHP','enemyHP','playerMP','statusEffects','playerAtkBoost','playerAtkBoostTurns',
-        'stunEnemy','transformMult','transformTurns','playerMaxHP','shieldHits','dodgeHits',
-        'copyActive','copyTurns','nextAttackGuaranteedCrit','defReducePct','passiveRegenAmt',
-        'passiveAtkBoost','passiveDefReduce','passiveDodge','reflectHits','reflectTurns',
-        'reflectPct','counterHits','counterDmg','counterTurns','counterMult','purifyTurns',
-        'nullifyTurns','enemyAbilBlocked','immortalTurns','phantomTurns','berserkTurns',
-        'berserkHpLoss','ironWillUsed','lastBurstFired','doubleRegenActive','lastEnemyAbility',
-        'berserkPassive','berserkPassiveFired','_fortifyMult','_fortifyThreshold','_fortifyFired',
-        'silentDrainAmt','risingPowerStack','risingPowerEvery','risingPowerBonus'
-      ];
-      for(const f of syncFields){ if(battleState[f] !== undefined) ps[f] = battleState[f]; }
-      Object.assign(battleState, saved);
-      _baiLog(`${ab.icon} ${pName} uses ${ab.name}!`, 'player');
     }
   } else {
     // Basic attacks
@@ -16336,6 +16461,7 @@ async function _baiPlayerMove(moveId) {
       }
       if(actualDmg > 0){
         ps.playerHP -= actualDmg;
+        ps.lastEnemyDmg = actualDmg;
         _baiFlashCard('player');
         _baiLog(`⚔️ ${eName} attacks ${pName} for ${actualDmg} damage.${ps.playerGuarding ? ' (guarded)' : ''}`, 'enemy');
       }
