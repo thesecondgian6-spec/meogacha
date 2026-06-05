@@ -10307,6 +10307,13 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
               <div class="battle-hp-track"><div class="battle-hp-fill enemy-hp" id="baiBattleEnemyHPFill" style="width:100%"></div></div>
               <span class="battle-hp-text" id="baiBattleEnemyHPText">100/100</span>
             </div>
+            <div class="battle-combatant-row" style="margin-top:2px;">
+              <span class="battle-combatant-label" style="color:#c39bd3;font-size:0.72em;">Enemy MP</span>
+              <div class="battle-hp-track" style="height:5px;">
+                <div id="baiBattleEnemyMPFill" style="height:100%;width:40%;background:linear-gradient(90deg,#8e44ad,#c39bd3);border-radius:4px;transition:width 0.4s;"></div>
+              </div>
+              <span style="font-size:0.7em;color:#c39bd3;min-width:28px;text-align:right;" id="baiBattleEnemyMPText">2/5</span>
+            </div>
           </div>
           <!-- Status row -->
           <div class="battle-status-row" id="baiBattleStatus"></div>
@@ -16043,6 +16050,9 @@ async function startBattleAI() {
     doubleRegenActive: false,
     nextAttackGuaranteedCrit: playerAbils.some(a=>a.battleEffect==='firstcrit'),
     lastEnemyAbility: null,
+    // Enemy AI state
+    enemyMP: 2, enemyAtkMult: 1, enemyAtkBoostTurns: 0,
+    enemyShieldHits: 0, stunPlayer: 0, lastEnemyDmg: 0,
     statusEffects: initStatusEffects,
     battleEnded: false, movesCooldown: false,
   });
@@ -16104,9 +16114,15 @@ function _baiUpdateHPBars() {
   // Low HP pulse
   if (pfill) pfill.classList.toggle('low', ps.playerHP / ps.playerMaxHP < 0.25);
   if (efill) efill.classList.toggle('low', ps.enemyHP  / ps.enemyMaxHP  < 0.25);
-  // MP display
+  // Player MP display
   const mp = document.getElementById('baiBattleMP');
   if (mp) mp.textContent = `${ps.playerMP}/5`;
+  // Enemy MP bar
+  const empFill = document.getElementById('baiBattleEnemyMPFill');
+  const empTxt  = document.getElementById('baiBattleEnemyMPText');
+  const enemyMp = ps.enemyMP || 0;
+  if (empFill) empFill.style.width = `${(enemyMp/5)*100}%`;
+  if (empTxt)  empTxt.textContent  = `${enemyMp}/5`;
 }
 
 function _baiRenderMoves() {
@@ -16248,6 +16264,26 @@ async function _baiPlayerMove(moveId) {
   ps.movesCooldown = true;
   _baiRenderMoves();
 
+  // ── Player stun check (from enemy ability) ──
+  if (ps.stunPlayer > 0) {
+    ps.stunPlayer--;
+    _baiLog(`😵 ${ps.playerCard.name} is stunned and cannot act this turn!`, 'player');
+    // Still run enemy turn + end-of-turn
+    await new Promise(r => setTimeout(r, 700));
+    const pNameS = ps.playerCard.name;
+    const eNameS = ps.encounter.isBoss ? ps.encounter.label : ps.enemyCard.name;
+    // Jump straight to end-of-turn processing
+    ps.playerGuarding = false;
+    ps.turn++;
+    ps.statusEffects = ps.statusEffects.map(e=>({...e,turns:e.turns===999?999:e.turns-1})).filter(e=>e.turns>0);
+    _baiUpdateHPBars();
+    _baiRenderStatusRow();
+    if(ps.playerHP<=0){ await _baiEndBattle(false); return; }
+    ps.movesCooldown = false;
+    _baiRenderMoves();
+    return;
+  }
+
   const moves = getCardMoves(ps.playerCard);
   const move = moves.find(m => m.id === moveId);
   if (!move) { ps.movesCooldown = false; _baiRenderMoves(); return; }
@@ -16369,14 +16405,15 @@ async function _baiPlayerMove(moveId) {
   _baiUpdateHPBars();
   if (ps.enemyHP <= 0) { await _baiEndBattle(true); return; }
 
-  await new Promise(r => setTimeout(r, 150));
+  // ── Cinematic delay before enemy turn ──
+  await new Promise(r => setTimeout(r, 700));
 
   // ── Enemy turn (stun check) ──
   if (ps.stunEnemy > 0) {
     ps.stunEnemy--;
     _baiLog(`😵 ${eName} is stunned and cannot act!`, 'enemy');
   } else {
-    // Apply haunt DoT
+    // Apply haunt / burn DoT on enemy
     const hauntEffect = ps.statusEffects.find(e => e.type === 'burn' && e.who === 'enemy');
     if (hauntEffect) {
       ps.enemyHP -= hauntEffect.dot;
@@ -16384,89 +16421,263 @@ async function _baiPlayerMove(moveId) {
     }
     if (ps.enemyHP <= 0) { _baiUpdateHPBars(); await _baiEndBattle(true); return; }
 
-    // Enemy attack — scaled relative to player max HP so it's always proportional
+    // ── Enemy ability AI ──
+    // Enemy has MP (starts at 2, recovers 1/turn, max 5). They pick an ability when they can afford it.
     const enc = ps.encounter;
-    const baseHitPct = enc.isBoss ? 0.13 : (enc.diff === 'hard' ? 0.11 : 0.09);
-    const enemyBaseDmg = Math.round(ps.playerMaxHP * baseHitPct * diff.atkMult);
-    let enemyDmg = enemyBaseDmg + Math.floor(Math.random() * Math.round(ps.playerMaxHP * 0.04));
-    const isBoss = ps.encounter.isBoss;
-    if (isBoss && Math.random() < 0.15) {
-      enemyDmg = Math.round(enemyDmg * 1.8);
-      _baiLog(`👑 ${eName} unleashes a devastating attack!`, 'enemy');
+    const isBoss = enc.isBoss;
+    const diff   = BATTLE_DIFFICULTIES[ps.diffKey || 'normal'];
+
+    // Recover enemy MP each turn
+    ps.enemyMP = Math.min(5, (ps.enemyMP || 0) + 1);
+
+    // Get enemy card abilities (non-passive)
+    const enemyAbilsAll = ps.enemyCard
+      ? _getCopyableEnemyAbils(ps.enemyCard, true).filter(a => (a.mpCost||a.mp_cost||0) <= ps.enemyMP)
+      : [];
+
+    // AI decision weights: boss uses ultimates more, hard uses actives more, easy mostly basics
+    const abilityChance = isBoss ? 0.60 : (enc.diff === 'hard' ? 0.45 : enc.diff === 'easy' ? 0.20 : 0.35);
+    let usedAbility = false;
+
+    if (enemyAbilsAll.length && Math.random() < abilityChance && !(ps.enemyAbilBlocked > 0)) {
+      // Weighted pick: ultimates preferred at low HP, else weighted by rarity of tier
+      const enemyHpPct = ps.enemyHP / ps.enemyMaxHP;
+      const weighted = enemyAbilsAll.map(a => {
+        const t = (a.tier||'').toLowerCase();
+        let w = t==='ultimate'||t==='secret' ? 2 : 1;
+        // Boss uses ult more when low HP
+        if((t==='ultimate'||t==='secret') && enemyHpPct < 0.4) w = 5;
+        // Prefer self-heal/buff when low HP
+        if(COPY_SELF_BUFF_EFFECTS.has(a.battleEffect) && enemyHpPct < 0.35) w = 4;
+        return { a, w };
+      });
+      const totalW = weighted.reduce((s,x)=>s+x.w, 0);
+      let rand = Math.random() * totalW;
+      let picked = weighted[0].a;
+      for(const {a,w} of weighted){ rand -= w; if(rand <= 0){ picked = a; break; } }
+
+      // Deduct MP cost
+      const mpCost = picked.mpCost || picked.mp_cost || 0;
+      ps.enemyMP = Math.max(0, ps.enemyMP - mpCost);
+
+      // Small pause so player can read what's coming
+      await new Promise(r => setTimeout(r, 400));
+      _baiLog(`${picked.icon||'✨'} ${eName} uses ${picked.name}!`, 'enemy');
+
+      // Play cutscene for ultimate/active
+      if (picked.tier === 'ultimate' || picked.tier === 'secret') {
+        try { await playAbilityCutscene(ps.enemyCard.id, ps.enemyCard.rarity, picked.id); } catch(_){}
+      }
+
+      const abilEffect  = picked.battleEffect || '';
+      const abilVal     = Math.round((picked.value || 20) * diff.atkMult * 0.75);
+      const isSelfBuff  = COPY_SELF_BUFF_EFFECTS.has(abilEffect);
+
+      if (isSelfBuff) {
+        // Self-buff: heals/buffs the enemy
+        if (['regen','regen_active','regen_ult'].includes(abilEffect)) {
+          const healAmt = abilVal;
+          ps.enemyHP = Math.min(ps.enemyMaxHP, ps.enemyHP + healAmt);
+          _baiLog(`💚 ${eName} uses ${picked.name} — heals ${healAmt} HP!`, 'enemy');
+        } else if (['hpboost','hpboost_active','hpboost_passive','ascend_ult'].includes(abilEffect)) {
+          ps.enemyMaxHP += abilVal;
+          ps.enemyHP    += abilVal;
+          _baiLog(`💪 ${eName} fortifies! Max HP +${abilVal}!`, 'enemy');
+        } else if (['atkboost','atkboost_active','berserk_active','transform_ult','frenzy'].includes(abilEffect)) {
+          ps.enemyAtkMult = (ps.enemyAtkMult||1) + (abilVal>5 ? abilVal/100 : 0.3);
+          ps.enemyAtkBoostTurns = (abilEffect==='transform_ult'||abilEffect==='frenzy') ? 3 : 2;
+          _baiLog(`🔥 ${eName} powers up — ATK ×${ps.enemyAtkMult.toFixed(1)} for ${ps.enemyAtkBoostTurns} turns!`, 'enemy');
+        } else if (['shield_active','immortal_ult','defboost'].includes(abilEffect)) {
+          ps.enemyShieldHits = (ps.enemyShieldHits||0) + 2;
+          _baiLog(`🛡️ ${eName} raises a shield — ${ps.enemyShieldHits} hit(s) absorbed!`, 'enemy');
+        } else {
+          // Generic self-buff fallback: small heal
+          const h = Math.round(abilVal * 0.4);
+          ps.enemyHP = Math.min(ps.enemyMaxHP, ps.enemyHP + h);
+          _baiLog(`✨ ${eName} uses ${picked.name} — +${h} HP!`, 'enemy');
+        }
+        usedAbility = true;
+      } else {
+        // Damage / debuff ability — hits the player
+        let abilDmg = abilVal;
+
+        // Multi-hit
+        if (['frenzy','echo_ult'].includes(abilEffect))       abilDmg = Math.round(abilVal * 0.55) * 5;
+        else if (['echo_active','multihit_ult'].includes(abilEffect)) abilDmg = Math.round(abilVal * 0.55) * 3;
+        else if (['multihit_active'].includes(abilEffect))    abilDmg = Math.round(abilVal * 0.55) * 2;
+
+        // Tier damage multipliers
+        if (picked.tier === 'ultimate' || picked.tier === 'secret') abilDmg = Math.round(abilDmg * 1.35);
+
+        // Apply enemy ATK mult if buffed
+        if (ps.enemyAtkMult > 1) abilDmg = Math.round(abilDmg * ps.enemyAtkMult);
+
+        // Apply player defenses
+        let ad = Math.round(abilDmg * (ps.playerGuarding ? 0.45 : 1) * (1 - (ps.defReducePct||0)/100));
+
+        if (ps.immortalTurns > 0)    { ps.immortalTurns--; ad = 0; _baiLog(`✨ ${pName} is IMMORTAL — nullified!`, 'player'); }
+        else if (ps.phantomTurns > 0){ ps.phantomTurns--; ad = 0;  _baiLog(`👻 ${pName} phases — misses!`, 'player'); }
+        else if (ps.nullifyTurns > 0){ ps.nullifyTurns--; ad = 0;  _baiLog(`🚫 ${eName}'s ${picked.name} NULLIFIED!`, 'player'); }
+
+        if (ps.shieldHits > 0 && ad > 0){
+          ps.shieldHits--;
+          ad = Math.round(ad * (1-(ps.activeShieldReduce||50)/100));
+          _baiLog(`🛡️ Shield absorbs — only ${ad} through!`, 'player');
+        }
+        // Enemy shield absorbs counter/reflect
+        if (ps.enemyShieldHits > 0){ ps.enemyShieldHits = Math.max(0, ps.enemyShieldHits-1); }
+
+        if (ps.reflectHits > 0 && ad > 0){
+          ps.reflectHits--;
+          const rd = Math.round(ad*(ps.reflectPct||100)/100);
+          ps.enemyHP = Math.max(0,(ps.enemyHP||0)-rd);
+          _baiLog(`🔄 REFLECT — ${rd} back at ${eName}!`, 'player');
+          ad = 0;
+        }
+        if (ps.counterHits > 0 && ad > 0){
+          ps.counterHits--;
+          const cd = ps.counterDmg||20;
+          ps.enemyHP = Math.max(0,(ps.enemyHP||0)-cd);
+          _baiLog(`↩️ COUNTER — ${cd} back!`, 'player');
+        }
+        if (ps.ironWillHP > 0 && !ps.ironWillUsed && ps.playerHP - ad <= 0 && ad > 0){
+          ad = ps.playerHP - ps.ironWillHP;
+          ps.ironWillUsed = true;
+          _baiLog(`✊ Iron Will! ${pName} survives at ${ps.ironWillHP} HP!`, 'player');
+        }
+
+        if (ad > 0) {
+          ps.playerHP -= ad;
+          ps.lastEnemyDmg = ad;
+          _baiFlashCard('player');
+          _baiLog(`💥 ${eName}'s ${picked.name} hits ${pName} for ${ad}!`, 'enemy');
+        }
+
+        // Secondary effects
+        if (['burn','burn_active','passive_burn','burst_ult'].includes(abilEffect)){
+          const dot = Math.round(abilVal * 0.15);
+          ps.statusEffects.push({type:'burn',icon:'🔥',label:`Burned(3t)`,turns:3,dot,who:'player'});
+          _baiLog(`🔥 ${pName} is burned — ${dot}/turn!`, 'enemy');
+        }
+        if (['curse_active','curse_ult','curseburst'].includes(abilEffect)){
+          const dot = Math.round(abilVal * 0.18);
+          ps.statusEffects.push({type:'burn',icon:'💀',label:`Cursed(3t)`,turns:3,dot,who:'player'});
+          _baiLog(`💀 ${pName} is cursed — ${dot}/turn!`, 'enemy');
+        }
+        if (['stun_active','lockdown_ult'].includes(abilEffect)){
+          ps.stunPlayer = (ps.stunPlayer||0) + 1;
+          _baiLog(`⚡ ${pName} is stunned next turn!`, 'enemy');
+        }
+        if (['drain_active','drain_ult','leech'].includes(abilEffect) && ad > 0){
+          const lh = Math.round(ad * 0.5);
+          ps.enemyHP = Math.min(ps.enemyMaxHP, ps.enemyHP + lh);
+          _baiLog(`🩸 ${eName} drains ${lh} HP!`, 'enemy');
+        }
+
+        if (ps.enemyHP <= 0) { _baiUpdateHPBars(); await _baiEndBattle(true); return; }
+        usedAbility = true;
+      }
     }
-    const guardMult = ps.playerGuarding ? 0.45 : 1;
-    const defMult = 1 - (ps.defReducePct / 100 || 0);
-    // Dodge
-    const dodgeRoll = Math.random() < (ps.passiveDodge / 100 || 0);
-    if (dodgeRoll) {
-      _baiLog(`💨 ${pName} dodges ${eName}'s attack!`, 'player');
-    } else {
-      let finalDmg = Math.max(1, Math.round(enemyDmg * guardMult * defMult));
-      // ── Immortal / Phantom ──
-      if(ps.immortalTurns > 0){
-        ps.immortalTurns--;
-        _baiLog(`✨ ${pName} is IMMORTAL — attack nullified!`, 'player');
-        finalDmg = 0;
-      } else if(ps.phantomTurns > 0){
-        ps.phantomTurns--;
-        _baiLog(`👻 ${pName} phases — attack misses!`, 'player');
-        finalDmg = 0;
-      } else if(ps.nullifyTurns > 0){
-        ps.nullifyTurns--;
-        _baiLog(`🚫 ${eName}'s attack NULLIFIED!`, 'player');
-        finalDmg = 0;
+
+    // If nullify was active on enemy, decrement
+    if (ps.enemyAbilBlocked > 0) {
+      ps.enemyAbilBlocked--;
+      if (!usedAbility) _baiLog(`🚫 ${eName}'s ability was nullified!`, 'player');
+    }
+
+    // ── Enemy basic attack (if no ability was used) ──
+    if (!usedAbility) {
+      const baseHitPct = isBoss ? 0.13 : (enc.diff === 'hard' ? 0.11 : 0.09);
+      const enemyBaseDmg = Math.round(ps.playerMaxHP * baseHitPct * diff.atkMult);
+      let enemyDmg = enemyBaseDmg + Math.floor(Math.random() * Math.round(ps.playerMaxHP * 0.04));
+
+      // Apply enemy ATK mult if buffed
+      if (ps.enemyAtkMult > 1) enemyDmg = Math.round(enemyDmg * ps.enemyAtkMult);
+
+      if (isBoss && Math.random() < 0.15) {
+        enemyDmg = Math.round(enemyDmg * 1.8);
+        _baiLog(`👑 ${eName} unleashes a devastating strike!`, 'enemy');
       }
-      // ── Shield ──
-      if(ps.shieldHits > 0 && finalDmg > 0){
-        ps.shieldHits--;
-        finalDmg = Math.round(finalDmg * (1 - (ps.activeShieldReduce||50)/100));
-        _baiLog(`🛡️ Shield absorbs! Only ${finalDmg} dmg gets through!`, 'player');
+      const guardMult = ps.playerGuarding ? 0.45 : 1;
+      const defMult   = 1 - (ps.defReducePct / 100 || 0);
+      const dodgeRoll = Math.random() < (ps.passiveDodge / 100 || 0);
+      if (dodgeRoll) {
+        _baiLog(`💨 ${pName} dodges ${eName}'s attack!`, 'player');
+      } else {
+        let finalDmg = Math.max(1, Math.round(enemyDmg * guardMult * defMult));
+        if(ps.immortalTurns > 0){
+          ps.immortalTurns--;
+          _baiLog(`✨ ${pName} is IMMORTAL — attack nullified!`, 'player');
+          finalDmg = 0;
+        } else if(ps.phantomTurns > 0){
+          ps.phantomTurns--;
+          _baiLog(`👻 ${pName} phases — attack misses!`, 'player');
+          finalDmg = 0;
+        } else if(ps.nullifyTurns > 0){
+          ps.nullifyTurns--;
+          _baiLog(`🚫 ${eName}'s attack NULLIFIED!`, 'player');
+          finalDmg = 0;
+        }
+        if(ps.shieldHits > 0 && finalDmg > 0){
+          ps.shieldHits--;
+          finalDmg = Math.round(finalDmg * (1 - (ps.activeShieldReduce||50)/100));
+          _baiLog(`🛡️ Shield absorbs! Only ${finalDmg} dmg gets through!`, 'player');
+        }
+        if(ps.reflectHits > 0 && finalDmg > 0){
+          ps.reflectHits--;
+          const refDmg = Math.round(finalDmg * (ps.reflectPct||100)/100);
+          ps.enemyHP = Math.max(0, (ps.enemyHP||0) - refDmg);
+          _baiLog(`🔄 REFLECT — ${refDmg} bounced back!`, 'player');
+          finalDmg = 0;
+        } else if(ps.reflectTurns > 0 && finalDmg > 0){
+          const refDmg = Math.round(finalDmg * (ps.reflectPct||100)/100);
+          ps.enemyHP = Math.max(0, (ps.enemyHP||0) - refDmg);
+          _baiLog(`🔄 Reflect field — ${refDmg} reflected!`, 'player');
+          finalDmg = 0;
+        }
+        if(ps.counterHits > 0 && finalDmg > 0){
+          ps.counterHits--;
+          const cDmg = ps.counterDmg||20;
+          ps.enemyHP = Math.max(0, (ps.enemyHP||0) - cDmg);
+          _baiLog(`↩️ COUNTER — ${cDmg} back at ${eName}!`, 'player');
+        } else if(ps.counterTurns > 0 && finalDmg > 0){
+          const cDmg = Math.round(finalDmg * (ps.counterMult||2));
+          ps.enemyHP = Math.max(0, (ps.enemyHP||0) - cDmg);
+          _baiLog(`↩️ Counter ×${ps.counterMult||2} — ${cDmg} reflected!`, 'player');
+        }
+        if(ps.copyActive && finalDmg > 0){
+          const copyDmg = Math.round(finalDmg * 0.9);
+          ps.enemyHP = Math.max(0, (ps.enemyHP||0) - copyDmg);
+          _baiLog(`🪞 Mimicry copies attack — ${copyDmg} back!`, 'player');
+        }
+        let actualDmg = finalDmg;
+        if (ps.ironWillHP > 0 && !ps.ironWillUsed && ps.playerHP - finalDmg <= 0 && finalDmg > 0) {
+          actualDmg = ps.playerHP - ps.ironWillHP;
+          ps.ironWillUsed = true;
+          _baiLog(`✊ Iron Will activates! ${pName} survives with ${ps.ironWillHP} HP!`, 'player');
+        }
+        if(actualDmg > 0){
+          ps.playerHP -= actualDmg;
+          ps.lastEnemyDmg = actualDmg;
+          _baiFlashCard('player');
+          const attackNames = ['strikes','attacks','hits','lashes out at','slashes'];
+          const atkLabel = attackNames[Math.floor(Math.random()*attackNames.length)];
+          _baiLog(`⚔️ ${eName} ${atkLabel} ${pName} for ${actualDmg} damage.${ps.playerGuarding ? ' (guarded)' : ''}`, 'enemy');
+        }
+        // ── Check enemy HP from counter/reflect ──
+        if(ps.enemyHP <= 0){ _baiUpdateHPBars(); await _baiEndBattle(true); return; }
       }
-      // ── Reflect ──
-      if(ps.reflectHits > 0 && finalDmg > 0){
-        ps.reflectHits--;
-        const refDmg = Math.round(finalDmg * (ps.reflectPct||100)/100);
-        ps.enemyHP = Math.max(0, (ps.enemyHP||0) - refDmg);
-        _baiLog(`🔄 REFLECT — ${refDmg} bounced back!`, 'player');
-        finalDmg = 0;
-      } else if(ps.reflectTurns > 0 && finalDmg > 0){
-        const refDmg = Math.round(finalDmg * (ps.reflectPct||100)/100);
-        ps.enemyHP = Math.max(0, (ps.enemyHP||0) - refDmg);
-        _baiLog(`🔄 Reflect field — ${refDmg} reflected!`, 'player');
-        finalDmg = 0;
-      }
-      // ── Counter ──
-      if(ps.counterHits > 0 && finalDmg > 0){
-        ps.counterHits--;
-        const cDmg = ps.counterDmg||20;
-        ps.enemyHP = Math.max(0, (ps.enemyHP||0) - cDmg);
-        _baiLog(`↩️ COUNTER — ${cDmg} back at ${eName}!`, 'player');
-      } else if(ps.counterTurns > 0 && finalDmg > 0){
-        const cDmg = Math.round(finalDmg * (ps.counterMult||2));
-        ps.enemyHP = Math.max(0, (ps.enemyHP||0) - cDmg);
-        _baiLog(`↩️ Counter ×${ps.counterMult||2} — ${cDmg} reflected!`, 'player');
-      }
-      // ── Copy active ──
-      if(ps.copyActive && finalDmg > 0){
-        const copyDmg = Math.round(finalDmg * 0.9);
-        ps.enemyHP = Math.max(0, (ps.enemyHP||0) - copyDmg);
-        _baiLog(`🪞 Mimicry copies attack — ${copyDmg} back!`, 'player');
-      }
-      // Iron will
-      let actualDmg = finalDmg;
-      if (ps.ironWillHP > 0 && !ps.ironWillUsed && ps.playerHP - finalDmg <= 0 && finalDmg > 0) {
-        actualDmg = ps.playerHP - ps.ironWillHP;
-        ps.ironWillUsed = true;
-        _baiLog(`✊ Iron Will activates! ${pName} survives with ${ps.ironWillHP} HP!`, 'player');
-      }
-      if(actualDmg > 0){
-        ps.playerHP -= actualDmg;
-        ps.lastEnemyDmg = actualDmg;
-        _baiFlashCard('player');
-        _baiLog(`⚔️ ${eName} attacks ${pName} for ${actualDmg} damage.${ps.playerGuarding ? ' (guarded)' : ''}`, 'enemy');
-      }
-      // ── Check enemy HP from counter/reflect ──
-      if(ps.enemyHP <= 0){ _baiUpdateHPBars(); await _baiEndBattle(true); return; }
+    }
+
+    // Tick enemy ATK boost turns
+    if (ps.enemyAtkBoostTurns > 0) {
+      ps.enemyAtkBoostTurns--;
+      if (!ps.enemyAtkBoostTurns) { ps.enemyAtkMult = 1; _baiLog(`🔥 ${eName}'s power boost faded.`, 'system'); }
+    }
+    // Tick stun on player from enemy ability
+    if (ps.stunPlayer > 0) {
+      ps.stunPlayer--;
+      // Will be applied on next player move attempt
     }
   }
 
