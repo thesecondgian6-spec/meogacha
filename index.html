@@ -18600,16 +18600,22 @@ async function submitBannerForm(){
   };
 
   // Character art columns — need SQL migration if missing
-  const charImg1 = document.getElementById('bannerForm_charImg1')?.value?.trim()||null;
-  const charImg2 = document.getElementById('bannerForm_charImg2')?.value?.trim()||null;
-  const charImg3 = document.getElementById('bannerForm_charImg3')?.value?.trim()||null;
+  const charImg1 = document.getElementById('bannerForm_charImg1')?.value?.trim()||'';
+  const charImg2 = document.getElementById('bannerForm_charImg2')?.value?.trim()||'';
+  const charImg3 = document.getElementById('bannerForm_charImg3')?.value?.trim()||'';
   const hasCharImgs = charImg1||charImg2||charImg3;
-  const extendedData = {
-    ...extendedNoChars,
-    char_image_1: charImg1,
-    char_image_2: charImg2,
-    char_image_3: charImg3,
-  };
+
+  // Only include char image keys if they have a value — avoids null-rejection on some Supabase configs
+  const charImageData = {};
+  if(charImg1) charImageData.char_image_1 = charImg1;
+  if(charImg2) charImageData.char_image_2 = charImg2;
+  if(charImg3) charImageData.char_image_3 = charImg3;
+  // Always send empty string (not null) to clear a slot
+  if(!charImg1 && _adminBannerCache.some(b=>'char_image_1' in b)) charImageData.char_image_1 = '';
+  if(!charImg2 && _adminBannerCache.some(b=>'char_image_2' in b)) charImageData.char_image_2 = '';
+  if(!charImg3 && _adminBannerCache.some(b=>'char_image_3' in b)) charImageData.char_image_3 = '';
+
+  const extendedData = { ...extendedNoChars, ...charImageData };
 
   const _isColumnError = (msg='') =>
     msg.toLowerCase().includes('column') ||
@@ -18677,10 +18683,9 @@ async function submitBannerForm(){
 
     if(result.ok){
       if(hasCharImgs && !charsSaved){
-        // Show migration warning if char images couldn't be saved
-        showToast('⚠️ Banner saved, but char art columns are missing! Run this SQL in Supabase:\nALTER TABLE banners ADD COLUMN IF NOT EXISTS char_image_1 text DEFAULT \'\';\nALTER TABLE banners ADD COLUMN IF NOT EXISTS char_image_2 text DEFAULT \'\';\nALTER TABLE banners ADD COLUMN IF NOT EXISTS char_image_3 text DEFAULT \'\';');
-        // Also log to console for easy copy
-        console.warn('[MeoGacha] Run this SQL migration to enable banner character art:\nALTER TABLE banners ADD COLUMN IF NOT EXISTS char_image_1 text DEFAULT \'\';\nALTER TABLE banners ADD COLUMN IF NOT EXISTS char_image_2 text DEFAULT \'\';\nALTER TABLE banners ADD COLUMN IF NOT EXISTS char_image_3 text DEFAULT \'\';');
+        // Columns missing — show short toast, full SQL is visible in the admin form warning box
+        showToast('⚠️ Banner saved! Character art needs the SQL migration — check the Banner Manager form for the SQL to run.');
+        console.warn('[MeoGacha] Run this SQL in Supabase to enable character art:\nALTER TABLE banners ADD COLUMN IF NOT EXISTS char_image_1 text DEFAULT \'\';\nALTER TABLE banners ADD COLUMN IF NOT EXISTS char_image_2 text DEFAULT \'\';\nALTER TABLE banners ADD COLUMN IF NOT EXISTS char_image_3 text DEFAULT \'\';');
       } else {
         showToast(`✅ Banner "${name}" saved!`);
       }
