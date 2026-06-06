@@ -383,30 +383,28 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   grid-column: 1 / -1;
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-top: 18px;
-  margin-bottom: 4px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid var(--border);
+  gap: 10px;
+  margin-top: 36px;
+  margin-bottom: 16px;
 }
-.shop-section-header:first-child { margin-top: 4px; }
-.shop-section-icon { font-size: 1.1em; }
-.shop-section-label {
-  font-family: 'Cinzel Decorative', serif;
-  font-size: 0.78em;
-  color: var(--pink-pale);
-  letter-spacing: 0.05em;
+.shop-section-header:first-child { margin-top: 8px; }
+.shop-section-divider-line {
   flex: 1;
+  height: 1px;
+  background: rgba(255,157,199,0.22);
 }
-.shop-section-count {
+.shop-section-label {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 0.6em;
-  color: var(--text-dim);
-  background: rgba(255,157,199,0.07);
-  border: 1px solid var(--border);
-  border-radius: 20px;
-  padding: 2px 9px;
+  font-size: 0.65em;
+  letter-spacing: 0.22em;
+  color: rgba(255,157,199,0.65);
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  text-transform: uppercase;
 }
+.shop-section-label-icon { font-size: 1.1em; }
 /* Ref picker (card/skin chooser in admin) */
 .ref-picker-row{ display:flex;gap:8px;align-items:stretch;margin-bottom:0; }
 .ref-picker-display{
@@ -459,18 +457,10 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .hmap-hero {
   position: relative;
   height: clamp(240px, 45vw, 420px);
-  max-height: 420px;
   overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
-  /* On desktop, cap the GIF area so it doesn't stretch beyond a readable width */
-}
-/* Wrapper to constrain hub content width on desktop */
-#hubMapView {
-  max-width: 1100px;
-  margin: 0 auto;
-  width: 100%;
 }
 .hmap-hero-gif {
   position: absolute;
@@ -493,8 +483,8 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .hmap-hero-fade-bottom {
   position: absolute;
   bottom: 0; left: 0; right: 0;
-  height: 160px;
-  background: linear-gradient(to top, var(--bg) 0%, rgba(13,6,16,0.97) 25%, rgba(13,6,16,0.85) 50%, rgba(13,6,16,0.45) 75%, transparent 100%);
+  height: 100px;
+  background: linear-gradient(to top, #06020c 0%, rgba(6,2,12,0.7) 60%, transparent 100%);
   z-index: 1; pointer-events: none;
 }
 /* Floating particle specks */
@@ -669,8 +659,8 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 ══════════════════════════════════════════════════ */
 .hmap-body {
   position: relative;
-  padding: 28px 24px 0;
-  max-width: 860px;
+  padding: 40px 24px 0;
+  max-width: 960px;
   margin: 0 auto;
   width: 100%;
   overflow: hidden;
@@ -729,16 +719,21 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
-  margin-bottom: 24px;
+  margin-bottom: 36px;
   justify-content: center;
 }
 .hmap-stats-row .home-stat-chip {
   flex: 1;
   min-width: 110px;
   max-width: 200px;
-  background: rgba(255,255,255,0.04);
-  border-color: rgba(255,255,255,0.08);
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
   cursor: pointer;
+}
+.hmap-stats-row .home-stat-chip:hover {
+  background: rgba(255,157,199,0.06);
+  border-color: rgba(255,157,199,0.15);
 }
 
 /* ══════════════════════════════════════════════════
@@ -756,7 +751,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   border: 1px solid rgba(255,255,255,0.08);
   box-shadow: 0 8px 40px rgba(0,0,0,0.5);
   transition: transform 0.25s cubic-bezier(.34,1.4,.64,1), box-shadow 0.25s;
-  margin-bottom: 32px;
+  margin-bottom: 48px;
 }
 .hmap-gacha-widget:hover { transform: translateY(-4px) scale(1.005); box-shadow: 0 16px 60px rgba(0,0,0,0.65); }
 /* Banner GIF as background */
@@ -987,30 +982,6 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 }
 
 /* ══════════════════════════════════════════════════
-   DESKTOP SCALING — prevent hub from stretching
-══════════════════════════════════════════════════ */
-@media(min-width:1100px){
-  /* The hero GIF should not balloon on ultra-wide screens */
-  .hmap-hero-gif {
-    max-width: 1100px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 1100px;
-    right: auto;
-  }
-  /* Stat chips: fixed comfortable size, don't stretch */
-  .hmap-stats-row .home-stat-chip {
-    flex: 0 0 auto;
-    min-width: 130px;
-    max-width: 160px;
-  }
-  /* Gacha widget comfortable desktop size */
-  .hmap-gacha-widget {
-    min-height: 280px;
-  }
-}
-
-/* ══════════════════════════════════════════════════
    HUB MINIMAP BAR (legacy — now hidden)
 ══════════════════════════════════════════════════ */
 .hub-minimap-bar { display: none !important; }
@@ -1022,13 +993,8 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   display: flex;
   flex-direction: column;
   width: 100%;
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 0 24px 48px;
+  padding: 0 0 48px;
   gap: 0;
-}
-@media(max-width:700px){
-  .hub-booth-sections { padding: 0 0 48px; }
 }
 
 /* ── Each Section ── */
@@ -6172,12 +6138,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 /* ══════════════════════════════════════════════════
    MEO HUB — GLOBAL STYLES
 ══════════════════════════════════════════════════ */
-#page-social {
-  padding: 0 !important;
-  max-width: 100% !important;
-  /* Content inside is constrained via #hubMapView max-width */
-  overflow-x: hidden;
-}
+#page-social { padding: 0 !important; max-width: 100% !important; }
 
 .hub-zone { padding: 20px 24px 100px; max-width: 1200px; margin: 0 auto; }
 @media(max-width:700px){ .hub-zone { padding: 14px 12px 100px; } }
@@ -10518,10 +10479,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
             <span class="hsc-icon">🪙</span>
             <div><div class="hsc-val" id="hubCoins">—</div><div class="hsc-lbl">Coins</div></div>
           </div>
-          <div class="home-stat-chip" onclick="goTo('collection',null)" title="Collection %">
-            <span class="hsc-icon">📊</span>
-            <div><div class="hsc-val" id="hubCollPct">—%</div><div class="hsc-lbl">Collection</div></div>
-          </div>
+
         </div>
 
         <!-- ── Gacha Banner Widget ── -->
@@ -13242,6 +13200,18 @@ function renderActiveBoostsBar(){
   }
 }
 
+function _shopSectionDivider(icon, label){
+  return `<div class="shop-section-header">
+    <div class="shop-section-divider-line"></div>
+    <div class="shop-section-label">
+      <span class="shop-section-label-icon">${icon}</span>
+      ${label}
+      <span class="shop-section-label-icon">${icon}</span>
+    </div>
+    <div class="shop-section-divider-line"></div>
+  </div>`;
+}
+
 function renderShopGrid(){
   const grid = document.getElementById('shopGrid');
   const empty = document.getElementById('shopEmpty');
@@ -13249,7 +13219,7 @@ function renderShopGrid(){
 
   let items = getShopItems();
 
-  // Normalize type for filtering: boost items have subtype coin/xp
+  // Normalize type for filtering
   if(_shopCurrentFilter && _shopCurrentFilter !== 'all'){
     if(_shopCurrentFilter === 'coinboost'){
       items = items.filter(i=>i.type==='boost' && i.subtype==='coin');
@@ -13267,43 +13237,40 @@ function renderShopGrid(){
   }
   if(empty) empty.style.display='none';
 
-  // ── In "all" view, group by section ──
+  // ── In "all" view, group by section with decorative dividers ──
   if(_shopCurrentFilter === 'all'){
     const SECTION_ORDER = [
-      { key:'boosts',    label:'Boosts',      icon:'⚡', match: i => i.type==='boost' },
-      { key:'xp',        label:'XP Potions',  icon:'📦', match: i => i.type==='xp' },
-      { key:'cards',     label:'Cards',       icon:'🃏', match: i => i.type==='card' },
-      { key:'skins',     label:'Card Skins',  icon:'🎨', match: i => i.type==='skin' },
-      { key:'titles',    label:'Titles',      icon:'🎀', match: i => i.type==='title' },
-      { key:'gameitems', label:'Game Items',  icon:'🎁', match: i => i.type==='gameitem' },
+      { match: i=>i.type==='boost',    icon:'⚡', label:'Boosts'     },
+      { match: i=>i.type==='xp',       icon:'📦', label:'XP Potions' },
+      { match: i=>i.type==='card',     icon:'🃏', label:'Cards'      },
+      { match: i=>i.type==='skin',     icon:'🎨', label:'Card Skins' },
+      { match: i=>i.type==='title',    icon:'🎀', label:'Titles'     },
+      { match: i=>i.type==='gameitem', icon:'🎁', label:'Game Items' },
     ];
-
+    const knownTypes = new Set(['boost','xp','card','skin','title','gameitem']);
     let html = '';
+    let isFirst = true;
     for(const section of SECTION_ORDER){
       const sectionItems = items.filter(section.match);
       if(!sectionItems.length) continue;
-      html += `<div class="shop-section-header">
-        <span class="shop-section-icon">${section.icon}</span>
-        <span class="shop-section-label">${section.label}</span>
-        <span class="shop-section-count">${sectionItems.length}</span>
-      </div>`;
-      html += sectionItems.map(item => buildShopItemCard(item)).join('');
+      html += _shopSectionDivider(section.icon, section.label);
+      if(isFirst){ html = html.replace('class="shop-section-header"','class="shop-section-header" style="margin-top:8px;"'); isFirst=false; }
+      html += sectionItems.map(item => _buildShopItemCard(item)).join('');
     }
-    // anything not matched by a section
-    const knownTypes = new Set(['boost','xp','card','skin','title','gameitem']);
-    const others = items.filter(i => !knownTypes.has(i.type));
+    const others = items.filter(i=>!knownTypes.has(i.type));
     if(others.length){
-      html += `<div class="shop-section-header">
-        <span class="shop-section-icon">🏪</span>
-        <span class="shop-section-label">Other</span>
-        <span class="shop-section-count">${others.length}</span>
-      </div>`;
-      html += others.map(item => buildShopItemCard(item)).join('');
+      html += _shopSectionDivider('🏪','Other');
+      html += others.map(item => _buildShopItemCard(item)).join('');
     }
     grid.innerHTML = html;
     return;
   }
 
+  // ── Filtered view: flat grid, no headers ──
+  grid.innerHTML = items.map(item => _buildShopItemCard(item)).join('');
+}
+
+function _buildShopItemCard(item){
   const CAT_META = {
     boost:     { label:'Boost',        color:'#f1c40f',   accent:'rgba(241,196,15,0.12)',  border:'rgba(241,196,15,0.3)'  },
     xp:        { label:'XP Item',      color:'#9b59b6',   accent:'rgba(155,89,182,0.12)',  border:'rgba(155,89,182,0.3)'  },
@@ -13312,134 +13279,106 @@ function renderShopGrid(){
     skin:      { label:'Card Skin',    color:'#c084b8',   accent:'rgba(192,132,184,0.12)', border:'rgba(192,132,184,0.3)' },
     gameitem:  { label:'Item',         color:'#1abc9c',   accent:'rgba(26,188,156,0.12)',  border:'rgba(26,188,156,0.3)'  },
   };
-
   const now = Date.now();
+  const type        = item.type || 'item';
+  const itemDesc    = item.description || item.desc || '';
+  const imageUrl    = item.image_url || '';
+  const refId       = item.ref_id || item.card_id || item.skin_id || item.title_text || '';
+  const subtype     = item.subtype || '';
+  const price       = parseInt(item.price)||0;
+  const meta = CAT_META[type] || { label:'Item', color:'var(--pink)', accent:'rgba(255,157,199,0.08)', border:'var(--border)' };
 
-  grid.innerHTML = items.map(item => buildShopItemCard(item, CAT_META, now)).join('');
-}
+  let typeLabel = meta.label;
+  if(type==='boost' && subtype==='coin') typeLabel = 'Coin Boost';
+  if(type==='boost' && subtype==='xp')   typeLabel = 'XP Boost';
 
-function buildShopItemCard(item, catMetaArg, nowArg){
-  const CAT_META = catMetaArg || {
-    boost:     { label:'Boost',        color:'#f1c40f',   accent:'rgba(241,196,15,0.12)',  border:'rgba(241,196,15,0.3)'  },
-    xp:        { label:'XP Item',      color:'#9b59b6',   accent:'rgba(155,89,182,0.12)',  border:'rgba(155,89,182,0.3)'  },
-    card:      { label:'Card',         color:'#2ecc71',   accent:'rgba(46,204,113,0.12)',  border:'rgba(46,204,113,0.3)'  },
-    title:     { label:'Title',        color:'#ff9dc7',   accent:'rgba(255,157,199,0.12)', border:'rgba(255,157,199,0.3)' },
-    skin:      { label:'Card Skin',    color:'#c084b8',   accent:'rgba(192,132,184,0.12)', border:'rgba(192,132,184,0.3)' },
-    gameitem:  { label:'Item',         color:'#1abc9c',   accent:'rgba(26,188,156,0.12)',  border:'rgba(26,188,156,0.3)'  },
-  };
-  const now = nowArg || Date.now();
+  const canAfford = state.coins >= price;
+  let statusTag = '';
+  let btnLabel = `🛍️ Buy`;
+  let btnDisabled = !canAfford;
+  let btnClass = canAfford ? 'shop-new-buy-btn' : 'shop-new-buy-btn disabled';
 
-    // Normalize: support both DB schema and fallback items
-    const type        = item.type || 'item';
-    const itemDesc    = item.description || item.desc || '';
-    const imageUrl    = item.image_url || '';
-    const refId       = item.ref_id || item.card_id || item.skin_id || item.title_text || '';
-    const subtype     = item.subtype || '';
-    const durMins     = item.duration_mins || (item.boost_duration ? item.boost_duration*60 : 0);
-    const xpVal       = item.value || item.xp_amount || 0;
-    const price       = parseInt(item.price)||0;
-
-    const meta = CAT_META[type] || { label:'Item', color:'var(--pink)', accent:'rgba(255,157,199,0.08)', border:'var(--border)' };
-
-    // Sub-label for boosts
-    let typeLabel = meta.label;
-    if(type==='boost' && subtype==='coin') typeLabel = 'Coin Boost';
-    if(type==='boost' && subtype==='xp')   typeLabel = 'XP Boost';
-
-    const canAfford = state.coins >= price;
-
-    let statusTag = '';
-    let btnLabel = `🛍️ Buy — 🪙 ${price.toLocaleString()}`;
-    let btnDisabled = !canAfford;
-    let btnClass = canAfford ? 'shop-new-buy-btn' : 'shop-new-buy-btn disabled';
-
-    // Active boost check
-    if(type === 'boost'){
-      const boostKey = subtype==='coin' ? 'coinboost' : 'xpboost';
-      if(state.activeBoosts && state.activeBoosts[boostKey] && state.activeBoosts[boostKey] > now){
-        const mins = Math.ceil((state.activeBoosts[boostKey] - now)/60000);
-        statusTag = `<div class="shop-item-status active-status">⚡ Active — ${mins}m left</div>`;
-      }
+  if(type === 'boost'){
+    const boostKey = subtype==='coin' ? 'coinboost' : 'xpboost';
+    if(state.activeBoosts && state.activeBoosts[boostKey] && state.activeBoosts[boostKey] > now){
+      const mins = Math.ceil((state.activeBoosts[boostKey] - now)/60000);
+      statusTag = `<div class="shop-item-status active-status">⚡ Active — ${mins}m left</div>`;
     }
-    if(type === 'title' && refId){
-      if((state.ownedTitles||[]).includes(refId)){
-        statusTag = `<div class="shop-item-status owned-status">✦ Owned</div>`;
-        btnLabel = '✓ Owned'; btnDisabled=true; btnClass='shop-new-buy-btn disabled';
-      }
+  }
+  if(type === 'title' && refId){
+    if((state.ownedTitles||[]).includes(refId)){
+      statusTag = `<div class="shop-item-status owned-status">✦ Owned</div>`;
+      btnLabel = '✓ Owned'; btnDisabled=true; btnClass='shop-new-buy-btn disabled';
     }
-    if(type === 'skin' && refId){
-      if(window.PLAYER_SKINS && window.PLAYER_SKINS[refId]){
-        statusTag = `<div class="shop-item-status owned-status">🎨 Owned</div>`;
-        btnLabel = '✓ Owned'; btnDisabled=true; btnClass='shop-new-buy-btn disabled';
-      }
+  }
+  if(type === 'skin' && refId){
+    if(window.PLAYER_SKINS && window.PLAYER_SKINS[refId]){
+      statusTag = `<div class="shop-item-status owned-status">🎨 Owned</div>`;
+      btnLabel = '✓ Owned'; btnDisabled=true; btnClass='shop-new-buy-btn disabled';
     }
-    if(type === 'card' && refId){
-      if(state.collection && state.collection.includes(refId)){
-        statusTag = `<div class="shop-item-status owned-status">🃏 In Collection</div>`;
-      }
+  }
+  if(type === 'card' && refId){
+    if(state.collection && state.collection.includes(refId)){
+      statusTag = `<div class="shop-item-status owned-status">🃏 In Collection</div>`;
     }
-    if(type === 'gameitem'){
-      const owned = (window.PLAYER_INVENTORY || {})[item.item_key] || 0;
-      if(owned > 0) statusTag = `<div class="shop-item-status owned-status">📦 Own: ${owned}</div>`;
-      if(item.stock === 0){ btnLabel = '✗ Sold Out'; btnDisabled=true; btnClass='shop-new-buy-btn disabled'; }
-      else if(item.stock > 0) typeLabel = `Item · ${item.stock} left`;
-    }
+  }
+  if(type === 'gameitem'){
+    const owned = (window.PLAYER_INVENTORY || {})[item.item_key] || 0;
+    if(owned > 0) statusTag = `<div class="shop-item-status owned-status">📦 Own: ${owned}</div>`;
+    if(item.stock === 0){ btnLabel = '✗ Sold Out'; btnDisabled=true; btnClass='shop-new-buy-btn disabled'; }
+    else if(item.stock > 0) typeLabel = `Item · ${item.stock} left`;
+  }
 
-    // ── Resolve thumbnail: prefer admin-set image_url, then look up card/skin art ──
-    let thumbHtml;
-    let isArtThumb = false;
-    if(imageUrl){
-      thumbHtml = `<img class="shop-item-thumb" src="${escapeHtml(imageUrl)}" onerror="this.style.display='none'" alt=""/>`;
+  let thumbHtml;
+  let isArtThumb = false;
+  if(imageUrl){
+    thumbHtml = `<img class="shop-item-thumb" src="${escapeHtml(imageUrl)}" onerror="this.style.display='none'" alt=""/>`;
+    isArtThumb = true;
+  } else if(type === 'card' && refId){
+    const refCard = (window.DEMO_CARDS||DEMO_CARDS).find(c=>c.id===refId);
+    if(refCard){
+      thumbHtml = `<img class="shop-item-thumb" src="${escapeHtml(refCard.thumbnail||refCard.image)}" onerror="this.style.display='none'" alt=""/>`;
       isArtThumb = true;
-    } else if(type === 'card' && refId){
-      const refCard = (window.DEMO_CARDS||DEMO_CARDS).find(c=>c.id===refId);
-      if(refCard){
-        thumbHtml = `<img class="shop-item-thumb" src="${escapeHtml(refCard.thumbnail||refCard.image)}" onerror="this.style.display='none'" alt=""/>`;
-        isArtThumb = true;
-      } else {
-        thumbHtml = `<div class="shop-item-emoji-big">${item.emoji||'🎁'}</div>`;
-      }
-    } else if(type === 'skin' && refId){
-      const refSkin = (window.ALL_SKINS||[]).find(s=>s.id===refId);
-      const skinImg = refSkin ? (refSkin.thumbnail||refSkin.image||refSkin.image_url||refSkin.preview_url||'') : '';
-      if(skinImg){
-        thumbHtml = `<img class="shop-item-thumb" src="${escapeHtml(skinImg)}" onerror="this.style.display='none'" alt=""/>`;
-        isArtThumb = true;
-      } else {
-        thumbHtml = `<div class="shop-item-emoji-big">${item.emoji||'🎁'}</div>`;
-      }
     } else {
       thumbHtml = `<div class="shop-item-emoji-big">${item.emoji||'🎁'}</div>`;
     }
+  } else if(type === 'skin' && refId){
+    const refSkin = (window.ALL_SKINS||[]).find(s=>s.id===refId);
+    const skinImg = refSkin ? (refSkin.thumbnail||refSkin.image||refSkin.image_url||refSkin.preview_url||'') : '';
+    if(skinImg){
+      thumbHtml = `<img class="shop-item-thumb" src="${escapeHtml(skinImg)}" onerror="this.style.display='none'" alt=""/>`;
+      isArtThumb = true;
+    } else {
+      thumbHtml = `<div class="shop-item-emoji-big">${item.emoji||'🎁'}</div>`;
+    }
+  } else {
+    thumbHtml = `<div class="shop-item-emoji-big">${item.emoji||'🎁'}</div>`;
+  }
 
-    const typeBadge = `<div class="shop-type-badge" style="background:${meta.accent};border:1px solid ${meta.border};color:${meta.color};">${item.emoji||'🎁'} ${typeLabel}</div>`;
+  const typeBadge = `<div class="shop-type-badge" style="background:${meta.accent};border:1px solid ${meta.border};color:${meta.color};">${item.emoji||'🎁'} ${typeLabel}</div>`;
+  const itemEncoded = JSON.stringify(item).replace(/'/g,"&#39;");
+  const thumbStyle = isArtThumb ? 'style="height:160px;"' : '';
 
-    // Encode item as JSON for the buy handler
-    const itemEncoded = JSON.stringify(item).replace(/'/g,"&#39;");
-
-    // Taller thumb for card/skin art (portrait aspect ratio looks better)
-    const thumbStyle = isArtThumb ? 'style="height:160px;"' : '';
-
-    return `<div class="shop-new-item" style="--item-accent:${meta.color};--item-bg:${meta.accent};--item-border:${meta.border}">
-      <div class="shop-item-thumb-wrap" ${thumbStyle}>
-        ${thumbHtml}
-        ${statusTag}
-      </div>
-      <div class="shop-item-content">
-        ${typeBadge}
-        <div class="shop-item-name">${escapeHtml(item.name)}</div>
-        <div class="shop-item-desc">${escapeHtml(itemDesc)}</div>
-        <div class="shop-item-footer">
-          <div class="shop-item-price">
-            <span class="shop-price-coin">🪙</span>
-            <span class="shop-price-num">${price.toLocaleString()}</span>
-          </div>
-          <button class="${btnClass}" ${btnDisabled?'disabled':''} onclick='buyShopItem(this.dataset.item)' data-item='${itemEncoded}'>
-            ${btnLabel}
-          </button>
+  return `<div class="shop-new-item" style="--item-accent:${meta.color};--item-bg:${meta.accent};--item-border:${meta.border}">
+    <div class="shop-item-thumb-wrap" ${thumbStyle}>
+      ${thumbHtml}
+      ${statusTag}
+    </div>
+    <div class="shop-item-content">
+      ${typeBadge}
+      <div class="shop-item-name">${escapeHtml(item.name)}</div>
+      <div class="shop-item-desc">${escapeHtml(itemDesc)}</div>
+      <div class="shop-item-footer">
+        <div class="shop-item-price">
+          <span class="shop-price-coin">🪙</span>
+          <span class="shop-price-num">${price.toLocaleString()}</span>
         </div>
+        <button class="${btnClass}" ${btnDisabled?'disabled':''} onclick='buyShopItem(this.dataset.item)' data-item='${itemEncoded}'>
+          ${btnLabel}
+        </button>
       </div>
-    </div>`;
+    </div>
+  </div>`;
 }
 
 async function buyShopItem(itemJson){
