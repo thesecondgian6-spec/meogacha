@@ -2758,130 +2758,210 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   flex: 1 1 auto;
 }
 
-/* ── Banner tabs: WuWa-style right-side vertical stack ── */
-.gp-tabs-wrap {
-  position: absolute;
-  top: 0;
-  right: 0;
-  left: auto;
-  z-index: 15;
-  display: flex !important;
-  flex-direction: column;
-  gap: 2px;
-  padding: 8px 0;
-  pointer-events: all;
-  max-height: 100%;
-  overflow-y: auto;
-  overflow-x: hidden;
-  scrollbar-width: none;
-}
-.gp-tabs-wrap::-webkit-scrollbar { display: none; }
+/* ── Banner tabs: hidden, replaced by picker button ── */
+.gp-tabs-wrap { display: none !important; }
 
-/* Make the stage-wrap a positioning context for the tabs */
+/* Make the stage-wrap a positioning context */
 .gp-stage-wrap { position: relative; }
 
-/* Each tab: WuWa-style landscape card on the right */
-.gp-tab-btn {
-  flex-shrink: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  width: 96px;
-  border: none;
-  border-left: 3px solid transparent;
-  background: rgba(6,3,18,0.82);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  cursor: pointer;
-  transition: all 0.22s ease;
-  position: relative;
-  overflow: hidden;
-  padding: 0;
-  border-radius: 8px 0 0 8px;
-  box-shadow: -2px 0 18px rgba(0,0,0,0.6);
-}
-/* Landscape thumbnail only — no label */
-.gt-thumb {
-  width: 100%;
-  height: 54px;
-  object-fit: cover;
-  object-position: center 25%;
-  display: block;
-  flex-shrink: 0;
-  transition: transform 0.3s ease, filter 0.3s ease;
-  filter: brightness(0.85) saturate(0.9);
-}
-.gp-tab-btn:hover .gt-thumb { transform: scale(1.08); filter: brightness(1.05) saturate(1.1); }
-/* Fallback */
-.gt-thumb-fallback {
-  width: 100%;
-  height: 54px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.5em;
-  background: rgba(255,255,255,0.03);
-  flex-shrink: 0;
-}
-/* Type badge — bottom-left pill, WuWa style */
-.gt-type-tag {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.36em;
-  font-weight: 700;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
-  padding: 2px 5px 3px;
-  background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 100%);
-  color: rgba(255,255,255,0.75);
-  line-height: 1.5;
-  z-index: 3;
-  text-align: center;
-  white-space: nowrap;
-}
-.gp-tab-btn[data-btype="beginner"]  .gt-type-tag { color: #7effa0; }
-.gp-tab-btn[data-btype="standard"]  .gt-type-tag { color: #7ec8ff; }
-.gp-tab-btn[data-btype="collab"]    .gt-type-tag { color: #ffe066; }
-.gp-tab-btn[data-btype="character"] .gt-type-tag { color: var(--pink); }
-.gp-tab-btn[data-btype="skin"]      .gt-type-tag { color: #c8a0f0; }
-/* No label strip */
+/* Legacy tab btn styles kept for compat but hidden */
+.gp-tab-btn { display: none !important; }
+.gt-thumb { display: none; }
+.gt-thumb-fallback { display: none; }
+.gt-type-tag { display: none; }
 .gt-label-wrap { display: none; }
 .gt-label { display: none; }
 .gt-icon { display: none; }
 .gt-type { display: none; }
+.gp-tab-new { display: none; }
 
-/* Active state */
-.gp-tab-btn.active {
-  border-left-color: var(--pink);
-  background: rgba(22,10,50,0.97);
-  box-shadow: -4px 0 0 var(--pink), 0 0 24px rgba(255,157,199,0.18), -2px 0 18px rgba(0,0,0,0.7);
-}
-.gp-tab-btn.active .gt-thumb {
-  filter: brightness(1.15) saturate(1.3);
-}
-.gp-tab-btn.active::before {
-  content: '';
+/* ── Banner Picker Button (top-right of stage) ── */
+.gp-banner-picker-btn {
   position: absolute;
-  left: 0; top: 0; bottom: 0;
-  width: 3px;
-  background: linear-gradient(to bottom, var(--pink-pale), var(--pink), var(--purple));
-  box-shadow: 3px 0 14px rgba(255,157,199,0.5);
-  z-index: 4;
+  top: 12px;
+  right: 12px;
+  z-index: 15;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px 8px 10px;
+  background: rgba(6,3,18,0.82);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255,157,199,0.25);
+  border-radius: 20px;
+  cursor: pointer;
+  color: var(--text);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68em;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  transition: all 0.22s ease;
+  box-shadow: 0 2px 18px rgba(0,0,0,0.5);
 }
-.gp-tab-btn:hover:not(.active) { background: rgba(18,10,38,0.9); }
+.gp-banner-picker-btn:hover {
+  background: rgba(22,10,50,0.95);
+  border-color: var(--pink);
+  color: var(--pink);
+  box-shadow: 0 0 18px rgba(255,157,199,0.2);
+}
+.gp-banner-picker-btn .gpb-icon { font-size: 1.1em; line-height: 1; }
+.gp-banner-picker-btn .gpb-active-name {
+  max-width: 90px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--pink-pale);
+}
+.gp-banner-picker-btn .gpb-chevron { opacity: 0.5; font-size: 0.8em; }
 
-/* Pinned indicator */
-.gp-tab-btn.pinned-tab .gt-type-tag::after { content: ' 📌'; }
-
-/* New dot */
-.gp-tab-new {
-  position: absolute; top: 4px; right: 5px;
-  width: 5px; height: 5px; border-radius: 50%;
-  background: var(--pink); box-shadow: 0 0 5px var(--pink);
-  z-index: 5;
+/* ── Banner Picker Drawer/Modal ── */
+.gp-banner-picker-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+.gp-banner-picker-modal.open {
+  pointer-events: all;
+  opacity: 1;
+}
+.gp-banner-picker-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.65);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+.gp-banner-picker-sheet {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 560px;
+  background: linear-gradient(180deg, #0c0620 0%, #050210 100%);
+  border: 1px solid rgba(255,157,199,0.15);
+  border-bottom: none;
+  border-radius: 24px 24px 0 0;
+  padding: 20px 0 32px;
+  transform: translateY(100%);
+  transition: transform 0.3s cubic-bezier(0.34,1.2,0.64,1);
+  max-height: 72vh;
+  display: flex;
+  flex-direction: column;
+}
+.gp-banner-picker-modal.open .gp-banner-picker-sheet {
+  transform: translateY(0);
+}
+.gp-bps-handle {
+  width: 36px; height: 4px;
+  border-radius: 2px;
+  background: rgba(255,157,199,0.2);
+  margin: 0 auto 16px;
+  flex-shrink: 0;
+}
+.gp-bps-title {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 0.8em;
+  color: var(--pink-pale);
+  text-align: center;
+  letter-spacing: 0.12em;
+  margin-bottom: 14px;
+  flex-shrink: 0;
+  padding: 0 20px;
+}
+.gp-bps-list {
+  overflow-y: auto;
+  flex: 1;
+  padding: 0 16px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,157,199,0.2) transparent;
+}
+/* Each banner row in the picker */
+.gp-bps-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1.5px solid rgba(255,255,255,0.06);
+  background: rgba(255,255,255,0.03);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+.gp-bps-item:hover {
+  background: rgba(255,157,199,0.07);
+  border-color: rgba(255,157,199,0.25);
+}
+.gp-bps-item.active {
+  background: rgba(255,157,199,0.1);
+  border-color: var(--pink);
+  box-shadow: 0 0 20px rgba(255,157,199,0.12);
+}
+.gp-bps-thumb {
+  width: 56px;
+  height: 38px;
+  border-radius: 8px;
+  object-fit: cover;
+  object-position: center 20%;
+  flex-shrink: 0;
+  background: rgba(255,255,255,0.04);
+}
+.gp-bps-thumb-fallback {
+  width: 56px;
+  height: 38px;
+  border-radius: 8px;
+  flex-shrink: 0;
+  background: rgba(255,255,255,0.04);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3em;
+}
+.gp-bps-info { flex: 1; min-width: 0; }
+.gp-bps-name {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 0.72em;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+  margin-bottom: 3px;
+}
+.gp-bps-type {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.55em;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.6;
+}
+.gp-bps-item[data-btype="beginner"]  .gp-bps-type { color: #7effa0; opacity: 1; }
+.gp-bps-item[data-btype="standard"]  .gp-bps-type { color: #7ec8ff; opacity: 1; }
+.gp-bps-item[data-btype="collab"]    .gp-bps-type { color: #ffe066; opacity: 1; }
+.gp-bps-item[data-btype="character"] .gp-bps-type { color: var(--pink); opacity: 1; }
+.gp-bps-item[data-btype="skin"]      .gp-bps-type { color: #c8a0f0; opacity: 1; }
+.gp-bps-active-check {
+  color: var(--pink);
+  font-size: 1em;
+  flex-shrink: 0;
+  opacity: 0;
+}
+.gp-bps-item.active .gp-bps-active-check { opacity: 1; }
+.gp-bps-pinned::after {
+  content: '📌';
+  font-size: 0.6em;
+  position: absolute;
+  top: 6px; right: 32px;
 }
 
 /* ── Stage: fullscreen banner artwork ── */
@@ -2902,19 +2982,19 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   filter: saturate(1.15) brightness(0.88);
 }
 .gp-stage:hover .gp-stage-bg { transform: scale(1.07); }
-/* Vignette: darker on left for title readability, right edge for tab blend */
+/* Vignette: left edge only for title readability, NO right-side overlay */
 .gp-stage-vignette {
   position: absolute; inset: 0; z-index: 1;
   background:
     linear-gradient(90deg,
-      rgba(5,2,13,0.96) 0%,
-      rgba(5,2,13,0.7) 35%,
-      rgba(5,2,13,0.15) 65%,
-      rgba(5,2,13,0.5) 100%
+      rgba(5,2,13,0.92) 0%,
+      rgba(5,2,13,0.55) 30%,
+      rgba(5,2,13,0.08) 55%,
+      transparent 70%
     ),
     linear-gradient(0deg,
-      rgba(5,2,13,0.85) 0%,
-      transparent 45%
+      rgba(5,2,13,0.80) 0%,
+      transparent 40%
     );
 }
 .gp-stage-bottom-fade {
@@ -2941,26 +3021,37 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   100% { opacity: 0; transform: translateY(-80px) scale(1.5); }
 }
 
-/* ── Banner info overlay (left side, tabs now on right) ── */
+/* ── Banner info overlay: title top-left, featured bottom-left ── */
 .gp-info {
   position: absolute;
-  left: 0; bottom: 0;
-  width: clamp(200px, 62%, 480px);
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: clamp(200px, 55%, 420px);
   z-index: 4;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
-  padding: 0 20px clamp(18px, 3vw, 32px) clamp(16px, 3vw, 32px);
-  gap: 10px;
+  justify-content: space-between;
+  padding: clamp(14px, 2.5vw, 22px) 16px clamp(18px, 3vw, 28px) clamp(16px, 3vw, 28px);
+  gap: 0;
   background: none;
+  pointer-events: none;
 }
-/* Banner name + event tag — sits at bottom-left, horizontal, clean */
+.gp-info > * { pointer-events: all; }
+/* Title block: top-left */
 .gp-left-title {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   gap: 6px;
-  /* no special positioning — flows inside gp-info */
+  margin-bottom: auto;
+}
+/* Featured block: bottom-left (pushed to bottom) */
+.gp-featured-block {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: auto;
 }
 .gp-event-tag {
   display: inline-flex;
@@ -3065,15 +3156,15 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   margin-top: 0;
 }
 
-/* ── Character art showcase (right side, Genshin-style) ── */
+/* ── Character art showcase (right side) ── */
 .gp-char-showcase {
   position: absolute;
-  right: 96px; /* offset by tab width so char doesn't go behind tabs */
+  right: 0;
   top: 0; bottom: 0;
-  width: 62%;
+  width: 65%;
   z-index: 3;
   pointer-events: none;
-  overflow: visible;
+  overflow: hidden;
   background: transparent;
 }
 .gp-char-slide {
@@ -3092,13 +3183,13 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 }
 .gp-char-slide.active { opacity: 1; }
 .gp-char-slide img {
-  height: 110%;
-  max-height: 110%;
+  height: 108%;
+  max-height: 108%;
   width: auto;
   max-width: none;
   object-fit: contain;
   display: block;
-  filter: drop-shadow(-8px 0 24px rgba(255,157,199,0.25)) drop-shadow(0 0 60px rgba(192,132,184,0.15));
+  filter: drop-shadow(-6px 0 20px rgba(255,157,199,0.2));
   animation: gpCharFloat 5.5s ease-in-out infinite;
   transform-origin: bottom right;
   background: transparent;
@@ -3107,13 +3198,13 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   0%,100% { transform: translateY(0px) scale(1); }
   50%      { transform: translateY(-12px) scale(1.012); }
 }
-/* Left-edge blend — merges character into info text area */
+/* Left-edge blend only — merges character into info text area */
 .gp-char-showcase::before {
   content: '';
   position: absolute;
   top: 0; left: 0; bottom: 0;
-  width: 35%;
-  background: linear-gradient(to right, rgba(5,2,13,0.65) 0%, transparent 100%);
+  width: 30%;
+  background: linear-gradient(to right, rgba(5,2,13,0.55) 0%, transparent 100%);
   z-index: 2;
   pointer-events: none;
 }
@@ -3125,7 +3216,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   width: 60%;
   height: 60%;
   border-radius: 50%;
-  background: radial-gradient(ellipse at center, rgba(255,157,199,0.1) 0%, rgba(192,132,184,0.05) 45%, transparent 70%);
+  background: radial-gradient(ellipse at center, rgba(255,157,199,0.08) 0%, rgba(192,132,184,0.03) 45%, transparent 70%);
   pointer-events: none;
   z-index: 1;
   animation: gpHaloPulse 4s ease-in-out infinite;
@@ -3333,31 +3424,29 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   /* Vignette: stronger left + bottom for readability */
   .gp-stage-vignette {
     background:
-      linear-gradient(90deg, rgba(5,2,13,0.95) 0%, rgba(5,2,13,0.6) 45%, rgba(5,2,13,0.2) 70%, rgba(5,2,13,0.55) 100%),
-      linear-gradient(0deg, rgba(5,2,13,0.92) 0%, transparent 55%);
+      linear-gradient(90deg, rgba(5,2,13,0.92) 0%, rgba(5,2,13,0.55) 35%, rgba(5,2,13,0.1) 60%, transparent 75%),
+      linear-gradient(0deg, rgba(5,2,13,0.88) 0%, transparent 50%);
   }
 
-  /* Info overlay — full width bottom, no right padding so tabs don't overlap */
+  /* Info overlay — left side, full height, leave right for char */
   .gp-info {
-    width: calc(100% - 72px); /* leave room for right tabs */
-    padding: 0 12px clamp(12px, 2.5vw, 18px) 14px;
-    gap: 7px;
+    width: clamp(160px, 52%, 280px);
+    padding: 12px 10px clamp(12px, 2.5vw, 18px) 14px;
+    gap: 0;
   }
-  .gp-banner-name { font-size: clamp(1em, 5.5vw, 1.4em); }
+  .gp-banner-name { font-size: clamp(0.9em, 4.8vw, 1.3em); }
   .gp-banner-desc { display: none; }
   .gp-featured-label { display: none; }
   .gp-featured-row { gap: 6px; }
-  .gp-feat-card { width: clamp(52px, 16vw, 74px); }
+  .gp-feat-card { width: clamp(48px, 14vw, 68px); }
 
-  /* Character art — take up more width on mobile */
+  /* Character art — take up right side */
   .gp-char-showcase { width: 68%; }
   .gp-char-slide img { height: 102%; }
 
-  /* Banner tabs: right side, full height, narrower */
-  .gp-tabs-wrap { top: 0; right: 0; max-height: 100%; }
-  .gp-tab-btn { width: 64px; border-radius: 6px 0 0 6px; }
-  .gt-thumb, .gt-thumb-fallback { height: 46px; }
-  .gt-type-tag { font-size: 0.3em; }
+  /* Banner picker button */
+  .gp-banner-picker-btn { top: 10px; right: 10px; padding: 7px 10px 7px 9px; font-size: 0.6em; }
+  .gp-banner-picker-btn .gpb-active-name { max-width: 70px; }
 
   /* Dock */
   .gp-pull-row { flex-direction: column; align-items: stretch; gap: 10px; }
@@ -3366,10 +3455,9 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   .gp-wish-btn { flex: 1; }
 }
 @media(max-width:420px){
-  .gp-feat-card { width: clamp(48px, 15vw, 66px); }
-  .gp-tab-btn { width: 58px; }
-  .gt-thumb, .gt-thumb-fallback { height: 40px; }
-  .gp-info { width: calc(100% - 62px); }
+  .gp-feat-card { width: clamp(44px, 13vw, 60px); }
+  .gp-info { width: calc(100% - 10px); pointer-events: none; }
+  .gp-info > * { pointer-events: all; }
 }
 
 /* ── Legacy classes kept alive for existing code compatibility ── */
@@ -10778,8 +10866,24 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
       <div class="gp-stage" id="pullBannerContainer">
         <!-- filled by renderActiveBanner() -->
       </div>
-      <!-- Banner tabs float over stage via gp-stage-wrap positioning -->
-      <div class="gp-tabs-wrap" id="bannerTabsWrap"></div>
+      <!-- Banner picker button (replaces old right-side tabs) -->
+      <button class="gp-banner-picker-btn" id="gpBannerPickerBtn" onclick="openBannerPicker()">
+        <span class="gpb-icon">✦</span>
+        <span class="gpb-active-name" id="gpBannerPickerLabel">Banners</span>
+        <span class="gpb-chevron">▾</span>
+      </button>
+    </div>
+
+    <!-- Banner Picker Modal/Sheet -->
+    <div class="gp-banner-picker-modal" id="gpBannerPickerModal">
+      <div class="gp-banner-picker-backdrop" onclick="closeBannerPicker()"></div>
+      <div class="gp-banner-picker-sheet">
+        <div class="gp-bps-handle"></div>
+        <div class="gp-bps-title">✦ SELECT BANNER ✦</div>
+        <div class="gp-bps-list" id="gpBannerPickerList">
+          <!-- filled by renderBannerPicker() -->
+        </div>
+      </div>
     </div>
 
     <!-- ══ BOTTOM DOCK: Pull buttons + pity + rates ══ -->
@@ -18334,28 +18438,54 @@ function toggleGpRates(){
 }
 
 function renderBannerTabs(){
-  const wrap = document.getElementById('bannerTabsWrap');
-  if(!wrap) return;
+  // Update picker button label
+  const activeBanner = getActiveBanner();
+  const labelEl = document.getElementById('gpBannerPickerLabel');
+  if(labelEl && activeBanner) {
+    const short = activeBanner.name.length > 16 ? activeBanner.name.slice(0,15)+'…' : activeBanner.name;
+    labelEl.textContent = short;
+  }
+  // Also refresh the picker list if it's open
+  const list = document.getElementById('gpBannerPickerList');
+  if(list && list.children.length > 0) renderBannerPickerList();
+}
+
+function renderBannerPickerList(){
+  const list = document.getElementById('gpBannerPickerList');
+  if(!list) return;
   const banners = window.ALL_BANNERS || [];
-  if(!banners.length){ wrap.innerHTML=''; return; }
-  // Always show tabs (even 1 banner) so user can see what's active
-  wrap.innerHTML = banners.map(b=>{
+  list.innerHTML = banners.map(b=>{
     const meta = BANNER_TYPE_META[b.banner_type||'standard'] || BANNER_TYPE_META.standard;
     const isActive = b.id === activeBannerTab;
     const isPinned = !!b.is_pinned;
-    const shortName = b.name.length > 14 ? b.name.slice(0,13)+'…' : b.name;
     const thumbHtml = b.image
-      ? `<img class="gt-thumb" src="${b.image}" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
-        + `<div class="gt-thumb-fallback" style="display:none">${meta.icon}</div>`
-      : `<div class="gt-thumb-fallback">${meta.icon}</div>`;
-    return `<button class="gp-tab-btn${isActive?' active':''}${isPinned?' pinned-tab':''}" data-btype="${b.banner_type||'standard'}" onclick="switchBannerTab('${b.id}')" title="${b.name}">
+      ? `<img class="gp-bps-thumb" src="${b.image}" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="gp-bps-thumb-fallback" style="display:none">${meta.icon}</div>`
+      : `<div class="gp-bps-thumb-fallback">${meta.icon}</div>`;
+    return `<div class="gp-bps-item${isActive?' active':''}${isPinned?' gp-bps-pinned':''}" data-btype="${b.banner_type||'standard'}" onclick="pickBanner('${b.id}')">
       ${thumbHtml}
-      <span class="gt-type-tag">${meta.label}</span>
-      <div class="gt-label-wrap">
-        <span class="gt-label">${shortName}</span>
+      <div class="gp-bps-info">
+        <span class="gp-bps-name">${b.name}</span>
+        <span class="gp-bps-type">${meta.icon} ${meta.label}</span>
       </div>
-    </button>`;
+      <span class="gp-bps-active-check">✓</span>
+    </div>`;
   }).join('');
+}
+
+function openBannerPicker(){
+  renderBannerPickerList();
+  const modal = document.getElementById('gpBannerPickerModal');
+  if(modal) modal.classList.add('open');
+}
+
+function closeBannerPicker(){
+  const modal = document.getElementById('gpBannerPickerModal');
+  if(modal) modal.classList.remove('open');
+}
+
+function pickBanner(bannerId){
+  closeBannerPicker();
+  switchBannerTab(bannerId);
 }
 
 // ── Build the gacha pool for the selected banner ──
@@ -18462,29 +18592,32 @@ function renderActiveBanner(){
     ${charShowcaseHtml}
 
     <div class="gp-info">
-      <!-- Banner title at the top of info block -->
+      <!-- Banner title at the top-left -->
       <div class="gp-left-title">
         <div class="gp-event-tag" style="${tagStyle}">${meta.icon} ${meta.label}</div>
         <div class="gp-banner-name">${banner.name}</div>
+        ${banner.description ? `<div class="gp-banner-desc">${banner.description}</div>` : ''}
       </div>
-      ${banner.description ? `<div class="gp-banner-desc">${banner.description}</div>` : ''}
 
+      <!-- Featured cards pinned to bottom-left -->
       ${featuredCards.length ? `
-        <div class="gp-featured-label">✦ Featured — Rate Up</div>
-        <div class="gp-featured-row">
-          ${featuredCards.map(c=>{
-            const color = RARITY_COLORS[c.rarity]||'#bdc3c7';
-            return `<div class="gp-feat-card" onclick="openCard('${c.id}')">
-              <img src="${c.thumbnail||c.image}" alt="${c.name}" onerror="this.style.background='#1c0f26'"/>
-              <div class="gp-feat-rateup">RATE ▲</div>
-              <div class="gp-feat-card-info">
-                <span class="gp-feat-card-name">${c.name}</span>
-                <span class="gp-feat-card-stars" style="color:${color}">${c.rarityStars}</span>
-              </div>
-            </div>`;
-          }).join('')}
+        <div class="gp-featured-block">
+          <div class="gp-featured-label">✦ Featured — Rate Up</div>
+          <div class="gp-featured-row">
+            ${featuredCards.map(c=>{
+              const color = RARITY_COLORS[c.rarity]||'#bdc3c7';
+              return `<div class="gp-feat-card" onclick="openCard('${c.id}')">
+                <img src="${c.thumbnail||c.image}" alt="${c.name}" onerror="this.style.background='#1c0f26'"/>
+                <div class="gp-feat-rateup">RATE ▲</div>
+                <div class="gp-feat-card-info">
+                  <span class="gp-feat-card-name">${c.name}</span>
+                  <span class="gp-feat-card-stars" style="color:${color}">${c.rarityStars}</span>
+                </div>
+              </div>`;
+            }).join('')}
+          </div>
+          <div class="gp-rateup-note">⬆️ Featured cards appear 2× more often</div>
         </div>
-        <div class="gp-rateup-note">⬆️ Featured cards appear 2× more often</div>
       ` : ''}
     </div>
   `;
