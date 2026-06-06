@@ -2761,93 +2761,103 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 /* ── Banner selector tabs: float over stage, top-right ── */
 /* ── Banner tabs: floating vertical stack in top-right of stage ── */
 /* ── Banner tabs: Genshin-style left sidebar with thumbnails ── */
+/* ── WuWa-style banner tabs: vertical left sidebar ── */
 .gp-tabs-wrap {
   position: absolute;
-  top: 0;
+  top: 50%;
   left: 0;
-  right: 0;
-  transform: none;
+  transform: translateY(-50%);
   z-index: 15;
   display: flex !important;
-  flex-direction: row;
-  gap: 0;
-  padding: 0;
+  flex-direction: column;
+  gap: 3px;
+  padding: 6px 0;
   pointer-events: all;
-  width: 100%;
-  max-height: none;
-  overflow-x: auto;
-  overflow-y: hidden;
+  max-height: 88%;
+  overflow-y: auto;
+  overflow-x: hidden;
   scrollbar-width: none;
-  border-radius: 0;
 }
 .gp-tabs-wrap::-webkit-scrollbar { display: none; }
 
 /* Make the stage-wrap a positioning context for the tabs */
 .gp-stage-wrap { position: relative; }
 
-/* Each tab = horizontal card strip across the top */
+/* Each tab: tall card thumbnail, WuWa style */
 .gp-tab-btn {
-  flex: 1 1 0;
-  min-width: 80px;
-  max-width: 160px;
+  flex-shrink: 0;
   display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 0;
+  flex-direction: column;
+  align-items: stretch;
+  width: 86px;
   border: none;
-  border-bottom: 3px solid transparent;
-  background: rgba(5,2,13,0.82);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  border-right: 3px solid transparent;
+  background: rgba(8,5,20,0.72);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
   cursor: pointer;
-  transition: all 0.22s ease;
+  transition: all 0.2s ease;
   position: relative;
   overflow: hidden;
   padding: 0;
-  border-radius: 0;
+  border-radius: 6px 0 0 6px;
+  box-shadow: 2px 0 12px rgba(0,0,0,0.5);
 }
-/* Thumbnail image area — left side of horizontal tab */
+/* Tall thumbnail — 16:9-ish landscape crop */
 .gt-thumb {
-  width: 44px;
-  height: 44px;
-  flex-shrink: 0;
+  width: 100%;
+  height: 72px;
   object-fit: cover;
-  object-position: center top;
+  object-position: center 20%;
   display: block;
-  transition: transform 0.3s ease;
+  flex-shrink: 0;
+  transition: transform 0.35s ease;
 }
-.gp-tab-btn:hover .gt-thumb { transform: scale(1.08); }
+.gp-tab-btn:hover .gt-thumb { transform: scale(1.1); }
 /* Fallback icon when no image */
 .gt-thumb-fallback {
-  width: 44px;
-  height: 44px;
-  flex-shrink: 0;
+  width: 100%;
+  height: 72px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.2em;
-  background: rgba(255,255,255,0.04);
+  font-size: 1.6em;
+  background: rgba(255,255,255,0.03);
+  flex-shrink: 0;
 }
-/* Label strip — right of thumbnail */
-.gt-label-wrap {
-  padding: 4px 8px;
-  background: transparent;
-  flex: 1;
-  min-width: 0;
-}
+/* Type badge — top-left corner like WuWa CHOICE / EVENT pill */
 .gt-type-tag {
+  position: absolute;
+  top: 4px;
+  left: 4px;
   font-family: 'JetBrains Mono', monospace;
-  font-size: 0.42em;
-  letter-spacing: 0.08em;
+  font-size: 0.38em;
+  font-weight: 700;
+  letter-spacing: 0.07em;
   text-transform: uppercase;
-  opacity: 0.55;
-  display: block;
-  line-height: 1.2;
+  padding: 2px 5px;
+  border-radius: 3px;
+  background: rgba(255,157,199,0.85);
+  color: #1a0010;
+  line-height: 1.3;
+  z-index: 3;
+  white-space: nowrap;
+}
+/* Different colors per banner type */
+.gp-tab-btn[data-btype="beginner"] .gt-type-tag  { background: rgba(46,204,113,0.9);  color: #001a08; }
+.gp-tab-btn[data-btype="standard"] .gt-type-tag  { background: rgba(93,173,226,0.9);  color: #00101a; }
+.gp-tab-btn[data-btype="collab"] .gt-type-tag    { background: rgba(241,196,15,0.9);  color: #1a1000; }
+.gp-tab-btn[data-btype="character"] .gt-type-tag { background: rgba(255,157,199,0.9); color: #1a0010; }
+.gp-tab-btn[data-btype="skin"] .gt-type-tag      { background: rgba(155,89,182,0.9);  color: #0e001a; }
+/* Label strip at bottom of each tab */
+.gt-label-wrap {
+  padding: 5px 6px 6px;
+  background: linear-gradient(to bottom, rgba(8,5,20,0.7) 0%, rgba(8,5,20,0.92) 100%);
 }
 .gt-label {
   font-family: 'Cormorant Garamond', serif;
-  font-size: 0.65em;
-  color: rgba(255,255,255,0.6);
+  font-size: 0.64em;
+  color: rgba(255,255,255,0.55);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -2858,26 +2868,26 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .gt-icon { display: none; }
 .gt-type { display: none; }
 
-/* Active state */
+/* Active state — WuWa bright right-edge highlight + lightened card */
 .gp-tab-btn.active {
-  border-bottom-color: var(--pink);
-  background: rgba(5,2,13,0.95);
+  border-right-color: var(--pink);
+  background: rgba(15,8,35,0.95);
+  box-shadow: 2px 0 0 var(--pink), 0 0 18px rgba(255,157,199,0.25), 2px 0 12px rgba(0,0,0,0.6);
 }
-.gp-tab-btn.active .gt-label { color: #fff; }
-.gp-tab-btn.active .gt-label-wrap {
-  background: rgba(255,157,199,0.08);
-}
-/* Active glow on bottom edge */
+.gp-tab-btn.active .gt-thumb { filter: brightness(1.15) saturate(1.2); }
+.gp-tab-btn.active .gt-label { color: #fff; font-weight: 600; }
+.gp-tab-btn.active .gt-label-wrap { background: linear-gradient(to bottom, rgba(255,157,199,0.1) 0%, rgba(255,157,199,0.18) 100%); }
+/* Pink glow bar on right */
 .gp-tab-btn.active::after {
   content: '';
   position: absolute;
-  left: 0; right: 0; bottom: 0;
-  height: 3px;
-  background: var(--pink);
-  box-shadow: 0 -4px 12px rgba(255,157,199,0.5);
+  right: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: linear-gradient(to bottom, var(--pink-pale), var(--pink), var(--purple));
+  box-shadow: -3px 0 14px rgba(255,157,199,0.6);
 }
-.gp-tab-btn:hover:not(.active) { background: rgba(20,10,40,0.88); }
-.gp-tab-btn:hover:not(.active) .gt-label { color: rgba(255,255,255,0.85); }
+.gp-tab-btn:hover:not(.active) { background: rgba(20,12,45,0.85); }
+.gp-tab-btn:hover:not(.active) .gt-label { color: rgba(255,255,255,0.8); }
 
 /* Pinned tab indicator */
 .gp-tab-btn.pinned-tab .gt-type-tag::after { content: ' 📌'; }
@@ -2945,13 +2955,13 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 /* ── Banner info overlay (left side) ── */
 .gp-info {
   position: absolute;
-  left: 0; top: 44px; bottom: 0; /* top: tab strip height */
-  width: clamp(220px, 56%, 480px);
+  left: 0; top: 0; bottom: 0;
+  width: clamp(220px, 60%, 500px);
   z-index: 4;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  padding: clamp(16px, 3vw, 40px) clamp(14px, 3vw, 36px) clamp(18px, 3vw, 32px) clamp(16px, 3vw, 32px);
+  padding: clamp(16px, 3vw, 40px) clamp(14px, 3vw, 36px) clamp(18px, 3vw, 32px) clamp(94px, 11vw, 114px); /* left: tab width 86px + 8px gap */
   gap: 8px;
   background: none;
 }
@@ -3009,8 +3019,8 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   border: 1.5px solid rgba(255,255,255,0.18);
   cursor: pointer;
   transition: all 0.25s;
-  background: transparent; /* PNG cards have transparent bg — no dark fill */
-  box-shadow: 0 4px 16px rgba(0,0,0,0.6);
+  background: linear-gradient(160deg, rgba(40,20,60,0.7) 0%, rgba(15,8,30,0.8) 100%);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.4);
   flex-shrink: 0;
 }
 .gp-feat-card:hover { transform: translateY(-5px) scale(1.05); border-color: var(--pink); box-shadow: 0 10px 32px rgba(255,157,199,0.35); }
@@ -3318,10 +3328,10 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   /* Info overlay — bottom-left, Genshin style */
   .gp-info {
     position: absolute;
-    width: 72%;
-    top: 36px; /* tab strip height on mobile */
+    width: 78%;
+    top: auto;
     bottom: 0;
-    padding: 12px 10px 14px 12px;
+    padding: 12px 10px 14px 72px; /* 72px left = tab width 64px + 8px gap */
     justify-content: flex-end;
     gap: 6px;
     background: none;
@@ -3335,12 +3345,12 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   .gp-char-showcase { width: 52%; }
   .gp-char-slide img { height: 105%; }
 
-  /* Banner tabs: horizontal strip at top on mobile too */
-  .gp-tabs-wrap { top: 0; left: 0; right: 0; transform: none; max-height: none; border-radius: 0; flex-direction: row; }
-  .gp-tab-btn { min-width: 70px; max-width: 120px; }
-  .gt-thumb, .gt-thumb-fallback { width: 36px; height: 36px; }
+  /* Banner tabs: narrower on mobile, same vertical sidebar */
+  .gp-tabs-wrap { top: 50%; transform: translateY(-50%); left: 0; max-height: 80%; }
+  .gp-tab-btn { width: 64px; border-radius: 4px 0 0 4px; }
+  .gt-thumb, .gt-thumb-fallback { height: 52px; }
   .gt-label { font-size: 0.55em; }
-  .gt-type-tag { display: none; }
+  .gt-type-tag { font-size: 0.34em; padding: 1px 4px; }
 
   /* Dock */
   .gp-pull-row { flex-direction: column; align-items: stretch; gap: 10px; }
@@ -18328,10 +18338,10 @@ function renderBannerTabs(){
       ? `<img class="gt-thumb" src="${b.image}" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
         + `<div class="gt-thumb-fallback" style="display:none">${meta.icon}</div>`
       : `<div class="gt-thumb-fallback">${meta.icon}</div>`;
-    return `<button class="gp-tab-btn${isActive?' active':''}${isPinned?' pinned-tab':''}" onclick="switchBannerTab('${b.id}')" title="${b.name}">
+    return `<button class="gp-tab-btn${isActive?' active':''}${isPinned?' pinned-tab':''}" data-btype="${b.banner_type||'standard'}" onclick="switchBannerTab('${b.id}')" title="${b.name}">
       ${thumbHtml}
+      <span class="gt-type-tag">${meta.label}</span>
       <div class="gt-label-wrap">
-        <span class="gt-type-tag">${meta.label}</span>
         <span class="gt-label">${shortName}</span>
       </div>
     </button>`;
@@ -18452,7 +18462,7 @@ function renderActiveBanner(){
           ${featuredCards.map(c=>{
             const color = RARITY_COLORS[c.rarity]||'#bdc3c7';
             return `<div class="gp-feat-card" onclick="openCard('${c.id}')">
-              <img src="${c.thumbnail||c.image}" alt="${c.name}" onerror="this.style.background='#1c0f26'"/>
+              <img src="${c.thumbnail||c.image}" alt="${c.name}" onerror="this.style.opacity='0.3'"/>
               <div class="gp-feat-rateup">RATE ▲</div>
               <div class="gp-feat-card-info">
                 <span class="gp-feat-card-name">${c.name}</span>
