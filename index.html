@@ -378,33 +378,32 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 @media(min-width:900px){
   .shop-items-grid{ grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); }
 }
-/* ── Shop Section Headers (grouped "All" view) ── */
+/* ── Shop Section Dividers ── */
 .shop-section-header {
   grid-column: 1 / -1;
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-top: 36px;
-  margin-bottom: 16px;
+  gap: 12px;
+  margin-top: 40px;
+  margin-bottom: 18px;
 }
 .shop-section-header:first-child { margin-top: 8px; }
 .shop-section-divider-line {
   flex: 1;
   height: 1px;
-  background: rgba(255,157,199,0.22);
+  background: rgba(255,157,199,0.2);
 }
 .shop-section-label {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 0.65em;
-  letter-spacing: 0.22em;
-  color: rgba(255,157,199,0.65);
+  font-size: 0.64em;
+  letter-spacing: 0.2em;
+  color: rgba(255,157,199,0.6);
   white-space: nowrap;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 7px;
   text-transform: uppercase;
 }
-.shop-section-label-icon { font-size: 1.1em; }
 /* Ref picker (card/skin chooser in admin) */
 .ref-picker-row{ display:flex;gap:8px;align-items:stretch;margin-bottom:0; }
 .ref-picker-display{
@@ -659,7 +658,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 ══════════════════════════════════════════════════ */
 .hmap-body {
   position: relative;
-  padding: 40px 24px 0;
+  padding: 36px 24px 0;
   max-width: 960px;
   margin: 0 auto;
   width: 100%;
@@ -668,14 +667,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 
 /* Background grid pattern */
 .hmap-bg-grid {
-  position: absolute;
-  inset: -20px;
-  background-image:
-    linear-gradient(rgba(255,157,199,0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,157,199,0.04) 1px, transparent 1px);
-  background-size: 40px 40px;
-  pointer-events: none;
-  z-index: 0;
+  display: none;
 }
 
 /* Ambient glow orbs */
@@ -719,21 +711,16 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
-  margin-bottom: 36px;
+  margin-bottom: 0;
   justify-content: center;
 }
 .hmap-stats-row .home-stat-chip {
   flex: 1;
   min-width: 110px;
   max-width: 200px;
-  background: transparent;
-  border-color: transparent;
-  box-shadow: none;
+  background: rgba(255,255,255,0.04);
+  border-color: rgba(255,255,255,0.08);
   cursor: pointer;
-}
-.hmap-stats-row .home-stat-chip:hover {
-  background: rgba(255,157,199,0.06);
-  border-color: rgba(255,157,199,0.15);
 }
 
 /* ══════════════════════════════════════════════════
@@ -751,7 +738,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   border: 1px solid rgba(255,255,255,0.08);
   box-shadow: 0 8px 40px rgba(0,0,0,0.5);
   transition: transform 0.25s cubic-bezier(.34,1.4,.64,1), box-shadow 0.25s;
-  margin-bottom: 48px;
+  margin-bottom: 32px;
 }
 .hmap-gacha-widget:hover { transform: translateY(-4px) scale(1.005); box-shadow: 0 16px 60px rgba(0,0,0,0.65); }
 /* Banner GIF as background */
@@ -920,6 +907,26 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 }
 
 /* ── Section divider ── */
+/* ── Widget-to-widget divider (✦) ── */
+.hmap-widget-divider {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 32px 0;
+}
+.hwd-line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,157,199,0.25), rgba(255,157,199,0.45), rgba(255,157,199,0.25), transparent);
+}
+.hwd-icon {
+  font-size: 0.8em;
+  color: rgba(255,157,199,0.55);
+  line-height: 1;
+}
+
 .hmap-section-divider {
   position: relative;
   z-index: 2;
@@ -927,6 +934,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   align-items: center;
   gap: 16px;
   padding: 0 4px;
+  margin-top: 32px;
   margin-bottom: 0;
 }
 .hsd-line {
@@ -969,9 +977,11 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
    MOBILE ADJUSTMENTS
 ══════════════════════════════════════════════════ */
 @media(max-width:600px){
-  .hmap-body { padding: 16px 14px 0; }
+  .hmap-hero { height: clamp(180px, 38vw, 280px); }
+  .hmap-body { padding: 10px 14px 0; }
   .hmap-stats-row { gap: 7px; }
   .hmap-stats-row .home-stat-chip { min-width: 90px; padding: 8px 10px; }
+  .hmap-widget-divider { margin: 20px 0; }
   .hgw-left { padding: 18px 16px 16px; }
   .hgw-right { width: clamp(90px, 32%, 130px); padding: 10px; }
   .hgw-actions { flex-direction: column; gap: 6px; }
@@ -10479,7 +10489,17 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
             <span class="hsc-icon">🪙</span>
             <div><div class="hsc-val" id="hubCoins">—</div><div class="hsc-lbl">Coins</div></div>
           </div>
+          <div class="home-stat-chip" onclick="goTo('collection',null)" title="Collection %">
+            <span class="hsc-icon">📊</span>
+            <div><div class="hsc-val" id="hubCollPct">—%</div><div class="hsc-lbl">Collection</div></div>
+          </div>
+        </div>
 
+        <!-- ── Divider between stats and gacha ── -->
+        <div class="hmap-widget-divider">
+          <div class="hwd-line"></div>
+          <div class="hwd-icon">✦</div>
+          <div class="hwd-line"></div>
         </div>
 
         <!-- ── Gacha Banner Widget ── -->
@@ -13200,14 +13220,10 @@ function renderActiveBoostsBar(){
   }
 }
 
-function _shopSectionDivider(icon, label){
+function _shopDividerHtml(icon, label){
   return `<div class="shop-section-header">
     <div class="shop-section-divider-line"></div>
-    <div class="shop-section-label">
-      <span class="shop-section-label-icon">${icon}</span>
-      ${label}
-      <span class="shop-section-label-icon">${icon}</span>
-    </div>
+    <div class="shop-section-label"><span>${icon}</span> ${label} <span>${icon}</span></div>
     <div class="shop-section-divider-line"></div>
   </div>`;
 }
@@ -13219,7 +13235,7 @@ function renderShopGrid(){
 
   let items = getShopItems();
 
-  // Normalize type for filtering
+  // Filter for specific tab
   if(_shopCurrentFilter && _shopCurrentFilter !== 'all'){
     if(_shopCurrentFilter === 'coinboost'){
       items = items.filter(i=>i.type==='boost' && i.subtype==='coin');
@@ -13237,9 +13253,9 @@ function renderShopGrid(){
   }
   if(empty) empty.style.display='none';
 
-  // ── In "all" view, group by section with decorative dividers ──
+  // ── "All" view: group into sections with decorative dividers ──
   if(_shopCurrentFilter === 'all'){
-    const SECTION_ORDER = [
+    const SECTIONS = [
       { match: i=>i.type==='boost',    icon:'⚡', label:'Boosts'     },
       { match: i=>i.type==='xp',       icon:'📦', label:'XP Potions' },
       { match: i=>i.type==='card',     icon:'🃏', label:'Cards'      },
@@ -13247,26 +13263,27 @@ function renderShopGrid(){
       { match: i=>i.type==='title',    icon:'🎀', label:'Titles'     },
       { match: i=>i.type==='gameitem', icon:'🎁', label:'Game Items' },
     ];
-    const knownTypes = new Set(['boost','xp','card','skin','title','gameitem']);
+    const known = new Set(['boost','xp','card','skin','title','gameitem']);
     let html = '';
-    let isFirst = true;
-    for(const section of SECTION_ORDER){
-      const sectionItems = items.filter(section.match);
-      if(!sectionItems.length) continue;
-      html += _shopSectionDivider(section.icon, section.label);
-      if(isFirst){ html = html.replace('class="shop-section-header"','class="shop-section-header" style="margin-top:8px;"'); isFirst=false; }
-      html += sectionItems.map(item => _buildShopItemCard(item)).join('');
+    let first = true;
+    for(const s of SECTIONS){
+      const si = items.filter(s.match);
+      if(!si.length) continue;
+      const hdr = _shopDividerHtml(s.icon, s.label);
+      html += first ? hdr.replace('class="shop-section-header"','class="shop-section-header" style="margin-top:8px;"') : hdr;
+      first = false;
+      html += si.map(item => _buildShopItemCard(item)).join('');
     }
-    const others = items.filter(i=>!knownTypes.has(i.type));
+    const others = items.filter(i=>!known.has(i.type));
     if(others.length){
-      html += _shopSectionDivider('🏪','Other');
+      html += _shopDividerHtml('🏪','Other');
       html += others.map(item => _buildShopItemCard(item)).join('');
     }
     grid.innerHTML = html;
     return;
   }
 
-  // ── Filtered view: flat grid, no headers ──
+  // ── Filtered tab: flat grid ──
   grid.innerHTML = items.map(item => _buildShopItemCard(item)).join('');
 }
 
@@ -13280,13 +13297,13 @@ function _buildShopItemCard(item){
     gameitem:  { label:'Item',         color:'#1abc9c',   accent:'rgba(26,188,156,0.12)',  border:'rgba(26,188,156,0.3)'  },
   };
   const now = Date.now();
-  const type        = item.type || 'item';
-  const itemDesc    = item.description || item.desc || '';
-  const imageUrl    = item.image_url || '';
-  const refId       = item.ref_id || item.card_id || item.skin_id || item.title_text || '';
-  const subtype     = item.subtype || '';
-  const price       = parseInt(item.price)||0;
-  const meta = CAT_META[type] || { label:'Item', color:'var(--pink)', accent:'rgba(255,157,199,0.08)', border:'var(--border)' };
+  const type     = item.type || 'item';
+  const itemDesc = item.description || item.desc || '';
+  const imageUrl = item.image_url || '';
+  const refId    = item.ref_id || item.card_id || item.skin_id || item.title_text || '';
+  const subtype  = item.subtype || '';
+  const price    = parseInt(item.price)||0;
+  const meta     = CAT_META[type] || { label:'Item', color:'var(--pink)', accent:'rgba(255,157,199,0.08)', border:'var(--border)' };
 
   let typeLabel = meta.label;
   if(type==='boost' && subtype==='coin') typeLabel = 'Coin Boost';
@@ -13294,9 +13311,9 @@ function _buildShopItemCard(item){
 
   const canAfford = state.coins >= price;
   let statusTag = '';
-  let btnLabel = `🛍️ Buy`;
+  let btnLabel  = `🛍️ Buy`;
   let btnDisabled = !canAfford;
-  let btnClass = canAfford ? 'shop-new-buy-btn' : 'shop-new-buy-btn disabled';
+  let btnClass  = canAfford ? 'shop-new-buy-btn' : 'shop-new-buy-btn disabled';
 
   if(type === 'boost'){
     const boostKey = subtype==='coin' ? 'coinboost' : 'xpboost';
@@ -13305,54 +13322,39 @@ function _buildShopItemCard(item){
       statusTag = `<div class="shop-item-status active-status">⚡ Active — ${mins}m left</div>`;
     }
   }
-  if(type === 'title' && refId){
-    if((state.ownedTitles||[]).includes(refId)){
-      statusTag = `<div class="shop-item-status owned-status">✦ Owned</div>`;
-      btnLabel = '✓ Owned'; btnDisabled=true; btnClass='shop-new-buy-btn disabled';
-    }
+  if(type==='title' && refId && (state.ownedTitles||[]).includes(refId)){
+    statusTag = `<div class="shop-item-status owned-status">✦ Owned</div>`;
+    btnLabel = '✓ Owned'; btnDisabled=true; btnClass='shop-new-buy-btn disabled';
   }
-  if(type === 'skin' && refId){
-    if(window.PLAYER_SKINS && window.PLAYER_SKINS[refId]){
-      statusTag = `<div class="shop-item-status owned-status">🎨 Owned</div>`;
-      btnLabel = '✓ Owned'; btnDisabled=true; btnClass='shop-new-buy-btn disabled';
-    }
+  if(type==='skin' && refId && window.PLAYER_SKINS && window.PLAYER_SKINS[refId]){
+    statusTag = `<div class="shop-item-status owned-status">🎨 Owned</div>`;
+    btnLabel = '✓ Owned'; btnDisabled=true; btnClass='shop-new-buy-btn disabled';
   }
-  if(type === 'card' && refId){
-    if(state.collection && state.collection.includes(refId)){
-      statusTag = `<div class="shop-item-status owned-status">🃏 In Collection</div>`;
-    }
+  if(type==='card' && refId && state.collection && state.collection.includes(refId)){
+    statusTag = `<div class="shop-item-status owned-status">🃏 In Collection</div>`;
   }
-  if(type === 'gameitem'){
-    const owned = (window.PLAYER_INVENTORY || {})[item.item_key] || 0;
-    if(owned > 0) statusTag = `<div class="shop-item-status owned-status">📦 Own: ${owned}</div>`;
-    if(item.stock === 0){ btnLabel = '✗ Sold Out'; btnDisabled=true; btnClass='shop-new-buy-btn disabled'; }
-    else if(item.stock > 0) typeLabel = `Item · ${item.stock} left`;
+  if(type==='gameitem'){
+    const owned = (window.PLAYER_INVENTORY||{})[item.item_key]||0;
+    if(owned>0) statusTag = `<div class="shop-item-status owned-status">📦 Own: ${owned}</div>`;
+    if(item.stock===0){ btnLabel='✗ Sold Out'; btnDisabled=true; btnClass='shop-new-buy-btn disabled'; }
+    else if(item.stock>0) typeLabel=`Item · ${item.stock} left`;
   }
 
-  let thumbHtml;
-  let isArtThumb = false;
+  let thumbHtml, isArtThumb=false;
   if(imageUrl){
-    thumbHtml = `<img class="shop-item-thumb" src="${escapeHtml(imageUrl)}" onerror="this.style.display='none'" alt=""/>`;
-    isArtThumb = true;
-  } else if(type === 'card' && refId){
-    const refCard = (window.DEMO_CARDS||DEMO_CARDS).find(c=>c.id===refId);
-    if(refCard){
-      thumbHtml = `<img class="shop-item-thumb" src="${escapeHtml(refCard.thumbnail||refCard.image)}" onerror="this.style.display='none'" alt=""/>`;
-      isArtThumb = true;
-    } else {
-      thumbHtml = `<div class="shop-item-emoji-big">${item.emoji||'🎁'}</div>`;
-    }
-  } else if(type === 'skin' && refId){
-    const refSkin = (window.ALL_SKINS||[]).find(s=>s.id===refId);
-    const skinImg = refSkin ? (refSkin.thumbnail||refSkin.image||refSkin.image_url||refSkin.preview_url||'') : '';
-    if(skinImg){
-      thumbHtml = `<img class="shop-item-thumb" src="${escapeHtml(skinImg)}" onerror="this.style.display='none'" alt=""/>`;
-      isArtThumb = true;
-    } else {
-      thumbHtml = `<div class="shop-item-emoji-big">${item.emoji||'🎁'}</div>`;
-    }
+    thumbHtml=`<img class="shop-item-thumb" src="${escapeHtml(imageUrl)}" onerror="this.style.display='none'" alt=""/>`;
+    isArtThumb=true;
+  } else if(type==='card' && refId){
+    const rc=(window.DEMO_CARDS||DEMO_CARDS).find(c=>c.id===refId);
+    if(rc){ thumbHtml=`<img class="shop-item-thumb" src="${escapeHtml(rc.thumbnail||rc.image)}" onerror="this.style.display='none'" alt=""/>`; isArtThumb=true; }
+    else   { thumbHtml=`<div class="shop-item-emoji-big">${item.emoji||'🎁'}</div>`; }
+  } else if(type==='skin' && refId){
+    const rs=(window.ALL_SKINS||[]).find(s=>s.id===refId);
+    const si=rs?(rs.thumbnail||rs.image||rs.image_url||rs.preview_url||''):'';
+    if(si){ thumbHtml=`<img class="shop-item-thumb" src="${escapeHtml(si)}" onerror="this.style.display='none'" alt=""/>`; isArtThumb=true; }
+    else  { thumbHtml=`<div class="shop-item-emoji-big">${item.emoji||'🎁'}</div>`; }
   } else {
-    thumbHtml = `<div class="shop-item-emoji-big">${item.emoji||'🎁'}</div>`;
+    thumbHtml=`<div class="shop-item-emoji-big">${item.emoji||'🎁'}</div>`;
   }
 
   const typeBadge = `<div class="shop-type-badge" style="background:${meta.accent};border:1px solid ${meta.border};color:${meta.color};">${item.emoji||'🎁'} ${typeLabel}</div>`;
@@ -13360,22 +13362,14 @@ function _buildShopItemCard(item){
   const thumbStyle = isArtThumb ? 'style="height:160px;"' : '';
 
   return `<div class="shop-new-item" style="--item-accent:${meta.color};--item-bg:${meta.accent};--item-border:${meta.border}">
-    <div class="shop-item-thumb-wrap" ${thumbStyle}>
-      ${thumbHtml}
-      ${statusTag}
-    </div>
+    <div class="shop-item-thumb-wrap" ${thumbStyle}>${thumbHtml}${statusTag}</div>
     <div class="shop-item-content">
       ${typeBadge}
       <div class="shop-item-name">${escapeHtml(item.name)}</div>
       <div class="shop-item-desc">${escapeHtml(itemDesc)}</div>
       <div class="shop-item-footer">
-        <div class="shop-item-price">
-          <span class="shop-price-coin">🪙</span>
-          <span class="shop-price-num">${price.toLocaleString()}</span>
-        </div>
-        <button class="${btnClass}" ${btnDisabled?'disabled':''} onclick='buyShopItem(this.dataset.item)' data-item='${itemEncoded}'>
-          ${btnLabel}
-        </button>
+        <div class="shop-item-price"><span class="shop-price-coin">🪙</span><span class="shop-price-num">${price.toLocaleString()}</span></div>
+        <button class="${btnClass}" ${btnDisabled?'disabled':''} onclick='buyShopItem(this.dataset.item)' data-item='${itemEncoded}'>${btnLabel}</button>
       </div>
     </div>
   </div>`;
