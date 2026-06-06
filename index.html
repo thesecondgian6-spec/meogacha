@@ -455,7 +455,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 ══════════════════════════════════════════════════ */
 .hmap-hero {
   position: relative;
-  height: clamp(300px, 55vw, 500px);
+  height: clamp(360px, 65vw, 580px);
   overflow: hidden;
   display: flex;
   align-items: center;
@@ -539,12 +539,12 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 }
 .hmap-title {
   font-family: 'Cinzel Decorative', serif;
-  font-size: clamp(2em, 8vw, 4em);
+  font-size: clamp(2.8em, 11vw, 5.5em);
   font-weight: 900;
   color: #fff;
-  text-shadow: 0 0 40px rgba(255,157,199,0.5), 0 4px 20px rgba(0,0,0,0.9);
-  line-height: 1.1;
-  margin-bottom: 8px;
+  text-shadow: 0 0 60px rgba(255,157,199,0.6), 0 4px 30px rgba(0,0,0,0.95);
+  line-height: 1.05;
+  margin-bottom: 10px;
   letter-spacing: 0.04em;
 }
 .hmap-subtitle {
@@ -943,7 +943,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 /* ══════════════════════════════════════════════════
    BOOTH SECTIONS — extra vertical spacing
 ══════════════════════════════════════════════════ */
-.hub-booth-sections {
+.hub-booth-sections-legacy-stub {
   padding-top: 0;
 }
 .hbs-section {
@@ -968,10 +968,10 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 ══════════════════════════════════════════════════ */
 @media(max-width:600px){
   /* Hero: taller on mobile so GIF is visible */
-  .hmap-hero { height: clamp(220px, 60vw, 320px); }
+  .hmap-hero { height: clamp(280px, 70vw, 420px); }
   .hmap-hero-content { padding: 12px 16px; }
   .hmap-pretitle { font-size: 0.58em; letter-spacing: 0.2em; margin-bottom: 3px; }
-  .hmap-title { font-size: clamp(1.5em, 7vw, 2.2em); margin-bottom: 5px; }
+  .hmap-title { font-size: clamp(1.8em, 9vw, 2.8em); margin-bottom: 5px; }
   .hmap-subtitle { font-size: 0.76em; margin-bottom: 0; }
 
   /* Body + stats */
@@ -1001,9 +1001,9 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   .hmap-section-divider { margin-top: 16px; }
   .hsd-text { font-size: 0.57em; }
 
-  /* Booth zone cards */
-  .hub-booth-sections { padding: 0 12px 32px; }
-  .hzc { min-height: 170px; border-radius: 14px; }
+  /* Booth zone cards — match gacha widget sizing */
+  .hub-booth-sections { padding: 0 12px 32px; gap: 14px; }
+  .hzc { min-height: 200px; border-radius: 14px; }
   .hzc-left { padding: 16px 14px 14px; gap: 7px; }
   .hzc-right { width: 36%; padding: 10px; }
   .hzc-title { font-size: clamp(0.85em, 4vw, 1.15em); }
@@ -1032,7 +1032,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   max-width: 960px;
   margin: 0 auto;
   padding: 0 24px 48px;
-  gap: 0;
+  gap: 24px;
 }
 
 /* ── Each Section ── */
@@ -1600,16 +1600,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 
 /* ── DIVIDER ── */
 .hbs-divider {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 0 28px;
-  background: #000000;
-  border-left: 1px solid rgba(255,255,255,0.04);
-  border-right: 1px solid rgba(255,255,255,0.04);
-  height: 36px;
-  cursor: default;
-  pointer-events: none;
+  display: none;
 }
 .hbs-div-line {
   flex: 1;
@@ -1647,14 +1638,14 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   border-radius: 20px;
   overflow: hidden;
   cursor: pointer;
-  min-height: 240px;
+  min-height: 260px;
   display: flex;
   align-items: stretch;
-  border: 1px solid rgba(255,255,255,0.07);
-  box-shadow: 0 8px 40px rgba(0,0,0,0.55);
+  border: 1px solid rgba(255,255,255,0.08);
+  box-shadow: 0 8px 40px rgba(0,0,0,0.5);
   transition: transform 0.28s cubic-bezier(.34,1.4,.64,1), box-shadow 0.28s, filter 0.2s;
 }
-.hzc:hover { transform: translateY(-5px) scale(1.008); box-shadow: 0 18px 64px rgba(0,0,0,0.7); filter: brightness(1.06); }
+.hzc:hover { transform: translateY(-4px) scale(1.005); box-shadow: 0 16px 60px rgba(0,0,0,0.65); filter: brightness(1.06); }
 .hzc:active { transform: scale(0.975); filter: brightness(0.92); }
 .hzc-bg {
   position: absolute; inset: 0;
