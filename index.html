@@ -14,9 +14,9 @@
   --pink-glow:  rgba(255,157,199,0.35);
   --purple:     #c084b8;
   --gold:       #f1c40f;
-  --bg:         #0d0610;
-  --bg2:        #130a1a;
-  --bg3:        #1c0f26;
+  --bg:         #000000;
+  --bg2:        #0a0a0a;
+  --bg3:        #111111;
   --surface:    rgba(255,157,199,0.06);
   --border:     rgba(255,157,199,0.18);
   --text:       #f0d8e8;
@@ -36,7 +36,7 @@ body{font-family:'Cormorant Garamond',serif;background:var(--bg);color:var(--tex
 @keyframes sakuraFall3{0%{transform:translate(0,-40px) rotate(20deg);opacity:0;}8%{opacity:0.7;}50%{transform:translate(-18px,50vh) rotate(220deg);opacity:0.6;}100%{transform:translate(24px,108vh) rotate(400deg);opacity:0;}}
 @keyframes sakuraFall4{0%{transform:translate(0,-40px) rotate(-20deg);opacity:0;}8%{opacity:0.8;}50%{transform:translate(30px,50vh) rotate(155deg);opacity:0.65;}100%{transform:translate(-8px,108vh) rotate(320deg);opacity:0;}}
 #app{position:relative;z-index:2;min-height:100vh;}
-nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:14px 32px;background:rgba(13,6,16,0.85);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);}
+nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:14px 32px;background:rgba(0,0,0,0.9);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);}
 .nav-logo{font-family:'Cinzel Decorative',serif;font-size:1.1em;font-weight:700;background:linear-gradient(135deg,var(--pink),var(--purple),var(--pink-pale));-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:0.05em;}
 .nav-links{display:flex;gap:8px;}
 .nav-btn{background:var(--surface);border:1px solid var(--border);color:var(--text-dim);padding:6px 16px;border-radius:20px;font-family:'Cormorant Garamond',serif;font-size:0.9em;cursor:pointer;transition:all 0.2s;}
@@ -455,7 +455,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 ══════════════════════════════════════════════════ */
 .hmap-hero {
   position: relative;
-  height: clamp(240px, 45vw, 420px);
+  height: clamp(300px, 55vw, 500px);
   overflow: hidden;
   display: flex;
   align-items: center;
@@ -468,22 +468,22 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   object-fit: cover;
   object-position: center top;
   z-index: 0;
-  filter: saturate(0.85) brightness(0.5);
+  filter: saturate(1.1) brightness(0.95);
 }
 /* Top dark fade so nav bar blends in */
 .hmap-hero-fade-top {
   position: absolute;
   top: 0; left: 0; right: 0;
-  height: 100px;
-  background: linear-gradient(to bottom, rgba(6,2,12,0.95), rgba(6,2,12,0.4) 70%, transparent);
+  height: 90px;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.88), rgba(0,0,0,0.3) 60%, transparent);
   z-index: 1; pointer-events: none;
 }
 /* Bottom fade into page background */
 .hmap-hero-fade-bottom {
   position: absolute;
   bottom: 0; left: 0; right: 0;
-  height: 130px;
-  background: linear-gradient(to top, #06020c 0%, rgba(6,2,12,0.92) 50%, rgba(6,2,12,0.35) 80%, transparent 100%);
+  height: 160px;
+  background: linear-gradient(to top, #000000 0%, rgba(0,0,0,0.85) 40%, rgba(0,0,0,0.3) 75%, transparent 100%);
   z-index: 1; pointer-events: none;
 }
 /* Floating particle specks */
@@ -673,20 +673,20 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 }
 .hmap-orb-1 {
   width: 300px; height: 300px;
-  background: rgba(155,89,182,0.12);
+  background: rgba(155,89,182,0.05);
   top: -80px; left: -60px;
   animation-duration: 12s;
 }
 .hmap-orb-2 {
   width: 200px; height: 200px;
-  background: rgba(255,157,199,0.08);
+  background: rgba(255,157,199,0.04);
   top: 40%; right: -40px;
   animation-duration: 16s;
   animation-delay: 4s;
 }
 .hmap-orb-3 {
   width: 250px; height: 250px;
-  background: rgba(41,128,185,0.07);
+  background: rgba(41,128,185,0.03);
   bottom: 0; left: 30%;
   animation-duration: 20s;
   animation-delay: 8s;
@@ -697,19 +697,19 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   66%      { transform: translate(-10px,20px) scale(0.95); }
 }
 
-/* Stats row — now lives inside hero content block */
+/* Stats row — lives in hmap-body below the hero */
 .hmap-stats-row {
   position: relative;
   z-index: 2;
   display: flex;
-  gap: 8px;
+  gap: 10px;
   flex-wrap: wrap;
   margin-bottom: 0;
   justify-content: center;
 }
 .hmap-stats-row .home-stat-chip {
-  background: rgba(6,2,12,0.55);
-  border-color: rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.05);
+  border-color: rgba(255,255,255,0.1);
   cursor: pointer;
 }
 
@@ -956,7 +956,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   content: '';
   display: block;
   height: 32px;
-  background: linear-gradient(to bottom, #06020c, transparent);
+  background: linear-gradient(to bottom, #000000, transparent);
   margin-bottom: -2px;
   position: relative;
   z-index: 1;
@@ -967,54 +967,50 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
    MOBILE ADJUSTMENTS
 ══════════════════════════════════════════════════ */
 @media(max-width:600px){
-  /* Hero: much shorter on mobile, GIF visible */
-  .hmap-hero { height: clamp(160px, 52vw, 220px); }
-  .hmap-hero-content { padding: 10px 14px; }
-  .hmap-pretitle { font-size: 0.55em; letter-spacing: 0.2em; margin-bottom: 2px; }
-  .hmap-title { font-size: clamp(1.3em, 6vw, 1.9em); margin-bottom: 4px; }
-  .hmap-subtitle { font-size: 0.72em; margin-bottom: 6px; }
-  .hmap-online-pill { font-size: 0.62em; padding: 3px 10px; }
+  /* Hero: taller on mobile so GIF is visible */
+  .hmap-hero { height: clamp(220px, 60vw, 320px); }
+  .hmap-hero-content { padding: 12px 16px; }
+  .hmap-pretitle { font-size: 0.58em; letter-spacing: 0.2em; margin-bottom: 3px; }
+  .hmap-title { font-size: clamp(1.5em, 7vw, 2.2em); margin-bottom: 5px; }
+  .hmap-subtitle { font-size: 0.76em; margin-bottom: 0; }
 
-  /* Stat chips row inside hero */
-  .hmap-stats-row { gap: 5px; margin-top: 8px !important; }
-  .hmap-stats-row .home-stat-chip { min-width: unset; padding: 4px 9px; gap: 5px; }
-  .hmap-stats-row .hsc-icon { font-size: 0.82em; }
-  .hmap-stats-row .hsc-val { font-size: 0.75em; }
-  .hmap-stats-row .hsc-lbl { font-size: 0.52em; }
+  /* Body + stats */
+  .hmap-body { padding: 14px 12px 0; }
+  .hmap-stats-row { gap: 6px; }
+  .hmap-stats-row .home-stat-chip { min-width: unset; padding: 5px 10px; gap: 6px; }
+  .hmap-widget-divider { margin: 16px 0; }
 
-  /* Gacha widget: shorter and tighter */
-  .hmap-body { padding: 10px 12px 0; }
-  .hmap-widget-divider { margin: 14px 0; }
-  .hmap-gacha-widget { min-height: 180px; margin-bottom: 16px; border-radius: 14px; }
-  .hgw-left { padding: 14px 14px 12px; gap: 6px; }
-  .hgw-right { width: clamp(80px, 28%, 110px); padding: 8px; }
-  .hgw-title { font-size: clamp(0.78em, 3.8vw, 1.1em); }
-  .hgw-desc { font-size: 0.72em; }
-  .hgw-badge { font-size: 0.52em; padding: 2px 8px; }
-  .hgw-rateup-label { font-size: 0.52em; margin-top: 2px; }
-  .hgw-featured-row { gap: 5px; }
-  .hgw-fc img { width: clamp(34px, 7vw, 48px); border-radius: 5px; }
-  .hgw-fc-name { font-size: 0.48em; }
-  .hgw-fc-rarity { font-size: 0.44em; }
-  .hgw-actions { flex-direction: column; gap: 5px; margin-top: 2px; }
-  .hgw-btn-pull, .hgw-btn-coll { width: 100%; text-align: center; padding: 8px 10px; font-size: 0.62em; }
-  .hgw-stack-card { width: 58px; }
-  .hgw-card-stack { width: 74px; height: 110px; }
+  /* Gacha widget */
+  .hmap-gacha-widget { min-height: 200px; margin-bottom: 18px; border-radius: 14px; }
+  .hgw-left { padding: 16px 14px 14px; gap: 6px; }
+  .hgw-right { width: clamp(90px, 30%, 120px); padding: 10px 8px; }
+  .hgw-title { font-size: clamp(0.85em, 4vw, 1.2em); }
+  .hgw-desc { font-size: 0.74em; }
+  .hgw-badge { font-size: 0.54em; padding: 2px 9px; }
+  .hgw-rateup-label { font-size: 0.54em; margin-top: 2px; }
+  .hgw-featured-row { gap: 6px; }
+  .hgw-fc img { width: clamp(36px, 8vw, 52px); border-radius: 5px; }
+  .hgw-fc-name { font-size: 0.5em; }
+  .hgw-fc-rarity { font-size: 0.46em; }
+  .hgw-actions { flex-direction: column; gap: 6px; margin-top: 4px; }
+  .hgw-btn-pull, .hgw-btn-coll { width: 100%; text-align: center; padding: 9px 12px; font-size: 0.65em; }
+  .hgw-stack-card { width: 62px; }
+  .hgw-card-stack { width: 80px; height: 120px; }
 
   /* Section divider */
-  .hmap-section-divider { margin-top: 14px; }
-  .hsd-text { font-size: 0.55em; }
+  .hmap-section-divider { margin-top: 16px; }
+  .hsd-text { font-size: 0.57em; }
 
   /* Booth zone cards */
-  .hub-booth-sections { padding: 0 10px 32px; }
-  .hzc { min-height: 160px; border-radius: 12px; }
-  .hzc-left { padding: 14px 14px 12px; gap: 6px; }
-  .hzc-right { width: 38%; padding: 8px 10px; }
-  .hzc-title { font-size: clamp(0.82em, 3.5vw, 1.1em); }
-  .hzc-desc { font-size: 0.72em; display: block; }
-  .hzc-badge { font-size: 0.5em; }
-  .hzc-enter { font-size: 0.6em; }
-  .hzc-tag { font-size: 0.52em; padding: 2px 7px; }
+  .hub-booth-sections { padding: 0 12px 32px; }
+  .hzc { min-height: 170px; border-radius: 14px; }
+  .hzc-left { padding: 16px 14px 14px; gap: 7px; }
+  .hzc-right { width: 36%; padding: 10px; }
+  .hzc-title { font-size: clamp(0.85em, 4vw, 1.15em); }
+  .hzc-desc { font-size: 0.74em; display: block; }
+  .hzc-badge { font-size: 0.52em; }
+  .hzc-enter { font-size: 0.62em; }
+  .hzc-tag { font-size: 0.54em; padding: 2px 8px; }
 
   .hmp-grid { grid-template-columns: repeat(2, 1fr); }
   .hbs-section { margin-top: 20px; }
@@ -1183,7 +1179,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .hbs-booth-wrap {
   display: flex;
   flex-direction: column;
-  background: #06020c;
+  background: #000000;
   border-left: 1px solid rgba(255,255,255,0.05);
   border-right: 1px solid rgba(255,255,255,0.05);
 }
@@ -1608,7 +1604,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   align-items: center;
   gap: 16px;
   padding: 0 28px;
-  background: #06020c;
+  background: #000000;
   border-left: 1px solid rgba(255,255,255,0.04);
   border-right: 1px solid rgba(255,255,255,0.04);
   height: 36px;
@@ -2337,31 +2333,30 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .home-stat-chip {
   display: flex;
   align-items: center;
-  gap: 7px;
-  background: rgba(6,2,12,0.55);
-  border: 1px solid rgba(255,157,199,0.22);
+  gap: 9px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.09);
   border-radius: 20px;
-  padding: 5px 12px;
+  padding: 8px 16px;
   min-width: unset;
-  backdrop-filter: blur(8px);
   transition: all 0.2s;
 }
 .home-stat-chip:hover {
-  border-color: rgba(255,157,199,0.45);
-  background: rgba(255,157,199,0.1);
+  border-color: rgba(255,157,199,0.35);
+  background: rgba(255,157,199,0.07);
 }
-.hsc-icon { font-size: 1em; }
+.hsc-icon { font-size: 1.2em; }
 .hsc-val {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 0.88em;
+  font-size: 1em;
   color: var(--pink);
   font-weight: 700;
   line-height: 1;
 }
 .hsc-lbl {
-  font-size: 0.6em;
+  font-size: 0.65em;
   color: var(--text-dim);
-  margin-top: 1px;
+  margin-top: 2px;
 }
 
 /* ══ HOME — DAILY TEASER ══ */
@@ -6190,13 +6185,11 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   padding: 52px 32px 36px;
   text-align: center;
   border-bottom: 1px solid var(--border);
-  background: linear-gradient(180deg, rgba(192,132,184,0.08) 0%, transparent 100%);
+  background: transparent;
 }
 .hub-hero-bg {
   position: absolute; inset: 0;
-  background:
-    radial-gradient(ellipse at 20% 50%, rgba(255,157,199,0.12) 0%, transparent 60%),
-    radial-gradient(ellipse at 80% 30%, rgba(192,132,184,0.1) 0%, transparent 60%);
+  background: transparent;
   pointer-events: none;
 }
 .hub-hero-content { position: relative; z-index: 1; }
@@ -10459,25 +10452,6 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
           <div class="hmap-pretitle">✦ WELCOME TO ✦</div>
           <div class="hmap-title">Meo Hub</div>
           <div class="hmap-subtitle">Where the community lives ʚɞ</div>
-          <div class="hmap-online-pill">
-            <span class="online-dot"></span>
-            <span id="hubOnlineCount">0 online</span>
-          </div>
-          <!-- ── Stat chips below title ── -->
-          <div class="hmap-stats-row" id="hmapStatsRow" style="margin-top:12px;">
-            <div class="home-stat-chip" onclick="goTo('collection',null)" title="View collection">
-              <span class="hsc-icon">🃏</span>
-              <div><div class="hsc-val" id="hubUniqueCards">—</div><div class="hsc-lbl">Unique Cards</div></div>
-            </div>
-            <div class="home-stat-chip" onclick="goTo('pull',null)" title="Pull history">
-              <span class="hsc-icon">🎴</span>
-              <div><div class="hsc-val" id="hubTotalPulls">—</div><div class="hsc-lbl">Total Pulls</div></div>
-            </div>
-            <div class="home-stat-chip">
-              <span class="hsc-icon">🪙</span>
-              <div><div class="hsc-val" id="hubCoins">—</div><div class="hsc-lbl">Coins</div></div>
-            </div>
-          </div>
         </div>
       </div>
 
@@ -10518,6 +10492,22 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
           <div class="hmap-orb hmap-orb-1"></div>
           <div class="hmap-orb hmap-orb-2"></div>
           <div class="hmap-orb hmap-orb-3"></div>
+        </div>
+
+        <!-- ── Player stats row ── -->
+        <div class="hmap-stats-row" id="hmapStatsRow">
+          <div class="home-stat-chip" onclick="goTo('collection',null)" title="View collection">
+            <span class="hsc-icon">🃏</span>
+            <div><div class="hsc-val" id="hubUniqueCards">—</div><div class="hsc-lbl">Unique Cards</div></div>
+          </div>
+          <div class="home-stat-chip" onclick="goTo('pull',null)" title="Pull history">
+            <span class="hsc-icon">🎴</span>
+            <div><div class="hsc-val" id="hubTotalPulls">—</div><div class="hsc-lbl">Total Pulls</div></div>
+          </div>
+          <div class="home-stat-chip">
+            <span class="hsc-icon">🪙</span>
+            <div><div class="hsc-val" id="hubCoins">—</div><div class="hsc-lbl">Coins</div></div>
+          </div>
         </div>
 
         <!-- ── Divider between stats and gacha ── -->
@@ -29975,7 +29965,7 @@ CREATE POLICY "anon_write_anime" ON anime_collections FOR ALL    USING (true);
 #wbArenaModal {
   position: fixed; inset: 0; z-index: 410;
   display: none; flex-direction: column;
-  background: #06020c;
+  background: #000000;
   opacity: 0;
   transition: opacity 0.4s ease;
   overflow: hidden;
@@ -29994,7 +29984,7 @@ CREATE POLICY "anon_write_anime" ON anime_collections FOR ALL    USING (true);
 #wbArenaModal {
   position: fixed; inset: 0; z-index: 410;
   display: none; flex-direction: column;
-  background: #06020c;
+  background: #000000;
   opacity: 0;
   transition: opacity 0.4s ease;
   overflow: hidden;
