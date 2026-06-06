@@ -2763,38 +2763,40 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 /* ── Banner tabs: Genshin-style left sidebar with thumbnails ── */
 .gp-tabs-wrap {
   position: absolute;
-  top: 50%;
+  top: 0;
   left: 0;
-  transform: translateY(-50%);
+  right: 0;
+  transform: none;
   z-index: 15;
   display: flex !important;
-  flex-direction: column;
+  flex-direction: row;
   gap: 0;
   padding: 0;
   pointer-events: all;
-  max-height: 80%;
-  overflow-y: auto;
-  overflow-x: hidden;
+  width: 100%;
+  max-height: none;
+  overflow-x: auto;
+  overflow-y: hidden;
   scrollbar-width: none;
-  /* Clip the right edge rounded corners */
-  border-radius: 0 10px 10px 0;
-  overflow: hidden;
+  border-radius: 0;
 }
 .gp-tabs-wrap::-webkit-scrollbar { display: none; }
 
 /* Make the stage-wrap a positioning context for the tabs */
 .gp-stage-wrap { position: relative; }
 
-/* Each tab = a thumbnail card like Genshin's wish list */
+/* Each tab = horizontal card strip across the top */
 .gp-tab-btn {
-  flex-shrink: 0;
+  flex: 1 1 0;
+  min-width: 80px;
+  max-width: 160px;
   display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  width: 72px;
+  flex-direction: row;
+  align-items: center;
+  gap: 0;
   border: none;
-  border-right: 3px solid transparent;
-  background: rgba(5,2,13,0.78);
+  border-bottom: 3px solid transparent;
+  background: rgba(5,2,13,0.82);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   cursor: pointer;
@@ -2804,32 +2806,34 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   padding: 0;
   border-radius: 0;
 }
-/* Thumbnail image area */
+/* Thumbnail image area — left side of horizontal tab */
 .gt-thumb {
-  width: 100%;
-  height: 58px;
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
   object-fit: cover;
   object-position: center top;
   display: block;
-  flex-shrink: 0;
   transition: transform 0.3s ease;
 }
 .gp-tab-btn:hover .gt-thumb { transform: scale(1.08); }
 /* Fallback icon when no image */
 .gt-thumb-fallback {
-  width: 100%;
-  height: 58px;
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.4em;
+  font-size: 1.2em;
   background: rgba(255,255,255,0.04);
-  flex-shrink: 0;
 }
-/* Label strip at bottom of each tab */
+/* Label strip — right of thumbnail */
 .gt-label-wrap {
-  padding: 4px 5px 5px;
-  background: rgba(5,2,13,0.82);
+  padding: 4px 8px;
+  background: transparent;
+  flex: 1;
+  min-width: 0;
 }
 .gt-type-tag {
   font-family: 'JetBrains Mono', monospace;
@@ -2842,7 +2846,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 }
 .gt-label {
   font-family: 'Cormorant Garamond', serif;
-  font-size: 0.62em;
+  font-size: 0.65em;
   color: rgba(255,255,255,0.6);
   white-space: nowrap;
   overflow: hidden;
@@ -2856,21 +2860,21 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 
 /* Active state */
 .gp-tab-btn.active {
-  border-right-color: var(--pink);
-  background: rgba(5,2,13,0.92);
+  border-bottom-color: var(--pink);
+  background: rgba(5,2,13,0.95);
 }
 .gp-tab-btn.active .gt-label { color: #fff; }
 .gp-tab-btn.active .gt-label-wrap {
-  background: rgba(255,157,199,0.12);
+  background: rgba(255,157,199,0.08);
 }
-/* Active glow on right edge */
+/* Active glow on bottom edge */
 .gp-tab-btn.active::after {
   content: '';
   position: absolute;
-  right: 0; top: 0; bottom: 0;
-  width: 3px;
+  left: 0; right: 0; bottom: 0;
+  height: 3px;
   background: var(--pink);
-  box-shadow: -4px 0 12px rgba(255,157,199,0.5);
+  box-shadow: 0 -4px 12px rgba(255,157,199,0.5);
 }
 .gp-tab-btn:hover:not(.active) { background: rgba(20,10,40,0.88); }
 .gp-tab-btn:hover:not(.active) .gt-label { color: rgba(255,255,255,0.85); }
@@ -2941,21 +2945,15 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 /* ── Banner info overlay (left side) ── */
 .gp-info {
   position: absolute;
-  left: 0; top: 0; bottom: 0;
+  left: 0; top: 44px; bottom: 0; /* top: tab strip height */
   width: clamp(220px, 56%, 480px);
   z-index: 4;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  padding: clamp(16px, 3vw, 40px) clamp(14px, 3vw, 36px) clamp(18px, 3vw, 32px) clamp(88px, 10vw, 108px); /* left: tabs width + gap */
+  padding: clamp(16px, 3vw, 40px) clamp(14px, 3vw, 36px) clamp(18px, 3vw, 32px) clamp(16px, 3vw, 32px);
   gap: 8px;
-  /* Subtle text-protection gradient — only covers the info area */
-  background: linear-gradient(
-    105deg,
-    rgba(5,2,13,0.82) 0%,
-    rgba(5,2,13,0.55) 60%,
-    transparent 100%
-  );
+  background: none;
 }
 .gp-event-tag {
   display: inline-flex;
@@ -3321,9 +3319,9 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   .gp-info {
     position: absolute;
     width: 72%;
-    top: auto;
+    top: 36px; /* tab strip height on mobile */
     bottom: 0;
-    padding: 12px 10px 14px 70px; /* 70px left = tab width 58px + gap */
+    padding: 12px 10px 14px 12px;
     justify-content: flex-end;
     gap: 6px;
     background: none;
@@ -3337,10 +3335,10 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   .gp-char-showcase { width: 52%; }
   .gp-char-slide img { height: 105%; }
 
-  /* Banner tabs: narrower on mobile, left sidebar */
-  .gp-tabs-wrap { top: 50%; transform: translateY(-50%); left: 0; max-height: 75%; border-radius: 0 8px 8px 0; }
-  .gp-tab-btn { width: 58px; }
-  .gt-thumb, .gt-thumb-fallback { height: 44px; }
+  /* Banner tabs: horizontal strip at top on mobile too */
+  .gp-tabs-wrap { top: 0; left: 0; right: 0; transform: none; max-height: none; border-radius: 0; flex-direction: row; }
+  .gp-tab-btn { min-width: 70px; max-width: 120px; }
+  .gt-thumb, .gt-thumb-fallback { width: 36px; height: 36px; }
   .gt-label { font-size: 0.55em; }
   .gt-type-tag { display: none; }
 
