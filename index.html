@@ -2773,7 +2773,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   gap: 3px;
   padding: 6px 0 6px;
   pointer-events: all;
-  max-height: 55%; /* stops partway down so title area is free */
+  max-height: 65%; /* leaves bottom 35% for the title */
   overflow-y: auto;
   overflow-x: hidden;
   scrollbar-width: none;
@@ -2789,7 +2789,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  width: 90px;
+  width: 110px;
   border: none;
   border-right: 3px solid transparent;
   background: rgba(8,4,22,0.75);
@@ -2803,10 +2803,10 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   border-radius: 6px 0 0 6px;
   box-shadow: 2px 0 14px rgba(0,0,0,0.55);
 }
-/* Tall landscape thumbnail */
+/* Wide short landscape thumbnail — no label strip, just image */
 .gt-thumb {
   width: 100%;
-  height: 70px;
+  height: 56px;
   object-fit: cover;
   object-position: center 20%;
   display: block;
@@ -2817,7 +2817,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 /* Fallback */
 .gt-thumb-fallback {
   width: 100%;
-  height: 70px;
+  height: 56px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2849,22 +2849,9 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .gp-tab-btn[data-btype="collab"]    .gt-type-tag { background: rgba(241,196,15,0.92);  color: #1a1000; }
 .gp-tab-btn[data-btype="character"] .gt-type-tag { background: rgba(255,120,180,0.92); color: #1a0010; }
 .gp-tab-btn[data-btype="skin"]      .gt-type-tag { background: rgba(155,89,182,0.92);  color: #0e001a; }
-/* Label strip */
-.gt-label-wrap {
-  padding: 4px 6px 5px;
-  background: linear-gradient(to bottom, rgba(8,4,22,0.7), rgba(8,4,22,0.92));
-}
-.gt-label {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 0.62em;
-  color: rgba(255,255,255,0.52);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: block;
-  transition: color 0.2s;
-  line-height: 1.3;
-}
+/* Label strip — hidden, no banner name in tab */
+.gt-label-wrap { display: none; }
+.gt-label { display: none; }
 .gt-icon { display: none; }
 .gt-type { display: none; }
 
@@ -2960,28 +2947,44 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  padding: clamp(16px, 3vw, 40px) clamp(14px, 3vw, 36px) clamp(18px, 3vw, 32px) clamp(98px, 12vw, 116px);
+  padding: clamp(16px, 3vw, 40px) clamp(14px, 3vw, 36px) clamp(18px, 3vw, 32px) clamp(118px, 13vw, 128px);
   gap: 8px;
   background: none;
+}
+/* ── Banner title pinned to the very left, below the tab column ── */
+.gp-left-title {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: clamp(110px, 13vw, 128px);
+  z-index: 16;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 0 6px clamp(14px, 2.5vw, 22px) 0;
+  pointer-events: none;
 }
 .gp-event-tag {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  padding: 4px 12px 4px 8px;
+  padding: 3px 8px 3px 6px;
   border-radius: 20px;
   font-family: 'JetBrains Mono', monospace;
-  font-size: 0.6em;
-  letter-spacing: 0.1em;
+  font-size: 0.52em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   border: 1px solid;
   backdrop-filter: blur(8px);
   width: fit-content;
+  writing-mode: horizontal-tb;
+  transform: none;
 }
 .gp-banner-name {
   font-family: 'Cinzel Decorative', serif;
-  font-size: clamp(1.1em, 3.6vw, 2em);
-  line-height: 1.15;
+  font-size: clamp(0.52em, 1.4vw, 0.78em);
+  line-height: 1.25;
   color: #fff;
   text-shadow: 0 0 40px rgba(255,157,199,0.6), 0 2px 20px rgba(0,0,0,0.8);
   background: linear-gradient(135deg, #fff9fe, var(--pink), #c084b8, #fff9fe);
@@ -2989,6 +2992,13 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   animation: shimmer 6s linear infinite;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  transform: rotate(180deg);
+  max-height: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .gp-banner-desc {
   color: rgba(255,255,255,0.6);
@@ -3067,6 +3077,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   z-index: 3;
   pointer-events: none;
   overflow: visible; /* let character breathe beyond bounds */
+  background: none !important;
 }
 .gp-char-slide {
   position: absolute;
@@ -3078,8 +3089,9 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   justify-content: flex-end;
   opacity: 0;
   transition: opacity 1s ease;
-  background: transparent;
+  background: none !important;
   pointer-events: none;
+  isolation: isolate;
 }
 .gp-char-slide.active { opacity: 1; }
 .gp-char-slide img {
@@ -3093,7 +3105,8 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   filter: drop-shadow(-8px 0 24px rgba(255,157,199,0.2)) drop-shadow(0 0 50px rgba(192,132,184,0.1));
   animation: gpCharFloat 5.5s ease-in-out infinite;
   transform-origin: bottom right;
-  background: transparent;
+  background: transparent !important;
+  mix-blend-mode: normal;
 }
 @keyframes gpCharFloat {
   0%,100% { transform: translateY(0px) scale(1); }
@@ -3335,12 +3348,13 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
     width: 80%;
     top: auto;
     bottom: 0;
-    padding: 12px 10px 14px 76px; /* 76px left = tab width 68px + 8px gap */
+    padding: 12px 10px 14px 78px; /* 78px left = tab width 68px + 10px */
     justify-content: flex-end;
     gap: 6px;
     background: none;
   }
-  .gp-banner-name { font-size: clamp(1em, 5.8vw, 1.5em); }
+  .gp-left-title { width: 68px; padding-bottom: 14px; }
+  .gp-banner-name { font-size: clamp(0.42em, 1.2vw, 0.6em); max-height: 90px; }
   .gp-banner-desc { display: none; }
   .gp-featured-row { gap: 6px; }
   .gp-feat-card { width: clamp(54px, 18vw, 80px); }
@@ -3352,8 +3366,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   /* Banner tabs: top-left vertical stack on mobile */
   .gp-tabs-wrap { top: 0; left: 0; transform: none; max-height: 52%; }
   .gp-tab-btn { width: 68px; border-radius: 4px 0 0 4px; }
-  .gt-thumb, .gt-thumb-fallback { height: 52px; }
-  .gt-label { font-size: 0.54em; }
+  .gt-thumb, .gt-thumb-fallback { height: 44px; }
   .gt-type-tag { font-size: 0.33em; padding: 1px 4px 1px 3px; }
 
   /* Dock */
@@ -18455,9 +18468,13 @@ function renderActiveBanner(){
 
     ${charShowcaseHtml}
 
-    <div class="gp-info">
+    <!-- Banner title pinned to very left, below tabs -->
+    <div class="gp-left-title">
       <div class="gp-event-tag" style="${tagStyle}">${meta.icon} ${meta.label}</div>
       <div class="gp-banner-name">${banner.name}</div>
+    </div>
+
+    <div class="gp-info">
       ${banner.description ? `<div class="gp-banner-desc">${banner.description}</div>` : ''}
 
       ${featuredCards.length ? `
