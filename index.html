@@ -2754,44 +2754,55 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 
 /* ── Banner selector tabs (Genshin thumbnail strip) ── */
 .gp-tabs-wrap {
-  display: flex;
-  gap: 0;
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  z-index: 10;
+  display: flex !important; /* always visible */
   overflow-x: auto;
   scrollbar-width: none;
-  background: rgba(0,0,0,0.6);
-  backdrop-filter: blur(12px);
-  border-bottom: 1px solid rgba(255,157,199,0.15);
-  position: relative;
-  z-index: 10;
+  gap: 6px;
+  padding: 8px 14px 12px;
+  background: linear-gradient(to top, rgba(5,2,13,0.85) 0%, transparent 100%);
+  pointer-events: all;
 }
 .gp-tabs-wrap::-webkit-scrollbar { display: none; }
 .gp-tab-btn {
   flex-shrink: 0;
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 4px;
-  padding: 10px 18px 9px;
-  border: none;
-  background: none;
+  gap: 6px;
+  padding: 6px 14px 6px 10px;
+  border-radius: 30px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(5,2,13,0.55);
+  backdrop-filter: blur(10px);
   cursor: pointer;
-  border-bottom: 3px solid transparent;
-  margin-bottom: -1px;
   transition: all 0.22s;
-  position: relative;
   font-family: 'Cormorant Garamond', serif;
-  min-width: 88px;
+  color: rgba(255,255,255,0.5);
+  position: relative;
 }
-.gp-tab-btn .gt-icon { font-size: 1.4em; line-height: 1; filter: drop-shadow(0 0 6px rgba(255,157,199,0.5)); }
-.gp-tab-btn .gt-label { font-size: 0.7em; color: rgba(255,255,255,0.5); white-space: nowrap; letter-spacing: 0.05em; transition: color 0.2s; }
-.gp-tab-btn .gt-type { font-family: 'JetBrains Mono', monospace; font-size: 0.52em; color: rgba(255,255,255,0.3); text-transform: uppercase; letter-spacing: 0.08em; }
-.gp-tab-btn.active { border-bottom-color: var(--pink); }
+.gp-tab-btn:hover { border-color: rgba(255,157,199,0.35); color: #fff; }
+.gp-tab-btn .gt-icon { font-size: 1.1em; line-height: 1; }
+.gp-tab-btn .gt-label { font-size: 0.78em; white-space: nowrap; letter-spacing: 0.03em; transition: color 0.2s; }
+.gp-tab-btn .gt-type { display: none; } /* hidden — label is enough in pill */
+.gp-tab-btn.active {
+  border-color: var(--pink);
+  background: rgba(255,157,199,0.15);
+  color: #fff;
+  box-shadow: 0 0 16px rgba(255,157,199,0.2);
+}
 .gp-tab-btn.active .gt-label { color: var(--pink); }
-.gp-tab-btn.active .gt-icon { filter: drop-shadow(0 0 10px var(--pink)); }
+.gp-tab-btn.pinned-tab { border-color: rgba(241,196,15,0.4); }
+.gp-tab-btn.pinned-tab::after {
+  content: '📌';
+  font-size: 0.65em;
+  margin-left: 2px;
+}
 .gp-tab-new {
-  position: absolute; top: 7px; right: 10px;
-  width: 7px; height: 7px; border-radius: 50%;
-  background: var(--pink); box-shadow: 0 0 8px var(--pink);
+  position: absolute; top: 4px; right: 6px;
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--pink); box-shadow: 0 0 6px var(--pink);
 }
 
 /* ── Stage: fullscreen banner artwork ── */
@@ -3131,25 +3142,60 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 }
 .gp-pool-btn:hover { border-color: var(--pink); color: var(--pink); }
 
-/* Rates — always visible, no toggle */
+/* Rates — compact chip row, always visible */
 .gp-rates-wrap {
   border-top: 1px solid rgba(255,255,255,0.06);
-  padding-top: 14px;
+  padding-top: 10px;
 }
-.gp-rates-toggle { display: none; } /* hide the button — rates are always shown */
+.gp-rates-toggle { display: none; }
 .gp-rates-body { display: block !important; margin-top: 0; }
 .gp-rates-heading {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 0.65em;
+  font-size: 0.58em;
   letter-spacing: 0.1em;
-  color: rgba(255,255,255,0.35);
+  color: rgba(255,255,255,0.3);
   text-transform: uppercase;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
+}
+.gp-rates-heading::before { content: '✦ '; color: var(--pink); }
+/* Replace the big grid with a compact chip row */
+.gp-rates-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-bottom: 6px;
+}
+.gp-rate-item {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
+  padding: 3px 9px 3px 7px;
+  border-radius: 20px;
+  border: 1px solid rgba(var(--rc), 0.35);
+  background: rgba(var(--rc), 0.08);
+  font-size: 0.75em;
+  white-space: nowrap;
+  flex: 0 0 auto;
 }
-.gp-rates-heading::before { content: '✦'; color: var(--pink); }
+.gp-rate-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.82em;
+  font-weight: 700;
+  opacity: 0.9;
+}
+.gp-rate-pct {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.78em;
+  color: rgba(255,255,255,0.65);
+}
+.gp-rates-note {
+  font-size: 0.66em;
+  color: rgba(255,255,255,0.25);
+  font-style: italic;
+  font-family: 'JetBrains Mono', monospace;
+  text-align: left;
+  margin: 0;
+}
 .gp-rates-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
@@ -10626,11 +10672,10 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   <!-- PULL PAGE -->
   <div class="page" id="page-pull">
 
-    <!-- Banner selector tabs -->
-    <div class="gp-tabs-wrap" id="bannerTabsWrap"></div>
-
     <!-- ══ GENSHIN-STYLE BANNER STAGE ══ -->
     <div class="gp-stage" id="pullBannerContainer">
+      <!-- Banner switcher pills — overlaid at the bottom of the stage art -->
+      <div class="gp-tabs-wrap" id="bannerTabsWrap"></div>
       <!-- filled by renderActiveBanner() -->
     </div>
 
@@ -18140,15 +18185,19 @@ async function loadActiveBanner(){
   }
   if(!window.ALL_BANNERS.length) window.ALL_BANNERS = getDefaultBanners();
 
-  // Default to first tab (usually character event)
+  // Pinned banners first, then by type order
   const order = ['character','collab','standard','beginner','skin'];
   window.ALL_BANNERS.sort((a,b)=>{
+    if(b.is_pinned && !a.is_pinned) return 1;
+    if(a.is_pinned && !b.is_pinned) return -1;
     const ai = order.indexOf(a.banner_type||'standard');
     const bi = order.indexOf(b.banner_type||'standard');
     return (ai<0?99:ai) - (bi<0?99:bi);
   });
+  // Default to pinned banner, otherwise first tab
   if(!activeBannerTab || !window.ALL_BANNERS.find(b=>b.id===activeBannerTab)){
-    activeBannerTab = window.ALL_BANNERS[0]?.id || null;
+    const pinned = window.ALL_BANNERS.find(b=>b.is_pinned);
+    activeBannerTab = (pinned || window.ALL_BANNERS[0])?.id || null;
   }
   window.ACTIVE_BANNER = window.ALL_BANNERS.find(b=>b.id===activeBannerTab) || window.ALL_BANNERS[0] || null;
 
@@ -18172,18 +18221,15 @@ function renderBannerTabs(){
   const wrap = document.getElementById('bannerTabsWrap');
   if(!wrap) return;
   const banners = window.ALL_BANNERS || [];
-  if(banners.length <= 1){ wrap.style.display='none'; return; }
-  wrap.style.display='flex';
-  wrap.className = 'gp-tabs-wrap';
+  if(!banners.length){ wrap.innerHTML=''; return; }
+  // Always show tabs (even 1 banner) so user can see what's active
   wrap.innerHTML = banners.map(b=>{
     const meta = BANNER_TYPE_META[b.banner_type||'standard'] || BANNER_TYPE_META.standard;
     const isActive = b.id === activeBannerTab;
-    const isNew = b.banner_type === 'character' || b.banner_type === 'collab';
-    return `<button class="gp-tab-btn${isActive?' active':''}" onclick="switchBannerTab('${b.id}')">
-      ${isNew && !isActive ? '<span class="gp-tab-new"></span>' : ''}
+    const isPinned = !!b.is_pinned;
+    return `<button class="gp-tab-btn${isActive?' active':''}${isPinned?' pinned-tab':''}" onclick="switchBannerTab('${b.id}')">
       <span class="gt-icon">${meta.icon}</span>
-      <span class="gt-label">${b.name.length > 18 ? b.name.slice(0,16)+'…' : b.name}</span>
-      <span class="gt-type">${meta.label}</span>
+      <span class="gt-label">${b.name.length > 20 ? b.name.slice(0,18)+'…' : b.name}</span>
     </button>`;
   }).join('');
 }
@@ -18241,7 +18287,7 @@ function renderActiveBanner(){
   if(gpPityMini) gpPityMini.style.display = '';
 
   const meta        = BANNER_TYPE_META[type] || BANNER_TYPE_META.standard;
-  const allCards    = window.DEMO_CARDS || DEMO_CARDS;
+  const allCards = [...(window.DEMO_CARDS||[]), ...(window._adminCardCache||[])].filter((c,i,a)=>a.findIndex(x=>x.id===c.id)===i) || DEMO_CARDS;
   const featuredCards = parseFeaturedCards(banner.featured_cards).map(id=>allCards.find(c=>c.id===id)).filter(Boolean);
   const p           = getPity(type);
 
@@ -18470,11 +18516,43 @@ function renderAdminBannerList(){
       </div>` : ''}
       <div style="display:flex;gap:6px;flex-wrap:wrap;">
         ${!b.is_active ? `<button class="admin-btn" onclick="setActiveBanner('${b.id}')" style="font-size:0.78em;padding:5px 12px;">⭐ Set Live</button>` : ''}
+        <button class="admin-btn" onclick="pinBanner('${b.id}',${!!b.is_pinned})" style="font-size:0.78em;padding:5px 12px;${b.is_pinned?'background:rgba(241,196,15,0.15);border-color:rgba(241,196,15,0.4);color:#f1c40f;':''}" title="${b.is_pinned?'Unpin — remove from always-first':'Pin — always shows first in gacha & Meo Hub widget'}">
+          ${b.is_pinned ? '📌 Pinned' : '📌 Pin'}
+        </button>
         <button class="admin-btn" onclick="editBanner('${b.id}')" style="font-size:0.78em;padding:5px 12px;">✏️ Edit</button>
         <button class="admin-btn" onclick="deleteBanner('${b.id}','${escapeHtml(b.name).replace(/'/g,"\\'")}')" style="font-size:0.78em;padding:5px 12px;background:rgba(231,76,60,0.15);border-color:rgba(231,76,60,0.3);color:#e74c3c;">🗑️ Delete</button>
       </div>
     </div>`;
   }).join('');
+}
+
+async function pinBanner(id, currentlyPinned){
+  if(!checkAdmin()) return;
+  const newVal = !currentlyPinned;
+  if(newVal){
+    // Only 1 pinned banner at a time — unpin others
+    const others = _adminBannerCache.filter(b=>b.id!==id && b.is_pinned);
+    for(const b of others){
+      await fetch(`${SUPABASE_URL}/rest/v1/banners?id=eq.${b.id}`,{
+        method:'PATCH',
+        headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},
+        body:JSON.stringify({is_pinned:false})
+      });
+    }
+  }
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/banners?id=eq.${id}`,{
+    method:'PATCH',
+    headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},
+    body:JSON.stringify({is_pinned:newVal})
+  });
+  if(res.ok || res.status===204){
+    showToast(newVal?'📌 Banner pinned — always shows first!':'📌 Banner unpinned');
+    await loadAdminBannerList();
+    await loadActiveBanner();
+  } else {
+    showToast('⚠️ Run in Supabase SQL Editor: ALTER TABLE banners ADD COLUMN IF NOT EXISTS is_pinned boolean DEFAULT false;');
+    console.warn('[MeoGacha] is_pinned migration: ALTER TABLE banners ADD COLUMN IF NOT EXISTS is_pinned boolean DEFAULT false;');
+  }
 }
 
 function addBannerFeaturedSlot(cardId=''){
