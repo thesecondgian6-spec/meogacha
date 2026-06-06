@@ -468,22 +468,22 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   object-fit: cover;
   object-position: center top;
   z-index: 0;
-  filter: saturate(1.2) brightness(0.9);
+  filter: saturate(0.85) brightness(0.5);
 }
 /* Top dark fade so nav bar blends in */
 .hmap-hero-fade-top {
   position: absolute;
   top: 0; left: 0; right: 0;
-  height: 80px;
-  background: linear-gradient(to bottom, rgba(6,2,12,0.85), transparent);
+  height: 100px;
+  background: linear-gradient(to bottom, rgba(6,2,12,0.95), rgba(6,2,12,0.4) 70%, transparent);
   z-index: 1; pointer-events: none;
 }
 /* Bottom fade into page background */
 .hmap-hero-fade-bottom {
   position: absolute;
   bottom: 0; left: 0; right: 0;
-  height: 100px;
-  background: linear-gradient(to top, #06020c 0%, rgba(6,2,12,0.7) 60%, transparent 100%);
+  height: 140px;
+  background: linear-gradient(to top, #06020c 0%, rgba(6,2,12,0.92) 50%, rgba(6,2,12,0.4) 80%, transparent 100%);
   z-index: 1; pointer-events: none;
 }
 /* Floating particle specks */
@@ -506,27 +506,23 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   z-index: 10;
   background: rgba(6,2,12,0.7);
   border: 1px solid rgba(255,157,199,0.3);
-  border-radius: 12px;
-  padding: 7px 12px;
-  font-size: 1.1em;
+  border-radius: 50%;
+  width: 38px;
+  height: 38px;
+  font-size: 1em;
   cursor: pointer;
   color: #fff;
   backdrop-filter: blur(8px);
   transition: all 0.2s;
   display: flex;
   align-items: center;
-  gap: 4px;
+  justify-content: center;
+  gap: 0;
+  padding: 0;
 }
-.hmap-map-btn:hover { background: rgba(255,157,199,0.15); border-color: rgba(255,157,199,0.6); transform: scale(1.05); }
+.hmap-map-btn:hover { background: rgba(255,157,199,0.15); border-color: rgba(255,157,199,0.6); transform: scale(1.08); }
 .hmap-map-badge {
-  background: var(--pink);
-  color: #000;
-  font-size: 0.52em;
-  font-family: 'JetBrains Mono', monospace;
-  font-weight: 700;
-  border-radius: 20px;
-  padding: 1px 6px;
-  line-height: 1.4;
+  display: none;
 }
 
 /* Hero title block */
@@ -704,22 +700,19 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   66%      { transform: translate(-10px,20px) scale(0.95); }
 }
 
-/* Stats row */
+/* Stats row — now lives inside hero content block */
 .hmap-stats-row {
   position: relative;
   z-index: 2;
   display: flex;
-  gap: 10px;
+  gap: 8px;
   flex-wrap: wrap;
   margin-bottom: 0;
   justify-content: center;
 }
 .hmap-stats-row .home-stat-chip {
-  flex: 1;
-  min-width: 110px;
-  max-width: 200px;
-  background: rgba(255,255,255,0.04);
-  border-color: rgba(255,255,255,0.08);
+  background: rgba(6,2,12,0.55);
+  border-color: rgba(255,255,255,0.12);
   cursor: pointer;
 }
 
@@ -980,7 +973,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   .hmap-hero { height: clamp(180px, 38vw, 280px); }
   .hmap-body { padding: 10px 14px 0; }
   .hmap-stats-row { gap: 7px; }
-  .hmap-stats-row .home-stat-chip { min-width: 90px; padding: 8px 10px; }
+  .hmap-stats-row .home-stat-chip { min-width: unset; padding: 5px 10px; }
   .hmap-widget-divider { margin: 20px 0; }
   .hgw-left { padding: 18px 16px 16px; }
   .hgw-right { width: clamp(90px, 32%, 130px); padding: 10px; }
@@ -1003,7 +996,9 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   display: flex;
   flex-direction: column;
   width: 100%;
-  padding: 0 0 48px;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 24px 48px;
   gap: 0;
 }
 
@@ -2305,30 +2300,31 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .home-stat-chip {
   display: flex;
   align-items: center;
-  gap: 10px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 10px 18px;
-  min-width: 110px;
+  gap: 7px;
+  background: rgba(6,2,12,0.55);
+  border: 1px solid rgba(255,157,199,0.22);
+  border-radius: 20px;
+  padding: 5px 12px;
+  min-width: unset;
+  backdrop-filter: blur(8px);
   transition: all 0.2s;
 }
 .home-stat-chip:hover {
-  border-color: rgba(255,157,199,0.35);
-  background: rgba(255,157,199,0.07);
+  border-color: rgba(255,157,199,0.45);
+  background: rgba(255,157,199,0.1);
 }
-.hsc-icon { font-size: 1.4em; }
+.hsc-icon { font-size: 1em; }
 .hsc-val {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 1.1em;
+  font-size: 0.88em;
   color: var(--pink);
   font-weight: 700;
   line-height: 1;
 }
 .hsc-lbl {
-  font-size: 0.72em;
+  font-size: 0.6em;
   color: var(--text-dim);
-  margin-top: 2px;
+  margin-top: 1px;
 }
 
 /* ══ HOME — DAILY TEASER ══ */
@@ -2458,10 +2454,10 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 
   /* ── Home quick stats — 2×2 grid ── */
   .home-quick-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 14px 0; }
-  .home-stat-chip { min-width: unset; padding: 10px 12px; border-radius: 14px; }
-  .hsc-icon { font-size: 1.2em; }
-  .hsc-val { font-size: 1em; }
-  .hsc-lbl { font-size: 0.68em; }
+  .home-stat-chip { min-width: unset; padding: 5px 10px; border-radius: 20px; }
+  .hsc-icon { font-size: 0.9em; }
+  .hsc-val { font-size: 0.82em; }
+  .hsc-lbl { font-size: 0.58em; }
 
   /* ── Daily teaser ── */
   .home-daily-teaser { padding: 12px 14px; border-radius: 14px; }
@@ -10433,6 +10429,21 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
             <span class="online-dot"></span>
             <span id="hubOnlineCount">0 online</span>
           </div>
+          <!-- ── Stat chips inline below title ── -->
+          <div class="hmap-stats-row" id="hmapStatsRow" style="margin-top:14px;">
+            <div class="home-stat-chip" onclick="goTo('collection',null)" title="View collection">
+              <span class="hsc-icon">🃏</span>
+              <div><div class="hsc-val" id="hubUniqueCards">—</div><div class="hsc-lbl">Unique Cards</div></div>
+            </div>
+            <div class="home-stat-chip" onclick="goTo('pull',null)" title="Pull history">
+              <span class="hsc-icon">🎴</span>
+              <div><div class="hsc-val" id="hubTotalPulls">—</div><div class="hsc-lbl">Total Pulls</div></div>
+            </div>
+            <div class="home-stat-chip">
+              <span class="hsc-icon">🪙</span>
+              <div><div class="hsc-val" id="hubCoins">—</div><div class="hsc-lbl">Coins</div></div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -10473,26 +10484,6 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
           <div class="hmap-orb hmap-orb-1"></div>
           <div class="hmap-orb hmap-orb-2"></div>
           <div class="hmap-orb hmap-orb-3"></div>
-        </div>
-
-        <!-- ── Player stats row ── -->
-        <div class="hmap-stats-row" id="hmapStatsRow">
-          <div class="home-stat-chip" onclick="goTo('collection',null)" title="View collection">
-            <span class="hsc-icon">🃏</span>
-            <div><div class="hsc-val" id="hubUniqueCards">—</div><div class="hsc-lbl">Unique Cards</div></div>
-          </div>
-          <div class="home-stat-chip" onclick="goTo('pull',null)" title="Pull history">
-            <span class="hsc-icon">🎴</span>
-            <div><div class="hsc-val" id="hubTotalPulls">—</div><div class="hsc-lbl">Total Pulls</div></div>
-          </div>
-          <div class="home-stat-chip">
-            <span class="hsc-icon">🪙</span>
-            <div><div class="hsc-val" id="hubCoins">—</div><div class="hsc-lbl">Coins</div></div>
-          </div>
-          <div class="home-stat-chip" onclick="goTo('collection',null)" title="Collection %">
-            <span class="hsc-icon">📊</span>
-            <div><div class="hsc-val" id="hubCollPct">—%</div><div class="hsc-lbl">Collection</div></div>
-          </div>
         </div>
 
         <!-- ── Divider between stats and gacha ── -->
