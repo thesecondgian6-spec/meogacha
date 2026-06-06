@@ -378,6 +378,35 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 @media(min-width:900px){
   .shop-items-grid{ grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); }
 }
+/* ── Shop Section Headers (grouped "All" view) ── */
+.shop-section-header {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 18px;
+  margin-bottom: 4px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+.shop-section-header:first-child { margin-top: 4px; }
+.shop-section-icon { font-size: 1.1em; }
+.shop-section-label {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 0.78em;
+  color: var(--pink-pale);
+  letter-spacing: 0.05em;
+  flex: 1;
+}
+.shop-section-count {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6em;
+  color: var(--text-dim);
+  background: rgba(255,157,199,0.07);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 2px 9px;
+}
 /* Ref picker (card/skin chooser in admin) */
 .ref-picker-row{ display:flex;gap:8px;align-items:stretch;margin-bottom:0; }
 .ref-picker-display{
@@ -430,10 +459,18 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .hmap-hero {
   position: relative;
   height: clamp(240px, 45vw, 420px);
+  max-height: 420px;
   overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
+  /* On desktop, cap the GIF area so it doesn't stretch beyond a readable width */
+}
+/* Wrapper to constrain hub content width on desktop */
+#hubMapView {
+  max-width: 1100px;
+  margin: 0 auto;
+  width: 100%;
 }
 .hmap-hero-gif {
   position: absolute;
@@ -456,8 +493,8 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .hmap-hero-fade-bottom {
   position: absolute;
   bottom: 0; left: 0; right: 0;
-  height: 100px;
-  background: linear-gradient(to top, #06020c 0%, rgba(6,2,12,0.7) 60%, transparent 100%);
+  height: 160px;
+  background: linear-gradient(to top, var(--bg) 0%, rgba(13,6,16,0.97) 25%, rgba(13,6,16,0.85) 50%, rgba(13,6,16,0.45) 75%, transparent 100%);
   z-index: 1; pointer-events: none;
 }
 /* Floating particle specks */
@@ -633,7 +670,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .hmap-body {
   position: relative;
   padding: 28px 24px 0;
-  max-width: 960px;
+  max-width: 860px;
   margin: 0 auto;
   width: 100%;
   overflow: hidden;
@@ -950,6 +987,30 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 }
 
 /* ══════════════════════════════════════════════════
+   DESKTOP SCALING — prevent hub from stretching
+══════════════════════════════════════════════════ */
+@media(min-width:1100px){
+  /* The hero GIF should not balloon on ultra-wide screens */
+  .hmap-hero-gif {
+    max-width: 1100px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 1100px;
+    right: auto;
+  }
+  /* Stat chips: fixed comfortable size, don't stretch */
+  .hmap-stats-row .home-stat-chip {
+    flex: 0 0 auto;
+    min-width: 130px;
+    max-width: 160px;
+  }
+  /* Gacha widget comfortable desktop size */
+  .hmap-gacha-widget {
+    min-height: 280px;
+  }
+}
+
+/* ══════════════════════════════════════════════════
    HUB MINIMAP BAR (legacy — now hidden)
 ══════════════════════════════════════════════════ */
 .hub-minimap-bar { display: none !important; }
@@ -961,8 +1022,13 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   display: flex;
   flex-direction: column;
   width: 100%;
-  padding: 0 0 48px;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 24px 48px;
   gap: 0;
+}
+@media(max-width:700px){
+  .hub-booth-sections { padding: 0 0 48px; }
 }
 
 /* ── Each Section ── */
@@ -6106,7 +6172,12 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 /* ══════════════════════════════════════════════════
    MEO HUB — GLOBAL STYLES
 ══════════════════════════════════════════════════ */
-#page-social { padding: 0 !important; max-width: 100% !important; }
+#page-social {
+  padding: 0 !important;
+  max-width: 100% !important;
+  /* Content inside is constrained via #hubMapView max-width */
+  overflow-x: hidden;
+}
 
 .hub-zone { padding: 20px 24px 100px; max-width: 1200px; margin: 0 auto; }
 @media(max-width:700px){ .hub-zone { padding: 14px 12px 100px; } }
@@ -13196,6 +13267,43 @@ function renderShopGrid(){
   }
   if(empty) empty.style.display='none';
 
+  // ── In "all" view, group by section ──
+  if(_shopCurrentFilter === 'all'){
+    const SECTION_ORDER = [
+      { key:'boosts',    label:'Boosts',      icon:'⚡', match: i => i.type==='boost' },
+      { key:'xp',        label:'XP Potions',  icon:'📦', match: i => i.type==='xp' },
+      { key:'cards',     label:'Cards',       icon:'🃏', match: i => i.type==='card' },
+      { key:'skins',     label:'Card Skins',  icon:'🎨', match: i => i.type==='skin' },
+      { key:'titles',    label:'Titles',      icon:'🎀', match: i => i.type==='title' },
+      { key:'gameitems', label:'Game Items',  icon:'🎁', match: i => i.type==='gameitem' },
+    ];
+
+    let html = '';
+    for(const section of SECTION_ORDER){
+      const sectionItems = items.filter(section.match);
+      if(!sectionItems.length) continue;
+      html += `<div class="shop-section-header">
+        <span class="shop-section-icon">${section.icon}</span>
+        <span class="shop-section-label">${section.label}</span>
+        <span class="shop-section-count">${sectionItems.length}</span>
+      </div>`;
+      html += sectionItems.map(item => buildShopItemCard(item)).join('');
+    }
+    // anything not matched by a section
+    const knownTypes = new Set(['boost','xp','card','skin','title','gameitem']);
+    const others = items.filter(i => !knownTypes.has(i.type));
+    if(others.length){
+      html += `<div class="shop-section-header">
+        <span class="shop-section-icon">🏪</span>
+        <span class="shop-section-label">Other</span>
+        <span class="shop-section-count">${others.length}</span>
+      </div>`;
+      html += others.map(item => buildShopItemCard(item)).join('');
+    }
+    grid.innerHTML = html;
+    return;
+  }
+
   const CAT_META = {
     boost:     { label:'Boost',        color:'#f1c40f',   accent:'rgba(241,196,15,0.12)',  border:'rgba(241,196,15,0.3)'  },
     xp:        { label:'XP Item',      color:'#9b59b6',   accent:'rgba(155,89,182,0.12)',  border:'rgba(155,89,182,0.3)'  },
@@ -13207,7 +13315,20 @@ function renderShopGrid(){
 
   const now = Date.now();
 
-  grid.innerHTML = items.map(item=>{
+  grid.innerHTML = items.map(item => buildShopItemCard(item, CAT_META, now)).join('');
+}
+
+function buildShopItemCard(item, catMetaArg, nowArg){
+  const CAT_META = catMetaArg || {
+    boost:     { label:'Boost',        color:'#f1c40f',   accent:'rgba(241,196,15,0.12)',  border:'rgba(241,196,15,0.3)'  },
+    xp:        { label:'XP Item',      color:'#9b59b6',   accent:'rgba(155,89,182,0.12)',  border:'rgba(155,89,182,0.3)'  },
+    card:      { label:'Card',         color:'#2ecc71',   accent:'rgba(46,204,113,0.12)',  border:'rgba(46,204,113,0.3)'  },
+    title:     { label:'Title',        color:'#ff9dc7',   accent:'rgba(255,157,199,0.12)', border:'rgba(255,157,199,0.3)' },
+    skin:      { label:'Card Skin',    color:'#c084b8',   accent:'rgba(192,132,184,0.12)', border:'rgba(192,132,184,0.3)' },
+    gameitem:  { label:'Item',         color:'#1abc9c',   accent:'rgba(26,188,156,0.12)',  border:'rgba(26,188,156,0.3)'  },
+  };
+  const now = nowArg || Date.now();
+
     // Normalize: support both DB schema and fallback items
     const type        = item.type || 'item';
     const itemDesc    = item.description || item.desc || '';
@@ -13319,7 +13440,6 @@ function renderShopGrid(){
         </div>
       </div>
     </div>`;
-  }).join('');
 }
 
 async function buyShopItem(itemJson){
