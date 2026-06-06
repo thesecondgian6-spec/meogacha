@@ -2739,13 +2739,16 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   padding: 0 !important;
   max-width: 100% !important;
   overflow: hidden;
-  /* Fill viewport as a flex column so stage grows and dock anchors to bottom */
-  display: flex;
+}
+/* Only apply flex layout when the pull page is actually active.
+   #page-pull alone would override .page{display:none} due to higher specificity. */
+#page-pull.active {
+  display: flex !important;
   flex-direction: column;
 }
 
 /* Stage grows to consume all leftover vertical space */
-#page-pull .gp-stage {
+#page-pull.active .gp-stage {
   flex: 1 1 auto;
 }
 
@@ -3160,7 +3163,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 /* ── Mobile overrides ── */
 @media(max-width:700px){
   /* Constrain pull page to visible area so there is zero dead space */
-  #page-pull {
+  #page-pull.active {
     height: calc(100svh - 58px - 66px); /* 58px top-nav, 66px bottom mobile-nav */
     min-height: 0;
     overflow-y: auto;
@@ -12939,7 +12942,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
         </div>
 
         <div class="admin-section-label">Character Art <span class="admin-hint">(transparent PNG — shown on right side of banner, like Genshin. Add up to 3 images; they auto-rotate every 4 s.)</span></div>
-        <div style="background:rgba(241,196,15,0.08);border:1px solid rgba(241,196,15,0.25);border-radius:10px;padding:10px 14px;margin-bottom:12px;font-family:'JetBrains Mono',monospace;font-size:0.72em;color:rgba(241,196,15,0.85);">
+        <div id="charImgMigrationWarning" style="background:rgba(241,196,15,0.08);border:1px solid rgba(241,196,15,0.25);border-radius:10px;padding:10px 14px;margin-bottom:12px;font-family:'JetBrains Mono',monospace;font-size:0.72em;color:rgba(241,196,15,0.85);">
           ⚠️ Requires a one-time SQL migration in Supabase SQL Editor:<br/>
           <span style="user-select:all;color:rgba(255,255,255,0.6);">ALTER TABLE banners ADD COLUMN IF NOT EXISTS char_image_1 text DEFAULT '';<br/>ALTER TABLE banners ADD COLUMN IF NOT EXISTS char_image_2 text DEFAULT '';<br/>ALTER TABLE banners ADD COLUMN IF NOT EXISTS char_image_3 text DEFAULT '';</span>
         </div>
@@ -18407,7 +18410,17 @@ async function loadAdminBannerList(){
     el.innerHTML = '<div style="color:#e74c3c;font-size:0.85em;text-align:center;padding:16px;">⚠️ Could not load banners.<br><span style="color:var(--text-dim)">Make sure the banners table exists and has a <code>banner_type</code> column.</span></div>';
     return;
   }
+  _checkCharImageColumns();
   renderAdminBannerList();
+}
+
+// Auto-hide the SQL migration warning once the char_image columns exist in the DB.
+// Detection: if ANY loaded banner row has the char_image_1 key (even null), the columns exist.
+function _checkCharImageColumns(){
+  const warning = document.getElementById('charImgMigrationWarning');
+  if(!warning) return;
+  const columnsExist = _adminBannerCache.length > 0 && ('char_image_1' in (_adminBannerCache[0] || {}));
+  warning.style.display = columnsExist ? 'none' : '';
 }
 
 function renderAdminBannerList(){
@@ -21062,7 +21075,7 @@ function switchAdminTab(tab, btn){
     if(el)el.style.display=t===tab?'block':'none';
     if(b)b.classList.toggle('active',t===tab);
   });
-  if(tab==='banners') loadAdminBannerList();
+  if(tab==='banners') { loadAdminBannerList(); _checkCharImageColumns(); }
   if(tab==='skins') { populateSkinCardSelect(); loadAdminSkinList(); }
   if(tab==='shop') { populateShopSkinSelect(); loadAdminShopItems(); populateShopItemDropdown(); loadAdminShopListings(); }
   if(tab==='items') { loadAdminItemList(); }
