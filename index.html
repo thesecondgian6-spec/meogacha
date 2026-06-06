@@ -2761,19 +2761,19 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 /* ── Banner selector tabs: float over stage, top-right ── */
 /* ── Banner tabs: floating vertical stack in top-right of stage ── */
 /* ── Banner tabs: Genshin-style left sidebar with thumbnails ── */
-/* ── WuWa-style banner tabs: vertical left sidebar ── */
+/* ── WuWa-style banner tabs: top-left vertical stack ── */
 .gp-tabs-wrap {
   position: absolute;
-  top: 50%;
+  top: 0;
   left: 0;
-  transform: translateY(-50%);
+  transform: none;
   z-index: 15;
   display: flex !important;
   flex-direction: column;
   gap: 3px;
-  padding: 6px 0;
+  padding: 6px 0 6px;
   pointer-events: all;
-  max-height: 88%;
+  max-height: 55%; /* stops partway down so title area is free */
   overflow-y: auto;
   overflow-x: hidden;
   scrollbar-width: none;
@@ -2783,16 +2783,16 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 /* Make the stage-wrap a positioning context for the tabs */
 .gp-stage-wrap { position: relative; }
 
-/* Each tab: tall card thumbnail, WuWa style */
+/* Each tab: WuWa-style tall card with overlaid type badge */
 .gp-tab-btn {
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  width: 86px;
+  width: 90px;
   border: none;
   border-right: 3px solid transparent;
-  background: rgba(8,5,20,0.72);
+  background: rgba(8,4,22,0.75);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   cursor: pointer;
@@ -2801,12 +2801,12 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   overflow: hidden;
   padding: 0;
   border-radius: 6px 0 0 6px;
-  box-shadow: 2px 0 12px rgba(0,0,0,0.5);
+  box-shadow: 2px 0 14px rgba(0,0,0,0.55);
 }
-/* Tall thumbnail — 16:9-ish landscape crop */
+/* Tall landscape thumbnail */
 .gt-thumb {
   width: 100%;
-  height: 72px;
+  height: 70px;
   object-fit: cover;
   object-position: center 20%;
   display: block;
@@ -2814,10 +2814,10 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   transition: transform 0.35s ease;
 }
 .gp-tab-btn:hover .gt-thumb { transform: scale(1.1); }
-/* Fallback icon when no image */
+/* Fallback */
 .gt-thumb-fallback {
   width: 100%;
-  height: 72px;
+  height: 70px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2825,39 +2825,39 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   background: rgba(255,255,255,0.03);
   flex-shrink: 0;
 }
-/* Type badge — top-left corner like WuWa CHOICE / EVENT pill */
+/* Type badge overlaid on top-left of thumbnail — WuWa CHOICE/EVENT style */
 .gt-type-tag {
   position: absolute;
   top: 4px;
-  left: 4px;
+  left: 0;
   font-family: 'JetBrains Mono', monospace;
   font-size: 0.38em;
   font-weight: 700;
-  letter-spacing: 0.07em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
-  padding: 2px 5px;
-  border-radius: 3px;
-  background: rgba(255,157,199,0.85);
-  color: #1a0010;
-  line-height: 1.3;
+  padding: 2px 6px 2px 5px;
+  border-radius: 0 3px 3px 0;
+  background: rgba(46,204,113,0.9);
+  color: #001a08;
+  line-height: 1.4;
   z-index: 3;
   white-space: nowrap;
+  box-shadow: 1px 1px 4px rgba(0,0,0,0.4);
 }
-/* Different colors per banner type */
-.gp-tab-btn[data-btype="beginner"] .gt-type-tag  { background: rgba(46,204,113,0.9);  color: #001a08; }
-.gp-tab-btn[data-btype="standard"] .gt-type-tag  { background: rgba(93,173,226,0.9);  color: #00101a; }
-.gp-tab-btn[data-btype="collab"] .gt-type-tag    { background: rgba(241,196,15,0.9);  color: #1a1000; }
-.gp-tab-btn[data-btype="character"] .gt-type-tag { background: rgba(255,157,199,0.9); color: #1a0010; }
-.gp-tab-btn[data-btype="skin"] .gt-type-tag      { background: rgba(155,89,182,0.9);  color: #0e001a; }
-/* Label strip at bottom of each tab */
+.gp-tab-btn[data-btype="beginner"]  .gt-type-tag { background: rgba(46,204,113,0.92);  color: #001a08; }
+.gp-tab-btn[data-btype="standard"]  .gt-type-tag { background: rgba(93,173,226,0.92);  color: #00101a; }
+.gp-tab-btn[data-btype="collab"]    .gt-type-tag { background: rgba(241,196,15,0.92);  color: #1a1000; }
+.gp-tab-btn[data-btype="character"] .gt-type-tag { background: rgba(255,120,180,0.92); color: #1a0010; }
+.gp-tab-btn[data-btype="skin"]      .gt-type-tag { background: rgba(155,89,182,0.92);  color: #0e001a; }
+/* Label strip */
 .gt-label-wrap {
-  padding: 5px 6px 6px;
-  background: linear-gradient(to bottom, rgba(8,5,20,0.7) 0%, rgba(8,5,20,0.92) 100%);
+  padding: 4px 6px 5px;
+  background: linear-gradient(to bottom, rgba(8,4,22,0.7), rgba(8,4,22,0.92));
 }
 .gt-label {
   font-family: 'Cormorant Garamond', serif;
-  font-size: 0.64em;
-  color: rgba(255,255,255,0.55);
+  font-size: 0.62em;
+  color: rgba(255,255,255,0.52);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -2868,16 +2868,15 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .gt-icon { display: none; }
 .gt-type { display: none; }
 
-/* Active state — WuWa bright right-edge highlight + lightened card */
+/* Active state */
 .gp-tab-btn.active {
   border-right-color: var(--pink);
-  background: rgba(15,8,35,0.95);
-  box-shadow: 2px 0 0 var(--pink), 0 0 18px rgba(255,157,199,0.25), 2px 0 12px rgba(0,0,0,0.6);
+  background: rgba(18,8,40,0.96);
+  box-shadow: 3px 0 0 var(--pink), 0 0 20px rgba(255,157,199,0.2), 2px 0 14px rgba(0,0,0,0.6);
 }
-.gp-tab-btn.active .gt-thumb { filter: brightness(1.15) saturate(1.2); }
-.gp-tab-btn.active .gt-label { color: #fff; font-weight: 600; }
-.gp-tab-btn.active .gt-label-wrap { background: linear-gradient(to bottom, rgba(255,157,199,0.1) 0%, rgba(255,157,199,0.18) 100%); }
-/* Pink glow bar on right */
+.gp-tab-btn.active .gt-thumb { filter: brightness(1.2) saturate(1.2); }
+.gp-tab-btn.active .gt-label { color: #fff; }
+.gp-tab-btn.active .gt-label-wrap { background: linear-gradient(to bottom, rgba(255,157,199,0.1), rgba(255,157,199,0.18)); }
 .gp-tab-btn.active::after {
   content: '';
   position: absolute;
@@ -2886,10 +2885,10 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   background: linear-gradient(to bottom, var(--pink-pale), var(--pink), var(--purple));
   box-shadow: -3px 0 14px rgba(255,157,199,0.6);
 }
-.gp-tab-btn:hover:not(.active) { background: rgba(20,12,45,0.85); }
+.gp-tab-btn:hover:not(.active) { background: rgba(20,10,45,0.85); }
 .gp-tab-btn:hover:not(.active) .gt-label { color: rgba(255,255,255,0.8); }
 
-/* Pinned tab indicator */
+/* Pinned indicator */
 .gp-tab-btn.pinned-tab .gt-type-tag::after { content: ' 📌'; }
 
 /* New dot */
@@ -2906,7 +2905,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   width: 100%;
   min-height: clamp(340px, 52vw, 540px);
   overflow: hidden;
-  background: #05020d;
+  background: transparent;
 }
 .gp-stage-bg {
   position: absolute; inset: 0;
@@ -2961,7 +2960,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  padding: clamp(16px, 3vw, 40px) clamp(14px, 3vw, 36px) clamp(18px, 3vw, 32px) clamp(94px, 11vw, 114px); /* left: tab width 86px + 8px gap */
+  padding: clamp(16px, 3vw, 40px) clamp(14px, 3vw, 36px) clamp(18px, 3vw, 32px) clamp(98px, 12vw, 116px);
   gap: 8px;
   background: none;
 }
@@ -3019,8 +3018,8 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   border: 1.5px solid rgba(255,255,255,0.18);
   cursor: pointer;
   transition: all 0.25s;
-  background: linear-gradient(160deg, rgba(40,20,60,0.7) 0%, rgba(15,8,30,0.8) 100%);
-  box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  background: transparent; /* PNG cards have transparent bg — no dark fill */
+  box-shadow: 0 4px 16px rgba(0,0,0,0.6);
   flex-shrink: 0;
 }
 .gp-feat-card:hover { transform: translateY(-5px) scale(1.05); border-color: var(--pink); box-shadow: 0 10px 32px rgba(255,157,199,0.35); }
@@ -3071,25 +3070,30 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 }
 .gp-char-slide {
   position: absolute;
-  inset: 0;
+  right: 0;
+  bottom: 0;
+  top: 0;
   display: flex;
   align-items: flex-end;
   justify-content: flex-end;
   opacity: 0;
   transition: opacity 1s ease;
+  background: transparent;
+  pointer-events: none;
 }
 .gp-char-slide.active { opacity: 1; }
 .gp-char-slide img {
-  height: 110%; /* slightly taller than stage so feet are at bottom */
+  height: 110%;
   max-height: 110%;
   width: auto;
+  max-width: none;
   object-fit: contain;
-  object-position: right bottom;
-  /* drop-shadow instead of box-shadow so it respects transparency */
+  display: block;
+  /* drop-shadow respects PNG transparency — no box background */
   filter: drop-shadow(-8px 0 24px rgba(255,157,199,0.2)) drop-shadow(0 0 50px rgba(192,132,184,0.1));
   animation: gpCharFloat 5.5s ease-in-out infinite;
   transform-origin: bottom right;
-  /* No background — PNG transparency is preserved */
+  background: transparent;
 }
 @keyframes gpCharFloat {
   0%,100% { transform: translateY(0px) scale(1); }
@@ -3325,13 +3329,13 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
       linear-gradient(0deg,  rgba(5,2,13,0.6)  0%, transparent 50%);
   }
 
-  /* Info overlay — bottom-left, Genshin style */
+  /* Info overlay — bottom-left */
   .gp-info {
     position: absolute;
-    width: 78%;
+    width: 80%;
     top: auto;
     bottom: 0;
-    padding: 12px 10px 14px 72px; /* 72px left = tab width 64px + 8px gap */
+    padding: 12px 10px 14px 76px; /* 76px left = tab width 68px + 8px gap */
     justify-content: flex-end;
     gap: 6px;
     background: none;
@@ -3345,12 +3349,12 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   .gp-char-showcase { width: 52%; }
   .gp-char-slide img { height: 105%; }
 
-  /* Banner tabs: narrower on mobile, same vertical sidebar */
-  .gp-tabs-wrap { top: 50%; transform: translateY(-50%); left: 0; max-height: 80%; }
-  .gp-tab-btn { width: 64px; border-radius: 4px 0 0 4px; }
+  /* Banner tabs: top-left vertical stack on mobile */
+  .gp-tabs-wrap { top: 0; left: 0; transform: none; max-height: 52%; }
+  .gp-tab-btn { width: 68px; border-radius: 4px 0 0 4px; }
   .gt-thumb, .gt-thumb-fallback { height: 52px; }
-  .gt-label { font-size: 0.55em; }
-  .gt-type-tag { font-size: 0.34em; padding: 1px 4px; }
+  .gt-label { font-size: 0.54em; }
+  .gt-type-tag { font-size: 0.33em; padding: 1px 4px 1px 3px; }
 
   /* Dock */
   .gp-pull-row { flex-direction: column; align-items: stretch; gap: 10px; }
@@ -18462,7 +18466,7 @@ function renderActiveBanner(){
           ${featuredCards.map(c=>{
             const color = RARITY_COLORS[c.rarity]||'#bdc3c7';
             return `<div class="gp-feat-card" onclick="openCard('${c.id}')">
-              <img src="${c.thumbnail||c.image}" alt="${c.name}" onerror="this.style.opacity='0.3'"/>
+              <img src="${c.thumbnail||c.image}" alt="${c.name}" onerror="this.style.background='#1c0f26'"/>
               <div class="gp-feat-rateup">RATE ▲</div>
               <div class="gp-feat-card-info">
                 <span class="gp-feat-card-name">${c.name}</span>
