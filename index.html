@@ -2850,13 +2850,20 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .gp-info {
   position: absolute;
   left: 0; top: 0; bottom: 0;
-  width: clamp(260px, 48%, 480px);
+  width: clamp(220px, 56%, 480px);
   z-index: 4;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  padding: clamp(20px, 4vw, 44px) clamp(18px, 3.5vw, 40px);
-  gap: 10px;
+  justify-content: flex-end;
+  padding: clamp(16px, 3vw, 40px) clamp(14px, 3vw, 36px) clamp(18px, 3vw, 32px);
+  gap: 8px;
+  /* Subtle text-protection gradient — only covers the info area */
+  background: linear-gradient(
+    105deg,
+    rgba(5,2,13,0.82) 0%,
+    rgba(5,2,13,0.55) 60%,
+    transparent 100%
+  );
 }
 .gp-event-tag {
   display: inline-flex;
@@ -2874,7 +2881,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 }
 .gp-banner-name {
   font-family: 'Cinzel Decorative', serif;
-  font-size: clamp(1.3em, 4vw, 2.2em);
+  font-size: clamp(1.1em, 3.6vw, 2em);
   line-height: 1.15;
   color: #fff;
   text-shadow: 0 0 40px rgba(255,157,199,0.6), 0 2px 20px rgba(0,0,0,0.8);
@@ -2886,140 +2893,139 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 }
 .gp-banner-desc {
   color: rgba(255,255,255,0.6);
-  font-size: clamp(0.75em, 1.8vw, 0.88em);
+  font-size: clamp(0.72em, 1.6vw, 0.86em);
   font-style: italic;
-  line-height: 1.55;
-  max-width: 340px;
+  line-height: 1.5;
+  max-width: 320px;
 }
 .gp-featured-label {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 0.6em;
+  font-size: 0.58em;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: rgba(255,255,255,0.35);
-  margin-top: 6px;
+  margin-top: 4px;
 }
 .gp-featured-row {
   display: flex;
-  gap: 10px;
+  gap: 8px;
   flex-wrap: wrap;
 }
 .gp-feat-card {
   position: relative;
-  width: clamp(72px, 13vw, 110px);
-  border-radius: 12px;
+  width: clamp(58px, 11vw, 96px);
+  border-radius: 10px;
   overflow: hidden;
-  border: 2px solid rgba(255,255,255,0.15);
+  border: 1.5px solid rgba(255,255,255,0.18);
   cursor: pointer;
   transition: all 0.25s;
-  background: rgba(0,0,0,0.4);
-  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+  /* transparent — card bg comes from the image itself */
+  background: transparent;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.6);
   flex-shrink: 0;
 }
-.gp-feat-card:hover { transform: translateY(-5px) scale(1.04); border-color: var(--pink); box-shadow: 0 10px 32px rgba(255,157,199,0.35); }
+.gp-feat-card:hover { transform: translateY(-5px) scale(1.05); border-color: var(--pink); box-shadow: 0 10px 32px rgba(255,157,199,0.35); }
 .gp-feat-card img { width: 100%; aspect-ratio: 2/3; object-fit: cover; display: block; }
 .gp-feat-card-info {
   position: absolute; bottom: 0; left: 0; right: 0;
-  background: linear-gradient(transparent, rgba(0,0,0,0.92));
-  padding: 18px 6px 5px;
+  background: linear-gradient(transparent, rgba(0,0,0,0.88));
+  padding: 16px 5px 5px;
 }
 .gp-feat-card-name {
   font-family: 'Cinzel Decorative', serif;
-  font-size: 0.55em;
+  font-size: 0.52em;
   color: #fff;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   display: block;
 }
-.gp-feat-card-stars { font-size: 0.48em; display: block; margin-top: 1px; }
+.gp-feat-card-stars { font-size: 0.46em; display: block; margin-top: 1px; }
 .gp-feat-rateup {
-  position: absolute; top: 5px; left: 5px;
+  position: absolute; top: 4px; left: 4px;
   background: linear-gradient(135deg, var(--pink-deep), var(--purple));
   color: #fff;
   font-family: 'JetBrains Mono', monospace;
-  font-size: 0.42em;
+  font-size: 0.4em;
   font-weight: 700;
   padding: 2px 5px;
-  border-radius: 5px;
+  border-radius: 4px;
   letter-spacing: 0.06em;
 }
 .gp-rateup-note {
-  font-size: 0.72em;
-  color: rgba(255,255,255,0.4);
+  font-size: 0.68em;
+  color: rgba(255,255,255,0.35);
   font-style: italic;
-  margin-top: 2px;
+  margin-top: 0;
 }
 
 /* ── Character art showcase (right side, Genshin-style) ── */
 .gp-char-showcase {
   position: absolute;
   right: 0; top: 0; bottom: 0;
-  width: clamp(220px, 52%, 560px);
+  width: 58%;
   z-index: 3;
   pointer-events: none;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  overflow: hidden;
+  overflow: visible; /* let character breathe beyond bounds */
 }
 .gp-char-slide {
   position: absolute;
   inset: 0;
   display: flex;
   align-items: flex-end;
-  justify-content: center;
+  justify-content: flex-end;
   opacity: 0;
   transition: opacity 1s ease;
 }
 .gp-char-slide.active { opacity: 1; }
 .gp-char-slide img {
-  height: 100%;
-  max-height: 100%;
+  height: 110%; /* slightly taller than stage so feet are at bottom */
+  max-height: 110%;
   width: auto;
   object-fit: contain;
-  object-position: center bottom;
-  filter: drop-shadow(-12px 0 32px rgba(255,157,199,0.25)) drop-shadow(0 0 60px rgba(192,132,184,0.15));
-  animation: gpCharFloat 5s ease-in-out infinite;
-  transform-origin: bottom center;
+  object-position: right bottom;
+  /* drop-shadow instead of box-shadow so it respects transparency */
+  filter: drop-shadow(-8px 0 24px rgba(255,157,199,0.2)) drop-shadow(0 0 50px rgba(192,132,184,0.1));
+  animation: gpCharFloat 5.5s ease-in-out infinite;
+  transform-origin: bottom right;
+  /* No background — PNG transparency is preserved */
 }
 @keyframes gpCharFloat {
   0%,100% { transform: translateY(0px) scale(1); }
-  50%      { transform: translateY(-10px) scale(1.01); }
+  50%      { transform: translateY(-12px) scale(1.012); }
 }
-/* Soft fade on the left edge of character art so it blends with the left info panel */
+/* Subtle left-edge blend — just enough to merge with info text, not a dark box */
 .gp-char-showcase::before {
   content: '';
   position: absolute;
   top: 0; left: 0; bottom: 0;
-  width: 45%;
-  background: linear-gradient(to right, #05020d 0%, transparent 100%);
+  width: 30%;
+  background: linear-gradient(to right, rgba(5,2,13,0.5) 0%, transparent 100%);
   z-index: 2;
   pointer-events: none;
 }
 /* Genshin-style glowing halo behind character */
 .gp-char-halo {
   position: absolute;
-  bottom: -10%;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 70%;
-  height: 70%;
+  bottom: -15%;
+  right: 10%;
+  width: 60%;
+  height: 60%;
   border-radius: 50%;
-  background: radial-gradient(ellipse at center, rgba(255,157,199,0.12) 0%, rgba(192,132,184,0.06) 40%, transparent 70%);
+  background: radial-gradient(ellipse at center, rgba(255,157,199,0.1) 0%, rgba(192,132,184,0.05) 45%, transparent 70%);
   pointer-events: none;
   z-index: 1;
   animation: gpHaloPulse 4s ease-in-out infinite;
 }
 @keyframes gpHaloPulse {
-  0%,100% { opacity: 0.6; transform: translateX(-50%) scale(1); }
-  50%      { opacity: 1;   transform: translateX(-50%) scale(1.08); }
+  0%,100% { opacity: 0.5; transform: scale(1); }
+  50%      { opacity: 0.9; transform: scale(1.1); }
 }
-/* Indicator dots for slideshow */
+/* Indicator dots */
 .gp-char-dots {
   position: absolute;
-  bottom: 12px;
-  right: clamp(12px, 3vw, 28px);
+  bottom: 10px;
+  right: clamp(10px, 2.5vw, 24px);
   display: flex;
   gap: 5px;
   z-index: 10;
@@ -3028,7 +3034,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .gp-char-dot {
   width: 6px; height: 6px;
   border-radius: 50%;
-  background: rgba(255,255,255,0.25);
+  background: rgba(255,255,255,0.22);
   cursor: pointer;
   transition: all 0.3s;
   border: none;
@@ -3125,19 +3131,25 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 }
 .gp-pool-btn:hover { border-color: var(--pink); color: var(--pink); }
 
-/* Rates collapsible */
-.gp-rates-wrap { border-top: 1px solid rgba(255,255,255,0.05); padding-top: 12px; }
-.gp-rates-toggle {
-  background: none; border: none; color: rgba(255,255,255,0.35);
-  font-family: 'JetBrains Mono', monospace; font-size: 0.68em;
-  cursor: pointer; display: flex; align-items: center; gap: 6px;
-  letter-spacing: 0.08em; padding: 0; transition: color 0.2s;
+/* Rates — always visible, no toggle */
+.gp-rates-wrap {
+  border-top: 1px solid rgba(255,255,255,0.06);
+  padding-top: 14px;
 }
-.gp-rates-toggle:hover { color: var(--pink); }
-.gp-rates-chevron { transition: transform 0.22s; }
-.gp-rates-wrap.open .gp-rates-chevron { transform: rotate(180deg); }
-.gp-rates-body { display: none; margin-top: 12px; }
-.gp-rates-wrap.open .gp-rates-body { display: block; }
+.gp-rates-toggle { display: none; } /* hide the button — rates are always shown */
+.gp-rates-body { display: block !important; margin-top: 0; }
+.gp-rates-heading {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65em;
+  letter-spacing: 0.1em;
+  color: rgba(255,255,255,0.35);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.gp-rates-heading::before { content: '✦'; color: var(--pink); }
 .gp-rates-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
@@ -3164,39 +3176,53 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 @media(max-width:700px){
   /* Constrain pull page to visible area so there is zero dead space */
   #page-pull.active {
-    height: calc(100svh - 58px - 66px); /* 58px top-nav, 66px bottom mobile-nav */
+    height: calc(100svh - 58px - 66px);
     min-height: 0;
     overflow-y: auto;
     overflow-x: hidden;
   }
-  .gp-stage { min-height: clamp(220px, 48vw, 320px); }
+  /* Stage tall enough for character art + info side by side */
+  .gp-stage { min-height: clamp(380px, 95vw, 500px); }
+
+  /* Vignette: bottom-heavy so text is readable, right side stays open for char art */
   .gp-stage-vignette {
-    background: linear-gradient(
-      180deg,
-      rgba(5,2,13,0.3) 0%,
-      rgba(5,2,13,0.75) 55%,
-      rgba(5,2,13,0.97) 100%
-    );
+    background:
+      linear-gradient(90deg, rgba(5,2,13,0.88) 0%, rgba(5,2,13,0.55) 48%, transparent 100%),
+      linear-gradient(0deg,  rgba(5,2,13,0.6)  0%, transparent 50%);
   }
+
+  /* Keep info absolutely positioned — bottom-left, Genshin style */
   .gp-info {
-    position: relative;
-    width: 100%;
-    max-width: 100%;
-    padding: clamp(10px,3vw,18px) clamp(12px,4vw,20px) 16px;
+    position: absolute;
+    width: 60%;
+    top: auto;
+    bottom: 0;
+    padding: 12px 10px 14px 14px;
     justify-content: flex-end;
-    gap: 7px;
+    gap: 6px;
+    background: none; /* vignette above handles text protection */
   }
-  .gp-banner-name { font-size: clamp(1.1em, 5.5vw, 1.6em); }
-  .gp-featured-row { gap: 7px; }
-  .gp-feat-card { width: clamp(62px, 20vw, 90px); }
-  .gp-pull-row { flex-direction: column; align-items: stretch; gap: 12px; }
+  .gp-banner-name { font-size: clamp(1em, 5.8vw, 1.5em); }
+  .gp-banner-desc { display: none; } /* hide desc on mobile to save space */
+  .gp-featured-row { gap: 6px; }
+  .gp-feat-card { width: clamp(54px, 18vw, 80px); }
+
+  /* Character art — right side, extend above stage slightly */
+  .gp-char-showcase { width: 52%; }
+  .gp-char-slide img { height: 105%; }
+
+  /* Dock */
+  .gp-pull-row { flex-direction: column; align-items: stretch; gap: 10px; }
   .gp-pity-mini { max-width: 100%; }
   .gp-btns { justify-content: stretch; }
   .gp-wish-btn { flex: 1; }
+
+  /* Rates grid — 4 columns on mobile */
   .gp-rates-grid { grid-template-columns: repeat(4, 1fr); }
 }
 @media(max-width:420px){
   .gp-rates-grid { grid-template-columns: repeat(3, 1fr); }
+  .gp-feat-card { width: clamp(50px, 16vw, 72px); }
 }
 
 /* ── Legacy classes kept alive for existing code compatibility ── */
@@ -10642,9 +10668,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 
       <!-- Drop rates collapsible -->
       <div class="gp-rates-wrap">
-        <button class="gp-rates-toggle" onclick="this.closest('.gp-rates-wrap').classList.toggle('open')">
-          ✦ Drop Rates <span class="gp-rates-chevron">▾</span>
-        </button>
+        <div class="gp-rates-heading">Drop Rates</div>
         <div class="gp-rates-body">
           <div class="gp-rates-grid">
             <div class="gp-rate-item" style="--rc:rgba(189,195,199,0.8)"><span class="gp-rate-tag rN">[N]</span><span class="gp-rate-pct">42.6%</span></div>
