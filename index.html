@@ -1003,60 +1003,132 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   .hmap-section-divider { margin-top: 10px; }
   .hsd-text { font-size: 0.55em; }
 
-  /* Hub booth zones — fixed height matching gacha widget, no overflow */
-  .hub-booth-sections { padding: 0 10px 24px; gap: 10px; }
+  /* Hub booth zones — vertical stack on mobile: GIF top, content below */
+  .hub-booth-sections { padding: 0 10px 24px; gap: 14px; }
+
   .hzc {
     min-height: unset !important;
     max-height: unset !important;
-    height: 170px !important;
-    border-radius: 12px;
+    height: auto !important;
+    border-radius: 14px;
     overflow: hidden;
+    flex-direction: column;
   }
-  .hzc-content { height: 170px; overflow: hidden; }
+
+  /* GIF background becomes a visible top strip, not full-card behind */
+  .hzc-bg {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    bottom: auto;
+    height: 110px;
+    transform: none !important;
+    background-position: center top;
+  }
+  /* Overlay fades GIF down into dark so content is readable */
+  .hzc-overlay {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 160px;
+    background: linear-gradient(to bottom,
+      rgba(0,0,0,0.1) 0%,
+      rgba(0,0,0,0.55) 55%,
+      rgba(0,0,0,0.92) 85%,
+      rgba(0,0,0,1) 100%) !important;
+  }
+
+  /* Content stacks vertically */
+  .hzc-content {
+    flex-direction: column;
+    height: auto;
+    overflow: visible;
+    padding-top: 80px; /* push below GIF strip */
+  }
+
+  /* Left panel: full width */
   .hzc-left {
-    padding: 14px 12px 12px;
+    width: 100%;
+    height: auto;
+    padding: 0 14px 10px;
     gap: 6px;
-    flex: 1;
-    min-width: 0;
-    overflow: hidden;
-    height: 170px;
+    overflow: visible;
+    flex: unset;
   }
-  /* Right panel: fixed narrow width, clips all content inside */
+  .hzc-title { font-size: 1em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .hzc-desc { display: none !important; }
+  .hzc-badge { font-size: 0.5em; }
+  .hzc-enter { font-size: 0.6em; margin-top: 6px; }
+  .hzc-tags { display: flex; flex-wrap: wrap; gap: 4px; }
+  .hzc-tag { font-size: 0.52em; padding: 2px 7px; }
+
+  /* Right panel: full width below left content */
   .hzc-right {
-    width: 42% !important;
+    width: 100% !important;
     min-width: unset !important;
     max-width: unset !important;
-    padding: 10px 8px !important;
+    height: auto !important;
+    padding: 10px 14px 14px !important;
     overflow: hidden !important;
-    height: 170px;
-    position: relative;
+    border-left: none !important;
+    border-top: 1px solid rgba(255,255,255,0.07);
+    background: rgba(0,0,0,0.3);
+    flex-shrink: 0;
   }
-  .hzc-title { font-size: 0.88em; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .hzc-desc { display: none !important; }
-  .hzc-badge { font-size: 0.48em; }
-  .hzc-enter { font-size: 0.58em; margin-top: auto; }
-  .hzc-tags { display: flex; flex-wrap: nowrap; gap: 3px; overflow: hidden; max-height: 22px; }
-  .hzc-tag { font-size: 0.48em; padding: 2px 5px; white-space: nowrap; }
-  /* Plaza bubbles — clip to box */
-  .hzc-plaza-bubbles { gap: 3px; overflow: hidden; height: 150px; }
-  .hzc-bubble { font-size: 0.62em; padding: 3px 7px; line-height: 1.25; max-width: 100%; }
-  /* Food menu */
-  .hzc-menu-board { padding: 6px 8px; overflow: hidden; }
-  .hzc-mb-header { font-size: 0.55em; margin-bottom: 3px; }
-  .hzc-mb-row { padding: 1px 0; }
-  .hzc-mb-shop { font-size: 0.6em; }
-  .hzc-mb-xp { font-size: 0.6em; }
+
+  /* Plaza bubbles: horizontal scroll row instead of vertical stack */
+  .hzc-plaza-bubbles {
+    flex-direction: row;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    gap: 6px;
+    height: auto;
+    max-height: unset;
+    scrollbar-width: none;
+    padding-bottom: 2px;
+  }
+  .hzc-plaza-bubbles::-webkit-scrollbar { display: none; }
+  .hzc-bubble {
+    font-size: 0.7em;
+    padding: 5px 10px;
+    line-height: 1.3;
+    white-space: nowrap;
+    flex-shrink: 0;
+    border-radius: 14px;
+  }
+  .hzc-bubble.right { align-self: unset; }
+
+  /* Food menu: horizontal row */
+  .hzc-menu-board { padding: 8px 10px; }
+  .hzc-mb-header { font-size: 0.58em; margin-bottom: 4px; }
+  .hzc-mb-divider { margin: 3px 0; }
+  .hzc-mb-row {
+    display: inline-flex;
+    margin-right: 8px;
+    padding: 1px 0;
+    vertical-align: middle;
+  }
+  .hzc-mb-shop { font-size: 0.62em; }
+  .hzc-mb-xp { font-size: 0.62em; margin-left: 4px; }
+  .hzc-mb-footer { font-size: 0.55em; margin-top: 4px; }
+
   /* Cinema right panel */
-  .hzc-cinema-screen { overflow: hidden; height: 100%; }
-  .hzc-cinema-marquee-top, .hzc-cinema-marquee-bottom { display: none; }
+  .hzc-cinema-marquee-top { display: none; }
+  .hzc-cinema-marquee-bottom { display: none; }
+  .hzc-cinema-screen { font-size: 0.78em; padding: 8px; }
+
   /* Rooms panel */
-  .hzc-rooms-panel { gap: 3px; overflow: hidden; height: 150px; }
-  .hzc-room-row { font-size: 0.6em; padding: 2px 5px; }
+  .hzc-rooms-panel { gap: 5px; height: auto; }
+  .hzc-rooms-list { display: flex; flex-direction: row; flex-wrap: nowrap; gap: 6px; overflow-x: auto; scrollbar-width: none; }
+  .hzc-rooms-list::-webkit-scrollbar { display: none; }
+  .hzc-room-row { font-size: 0.65em; padding: 4px 8px; flex-shrink: 0; }
+  .hzc-rooms-live { font-size: 0.65em; }
+
   /* Arena panel */
-  .hzc-arena-split { gap: 4px; overflow: hidden; height: 150px; }
-  .hzc-ah-icon { font-size: 1.4em; }
-  .hzc-ah-label { font-size: 0.7em; }
-  .hzc-ah-sub { font-size: 0.58em; display: none; }
+  .hzc-arena-split { gap: 8px; height: auto; overflow: visible; }
+  .hzc-ah-icon { font-size: 1.6em; }
+  .hzc-ah-label { font-size: 0.72em; }
+  .hzc-ah-sub { font-size: 0.6em; display: block; }
+  .hzc-arena-vs { font-size: 0.9em; }
 
   .hmp-grid { grid-template-columns: repeat(2, 1fr); }
   .hbs-section { margin-top: 20px; }
@@ -1914,17 +1986,24 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .hzc-arena-vs { font-family:'Cinzel Decorative',serif;font-size:1em;color:rgba(230,126,34,0.8);flex-shrink:0; }
 
 @media(max-width:700px){
-  .hzc { min-height:unset !important; height:180px !important; border-radius:14px; overflow:hidden; }
-  .hzc-content { flex-direction:row; height:180px; overflow:hidden; }
-  .hzc-left { padding:14px 12px 12px; gap:6px; overflow:hidden; height:180px; }
-  .hzc-right { width:42% !important; min-width:unset !important; border-left:1px solid rgba(255,255,255,0.05); border-top:none; padding:10px 8px !important; overflow:hidden !important; height:180px; }
-  .hzc-title { font-size:0.95em; }
+  .hzc { min-height:unset !important; height:auto !important; border-radius:14px; overflow:hidden; flex-direction:column; }
+  .hzc-bg { position:absolute; top:0; left:0; right:0; height:110px; bottom:auto; transform:none !important; }
+  .hzc-overlay { position:absolute; top:0; left:0; right:0; height:160px; background:linear-gradient(to bottom,rgba(0,0,0,0.1) 0%,rgba(0,0,0,0.6) 55%,rgba(0,0,0,0.95) 85%,rgba(0,0,0,1) 100%) !important; }
+  .hzc-content { flex-direction:column; height:auto; overflow:visible; padding-top:80px; }
+  .hzc-left { width:100%; height:auto; padding:0 14px 10px; gap:6px; overflow:visible; flex:unset; }
+  .hzc-right { width:100% !important; min-width:unset !important; height:auto !important; padding:10px 14px 14px !important; overflow:hidden !important; border-left:none !important; border-top:1px solid rgba(255,255,255,0.07); background:rgba(0,0,0,0.3); }
+  .hzc-title { font-size:1em; }
   .hzc-desc { display:none !important; }
   .hzc-neon-rack { top:10px;right:12px; }
   .hzc-neon { font-size:0.6em; }
-  .hzc-cinema-marquee-top span { width:6px;height:6px; }
-  .hzc-arena-split { gap:6px; overflow:hidden; }
-  .hzc-rooms-list { display:grid;grid-template-columns:1fr 1fr; overflow:hidden; }
+  .hzc-cinema-marquee-top { display:none; }
+  .hzc-cinema-marquee-bottom { display:none; }
+  .hzc-arena-split { gap:8px; height:auto; overflow:visible; }
+  .hzc-rooms-list { display:flex; flex-direction:row; flex-wrap:nowrap; gap:6px; overflow-x:auto; scrollbar-width:none; }
+  .hzc-rooms-list::-webkit-scrollbar { display:none; }
+  .hzc-plaza-bubbles { flex-direction:row; flex-wrap:nowrap; overflow-x:auto; overflow-y:hidden; gap:6px; scrollbar-width:none; }
+  .hzc-plaza-bubbles::-webkit-scrollbar { display:none; }
+  .hzc-bubble { white-space:nowrap; flex-shrink:0; }
 }
 
 /* ══════════════════════════════════════════════════
