@@ -697,20 +697,22 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   66%      { transform: translate(-10px,20px) scale(0.95); }
 }
 
-/* Stats row — lives in hmap-body below the hero */
+/* Stats row — now lives inside hmap-hero-content below subtitle */
 .hmap-stats-row {
   position: relative;
   z-index: 2;
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
+  margin-top: 18px;
   margin-bottom: 0;
   justify-content: center;
 }
 .hmap-stats-row .home-stat-chip {
-  background: rgba(255,255,255,0.05);
-  border-color: rgba(255,255,255,0.1);
+  background: rgba(0,0,0,0.45);
+  border-color: rgba(255,255,255,0.15);
   cursor: pointer;
+  backdrop-filter: blur(10px);
 }
 
 /* ══════════════════════════════════════════════════
@@ -968,7 +970,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 ══════════════════════════════════════════════════ */
 @media(max-width:600px){
   /* Hero: taller on mobile so GIF is visible */
-  .hmap-hero { height: clamp(280px, 70vw, 420px); }
+  .hmap-hero { height: clamp(320px, 85vw, 460px); }
   .hmap-hero-content { padding: 12px 16px; }
   .hmap-pretitle { font-size: 0.58em; letter-spacing: 0.2em; margin-bottom: 3px; }
   .hmap-title { font-size: clamp(1.8em, 9vw, 2.8em); margin-bottom: 5px; }
@@ -976,7 +978,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 
   /* Body + stats */
   .hmap-body { padding: 14px 12px 0; }
-  .hmap-stats-row { gap: 6px; }
+  .hmap-stats-row { gap: 6px; margin-top: 12px; }
   .hmap-stats-row .home-stat-chip { min-width: unset; padding: 5px 10px; gap: 6px; }
   .hmap-widget-divider { margin: 16px 0; }
 
@@ -1001,7 +1003,6 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   .hmap-section-divider { margin-top: 16px; }
   .hsd-text { font-size: 0.57em; }
 
-  /* Booth zone cards — match gacha widget sizing */
   .hub-booth-sections { padding: 0 12px 32px; gap: 14px; }
   .hzc { min-height: 200px; border-radius: 14px; }
   .hzc-left { padding: 16px 14px 14px; gap: 7px; }
@@ -10443,6 +10444,21 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
           <div class="hmap-pretitle">✦ WELCOME TO ✦</div>
           <div class="hmap-title">Meo Hub</div>
           <div class="hmap-subtitle">Where the community lives ʚɞ</div>
+          <!-- Stat chips overlaid in hero -->
+          <div class="hmap-stats-row" id="hmapStatsRow">
+            <div class="home-stat-chip" onclick="goTo('collection',null)" title="View collection">
+              <span class="hsc-icon">🃏</span>
+              <div><div class="hsc-val" id="hubUniqueCards">—</div><div class="hsc-lbl">Unique Cards</div></div>
+            </div>
+            <div class="home-stat-chip" onclick="goTo('pull',null)" title="Pull history">
+              <span class="hsc-icon">🎴</span>
+              <div><div class="hsc-val" id="hubTotalPulls">—</div><div class="hsc-lbl">Total Pulls</div></div>
+            </div>
+            <div class="home-stat-chip">
+              <span class="hsc-icon">🪙</span>
+              <div><div class="hsc-val" id="hubCoins">—</div><div class="hsc-lbl">Coins</div></div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -10483,22 +10499,6 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
           <div class="hmap-orb hmap-orb-1"></div>
           <div class="hmap-orb hmap-orb-2"></div>
           <div class="hmap-orb hmap-orb-3"></div>
-        </div>
-
-        <!-- ── Player stats row ── -->
-        <div class="hmap-stats-row" id="hmapStatsRow">
-          <div class="home-stat-chip" onclick="goTo('collection',null)" title="View collection">
-            <span class="hsc-icon">🃏</span>
-            <div><div class="hsc-val" id="hubUniqueCards">—</div><div class="hsc-lbl">Unique Cards</div></div>
-          </div>
-          <div class="home-stat-chip" onclick="goTo('pull',null)" title="Pull history">
-            <span class="hsc-icon">🎴</span>
-            <div><div class="hsc-val" id="hubTotalPulls">—</div><div class="hsc-lbl">Total Pulls</div></div>
-          </div>
-          <div class="home-stat-chip">
-            <span class="hsc-icon">🪙</span>
-            <div><div class="hsc-val" id="hubCoins">—</div><div class="hsc-lbl">Coins</div></div>
-          </div>
         </div>
 
         <!-- ── Divider between stats and gacha ── -->
