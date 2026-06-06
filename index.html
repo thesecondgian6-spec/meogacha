@@ -2732,12 +2732,369 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 
 
 /* ══ MULTI-BANNER TABS ══ */
-.banner-tabs-wrap{
-  display:flex;gap:0;overflow-x:auto;scrollbar-width:none;
-  border-bottom:2px solid rgba(255,157,199,0.15);
-  margin-bottom:0;position:relative;
+/* ══════════════════════════════════════════════════
+   GENSHIN-STYLE PULL PAGE
+══════════════════════════════════════════════════ */
+#page-pull {
+  padding: 0 !important;
+  max-width: 100% !important;
+  overflow: hidden;
 }
-.banner-tabs-wrap::-webkit-scrollbar{display:none;}
+
+/* ── Banner selector tabs (Genshin thumbnail strip) ── */
+.gp-tabs-wrap {
+  display: flex;
+  gap: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255,157,199,0.15);
+  position: relative;
+  z-index: 10;
+}
+.gp-tabs-wrap::-webkit-scrollbar { display: none; }
+.gp-tab-btn {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 18px 9px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -1px;
+  transition: all 0.22s;
+  position: relative;
+  font-family: 'Cormorant Garamond', serif;
+  min-width: 88px;
+}
+.gp-tab-btn .gt-icon { font-size: 1.4em; line-height: 1; filter: drop-shadow(0 0 6px rgba(255,157,199,0.5)); }
+.gp-tab-btn .gt-label { font-size: 0.7em; color: rgba(255,255,255,0.5); white-space: nowrap; letter-spacing: 0.05em; transition: color 0.2s; }
+.gp-tab-btn .gt-type { font-family: 'JetBrains Mono', monospace; font-size: 0.52em; color: rgba(255,255,255,0.3); text-transform: uppercase; letter-spacing: 0.08em; }
+.gp-tab-btn.active { border-bottom-color: var(--pink); }
+.gp-tab-btn.active .gt-label { color: var(--pink); }
+.gp-tab-btn.active .gt-icon { filter: drop-shadow(0 0 10px var(--pink)); }
+.gp-tab-new {
+  position: absolute; top: 7px; right: 10px;
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--pink); box-shadow: 0 0 8px var(--pink);
+}
+
+/* ── Stage: fullscreen banner artwork ── */
+.gp-stage {
+  position: relative;
+  width: 100%;
+  min-height: clamp(340px, 52vw, 540px);
+  overflow: hidden;
+  background: #05020d;
+}
+.gp-stage-bg {
+  position: absolute; inset: 0;
+  background-size: cover;
+  background-position: center top;
+  z-index: 0;
+  transform: scale(1.04);
+  transition: transform 0.8s ease;
+  filter: saturate(1.2) brightness(0.9);
+}
+.gp-stage:hover .gp-stage-bg { transform: scale(1.07); }
+.gp-stage-vignette {
+  position: absolute; inset: 0; z-index: 1;
+  background: linear-gradient(
+    90deg,
+    rgba(5,2,13,0.92) 0%,
+    rgba(5,2,13,0.65) 42%,
+    rgba(5,2,13,0.1) 70%,
+    transparent 100%
+  );
+}
+.gp-stage-bottom-fade {
+  position: absolute; bottom: 0; left: 0; right: 0; z-index: 2;
+  height: 100px;
+  background: linear-gradient(to bottom, transparent, #05020d);
+}
+/* Sparkle particles */
+.gp-sparks {
+  position: absolute; inset: 0; z-index: 2; pointer-events: none; overflow: hidden;
+}
+.gp-spark {
+  position: absolute;
+  width: 2px; height: 2px;
+  border-radius: 50%;
+  background: #fff;
+  animation: gpSparkFloat linear infinite;
+  opacity: 0;
+}
+@keyframes gpSparkFloat {
+  0%   { opacity: 0; transform: translateY(0) scale(0.5); }
+  20%  { opacity: 0.9; }
+  80%  { opacity: 0.5; }
+  100% { opacity: 0; transform: translateY(-80px) scale(1.5); }
+}
+
+/* ── Banner info overlay (left side) ── */
+.gp-info {
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: clamp(260px, 48%, 480px);
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: clamp(20px, 4vw, 44px) clamp(18px, 3.5vw, 40px);
+  gap: 10px;
+}
+.gp-event-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 12px 4px 8px;
+  border-radius: 20px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6em;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border: 1px solid;
+  backdrop-filter: blur(8px);
+  width: fit-content;
+}
+.gp-banner-name {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: clamp(1.3em, 4vw, 2.2em);
+  line-height: 1.15;
+  color: #fff;
+  text-shadow: 0 0 40px rgba(255,157,199,0.6), 0 2px 20px rgba(0,0,0,0.8);
+  background: linear-gradient(135deg, #fff9fe, var(--pink), #c084b8, #fff9fe);
+  background-size: 300%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer 6s linear infinite;
+}
+.gp-banner-desc {
+  color: rgba(255,255,255,0.6);
+  font-size: clamp(0.75em, 1.8vw, 0.88em);
+  font-style: italic;
+  line-height: 1.55;
+  max-width: 340px;
+}
+.gp-featured-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6em;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.35);
+  margin-top: 6px;
+}
+.gp-featured-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.gp-feat-card {
+  position: relative;
+  width: clamp(72px, 13vw, 110px);
+  border-radius: 12px;
+  overflow: hidden;
+  border: 2px solid rgba(255,255,255,0.15);
+  cursor: pointer;
+  transition: all 0.25s;
+  background: rgba(0,0,0,0.4);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+  flex-shrink: 0;
+}
+.gp-feat-card:hover { transform: translateY(-5px) scale(1.04); border-color: var(--pink); box-shadow: 0 10px 32px rgba(255,157,199,0.35); }
+.gp-feat-card img { width: 100%; aspect-ratio: 2/3; object-fit: cover; display: block; }
+.gp-feat-card-info {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  background: linear-gradient(transparent, rgba(0,0,0,0.92));
+  padding: 18px 6px 5px;
+}
+.gp-feat-card-name {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 0.55em;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+}
+.gp-feat-card-stars { font-size: 0.48em; display: block; margin-top: 1px; }
+.gp-feat-rateup {
+  position: absolute; top: 5px; left: 5px;
+  background: linear-gradient(135deg, var(--pink-deep), var(--purple));
+  color: #fff;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.42em;
+  font-weight: 700;
+  padding: 2px 5px;
+  border-radius: 5px;
+  letter-spacing: 0.06em;
+}
+.gp-rateup-note {
+  font-size: 0.72em;
+  color: rgba(255,255,255,0.4);
+  font-style: italic;
+  margin-top: 2px;
+}
+
+/* ── Bottom dock ── */
+.gp-dock {
+  background: linear-gradient(180deg, #05020d 0%, rgba(10,4,24,0.97) 100%);
+  border-top: 1px solid rgba(255,157,199,0.1);
+  padding: clamp(14px, 3vw, 24px) clamp(14px, 4vw, 40px);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.gp-pull-row {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+/* Pity mini bars */
+.gp-pity-mini {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+  min-width: 160px;
+  max-width: 280px;
+}
+.gp-pity-bar-wrap { display: flex; align-items: center; gap: 8px; }
+.gp-pity-label { font-family: 'JetBrains Mono', monospace; font-size: 0.6em; color: rgba(255,255,255,0.4); white-space: nowrap; width: 54px; flex-shrink: 0; }
+.gp-pity-track { flex: 1; height: 5px; background: rgba(255,255,255,0.08); border-radius: 3px; overflow: hidden; }
+.gp-pity-fill { height: 100%; border-radius: 3px; transition: width 0.7s ease; }
+.gp-pity-fill.sr { background: linear-gradient(90deg, #9b59b6, #c084b8); }
+.gp-pity-fill.ur { background: linear-gradient(90deg, #f1c40f, #ff9dc7); }
+.gp-pity-num { font-family: 'JetBrains Mono', monospace; font-size: 0.58em; color: rgba(255,255,255,0.35); white-space: nowrap; width: 34px; text-align: right; }
+
+/* Pull buttons */
+.gp-btns { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; flex-shrink: 0; }
+.gp-wish-btn {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 12px 24px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,157,199,0.35);
+  background: linear-gradient(135deg, rgba(192,132,184,0.2), rgba(155,89,182,0.15));
+  color: #fff;
+  cursor: pointer;
+  font-family: 'Cinzel Decorative', serif;
+  transition: all 0.22s;
+  box-shadow: 0 4px 20px rgba(155,89,182,0.2), inset 0 1px 0 rgba(255,255,255,0.08);
+  overflow: hidden;
+}
+.gp-wish-btn::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, rgba(255,157,199,0.15), transparent);
+  opacity: 0;
+  transition: opacity 0.22s;
+}
+.gp-wish-btn:hover { transform: translateY(-3px); border-color: var(--pink); box-shadow: 0 10px 32px rgba(255,157,199,0.3); }
+.gp-wish-btn:hover::before { opacity: 1; }
+.gp-wish-btn:active { transform: scale(0.96); }
+.gp-wish-btn-10 {
+  background: linear-gradient(135deg, rgba(241,196,15,0.2), rgba(255,157,100,0.12));
+  border-color: rgba(241,196,15,0.4);
+  box-shadow: 0 4px 20px rgba(241,196,15,0.15), inset 0 1px 0 rgba(255,255,255,0.08);
+}
+.gp-wish-btn-10:hover { border-color: #f1c40f; box-shadow: 0 10px 32px rgba(241,196,15,0.3); }
+.gpb-icon { font-size: 0.7em; opacity: 0.7; letter-spacing: 0.1em; }
+.gpb-text { font-size: 0.82em; white-space: nowrap; }
+.gpb-cost { font-family: 'JetBrains Mono', monospace; font-size: 0.62em; opacity: 0.65; }
+.gp-pool-btn {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.5);
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.78em;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.gp-pool-btn:hover { border-color: var(--pink); color: var(--pink); }
+
+/* Rates collapsible */
+.gp-rates-wrap { border-top: 1px solid rgba(255,255,255,0.05); padding-top: 12px; }
+.gp-rates-toggle {
+  background: none; border: none; color: rgba(255,255,255,0.35);
+  font-family: 'JetBrains Mono', monospace; font-size: 0.68em;
+  cursor: pointer; display: flex; align-items: center; gap: 6px;
+  letter-spacing: 0.08em; padding: 0; transition: color 0.2s;
+}
+.gp-rates-toggle:hover { color: var(--pink); }
+.gp-rates-chevron { transition: transform 0.22s; }
+.gp-rates-wrap.open .gp-rates-chevron { transform: rotate(180deg); }
+.gp-rates-body { display: none; margin-top: 12px; }
+.gp-rates-wrap.open .gp-rates-body { display: block; }
+.gp-rates-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+  margin-bottom: 10px;
+}
+.gp-rate-item {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  padding: 8px 4px;
+  border-radius: 10px;
+  border: 1px solid rgba(var(--rc), 0.3);
+  background: rgba(var(--rc), 0.06);
+  font-size: 0.8em;
+}
+.gp-rate-tag { font-family: 'JetBrains Mono', monospace; font-size: 0.72em; }
+.gp-rate-pct { font-family: 'JetBrains Mono', monospace; font-size: 0.78em; color: rgba(255,255,255,0.7); }
+.gp-rates-note {
+  font-size: 0.72em; color: rgba(255,255,255,0.3);
+  font-style: italic; font-family: 'JetBrains Mono', monospace;
+  text-align: center; margin: 0;
+}
+
+/* ── Mobile overrides ── */
+@media(max-width:700px){
+  .gp-stage { min-height: clamp(280px, 60vw, 380px); }
+  .gp-stage-vignette {
+    background: linear-gradient(
+      180deg,
+      rgba(5,2,13,0.3) 0%,
+      rgba(5,2,13,0.75) 55%,
+      rgba(5,2,13,0.97) 100%
+    );
+  }
+  .gp-info {
+    position: relative;
+    width: 100%;
+    max-width: 100%;
+    padding: clamp(10px,3vw,18px) clamp(12px,4vw,20px) 16px;
+    justify-content: flex-end;
+    gap: 7px;
+  }
+  .gp-banner-name { font-size: clamp(1.1em, 5.5vw, 1.6em); }
+  .gp-featured-row { gap: 7px; }
+  .gp-feat-card { width: clamp(62px, 20vw, 90px); }
+  .gp-pull-row { flex-direction: column; align-items: stretch; gap: 12px; }
+  .gp-pity-mini { max-width: 100%; }
+  .gp-btns { justify-content: stretch; }
+  .gp-wish-btn { flex: 1; }
+  .gp-rates-grid { grid-template-columns: repeat(4, 1fr); }
+}
+@media(max-width:420px){
+  .gp-rates-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+/* ── Legacy classes kept alive for existing code compatibility ── */
+.banner-tabs-wrap { display: none !important; } /* replaced by gp-tabs-wrap */
+#bannerPitySection { display: none !important; } /* pity now in gp-dock */
+
 .banner-tab-btn{
   flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:3px;
   padding:10px 16px 9px;border:none;background:none;cursor:pointer;
@@ -10135,37 +10492,66 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   <!-- PULL PAGE -->
   <div class="page" id="page-pull">
 
-    <!-- Banner type tabs — filled by renderBannerTabs() -->
-    <div class="banner-tabs-wrap" id="bannerTabsWrap"></div>
+    <!-- Banner selector tabs -->
+    <div class="gp-tabs-wrap" id="bannerTabsWrap"></div>
 
-    <!-- Active banner content — filled by renderActiveBanner() -->
-    <div id="pullBannerContainer"></div>
+    <!-- ══ GENSHIN-STYLE BANNER STAGE ══ -->
+    <div class="gp-stage" id="pullBannerContainer">
+      <!-- filled by renderActiveBanner() -->
+    </div>
 
-    <!-- Pull buttons -->
-    <div class="banner-card" style="margin-top:4px;">
-      <div style="width:100%;max-width:400px;">
-        <div class="pull-btn-group">
-          <button class="pull-big-btn" onclick="doPull(1)">🎴 Pull × 1<span>50 🪙</span></button>
-          <button class="pull-big-btn" onclick="doPull(5)">🎴🎴 Pull × 5<span>200 🪙</span></button>
+    <!-- ══ BOTTOM DOCK: Pull buttons + pity + rates ══ -->
+    <div class="gp-dock">
+
+      <!-- Pull action row -->
+      <div class="gp-pull-row" id="gpPullRow">
+        <div class="gp-pity-mini" id="gpPityMini">
+          <div class="gp-pity-bar-wrap">
+            <div class="gp-pity-label">SSR Pity</div>
+            <div class="gp-pity-track"><div class="gp-pity-fill sr" id="gpPitySRBar"></div></div>
+            <div class="gp-pity-num" id="gpPitySRNum">0/40</div>
+          </div>
+          <div class="gp-pity-bar-wrap">
+            <div class="gp-pity-label">UR Pity</div>
+            <div class="gp-pity-track"><div class="gp-pity-fill ur" id="gpPityURBar"></div></div>
+            <div class="gp-pity-num" id="gpPityURNum">0/80</div>
+          </div>
         </div>
-        <p style="color:var(--text-dim);font-size:0.8em;font-style:italic;margin-top:10px;text-align:center;">Pity is tracked separately per banner ʚɞ</p>
+        <div class="gp-btns">
+          <button class="gp-wish-btn" onclick="doPull(1)">
+            <span class="gpb-icon">✦</span>
+            <span class="gpb-text">Pull × 1</span>
+            <span class="gpb-cost">50 🪙</span>
+          </button>
+          <button class="gp-wish-btn gp-wish-btn-10" onclick="doPull(5)">
+            <span class="gpb-icon">✦✦</span>
+            <span class="gpb-text">Pull × 5</span>
+            <span class="gpb-cost">200 🪙</span>
+          </button>
+          <button class="gp-pool-btn" onclick="openPoolView()">🃏 View Pool</button>
+        </div>
       </div>
-    </div>
 
-    <!-- Per-banner pity — filled by renderActiveBanner() -->
-    <div id="bannerPitySection"></div>
+      <!-- Drop rates collapsible -->
+      <div class="gp-rates-wrap">
+        <button class="gp-rates-toggle" onclick="this.closest('.gp-rates-wrap').classList.toggle('open')">
+          ✦ Drop Rates <span class="gp-rates-chevron">▾</span>
+        </button>
+        <div class="gp-rates-body">
+          <div class="gp-rates-grid">
+            <div class="gp-rate-item" style="--rc:rgba(189,195,199,0.8)"><span class="gp-rate-tag rN">[N]</span><span class="gp-rate-pct">42.6%</span></div>
+            <div class="gp-rate-item" style="--rc:rgba(46,204,113,0.8)"><span class="gp-rate-tag rR">[R]</span><span class="gp-rate-pct">29.8%</span></div>
+            <div class="gp-rate-item" style="--rc:rgba(52,152,219,0.8)"><span class="gp-rate-tag rSR">[SR]</span><span class="gp-rate-pct">17.0%</span></div>
+            <div class="gp-rate-item" style="--rc:rgba(155,89,182,0.8)"><span class="gp-rate-tag rSSR">[SSR]</span><span class="gp-rate-pct">6.4%</span></div>
+            <div class="gp-rate-item" style="--rc:rgba(241,196,15,0.8)"><span class="gp-rate-tag rUR">[UR]</span><span class="gp-rate-pct">2.1%</span></div>
+            <div class="gp-rate-item" style="--rc:rgba(255,107,157,0.8)"><span class="gp-rate-tag rLR">[LR]</span><span class="gp-rate-pct">0.9%</span></div>
+            <div class="gp-rate-item" style="--rc:rgba(255,100,200,0.8)"><span class="gp-rate-tag rS" style="-webkit-text-fill-color:transparent;background:var(--rainbow);background-size:200%;-webkit-background-clip:text;animation:rainbowShift 2.5s linear infinite">[???]</span><span class="gp-rate-pct">0.4%</span></div>
+          </div>
+          <p class="gp-rates-note">Every 10 pulls guarantees at least one SR or higher ✦ Pity is tracked separately per banner ʚɞ</p>
+        </div>
+      </div>
 
-    <!-- DROP RATES -->
-    <div class="section-title" style="margin-top:28px;">✦ Drop Rates</div>
-    <div class="rates-grid">
-      <div class="rate-item" style="background:rgba(189,195,199,0.08);border-color:rgba(189,195,199,0.3)"><div class="rate-tag rN">[N]</div><div class="rate-pct">42.6%</div></div>
-      <div class="rate-item" style="background:rgba(46,204,113,0.08);border-color:rgba(46,204,113,0.3)"><div class="rate-tag rR">[R]</div><div class="rate-pct">29.8%</div></div>
-      <div class="rate-item" style="background:rgba(52,152,219,0.08);border-color:rgba(52,152,219,0.3)"><div class="rate-tag rSR">[SR]</div><div class="rate-pct">17.0%</div></div>
-      <div class="rate-item" style="background:rgba(155,89,182,0.08);border-color:rgba(155,89,182,0.3)"><div class="rate-tag rSSR">[SSR]</div><div class="rate-pct">6.4%</div></div>
-      <div class="rate-item" style="background:rgba(241,196,15,0.08);border-color:rgba(241,196,15,0.3)"><div class="rate-tag rUR">[UR]</div><div class="rate-pct">2.1%</div></div>
-      <div class="rate-item" style="background:rgba(255,107,157,0.08);border-color:rgba(255,107,157,0.3)"><div class="rate-tag rLR">[LR]</div><div class="rate-pct">0.9%</div></div>
-      <div class="rate-item" style="background:rgba(26,188,156,0.08);border-color:rgba(255,100,200,0.4)"><div class="rate-tag rS" style="-webkit-text-fill-color:transparent;background:var(--rainbow);background-size:200%;-webkit-background-clip:text;animation:rainbowShift 2.5s linear infinite">[???]</div><div class="rate-pct">0.4%</div></div>
-    </div>
+    </div><!-- end gp-dock -->
 
   </div>
 
@@ -17617,15 +18003,16 @@ function renderBannerTabs(){
   const banners = window.ALL_BANNERS || [];
   if(banners.length <= 1){ wrap.style.display='none'; return; }
   wrap.style.display='flex';
+  wrap.className = 'gp-tabs-wrap';
   wrap.innerHTML = banners.map(b=>{
     const meta = BANNER_TYPE_META[b.banner_type||'standard'] || BANNER_TYPE_META.standard;
     const isActive = b.id === activeBannerTab;
     const isNew = b.banner_type === 'character' || b.banner_type === 'collab';
-    return `<button class="banner-tab-btn${isActive?' active':''}" onclick="switchBannerTab('${b.id}')">
-      ${isNew && !isActive ? '<span class="btb-new-dot"></span>' : ''}
-      <span class="btb-icon">${meta.icon}</span>
-      <span class="btb-label">${b.name.length > 18 ? b.name.slice(0,16)+'…' : b.name}</span>
-      <span class="btb-type">${meta.label}</span>
+    return `<button class="gp-tab-btn${isActive?' active':''}" onclick="switchBannerTab('${b.id}')">
+      ${isNew && !isActive ? '<span class="gp-tab-new"></span>' : ''}
+      <span class="gt-icon">${meta.icon}</span>
+      <span class="gt-label">${b.name.length > 18 ? b.name.slice(0,16)+'…' : b.name}</span>
+      <span class="gt-type">${meta.label}</span>
     </button>`;
   }).join('');
 }
@@ -17670,88 +18057,84 @@ function renderActiveBanner(){
   const banner      = getActiveBanner();
   const type        = banner.banner_type || 'standard';
 
-  // Restore pull buttons (hidden by skin banner previously)
-  const pullBannerCard = document.querySelector('.pull-btn-group')?.closest?.('.banner-card');
-  if(pullBannerCard) pullBannerCard.style.display = '';
-  const pitySection = document.getElementById('bannerPitySection');
-  if(pitySection) pitySection.style.display = '';
-
   // Skin banners get their own renderer
   if(type === 'skin'){
     renderSkinBanner();
     return;
   }
 
+  // Restore dock pull row (may have been hidden by skin banner)
+  const gpPullRow = document.getElementById('gpPullRow');
+  if(gpPullRow) gpPullRow.style.display = '';
+  const gpPityMini = document.getElementById('gpPityMini');
+  if(gpPityMini) gpPityMini.style.display = '';
+
   const meta        = BANNER_TYPE_META[type] || BANNER_TYPE_META.standard;
   const allCards    = window.DEMO_CARDS || DEMO_CARDS;
   const featuredCards = parseFeaturedCards(banner.featured_cards).map(id=>allCards.find(c=>c.id===id)).filter(Boolean);
   const p           = getPity(type);
 
+  // Build spark elements
+  const sparks = Array.from({length:18}, (_,i) => {
+    const size = (Math.random()*3+1).toFixed(1);
+    const left = (Math.random()*90+5).toFixed(1);
+    const top  = (Math.random()*80+10).toFixed(1);
+    const dur  = (Math.random()*4+3).toFixed(1);
+    const delay= (Math.random()*5).toFixed(1);
+    return `<div class="gp-spark" style="width:${size}px;height:${size}px;left:${left}%;top:${top}%;animation-duration:${dur}s;animation-delay:${delay}s;box-shadow:0 0 ${size*3}px rgba(255,200,255,0.9);"></div>`;
+  }).join('');
+
+  // Event tag color per type
+  const tagStyle = {
+    character: 'background:rgba(255,157,199,0.15);border-color:rgba(255,157,199,0.4);color:var(--pink);',
+    collab:    'background:rgba(241,196,15,0.15);border-color:rgba(241,196,15,0.4);color:#f1c40f;',
+    standard:  'background:rgba(93,173,226,0.15);border-color:rgba(93,173,226,0.4);color:#5dade2;',
+    beginner:  'background:rgba(46,204,113,0.15);border-color:rgba(46,204,113,0.4);color:#2ecc71;',
+    skin:      'background:rgba(155,89,182,0.15);border-color:rgba(155,89,182,0.4);color:#9b59b6;',
+  }[type] || '';
+
   el.innerHTML = `
-    <div class="section-title" style="margin-bottom:8px;">
-      ${window.ALL_BANNERS.length > 1 ? '' : 'Current Banner'}
-    </div>
-    <div class="banner-hero">
-      ${banner.image ? `<img class="banner-hero-media" src="${banner.image}" alt="" onerror="this.style.display='none'"/>` : ''}
-      <div class="banner-hero-body">
-        <div class="banner-type-badge ${meta.badgeClass}">${meta.icon} ${meta.label}</div>
-        <div class="banner-hero-title">${banner.name}</div>
-        <div class="banner-hero-desc">${banner.description||''}</div>
+    <div class="gp-stage-bg" ${banner.image?`style="background-image:url('${banner.image}')"`:''}></div>
+    <div class="gp-stage-vignette"></div>
+    <div class="gp-stage-bottom-fade"></div>
+    <div class="gp-sparks">${sparks}</div>
 
-        ${featuredCards.length ? `
-          <div style="font-family:'Cinzel Decorative',serif;font-size:0.72em;letter-spacing:0.12em;color:var(--text-dim);margin-bottom:10px;text-transform:uppercase;">✦ Featured — Rate Up</div>
-          <div class="banner-featured-strip">
-            ${featuredCards.map(c=>{
-              const color = RARITY_COLORS[c.rarity]||'#bdc3c7';
-              return `<div class="bfs-card" onclick="openCard('${c.id}')">
-                <img src="${c.thumbnail||c.image}" alt="${c.name}" onerror="this.style.background='#1c0f26'"/>
-                <div class="bfs-card-rateup">RATE ▲</div>
-                <div class="bfs-card-rarity-badge" style="color:${color}">${c.rarityName}</div>
-                <div class="bfs-card-label">
-                  <div class="bfs-card-name">${c.name}</div>
-                  <div class="bfs-card-rarity" style="color:${color}">${c.rarityStars}</div>
-                </div>
-              </div>`;
-            }).join('')}
-          </div>
-          <div class="rateup-explain">
-            ⬆️ <strong>Rate Up</strong> — featured cards appear 2× more often on this banner!
-          </div>
-        ` : ''}
+    <div class="gp-info">
+      <div class="gp-event-tag" style="${tagStyle}">${meta.icon} ${meta.label}</div>
+      <div class="gp-banner-name">${banner.name}</div>
+      ${banner.description ? `<div class="gp-banner-desc">${banner.description}</div>` : ''}
 
-        <div class="pull-costs">
-          <span class="cost-tag">1 Pull = 50 🪙</span>
-          <span class="cost-tag">5 Pull = 200 🪙</span>
+      ${featuredCards.length ? `
+        <div class="gp-featured-label">✦ Featured — Rate Up</div>
+        <div class="gp-featured-row">
+          ${featuredCards.map(c=>{
+            const color = RARITY_COLORS[c.rarity]||'#bdc3c7';
+            return `<div class="gp-feat-card" onclick="openCard('${c.id}')">
+              <img src="${c.thumbnail||c.image}" alt="${c.name}" onerror="this.style.background='#1c0f26'"/>
+              <div class="gp-feat-rateup">RATE ▲</div>
+              <div class="gp-feat-card-info">
+                <span class="gp-feat-card-name">${c.name}</span>
+                <span class="gp-feat-card-stars" style="color:${color}">${c.rarityStars}</span>
+              </div>
+            </div>`;
+          }).join('')}
         </div>
-        <div style="margin-top:12px;">
-          <button class="pool-view-btn" onclick="openPoolView()">🃏 View Pool Cards</button>
-        </div>
-      </div>
+        <div class="gp-rateup-note">⬆️ Featured cards appear 2× more often</div>
+      ` : ''}
     </div>
   `;
 
-  // Render per-banner pity
-  const pityEl = document.getElementById('bannerPitySection');
-  if(pityEl){
-    pityEl.innerHTML = `
-      <div class="section-title" style="margin-top:20px;">
-        ${meta.icon} ${meta.label} — Pity Progress
-      </div>
-      <div class="pity-section banner-pity-section">
-        <div class="pity-row">
-          <div class="pity-label"><span>🩷 SSR Soft Pity</span><span><span id="pitySRVal">${p.sr}</span> / 40</span></div>
-          <div class="pity-track"><div class="pity-fill sr" id="pitySRBar" style="width:${Math.min(p.sr/40*100,100)}%"></div></div>
-        </div>
-        <div class="pity-row" style="margin-top:12px">
-          <div class="pity-label"><span>💜 UR Hard Pity</span><span><span id="pityURVal">${p.ur}</span> / 80</span></div>
-          <div class="pity-track"><div class="pity-fill ur" id="pityURBar" style="width:${Math.min(p.ur/80*100,100)}%"></div></div>
-        </div>
-        <div style="margin-top:8px;font-size:0.72em;color:var(--text-dim);font-style:italic;font-family:'JetBrains Mono',monospace;">
-          Pity is tracked separately for each banner type ʚɞ
-        </div>
-      </div>
-    `;
-  }
+  // Update pity bars in dock
+  const srPct = Math.min(p.sr/40*100,100);
+  const urPct = Math.min(p.ur/80*100,100);
+  const srBar = document.getElementById('gpPitySRBar');
+  const urBar = document.getElementById('gpPityURBar');
+  const srNum = document.getElementById('gpPitySRNum');
+  const urNum = document.getElementById('gpPityURNum');
+  if(srBar) srBar.style.width = srPct+'%';
+  if(urBar) urBar.style.width = urPct+'%';
+  if(srNum) srNum.textContent = `${p.sr}/40`;
+  if(urNum) urNum.textContent = `${p.ur}/80`;
 }
 
 // Refresh booth featured cards when banner updates
@@ -17762,12 +18145,24 @@ function updatePity(){
   const banner = getActiveBanner();
   const type   = banner ? (banner.banner_type||'standard') : 'character';
   const p      = getPity(type);
+  const srPct  = Math.min(p.sr/40*100,100);
+  const urPct  = Math.min(p.ur/80*100,100);
+  // New dock bars
+  const srBar = document.getElementById('gpPitySRBar');
+  const urBar = document.getElementById('gpPityURBar');
+  const srNum = document.getElementById('gpPitySRNum');
+  const urNum = document.getElementById('gpPityURNum');
+  if(srBar) srBar.style.width = srPct+'%';
+  if(urBar) urBar.style.width = urPct+'%';
+  if(srNum) srNum.textContent = `${p.sr}/40`;
+  if(urNum) urNum.textContent = `${p.ur}/80`;
+  // Legacy IDs kept for safety
   const sv=document.getElementById('pitySRVal'), sb2=document.getElementById('pitySRBar');
   const uv=document.getElementById('pityURVal'), ub=document.getElementById('pityURBar');
   if(sv) sv.textContent=p.sr;
-  if(sb2) sb2.style.width=Math.min(p.sr/40*100,100)+'%';
+  if(sb2) sb2.style.width=srPct+'%';
   if(uv) uv.textContent=p.ur;
-  if(ub) ub.style.width=Math.min(p.ur/80*100,100)+'%';
+  if(ub) ub.style.width=urPct+'%';
 }
 
 // ── Render active banner on the Home page widget ──
@@ -27820,8 +28215,13 @@ function renderSkinBanner(){
   `;
 
   // Hide pull buttons for skin banner
+  const gpPullRow = document.getElementById('gpPullRow');
+  if(gpPullRow) gpPullRow.style.display = 'none';
+  const gpPityMini = document.getElementById('gpPityMini');
+  if(gpPityMini) gpPityMini.style.display = 'none';
+  // Legacy references (no-op now, kept for safety)
   const pullBtns = document.querySelector('.pull-btn-group');
-  if(pullBtns) pullBtns.closest('.banner-card').style.display = 'none';
+  if(pullBtns && pullBtns.closest('.banner-card')) pullBtns.closest('.banner-card').style.display = 'none';
   const pitySection = document.getElementById('bannerPitySection');
   if(pitySection) pitySection.style.display = 'none';
 }
