@@ -455,7 +455,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 ══════════════════════════════════════════════════ */
 .hmap-hero {
   position: relative;
-  height: clamp(360px, 65vw, 580px);
+  height: clamp(320px, 58vw, 520px);
   overflow: hidden;
   display: flex;
   align-items: center;
@@ -482,8 +482,8 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .hmap-hero-fade-bottom {
   position: absolute;
   bottom: 0; left: 0; right: 0;
-  height: 160px;
-  background: linear-gradient(to top, #000000 0%, rgba(0,0,0,0.85) 40%, rgba(0,0,0,0.3) 75%, transparent 100%);
+  height: 80px;
+  background: linear-gradient(to top, #000000 0%, rgba(0,0,0,0.7) 50%, transparent 100%);
   z-index: 1; pointer-events: none;
 }
 /* Floating particle specks */
@@ -969,15 +969,15 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
    MOBILE ADJUSTMENTS
 ══════════════════════════════════════════════════ */
 @media(max-width:600px){
-  /* Hero: taller on mobile so GIF is visible */
-  .hmap-hero { height: clamp(300px, 80vw, 420px); }
+  /* Hero: fit content, no excess black */
+  .hmap-hero { height: auto; min-height: 240px; padding-bottom: 24px; }
   .hmap-hero-content { padding: 10px 14px; }
   .hmap-pretitle { font-size: 0.55em; letter-spacing: 0.18em; margin-bottom: 2px; }
   .hmap-title { font-size: clamp(1.6em, 8vw, 2.4em); margin-bottom: 4px; }
   .hmap-subtitle { font-size: 0.72em; margin-bottom: 0; }
 
   /* Body + stats */
-  .hmap-body { padding: 10px 10px 0; }
+  .hmap-body { padding: 4px 10px 0; }
   .hmap-stats-row { gap: 5px; margin-top: 10px; }
   .hmap-stats-row .home-stat-chip { min-width: unset; padding: 4px 9px; gap: 5px; font-size: 0.85em; }
   .hmap-widget-divider { margin: 10px 0; }
@@ -1003,16 +1003,30 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   .hmap-section-divider { margin-top: 10px; }
   .hsd-text { font-size: 0.55em; }
 
-  /* Hub booth zones — wider, shorter, no side gap */
+  /* Hub booth zones — same size as gacha widget */
   .hub-booth-sections { padding: 0 10px 24px; gap: 10px; }
-  .hzc { min-height: 155px; border-radius: 12px; }
-  .hzc-left { padding: 13px 12px 12px; gap: 6px; }
-  .hzc-right { width: 34%; padding: 8px; }
-  .hzc-title { font-size: clamp(0.82em, 3.8vw, 1.05em); }
-  .hzc-desc { font-size: 0.72em; display: block; }
-  .hzc-badge { font-size: 0.5em; }
-  .hzc-enter { font-size: 0.6em; }
-  .hzc-tag { font-size: 0.52em; padding: 2px 7px; }
+  .hzc { min-height: 170px; max-height: 200px; border-radius: 12px; overflow: hidden; }
+  .hzc-content { height: 100%; }
+  .hzc-left { padding: 12px 10px 10px; gap: 5px; flex: 1; min-width: 0; overflow: hidden; }
+  .hzc-right { width: 38%; padding: 8px 6px; overflow: hidden; flex-shrink: 0; }
+  .hzc-title { font-size: 0.9em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .hzc-desc { display: none; }
+  .hzc-badge { font-size: 0.48em; }
+  .hzc-enter { font-size: 0.58em; margin-top: auto; }
+  .hzc-tags { display: flex; flex-wrap: wrap; gap: 3px; overflow: hidden; max-height: 44px; }
+  .hzc-tag { font-size: 0.5em; padding: 2px 6px; }
+  /* Clip plaza bubbles to fit */
+  .hzc-plaza-bubbles { gap: 4px; overflow: hidden; max-height: 150px; }
+  .hzc-bubble { font-size: 0.65em; padding: 4px 8px; line-height: 1.3; }
+  /* Clip food menu */
+  .hzc-menu-board { padding: 8px 10px; }
+  .hzc-mb-row { padding: 2px 0; }
+  .hzc-mb-shop, .hzc-mb-xp { font-size: 0.65em; }
+  /* Clip cinema */
+  .hzc-cinema-screen { font-size: 0.7em; }
+  /* Clip rooms */
+  .hzc-rooms-panel { gap: 4px; overflow: hidden; max-height: 150px; }
+  .hzc-room-row { font-size: 0.64em; padding: 3px 6px; }
 
   .hmp-grid { grid-template-columns: repeat(2, 1fr); }
   .hbs-section { margin-top: 20px; }
@@ -1870,11 +1884,11 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .hzc-arena-vs { font-family:'Cinzel Decorative',serif;font-size:1em;color:rgba(230,126,34,0.8);flex-shrink:0; }
 
 @media(max-width:700px){
-  .hzc { min-height:170px; border-radius:14px; }
-  .hzc-content { flex-direction:row; }
-  .hzc-left { padding:14px 12px 12px; gap:6px; }
-  .hzc-right { width:34%;border-left:1px solid rgba(255,255,255,0.05);border-top:none;padding:10px 8px; }
-  .hzc-title { font-size:1em; }
+  .hzc { min-height:170px; max-height:200px; border-radius:14px; overflow:hidden; }
+  .hzc-content { flex-direction:row; height:100%; }
+  .hzc-left { padding:14px 12px 12px; gap:6px; overflow:hidden; }
+  .hzc-right { width:38%;border-left:1px solid rgba(255,255,255,0.05);border-top:none;padding:8px 6px; overflow:hidden; }
+  .hzc-title { font-size:0.95em; }
   .hzc-desc { display:none; }
   .hzc-neon-rack { top:10px;right:12px; }
   .hzc-neon { font-size:0.6em; }
