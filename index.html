@@ -2753,57 +2753,85 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 }
 
 /* ── Banner selector tabs (Genshin thumbnail strip) ── */
+/* ── Banner tabs: floating vertical stack in top-right of stage ── */
 .gp-tabs-wrap {
-  /* Pull up over the bottom edge of the stage above it */
-  position: relative;
-  z-index: 12;
-  margin-top: -48px; /* overlap with stage bottom */
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 15;
   display: flex !important;
-  overflow-x: auto;
-  scrollbar-width: none;
+  flex-direction: column;
   gap: 6px;
-  padding: 0 14px 10px;
+  padding: 0;
   pointer-events: all;
-  /* No background — sits transparently over the stage gradient */
+  max-height: calc(100% - 28px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none;
 }
 .gp-tabs-wrap::-webkit-scrollbar { display: none; }
+
+/* Make the stage a positioning context for the tabs */
+.gp-stage { position: relative; }
+
 .gp-tab-btn {
   flex-shrink: 0;
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 14px 6px 10px;
-  border-radius: 30px;
-  border: 1px solid rgba(255,255,255,0.12);
-  background: rgba(5,2,13,0.55);
-  backdrop-filter: blur(10px);
+  gap: 7px;
+  padding: 7px 13px 7px 10px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(5,2,13,0.72);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
   cursor: pointer;
-  transition: all 0.22s;
+  transition: all 0.22s cubic-bezier(0.34,1.2,0.64,1);
   font-family: 'Cormorant Garamond', serif;
   color: rgba(255,255,255,0.5);
   position: relative;
+  min-width: 120px;
+  max-width: 180px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.4);
 }
-.gp-tab-btn:hover { border-color: rgba(255,157,199,0.35); color: #fff; }
-.gp-tab-btn .gt-icon { font-size: 1.1em; line-height: 1; }
-.gp-tab-btn .gt-label { font-size: 0.78em; white-space: nowrap; letter-spacing: 0.03em; transition: color 0.2s; }
-.gp-tab-btn .gt-type { display: none; } /* hidden — label is enough in pill */
+.gp-tab-btn:hover {
+  border-color: rgba(255,157,199,0.4);
+  color: #fff;
+  transform: translateX(-3px);
+  background: rgba(5,2,13,0.85);
+}
+.gp-tab-btn .gt-icon { font-size: 1em; line-height: 1; flex-shrink: 0; }
+.gp-tab-btn .gt-label { font-size: 0.76em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: 0.02em; transition: color 0.2s; }
+.gp-tab-btn .gt-type { display: none; }
 .gp-tab-btn.active {
   border-color: var(--pink);
-  background: rgba(255,157,199,0.15);
+  background: rgba(255,157,199,0.18);
   color: #fff;
-  box-shadow: 0 0 16px rgba(255,157,199,0.2);
+  box-shadow: 0 0 20px rgba(255,157,199,0.25), 0 2px 12px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.08);
+  transform: translateX(-4px);
+}
+/* Active indicator — left accent bar */
+.gp-tab-btn.active::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 20%; bottom: 20%;
+  width: 3px;
+  border-radius: 0 2px 2px 0;
+  background: var(--pink);
+  box-shadow: 0 0 8px var(--pink);
 }
 .gp-tab-btn.active .gt-label { color: var(--pink); }
 .gp-tab-btn.pinned-tab { border-color: rgba(241,196,15,0.4); }
 .gp-tab-btn.pinned-tab::after {
   content: '📌';
-  font-size: 0.65em;
-  margin-left: 2px;
+  font-size: 0.6em;
+  margin-left: auto;
+  padding-left: 4px;
 }
 .gp-tab-new {
-  position: absolute; top: 4px; right: 6px;
-  width: 6px; height: 6px; border-radius: 50%;
-  background: var(--pink); box-shadow: 0 0 6px var(--pink);
+  position: absolute; top: 5px; right: 7px;
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--pink); box-shadow: 0 0 5px var(--pink);
 }
 
 /* ── Stage: fullscreen banner artwork ── */
@@ -2940,8 +2968,8 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .gp-feat-card img { width: 100%; aspect-ratio: 2/3; object-fit: cover; display: block; }
 .gp-feat-card-info {
   position: absolute; bottom: 0; left: 0; right: 0;
-  background: linear-gradient(transparent, rgba(0,0,0,0.88));
-  padding: 16px 5px 5px;
+  background: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.35) 50%, rgba(0,0,0,0.72) 100%);
+  padding: 20px 5px 6px;
 }
 .gp-feat-card-name {
   font-family: 'Cinzel Decorative', serif;
@@ -3062,17 +3090,35 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 /* ── Bottom dock ── */
 .gp-dock {
   background: linear-gradient(180deg, #05020d 0%, rgba(10,4,24,0.97) 100%);
-  border-top: 1px solid rgba(255,157,199,0.1);
-  padding: clamp(14px, 3vw, 24px) clamp(14px, 4vw, 40px);
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+  border-top: 1px solid rgba(255,157,199,0.08);
+  padding: clamp(14px, 2.5vw, 20px) clamp(14px, 4vw, 40px);
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-rows: auto auto;
+  gap: 0 32px;
+  align-items: start;
 }
+/* Pull row spans left column */
 .gp-pull-row {
+  grid-column: 1;
+  grid-row: 1;
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 16px;
   flex-wrap: wrap;
+  padding-bottom: 14px;
+}
+/* Rates wrap: right column, full height */
+.gp-rates-wrap {
+  grid-column: 2;
+  grid-row: 1 / 3;
+  min-width: 200px;
+  max-width: 260px;
+  border-top: none;
+  border-left: 1px solid rgba(255,255,255,0.05);
+  padding-top: 0;
+  padding-left: 24px;
+  align-self: stretch;
 }
 /* Pity mini bars */
 .gp-pity-mini {
@@ -3144,79 +3190,102 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .gp-pool-btn:hover { border-color: var(--pink); color: var(--pink); }
 
 /* Rates — compact chip row, always visible */
+/* ── Rates: elegant collapsible with bar visualization ── */
 .gp-rates-wrap {
-  border-top: 1px solid rgba(255,255,255,0.06);
-  padding-top: 10px;
+  border-top: 1px solid rgba(255,255,255,0.05);
+  padding-top: 0;
 }
-.gp-rates-toggle { display: none; }
-.gp-rates-body { display: block !important; margin-top: 0; }
-.gp-rates-heading {
+.gp-rates-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 10px 0;
+  color: rgba(255,255,255,0.35);
   font-family: 'JetBrains Mono', monospace;
-  font-size: 0.58em;
+  font-size: 0.6em;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  transition: color 0.2s;
+}
+.gp-rates-toggle:hover { color: rgba(255,255,255,0.6); }
+.gp-rates-toggle-icon {
+  font-size: 1em;
+  transition: transform 0.3s;
+}
+.gp-rates-wrap.open .gp-rates-toggle-icon { transform: rotate(180deg); }
+.gp-rates-heading {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.62em;
   letter-spacing: 0.1em;
   color: rgba(255,255,255,0.3);
   text-transform: uppercase;
-  margin-bottom: 8px;
 }
 .gp-rates-heading::before { content: '✦ '; color: var(--pink); }
-/* Replace the big grid with a compact chip row */
+/* Collapsible body */
+.gp-rates-body {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.35s ease;
+  overflow: hidden;
+}
+.gp-rates-wrap.open .gp-rates-body {
+  grid-template-rows: 1fr;
+}
+.gp-rates-body-inner { min-height: 0; padding-bottom: 6px; }
+
+/* Bar-chart style rate display */
 .gp-rates-grid {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: 5px;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
 }
 .gp-rate-item {
-  display: flex;
+  display: grid;
+  grid-template-columns: 44px 1fr 46px;
   align-items: center;
-  gap: 5px;
-  padding: 3px 9px 3px 7px;
-  border-radius: 20px;
-  border: 1px solid rgba(var(--rc), 0.35);
-  background: rgba(var(--rc), 0.08);
-  font-size: 0.75em;
-  white-space: nowrap;
-  flex: 0 0 auto;
+  gap: 8px;
 }
 .gp-rate-tag {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 0.82em;
+  font-size: 0.7em;
   font-weight: 700;
-  opacity: 0.9;
+  text-align: right;
+}
+.gp-rate-bar-track {
+  height: 5px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.gp-rate-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  background: rgba(var(--rc), 0.85);
+  box-shadow: 0 0 6px rgba(var(--rc), 0.4);
+  transition: width 0.8s cubic-bezier(0.34,1.2,0.64,1);
 }
 .gp-rate-pct {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 0.78em;
-  color: rgba(255,255,255,0.65);
+  font-size: 0.68em;
+  color: rgba(255,255,255,0.5);
+  text-align: right;
 }
 .gp-rates-note {
   font-size: 0.66em;
-  color: rgba(255,255,255,0.25);
+  color: rgba(255,255,255,0.2);
   font-style: italic;
   font-family: 'JetBrains Mono', monospace;
   text-align: left;
-  margin: 0;
-}
-.gp-rates-grid {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 6px;
-  margin-bottom: 10px;
-}
-.gp-rate-item {
-  display: flex; flex-direction: column; align-items: center; gap: 4px;
-  padding: 8px 4px;
-  border-radius: 10px;
-  border: 1px solid rgba(var(--rc), 0.3);
-  background: rgba(var(--rc), 0.06);
-  font-size: 0.8em;
-}
-.gp-rate-tag { font-family: 'JetBrains Mono', monospace; font-size: 0.72em; }
-.gp-rate-pct { font-family: 'JetBrains Mono', monospace; font-size: 0.78em; color: rgba(255,255,255,0.7); }
-.gp-rates-note {
-  font-size: 0.72em; color: rgba(255,255,255,0.3);
-  font-style: italic; font-family: 'JetBrains Mono', monospace;
-  text-align: center; margin: 0;
+  margin: 4px 0 0;
+  line-height: 1.5;
 }
 
 /* ── Mobile overrides ── */
@@ -3258,18 +3327,33 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   .gp-char-showcase { width: 52%; }
   .gp-char-slide img { height: 105%; }
 
-  /* Dock */
+  /* Dock — revert to single column on mobile */
+  .gp-dock { grid-template-columns: 1fr; grid-template-rows: auto auto; gap: 12px 0; }
+  .gp-pull-row { grid-column: 1; grid-row: 1; padding-bottom: 0; }
+  .gp-rates-wrap { grid-column: 1; grid-row: 2; min-width: 0; max-width: 100%; border-left: none; padding-left: 0; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 0; }
   .gp-pull-row { flex-direction: column; align-items: stretch; gap: 10px; }
   .gp-pity-mini { max-width: 100%; }
   .gp-btns { justify-content: stretch; }
   .gp-wish-btn { flex: 1; }
 
-  /* Rates grid — 4 columns on mobile */
-  .gp-rates-grid { grid-template-columns: repeat(4, 1fr); }
+  /* Banner tabs: smaller on mobile, still top-right */
+  .gp-tabs-wrap { top: 10px; right: 10px; gap: 5px; max-height: calc(100% - 20px); }
+  .gp-tab-btn { min-width: 90px; max-width: 140px; padding: 5px 10px 5px 8px; border-radius: 10px; }
+  .gp-tab-btn .gt-label { font-size: 0.68em; }
+  .gp-tab-btn .gt-icon { font-size: 0.9em; }
+
+  /* Rates bar chart — no change needed, flex-col works on all sizes */
 }
 @media(max-width:420px){
-  .gp-rates-grid { grid-template-columns: repeat(3, 1fr); }
+  /* rates now bar-chart layout, no grid override needed */
   .gp-feat-card { width: clamp(50px, 16vw, 72px); }
+}
+
+/* On desktop, rates panel is open by default (enough space) */
+@media(min-width:701px){
+  .gp-rates-wrap { border-top: none; }
+  .gp-rates-wrap .gp-rates-toggle { display: none; }
+  .gp-rates-body { grid-template-rows: 1fr !important; }
 }
 
 /* ── Legacy classes kept alive for existing code compatibility ── */
@@ -10676,10 +10760,9 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
     <!-- ══ GENSHIN-STYLE BANNER STAGE ══ -->
     <div class="gp-stage" id="pullBannerContainer">
       <!-- filled by renderActiveBanner() -->
+      <!-- Banner switcher tabs: floated inside stage, top-right -->
+      <div class="gp-tabs-wrap" id="bannerTabsWrap"></div>
     </div>
-
-    <!-- Banner switcher pills — positioned over the bottom of the stage via CSS -->
-    <div class="gp-tabs-wrap" id="bannerTabsWrap"></div>
 
     <!-- ══ BOTTOM DOCK: Pull buttons + pity + rates ══ -->
     <div class="gp-dock">
@@ -10713,20 +10796,53 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
         </div>
       </div>
 
-      <!-- Drop rates collapsible -->
-      <div class="gp-rates-wrap">
-        <div class="gp-rates-heading">Drop Rates</div>
-        <div class="gp-rates-body">
-          <div class="gp-rates-grid">
-            <div class="gp-rate-item" style="--rc:rgba(189,195,199,0.8)"><span class="gp-rate-tag rN">[N]</span><span class="gp-rate-pct">42.6%</span></div>
-            <div class="gp-rate-item" style="--rc:rgba(46,204,113,0.8)"><span class="gp-rate-tag rR">[R]</span><span class="gp-rate-pct">29.8%</span></div>
-            <div class="gp-rate-item" style="--rc:rgba(52,152,219,0.8)"><span class="gp-rate-tag rSR">[SR]</span><span class="gp-rate-pct">17.0%</span></div>
-            <div class="gp-rate-item" style="--rc:rgba(155,89,182,0.8)"><span class="gp-rate-tag rSSR">[SSR]</span><span class="gp-rate-pct">6.4%</span></div>
-            <div class="gp-rate-item" style="--rc:rgba(241,196,15,0.8)"><span class="gp-rate-tag rUR">[UR]</span><span class="gp-rate-pct">2.1%</span></div>
-            <div class="gp-rate-item" style="--rc:rgba(255,107,157,0.8)"><span class="gp-rate-tag rLR">[LR]</span><span class="gp-rate-pct">0.9%</span></div>
-            <div class="gp-rate-item" style="--rc:rgba(255,100,200,0.8)"><span class="gp-rate-tag rS" style="-webkit-text-fill-color:transparent;background:var(--rainbow);background-size:200%;-webkit-background-clip:text;animation:rainbowShift 2.5s linear infinite">[???]</span><span class="gp-rate-pct">0.4%</span></div>
+      <!-- Drop rates collapsible bar chart -->
+      <div class="gp-rates-wrap" id="gpRatesWrap">
+        <button class="gp-rates-toggle" onclick="toggleGpRates()" aria-expanded="false">
+          <span class="gp-rates-heading">Drop Rates</span>
+          <span class="gp-rates-toggle-icon">▾</span>
+        </button>
+        <div class="gp-rates-body" aria-hidden="true">
+          <div class="gp-rates-body-inner">
+            <div class="gp-rates-grid">
+              <div class="gp-rate-item" style="--rc:189,195,199">
+                <span class="gp-rate-tag rN">[N]</span>
+                <div class="gp-rate-bar-track"><div class="gp-rate-bar-fill" style="width:42.6%"></div></div>
+                <span class="gp-rate-pct">42.6%</span>
+              </div>
+              <div class="gp-rate-item" style="--rc:46,204,113">
+                <span class="gp-rate-tag rR">[R]</span>
+                <div class="gp-rate-bar-track"><div class="gp-rate-bar-fill" style="width:29.8%"></div></div>
+                <span class="gp-rate-pct">29.8%</span>
+              </div>
+              <div class="gp-rate-item" style="--rc:52,152,219">
+                <span class="gp-rate-tag rSR">[SR]</span>
+                <div class="gp-rate-bar-track"><div class="gp-rate-bar-fill" style="width:17%"></div></div>
+                <span class="gp-rate-pct">17.0%</span>
+              </div>
+              <div class="gp-rate-item" style="--rc:155,89,182">
+                <span class="gp-rate-tag rSSR">[SSR]</span>
+                <div class="gp-rate-bar-track"><div class="gp-rate-bar-fill" style="width:6.4%"></div></div>
+                <span class="gp-rate-pct">6.4%</span>
+              </div>
+              <div class="gp-rate-item" style="--rc:241,196,15">
+                <span class="gp-rate-tag rUR">[UR]</span>
+                <div class="gp-rate-bar-track"><div class="gp-rate-bar-fill" style="width:2.1%"></div></div>
+                <span class="gp-rate-pct">2.1%</span>
+              </div>
+              <div class="gp-rate-item" style="--rc:255,107,157">
+                <span class="gp-rate-tag rLR">[LR]</span>
+                <div class="gp-rate-bar-track"><div class="gp-rate-bar-fill" style="width:0.9%"></div></div>
+                <span class="gp-rate-pct">0.9%</span>
+              </div>
+              <div class="gp-rate-item" style="--rc:255,100,200">
+                <span class="gp-rate-tag rS" style="-webkit-text-fill-color:transparent;background:var(--rainbow);background-size:200%;-webkit-background-clip:text;animation:rainbowShift 2.5s linear infinite">[???]</span>
+                <div class="gp-rate-bar-track"><div class="gp-rate-bar-fill" style="width:0.4%;background:linear-gradient(90deg,#ff79c6,#bd93f9,#8be9fd,#50fa7b);box-shadow:0 0 8px rgba(255,120,200,0.6)"></div></div>
+                <span class="gp-rate-pct">0.4%</span>
+              </div>
+            </div>
+            <p class="gp-rates-note">✦ Every 10 pulls guarantees SR+ &nbsp;·&nbsp; Pity tracked per banner</p>
           </div>
-          <p class="gp-rates-note">Every 10 pulls guarantees at least one SR or higher ✦ Pity is tracked separately per banner ʚɞ</p>
         </div>
       </div>
 
@@ -18219,6 +18335,17 @@ function switchBannerTab(bannerId){
 }
 
 // ── Render banner tab row ──
+// ── Drop rates collapsible toggle ──
+function toggleGpRates(){
+  const wrap = document.getElementById('gpRatesWrap');
+  if(!wrap) return;
+  const isOpen = wrap.classList.toggle('open');
+  const btn = wrap.querySelector('.gp-rates-toggle');
+  const body = wrap.querySelector('.gp-rates-body');
+  if(btn) btn.setAttribute('aria-expanded', isOpen);
+  if(body) body.setAttribute('aria-hidden', !isOpen);
+}
+
 function renderBannerTabs(){
   const wrap = document.getElementById('bannerTabsWrap');
   if(!wrap) return;
