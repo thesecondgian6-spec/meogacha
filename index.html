@@ -2739,6 +2739,14 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   padding: 0 !important;
   max-width: 100% !important;
   overflow: hidden;
+  /* Fill viewport as a flex column so stage grows and dock anchors to bottom */
+  display: flex;
+  flex-direction: column;
+}
+
+/* Stage grows to consume all leftover vertical space */
+#page-pull .gp-stage {
+  flex: 1 1 auto;
 }
 
 /* ── Banner selector tabs (Genshin thumbnail strip) ── */
@@ -3151,7 +3159,14 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 
 /* ── Mobile overrides ── */
 @media(max-width:700px){
-  .gp-stage { min-height: clamp(280px, 60vw, 380px); }
+  /* Constrain pull page to visible area so there is zero dead space */
+  #page-pull {
+    height: calc(100svh - 58px - 66px); /* 58px top-nav, 66px bottom mobile-nav */
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+  .gp-stage { min-height: clamp(220px, 48vw, 320px); }
   .gp-stage-vignette {
     background: linear-gradient(
       180deg,
@@ -12924,6 +12939,10 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
         </div>
 
         <div class="admin-section-label">Character Art <span class="admin-hint">(transparent PNG — shown on right side of banner, like Genshin. Add up to 3 images; they auto-rotate every 4 s.)</span></div>
+        <div style="background:rgba(241,196,15,0.08);border:1px solid rgba(241,196,15,0.25);border-radius:10px;padding:10px 14px;margin-bottom:12px;font-family:'JetBrains Mono',monospace;font-size:0.72em;color:rgba(241,196,15,0.85);">
+          ⚠️ Requires a one-time SQL migration in Supabase SQL Editor:<br/>
+          <span style="user-select:all;color:rgba(255,255,255,0.6);">ALTER TABLE banners ADD COLUMN IF NOT EXISTS char_image_1 text DEFAULT '';<br/>ALTER TABLE banners ADD COLUMN IF NOT EXISTS char_image_2 text DEFAULT '';<br/>ALTER TABLE banners ADD COLUMN IF NOT EXISTS char_image_3 text DEFAULT '';</span>
+        </div>
         <div style="margin-bottom:8px;">
           <label class="admin-label">Character Art 1 (primary)</label>
           <div style="display:flex;gap:8px;">
@@ -18557,17 +18576,32 @@ async function submitBannerForm(){
     is_active:    document.getElementById('bannerForm_active').value === 'true',
     banner_type:  document.getElementById('bannerForm_type').value || 'character',
   };
-  // Optional extended columns — strip if insert fails
-  const extendedData = {
+
+  // Extended columns (pool filters, featured cards, rate multiplier)
+  const extendedNoChars = {
     ...coreData,
     series_filter:   document.getElementById('bannerForm_seriesFilter').value.trim(),
     min_rarity:      parseInt(document.getElementById('bannerForm_minRarity').value)||1,
     featured_cards:  JSON.stringify(featuredCards),
     rate_multiplier: parseInt(document.getElementById('bannerForm_rateMulti')?.value)||2,
-    char_image_1:    document.getElementById('bannerForm_charImg1')?.value?.trim()||null,
-    char_image_2:    document.getElementById('bannerForm_charImg2')?.value?.trim()||null,
-    char_image_3:    document.getElementById('bannerForm_charImg3')?.value?.trim()||null,
   };
+
+  // Character art columns — need SQL migration if missing
+  const charImg1 = document.getElementById('bannerForm_charImg1')?.value?.trim()||null;
+  const charImg2 = document.getElementById('bannerForm_charImg2')?.value?.trim()||null;
+  const charImg3 = document.getElementById('bannerForm_charImg3')?.value?.trim()||null;
+  const hasCharImgs = charImg1||charImg2||charImg3;
+  const extendedData = {
+    ...extendedNoChars,
+    char_image_1: charImg1,
+    char_image_2: charImg2,
+    char_image_3: charImg3,
+  };
+
+  const _isColumnError = (msg='') =>
+    msg.toLowerCase().includes('column') ||
+    msg.toLowerCase().includes('does not exist') ||
+    msg.toLowerCase().includes('unknown');
 
   const _tryInsert = async (data) => {
     const res = await fetch(`${SUPABASE_URL}/rest/v1/banners`, {
@@ -18592,27 +18626,51 @@ async function submitBannerForm(){
   try {
     const editId = document.getElementById('bannerEditId').value;
     let result;
+    let charsSaved = true;
 
     if(editId){
       if(coreData.is_active){
         const sameType = _adminBannerCache.filter(b=>b.id!==editId && b.banner_type===coreData.banner_type && b.is_active);
         for(const b of sameType) await sb.update('banners',{is_active:false},{id:b.id});
       }
-      // Try update with all columns first, fall back to core only
+      // Tier 1: full data including char images
       result = await _tryUpdate(extendedData, editId);
-      if(!result.ok) result = await _tryUpdate(coreData, editId);
+      if(!result.ok){
+        charsSaved = false;
+        // Tier 2: extended without char images
+        result = await _tryUpdate(extendedNoChars, editId);
+        if(!result.ok){
+          // Tier 3: core only
+          result = await _tryUpdate(coreData, editId);
+        }
+      }
     } else {
       if(coreData.is_active){
         const sameType = _adminBannerCache.filter(b=>b.banner_type===coreData.banner_type && b.is_active);
         for(const b of sameType) await sb.update('banners',{is_active:false},{id:b.id});
       }
-      // Try insert with all columns, fall back to core only
+      // Tier 1: full data including char images
       result = await _tryInsert(extendedData);
-      if(!result.ok) result = await _tryInsert(coreData);
+      if(!result.ok){
+        charsSaved = false;
+        // Tier 2: extended without char images
+        result = await _tryInsert(extendedNoChars);
+        if(!result.ok){
+          // Tier 3: core only
+          result = await _tryInsert(coreData);
+        }
+      }
     }
 
     if(result.ok){
-      showToast(`✅ Banner "${name}" saved!`);
+      if(hasCharImgs && !charsSaved){
+        // Show migration warning if char images couldn't be saved
+        showToast('⚠️ Banner saved, but char art columns are missing! Run this SQL in Supabase:\nALTER TABLE banners ADD COLUMN IF NOT EXISTS char_image_1 text DEFAULT \'\';\nALTER TABLE banners ADD COLUMN IF NOT EXISTS char_image_2 text DEFAULT \'\';\nALTER TABLE banners ADD COLUMN IF NOT EXISTS char_image_3 text DEFAULT \'\';');
+        // Also log to console for easy copy
+        console.warn('[MeoGacha] Run this SQL migration to enable banner character art:\nALTER TABLE banners ADD COLUMN IF NOT EXISTS char_image_1 text DEFAULT \'\';\nALTER TABLE banners ADD COLUMN IF NOT EXISTS char_image_2 text DEFAULT \'\';\nALTER TABLE banners ADD COLUMN IF NOT EXISTS char_image_3 text DEFAULT \'\';');
+      } else {
+        showToast(`✅ Banner "${name}" saved!`);
+      }
       cancelBannerEdit();
       await loadAdminBannerList();
       await loadActiveBanner();
