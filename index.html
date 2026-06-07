@@ -3227,7 +3227,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   .gp-banner-name { font-size: clamp(1.1em, 5.5vw, 1.5em); font-weight: 700; }
   .gp-banner-desc { font-size: 0.65em; max-width: 160px; }
   .gp-featured-label { display: none; }
-  .gp-feat-card { max-height: clamp(100px, 26vw, 140px); }
+  .gp-feat-card { max-height: clamp(160px, 42vw, 260px); }
   .gp-char-showcase { width: 68%; right: -1%; }
   .gp-char-slide img { height: 100%; }
   .gp-banner-picker-btn { top: 10px; right: 10px; font-size: 0.58em; }
@@ -3240,7 +3240,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 }
 @media (max-width: 380px) {
   .gp-info { width: 52%; }
-  .gp-feat-card { max-height: 80px; }
+  .gp-feat-card { max-height: 130px; }
 }
 
 /* ── Legacy classes kept alive for existing code compatibility ── */
@@ -18355,8 +18355,8 @@ function renderActiveBanner(){
 
   // Auto-size featured cards by height: fewer = taller
   const fc = featuredCards.length;
-  const featCardHeight = fc === 1 ? 'clamp(220px, 56vw, 300px)' : fc === 2 ? 'clamp(180px, 46vw, 250px)' : 'clamp(140px, 36vw, 200px)';
-  const featRowJustify = fc === 1 ? 'center' : fc === 2 ? 'center' : 'flex-start';
+  const featCardHeight = fc === 1 ? 'clamp(280px, 72vw, 380px)' : fc === 2 ? 'clamp(220px, 58vw, 310px)' : 'clamp(170px, 44vw, 240px)';
+  const featRowJustify = 'flex-start';
 
   el.innerHTML = `
     <div class="gp-stage-bg" ${banner.image?`style="background-image:url('${banner.image}')"`:''}></div>
