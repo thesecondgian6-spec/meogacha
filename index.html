@@ -21899,7 +21899,7 @@ async function playAbilityVFX(ab, color){
 
 // ── CARD MANAGER: Preview VFX from slot ──
 function previewAbilityVfxFromSlot(idx){
-  const slot  = document.getElementById(`abilitySlot_${idx}`);
+  const slot  = document.querySelector(`.ab-slot[data-idx="${idx}"]`);
   if(!slot) return;
   const type  = slot.querySelector('.ab-vfx-type')?.value || 'flash';
   const color = slot.querySelector('.ab-vfx-color')?.value || '#ff9dc7';
