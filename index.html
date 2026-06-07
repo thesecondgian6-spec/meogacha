@@ -2910,10 +2910,10 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 }
 .gp-wish-btn {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 11px 18px;
+  padding: 9px 14px;
   border-radius: 14px;
   width: 100%;
-  max-width: 280px;
+  max-width: 220px;
   border: 1px solid rgba(255,157,199,0.45);
   background: linear-gradient(135deg, rgba(30,10,50,0.88) 0%, rgba(55,18,75,0.78) 100%);
   backdrop-filter: blur(18px);
@@ -2946,9 +2946,9 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .gp-wish-btn-10:hover { border-color: #f1c40f; box-shadow: 0 6px 28px rgba(241,196,15,0.35), 0 0 0 1px rgba(241,196,15,0.35); }
 .gp-wish-btn-10:hover::before { background-position: -200% 0; }
 .gp-wish-btn-left { display: flex; align-items: center; gap: 8px; }
-.gpb-icon { font-size: 0.75em; opacity: 0.65; }
-.gpb-text { font-size: 0.8em; white-space: nowrap; }
-.gpb-cost { font-family: 'JetBrains Mono', monospace; font-size: 0.67em; color: rgba(255,215,100,0.85); }
+.gpb-icon { font-size: 0.72em; opacity: 0.65; }
+.gpb-text { font-size: 0.76em; white-space: nowrap; }
+.gpb-cost { font-family: 'JetBrains Mono', monospace; font-size: 0.63em; color: rgba(255,215,100,0.85); }
 .gp-pool-btn {
   background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.12);
   color: rgba(255,255,255,0.45); padding: 7px 16px; border-radius: 10px;
@@ -2996,16 +2996,16 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   font-size: 0.5em; letter-spacing: 0.12em; text-transform: uppercase;
   color: rgba(255,255,255,0.35);
 }
-.gp-featured-row { display: flex; gap: 8px; flex-wrap: nowrap; }
+.gp-featured-row { display: flex; gap: 8px; flex-wrap: nowrap; width: 100%; }
 .gp-feat-card {
   position: relative;
   /* width set inline based on card count */
-  max-height: clamp(130px, 33vw, 175px);
+  max-height: clamp(160px, 42vw, 220px);
   border-radius: 10px; overflow: hidden;
   border: 1.5px solid rgba(255,157,199,0.28);
   cursor: pointer; transition: all 0.22s;
   background: rgba(5,2,13,0.55); flex-shrink: 0;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.55), 0 0 0 0 rgba(255,157,199,0);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.55);
 }
 .gp-feat-card:hover {
   transform: translateY(-5px) scale(1.05);
@@ -3141,12 +3141,13 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 }
 .gp-wish-btn {
   position: relative; display: flex; align-items: center; justify-content: space-between;
-  padding: 13px 20px; border-radius: 14px;
+  padding: 11px 16px; border-radius: 14px;
   border: 1px solid rgba(255,157,199,0.42);
   background: linear-gradient(135deg, rgba(30,10,50,0.9), rgba(60,20,80,0.8));
   color: #fff; cursor: pointer; font-family: "Cinzel Decorative", serif;
   transition: all 0.22s; overflow: hidden;
   box-shadow: 0 4px 22px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.1);
+  max-width: 220px; width: 100%;
 }
 .gp-wish-btn::after {
   content: ""; position: absolute; inset: 0;
@@ -3169,17 +3170,18 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .gp-wish-btn-10:hover { border-color: #f1c40f; box-shadow: 0 8px 28px rgba(241,196,15,0.3); }
 .gp-wish-btn-10:hover::after { background-position: -200% 0; }
 .gp-wish-btn-left { display: flex; align-items: center; gap: 10px; }
-.gpb-icon { font-size: 0.85em; opacity: 0.7; letter-spacing: 0.04em; }
-.gpb-text { font-size: 0.85em; white-space: nowrap; }
-.gpb-cost { font-family: "JetBrains Mono", monospace; font-size: 0.7em; color: rgba(255,215,100,0.82); }
+.gpb-icon { font-size: 0.82em; opacity: 0.7; letter-spacing: 0.04em; }
+.gpb-text { font-size: 0.82em; white-space: nowrap; }
+.gpb-cost { font-family: "JetBrains Mono", monospace; font-size: 0.67em; color: rgba(255,215,100,0.82); }
 
 /* View Pool: full-width subtle button */
 .gp-pool-btn {
   background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1);
-  color: rgba(255,255,255,0.42); padding: 10px 20px; border-radius: 10px;
-  font-family: "Cormorant Garamond", serif; font-size: 0.8em;
+  color: rgba(255,255,255,0.42); padding: 8px 18px; border-radius: 10px;
+  font-family: "Cormorant Garamond", serif; font-size: 0.82em;
   cursor: pointer; transition: all 0.2s; text-align: center;
   display: flex; align-items: center; justify-content: center; gap: 6px;
+  align-self: flex-start;
 }
 .gp-pool-btn:hover { border-color: rgba(255,157,199,0.35); color: var(--pink); background: rgba(255,157,199,0.05); }
 
@@ -3233,7 +3235,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   .gp-banner-picker-btn .gpb-active-name { max-width: 68px; }
   .gp-dock { padding: 10px 14px 12px; gap: 8px; }
   .gp-pity-mini { grid-template-columns: 1fr 1fr; gap: 5px 12px; }
-  .gp-wish-btn, .gp-pool-btn { max-width: 240px; padding: 9px 14px; }
+  .gp-wish-btn, .gp-pool-btn { max-width: 200px; padding: 8px 12px; }
   .gpb-text { font-size: 0.72em; }
   .gpb-cost { font-size: 0.6em; }
 }
@@ -10684,6 +10686,9 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
           <div class="gp-pity-num" id="gpPityURNum">0/80</div>
         </div>
       </div>
+
+      <!-- View Pool -->
+      <button class="gp-pool-btn" onclick="openPoolView()">🃏 View Pool</button>
 
       <!-- Drop rates only -->
       <div class="gp-rates-wrap">
@@ -18349,10 +18354,10 @@ function renderActiveBanner(){
     ` : ''}
   ` : '';
 
-  // Auto-size featured cards: fewer cards = bigger
+  // Auto-size featured cards: fewer cards = bigger, centered when 1-2
   const fc = featuredCards.length;
-  const featCardWidth = fc === 1 ? 'min(100px, 26vw)' : fc === 2 ? 'min(88px, 22vw)' : 'min(82px, 21vw)';
-  const featRowAlign  = fc === 1 ? 'flex-start' : 'flex-start';
+  const featCardWidth = fc === 1 ? 'min(140px, 36vw)' : fc === 2 ? 'min(110px, 28vw)' : 'min(88px, 22vw)';
+  const featRowJustify = fc === 1 ? 'center' : fc === 2 ? 'center' : 'flex-start';
 
   el.innerHTML = `
     <div class="gp-stage-bg" ${banner.image?`style="background-image:url('${banner.image}')"`:''}></div>
@@ -18372,7 +18377,7 @@ function renderActiveBanner(){
         </div>
       </div>
 
-      <!-- bottom cluster: pull buttons → featured cards → view pool -->
+      <!-- bottom cluster: pull buttons → featured cards -->
       <div class="gp-info-bottom">
         <!-- 1. Pull buttons -->
         <div class="gp-pull-row" id="gpPullRow">
@@ -18390,7 +18395,7 @@ function renderActiveBanner(){
         ${featuredCards.length ? `
           <div class="gp-featured-block">
             <div class="gp-featured-label">✦ Rate Up</div>
-            <div class="gp-featured-row" style="justify-content:flex-start">
+            <div class="gp-featured-row" style="justify-content:${featRowJustify}">
               ${featuredCards.map(c=>{
                 const color = RARITY_COLORS[c.rarity]||'#bdc3c7';
                 return `<div class="gp-feat-card" style="width:${featCardWidth}" onclick="openCard('${c.id}')">
@@ -18406,9 +18411,6 @@ function renderActiveBanner(){
             <div class="gp-rateup-note">⬆️ Featured cards appear 2× more often</div>
           </div>
         ` : ''}
-
-        <!-- 3. View Pool (below featured cards) -->
-        <button class="gp-pool-btn" onclick="openPoolView()">🃏 View Pool</button>
       </div>
     </div>
   `;
