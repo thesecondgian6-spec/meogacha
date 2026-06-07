@@ -2700,11 +2700,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   .battle-move-ult-btn { padding: 7px 8px; }
   .move-name { font-size: 0.62em; }
   .move-desc { font-size: 0.62em; }
-  .battle-card-img { width: 80px; height: 113px; }
-  .battle-arena-bg { padding: 14px 12px; }
-  .battle-vs-badge { font-size: 1.3em; }
-  .battle-vs-header { gap: 8px; margin-bottom: 10px; }
-  .battle-log { max-height: 90px; font-size: 0.74em; padding: 8px 10px; }
+  .battle-card-img { width: 64px; height: 64px; }
 
   /* ── Section titles ── */
   .section-title { font-size: 0.88em; }
@@ -4082,10 +4078,10 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   display: inline-block;
 }
 .battle-card-img {
-  width: 90px;
-  height: 127px;
+  width: 72px;
+  height: 72px;
   object-fit: cover;
-  border-radius: 12px;
+  border-radius: 10px;
   border: 2px solid var(--border);
   display: block;
   transition: all 0.3s;
@@ -4180,7 +4176,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .battle-moves-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 8px;
+  gap: 6px;
   margin-bottom: 10px;
 }
 /* ── Two-column moves layout ── */
@@ -4194,47 +4190,79 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .battle-move-btn {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 9px 11px;
+  border-radius: 10px;
+  padding: 7px 10px;
   cursor: pointer;
   transition: all 0.2s;
   text-align: left;
   position: relative;
   overflow: hidden;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  width: 100%;
 }
 .battle-move-btn:hover:not(:disabled) {
   border-color: var(--pink);
   background: rgba(255,157,199,0.08);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(255,157,199,0.15);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(255,157,199,0.15);
 }
 .battle-move-btn:disabled { opacity: 0.3; cursor: not-allowed; }
 .battle-move-btn::before {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, transparent, rgba(255,157,199,0.05));
+  background: linear-gradient(135deg, transparent, rgba(255,157,199,0.04));
   pointer-events: none;
+}
+.move-btn-icon {
+  font-size: 1.1em;
+  flex-shrink: 0;
+  line-height: 1;
+}
+.move-btn-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  flex: 1;
+  min-width: 0;
 }
 .move-name {
   font-family: 'Cinzel Decorative', serif;
-  font-size: 0.68em;
+  font-size: 0.6em;
   color: var(--text);
   display: block;
-  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 0;
 }
 .move-desc {
-  font-size: 0.68em;
+  font-size: 0.6em;
   color: var(--text-dim);
   display: block;
-  line-height: 1.3;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .move-power {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 0.65em;
+  font-size: 0.6em;
   color: #f1c40f;
-  display: block;
-  margin-top: 4px;
+  display: inline;
+  margin-left: 4px;
+}
+.move-mp-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.58em;
+  color: #f1c40f;
+  flex-shrink: 0;
+  background: rgba(241,196,15,0.1);
+  border: 1px solid rgba(241,196,15,0.25);
+  border-radius: 5px;
+  padding: 1px 4px;
 }
 .move-type-badge {
   position: absolute;
@@ -4254,14 +4282,18 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .battle-move-ult-btn {
   background: linear-gradient(135deg, rgba(241,196,15,0.08), rgba(255,157,199,0.05)) !important;
   border: 1px solid rgba(241,196,15,0.55) !important;
-  border-radius: 12px;
-  padding: 9px 11px;
+  border-radius: 10px;
+  padding: 7px 10px;
   cursor: pointer;
   text-align: left;
   position: relative;
   overflow: hidden;
   transition: all 0.25s;
-  box-shadow: 0 0 14px rgba(241,196,15,0.12), inset 0 0 20px rgba(241,196,15,0.04);
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  width: 100%;
+  box-shadow: 0 0 12px rgba(241,196,15,0.1), inset 0 0 16px rgba(241,196,15,0.03);
   animation: ultPulse 3s ease-in-out infinite;
 }
 .battle-move-ult-btn::before {
@@ -4282,6 +4314,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   letter-spacing: 0.08em;
 }
 .battle-move-ult-btn .move-name { color: #f1c40f !important; }
+.battle-move-ult-btn .move-desc { color: rgba(241,196,15,0.6) !important; }
 .battle-move-ult-btn:hover:not(:disabled) {
   border-color: rgba(241,196,15,0.9) !important;
   background: linear-gradient(135deg, rgba(241,196,15,0.14), rgba(255,157,199,0.08)) !important;
@@ -4420,7 +4453,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 
 @media(max-width:700px){
   .battle-moves-grid { grid-template-columns: 1fr 1fr; }
-  .battle-card-img { width: 80px; height: 113px; }
+  .battle-card-img { width: 64px; height: 64px; }
   .battle-arena-bg { padding: 14px 12px; }
   .battle-vs-badge { font-size: 1.3em; }
   .battle-move-btn { padding: 7px 8px; }
@@ -17352,9 +17385,9 @@ async function startBattleAI() {
   // Switch views
   document.getElementById('baiSetup').classList.remove('active');
   document.getElementById('baiFight').classList.add('active');
-  document.getElementById('baiBattlePlayerImg').src = playerCard.image;
+  document.getElementById('baiBattlePlayerImg').src = playerCard.thumbnail || playerCard.image;
   document.getElementById('baiBattlePlayerName').textContent = playerCard.name;
-  document.getElementById('baiBattleEnemyImg').src = enemyCard.image;
+  document.getElementById('baiBattleEnemyImg').src = enemyCard.thumbnail || enemyCard.image;
   document.getElementById('baiBattleEnemyName').textContent = enemyDisplayName;
   document.getElementById('baiBattleEnemyName').style.color = enemyColor;
   document.getElementById('baiBattleEnemyLabel').innerHTML = enc.isBoss
@@ -17430,18 +17463,26 @@ function _baiRenderMoves() {
     const isUlt = m.type === 'ult';
     const noMP = m.mpCost > (ps.playerMP || 0);
     const disabled = locked || noMP;
-    const borderClr = isUlt ? 'rgba(241,196,15,0.7)' : m.type === 'spc' ? 'rgba(255,157,199,0.4)' : m.type === 'def' ? 'rgba(93,173,226,0.35)' : 'var(--border)';
-    const mpBadge = m.mpCost > 0 ? `<span style="font-family:'JetBrains Mono',monospace;font-size:0.62em;color:#f1c40f;float:right;">${m.mpCost}MP</span>` : '';
+    const borderClr = m.type === 'spc' ? 'rgba(255,157,199,0.4)' : m.type === 'def' ? 'rgba(93,173,226,0.35)' : 'var(--border)';
+    const mpBadge = m.mpCost > 0 ? `<span class="move-mp-badge">${m.mpCost}MP</span>` : '';
+    const pwrBadge = m.power && m.type === 'atk' ? `<span class="move-power">PWR ${m.power}</span>` : '';
     if (isUlt) {
       return `<button class="battle-move-btn battle-move-ult-btn" onclick="${onclick}('${m.id}')" ${disabled ? 'disabled' : ''}>
-        <span class="move-name">${m.icon} ${m.name}${mpBadge}</span>
-        <span class="move-desc">${m.desc || ''}</span>
+        <span class="move-btn-icon">${m.icon}</span>
+        <span class="move-btn-text">
+          <span class="move-name">${m.name}</span>
+          <span class="move-desc">${m.desc || ''}</span>
+        </span>
+        ${mpBadge}
       </button>`;
     }
     return `<button class="battle-move-btn" onclick="${onclick}('${m.id}')" ${disabled ? 'disabled' : ''} style="border-color:${borderClr};">
-      <span class="move-name">${m.icon} ${m.name}${mpBadge}</span>
-      <span class="move-desc">${m.desc || ''}</span>
-      ${m.power && m.type === 'atk' ? `<span class="move-power">PWR ${m.power}</span>` : ''}
+      <span class="move-btn-icon">${m.icon}</span>
+      <span class="move-btn-text">
+        <span class="move-name">${m.name}${pwrBadge}</span>
+        <span class="move-desc">${m.desc || ''}</span>
+      </span>
+      ${mpBadge}
     </button>`;
   };
 
@@ -19661,21 +19702,29 @@ function renderBattleMoves(){
                       m.type === 'spc' ? 'rgba(255,157,199,0.4)' :
                       m.type === 'def' ? 'rgba(93,173,226,0.35)' : 'var(--border)';
     const mpBadge = m.mpCost > 0
-      ? `<span style="font-family:'JetBrains Mono',monospace;font-size:0.62em;color:#f1c40f;float:right;">${m.mpCost}MP</span>`
+      ? `<span class="move-mp-badge">${m.mpCost}MP</span>`
       : '';
+    const pwrBadge = m.power && m.type==='atk' ? `<span class="move-power">PWR ${m.power}</span>` : '';
     if (isUlt) {
       return `<button class="battle-move-btn battle-move-ult-btn" onclick="playerMove('${m.id}')"
           ${disabled ? 'disabled' : ''}>
-        <span class="move-name">${m.icon} ${m.name}${mpBadge}</span>
-        <span class="move-desc">${m.desc||''}</span>
+        <span class="move-btn-icon">${m.icon}</span>
+        <span class="move-btn-text">
+          <span class="move-name">${m.name}</span>
+          <span class="move-desc">${m.desc||''}</span>
+        </span>
+        ${mpBadge}
       </button>`;
     }
     return `<button class="battle-move-btn" onclick="playerMove('${m.id}')"
         ${disabled ? 'disabled' : ''}
         style="border-color:${borderClr};">
-      <span class="move-name">${m.icon} ${m.name}${mpBadge}</span>
-      <span class="move-desc">${m.desc||''}</span>
-      ${m.power && m.type==='atk' ? `<span class="move-power">PWR ${m.power}</span>` : ''}
+      <span class="move-btn-icon">${m.icon}</span>
+      <span class="move-btn-text">
+        <span class="move-name">${m.name}${pwrBadge}</span>
+        <span class="move-desc">${m.desc||''}</span>
+      </span>
+      ${mpBadge}
     </button>`;
   }).join('');
 }
