@@ -3227,7 +3227,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   .gp-banner-name { font-size: clamp(1.1em, 5.5vw, 1.5em); font-weight: 700; }
   .gp-banner-desc { font-size: 0.65em; max-width: 160px; }
   .gp-featured-label { display: none; }
-  .gp-feat-card { max-height: clamp(160px, 42vw, 260px); }
+  .gp-feat-card { max-height: clamp(110px, 42vw, 240px); }
   .gp-char-showcase { width: 68%; right: -1%; }
   .gp-char-slide img { height: 100%; }
   .gp-banner-picker-btn { top: 10px; right: 10px; font-size: 0.58em; }
@@ -3240,7 +3240,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 }
 @media (max-width: 380px) {
   .gp-info { width: 52%; }
-  .gp-feat-card { max-height: 130px; }
+  .gp-feat-card { max-height: 110px; }
 }
 
 /* ── Legacy classes kept alive for existing code compatibility ── */
@@ -12990,10 +12990,10 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
           <img id="bannerFormImgPreview" src="" alt="" style="width:100%;max-height:120px;object-fit:cover;border-radius:8px;margin-top:8px;display:none;" onerror="this.style.display='none'"/>
         </div>
 
-        <div class="admin-section-label">Character Art <span class="admin-hint">(transparent PNG — shown on right side of banner, like Genshin. Add up to 3 images; they auto-rotate every 4 s.)</span></div>
+        <div class="admin-section-label">Character Art <span class="admin-hint">(transparent PNG — shown on right side of banner, like Genshin. Add up to 5 images; they auto-rotate every 4 s.)</span></div>
         <div id="charImgMigrationWarning" style="background:rgba(241,196,15,0.08);border:1px solid rgba(241,196,15,0.25);border-radius:10px;padding:10px 14px;margin-bottom:12px;font-family:'JetBrains Mono',monospace;font-size:0.72em;color:rgba(241,196,15,0.85);">
           ⚠️ Requires a one-time SQL migration in Supabase SQL Editor:<br/>
-          <span style="user-select:all;color:rgba(255,255,255,0.6);">ALTER TABLE banners ADD COLUMN IF NOT EXISTS char_image_1 text DEFAULT '';<br/>ALTER TABLE banners ADD COLUMN IF NOT EXISTS char_image_2 text DEFAULT '';<br/>ALTER TABLE banners ADD COLUMN IF NOT EXISTS char_image_3 text DEFAULT '';</span>
+          <span style="user-select:all;color:rgba(255,255,255,0.6);">ALTER TABLE banners ADD COLUMN IF NOT EXISTS char_image_1 text DEFAULT '';<br/>ALTER TABLE banners ADD COLUMN IF NOT EXISTS char_image_2 text DEFAULT '';<br/>ALTER TABLE banners ADD COLUMN IF NOT EXISTS char_image_3 text DEFAULT '';<br/>ALTER TABLE banners ADD COLUMN IF NOT EXISTS char_image_4 text DEFAULT '';<br/>ALTER TABLE banners ADD COLUMN IF NOT EXISTS char_image_5 text DEFAULT '';</span>
         </div>
         <div style="margin-bottom:8px;">
           <label class="admin-label">Character Art 1 (primary)</label>
@@ -13017,7 +13017,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
           </div>
           <img id="bannerFormCharPreview2" src="" alt="" style="max-height:90px;max-width:120px;margin-top:6px;object-fit:contain;border-radius:8px;display:none;" onerror="this.style.display='none'"/>
         </div>
-        <div style="margin-bottom:12px;">
+        <div style="margin-bottom:8px;">
           <label class="admin-label">Character Art 3</label>
           <div style="display:flex;gap:8px;">
             <input class="admin-input" id="bannerForm_charImg3" placeholder="Paste transparent PNG URL..." style="flex:1" oninput="previewBannerCharImg(3)"/>
@@ -13028,8 +13028,30 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
           </div>
           <img id="bannerFormCharPreview3" src="" alt="" style="max-height:90px;max-width:120px;margin-top:6px;object-fit:contain;border-radius:8px;display:none;" onerror="this.style.display='none'"/>
         </div>
+        <div style="margin-bottom:8px;">
+          <label class="admin-label">Character Art 4</label>
+          <div style="display:flex;gap:8px;">
+            <input class="admin-input" id="bannerForm_charImg4" placeholder="Paste transparent PNG URL..." style="flex:1" oninput="previewBannerCharImg(4)"/>
+            <label class="upload-btn" title="Upload PNG">
+              📁
+              <input type="file" accept="image/png,image/webp,image/*" style="display:none" onchange="uploadBannerCharImg(this,4)"/>
+            </label>
+          </div>
+          <img id="bannerFormCharPreview4" src="" alt="" style="max-height:90px;max-width:120px;margin-top:6px;object-fit:contain;border-radius:8px;display:none;" onerror="this.style.display='none'"/>
+        </div>
+        <div style="margin-bottom:12px;">
+          <label class="admin-label">Character Art 5</label>
+          <div style="display:flex;gap:8px;">
+            <input class="admin-input" id="bannerForm_charImg5" placeholder="Paste transparent PNG URL..." style="flex:1" oninput="previewBannerCharImg(5)"/>
+            <label class="upload-btn" title="Upload PNG">
+              📁
+              <input type="file" accept="image/png,image/webp,image/*" style="display:none" onchange="uploadBannerCharImg(this,5)"/>
+            </label>
+          </div>
+          <img id="bannerFormCharPreview5" src="" alt="" style="max-height:90px;max-width:120px;margin-top:6px;object-fit:contain;border-radius:8px;display:none;" onerror="this.style.display='none'"/>
+        </div>
 
-        <div class="admin-section-label">Featured Cards <span class="admin-hint">(1–4 rate-up cards shown prominently)</span></div>
+        <div class="admin-section-label">Featured Cards <span class="admin-hint">(1–5 rate-up cards shown prominently)</span></div>
         <div class="banner-featured-picker" id="bannerFeaturedSlots">
           <!-- slots injected by JS -->
         </div>
@@ -18335,7 +18357,7 @@ function renderActiveBanner(){
     skin:      'background:rgba(155,89,182,0.15);border-color:rgba(155,89,182,0.4);color:#9b59b6;',
   }[type] || '';
 
-  const charImgs = [banner.char_image_1, banner.char_image_2, banner.char_image_3].filter(Boolean);
+  const charImgs = [banner.char_image_1, banner.char_image_2, banner.char_image_3, banner.char_image_4, banner.char_image_5].filter(Boolean);
 
   const charShowcaseHtml = charImgs.length ? `
     <div class="gp-char-showcase" id="gpCharShowcase">
@@ -18355,7 +18377,7 @@ function renderActiveBanner(){
 
   // Auto-size featured cards by height: fewer = taller
   const fc = featuredCards.length;
-  const featCardHeight = fc === 1 ? 'clamp(280px, 72vw, 380px)' : fc === 2 ? 'clamp(220px, 58vw, 310px)' : 'clamp(170px, 44vw, 240px)';
+  const featCardHeight = fc === 1 ? 'clamp(240px, 62vw, 320px)' : fc === 2 ? 'clamp(190px, 50vw, 270px)' : fc === 3 ? 'clamp(155px, 40vw, 220px)' : fc === 4 ? 'clamp(130px, 33vw, 185px)' : 'clamp(110px, 27vw, 160px)';
   const featRowJustify = 'flex-start';
 
   el.innerHTML = `
@@ -18487,7 +18509,7 @@ function renderHomeBannerWidget(){
   if(!el) return;
   const banner      = getActiveBanner();
   const allCards    = window.DEMO_CARDS || DEMO_CARDS;
-  const featuredCards = parseFeaturedCards(banner.featured_cards).map(id=>allCards.find(c=>c.id===id)).filter(Boolean).slice(0,4);
+  const featuredCards = parseFeaturedCards(banner.featured_cards).map(id=>allCards.find(c=>c.id===id)).filter(Boolean).slice(0,5);
   const meta        = BANNER_TYPE_META[banner.banner_type||'standard'] || BANNER_TYPE_META.standard;
 
   el.innerHTML = `
@@ -18614,7 +18636,7 @@ async function pinBanner(id, currentlyPinned){
 function addBannerFeaturedSlot(cardId=''){
   const container = document.getElementById('bannerFeaturedSlots');
   if(!container) return;
-  if(_bannerFeaturedSlotCount >= 4){ showToast('Max 4 featured cards'); return; }
+  if(_bannerFeaturedSlotCount >= 5){ showToast('Max 5 featured cards'); return; }
   _bannerFeaturedSlotCount++;
   const idx = _bannerFeaturedSlotCount;
   const allCards = window.DEMO_CARDS || DEMO_CARDS;
@@ -18630,7 +18652,7 @@ function addBannerFeaturedSlot(cardId=''){
   container.appendChild(slot);
   if(cardId){ previewBannerForm(); }
   const addBtn = document.getElementById('addBannerFeaturedBtn');
-  if(addBtn) addBtn.style.display = _bannerFeaturedSlotCount >= 4 ? 'none' : '';
+  if(addBtn) addBtn.style.display = _bannerFeaturedSlotCount >= 5 ? 'none' : '';
 }
 
 function removeBannerFeaturedSlot(idx){
@@ -18666,7 +18688,7 @@ function cancelBannerEdit(){
   const prev = document.getElementById('bannerFormImgPreview');
   if(prev){ prev.src=''; prev.style.display='none'; }
   // Clear character art fields
-  [1,2,3].forEach(n=>{
+  [1,2,3,4,5].forEach(n=>{
     const inp = document.getElementById(`bannerForm_charImg${n}`);
     if(inp) inp.value='';
     const pr = document.getElementById(`bannerFormCharPreview${n}`);
@@ -18691,7 +18713,7 @@ function editBanner(bannerId){
   const _rmEl = document.getElementById('bannerForm_rateMulti');
   if(_rmEl) _rmEl.value = String(b.rate_multiplier||2);
   // Load character art images
-  [1,2,3].forEach(n=>{
+  [1,2,3,4,5].forEach(n=>{
     const inp = document.getElementById(`bannerForm_charImg${n}`);
     if(inp){ inp.value = b[`char_image_${n}`]||''; previewBannerCharImg(n); }
   });
@@ -18761,11 +18783,15 @@ async function submitBannerForm(){
   const charImg1 = document.getElementById('bannerForm_charImg1')?.value?.trim()||'';
   const charImg2 = document.getElementById('bannerForm_charImg2')?.value?.trim()||'';
   const charImg3 = document.getElementById('bannerForm_charImg3')?.value?.trim()||'';
-  const hasCharImgs = charImg1||charImg2||charImg3;
+  const charImg4 = document.getElementById('bannerForm_charImg4')?.value?.trim()||'';
+  const charImg5 = document.getElementById('bannerForm_charImg5')?.value?.trim()||'';
+  const hasCharImgs = charImg1||charImg2||charImg3||charImg4||charImg5;
   const charImageData = {
     char_image_1: charImg1,
     char_image_2: charImg2,
     char_image_3: charImg3,
+    char_image_4: charImg4,
+    char_image_5: charImg5,
   };
 
   const _doFetch = async (method, urlSuffix, data) => {
