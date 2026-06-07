@@ -15508,6 +15508,7 @@ async function loadCards(){
         vfxType:      ab.vfx_type  || '',
         vfxColor:     ab.vfx_color || '',
         showCutscene: ab.show_cutscene !== false,  // default true
+        sort_order:   ab.sort_order || 0,
       });
       // Sort by sort_order
       window.DB_ABILITIES[ab.card_id].sort((a,b)=>(a.sort_order||0)-(b.sort_order||0));
@@ -22942,19 +22943,19 @@ function addAbilitySlot(prefill){
       <div style="display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;">
         <select class="admin-input ab-vfx-type" id="ab_vfx_type_${idx}" style="font-size:0.82em;">
           <option value="">— auto (by tier) —</option>
-          <option value="white_flash" ${(data.vfxType||'')==='white_flash'?'selected':''}>⚡ White Flash</option>
-          <option value="black_flash" ${(data.vfxType||'')==='black_flash'?'selected':''}>🌑 Black Flash</option>
-          <option value="color_flash" ${(data.vfxType||'')==='color_flash'?'selected':''}>🌈 Color Flash</option>
-          <option value="speed_lines" ${(data.vfxType||'')==='speed_lines'?'selected':''}>💨 Speed Lines</option>
-          <option value="lightning"   ${(data.vfxType||'')==='lightning'?'selected':''}>⚡ Lightning</option>
-          <option value="fire"        ${(data.vfxType||'')==='fire'?'selected':''}>🔥 Fire</option>
-          <option value="burst_ring"  ${(data.vfxType||'')==='burst_ring'?'selected':''}>💥 Burst Ring</option>
-          <option value="none"        ${(data.vfxType||'')==='none'?'selected':''}>✕ None</option>
+          <option value="white_flash" ${(data.vfx_type||data.vfxType||'')==='white_flash'?'selected':''}>⚡ White Flash</option>
+          <option value="black_flash" ${(data.vfx_type||data.vfxType||'')==='black_flash'?'selected':''}>🌑 Black Flash</option>
+          <option value="color_flash" ${(data.vfx_type||data.vfxType||'')==='color_flash'?'selected':''}>🌈 Color Flash</option>
+          <option value="speed_lines" ${(data.vfx_type||data.vfxType||'')==='speed_lines'?'selected':''}>💨 Speed Lines</option>
+          <option value="lightning"   ${(data.vfx_type||data.vfxType||'')==='lightning'?'selected':''}>⚡ Lightning</option>
+          <option value="fire"        ${(data.vfx_type||data.vfxType||'')==='fire'?'selected':''}>🔥 Fire</option>
+          <option value="burst_ring"  ${(data.vfx_type||data.vfxType||'')==='burst_ring'?'selected':''}>💥 Burst Ring</option>
+          <option value="none"        ${(data.vfx_type||data.vfxType||'')==='none'?'selected':''}>✕ None</option>
         </select>
         <div style="display:flex;align-items:center;gap:6px;">
           <label class="admin-label" style="margin:0;white-space:nowrap;font-size:0.75em;">Color</label>
           <input type="color" class="ab-vfx-color" id="ab_vfx_color_${idx}"
-            value="${data.vfxColor||'#ff9dc7'}"
+            value="${data.vfx_color||data.vfxColor||'#ff9dc7'}"
             style="width:34px;height:28px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer;padding:2px;"/>
         </div>
       </div>
@@ -22966,7 +22967,7 @@ function addAbilitySlot(prefill){
         <span class="admin-hint" style="display:block;font-size:0.72em;margin-top:2px;">Play the cinematic overlay when this ability is used</span>
       </div>
       <label class="bset-toggle" style="flex-shrink:0;">
-        <input type="checkbox" class="ab-cutscene-toggle" id="ab_cutscene_${idx}" ${(data.showCutscene===false)?'':'checked'}>
+        <input type="checkbox" class="ab-cutscene-toggle" id="ab_cutscene_${idx}" ${(data.show_cutscene===false||data.showCutscene===false)?'':'checked'}>
         <div class="bset-toggle-track"></div>
         <div class="bset-toggle-thumb"></div>
       </label>
@@ -23248,7 +23249,7 @@ function collectAbilitySlots(){
       audio_url:    s.querySelector('.ab-audio-url')?.value?.trim()||'',
       vfx_type:      s.querySelector('.ab-vfx-type')?.value?.trim()||'',
       vfx_color:     s.querySelector('.ab-vfx-color')?.value?.trim()||'',
-      show_cutscene: s.querySelector('.ab-cutscene-toggle')?.checked !== false,
+      show_cutscene: !!(s.querySelector('.ab-cutscene-toggle')?.checked),
       sort_order: i,
     };
   }).filter(a=>a.name);
@@ -23297,22 +23298,21 @@ async function submitCardForm(){
       throw new Error('Cards upsert failed ('+cardRes.status+'): '+detail);
     }
 
-    // Save abilities
-    const abilities=collectAbilitySlots();
-    if(abilities.length){
-      // Delete old abilities for this card first
-      await sb.delete('card_abilities',{card_id:id});
-      for(const ab of abilities){
-        await sb.upsert('card_abilities',{...ab,card_id:id});
-      }
+    // Save abilities — always delete old rows first, then reinsert
+    const abilities = collectAbilitySlots();
+    await sb.delete('card_abilities', {card_id: id});
+    for(const ab of abilities){
+      await sb.upsert('card_abilities', {...ab, card_id: id});
     }
 
     // Save evolution inline
     await ceEvoSaveInline(id);
 
-    showToast(isEdit?`✅ "${name}" updated!`:`✅ "${name}" added!`);
+    showToast(isEdit ? `✅ "${name}" updated!` : `✅ "${name}" added!`);
+    // Reload cards+abilities from DB before clearing the form,
+    // so the next editCard() call sees fresh data
     await loadCards();
-    renderCollection();renderHomeBannerWidget();
+    renderCollection(); renderHomeBannerWidget();
     cancelCardEdit();
     loadAdminCardList();
   }catch(e){
@@ -23416,14 +23416,37 @@ async function editCard(cardId){
   document.getElementById('cardForm_for_battle').checked=c.for_battle!==false;
   document.getElementById('limitedForWrap').style.display=c.limited?'':'none';
 
-  // Load existing abilities
-  document.getElementById('abilitySlots').innerHTML='';
-  abilitySlotCount=0;
-  document.getElementById('addAbilitySlotBtn').style.display='';
-  const abs=await sb.get('card_abilities',{card_id:cardId});
-  if(abs&&abs.length){
-    abs.sort((a,b)=>(a.sort_order||0)-(b.sort_order||0));
-    abs.forEach(ab=>addAbilitySlot(ab));
+  // Load existing abilities — use in-memory cache (kept fresh by loadCards)
+  // then fall back to a direct DB fetch if cache is missing
+  document.getElementById('abilitySlots').innerHTML = '';
+  abilitySlotCount = 0;
+  document.getElementById('addAbilitySlotBtn').style.display = '';
+  let abs = (window.DB_ABILITIES && window.DB_ABILITIES[cardId]) || null;
+  if (!abs) {
+    // Cache miss — fetch directly from DB
+    abs = await sb.get('card_abilities', {card_id: cardId});
+  }
+  if (abs && abs.length) {
+    // DB_ABILITIES cache uses camelCase; raw DB rows use snake_case — normalize both
+    const normalized = abs.map(ab => ({
+      ability_id:    ab.ability_id || ab.id || '',
+      name:          ab.name || '',
+      icon:          ab.icon || '⚡',
+      tier:          ab.tier || 'active',
+      description:   ab.desc || ab.description || '',
+      battle_effect: ab.battleEffect || ab.battle_effect || '',
+      value:         ab.value || 0,
+      mp_cost:       ab.mpCost || ab.mp_cost || 0,
+      chance:        ab.chance != null ? ab.chance : 100,
+      gif_url:       ab.gifUrl || ab.gif_url || '',
+      audio_url:     ab.audioUrl || ab.audio_url || '',
+      vfx_type:      ab.vfxType || ab.vfx_type || '',
+      vfx_color:     ab.vfxColor || ab.vfx_color || '',
+      show_cutscene: ab.showCutscene !== false && ab.show_cutscene !== false,
+      sort_order:    ab.sort_order || 0,
+    }));
+    normalized.sort((a,b) => (a.sort_order||0) - (b.sort_order||0));
+    normalized.forEach(ab => addAbilitySlot(ab));
   }
   updateCardPreview();
   // Load existing evolution for this card
