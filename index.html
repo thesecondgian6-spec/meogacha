@@ -14956,11 +14956,11 @@ async function playAbilityCutscene(cardId, rarity, abilityId){
   const audioUrlEarly = (ability.audioUrl && ability.audioUrl.trim()) ? ability.audioUrl.trim() : '';
   if(audioUrlEarly){ playMp3Sound(audioUrlEarly); } else { playAbilityCutsceneSound(ability.tier); }
 
-  // ── VFX plays if enabled (regardless of cutscene setting) ──
+  // ── VFX plays if enabled ──
   if(BATTLE_SETTINGS.vfxEnabled){ await playAbilityVFX(ability, color); }
 
-  // ── Skip full cutscene if disabled ──
-  if(!BATTLE_SETTINGS.cutsceneEnabled){ return; }
+  // ── Skip full cutscene if disabled for this ability ──
+  if(ability.showCutscene === false){ return; }
   const tierLabel  = tierLabels[ability.tier] || ability.tier.toUpperCase();
   const tierDuration = ability.tier==='ultimate'?3000 : ability.tier==='secret'?3500 : 2200;
 
@@ -15507,6 +15507,7 @@ async function loadCards(){
         audioUrl:     ab.audio_url || '',
         vfxType:      ab.vfx_type  || '',
         vfxColor:     ab.vfx_color || '',
+        showCutscene: ab.show_cutscene !== false,  // default true
       });
       // Sort by sort_order
       window.DB_ABILITIES[ab.card_id].sort((a,b)=>(a.sort_order||0)-(b.sort_order||0));
@@ -17329,6 +17330,8 @@ async function _baiPlayerMove(moveId) {
   // ── Player action ──
   if (moveId === 'defend') {
     ps.playerGuarding = true;
+    playGuardSound();
+    if(BATTLE_SETTINGS.vfxEnabled) spawnVFXColorFlash('rgba(93,173,226,0.35)');
     _baiLog(`🛡️ ${pName} takes a defensive stance!`, 'player');
   } else if (moveId === 'heal') {
     ps.playerHP = Math.min(ps.playerMaxHP, ps.playerHP + move.power);
@@ -17423,6 +17426,17 @@ async function _baiPlayerMove(moveId) {
     atk = Math.max(1, atk);
     const crit = ps.nextAttackGuaranteedCrit ? (ps.nextAttackGuaranteedCrit=false, true) : Math.random() < 0.12;
     if (crit) { atk = Math.round(atk * 1.5); _baiLog(`💥 CRITICAL HIT!`, 'player'); }
+
+    // ── Per-skill VFX + sounds ──
+    if(BATTLE_SETTINGS.vfxEnabled){
+      if(moveId==='strike')      { spawnVFXWhiteFlash(); }
+      else if(moveId==='power')  { spawnVFXSpeedLines(RARITY_COLORS[ps.playerCard.rarity]||'#ff9dc7'); setTimeout(()=>spawnVFXColorFlash((RARITY_COLORS[ps.playerCard.rarity]||'#ff9dc7')+'99'),100); }
+      else if(crit)              { spawnVFXBurstRing(RARITY_COLORS[ps.playerCard.rarity]||'#ff9dc7'); }
+    }
+    if(moveId==='strike')      { playQuickStrikeSound(); playHitSound(crit); }
+    else if(moveId==='power')  { playPowerBlowSound();   playHitSound(crit); }
+    else                       { playAttackSound('atk'); playHitSound(crit); }
+
     _baiFlashCard('enemy');
     ps.enemyHP -= atk;
     _baiLog(`${move.icon} ${pName} uses ${move.name}! ${eName} takes ${atk} damage.${crit ? ' 💥 CRIT!' : ''}`, 'player');
@@ -21139,19 +21153,16 @@ function getVFXLayer(){ return document.getElementById('battleVFXLayer'); }
 // BATTLE SETTINGS — cutscene & VFX toggles
 // ══════════════════════════════════════════════
 const BATTLE_SETTINGS = {
-  cutsceneEnabled: true,   // show full cutscene overlay on ability use
   vfxEnabled: true,        // show ability VFX effects (flash, speed lines, etc.)
-  // audio always plays regardless of above toggles
+  // per-ability cutscene toggle is set in the admin card editor (showCutscene field)
+  // audio always plays regardless
 };
 
 function openBattleSettings(){
   const panel = document.getElementById('battleSettingsPanel');
   const bd    = document.getElementById('battleSettingsBd');
   if(!panel) return;
-  // sync toggles
-  const cToggle = document.getElementById('bset-cutscene');
   const vToggle = document.getElementById('bset-vfx');
-  if(cToggle) cToggle.checked = BATTLE_SETTINGS.cutsceneEnabled;
   if(vToggle) vToggle.checked = BATTLE_SETTINGS.vfxEnabled;
   panel.classList.add('open');
   if(bd) bd.classList.add('open');
@@ -21161,11 +21172,8 @@ function closeBattleSettings(){
   const bd    = document.getElementById('battleSettingsBd');
   if(panel) panel.classList.remove('open');
   if(bd)    bd.classList.remove('open');
-  // read toggles
-  const cToggle = document.getElementById('bset-cutscene');
   const vToggle = document.getElementById('bset-vfx');
-  if(cToggle) BATTLE_SETTINGS.cutsceneEnabled = cToggle.checked;
-  if(vToggle) BATTLE_SETTINGS.vfxEnabled       = vToggle.checked;
+  if(vToggle) BATTLE_SETTINGS.vfxEnabled = vToggle.checked;
 }
 
 function injectBattleSettingsUI(){
@@ -21175,17 +21183,6 @@ function injectBattleSettingsUI(){
   panel.id = 'battleSettingsPanel';
   panel.innerHTML = `
     <h3>⚙ Battle Settings</h3>
-    <div class="bset-row">
-      <div class="bset-label">
-        Ability Cutscenes
-        <span class="bset-sub">Full cinematic overlay when using abilities</span>
-      </div>
-      <label class="bset-toggle">
-        <input type="checkbox" id="bset-cutscene" checked>
-        <div class="bset-toggle-track"></div>
-        <div class="bset-toggle-thumb"></div>
-      </label>
-    </div>
     <div class="bset-row">
       <div class="bset-label">
         Ability VFX Effects
@@ -21198,7 +21195,7 @@ function injectBattleSettingsUI(){
       </label>
     </div>
     <div class="bset-row" style="border:none;padding-top:6px;font-size:0.72em;color:var(--text-dim);display:block;text-align:center;">
-      🎵 Audio always plays regardless of settings
+      🎵 Audio always plays &nbsp;·&nbsp; 🎬 Cutscene per-ability (set in card editor)
     </div>
     <button class="bset-close-btn" onclick="closeBattleSettings()">Done</button>
   `;
@@ -22963,6 +22960,18 @@ function addAbilitySlot(prefill){
       </div>
     </div>
 
+    <div style="margin-top:8px;display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:rgba(255,157,199,0.04);border:1px solid rgba(255,157,199,0.1);border-radius:8px;">
+      <div>
+        <span class="admin-label" style="margin:0;">Show Cutscene</span>
+        <span class="admin-hint" style="display:block;font-size:0.72em;margin-top:2px;">Play the cinematic overlay when this ability is used</span>
+      </div>
+      <label class="bset-toggle" style="flex-shrink:0;">
+        <input type="checkbox" class="ab-cutscene-toggle" id="ab_cutscene_${idx}" ${(data.showCutscene===false)?'':'checked'}>
+        <div class="bset-toggle-track"></div>
+        <div class="bset-toggle-thumb"></div>
+      </label>
+    </div>
+
     
     <input type="hidden" class="ab-id-input"     value="${data.ability_id||data.id||''}"/>
     <input type="hidden" class="ab-effect-input" value="${prefillEffect}"/>
@@ -23237,8 +23246,9 @@ function collectAbilitySlots(){
       chance:       parseInt(s.querySelector('.ab-chance-input')?.value)||100,
       gif_url:      s.querySelector('.ab-gif-url')?.value?.trim()||'',
       audio_url:    s.querySelector('.ab-audio-url')?.value?.trim()||'',
-      vfx_type:     s.querySelector('.ab-vfx-type')?.value?.trim()||'',
-      vfx_color:    s.querySelector('.ab-vfx-color')?.value?.trim()||'',
+      vfx_type:      s.querySelector('.ab-vfx-type')?.value?.trim()||'',
+      vfx_color:     s.querySelector('.ab-vfx-color')?.value?.trim()||'',
+      show_cutscene: s.querySelector('.ab-cutscene-toggle')?.checked !== false,
       sort_order: i,
     };
   }).filter(a=>a.name);
