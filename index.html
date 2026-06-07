@@ -17444,7 +17444,6 @@ function _baiRenderMoves() {
       ${m.power && m.type === 'atk' ? `<span class="move-power">PWR ${m.power}</span>` : ''}
     </button>`;
   };
-  };
 
   // Split: basic skills vs card abilities
   const basicMoves = moves.filter(m => !m.id.startsWith('active_') && !m.id.startsWith('ult_'));
