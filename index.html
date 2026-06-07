@@ -2989,30 +2989,20 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 }
 
 /* Featured cards block */
-.gp-featured-block { display: flex; flex-direction: column; gap: 6px; min-width: 0; overflow: hidden; }
+.gp-featured-block { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
 .gp-featured-label {
   font-family: "JetBrains Mono", monospace;
   font-size: 0.5em; letter-spacing: 0.12em; text-transform: uppercase;
   color: rgba(255,255,255,0.35);
 }
-.gp-featured-row {
-  display: flex; gap: 6px; flex-wrap: nowrap;
-  overflow-x: auto; overflow-y: visible;
-  scroll-snap-type: x mandatory;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none; /* hide scrollbar Firefox */
-  padding-bottom: 4px;
-}
-.gp-featured-row::-webkit-scrollbar { display: none; }
+.gp-featured-row { display: flex; gap: 5px; flex-wrap: nowrap; overflow: visible; }
 .gp-feat-card {
   position: relative;
-  /* height set inline per card count; width derived from aspect-ratio: 2/3 */
-  aspect-ratio: 2 / 3;
+  /* height and width both set inline based on card count */
   border-radius: 10px; overflow: hidden;
   border: 1.5px solid rgba(255,157,199,0.28);
   cursor: pointer; transition: all 0.22s;
   background: rgba(5,2,13,0.55); flex-shrink: 0;
-  scroll-snap-align: start;
   box-shadow: 0 4px 16px rgba(0,0,0,0.55);
 }
 .gp-feat-card:hover {
@@ -3236,7 +3226,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   .gp-banner-name { font-size: clamp(1.1em, 5.5vw, 1.5em); font-weight: 700; }
   .gp-banner-desc { font-size: 0.65em; max-width: 160px; }
   .gp-featured-label { display: none; }
-  .gp-feat-card { max-height: clamp(100px, 38vw, 220px); }
+  .gp-feat-card { max-height: none; }
   .gp-char-showcase { width: 68%; right: -1%; }
   .gp-char-slide img { height: 100%; }
   .gp-banner-picker-btn { top: 10px; right: 10px; font-size: 0.58em; }
@@ -3249,7 +3239,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 }
 @media (max-width: 380px) {
   .gp-info { width: 52%; }
-  .gp-feat-card { max-height: 100px; }
+  .gp-feat-card { max-height: none; }
 }
 
 /* ── Legacy classes kept alive for existing code compatibility ── */
@@ -18386,7 +18376,18 @@ function renderActiveBanner(){
 
   // Auto-size featured cards by height: fewer = taller
   const fc = featuredCards.length;
-  const featCardHeight = fc === 1 ? 'clamp(240px, 62vw, 320px)' : fc === 2 ? 'clamp(190px, 50vw, 270px)' : fc === 3 ? 'clamp(155px, 40vw, 220px)' : fc === 4 ? 'clamp(130px, 33vw, 185px)' : 'clamp(100px, 26vw, 150px)';
+  // Height and width scale inversely with card count so all cards fit in the left panel (~48vw usable)
+  // Width: divide ~44vw by count minus gaps (6px each). Height via aspect-ratio 2:3 from width.
+  const featCardHeight = fc === 1 ? 'clamp(200px, 52vw, 280px)'
+                       : fc === 2 ? 'clamp(160px, 42vw, 240px)'
+                       : fc === 3 ? 'clamp(120px, 30vw, 180px)'
+                       : fc === 4 ? 'clamp(90px,  22vw, 140px)'
+                       :            'clamp(76px,  17vw, 120px)';
+  const featCardWidth  = fc === 1 ? 'clamp(130px, 34vw, 185px)'
+                       : fc === 2 ? 'clamp(104px, 27vw, 158px)'
+                       : fc === 3 ? 'clamp(78px,  19vw, 118px)'
+                       : fc === 4 ? 'clamp(58px,  14vw,  92px)'
+                       :            'clamp(50px,  11vw,  78px)';
   const featRowJustify = 'flex-start';
 
   el.innerHTML = `
@@ -18428,7 +18429,7 @@ function renderActiveBanner(){
             <div class="gp-featured-row" style="justify-content:${featRowJustify}">
               ${featuredCards.map(c=>{
                 const color = RARITY_COLORS[c.rarity]||'#bdc3c7';
-                return `<div class="gp-feat-card" style="height:${featCardHeight}" onclick="openCard('${c.id}')">
+                return `<div class="gp-feat-card" style="height:${featCardHeight};width:${featCardWidth};aspect-ratio:unset" onclick="openCard('${c.id}')">
                   <img src="${c.thumbnail||c.image}" alt="${c.name}" onerror="this.style.background='#1c0f26'"/>
                   <div class="gp-feat-rateup">RATE ▲</div>
                   <div class="gp-feat-card-info">
@@ -18518,7 +18519,7 @@ function renderHomeBannerWidget(){
   if(!el) return;
   const banner      = getActiveBanner();
   const allCards    = window.DEMO_CARDS || DEMO_CARDS;
-  const featuredCards = parseFeaturedCards(banner.featured_cards).map(id=>allCards.find(c=>c.id===id)).filter(Boolean).slice(0,5);
+  const featuredCards = parseFeaturedCards(banner.featured_cards).map(id=>allCards.find(c=>c.id===id)).filter(Boolean).slice(0,4);
   const meta        = BANNER_TYPE_META[banner.banner_type||'standard'] || BANNER_TYPE_META.standard;
 
   el.innerHTML = `
