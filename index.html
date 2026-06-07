@@ -2700,7 +2700,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   .battle-move-ult-btn { padding: 7px 8px; }
   .move-name { font-size: 0.62em; }
   .move-desc { font-size: 0.62em; }
-  .battle-card-img { width: 64px; height: 64px; }
+  .battle-card-img { width: 90px; height: 126px; }
 
   /* ── Section titles ── */
   .section-title { font-size: 0.88em; }
@@ -4056,7 +4056,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 12px;
+  gap: 16px;
   margin-bottom: 14px;
 }
 .battle-player-side, .battle-enemy-side {
@@ -4078,10 +4078,10 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   display: inline-block;
 }
 .battle-card-img {
-  width: 72px;
-  height: 72px;
+  width: 100px;
+  height: 140px;
   object-fit: cover;
-  border-radius: 10px;
+  border-radius: 12px;
   border: 2px solid var(--border);
   display: block;
   transition: all 0.3s;
@@ -4174,12 +4174,12 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 
 /* Move buttons */
 .battle-moves-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
   margin-bottom: 10px;
 }
-/* ── Two-column moves layout ── */
+/* ── Two-column header + single-col buttons layout ── */
 .bai-moves-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .bai-moves-col { display: flex; flex-direction: column; gap: 5px; }
 .bai-moves-col-label { font-family: 'JetBrains Mono', monospace; font-size: 0.62em; color: var(--text-dim); letter-spacing: 0.1em; text-transform: uppercase; padding: 2px 4px; margin-bottom: 1px; }
@@ -4453,7 +4453,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 
 @media(max-width:700px){
   .battle-moves-grid { grid-template-columns: 1fr 1fr; }
-  .battle-card-img { width: 64px; height: 64px; }
+  .battle-card-img { width: 90px; height: 126px; }
   .battle-arena-bg { padding: 14px 12px; }
   .battle-vs-badge { font-size: 1.3em; }
   .battle-move-btn { padding: 7px 8px; }
@@ -17490,16 +17490,18 @@ function _baiRenderMoves() {
   const basicMoves = moves.filter(m => !m.id.startsWith('active_') && !m.id.startsWith('ult_'));
   const abilMoves  = moves.filter(m =>  m.id.startsWith('active_') ||  m.id.startsWith('ult_'));
 
-  grid.innerHTML = `<div class="bai-moves-cols">
-    <div class="bai-moves-col">
-      <div class="bai-moves-col-label">⚔️ Skills</div>
-      ${basicMoves.map(m => mkBtn(m, '_baiPlayerMove')).join('')}
+  grid.innerHTML = `
+    <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
+      <span style="font-family:'JetBrains Mono',monospace;font-size:0.6em;color:var(--text-dim);letter-spacing:0.1em;text-transform:uppercase;">⚔️ Skills</span>
+      <div style="flex:1;height:1px;background:var(--border);opacity:0.5;"></div>
     </div>
-    <div class="bai-moves-col">
-      <div class="bai-moves-col-label">✨ Abilities</div>
-      ${abilMoves.length ? abilMoves.map(m => mkBtn(m, '_baiPlayerMove')).join('') : `<div style="color:var(--text-dim);font-size:0.78em;font-style:italic;padding:6px 2px;">No active abilities</div>`}
+    ${basicMoves.map(m => mkBtn(m, '_baiPlayerMove')).join('')}
+    <div style="display:flex;align-items:center;gap:6px;margin:6px 0 4px;">
+      <span style="font-family:'JetBrains Mono',monospace;font-size:0.6em;color:var(--text-dim);letter-spacing:0.1em;text-transform:uppercase;">✨ Abilities</span>
+      <div style="flex:1;height:1px;background:var(--border);opacity:0.5;"></div>
     </div>
-  </div>`;
+    ${abilMoves.length ? abilMoves.map(m => mkBtn(m, '_baiPlayerMove')).join('') : `<div style="color:var(--text-dim);font-size:0.78em;font-style:italic;padding:4px 2px;">No active abilities</div>`}
+  `;
 }
 
 function _baiFlashCard(who) {
