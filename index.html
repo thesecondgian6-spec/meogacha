@@ -2895,7 +2895,12 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   display: flex; flex-direction: column; gap: 5px;
 }
 
-/* Pull buttons cluster: bottom of info, compact width */
+/* Bottom cluster: pull buttons + featured cards */
+.gp-info-bottom {
+  display: flex; flex-direction: column; gap: 8px;
+}
+
+/* Pull buttons cluster: compact width */
 .gp-pull-row {
   display: flex;
   flex-direction: column;
@@ -2956,12 +2961,13 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 }
 .gp-banner-name {
   font-family: "Cinzel Decorative", serif;
-  font-size: clamp(1em, 4.6vw, 2em);
-  line-height: 1.1;
+  font-size: clamp(1.3em, 5.8vw, 2.6em);
+  font-weight: 700;
+  line-height: 1.08;
   background: linear-gradient(135deg, #fff9fe 0%, var(--pink) 45%, #c084b8 80%, #fff9fe 100%);
   background-size: 280%; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
   animation: shimmer 7s linear infinite;
-  filter: drop-shadow(0 2px 12px rgba(255,157,199,0.4));
+  filter: drop-shadow(0 2px 16px rgba(255,157,199,0.45));
 }
 .gp-banner-desc {
   color: rgba(255,255,255,0.58); font-size: 0.72em; font-style: italic;
@@ -2969,7 +2975,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 }
 
 /* Featured cards block */
-.gp-featured-block { display: flex; flex-direction: column; gap: 5px; margin-top: 10px; }
+.gp-featured-block { display: flex; flex-direction: column; gap: 5px; }
 .gp-featured-label {
   font-family: "JetBrains Mono", monospace;
   font-size: 0.5em; letter-spacing: 0.12em; text-transform: uppercase;
@@ -2979,7 +2985,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .gp-feat-card {
   position: relative;
   /* width set inline based on card count */
-  max-height: clamp(90px, 22vw, 130px);  /* hard height cap regardless of width */
+  max-height: clamp(120px, 30vw, 160px);  /* taller cards */
   border-radius: 10px; overflow: hidden;
   border: 1.5px solid rgba(255,255,255,0.14);
   cursor: pointer; transition: all 0.22s;
@@ -2991,6 +2997,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   box-shadow: 0 8px 24px rgba(255,157,199,0.28);
 }
 .gp-feat-card img { width: 100%; height: 100%; aspect-ratio: 2/3; object-fit: cover; object-position: center top; display: block; }
+
 .gp-feat-card-info {
   position: absolute; bottom: 0; left: 0; right: 0;
   background: linear-gradient(transparent, rgba(0,0,0,0.82));
@@ -3193,10 +3200,10 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
     padding: 10px 6px 14px 12px;
   }
   .gp-info-top { gap: 4px; }
-  .gp-banner-name { font-size: clamp(0.88em, 4.8vw, 1.25em); }
+  .gp-banner-name { font-size: clamp(1.1em, 5.5vw, 1.5em); font-weight: 700; }
   .gp-banner-desc { font-size: 0.65em; max-width: 160px; }
   .gp-featured-label { display: none; }
-  .gp-feat-card { max-height: clamp(80px, 20vw, 110px); }
+  .gp-feat-card { max-height: clamp(100px, 26vw, 140px); }
   .gp-char-showcase { width: 68%; right: -1%; }
   .gp-char-slide img { height: 100%; }
   .gp-banner-picker-btn { top: 10px; right: 10px; font-size: 0.58em; }
@@ -18333,14 +18340,31 @@ function renderActiveBanner(){
     ${charShowcaseHtml}
 
     <div class="gp-info">
-      <!-- top cluster: tag + title + desc + featured -->
+      <!-- top: tag + title + desc -->
       <div class="gp-info-top">
         <div class="gp-left-title">
           <div class="gp-event-tag" style="${tagStyle}">${meta.icon} ${meta.label}</div>
           <div class="gp-banner-name">${banner.name}</div>
           ${banner.description ? `<div class="gp-banner-desc">${banner.description}</div>` : ''}
         </div>
+      </div>
 
+      <!-- bottom cluster: pull buttons on top, featured cards below -->
+      <div class="gp-info-bottom">
+        <!-- pull buttons first -->
+        <div class="gp-pull-row" id="gpPullRow">
+          <button class="gp-wish-btn" onclick="doPull(1)">
+            <div class="gp-wish-btn-left"><span class="gpb-icon">✦</span><span class="gpb-text">Pull × 1</span></div>
+            <span class="gpb-cost">50 🪙</span>
+          </button>
+          <button class="gp-wish-btn gp-wish-btn-10" onclick="doPull(5)">
+            <div class="gp-wish-btn-left"><span class="gpb-icon">✦✦</span><span class="gpb-text">Pull × 5</span></div>
+            <span class="gpb-cost">200 🪙</span>
+          </button>
+          <button class="gp-pool-btn" onclick="openPoolView()">🃏 View Pool</button>
+        </div>
+
+        <!-- featured cards below pull buttons -->
         ${featuredCards.length ? `
           <div class="gp-featured-block">
             <div class="gp-featured-label">✦ Rate Up</div>
@@ -18360,19 +18384,6 @@ function renderActiveBanner(){
             <div class="gp-rateup-note">⬆️ Featured cards appear 2× more often</div>
           </div>
         ` : ''}
-      </div>
-
-      <!-- pull buttons: bottom of overlay, compact -->
-      <div class="gp-pull-row" id="gpPullRow">
-        <button class="gp-wish-btn" onclick="doPull(1)">
-          <div class="gp-wish-btn-left"><span class="gpb-icon">✦</span><span class="gpb-text">Pull × 1</span></div>
-          <span class="gpb-cost">50 🪙</span>
-        </button>
-        <button class="gp-wish-btn gp-wish-btn-10" onclick="doPull(5)">
-          <div class="gp-wish-btn-left"><span class="gpb-icon">✦✦</span><span class="gpb-text">Pull × 5</span></div>
-          <span class="gpb-cost">200 🪙</span>
-        </button>
-        <button class="gp-pool-btn" onclick="openPoolView()">🃏 View Pool</button>
       </div>
     </div>
   `;
