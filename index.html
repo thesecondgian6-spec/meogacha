@@ -2999,8 +2999,8 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .gp-featured-row { display: flex; gap: 8px; flex-wrap: nowrap; width: 100%; }
 .gp-feat-card {
   position: relative;
-  /* width set inline based on card count */
-  max-height: clamp(160px, 42vw, 220px);
+  /* width set inline based on card count — height derived from aspect-ratio */
+  aspect-ratio: 2 / 3;
   border-radius: 10px; overflow: hidden;
   border: 1.5px solid rgba(255,157,199,0.28);
   cursor: pointer; transition: all 0.22s;
@@ -3012,7 +3012,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   border-color: var(--pink);
   box-shadow: 0 10px 28px rgba(255,157,199,0.35), 0 0 20px rgba(255,157,199,0.15);
 }
-.gp-feat-card img { width: 100%; height: 100%; aspect-ratio: 2/3; object-fit: cover; object-position: center top; display: block; }
+.gp-feat-card img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center top; display: block; }
 
 .gp-feat-card-info {
   position: absolute; bottom: 0; left: 0; right: 0;
@@ -18356,7 +18356,7 @@ function renderActiveBanner(){
 
   // Auto-size featured cards: fewer cards = bigger, centered when 1-2
   const fc = featuredCards.length;
-  const featCardWidth = fc === 1 ? 'min(140px, 36vw)' : fc === 2 ? 'min(110px, 28vw)' : 'min(88px, 22vw)';
+  const featCardWidth = fc === 1 ? 'min(150px, 38vw)' : fc === 2 ? 'min(115px, 29vw)' : 'min(88px, 22vw)';
   const featRowJustify = fc === 1 ? 'center' : fc === 2 ? 'center' : 'flex-start';
 
   el.innerHTML = `
