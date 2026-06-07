@@ -4400,6 +4400,231 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   75%{ transform:translate(-4px, 2px) rotate(-0.3deg); }
 }
 
+/* ══════════════════════════════════════════════
+   ABILITY VFX EFFECTS — new effect types
+══════════════════════════════════════════════ */
+/* White Flash */
+.vfx-white-flash {
+  position: fixed; inset: 0; z-index: 9800;
+  background: #fff; pointer-events: none;
+  animation: vfxWhiteFlash 0.45s ease forwards;
+}
+@keyframes vfxWhiteFlash {
+  0%   { opacity: 0; }
+  12%  { opacity: 1; }
+  100% { opacity: 0; }
+}
+/* Black Flash */
+.vfx-black-flash {
+  position: fixed; inset: 0; z-index: 9800;
+  background: #000; pointer-events: none;
+  animation: vfxBlackFlash 0.5s ease forwards;
+}
+@keyframes vfxBlackFlash {
+  0%   { opacity: 0; }
+  10%  { opacity: 0.95; }
+  40%  { opacity: 0.85; }
+  100% { opacity: 0; }
+}
+/* Color Flash */
+.vfx-color-flash {
+  position: fixed; inset: 0; z-index: 9800;
+  pointer-events: none;
+  animation: vfxColorFlash 0.5s ease forwards;
+}
+@keyframes vfxColorFlash {
+  0%   { opacity: 0; }
+  15%  { opacity: 0.7; }
+  100% { opacity: 0; }
+}
+/* Speed Lines */
+.vfx-speed-lines {
+  position: fixed; inset: 0; z-index: 9790;
+  pointer-events: none;
+  overflow: hidden;
+  animation: vfxSpeedLinesIn 0.55s ease forwards;
+}
+.vfx-speed-line {
+  position: absolute;
+  top: 50%; left: 50%;
+  height: 2px;
+  transform-origin: left center;
+  border-radius: 2px;
+  animation: vfxSpeedLine 0.45s ease-out forwards;
+}
+@keyframes vfxSpeedLinesIn {
+  0%   { opacity: 0; }
+  10%  { opacity: 1; }
+  70%  { opacity: 1; }
+  100% { opacity: 0; }
+}
+@keyframes vfxSpeedLine {
+  0%   { transform: rotate(var(--angle)) scaleX(0); opacity: 1; }
+  35%  { transform: rotate(var(--angle)) scaleX(1); opacity: 1; }
+  100% { transform: rotate(var(--angle)) scaleX(1.2); opacity: 0; }
+}
+/* Lightning */
+.vfx-lightning-bolt {
+  position: fixed; z-index: 9795;
+  pointer-events: none;
+  width: 4px;
+  border-radius: 2px;
+  animation: vfxLightningBolt 0.4s ease forwards;
+  transform-origin: top center;
+  box-shadow: 0 0 12px currentColor, 0 0 30px currentColor;
+}
+@keyframes vfxLightningBolt {
+  0%   { opacity: 0; transform: scaleY(0) skewX(var(--skew,8deg)); }
+  15%  { opacity: 1; transform: scaleY(1.05) skewX(var(--skew,8deg)); }
+  45%  { opacity: 1; transform: scaleY(1) skewX(var(--skew,-8deg)); }
+  65%  { opacity: 0.7; transform: scaleY(1) skewX(var(--skew,5deg)); }
+  100% { opacity: 0; }
+}
+.vfx-lightning-flicker {
+  position: fixed; inset: 0; z-index: 9793;
+  pointer-events: none;
+  animation: vfxLightningFlicker 0.45s steps(2) forwards;
+}
+@keyframes vfxLightningFlicker {
+  0%,20%,40%,60%,80%,100% { opacity: 0; }
+  10%,30%,50%,70% { opacity: 0.25; }
+}
+/* Fire */
+.vfx-fire-particle {
+  position: fixed; z-index: 9790;
+  border-radius: 50% 50% 30% 30%;
+  pointer-events: none;
+  animation: vfxFireRise var(--dur, 0.7s) ease-out forwards;
+}
+@keyframes vfxFireRise {
+  0%   { opacity: 1; transform: translateY(0) scale(1) rotate(0deg); }
+  50%  { opacity: 0.8; transform: translateY(var(--ry,-60px)) scale(0.8) rotate(15deg); }
+  100% { opacity: 0; transform: translateY(var(--ry2,-120px)) scale(0.3) rotate(-10deg); }
+}
+/* Shockwave burst */
+.vfx-burst-ring {
+  position: fixed; z-index: 9785;
+  border-radius: 50%;
+  pointer-events: none;
+  transform: translate(-50%,-50%);
+  border-style: solid;
+  animation: vfxBurstRing 0.6s ease-out forwards;
+}
+@keyframes vfxBurstRing {
+  0%   { opacity: 1; width: 20px; height: 20px; }
+  100% { opacity: 0; width: 400px; height: 400px; }
+}
+
+/* ── Battle Settings Panel ── */
+#battleSettingsPanel {
+  position: fixed;
+  top: 50%; left: 50%;
+  transform: translate(-50%,-50%) scale(0.92);
+  z-index: 9900;
+  background: rgba(8,4,12,0.97);
+  border: 1px solid rgba(255,157,199,0.3);
+  border-radius: 18px;
+  padding: 24px 28px;
+  min-width: 300px;
+  max-width: 380px;
+  width: 90vw;
+  box-shadow: 0 0 60px rgba(255,157,199,0.15), 0 20px 60px rgba(0,0,0,0.8);
+  backdrop-filter: blur(20px);
+  opacity: 0;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  pointer-events: none;
+}
+#battleSettingsPanel.open {
+  opacity: 1;
+  transform: translate(-50%,-50%) scale(1);
+  pointer-events: all;
+}
+#battleSettingsPanel h3 {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 0.9em;
+  color: var(--pink);
+  letter-spacing: 0.1em;
+  margin-bottom: 18px;
+  text-align: center;
+}
+.bset-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255,157,199,0.08);
+  gap: 12px;
+}
+.bset-row:last-of-type { border-bottom: none; }
+.bset-label { font-size: 0.85em; color: var(--text); flex: 1; }
+.bset-sub   { font-size: 0.72em; color: var(--text-dim); display: block; margin-top: 2px; }
+/* Toggle switch */
+.bset-toggle {
+  position: relative;
+  width: 44px; height: 24px;
+  flex-shrink: 0;
+}
+.bset-toggle input { display: none; }
+.bset-toggle-track {
+  position: absolute; inset: 0;
+  background: rgba(255,157,199,0.15);
+  border: 1px solid rgba(255,157,199,0.25);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+.bset-toggle input:checked + .bset-toggle-track {
+  background: rgba(255,157,199,0.35);
+  border-color: var(--pink);
+}
+.bset-toggle-thumb {
+  position: absolute;
+  top: 3px; left: 3px;
+  width: 16px; height: 16px;
+  background: var(--text-dim);
+  border-radius: 50%;
+  transition: transform 0.2s, background 0.2s;
+  pointer-events: none;
+}
+.bset-toggle input:checked ~ .bset-toggle-thumb {
+  transform: translateX(20px);
+  background: var(--pink);
+}
+.bset-close-btn {
+  display: block; width: 100%; margin-top: 16px;
+  background: rgba(255,157,199,0.1);
+  border: 1px solid rgba(255,157,199,0.25);
+  border-radius: 10px;
+  color: var(--text-dim);
+  padding: 8px;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.85em;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.bset-close-btn:hover { background: rgba(255,157,199,0.2); color: var(--pink); }
+.bset-backdrop {
+  position: fixed; inset: 0; z-index: 9899;
+  display: none;
+}
+.bset-backdrop.open { display: block; }
+/* Settings gear button in battle */
+.battle-settings-btn {
+  position: absolute;
+  top: 10px; right: 10px;
+  z-index: 60;
+  background: rgba(255,157,199,0.08);
+  border: 1px solid rgba(255,157,199,0.2);
+  border-radius: 8px;
+  color: var(--text-dim);
+  width: 32px; height: 32px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  font-size: 0.9em;
+  transition: all 0.2s;
+}
+.battle-settings-btn:hover { background: rgba(255,157,199,0.18); color: var(--pink); }
+
 /* ── Cutscene modal ── */
 #abilityCutscene {
   display: none;
@@ -14439,6 +14664,51 @@ function playAttackSound(type){
   }catch(e){}
 }
 
+// ── Quick Strike — crisp swipe whoosh ──
+function playQuickStrikeSound(){
+  try{
+    const ctx=getAudio();
+    // Sharp air-cut whoosh
+    makeNoise(ctx,0.18,0.1);
+    makeOsc(ctx,'sawtooth',320,0.22,0.001,0.18);
+    makeOsc(ctx,'sawtooth',640,0.12,0.001,0.12,0.03);
+    // Short metallic clink at end
+    makeOsc(ctx,'sine',1200,0.1,0.001,0.08,0.12);
+  }catch(e){}
+}
+
+// ── Guard — solid shield clang + resonance ──
+function playGuardSound(){
+  try{
+    const ctx=getAudio();
+    // Heavy thud
+    makeNoise(ctx,0.22,0.18);
+    makeOsc(ctx,'triangle',100,0.28,0.001,0.25);
+    // Metallic ring
+    makeOsc(ctx,'sine',440,0.2,0.001,0.35,0.04);
+    makeOsc(ctx,'sine',880,0.12,0.001,0.28,0.08);
+    makeOsc(ctx,'sine',1320,0.07,0.001,0.22,0.12);
+    // High shimmer decay
+    makeOsc(ctx,'sine',2200,0.05,0.001,0.4,0.1);
+  }catch(e){}
+}
+
+// ── Power Blow — heavy impact boom ──
+function playPowerBlowSound(){
+  try{
+    const ctx=getAudio();
+    // Deep thump
+    makeNoise(ctx,0.28,0.3);
+    makeOsc(ctx,'sawtooth',55,0.35,0.001,0.4);
+    makeOsc(ctx,'sawtooth',110,0.22,0.001,0.35,0.04);
+    // Crack on impact
+    makeOsc(ctx,'square',280,0.18,0.001,0.2,0.1);
+    // Shockwave ring
+    makeOsc(ctx,'sine',660,0.12,0.001,0.3,0.15);
+    makeOsc(ctx,'sine',220,0.14,0.001,0.45,0.08);
+  }catch(e){}
+}
+
 function playHitSound(isCrit){
   try{
     const ctx=getAudio();
@@ -14457,9 +14727,7 @@ function playHitSound(isCrit){
 function playDefendSound(){
   try{
     const ctx=getAudio();
-    makeOsc(ctx,'sine',440,0.2,0.001,0.15);
-    makeOsc(ctx,'sine',330,0.15,0.001,0.2,0.08);
-    makeNoise(ctx,0.08,0.15);
+    playGuardSound();
   }catch(e){}
 }
 
@@ -14683,6 +14951,16 @@ async function playAbilityCutscene(cardId, rarity, abilityId){
   };
   const color      = tierColors[ability.tier] || '#fff';
   const rarityColor= RARITY_COLORS[rarity] || '#fff';
+
+  // ── AUDIO always plays (before cutscene check) ──
+  const audioUrlEarly = (ability.audioUrl && ability.audioUrl.trim()) ? ability.audioUrl.trim() : '';
+  if(audioUrlEarly){ playMp3Sound(audioUrlEarly); } else { playAbilityCutsceneSound(ability.tier); }
+
+  // ── VFX plays if enabled (regardless of cutscene setting) ──
+  if(BATTLE_SETTINGS.vfxEnabled){ await playAbilityVFX(ability, color); }
+
+  // ── Skip full cutscene if disabled ──
+  if(!BATTLE_SETTINGS.cutsceneEnabled){ return; }
   const tierLabel  = tierLabels[ability.tier] || ability.tier.toUpperCase();
   const tierDuration = ability.tier==='ultimate'?3000 : ability.tier==='secret'?3500 : 2200;
 
@@ -14743,13 +15021,7 @@ async function playAbilityCutscene(cardId, rarity, abilityId){
   overlay.style.display = 'flex';
   overlay.style.transition = 'opacity 0.3s ease';
 
-  // ── Audio: prefer MP3 url, fall back to synthesized ──
-  const audioUrl = (ability.audioUrl && ability.audioUrl.trim()) ? ability.audioUrl.trim() : '';
-  if(audioUrl){
-    playMp3Sound(audioUrl);
-  } else {
-    playAbilityCutsceneSound(ability.tier);
-  }
+  // (Audio already played before cutscene opened — see top of playAbilityCutscene)
   spawnCutsceneLines(color);
 
   requestAnimationFrame(()=>{
@@ -15233,6 +15505,8 @@ async function loadCards(){
         chance:       ab.chance  || 100,
         gifUrl:       ab.gif_url || '',
         audioUrl:     ab.audio_url || '',
+        vfxType:      ab.vfx_type  || '',
+        vfxColor:     ab.vfx_color || '',
       });
       // Sort by sort_order
       window.DB_ABILITIES[ab.card_id].sort((a,b)=>(a.sort_order||0)-(b.sort_order||0));
@@ -16825,6 +17099,9 @@ async function startBattleAI() {
     : `<span style="color:${enemyColor};font-size:0.85em;">[${enemyRarityLabel}]</span>`;
   document.getElementById('baiBattleLog').innerHTML = '';
   document.getElementById('baiBattleOutcome').style.display = 'none';
+  // Inject settings UI + gear button for VS AI arena
+  injectBattleSettingsUI();
+  _injectBattleGearBtn('baiBattleArena','openBattleSettings');
 
   _baiUpdateHPBars();
   _baiRenderMoves();
@@ -19079,6 +19356,9 @@ function startBattle() {
   document.getElementById('battleEnemyName').textContent = enemyCard.name;
   document.getElementById('battleLog').innerHTML = '';
   document.getElementById('battleOutcome').style.display='none';
+  // Inject settings UI (idempotent) and add gear button to arena
+  injectBattleSettingsUI();
+  _injectBattleGearBtn('battleArena','openBattleSettings');
   updateBattleHPBars();
   renderBattleMoves();
   battleLog(`⚡ ${playerCard.name} VS ${enemyCard.name}! The battle begins!`, 'system');
@@ -19179,6 +19459,8 @@ async function playerMove(moveId) {
   if(moveId==='defend'){
     battleState.playerGuarding = true;
     playDefendSound();
+    // Guard VFX: color flash (blue) + shield bubble
+    if(BATTLE_SETTINGS.vfxEnabled){ spawnVFXColorFlash('rgba(93,173,226,0.35)'); }
     await playMoveVFX('def','player','enemy',0,false,pColor);
     battleLog(`🛡️ ${pName} takes a defensive stance!`, 'player');
 
@@ -19219,8 +19501,27 @@ async function playerMove(moveId) {
     if(battleState.hiddenPierceBonus>0) baseDmg += battleState.hiddenPierceBonus;
     if(battleState.enemyGuarding){ baseDmg = Math.round(baseDmg*0.55); battleState.enemyGuarding=false; }
     battleState.enemyHP -= baseDmg;
+
+    // ── Per-skill VFX ──
+    if(BATTLE_SETTINGS.vfxEnabled){
+      if(moveId==='strike'){
+        // Quick Strike: fast white slash flash
+        spawnVFXWhiteFlash();
+      } else if(moveId==='power'){
+        // Power Blow: speed lines + color flash
+        spawnVFXSpeedLines(pColor);
+        setTimeout(()=>spawnVFXColorFlash(pColor+'99'),100);
+      } else if(isCrit){
+        // Crit on any other attack: burst ring
+        spawnVFXBurstRing(pColor);
+      }
+    }
+
     await playMoveVFX(move.type,'player','enemy',baseDmg,isCrit,pColor);
-    playAttackSound(move.type); playHitSound(isCrit);
+    // ── Per-skill sounds ──
+    if(moveId==='strike')      { playQuickStrikeSound(); playHitSound(isCrit); }
+    else if(moveId==='power')  { playPowerBlowSound();   playHitSound(isCrit); }
+    else                       { playAttackSound(move.type); playHitSound(isCrit); }
     battleLog(`${move.icon} ${pName} uses ${move.name}! ${baseDmg} dmg${isCrit?' 💥 CRIT!':''}`, 'player');
     spawnParticles(battleState.playerCard.rarity, pColor);
 
@@ -20834,6 +21135,255 @@ function initBattlePage(){
 
 function getVFXLayer(){ return document.getElementById('battleVFXLayer'); }
 
+// ══════════════════════════════════════════════
+// BATTLE SETTINGS — cutscene & VFX toggles
+// ══════════════════════════════════════════════
+const BATTLE_SETTINGS = {
+  cutsceneEnabled: true,   // show full cutscene overlay on ability use
+  vfxEnabled: true,        // show ability VFX effects (flash, speed lines, etc.)
+  // audio always plays regardless of above toggles
+};
+
+function openBattleSettings(){
+  const panel = document.getElementById('battleSettingsPanel');
+  const bd    = document.getElementById('battleSettingsBd');
+  if(!panel) return;
+  // sync toggles
+  const cToggle = document.getElementById('bset-cutscene');
+  const vToggle = document.getElementById('bset-vfx');
+  if(cToggle) cToggle.checked = BATTLE_SETTINGS.cutsceneEnabled;
+  if(vToggle) vToggle.checked = BATTLE_SETTINGS.vfxEnabled;
+  panel.classList.add('open');
+  if(bd) bd.classList.add('open');
+}
+function closeBattleSettings(){
+  const panel = document.getElementById('battleSettingsPanel');
+  const bd    = document.getElementById('battleSettingsBd');
+  if(panel) panel.classList.remove('open');
+  if(bd)    bd.classList.remove('open');
+  // read toggles
+  const cToggle = document.getElementById('bset-cutscene');
+  const vToggle = document.getElementById('bset-vfx');
+  if(cToggle) BATTLE_SETTINGS.cutsceneEnabled = cToggle.checked;
+  if(vToggle) BATTLE_SETTINGS.vfxEnabled       = vToggle.checked;
+}
+
+function injectBattleSettingsUI(){
+  if(document.getElementById('battleSettingsPanel')) return;
+  // Settings panel
+  const panel = document.createElement('div');
+  panel.id = 'battleSettingsPanel';
+  panel.innerHTML = `
+    <h3>⚙ Battle Settings</h3>
+    <div class="bset-row">
+      <div class="bset-label">
+        Ability Cutscenes
+        <span class="bset-sub">Full cinematic overlay when using abilities</span>
+      </div>
+      <label class="bset-toggle">
+        <input type="checkbox" id="bset-cutscene" checked>
+        <div class="bset-toggle-track"></div>
+        <div class="bset-toggle-thumb"></div>
+      </label>
+    </div>
+    <div class="bset-row">
+      <div class="bset-label">
+        Ability VFX Effects
+        <span class="bset-sub">Flash, speed lines, lightning, fire & more</span>
+      </div>
+      <label class="bset-toggle">
+        <input type="checkbox" id="bset-vfx" checked>
+        <div class="bset-toggle-track"></div>
+        <div class="bset-toggle-thumb"></div>
+      </label>
+    </div>
+    <div class="bset-row" style="border:none;padding-top:6px;font-size:0.72em;color:var(--text-dim);display:block;text-align:center;">
+      🎵 Audio always plays regardless of settings
+    </div>
+    <button class="bset-close-btn" onclick="closeBattleSettings()">Done</button>
+  `;
+  document.body.appendChild(panel);
+  // Backdrop
+  const bd = document.createElement('div');
+  bd.id = 'battleSettingsBd';
+  bd.className = 'bset-backdrop';
+  bd.onclick = closeBattleSettings;
+  document.body.appendChild(bd);
+}
+
+// Injects ⚙ gear button into a battle arena container (idempotent)
+function _injectBattleGearBtn(arenaId, openFn){
+  const arena = document.getElementById(arenaId);
+  if(!arena || arena.querySelector('.battle-settings-btn')) return;
+  const btn = document.createElement('button');
+  btn.className = 'battle-settings-btn';
+  btn.title = 'Battle Settings';
+  btn.innerHTML = '⚙';
+  btn.onclick = (e)=>{ e.stopPropagation(); (window[openFn]||openBattleSettings)(); };
+  arena.style.position = arena.style.position || 'relative';
+  arena.appendChild(btn);
+}
+
+// ══════════════════════════════════════════════
+// ABILITY VFX ENGINE — effect types per ability
+// ══════════════════════════════════════════════
+// vfxType options: 'white_flash','black_flash','color_flash','speed_lines',
+//                  'lightning','fire','burst_ring','none'
+// vfxColor: any CSS color string (default uses ability rarity color)
+
+const ABILITY_VFX_DEFAULTS = {
+  // tier-based fallbacks when no custom vfxType set
+  passive:  null,
+  active:   'color_flash',
+  ultimate: 'speed_lines',
+  secret:   'black_flash',
+};
+
+async function playAbilityVFX(ab, color){
+  if(!BATTLE_SETTINGS.vfxEnabled) return;
+  const vfxType  = ab.vfxType  || ABILITY_VFX_DEFAULTS[ab.tier] || 'color_flash';
+  const vfxColor = ab.vfxColor || color || '#ff9dc7';
+  await spawnAbilityVFX(vfxType, vfxColor);
+}
+
+async function spawnAbilityVFX(type, color){
+  if(type === 'none' || !type) return;
+  if(type === 'white_flash'){ spawnVFXWhiteFlash(); await sleep(200); }
+  else if(type === 'black_flash'){ spawnVFXBlackFlash(); await sleep(250); }
+  else if(type === 'color_flash'){ spawnVFXColorFlash(color); await sleep(200); }
+  else if(type === 'speed_lines'){ spawnVFXSpeedLines(color); await sleep(300); }
+  else if(type === 'lightning'){ spawnVFXLightning(color); await sleep(250); }
+  else if(type === 'fire'){ spawnVFXFire(color); await sleep(200); }
+  else if(type === 'burst_ring'){ spawnVFXBurstRing(color); await sleep(200); }
+}
+
+function spawnVFXWhiteFlash(){
+  const el = document.createElement('div');
+  el.className = 'vfx-white-flash';
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(), 500);
+}
+
+function spawnVFXBlackFlash(){
+  const el = document.createElement('div');
+  el.className = 'vfx-black-flash';
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(), 550);
+}
+
+function spawnVFXColorFlash(color){
+  const el = document.createElement('div');
+  el.className = 'vfx-color-flash';
+  el.style.background = color;
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(), 550);
+}
+
+function spawnVFXSpeedLines(color){
+  const container = document.createElement('div');
+  container.className = 'vfx-speed-lines';
+  const count = 28;
+  for(let i=0; i<count; i++){
+    const line = document.createElement('div');
+    line.className = 'vfx-speed-line';
+    const angle = (i/count)*360;
+    const len = 180 + Math.random()*280;
+    const thick = 1.5 + Math.random()*2.5;
+    line.style.cssText = `
+      --angle:${angle}deg;
+      width:${len}px; height:${thick}px;
+      background:linear-gradient(90deg,${color}cc,${color}00);
+      animation-delay:${Math.random()*80}ms;
+      box-shadow:0 0 6px ${color}88;
+    `;
+    container.appendChild(line);
+  }
+  document.body.appendChild(container);
+  setTimeout(()=>container.remove(), 600);
+}
+
+function spawnVFXLightning(color){
+  const flicker = document.createElement('div');
+  flicker.className = 'vfx-lightning-flicker';
+  flicker.style.background = color + '33';
+  document.body.appendChild(flicker);
+  setTimeout(()=>flicker.remove(), 500);
+
+  const bolts = 4 + Math.floor(Math.random()*3);
+  for(let i=0; i<bolts; i++){
+    setTimeout(()=>{
+      const bolt = document.createElement('div');
+      bolt.className = 'vfx-lightning-bolt';
+      bolt.style.color = color;
+      const x = 20 + Math.random()*60;
+      const h = 80 + Math.random()*180;
+      const skew = (Math.random()-0.5)*20;
+      bolt.style.cssText = `
+        left:${x}vw; top:${5+Math.random()*30}vh;
+        height:${h}px;
+        background:linear-gradient(180deg,${color},${color}aa,transparent);
+        color:${color};
+        --skew:${skew}deg;
+        animation-delay:${i*40}ms;
+      `;
+      document.body.appendChild(bolt);
+      setTimeout(()=>bolt.remove(), 500);
+    }, i*40);
+  }
+}
+
+function spawnVFXFire(color){
+  const count = 18;
+  const centerX = window.innerWidth/2;
+  const centerY = window.innerHeight*0.6;
+  for(let i=0; i<count; i++){
+    setTimeout(()=>{
+      const el = document.createElement('div');
+      el.className = 'vfx-fire-particle';
+      const size = 20 + Math.random()*40;
+      const ox   = (Math.random()-0.5)*200;
+      const ry   = -(60 + Math.random()*80);
+      const ry2  = -(120 + Math.random()*100);
+      const dur  = 0.5 + Math.random()*0.4;
+      // Mix orange with the given color
+      const colors = [color, '#ff6a00', '#ff9500', '#ffcc00'];
+      const clr = colors[Math.floor(Math.random()*colors.length)];
+      el.style.cssText = `
+        left:${centerX + ox - size/2}px;
+        top:${centerY - size/2}px;
+        width:${size}px; height:${size*1.4}px;
+        background:radial-gradient(ellipse at 50% 80%, ${clr}, ${clr}55, transparent 70%);
+        box-shadow:0 0 ${size}px ${clr}88;
+        --ry:${ry}px; --ry2:${ry2}px;
+        --dur:${dur}s;
+        animation-delay:${i*25}ms;
+      `;
+      document.body.appendChild(el);
+      setTimeout(()=>el.remove(), (dur*1000)+i*25+200);
+    }, i*15);
+  }
+}
+
+function spawnVFXBurstRing(color){
+  const cx = window.innerWidth/2;
+  const cy = window.innerHeight/2;
+  for(let i=0;i<3;i++){
+    setTimeout(()=>{
+      const el = document.createElement('div');
+      el.className = 'vfx-burst-ring';
+      el.style.cssText = `
+        left:${cx}px; top:${cy}px;
+        border-color:${color};
+        border-width:${4-i}px;
+        box-shadow:0 0 20px ${color};
+        animation-delay:${i*100}ms;
+      `;
+      document.body.appendChild(el);
+      setTimeout(()=>el.remove(), 800);
+    }, i*80);
+  }
+}
+
 // ── Animate card ──
 function animateCard(who, animClass){
   const el = document.getElementById(who==='player'?'battlePlayerImg':'battleEnemyImg');
@@ -22390,11 +22940,36 @@ function addAbilitySlot(prefill){
     </div>
 
     
+    <div style="margin-top:10px;">
+      <label class="admin-label">Ability VFX Effect <span class="admin-hint">— visual effect when used (cutscene off)</span></label>
+      <div style="display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;">
+        <select class="admin-input ab-vfx-type" id="ab_vfx_type_${idx}" style="font-size:0.82em;">
+          <option value="">— auto (by tier) —</option>
+          <option value="white_flash" ${(data.vfxType||'')==='white_flash'?'selected':''}>⚡ White Flash</option>
+          <option value="black_flash" ${(data.vfxType||'')==='black_flash'?'selected':''}>🌑 Black Flash</option>
+          <option value="color_flash" ${(data.vfxType||'')==='color_flash'?'selected':''}>🌈 Color Flash</option>
+          <option value="speed_lines" ${(data.vfxType||'')==='speed_lines'?'selected':''}>💨 Speed Lines</option>
+          <option value="lightning"   ${(data.vfxType||'')==='lightning'?'selected':''}>⚡ Lightning</option>
+          <option value="fire"        ${(data.vfxType||'')==='fire'?'selected':''}>🔥 Fire</option>
+          <option value="burst_ring"  ${(data.vfxType||'')==='burst_ring'?'selected':''}>💥 Burst Ring</option>
+          <option value="none"        ${(data.vfxType||'')==='none'?'selected':''}>✕ None</option>
+        </select>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <label class="admin-label" style="margin:0;white-space:nowrap;font-size:0.75em;">Color</label>
+          <input type="color" class="ab-vfx-color" id="ab_vfx_color_${idx}"
+            value="${data.vfxColor||'#ff9dc7'}"
+            style="width:34px;height:28px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer;padding:2px;"/>
+        </div>
+      </div>
+    </div>
+
+    
     <input type="hidden" class="ab-id-input"     value="${data.ability_id||data.id||''}"/>
     <input type="hidden" class="ab-effect-input" value="${prefillEffect}"/>
     <input type="hidden" class="ab-value-input"  value="${data.value||0}"/>
     <input type="hidden" class="ab-mpCost-input" value="${data.mp_cost||data.mpCost||0}"/>
     <input type="hidden" class="ab-chance-input" value="${data.chance!=null?data.chance:100}"/>
+    <input type="hidden" class="ab-vfxtype-input" value="${data.vfxType||''}"/>
   `;
 
   document.getElementById('abilitySlots').appendChild(el);
@@ -22662,6 +23237,8 @@ function collectAbilitySlots(){
       chance:       parseInt(s.querySelector('.ab-chance-input')?.value)||100,
       gif_url:      s.querySelector('.ab-gif-url')?.value?.trim()||'',
       audio_url:    s.querySelector('.ab-audio-url')?.value?.trim()||'',
+      vfx_type:     s.querySelector('.ab-vfx-type')?.value?.trim()||'',
+      vfx_color:    s.querySelector('.ab-vfx-color')?.value?.trim()||'',
       sort_order: i,
     };
   }).filter(a=>a.name);
@@ -27534,6 +28111,9 @@ function openPvpBattleScreen(battleId, battle){
   activePvpBattleId = battleId;
   renderPvpState(battle, battleId);
   document.getElementById('pvpBattleModal').classList.add('active');
+  // Inject settings UI + gear btn for PvP
+  injectBattleSettingsUI();
+  setTimeout(()=>_injectBattleGearBtn('pvpBattleContent','openBattleSettings'), 80);
 }
 
 function renderPvpState(battle, battleId){
@@ -31745,6 +32325,9 @@ function openBossArenaModal() {
   _wbBuildSpeedLines();
   _wbStartCinematic();
   _wbAutoPlayMusic();   // auto-play music on enter
+  // Inject settings UI + gear btn for World Boss
+  injectBattleSettingsUI();
+  setTimeout(()=>_injectBattleGearBtn('wbArenaModal','openBattleSettings'), 100);
 }
 function leaveBossArena(confirmed=false) {
   const confirmEl = document.getElementById('wbLeaveConfirm');
