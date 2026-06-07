@@ -2874,52 +2874,102 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   width: 16px; border-radius: 3px;
 }
 
-/* ── Info overlay: left side, content at bottom ── */
+/* ── Info overlay: left side, title top, buttons near bottom ── */
 .gp-info {
   position: absolute;
   left: 0; top: 0; bottom: 0;
-  width: 58%;
+  width: 60%;
   z-index: 5;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;           /* push everything to bottom */
-  padding: clamp(14px,3vw,24px) clamp(10px,2vw,18px) clamp(18px,4vw,32px) clamp(16px,3vw,26px);
-  gap: 10px;
+  justify-content: space-between;  /* title top, pull buttons bottom */
+  padding: clamp(12px,2.5vw,20px) clamp(10px,2vw,16px) clamp(16px,3vw,26px) clamp(14px,2.5vw,22px);
+  gap: 0;
   pointer-events: none;
   background: none;
 }
 .gp-info > * { pointer-events: all; }
-/* Remove default block margins that fight flex layout */
-.gp-info * { margin-top: 0; margin-bottom: 0; }
+
+/* Top cluster: tag + name + desc + featured */
+.gp-info-top {
+  display: flex; flex-direction: column; gap: 8px;
+}
+
+/* Pull buttons cluster: bottom of info, compact width */
+.gp-pull-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-start;   /* don't stretch full width */
+  width: 100%;
+}
+.gp-wish-btn {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 16px;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 260px;           /* cap width — not full screen */
+  border: 1px solid rgba(255,157,199,0.35);
+  background: rgba(10,5,30,0.72);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  color: #fff; cursor: pointer;
+  font-family: 'Cinzel Decorative', serif;
+  transition: all 0.2s; overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06);
+}
+.gp-wish-btn:hover { border-color: var(--pink); box-shadow: 0 6px 24px rgba(255,157,199,0.25), 0 0 0 1px var(--pink); transform: translateY(-1px); }
+.gp-wish-btn:active { transform: scale(0.97); }
+.gp-wish-btn-10 {
+  border-color: rgba(241,196,15,0.4);
+  background: rgba(15,10,5,0.72);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06);
+}
+.gp-wish-btn-10:hover { border-color: #f1c40f; box-shadow: 0 6px 24px rgba(241,196,15,0.28), 0 0 0 1px #f1c40f; }
+.gp-wish-btn-left { display: flex; align-items: center; gap: 8px; }
+.gpb-icon { font-size: 0.75em; opacity: 0.65; }
+.gpb-text { font-size: 0.78em; white-space: nowrap; }
+.gpb-cost { font-family: 'JetBrains Mono', monospace; font-size: 0.65em; color: rgba(255,215,100,0.8); }
+.gp-pool-btn {
+  background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.4); padding: 7px 16px; border-radius: 10px;
+  font-family: 'Cormorant Garamond', serif; font-size: 0.78em;
+  cursor: pointer; transition: all 0.2s;
+  display: flex; align-items: center; gap: 5px;
+  max-width: 260px; width: 100%;
+  justify-content: center;
+  backdrop-filter: blur(10px);
+}
+.gp-pool-btn:hover { border-color: rgba(255,157,199,0.35); color: var(--pink); }
 
 .gp-left-title {
-  display: flex; flex-direction: column; align-items: flex-start; gap: 5px;
+  display: flex; flex-direction: column; align-items: flex-start; gap: 4px;
 }
 .gp-event-tag {
   display: inline-flex; align-items: center; gap: 5px;
-  padding: 3px 11px 3px 8px;
+  padding: 3px 10px 3px 8px;
   border-radius: 20px;
   font-family: "JetBrains Mono", monospace;
-  font-size: 0.55em; letter-spacing: 0.1em; text-transform: uppercase;
+  font-size: 0.54em; letter-spacing: 0.1em; text-transform: uppercase;
   border: 1px solid; backdrop-filter: blur(10px);
   width: fit-content;
 }
 .gp-banner-name {
   font-family: "Cinzel Decorative", serif;
-  font-size: clamp(1em, 4.8vw, 2em);
-  line-height: 1.12;
+  font-size: clamp(1em, 4.6vw, 2em);
+  line-height: 1.1;
   background: linear-gradient(135deg, #fff9fe 0%, var(--pink) 45%, #c084b8 80%, #fff9fe 100%);
   background-size: 280%; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
   animation: shimmer 7s linear infinite;
-  filter: drop-shadow(0 2px 14px rgba(255,157,199,0.4));
+  filter: drop-shadow(0 2px 12px rgba(255,157,199,0.4));
 }
 .gp-banner-desc {
-  color: rgba(255,255,255,0.5); font-size: 0.75em; font-style: italic;
-  line-height: 1.45; max-width: 240px;
+  color: rgba(255,255,255,0.58); font-size: 0.72em; font-style: italic;
+  line-height: 1.4; max-width: 220px; margin-top: 2px;
 }
 
 /* Featured cards block */
-.gp-featured-block { display: flex; flex-direction: column; gap: 6px; }
+.gp-featured-block { display: flex; flex-direction: column; gap: 5px; margin-top: 10px; }
 .gp-featured-label {
   font-family: "JetBrains Mono", monospace;
   font-size: 0.5em; letter-spacing: 0.12em; text-transform: uppercase;
@@ -3041,11 +3091,10 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .gp-bps-item.active .gp-bps-active-check { opacity: 1; }
 .gp-bps-pinned::after { content: "📌"; font-size: 0.55em; position: absolute; top: 6px; right: 30px; }
 
-/* ══ DOCK: compact, no wasted space ══ */
+/* ══ DOCK: pity bars + drop rates only ══ */
 .gp-dock {
   background: var(--bg);
-  border-top: 1px solid rgba(255,157,199,0.07);
-  padding: 14px clamp(14px,4vw,28px) 16px;
+  padding: 12px clamp(14px,4vw,28px) 14px;
   display: flex; flex-direction: column; gap: 10px;
 }
 
@@ -10584,10 +10633,10 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
       </div>
     </div>
 
-    <!-- ══ BOTTOM DOCK: Pull buttons + pity + rates ══ -->
+    <!-- ══ BOTTOM DOCK: Pity + Drop Rates only ══ -->
     <div class="gp-dock">
 
-      <!-- Pity bars: full-width row -->
+      <!-- Pity bars -->
       <div class="gp-pity-mini" id="gpPityMini">
         <div class="gp-pity-bar-wrap">
           <div class="gp-pity-label">SSR Pity</div>
@@ -10601,26 +10650,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
         </div>
       </div>
 
-      <!-- Pull buttons: vertical stack -->
-      <div class="gp-pull-row" id="gpPullRow">
-        <button class="gp-wish-btn" onclick="doPull(1)">
-          <div class="gp-wish-btn-left">
-            <span class="gpb-icon">✦</span>
-            <span class="gpb-text">Pull × 1</span>
-          </div>
-          <span class="gpb-cost">50 🪙</span>
-        </button>
-        <button class="gp-wish-btn gp-wish-btn-10" onclick="doPull(5)">
-          <div class="gp-wish-btn-left">
-            <span class="gpb-icon">✦ ✦</span>
-            <span class="gpb-text">Pull × 5</span>
-          </div>
-          <span class="gpb-cost">200 🪙</span>
-        </button>
-        <button class="gp-pool-btn" onclick="openPoolView()">🃏 View Pool</button>
-      </div>
-
-      <!-- Drop rates: compact chip strip -->
+      <!-- Drop rates only -->
       <div class="gp-rates-wrap">
         <div class="gp-rates-heading">Drop Rates</div>
         <div class="gp-rates-grid">
@@ -18298,33 +18328,47 @@ function renderActiveBanner(){
     ${charShowcaseHtml}
 
     <div class="gp-info">
-      <!-- event tag + title: top area -->
-      <div class="gp-left-title">
-        <div class="gp-event-tag" style="${tagStyle}">${meta.icon} ${meta.label}</div>
-        <div class="gp-banner-name">${banner.name}</div>
-        ${banner.description ? `<div class="gp-banner-desc">${banner.description}</div>` : ''}
+      <!-- top cluster: tag + title + desc + featured -->
+      <div class="gp-info-top">
+        <div class="gp-left-title">
+          <div class="gp-event-tag" style="${tagStyle}">${meta.icon} ${meta.label}</div>
+          <div class="gp-banner-name">${banner.name}</div>
+          ${banner.description ? `<div class="gp-banner-desc">${banner.description}</div>` : ''}
+        </div>
+
+        ${featuredCards.length ? `
+          <div class="gp-featured-block">
+            <div class="gp-featured-label">✦ Rate Up</div>
+            <div class="gp-featured-row" style="justify-content:flex-start">
+              ${featuredCards.map(c=>{
+                const color = RARITY_COLORS[c.rarity]||'#bdc3c7';
+                return `<div class="gp-feat-card" style="width:${featCardWidth}" onclick="openCard('${c.id}')">
+                  <img src="${c.thumbnail||c.image}" alt="${c.name}" onerror="this.style.background='#1c0f26'"/>
+                  <div class="gp-feat-rateup">RATE ▲</div>
+                  <div class="gp-feat-card-info">
+                    <span class="gp-feat-card-name">${c.name}</span>
+                    <span class="gp-feat-card-stars" style="color:${color}">${c.rarityStars}</span>
+                  </div>
+                </div>`;
+              }).join('')}
+            </div>
+            <div class="gp-rateup-note">⬆️ Featured cards appear 2× more often</div>
+          </div>
+        ` : ''}
       </div>
 
-      <!-- featured cards: directly below title -->
-      ${featuredCards.length ? `
-        <div class="gp-featured-block">
-          <div class="gp-featured-label">✦ Rate Up</div>
-          <div class="gp-featured-row" style="justify-content:${featRowAlign}">
-            ${featuredCards.map(c=>{
-              const color = RARITY_COLORS[c.rarity]||'#bdc3c7';
-              return `<div class="gp-feat-card" style="width:${featCardWidth}" onclick="openCard('${c.id}')">
-                <img src="${c.thumbnail||c.image}" alt="${c.name}" onerror="this.style.background='#1c0f26'"/>
-                <div class="gp-feat-rateup">RATE ▲</div>
-                <div class="gp-feat-card-info">
-                  <span class="gp-feat-card-name">${c.name}</span>
-                  <span class="gp-feat-card-stars" style="color:${color}">${c.rarityStars}</span>
-                </div>
-              </div>`;
-            }).join('')}
-          </div>
-          <div class="gp-rateup-note">⬆️ Featured cards appear 2× more often</div>
-        </div>
-      ` : ''}
+      <!-- pull buttons: bottom of overlay, compact -->
+      <div class="gp-pull-row" id="gpPullRow">
+        <button class="gp-wish-btn" onclick="doPull(1)">
+          <div class="gp-wish-btn-left"><span class="gpb-icon">✦</span><span class="gpb-text">Pull × 1</span></div>
+          <span class="gpb-cost">50 🪙</span>
+        </button>
+        <button class="gp-wish-btn gp-wish-btn-10" onclick="doPull(5)">
+          <div class="gp-wish-btn-left"><span class="gpb-icon">✦✦</span><span class="gpb-text">Pull × 5</span></div>
+          <span class="gpb-cost">200 🪙</span>
+        </button>
+        <button class="gp-pool-btn" onclick="openPoolView()">🃏 View Pool</button>
+      </div>
     </div>
   `;
 
