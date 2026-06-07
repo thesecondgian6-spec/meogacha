@@ -2780,11 +2780,17 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
     );
 }
 
-/* Bottom fade into dock */
+/* Bottom fade into dock — tall enough to fully dissolve */
 .gp-stage-bottom-fade {
-  position: absolute; bottom: 0; left: 0; right: 0; z-index: 2;
-  height: 48px;
-  background: linear-gradient(to bottom, transparent, var(--bg));
+  position: absolute; bottom: 0; left: 0; right: 0; z-index: 6;
+  height: 120px;
+  background: linear-gradient(to bottom,
+    transparent 0%,
+    rgba(5,2,16,0.4) 40%,
+    rgba(5,2,16,0.82) 70%,
+    var(--bg) 100%
+  );
+  pointer-events: none;
 }
 
 /* Sparkles */
@@ -2883,6 +2889,8 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   background: none;
 }
 .gp-info > * { pointer-events: all; }
+/* Remove default block margins that fight flex layout */
+.gp-info * { margin-top: 0; margin-bottom: 0; }
 
 .gp-left-title {
   display: flex; flex-direction: column; align-items: flex-start; gap: 5px;
@@ -2920,7 +2928,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .gp-featured-row { display: flex; gap: 8px; flex-wrap: nowrap; }
 .gp-feat-card {
   position: relative;
-  width: clamp(66px, 13vw, 100px);
+  /* width set inline based on card count */
   border-radius: 10px; overflow: hidden;
   border: 1.5px solid rgba(255,255,255,0.14);
   cursor: pointer; transition: all 0.22s;
@@ -3137,7 +3145,6 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   .gp-banner-name { font-size: clamp(0.95em, 5vw, 1.35em); }
   .gp-banner-desc { display: none; }
   .gp-featured-label { display: none; }
-  .gp-feat-card { width: clamp(56px, 15vw, 80px); }
   .gp-char-showcase { width: 66%; right: -1%; }
   .gp-char-slide img { height: 100%; }
   .gp-banner-picker-btn { top: 10px; right: 10px; font-size: 0.58em; }
@@ -18259,7 +18266,6 @@ function renderActiveBanner(){
     skin:      'background:rgba(155,89,182,0.15);border-color:rgba(155,89,182,0.4);color:#9b59b6;',
   }[type] || '';
 
-  // Collect up to 3 character showcase images
   const charImgs = [banner.char_image_1, banner.char_image_2, banner.char_image_3].filter(Boolean);
 
   const charShowcaseHtml = charImgs.length ? `
@@ -18278,6 +18284,11 @@ function renderActiveBanner(){
     ` : ''}
   ` : '';
 
+  // Auto-size featured cards: fewer cards = bigger
+  const fc = featuredCards.length;
+  const featCardWidth = fc === 1 ? 'min(140px, 38vw)' : fc === 2 ? 'min(110px, 28vw)' : 'min(82px, 22vw)';
+  const featRowAlign  = fc === 1 ? 'flex-start' : 'flex-start';
+
   el.innerHTML = `
     <div class="gp-stage-bg" ${banner.image?`style="background-image:url('${banner.image}')"`:''}></div>
     <div class="gp-stage-vignette"></div>
@@ -18287,19 +18298,21 @@ function renderActiveBanner(){
     ${charShowcaseHtml}
 
     <div class="gp-info">
+      <!-- event tag + title: top area -->
       <div class="gp-left-title">
         <div class="gp-event-tag" style="${tagStyle}">${meta.icon} ${meta.label}</div>
         <div class="gp-banner-name">${banner.name}</div>
         ${banner.description ? `<div class="gp-banner-desc">${banner.description}</div>` : ''}
       </div>
 
+      <!-- featured cards: directly below title -->
       ${featuredCards.length ? `
         <div class="gp-featured-block">
           <div class="gp-featured-label">✦ Rate Up</div>
-          <div class="gp-featured-row">
+          <div class="gp-featured-row" style="justify-content:${featRowAlign}">
             ${featuredCards.map(c=>{
               const color = RARITY_COLORS[c.rarity]||'#bdc3c7';
-              return `<div class="gp-feat-card" onclick="openCard('${c.id}')">
+              return `<div class="gp-feat-card" style="width:${featCardWidth}" onclick="openCard('${c.id}')">
                 <img src="${c.thumbnail||c.image}" alt="${c.name}" onerror="this.style.background='#1c0f26'"/>
                 <div class="gp-feat-rateup">RATE ▲</div>
                 <div class="gp-feat-card-info">
@@ -18315,7 +18328,10 @@ function renderActiveBanner(){
     </div>
   `;
 
-  // Start character art slideshow if multiple images
+  // Start character slideshow only if multiple images; clear any old timer
+  clearInterval(_gpCharTimer);
+  _gpCharTimer = null;
+  _gpCharIdx = 0;
   if(charImgs.length > 1) _gpStartCharSlideshow(charImgs.length);
 
   // Update pity bars in dock
@@ -18371,11 +18387,12 @@ function _gpStartCharSlideshow(count){
   }, 4000);
 }
 function gpCharGoTo(idx){
-  _gpCharIdx = idx;
   const slides = document.querySelectorAll('#gpCharShowcase .gp-char-slide');
-  const dots   = document.querySelectorAll('.gp-char-dot');
-  slides.forEach((s,i)=>s.classList.toggle('active',i===idx));
-  dots.forEach((d,i)=>d.classList.toggle('active',i===idx));
+  if(!slides.length) return;
+  _gpCharIdx = ((idx % slides.length) + slides.length) % slides.length;
+  const dots = document.querySelectorAll('.gp-char-dot');
+  slides.forEach((s,i)=>s.classList.toggle('active', i===_gpCharIdx));
+  dots.forEach((d,i)=>d.classList.toggle('active', i===_gpCharIdx));
 }
 
 // ── Render active banner on the Home page widget ──
