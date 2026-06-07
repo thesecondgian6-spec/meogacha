@@ -21218,7 +21218,9 @@ function _injectBattleGearBtn(arenaId, openFn){
   btn.title = 'Battle Settings';
   btn.innerHTML = '⚙';
   btn.onclick = (e)=>{ e.stopPropagation(); (window[openFn]||openBattleSettings)(); };
-  arena.style.position = arena.style.position || 'relative';
+  // Only set position:relative if the element isn't already fixed/absolute/sticky
+  const pos = getComputedStyle(arena).position;
+  if(pos === 'static') arena.style.position = 'relative';
   arena.appendChild(btn);
 }
 
