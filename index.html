@@ -4534,25 +4534,36 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   border-radius: 50%;
   transform: translate(-50%, -50%);
   border: 4px solid transparent;
-  animation: vfxPunchRing 0.38s ease-out forwards;
+  animation: vfxPunchRing var(--dur,0.42s) ease-out forwards;
 }
 @keyframes vfxPunchRing {
-  0%   { width: 10px; height: 10px; opacity: 1; }
-  60%  { opacity: 1; }
-  100% { width: 340px; height: 340px; opacity: 0; }
+  0%   { width: 8px; height: 8px; opacity: 1; border-width: 5px; }
+  40%  { opacity: 1; border-width: 3px; }
+  100% { width: var(--maxW,360px); height: var(--maxW,360px); opacity: 0; border-width: 1px; }
+}
+.vfx-punch-shockwave {
+  position: fixed; z-index: 9794; pointer-events: none;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  animation: vfxPunchShockwave var(--dur,0.55s) ease-out forwards;
+  background: radial-gradient(circle, transparent 30%, var(--clr,#fff3) 60%, transparent 80%);
+}
+@keyframes vfxPunchShockwave {
+  0%   { width: 20px; height: 20px; opacity: 0.8; }
+  100% { width: var(--maxW,480px); height: var(--maxW,480px); opacity: 0; }
 }
 .vfx-punch-flash {
   position: fixed; inset: 0; z-index: 9795; pointer-events: none;
-  animation: vfxPunchFlash 0.28s ease forwards;
+  animation: vfxPunchFlash var(--dur,0.28s) ease forwards;
 }
 @keyframes vfxPunchFlash {
   0%   { opacity: 0; }
-  8%   { opacity: 0.65; }
+  8%   { opacity: var(--peak,0.65); }
   100% { opacity: 0; }
 }
 .vfx-punch-impact {
   position: fixed; z-index: 9797; pointer-events: none;
-  font-size: 72px; line-height:1;
+  font-size: var(--sz,72px); line-height:1;
   transform: translate(-50%, -50%) scale(0) rotate(var(--rot,0deg));
   animation: vfxPunchImpact 0.4s ease-out forwards;
   filter: drop-shadow(0 0 12px var(--clr,#fff));
@@ -4568,11 +4579,23 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   position: fixed; z-index: 9796; pointer-events: none;
   border-radius: 50%;
   transform: translate(-50%,-50%);
-  animation: vfxBarrageHit var(--dur,0.22s) ease-out forwards;
+  border: 3px solid transparent;
+  animation: vfxBarrageHit var(--dur,0.26s) ease-out forwards;
 }
 @keyframes vfxBarrageHit {
-  0%   { width:8px; height:8px; opacity:1; }
-  100% { width:90px; height:90px; opacity:0; }
+  0%   { width:6px; height:6px; opacity:1; border-width:3px; }
+  50%  { opacity:0.9; border-width:2px; }
+  100% { width:var(--maxW,120px); height:var(--maxW,120px); opacity:0; border-width:1px; }
+}
+.vfx-barrage-core {
+  position: fixed; z-index: 9797; pointer-events: none;
+  border-radius: 50%;
+  transform: translate(-50%,-50%);
+  animation: vfxBarrageCore var(--dur,0.18s) ease-out forwards;
+}
+@keyframes vfxBarrageCore {
+  0%   { width:4px; height:4px; opacity:1; }
+  100% { width:var(--sz,30px); height:var(--sz,30px); opacity:0; }
 }
 
 /* ── SLASH ── */
@@ -4850,6 +4873,214 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 @keyframes vfxBeamGlow {
   0%,100% { opacity:0; }
   20%,65%  { opacity:1; }
+}
+
+/* ── EXPLOSION ── */
+.vfx-explosion-core {
+  position: fixed; z-index: 9800; pointer-events: none;
+  border-radius: 50%;
+  transform: translate(-50%,-50%) scale(0);
+  animation: vfxExplosionCore var(--dur,0.5s) ease-out forwards;
+}
+@keyframes vfxExplosionCore {
+  0%   { transform:translate(-50%,-50%) scale(0); opacity:1; filter:brightness(2); }
+  25%  { transform:translate(-50%,-50%) scale(1); opacity:1; filter:brightness(1.5); }
+  100% { transform:translate(-50%,-50%) scale(var(--scale,3)); opacity:0; filter:brightness(1); }
+}
+.vfx-explosion-ring {
+  position: fixed; z-index: 9799; pointer-events: none;
+  border-radius: 50%;
+  transform: translate(-50%,-50%);
+  border-style: solid;
+  animation: vfxExplosionRing var(--dur,0.6s) ease-out forwards;
+}
+@keyframes vfxExplosionRing {
+  0%   { width:10px; height:10px; opacity:1; border-width:8px; }
+  100% { width:var(--maxW,600px); height:var(--maxW,600px); opacity:0; border-width:1px; }
+}
+.vfx-explosion-debris {
+  position: fixed; z-index: 9798; pointer-events: none;
+  border-radius: 2px;
+  animation: vfxExplosionDebris var(--dur,0.7s) ease-out forwards;
+}
+@keyframes vfxExplosionDebris {
+  0%   { transform:translate(0,0) rotate(0deg) scale(1); opacity:1; }
+  20%  { opacity:1; }
+  100% { transform:translate(var(--dx,0px),var(--dy,0px)) rotate(var(--rot,180deg)) scale(0); opacity:0; }
+}
+.vfx-explosion-flash {
+  position: fixed; inset:0; z-index:9801; pointer-events:none;
+  animation: vfxExplosionFlash var(--dur,0.4s) ease forwards;
+}
+@keyframes vfxExplosionFlash {
+  0%   { opacity:0; }
+  6%   { opacity:var(--peak,0.9); }
+  25%  { opacity:var(--mid,0.4); }
+  100% { opacity:0; }
+}
+.vfx-explosion-smoke {
+  position: fixed; z-index: 9797; pointer-events: none;
+  border-radius: 50%;
+  transform: translate(-50%,-50%);
+  animation: vfxExplosionSmoke var(--dur,0.9s) ease-out forwards;
+}
+@keyframes vfxExplosionSmoke {
+  0%   { transform:translate(-50%,-50%) scale(0); opacity:0.7; }
+  30%  { transform:translate(-50%,-50%) scale(1); opacity:0.5; }
+  100% { transform:translate(-50%,-50%) scale(2.5); opacity:0; }
+}
+.vfx-explosion-spark {
+  position: fixed; z-index: 9800; pointer-events: none;
+  border-radius: 50%;
+  animation: vfxExplosionSpark var(--dur,0.6s) ease-out forwards;
+}
+@keyframes vfxExplosionSpark {
+  0%   { transform:translate(0,0) scale(1); opacity:1; }
+  60%  { opacity:0.8; }
+  100% { transform:translate(var(--dx,0px),var(--dy,0px)) scale(0); opacity:0; }
+}
+
+/* ── IMPROVED FIRE ── */
+.vfx-fire-pillar {
+  position: fixed; z-index: 9791; pointer-events: none;
+  border-radius: 50% 50% 20% 20%;
+  transform-origin: bottom center;
+  animation: vfxFirePillar var(--dur,0.7s) ease-out forwards;
+}
+@keyframes vfxFirePillar {
+  0%   { transform: scaleY(0) scaleX(1); opacity:1; }
+  20%  { transform: scaleY(1) scaleX(1); opacity:1; }
+  70%  { transform: scaleY(1.2) scaleX(0.7); opacity:0.7; }
+  100% { transform: scaleY(0.4) scaleX(0.3) translateY(-40px); opacity:0; }
+}
+.vfx-fire-ember {
+  position: fixed; z-index: 9792; pointer-events: none;
+  border-radius: 50%;
+  animation: vfxFireEmber var(--dur,0.9s) ease-out forwards;
+}
+@keyframes vfxFireEmber {
+  0%   { transform:translate(0,0) scale(1) rotate(0deg); opacity:1; }
+  100% { transform:translate(var(--dx,10px),var(--dy,-120px)) scale(0) rotate(var(--rot,180deg)); opacity:0; }
+}
+
+/* ── IMPROVED WATER ── */
+.vfx-water-geyser {
+  position: fixed; z-index: 9791; pointer-events: none;
+  border-radius: 40% 40% 0 0;
+  transform-origin: bottom center;
+  animation: vfxWaterGeyser var(--dur,0.6s) cubic-bezier(.2,0,.6,1) forwards;
+}
+@keyframes vfxWaterGeyser {
+  0%   { transform: scaleY(0); opacity:1; }
+  30%  { transform: scaleY(1); opacity:0.9; }
+  100% { transform: scaleY(1.3) translateY(-20px); opacity:0; }
+}
+.vfx-water-splash {
+  position: fixed; z-index: 9792; pointer-events: none;
+  border-radius: 50%;
+  animation: vfxWaterSplash var(--dur,0.5s) ease-out forwards;
+}
+@keyframes vfxWaterSplash {
+  0%   { transform:translate(0,0) scale(1); opacity:0.9; }
+  100% { transform:translate(var(--dx,0px),var(--dy,-80px)) scale(0.2); opacity:0; }
+}
+
+/* ── IMPROVED ICE ── */
+.vfx-ice-spike {
+  position: fixed; z-index: 9791; pointer-events: none;
+  clip-path: polygon(50% 0%, 80% 100%, 20% 100%);
+  transform-origin: bottom center;
+  animation: vfxIceSpike var(--dur,0.5s) ease-out forwards;
+}
+@keyframes vfxIceSpike {
+  0%   { transform: rotate(var(--rot,0deg)) scaleY(0); opacity:1; filter:brightness(1.8); }
+  30%  { transform: rotate(var(--rot,0deg)) scaleY(1); opacity:1; filter:brightness(1.4); }
+  100% { transform: rotate(var(--rot,0deg)) scaleY(1) translateY(-20px); opacity:0; filter:brightness(1); }
+}
+.vfx-ice-burst {
+  position: fixed; z-index: 9790; pointer-events: none;
+  border-radius: 50%;
+  transform: translate(-50%,-50%);
+  border-style: solid;
+  animation: vfxIceBurst var(--dur,0.55s) ease-out forwards;
+}
+@keyframes vfxIceBurst {
+  0%   { width:10px; height:10px; opacity:1; border-width:4px; }
+  100% { width:var(--maxW,350px); height:var(--maxW,350px); opacity:0; border-width:1px; }
+}
+
+/* ── IMPROVED DARK ── */
+.vfx-dark-void {
+  position: fixed; z-index: 9796; pointer-events: none;
+  border-radius: 50%;
+  transform: translate(-50%,-50%) scale(0);
+  animation: vfxDarkVoid var(--dur,0.9s) ease-out forwards;
+}
+@keyframes vfxDarkVoid {
+  0%   { transform:translate(-50%,-50%) scale(0); opacity:0; }
+  15%  { transform:translate(-50%,-50%) scale(1); opacity:1; }
+  60%  { transform:translate(-50%,-50%) scale(var(--maxS,2)); opacity:0.8; }
+  100% { transform:translate(-50%,-50%) scale(var(--maxS,2)); opacity:0; }
+}
+.vfx-dark-crack {
+  position: fixed; z-index: 9797; pointer-events: none;
+  height: 2px;
+  transform-origin: left center;
+  border-radius: 1px;
+  animation: vfxDarkCrack var(--dur,0.6s) ease forwards;
+}
+@keyframes vfxDarkCrack {
+  0%   { transform:rotate(var(--angle)) scaleX(0); opacity:0; }
+  10%  { opacity:1; }
+  35%  { transform:rotate(var(--angle)) scaleX(1); opacity:1; }
+  60%  { opacity:0.8; }
+  100% { transform:rotate(var(--angle)) scaleX(1.1); opacity:0; }
+}
+
+/* ── IMPROVED ELECTRICITY ── */
+.vfx-elec-arc {
+  position: fixed; z-index: 9796; pointer-events: none;
+  animation: vfxElecArc var(--dur,0.35s) steps(3) forwards;
+}
+@keyframes vfxElecArc {
+  0%   { opacity:1; clip-path:var(--p0,none); }
+  33%  { clip-path:var(--p1,none); }
+  66%  { clip-path:var(--p2,none); }
+  100% { opacity:0; }
+}
+.vfx-elec-flash {
+  position: fixed; inset:0; z-index: 9794; pointer-events:none;
+  animation: vfxElecFlicker var(--dur,0.4s) steps(4) forwards;
+}
+@keyframes vfxElecFlicker {
+  0%,20%,40%,60%,80% { opacity:0; }
+  10%,30%,50%,70%     { opacity:var(--peak,0.35); }
+  100% { opacity:0; }
+}
+
+/* ── IMPROVED SHOOT ── */
+.vfx-shoot-charge {
+  position: fixed; z-index: 9798; pointer-events: none;
+  border-radius: 50%;
+  transform: translate(-50%,-50%) scale(0);
+  animation: vfxShootCharge var(--dur,0.15s) ease-out forwards;
+}
+@keyframes vfxShootCharge {
+  0%   { transform:translate(-50%,-50%) scale(0); opacity:1; }
+  100% { transform:translate(-50%,-50%) scale(1); opacity:0; }
+}
+
+/* ── IMPROVED BLAST ── */
+.vfx-blast-shockwave {
+  position: fixed; z-index: 9793; pointer-events: none;
+  border-radius: 50%;
+  transform: translate(-50%,-50%);
+  background: radial-gradient(circle, transparent 40%, var(--clr,#fff2) 70%, transparent 85%);
+  animation: vfxBlastShockwave var(--dur,0.6s) ease-out forwards;
+}
+@keyframes vfxBlastShockwave {
+  0%   { width:20px; height:20px; opacity:0.9; }
+  100% { width:var(--maxW,700px); height:var(--maxW,700px); opacity:0; }
 }
 
 /* ── TIME STOP ── */
@@ -21663,40 +21894,53 @@ async function playAbilityVFX(ab, color){
   if(!BATTLE_SETTINGS.vfxEnabled) return;
   const vfxType  = ab.vfxType  || ABILITY_VFX_DEFAULTS[ab.tier] || 'flash';
   const vfxColor = ab.vfxColor || color || '#ff9dc7';
-  await spawnAbilityVFX(vfxType, vfxColor);
+  await spawnAbilityVFX(vfxType, vfxColor, ab.tier);
 }
 
-async function spawnAbilityVFX(type, color){
+// ── CARD MANAGER: Preview VFX from slot ──
+function previewAbilityVfxFromSlot(idx){
+  const slot  = document.getElementById(`abilitySlot_${idx}`);
+  if(!slot) return;
+  const type  = slot.querySelector('.ab-vfx-type')?.value || 'flash';
+  const color = slot.querySelector('.ab-vfx-color')?.value || '#ff9dc7';
+  const tier  = slot.querySelector('.ab-tier-select')?.value || 'active';
+  if(!type || type === '') { spawnAbilityVFX('flash', color, tier); return; }
+  spawnAbilityVFX(type, color, tier);
+}
+
+async function spawnAbilityVFX(type, color, tier){
   if(type === 'none' || !type) return;
+  const isUlt = tier === 'ultimate' || tier === 'secret';
   // Flashes
-  if     (type === 'flash')            { spawnVFXColorFlash(color);         await sleep(220); }
-  else if(type === 'speed_lines')      { spawnVFXSpeedLines(color);         await sleep(320); }
+  if     (type === 'flash')            { spawnVFXColorFlash(color, isUlt);         await sleep(220); }
+  else if(type === 'speed_lines')      { spawnVFXSpeedLines(color, isUlt);         await sleep(320); }
   // Attacks
-  else if(type === 'punch')            { spawnVFXPunch(color);              await sleep(280); }
-  else if(type === 'barrage')          { spawnVFXBarrage(color);            await sleep(420); }
-  else if(type === 'slash')            { spawnVFXSlash(color);              await sleep(220); }
-  else if(type === 'multiple_slashes') { spawnVFXMultipleSlashes(color);    await sleep(300); }
-  else if(type === 'claw_slash')       { spawnVFXClawSlash(color);          await sleep(260); }
+  else if(type === 'punch')            { spawnVFXPunch(color, isUlt);              await sleep(isUlt?420:280); }
+  else if(type === 'barrage')          { spawnVFXBarrage(color, isUlt);            await sleep(isUlt?580:420); }
+  else if(type === 'slash')            { spawnVFXSlash(color, isUlt);              await sleep(220); }
+  else if(type === 'multiple_slashes') { spawnVFXMultipleSlashes(color, isUlt);    await sleep(300); }
+  else if(type === 'claw_slash')       { spawnVFXClawSlash(color, isUlt);          await sleep(260); }
   // Elements
-  else if(type === 'fire')             { spawnVFXFire(color);               await sleep(220); }
-  else if(type === 'water')            { spawnVFXWater(color);              await sleep(280); }
-  else if(type === 'ice')              { spawnVFXIceShatter(color);         await sleep(320); }
-  else if(type === 'dark')             { spawnVFXDark(color);               await sleep(380); }
-  else if(type === 'electricity')      { spawnVFXLightning(color);          await sleep(260); }
+  else if(type === 'fire')             { spawnVFXFire(color, isUlt);               await sleep(isUlt?380:220); }
+  else if(type === 'water')            { spawnVFXWater(color, isUlt);              await sleep(isUlt?420:280); }
+  else if(type === 'ice')              { spawnVFXIceShatter(color, isUlt);         await sleep(isUlt?480:320); }
+  else if(type === 'dark')             { spawnVFXDark(color, isUlt);               await sleep(isUlt?500:380); }
+  else if(type === 'electricity')      { spawnVFXLightning(color, isUlt);          await sleep(isUlt?380:260); }
   // Projectiles
-  else if(type === 'shoot')            { spawnVFXShoot(color);              await sleep(300); }
-  else if(type === 'blast')            { spawnVFXBlast(color);              await sleep(320); }
-  else if(type === 'beam')             { spawnVFXBeam(color);               await sleep(380); }
+  else if(type === 'shoot')            { spawnVFXShoot(color, isUlt);              await sleep(isUlt?420:300); }
+  else if(type === 'blast')            { spawnVFXBlast(color, isUlt);              await sleep(isUlt?480:320); }
+  else if(type === 'beam')             { spawnVFXBeam(color, isUlt);               await sleep(380); }
   // Specials
-  else if(type === 'time_stop')        { spawnVFXTimeStop(color);           await sleep(700); }
-  else if(type === 'transformation')   { spawnVFXDimensionRift(color);      await sleep(420); }
+  else if(type === 'explosion')        { spawnVFXExplosion(color, isUlt);          await sleep(isUlt?700:450); }
+  else if(type === 'time_stop')        { spawnVFXTimeStop(color);                  await sleep(700); }
+  else if(type === 'transformation')   { spawnVFXDimensionRift(color);             await sleep(420); }
   // Legacy aliases (backward compat)
-  else if(type === 'color_flash')      { spawnVFXColorFlash(color);         await sleep(220); }
-  else if(type === 'ghost_slash')      { spawnVFXMultipleSlashes(color);    await sleep(300); }
-  else if(type === 'ice_shatter')      { spawnVFXIceShatter(color);         await sleep(320); }
-  else if(type === 'lightning')        { spawnVFXLightning(color);          await sleep(260); }
-  else if(type === 'dimension_rift')   { spawnVFXDimensionRift(color);      await sleep(420); }
-  else if(type === 'holy_beam')        { spawnVFXBeam(color);               await sleep(380); }
+  else if(type === 'color_flash')      { spawnVFXColorFlash(color, isUlt);         await sleep(220); }
+  else if(type === 'ghost_slash')      { spawnVFXMultipleSlashes(color, isUlt);    await sleep(300); }
+  else if(type === 'ice_shatter')      { spawnVFXIceShatter(color, isUlt);         await sleep(320); }
+  else if(type === 'lightning')        { spawnVFXLightning(color, isUlt);          await sleep(260); }
+  else if(type === 'dimension_rift')   { spawnVFXDimensionRift(color);             await sleep(420); }
+  else if(type === 'holy_beam')        { spawnVFXBeam(color, isUlt);               await sleep(380); }
 }
 
 // ── FLASH ──
@@ -21742,60 +21986,110 @@ function spawnVFXSpeedLines(color){
 }
 
 // ── PUNCH / STRIKE ──
-function spawnVFXPunch(color){
+function spawnVFXPunch(color, isUlt){
   const cx = window.innerWidth/2, cy = window.innerHeight/2;
-  // Impact flash
+  const ringCount = isUlt ? 5 : 3;
+  const maxW      = isUlt ? 520 : 340;
+  const dur       = isUlt ? 0.52 : 0.38;
+  const flashPeak = isUlt ? 0.85 : 0.55;
+
+  // Screen flash
   const flash = document.createElement('div');
   flash.className = 'vfx-punch-flash';
-  flash.style.background = color + '55';
+  flash.style.cssText = `background:${color}44;--peak:${flashPeak};--dur:${isUlt?0.38:0.28}s;`;
   document.body.appendChild(flash);
-  setTimeout(()=>flash.remove(), 300);
-  // Rings
-  for(let i=0; i<3; i++){
+  setTimeout(()=>flash.remove(), 400);
+
+  // Enlarging shockwave circles
+  for(let i=0; i<ringCount; i++){
     setTimeout(()=>{
       const ring = document.createElement('div');
       ring.className = 'vfx-punch-ring';
-      ring.style.cssText = `left:${cx}px;top:${cy}px;border-color:${color};border-width:${5-i*1.5}px;box-shadow:0 0 14px ${color};animation-delay:${i*60}ms;`;
+      const rW = isUlt ? maxW * (0.5 + i * 0.15) : maxW;
+      ring.style.cssText = `left:${cx}px;top:${cy}px;border-color:${color};border-width:${isUlt?6-i:5-i*1.5}px;box-shadow:0 0 ${isUlt?24:14}px ${color};--maxW:${rW}px;--dur:${dur + i*0.07}s;animation-delay:${i*55}ms;`;
       document.body.appendChild(ring);
-      setTimeout(()=>ring.remove(), 500);
-    }, i*55);
+      setTimeout(()=>ring.remove(), 600);
+    }, i*50);
   }
+
+  // Big shockwave distortion ring (ult only)
+  if(isUlt){
+    setTimeout(()=>{
+      const sw = document.createElement('div');
+      sw.className = 'vfx-punch-shockwave';
+      sw.style.cssText = `left:${cx}px;top:${cy}px;--clr:${color}44;--maxW:650px;--dur:0.6s;`;
+      document.body.appendChild(sw);
+      setTimeout(()=>sw.remove(), 700);
+    }, 60);
+  }
+
   // Impact star
   const star = document.createElement('div');
   star.className = 'vfx-punch-impact';
-  star.textContent = '✦';
-  star.style.cssText = `left:${cx}px;top:${cy}px;--clr:${color};color:${color};--rot:${(Math.random()-0.5)*40}deg;`;
+  star.textContent = isUlt ? '✦' : '✦';
+  star.style.cssText = `left:${cx}px;top:${cy}px;--clr:${color};color:${color};--rot:${(Math.random()-0.5)*40}deg;--sz:${isUlt?100:72}px;`;
   document.body.appendChild(star);
-  setTimeout(()=>star.remove(), 450);
+  setTimeout(()=>star.remove(), 500);
+
+  // Extra ground crack lines (ult)
+  if(isUlt){
+    for(let i=0; i<6; i++){
+      const angle = (i/6)*360;
+      const len   = 80 + Math.random()*140;
+      const el = document.createElement('div');
+      el.style.cssText = `position:fixed;z-index:9793;pointer-events:none;left:${cx}px;top:${cy}px;width:${len}px;height:2px;transform-origin:left center;transform:rotate(${angle}deg) scaleX(0);background:linear-gradient(90deg,${color},${color}44,transparent);box-shadow:0 0 8px ${color};animation:vfxDarkCrack 0.5s ease forwards;animation-delay:${i*30}ms;`;
+      document.body.appendChild(el);
+      setTimeout(()=>el.remove(), 600);
+    }
+  }
 }
 
 // ── BARRAGE ──
-function spawnVFXBarrage(color){
-  const count = 14;
+function spawnVFXBarrage(color, isUlt){
+  const count = isUlt ? 22 : 14;
   const cx = window.innerWidth/2, cy = window.innerHeight/2;
+  const spread = isUlt ? {x:320,y:200} : {x:260,y:160};
+  const maxRingW = isUlt ? 160 : 110;
+
   for(let i=0; i<count; i++){
     setTimeout(()=>{
-      const ox = (Math.random()-0.5)*260;
-      const oy = (Math.random()-0.5)*160;
+      const ox = (Math.random()-0.5)*spread.x;
+      const oy = (Math.random()-0.5)*spread.y;
+      const hx = cx+ox, hy = cy+oy;
+
+      // Each hit = an expanding circle (like a mini punch ring)
       const hit = document.createElement('div');
       hit.className = 'vfx-barrage-hit';
-      hit.style.cssText = `left:${cx+ox}px;top:${cy+oy}px;background:radial-gradient(circle,${color},${color}44,transparent);--dur:${0.18+Math.random()*0.12}s;animation-delay:${i*22}ms;`;
+      const rW = 40 + Math.random() * (maxRingW - 40);
+      hit.style.cssText = `left:${hx}px;top:${hy}px;border-color:${color};box-shadow:0 0 ${isUlt?16:10}px ${color};--maxW:${rW}px;--dur:${0.18+Math.random()*0.14}s;`;
       document.body.appendChild(hit);
       setTimeout(()=>hit.remove(), 400);
-      // small flash
-      if(i % 3 === 0){
-        setTimeout(()=>{
-          const f = document.createElement('div');
-          f.className = 'vfx-punch-flash';
-          f.style.cssText = `background:${color}22;`;
-          document.body.appendChild(f);
-          setTimeout(()=>f.remove(), 180);
-        }, i*22);
-      }
-    }, i*22);
+
+      // Bright core dot that pops
+      const core = document.createElement('div');
+      core.className = 'vfx-barrage-core';
+      core.style.cssText = `left:${hx}px;top:${hy}px;background:radial-gradient(circle,#fff,${color},transparent);--sz:${isUlt?22:14}px;--dur:${0.12+Math.random()*0.08}s;`;
+      document.body.appendChild(core);
+      setTimeout(()=>core.remove(), 300);
+
+    }, i * (isUlt ? 18 : 22));
   }
-  // speed lines at peak
-  setTimeout(()=>spawnVFXSpeedLines(color), 160);
+
+  // Full-screen flash every few hits
+  const flashCount = isUlt ? 5 : 3;
+  for(let f=0; f<flashCount; f++){
+    setTimeout(()=>{
+      const fl = document.createElement('div');
+      fl.className = 'vfx-punch-flash';
+      fl.style.cssText = `background:${color}18;--peak:${isUlt?0.3:0.2};--dur:0.16s;`;
+      document.body.appendChild(fl);
+      setTimeout(()=>fl.remove(), 200);
+    }, f * (count/flashCount) * (isUlt?18:22));
+  }
+
+  // Speed lines at peak for ult
+  if(isUlt) setTimeout(()=>spawnVFXSpeedLines(color, true), 200);
+  else      setTimeout(()=>spawnVFXSpeedLines(color, false), 160);
 }
 
 // ── SLASH ── (single clean diagonal slash)
@@ -21870,271 +22164,505 @@ function spawnVFXClawSlash(color){
 }
 
 // ── FIRE ──
-function spawnVFXFire(color){
-  const count = 22;
-  const centerX = window.innerWidth/2;
-  const centerY = window.innerHeight*0.6;
+function spawnVFXFire(color, isUlt){
+  const count     = isUlt ? 38 : 22;
+  const centerX   = window.innerWidth/2;
+  const centerY   = window.innerHeight*0.6;
+  const spreadX   = isUlt ? 340 : 220;
+  const pillarCnt = isUlt ? 5 : 2;
+
+  // Pillars of fire (bottom-up)
+  for(let p=0; p<pillarCnt; p++){
+    const px   = centerX + (Math.random()-0.5)*spreadX;
+    const pw   = isUlt ? 50+Math.random()*70 : 30+Math.random()*40;
+    const ph   = isUlt ? 160+Math.random()*140 : 80+Math.random()*80;
+    const clrs = [color,'#ff6a00','#ff9500','#ffcc00','#fff'];
+    const clr  = clrs[Math.floor(Math.random()*clrs.length)];
+    const el   = document.createElement('div');
+    el.className = 'vfx-fire-pillar';
+    el.style.cssText = `left:${px-pw/2}px;top:${centerY-ph}px;width:${pw}px;height:${ph}px;background:linear-gradient(0deg,transparent,${clr}cc,${clr},#fff8);box-shadow:0 0 ${pw}px ${clr}88;--dur:${0.5+Math.random()*0.35}s;animation-delay:${p*80}ms;`;
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(), 900);
+  }
+
+  // Floating fire particles
   for(let i=0; i<count; i++){
     setTimeout(()=>{
-      const el = document.createElement('div');
+      const el   = document.createElement('div');
       el.className = 'vfx-fire-particle';
-      const size = 18 + Math.random()*44;
-      const ox   = (Math.random()-0.5)*220;
+      const size = isUlt ? 22+Math.random()*52 : 18+Math.random()*44;
+      const ox   = (Math.random()-0.5)*spreadX;
       const ry   = -(60 + Math.random()*90);
       const ry2  = -(130 + Math.random()*110);
       const dur  = 0.5 + Math.random()*0.45;
-      const colors = [color, '#ff6a00', '#ff9500', '#ffcc00'];
-      const clr = colors[Math.floor(Math.random()*colors.length)];
-      el.style.cssText = `
-        left:${centerX + ox - size/2}px;top:${centerY - size/2}px;
-        width:${size}px;height:${size*1.4}px;
-        background:radial-gradient(ellipse at 50% 80%, ${clr}, ${clr}55, transparent 70%);
-        box-shadow:0 0 ${size}px ${clr}88;
-        --ry:${ry}px;--ry2:${ry2}px;--dur:${dur}s;
-        animation-delay:${i*22}ms;
-      `;
+      const clrs = [color,'#ff6a00','#ff9500','#ffcc00'];
+      const clr  = clrs[Math.floor(Math.random()*clrs.length)];
+      el.style.cssText = `left:${centerX+ox-size/2}px;top:${centerY-size/2}px;width:${size}px;height:${size*1.4}px;background:radial-gradient(ellipse at 50% 80%,${clr},${clr}55,transparent 70%);box-shadow:0 0 ${size}px ${clr}88;--ry:${ry}px;--ry2:${ry2}px;--dur:${dur}s;animation-delay:${i*16}ms;`;
       document.body.appendChild(el);
-      setTimeout(()=>el.remove(), (dur*1000)+i*22+200);
-    }, i*14);
+      setTimeout(()=>el.remove(), (dur*1000)+i*16+200);
+    }, i*12);
   }
-  spawnVFXColorFlash(color + '22');
+
+  // Embers flying up (ult)
+  if(isUlt){
+    for(let e=0; e<20; e++){
+      setTimeout(()=>{
+        const em   = document.createElement('div');
+        em.className = 'vfx-fire-ember';
+        const sz   = 3+Math.random()*6;
+        const ox   = (Math.random()-0.5)*300;
+        const dx   = (Math.random()-0.5)*80;
+        const dy   = -(120+Math.random()*180);
+        const rot  = (Math.random()-0.5)*720;
+        const dur  = 0.7+Math.random()*0.5;
+        em.style.cssText = `left:${centerX+ox}px;top:${centerY}px;width:${sz}px;height:${sz}px;background:${Math.random()>0.4?'#ffcc00':color};box-shadow:0 0 ${sz*2}px ${color};--dx:${dx}px;--dy:${dy}px;--rot:${rot}deg;--dur:${dur}s;animation-delay:${e*28}ms;`;
+        document.body.appendChild(em);
+        setTimeout(()=>em.remove(), dur*1000+e*28+200);
+      }, e*25);
+    }
+  }
+
+  spawnVFXColorFlash(color+(isUlt?'33':'22'));
 }
 
 // ── WATER ──
-function spawnVFXWater(color){
+function spawnVFXWater(color, isUlt){
   const waterColor = color || '#4fc3f7';
   const cx = window.innerWidth/2, cy = window.innerHeight*0.55;
-  // Ripples
-  for(let i=0; i<3; i++){
+  const rippleCount = isUlt ? 5 : 3;
+  const dropCount   = isUlt ? 42 : 26;
+  const geyserCnt   = isUlt ? 3 : 1;
+
+  // Geysers shooting upward
+  for(let g=0; g<geyserCnt; g++){
+    const gx  = cx + (g-Math.floor(geyserCnt/2)) * (isUlt?100:0);
+    const gw  = isUlt ? 30+Math.random()*40 : 20+Math.random()*30;
+    const gh  = isUlt ? 160+Math.random()*120 : 100+Math.random()*80;
+    const el  = document.createElement('div');
+    el.className = 'vfx-water-geyser';
+    el.style.cssText = `left:${gx-gw/2}px;top:${cy-gh}px;width:${gw}px;height:${gh}px;background:linear-gradient(0deg,transparent,${waterColor}cc,${waterColor},#fff8);box-shadow:0 0 ${gw}px ${waterColor}88;--dur:${0.5+Math.random()*0.2}s;animation-delay:${g*80}ms;`;
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(), 800);
+  }
+
+  // Ripples expanding outward
+  for(let i=0; i<rippleCount; i++){
     setTimeout(()=>{
       const ripple = document.createElement('div');
       ripple.className = 'vfx-water-ripple';
-      ripple.style.cssText = `left:${cx}px;top:${cy}px;border-color:${waterColor};border-width:${3-i}px;box-shadow:0 0 12px ${waterColor}66;animation-delay:${i*80}ms;`;
+      ripple.style.cssText = `left:${cx}px;top:${cy}px;border-color:${waterColor};border-width:${isUlt?4-i*0.5:3-i}px;box-shadow:0 0 ${isUlt?18:12}px ${waterColor}66;animation-delay:${i*80}ms;`;
       document.body.appendChild(ripple);
       setTimeout(()=>ripple.remove(), 700);
-    }, i*70);
+    }, i*65);
   }
-  // Drops
-  const count = 26;
-  for(let i=0; i<count; i++){
+
+  // Drops flying out
+  for(let i=0; i<dropCount; i++){
     setTimeout(()=>{
       const drop = document.createElement('div');
       drop.className = 'vfx-water-drop';
       const angle = Math.random()*Math.PI*2;
-      const dist = 20 + Math.random()*80;
-      const size = 8 + Math.random()*18;
-      const dx = Math.cos(angle)*(40+Math.random()*120);
-      const dy = -(30+Math.random()*100);
-      const dur = 0.4 + Math.random()*0.3;
-      drop.style.cssText = `
-        left:${cx + Math.cos(angle)*dist - size/2}px;top:${cy + Math.sin(angle)*dist*0.5 - size/2}px;
-        width:${size}px;height:${size*1.3}px;
-        background:radial-gradient(ellipse, ${waterColor}cc, ${waterColor}44, transparent);
-        box-shadow:0 0 8px ${waterColor}88;
-        --dx:${dx}px;--dy:${dy}px;--dur:${dur}s;
-        animation-delay:${i*18}ms;
-      `;
+      const dist  = 20 + Math.random()*80;
+      const size  = isUlt ? 10+Math.random()*22 : 8+Math.random()*18;
+      const dx    = Math.cos(angle)*(isUlt?60:40)+Math.random()*(isUlt?160:120);
+      const dy    = -(isUlt?50:30+Math.random()*100);
+      const dur   = 0.4 + Math.random()*0.3;
+      drop.style.cssText = `left:${cx+Math.cos(angle)*dist-size/2}px;top:${cy+Math.sin(angle)*dist*0.5-size/2}px;width:${size}px;height:${size*1.3}px;background:radial-gradient(ellipse,${waterColor}cc,${waterColor}44,transparent);box-shadow:0 0 8px ${waterColor}88;--dx:${dx}px;--dy:${dy}px;--dur:${dur}s;animation-delay:${i*14}ms;`;
       document.body.appendChild(drop);
-      setTimeout(()=>drop.remove(), (dur*1000)+i*18+300);
-    }, i*14);
+      setTimeout(()=>drop.remove(), (dur*1000)+i*14+300);
+    }, i*12);
   }
-  // Blue flash
+
+  // Splashes (ult)
+  if(isUlt){
+    for(let s=0; s<12; s++){
+      setTimeout(()=>{
+        const sp  = document.createElement('div');
+        sp.className = 'vfx-water-splash';
+        const ox  = (Math.random()-0.5)*260;
+        const sz  = 12+Math.random()*20;
+        const dx  = (Math.random()-0.5)*120;
+        const dy  = -(40+Math.random()*100);
+        sp.style.cssText = `left:${cx+ox}px;top:${cy}px;width:${sz}px;height:${sz}px;background:radial-gradient(circle,#fff,${waterColor}cc,transparent);box-shadow:0 0 10px ${waterColor};--dx:${dx}px;--dy:${dy}px;--dur:0.5s;animation-delay:${s*35}ms;`;
+        document.body.appendChild(sp);
+        setTimeout(()=>sp.remove(), 700);
+      }, s*30);
+    }
+  }
+
   const flash = document.createElement('div');
   flash.className = 'vfx-water-flash';
-  flash.style.background = waterColor + '44';
+  flash.style.background = waterColor + (isUlt?'55':'44');
   document.body.appendChild(flash);
   setTimeout(()=>flash.remove(), 500);
 }
 
 // ── ICE ──
-function spawnVFXIceShatter(color){
-  const iceColor = color || '#a8d8ea';
+function spawnVFXIceShatter(color, isUlt){
+  const iceColor  = color || '#a8d8ea';
+  const cx = window.innerWidth/2, cy = window.innerHeight/2;
+  const shardCnt  = isUlt ? 40 : 26;
+  const spikeCnt  = isUlt ? 8 : 4;
+  const ringCnt   = isUlt ? 3 : 1;
+
+  // Ice flash
   const flash = document.createElement('div');
   flash.className = 'vfx-ice-flash';
-  flash.style.background = `radial-gradient(circle at 50% 50%, #ffffff, ${iceColor}88, transparent 70%)`;
+  flash.style.cssText = `background:radial-gradient(circle at 50% 50%,#ffffff,${iceColor}88,transparent 70%);`;
   document.body.appendChild(flash);
   setTimeout(()=>flash.remove(), 550);
 
-  const cx = window.innerWidth/2, cy = window.innerHeight/2;
-  const count = 26;
-  for(let i=0; i<count; i++){
+  // Icy spikes erupting from center
+  for(let s=0; s<spikeCnt; s++){
+    const angle = (s/spikeCnt)*360 + (Math.random()-0.5)*20;
+    const dist  = 30 + Math.random()*60;
+    const sx    = cx + Math.cos(angle*Math.PI/180)*dist;
+    const sy    = cy + Math.sin(angle*Math.PI/180)*dist;
+    const sw    = isUlt ? 14+Math.random()*18 : 8+Math.random()*12;
+    const sh    = isUlt ? 80+Math.random()*100 : 50+Math.random()*60;
+    const el    = document.createElement('div');
+    el.className = 'vfx-ice-spike';
+    el.style.cssText = `left:${sx-sw/2}px;top:${sy-sh}px;width:${sw}px;height:${sh}px;background:linear-gradient(0deg,${iceColor},#ddeeffcc,#fff);box-shadow:0 0 12px ${iceColor}aa;--rot:${angle-90}deg;--dur:${0.35+Math.random()*0.2}s;animation-delay:${s*50}ms;`;
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(), 700);
+  }
+
+  // Expanding icy burst rings
+  for(let r=0; r<ringCnt; r++){
     setTimeout(()=>{
-      const el = document.createElement('div');
+      const ring = document.createElement('div');
+      ring.className = 'vfx-ice-burst';
+      const maxW = isUlt ? 400+r*80 : 280;
+      ring.style.cssText = `left:${cx}px;top:${cy}px;border-color:${iceColor};border-width:${isUlt?4:2}px;box-shadow:0 0 16px ${iceColor}88;--maxW:${maxW}px;--dur:${0.5+r*0.08}s;animation-delay:${r*80}ms;`;
+      document.body.appendChild(ring);
+      setTimeout(()=>ring.remove(), 700);
+    }, r*70);
+  }
+
+  // Shards flying outward
+  for(let i=0; i<shardCnt; i++){
+    setTimeout(()=>{
+      const el    = document.createElement('div');
       el.className = 'vfx-ice-shard';
-      const angle = (i/count)*Math.PI*2 + Math.random()*0.3;
-      const dist = 80 + Math.random()*240;
-      const dx = Math.cos(angle)*dist;
-      const dy = Math.sin(angle)*dist;
-      const size = 10 + Math.random()*30;
-      const rot = Math.random()*720-360;
-      const hue = Math.random()>0.5 ? iceColor : '#ddeeff';
-      el.style.cssText = `
-        left:${cx - size/2}px;top:${cy - size/2}px;
-        width:${size}px;height:${size}px;
-        background:linear-gradient(135deg, #ffffff, ${hue}cc, ${iceColor}88);
-        box-shadow:0 0 10px ${hue},0 0 4px #ffffff;
-        --dx:${dx}px;--dy:${dy}px;--rot:${rot}deg;
-        --dur:${0.4+Math.random()*0.4}s;
-        animation-delay:${i*11}ms;
-        clip-path:polygon(${20+Math.random()*20}% 0%,${80+Math.random()*20}% ${10+Math.random()*20}%,100% ${60+Math.random()*30}%,${50+Math.random()*20}% 100%,${Math.random()*20}% ${60+Math.random()*30}%);
-      `;
+      const angle = (i/shardCnt)*Math.PI*2 + Math.random()*0.3;
+      const dist  = isUlt ? 100+Math.random()*300 : 80+Math.random()*240;
+      const dx    = Math.cos(angle)*dist;
+      const dy    = Math.sin(angle)*dist;
+      const size  = isUlt ? 14+Math.random()*36 : 10+Math.random()*30;
+      const rot   = Math.random()*720-360;
+      const hue   = Math.random()>0.5 ? iceColor : '#ddeeff';
+      el.style.cssText = `left:${cx-size/2}px;top:${cy-size/2}px;width:${size}px;height:${size}px;background:linear-gradient(135deg,#ffffff,${hue}cc,${iceColor}88);box-shadow:0 0 10px ${hue},0 0 4px #ffffff;--dx:${dx}px;--dy:${dy}px;--rot:${rot}deg;--dur:${0.4+Math.random()*0.4}s;animation-delay:${i*9}ms;clip-path:polygon(${20+Math.random()*20}% 0%,${80+Math.random()*20}% ${10+Math.random()*20}%,100% ${60+Math.random()*30}%,${50+Math.random()*20}% 100%,${Math.random()*20}% ${60+Math.random()*30}%);`;
       document.body.appendChild(el);
       setTimeout(()=>el.remove(), 900);
-    }, i*10);
+    }, i*9);
   }
 }
 
 // ── DARK ──
-function spawnVFXDark(color){
+function spawnVFXDark(color, isUlt){
   const darkColor = color || '#6a0dad';
+  const cx = window.innerWidth/2, cy = window.innerHeight/2;
+
   // Dark overlay
   const overlay = document.createElement('div');
   overlay.className = 'vfx-dark-overlay';
-  overlay.style.background = `radial-gradient(ellipse at 50% 50%, ${darkColor}66 0%, rgba(0,0,0,0.7) 50%, transparent 80%)`;
+  overlay.style.background = isUlt
+    ? `radial-gradient(ellipse at 50% 50%, ${darkColor}99 0%, rgba(0,0,0,0.88) 55%, transparent 80%)`
+    : `radial-gradient(ellipse at 50% 50%, ${darkColor}66 0%, rgba(0,0,0,0.7) 50%, transparent 80%)`;
   document.body.appendChild(overlay);
-  setTimeout(()=>overlay.remove(), 950);
+  setTimeout(()=>overlay.remove(), isUlt?1100:950);
 
-  // Central dark orb
-  const cx = window.innerWidth/2, cy = window.innerHeight/2;
+  // Void orb that expands and collapses
   const orb = document.createElement('div');
-  orb.className = 'vfx-dark-orb';
-  const orbSize = Math.min(window.innerWidth, window.innerHeight) * 0.3;
-  orb.style.cssText = `left:${cx}px;top:${cy}px;width:${orbSize}px;height:${orbSize}px;background:radial-gradient(circle, ${darkColor}cc, ${darkColor}44, transparent 70%);box-shadow:0 0 60px ${darkColor},0 0 120px ${darkColor}44;`;
+  orb.className = 'vfx-dark-void';
+  const orbMax = isUlt ? 4 : 2.5;
+  const orbSize = Math.min(window.innerWidth, window.innerHeight) * (isUlt?0.4:0.3);
+  orb.style.cssText = `left:${cx}px;top:${cy}px;width:${orbSize}px;height:${orbSize}px;background:radial-gradient(circle, ${darkColor}dd, ${darkColor}55, transparent 70%);box-shadow:0 0 ${isUlt?100:60}px ${darkColor},0 0 ${isUlt?200:120}px ${darkColor}44;--maxS:${orbMax};--dur:${isUlt?0.95:0.75}s;`;
   document.body.appendChild(orb);
-  setTimeout(()=>orb.remove(), 850);
+  setTimeout(()=>orb.remove(), isUlt?1000:850);
 
-  // Tendrils radiating out
-  const tendrilCount = 12 + Math.floor(Math.random()*6);
-  for(let i=0; i<tendrilCount; i++){
+  // Dark cracks radiating outward (replacing tendrils)
+  const crackCnt = isUlt ? 20 : 12;
+  for(let i=0; i<crackCnt; i++){
     setTimeout(()=>{
       const el = document.createElement('div');
-      el.className = 'vfx-dark-tendril';
-      const angle = (i/tendrilCount)*360 + (Math.random()-0.5)*18;
-      const len = 90 + Math.random()*230;
-      const thick = 1.5 + Math.random()*3;
-      el.style.cssText = `
-        left:${cx}px;top:${cy}px;
-        width:${len}px;height:${thick}px;
-        background:linear-gradient(90deg, ${darkColor}, ${darkColor}66, transparent);
-        box-shadow:0 0 8px ${darkColor};
-        --angle:${angle}deg;
-        animation-delay:${i*28}ms;
-      `;
+      el.className = 'vfx-dark-crack';
+      const angle = (i/crackCnt)*360 + (Math.random()-0.5)*14;
+      const len   = isUlt ? 110+Math.random()*300 : 90+Math.random()*230;
+      const thick = isUlt ? 2+Math.random()*4 : 1.5+Math.random()*3;
+      el.style.cssText = `left:${cx}px;top:${cy}px;width:${len}px;height:${thick}px;background:linear-gradient(90deg,${darkColor}ff,${darkColor}88,${darkColor}22,transparent);box-shadow:0 0 ${isUlt?14:8}px ${darkColor};--angle:${angle}deg;--dur:${isUlt?0.7:0.55}s;animation-delay:${i*25}ms;`;
       document.body.appendChild(el);
-      setTimeout(()=>el.remove(), 800);
-    }, i*22);
+      setTimeout(()=>el.remove(), 900);
+    }, i*20);
+  }
+
+  // Ult: dark shards flying inward (sucked into the void)
+  if(isUlt){
+    for(let j=0; j<14; j++){
+      setTimeout(()=>{
+        const shard = document.createElement('div');
+        shard.style.cssText = `position:fixed;z-index:9796;pointer-events:none;border-radius:2px;left:${cx+(Math.random()-0.5)*400}px;top:${cy+(Math.random()-0.5)*300}px;width:${4+Math.random()*12}px;height:${2+Math.random()*6}px;background:${darkColor};box-shadow:0 0 8px ${darkColor};animation:vfxBlastShard 0.6s ease-in forwards;--dx:${(Math.random()-0.5)*-200}px;--dy:${(Math.random()-0.5)*-150}px;--rot:${Math.random()*360}deg;--dur:0.6s;`;
+        document.body.appendChild(shard);
+        setTimeout(()=>shard.remove(), 650);
+      }, j*35);
+    }
   }
 }
 
 // ── ELECTRICITY ──
-function spawnVFXLightning(color){
-  const flicker = document.createElement('div');
-  flicker.className = 'vfx-lightning-flicker';
-  flicker.style.background = color + '33';
-  document.body.appendChild(flicker);
-  setTimeout(()=>flicker.remove(), 500);
+function spawnVFXLightning(color, isUlt){
+  const cx = window.innerWidth/2, cy = window.innerHeight/2;
+  const boltCnt = isUlt ? 10+Math.floor(Math.random()*6) : 5+Math.floor(Math.random()*4);
+  const peakFlash = isUlt ? 0.45 : 0.28;
 
-  const bolts = 5 + Math.floor(Math.random()*4);
-  for(let i=0; i<bolts; i++){
+  // Screen flicker
+  const flicker = document.createElement('div');
+  flicker.className = 'vfx-elec-flash';
+  flicker.style.cssText = `background:${color}33;--peak:${peakFlash};--dur:${isUlt?0.55:0.4}s;`;
+  document.body.appendChild(flicker);
+  setTimeout(()=>flicker.remove(), 600);
+
+  // Lightning bolts (jagged vertical lines)
+  for(let i=0; i<boltCnt; i++){
     setTimeout(()=>{
       const bolt = document.createElement('div');
       bolt.className = 'vfx-lightning-bolt';
-      const x = 15 + Math.random()*70;
-      const h = 80 + Math.random()*200;
-      const skew = (Math.random()-0.5)*22;
-      bolt.style.cssText = `
-        left:${x}vw;top:${3+Math.random()*25}vh;
-        height:${h}px;
-        background:linear-gradient(180deg,${color},${color}aa,transparent);
-        box-shadow:0 0 12px ${color},0 0 28px ${color}88;
-        color:${color};
-        --skew:${skew}deg;
-        animation-delay:${i*38}ms;
-      `;
+      const x    = 15 + Math.random()*70;
+      const h    = isUlt ? 120+Math.random()*260 : 80+Math.random()*200;
+      const w    = isUlt ? 3+Math.random()*5 : 2+Math.random()*4;
+      const skew = (Math.random()-0.5)*(isUlt?32:22);
+      bolt.style.cssText = `left:${x}vw;top:${3+Math.random()*25}vh;height:${h}px;width:${w}px;background:linear-gradient(180deg,${color},${color}aa,transparent);box-shadow:0 0 ${isUlt?20:12}px ${color},0 0 ${isUlt?40:28}px ${color}88;color:${color};--skew:${skew}deg;animation-delay:${i*32}ms;`;
       document.body.appendChild(bolt);
       setTimeout(()=>bolt.remove(), 500);
-    }, i*38);
+    }, i*32);
   }
-  // Sparks
-  const cx = window.innerWidth/2, cy = window.innerHeight/2;
-  for(let i=0; i<20; i++){
+
+  // Sparks flying from center
+  const sparkCnt = isUlt ? 36 : 20;
+  for(let i=0; i<sparkCnt; i++){
     const spark = document.createElement('div');
     spark.className = 'vfx-spark';
-    const size = 3 + Math.random()*6;
-    const dx = (Math.random()-0.5)*250;
-    const dy = (Math.random()-0.5)*200;
-    spark.style.cssText = `left:${cx+(Math.random()-0.5)*100}px;top:${cy+(Math.random()-0.5)*80}px;width:${size}px;height:${size}px;background:${color};box-shadow:0 0 6px ${color};--dx:${dx}px;--dy:${dy}px;--dur:${0.25+Math.random()*0.2}s;animation-delay:${Math.random()*120}ms;`;
+    const size = isUlt ? 4+Math.random()*9 : 3+Math.random()*6;
+    const dx   = (Math.random()-0.5)*(isUlt?380:250);
+    const dy   = (Math.random()-0.5)*(isUlt?280:200);
+    spark.style.cssText = `left:${cx+(Math.random()-0.5)*120}px;top:${cy+(Math.random()-0.5)*90}px;width:${size}px;height:${size}px;background:${Math.random()>0.4?color:'#fff'};box-shadow:0 0 6px ${color};--dx:${dx}px;--dy:${dy}px;--dur:${0.25+Math.random()*0.25}s;animation-delay:${Math.random()*120}ms;`;
     document.body.appendChild(spark);
-    setTimeout(()=>spark.remove(), 500);
+    setTimeout(()=>spark.remove(), 550);
+  }
+
+  // Ult: secondary bolt cluster mid-air
+  if(isUlt){
+    for(let c=0; c<4; c++){
+      setTimeout(()=>{
+        const bolt2 = document.createElement('div');
+        bolt2.className = 'vfx-lightning-bolt';
+        const bx = cx + (Math.random()-0.5)*320;
+        const bh = 60+Math.random()*120;
+        bolt2.style.cssText = `left:${bx}px;top:${cy+(Math.random()-0.5)*200}px;height:${bh}px;width:${2+Math.random()*4}px;background:linear-gradient(180deg,${color},#fff,transparent);box-shadow:0 0 18px ${color};--skew:${(Math.random()-0.5)*40}deg;animation-delay:${c*50}ms;`;
+        document.body.appendChild(bolt2);
+        setTimeout(()=>bolt2.remove(), 450);
+      }, 120+c*40);
+    }
   }
 }
 
 // ── SHOOT ──
-function spawnVFXShoot(color){
+function spawnVFXShoot(color, isUlt){
   const startX = -40;
-  const y = window.innerHeight * (0.3 + Math.random()*0.4);
-  const size = 14 + Math.random()*10;
+  const y      = window.innerHeight * (0.3 + Math.random()*0.4);
+  const size   = isUlt ? 20+Math.random()*14 : 14+Math.random()*10;
+  const speed  = isUlt ? 0.22 : 0.32;
+
+  // Charge flash at origin
+  const charge = document.createElement('div');
+  charge.className = 'vfx-shoot-charge';
+  charge.style.cssText = `left:${startX}px;top:${y}px;width:${size*3}px;height:${size*3}px;background:radial-gradient(circle,#fff,${color},transparent);box-shadow:0 0 20px ${color};--dur:${isUlt?0.12:0.15}s;`;
+  document.body.appendChild(charge);
+  setTimeout(()=>charge.remove(), 200);
+
   // Trail
   const trail = document.createElement('div');
   trail.className = 'vfx-shoot-trail';
-  trail.style.cssText = `left:${startX}px;top:${y}px;width:${window.innerWidth * 0.55}px;background:linear-gradient(90deg,transparent,${color}88,${color},transparent);box-shadow:0 0 8px ${color};`;
+  trail.style.cssText = `left:${startX}px;top:${y}px;width:${window.innerWidth*(isUlt?0.65:0.55)}px;height:${isUlt?5:3}px;background:linear-gradient(90deg,transparent,${color}88,${color},transparent);box-shadow:0 0 ${isUlt?14:8}px ${color};`;
   document.body.appendChild(trail);
   setTimeout(()=>trail.remove(), 450);
-  // Projectile
+
+  // Projectile (elongated bullet / energy orb)
   const proj = document.createElement('div');
   proj.className = 'vfx-shoot-projectile';
-  proj.style.cssText = `left:${startX}px;top:${y - size/2}px;width:${size*2.5}px;height:${size}px;background:radial-gradient(ellipse at 25% 50%, #ffffff, ${color}, ${color}44);box-shadow:0 0 14px ${color},0 0 30px ${color}66;--dx:${window.innerWidth + 80}px;--dur:0.32s;`;
+  const pW = size*(isUlt?3.5:2.5), pH = size;
+  proj.style.cssText = `left:${startX}px;top:${y-pH/2}px;width:${pW}px;height:${pH}px;background:radial-gradient(ellipse at 25% 50%,#ffffff,${color},${color}44);box-shadow:0 0 ${isUlt?24:14}px ${color},0 0 ${isUlt?50:30}px ${color}66;--dx:${window.innerWidth+80}px;--dur:${speed}s;`;
   document.body.appendChild(proj);
-  setTimeout(()=>proj.remove(), 380);
+  setTimeout(()=>proj.remove(), 400);
+
   // Impact at target area
   setTimeout(()=>{
     const impact = document.createElement('div');
     impact.className = 'vfx-shoot-impact';
     const ix = window.innerWidth * 0.6 + Math.random()*80;
-    impact.style.cssText = `left:${ix}px;top:${y}px;border-color:${color};box-shadow:0 0 18px ${color};`;
+    impact.style.cssText = `left:${ix}px;top:${y}px;border-color:${color};box-shadow:0 0 ${isUlt?28:18}px ${color};`;
     document.body.appendChild(impact);
     setTimeout(()=>impact.remove(), 450);
-    spawnVFXColorFlash(color + '33');
-  }, 290);
+    spawnVFXColorFlash(color+(isUlt?'44':'33'));
+
+    // Ult: extra impact shards
+    if(isUlt){
+      for(let s=0; s<8; s++){
+        const shard = document.createElement('div');
+        shard.className = 'vfx-blast-shard';
+        const angle = (Math.random()-0.5)*Math.PI;
+        const dist  = 40+Math.random()*100;
+        shard.style.cssText = `left:${ix}px;top:${y}px;width:${3+Math.random()*8}px;height:${2+Math.random()*4}px;background:${color};box-shadow:0 0 6px ${color};--dx:${Math.cos(angle)*dist}px;--dy:${Math.sin(angle)*dist}px;--rot:${Math.random()*360}deg;--dur:${0.3+Math.random()*0.15}s;`;
+        document.body.appendChild(shard);
+        setTimeout(()=>shard.remove(), 500);
+      }
+    }
+  }, isUlt ? 200 : 290);
 }
 
 // ── BLAST ──
-function spawnVFXBlast(color){
+function spawnVFXBlast(color, isUlt){
   const cx = window.innerWidth/2, cy = window.innerHeight/2;
+  const ringCnt   = isUlt ? 5 : 3;
+  const shardCnt  = isUlt ? 28 : 18;
+  const coreSize  = isUlt ? 90+Math.random()*60 : 60+Math.random()*40;
+  const maxRing   = isUlt ? 700 : 500;
+  const flashPeak = isUlt ? 0.88 : 0.55;
+
   // Flash
   const flash = document.createElement('div');
   flash.className = 'vfx-blast-flash';
-  flash.style.background = color + '66';
+  flash.style.cssText = `background:${color}${isUlt?'88':'66'};--peak:${flashPeak};`;
   document.body.appendChild(flash);
   setTimeout(()=>flash.remove(), 400);
-  // Core
+
+  // Core fireball
   const core = document.createElement('div');
   core.className = 'vfx-blast-core';
-  const coreSize = 60 + Math.random()*40;
-  core.style.cssText = `left:${cx}px;top:${cy}px;width:${coreSize}px;height:${coreSize}px;background:radial-gradient(circle, #ffffff, ${color}, ${color}55);box-shadow:0 0 40px ${color},0 0 80px ${color}88;`;
+  core.style.cssText = `left:${cx}px;top:${cy}px;width:${coreSize}px;height:${coreSize}px;background:radial-gradient(circle,#ffffff,${color},${color}55);box-shadow:0 0 ${isUlt?80:40}px ${color},0 0 ${isUlt?160:80}px ${color}88;`;
   document.body.appendChild(core);
   setTimeout(()=>core.remove(), 500);
-  // Rings
-  for(let i=0; i<3; i++){
+
+  // Expanding rings (like shockwaves)
+  for(let i=0; i<ringCnt; i++){
     setTimeout(()=>{
       const ring = document.createElement('div');
       ring.className = 'vfx-blast-ring';
-      ring.style.cssText = `left:${cx}px;top:${cy}px;border-color:${color};box-shadow:0 0 20px ${color};animation-delay:${i*70}ms;`;
+      ring.style.cssText = `left:${cx}px;top:${cy}px;border-color:${color};border-width:${isUlt?8-i:6-i}px;box-shadow:0 0 ${isUlt?30:20}px ${color};animation-delay:${i*70}ms;--maxW:${maxRing-i*40}px;`;
+      ring.style.setProperty('--maxW', `${maxRing-i*40}px`);
       document.body.appendChild(ring);
       setTimeout(()=>ring.remove(), 600);
     }, i*65);
   }
+
+  // Big shockwave distortion
+  const sw = document.createElement('div');
+  sw.className = 'vfx-blast-shockwave';
+  sw.style.cssText = `left:${cx}px;top:${cy}px;--clr:${color}22;--maxW:${isUlt?800:600}px;--dur:${isUlt?0.7:0.55}s;`;
+  document.body.appendChild(sw);
+  setTimeout(()=>sw.remove(), 750);
+
   // Shards flying out
-  const shardCount = 18;
-  for(let i=0; i<shardCount; i++){
+  for(let i=0; i<shardCnt; i++){
     const shard = document.createElement('div');
     shard.className = 'vfx-blast-shard';
-    const angle = (i/shardCount)*Math.PI*2;
-    const dist = 80 + Math.random()*200;
-    const size = 4 + Math.random()*10;
-    shard.style.cssText = `left:${cx}px;top:${cy}px;width:${size}px;height:${size/2}px;background:${color};box-shadow:0 0 6px ${color};--dx:${Math.cos(angle)*dist}px;--dy:${Math.sin(angle)*dist}px;--rot:${Math.random()*360}deg;--dur:${0.35+Math.random()*0.2}s;animation-delay:${Math.random()*60}ms;`;
+    const angle = (i/shardCnt)*Math.PI*2;
+    const dist  = isUlt ? 100+Math.random()*280 : 80+Math.random()*200;
+    const size  = isUlt ? 5+Math.random()*14 : 4+Math.random()*10;
+    shard.style.cssText = `left:${cx}px;top:${cy}px;width:${size}px;height:${size/2}px;background:${color};box-shadow:0 0 8px ${color};--dx:${Math.cos(angle)*dist}px;--dy:${Math.sin(angle)*dist}px;--rot:${Math.random()*360}deg;--dur:${0.35+Math.random()*0.2}s;animation-delay:${Math.random()*60}ms;`;
     document.body.appendChild(shard);
-    setTimeout(()=>shard.remove(), 500);
+    setTimeout(()=>shard.remove(), 550);
+  }
+
+  // Ult: smoke clouds
+  if(isUlt){
+    for(let s=0; s<5; s++){
+      setTimeout(()=>{
+        const smoke = document.createElement('div');
+        smoke.className = 'vfx-explosion-smoke';
+        const sz = 80+Math.random()*120;
+        const ox = (Math.random()-0.5)*200;
+        const oy = (Math.random()-0.5)*150;
+        smoke.style.cssText = `left:${cx+ox}px;top:${cy+oy}px;width:${sz}px;height:${sz}px;background:radial-gradient(circle,rgba(40,20,60,0.5),transparent 70%);--dur:0.9s;animation-delay:${s*60}ms;`;
+        document.body.appendChild(smoke);
+        setTimeout(()=>smoke.remove(), 1000);
+      }, 80+s*50);
+    }
+  }
+}
+
+// ── EXPLOSION ──
+function spawnVFXExplosion(color, isUlt){
+  const cx = window.innerWidth/2, cy = window.innerHeight/2;
+  const scale    = isUlt ? 3.5 : 2.2;
+  const ringCnt  = isUlt ? 5 : 3;
+  const debrisCnt= isUlt ? 30 : 18;
+  const sparkCnt = isUlt ? 24 : 12;
+  const coreSize = isUlt ? 110+Math.random()*60 : 70+Math.random()*40;
+
+  // Blinding white flash
+  const flash = document.createElement('div');
+  flash.className = 'vfx-explosion-flash';
+  flash.style.cssText = `--peak:${isUlt?0.95:0.75};--mid:${isUlt?0.5:0.3};--dur:${isUlt?0.45:0.35}s;`;
+  document.body.appendChild(flash);
+  setTimeout(()=>flash.remove(), 500);
+
+  // Core fireball expanding
+  const core = document.createElement('div');
+  core.className = 'vfx-explosion-core';
+  core.style.cssText = `left:${cx}px;top:${cy}px;width:${coreSize}px;height:${coreSize}px;background:radial-gradient(circle,#ffffff 0%,#fff8dc 20%,${color} 50%,${color}44 80%,transparent 100%);box-shadow:0 0 ${isUlt?120:60}px ${color},0 0 ${isUlt?250:120}px ${color}66;--scale:${scale};--dur:${isUlt?0.55:0.45}s;`;
+  document.body.appendChild(core);
+  setTimeout(()=>core.remove(), 700);
+
+  // Expanding shockwave rings
+  for(let i=0; i<ringCnt; i++){
+    setTimeout(()=>{
+      const ring = document.createElement('div');
+      ring.className = 'vfx-explosion-ring';
+      const maxW = (isUlt?650:480) - i*40;
+      ring.style.cssText = `left:${cx}px;top:${cy}px;border-color:${color};border-width:${isUlt?7-i:5-i}px;box-shadow:0 0 ${isUlt?30:18}px ${color};--maxW:${maxW}px;--dur:${0.55+i*0.07}s;animation-delay:${i*55}ms;`;
+      document.body.appendChild(ring);
+      setTimeout(()=>ring.remove(), 700);
+    }, i*50);
+  }
+
+  // Debris chunks flying out
+  for(let i=0; i<debrisCnt; i++){
+    const debris = document.createElement('div');
+    debris.className = 'vfx-explosion-debris';
+    const angle = (i/debrisCnt)*Math.PI*2 + Math.random()*0.4;
+    const dist  = isUlt ? 120+Math.random()*280 : 80+Math.random()*180;
+    const size  = isUlt ? 5+Math.random()*16 : 3+Math.random()*12;
+    const clr   = Math.random()>0.5 ? color : (Math.random()>0.5 ? '#ffcc00' : '#ff6600');
+    debris.style.cssText = `left:${cx}px;top:${cy}px;width:${size}px;height:${size*0.6}px;background:${clr};box-shadow:0 0 8px ${clr};--dx:${Math.cos(angle)*dist}px;--dy:${Math.sin(angle)*dist}px;--rot:${Math.random()*720}deg;--dur:${0.5+Math.random()*0.25}s;animation-delay:${Math.random()*50}ms;`;
+    document.body.appendChild(debris);
+    setTimeout(()=>debris.remove(), 800);
+  }
+
+  // Hot sparks
+  for(let i=0; i<sparkCnt; i++){
+    const spark = document.createElement('div');
+    spark.className = 'vfx-explosion-spark';
+    const angle = Math.random()*Math.PI*2;
+    const dist  = isUlt ? 100+Math.random()*200 : 60+Math.random()*150;
+    const sz    = 3+Math.random()*5;
+    spark.style.cssText = `left:${cx+(Math.random()-0.5)*50}px;top:${cy+(Math.random()-0.5)*50}px;width:${sz}px;height:${sz}px;background:${Math.random()>0.4?'#ffcc00':color};box-shadow:0 0 8px ${color};--dx:${Math.cos(angle)*dist}px;--dy:${Math.sin(angle)*dist}px;--dur:${0.4+Math.random()*0.3}s;animation-delay:${i*18}ms;`;
+    document.body.appendChild(spark);
+    setTimeout(()=>spark.remove(), 700);
+  }
+
+  // Smoke clouds rising
+  const smokeCnt = isUlt ? 6 : 3;
+  for(let s=0; s<smokeCnt; s++){
+    setTimeout(()=>{
+      const smoke = document.createElement('div');
+      smoke.className = 'vfx-explosion-smoke';
+      const sz = (isUlt?100:70)+Math.random()*80;
+      const ox = (Math.random()-0.5)*240;
+      smoke.style.cssText = `left:${cx+ox}px;top:${cy}px;width:${sz}px;height:${sz}px;background:radial-gradient(circle,rgba(50,30,10,0.5),rgba(30,20,5,0.3),transparent 70%);--dur:${0.8+Math.random()*0.4}s;animation-delay:${60+s*55}ms;`;
+      document.body.appendChild(smoke);
+      setTimeout(()=>smoke.remove(), 1200);
+    }, 60+s*50);
   }
 }
 
@@ -23784,7 +24312,8 @@ function addAbilitySlot(prefill){
     
     <div style="margin-top:10px;">
       <label class="admin-label">Ability VFX Effect <span class="admin-hint">— visual effect when used (cutscene off)</span></label>
-      <div style="display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;">
+      <div style="font-size:0.72em;color:var(--text-dim);font-style:italic;margin-bottom:5px;">⚡ <b>Active</b> tier = standard intensity &nbsp;·&nbsp; 🌟 <b>Ultimate</b> tier = dramatically enhanced effect</div>
+      <div style="display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;">
         <select class="admin-input ab-vfx-type" id="ab_vfx_type_${idx}" style="font-size:0.82em;">
           <option value="">— auto (by tier) —</option>
           <optgroup label="⚡ Flashes">
@@ -23813,6 +24342,7 @@ function addAbilitySlot(prefill){
           <optgroup label="✨ Specials">
           <option value="time_stop"        ${(data.vfx_type||data.vfxType||'')==='time_stop'?'selected':''}>⏱️ Time Stop</option>
           <option value="transformation"   ${['transformation','dimension_rift'].includes(data.vfx_type||data.vfxType||'')?'selected':''}>🌀 Transformation</option>
+          <option value="explosion"        ${(data.vfx_type||data.vfxType||'')==='explosion'?'selected':''}>💣 Explosion</option>
           </optgroup>
           <option value="none"             ${(data.vfx_type||data.vfxType||'')==='none'?'selected':''}>✕ None</option>
         </select>
@@ -23822,6 +24352,7 @@ function addAbilitySlot(prefill){
             value="${data.vfx_color||data.vfxColor||'#ff9dc7'}"
             style="width:34px;height:28px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer;padding:2px;"/>
         </div>
+        <button type="button" onclick="previewAbilityVfxFromSlot(${idx})" title="Preview VFX" style="background:rgba(255,157,199,0.12);border:1px solid var(--border);color:var(--pink);border-radius:6px;padding:4px 10px;cursor:pointer;font-size:0.78em;white-space:nowrap;">▶ Preview</button>
       </div>
     </div>
 
