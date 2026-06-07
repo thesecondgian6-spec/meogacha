@@ -2752,9 +2752,8 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .gp-stage {
   position: relative;
   width: 100%;
-  min-height: clamp(460px, 108vw, 620px);
+  min-height: clamp(520px, 130vw, 680px);
   overflow: hidden;
-  /* NO background color — bg image must cover everything */
 }
 
 /* BG image: true full-cover, no scale clipping gaps */
@@ -2904,16 +2903,16 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .gp-pull-row {
   display: flex;
   flex-direction: column;
-  gap: 7px;
+  gap: 5px;
   align-items: flex-start;
   width: 100%;
 }
 .gp-wish-btn {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 9px 14px;
-  border-radius: 14px;
+  padding: 7px 11px;
+  border-radius: 10px;
   width: 100%;
-  max-width: 220px;
+  max-width: 175px;
   border: 1px solid rgba(255,157,199,0.45);
   background: linear-gradient(135deg, rgba(30,10,50,0.88) 0%, rgba(55,18,75,0.78) 100%);
   backdrop-filter: blur(18px);
@@ -2945,10 +2944,10 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 }
 .gp-wish-btn-10:hover { border-color: #f1c40f; box-shadow: 0 6px 28px rgba(241,196,15,0.35), 0 0 0 1px rgba(241,196,15,0.35); }
 .gp-wish-btn-10:hover::before { background-position: -200% 0; }
-.gp-wish-btn-left { display: flex; align-items: center; gap: 8px; }
-.gpb-icon { font-size: 0.72em; opacity: 0.65; }
-.gpb-text { font-size: 0.76em; white-space: nowrap; }
-.gpb-cost { font-family: 'JetBrains Mono', monospace; font-size: 0.63em; color: rgba(255,215,100,0.85); }
+.gp-wish-btn-left { display: flex; align-items: center; gap: 6px; }
+.gpb-icon { font-size: 0.62em; opacity: 0.65; }
+.gpb-text { font-size: 0.68em; white-space: nowrap; }
+.gpb-cost { font-family: 'JetBrains Mono', monospace; font-size: 0.58em; color: rgba(255,215,100,0.85); }
 .gp-pool-btn {
   background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.12);
   color: rgba(255,255,255,0.45); padding: 7px 16px; border-radius: 10px;
@@ -3137,17 +3136,17 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 
 /* Pull buttons: vertical stack */
 .gp-pull-row {
-  display: flex; flex-direction: column; gap: 8px;
+  display: flex; flex-direction: column; gap: 5px;
 }
 .gp-wish-btn {
   position: relative; display: flex; align-items: center; justify-content: space-between;
-  padding: 11px 16px; border-radius: 14px;
+  padding: 7px 11px; border-radius: 10px;
   border: 1px solid rgba(255,157,199,0.42);
   background: linear-gradient(135deg, rgba(30,10,50,0.9), rgba(60,20,80,0.8));
   color: #fff; cursor: pointer; font-family: "Cinzel Decorative", serif;
   transition: all 0.22s; overflow: hidden;
   box-shadow: 0 4px 22px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.1);
-  max-width: 220px; width: 100%;
+  max-width: 175px; width: 100%;
 }
 .gp-wish-btn::after {
   content: ""; position: absolute; inset: 0;
@@ -3169,10 +3168,10 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 }
 .gp-wish-btn-10:hover { border-color: #f1c40f; box-shadow: 0 8px 28px rgba(241,196,15,0.3); }
 .gp-wish-btn-10:hover::after { background-position: -200% 0; }
-.gp-wish-btn-left { display: flex; align-items: center; gap: 10px; }
-.gpb-icon { font-size: 0.82em; opacity: 0.7; letter-spacing: 0.04em; }
-.gpb-text { font-size: 0.82em; white-space: nowrap; }
-.gpb-cost { font-family: "JetBrains Mono", monospace; font-size: 0.67em; color: rgba(255,215,100,0.82); }
+.gp-wish-btn-left { display: flex; align-items: center; gap: 6px; }
+.gpb-icon { font-size: 0.62em; opacity: 0.7; letter-spacing: 0.04em; }
+.gpb-text { font-size: 0.68em; white-space: nowrap; }
+.gpb-cost { font-family: "JetBrains Mono", monospace; font-size: 0.58em; color: rgba(255,215,100,0.82); }
 
 /* View Pool: full-width subtle button */
 .gp-pool-btn {
@@ -3219,7 +3218,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 /* ── Mobile ── */
 @media (max-width: 700px) {
   #page-pull.active { height: auto; min-height: 0; overflow-y: auto; }
-  .gp-stage { min-height: clamp(460px, 112vw, 580px); }
+  .gp-stage { min-height: clamp(520px, 130vw, 680px); }
   .gp-info {
     width: 50%;                        /* leave half screen for character */
     padding: 10px 6px 14px 12px;
@@ -18356,7 +18355,7 @@ function renderActiveBanner(){
 
   // Auto-size featured cards by height: fewer = taller
   const fc = featuredCards.length;
-  const featCardHeight = fc === 1 ? 'clamp(170px, 44vw, 240px)' : fc === 2 ? 'clamp(140px, 36vw, 200px)' : 'clamp(110px, 28vw, 160px)';
+  const featCardHeight = fc === 1 ? 'clamp(220px, 56vw, 300px)' : fc === 2 ? 'clamp(180px, 46vw, 250px)' : 'clamp(140px, 36vw, 200px)';
   const featRowJustify = fc === 1 ? 'center' : fc === 2 ? 'center' : 'flex-start';
 
   el.innerHTML = `
