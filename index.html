@@ -2996,10 +2996,10 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   font-size: 0.5em; letter-spacing: 0.12em; text-transform: uppercase;
   color: rgba(255,255,255,0.35);
 }
-.gp-featured-row { display: flex; gap: 8px; flex-wrap: nowrap; width: 100%; }
+.gp-featured-row { display: flex; gap: 8px; flex-wrap: nowrap; }
 .gp-feat-card {
   position: relative;
-  /* width set inline based on card count — height derived from aspect-ratio */
+  /* height set inline per card count; width derived from aspect-ratio: 2/3 */
   aspect-ratio: 2 / 3;
   border-radius: 10px; overflow: hidden;
   border: 1.5px solid rgba(255,157,199,0.28);
@@ -18354,9 +18354,9 @@ function renderActiveBanner(){
     ` : ''}
   ` : '';
 
-  // Auto-size featured cards: fewer cards = bigger, centered when 1-2
+  // Auto-size featured cards by height: fewer = taller
   const fc = featuredCards.length;
-  const featCardWidth = fc === 1 ? 'min(150px, 38vw)' : fc === 2 ? 'min(115px, 29vw)' : 'min(88px, 22vw)';
+  const featCardHeight = fc === 1 ? 'clamp(170px, 44vw, 240px)' : fc === 2 ? 'clamp(140px, 36vw, 200px)' : 'clamp(110px, 28vw, 160px)';
   const featRowJustify = fc === 1 ? 'center' : fc === 2 ? 'center' : 'flex-start';
 
   el.innerHTML = `
@@ -18398,7 +18398,7 @@ function renderActiveBanner(){
             <div class="gp-featured-row" style="justify-content:${featRowJustify}">
               ${featuredCards.map(c=>{
                 const color = RARITY_COLORS[c.rarity]||'#bdc3c7';
-                return `<div class="gp-feat-card" style="width:${featCardWidth}" onclick="openCard('${c.id}')">
+                return `<div class="gp-feat-card" style="height:${featCardHeight}" onclick="openCard('${c.id}')">
                   <img src="${c.thumbnail||c.image}" alt="${c.name}" onerror="this.style.background='#1c0f26'"/>
                   <div class="gp-feat-rateup">RATE ▲</div>
                   <div class="gp-feat-card-info">
