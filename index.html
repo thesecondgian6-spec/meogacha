@@ -2680,6 +2680,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   .modal-actions .btn-primary,
   .modal-actions .btn-secondary { flex: 1; padding: 10px 8px; font-size: 0.82em; }
   .profile-edit-box { max-height: 95vh; border-radius: 16px; padding: 20px 16px; }
+  .pe-tabs { overflow-x: auto; flex-wrap: nowrap; }
   .pool-modal-box { padding: 16px; }
   .pool-grid { grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 8px; }
 
@@ -3684,8 +3685,62 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 /* ── PROFILE CUSTOMIZATION ── */
 .profile-edit-modal{position:fixed;inset:0;z-index:350;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.85);backdrop-filter:blur(8px);padding:20px;}
 .profile-edit-modal.active{display:flex;}
-.profile-edit-box{background:linear-gradient(135deg,var(--bg2),var(--bg3));border:1px solid var(--border);border-radius:24px;max-width:500px;width:100%;max-height:90vh;overflow-y:auto;padding:28px;animation:modalIn 0.3s cubic-bezier(0.34,1.56,0.64,1);}
+.profile-edit-box{background:linear-gradient(135deg,var(--bg2),var(--bg3));border:1px solid var(--border);border-radius:24px;max-width:540px;width:100%;max-height:90vh;overflow-y:auto;padding:28px;animation:modalIn 0.3s cubic-bezier(0.34,1.56,0.64,1);}
 .profile-edit-box h3{font-family:'Cinzel Decorative',serif;font-size:1.1em;color:var(--pink-pale);margin-bottom:20px;}
+/* ── Profile edit tabs ── */
+.pe-tabs{display:flex;gap:4px;background:rgba(255,157,199,0.05);border:1px solid var(--border);border-radius:14px;padding:4px;margin-bottom:20px;}
+.pe-tab{flex:1;padding:7px 4px;border:none;background:transparent;color:var(--text-dim);font-family:'Cormorant Garamond',serif;font-size:0.82em;cursor:pointer;border-radius:10px;transition:all 0.2s;text-align:center;white-space:nowrap;}
+.pe-tab.active{background:rgba(255,157,199,0.18);color:var(--pink);border:1px solid rgba(255,157,199,0.3);}
+.pe-panel{display:none;}.pe-panel.active{display:block;}
+/* ── Gradient pickers ── */
+.gradient-picker-row{display:flex;gap:10px;align-items:center;margin-bottom:8px;}
+.gradient-picker-row label{font-size:0.8em;color:var(--text-dim);min-width:40px;}
+.gradient-color-input{width:44px;height:36px;border-radius:8px;border:2px solid var(--border);cursor:pointer;padding:2px;background:transparent;}
+.gradient-preview-bar{height:32px;border-radius:8px;flex:1;transition:background 0.3s;border:1px solid var(--border);}
+/* ── Showcase card picker ── */
+.showcase-slots{display:flex;gap:10px;margin-bottom:12px;justify-content:center;}
+.showcase-slot{width:72px;height:100px;border-radius:10px;border:2px dashed rgba(255,157,199,0.3);background:rgba(255,157,199,0.04);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all 0.2s;position:relative;overflow:hidden;}
+.showcase-slot:hover{border-color:var(--pink);background:rgba(255,157,199,0.1);}
+.showcase-slot.filled{border-style:solid;border-color:var(--pink);}
+.showcase-slot img{width:100%;height:100%;object-fit:cover;display:block;}
+.showcase-slot .slot-remove{position:absolute;top:2px;right:2px;width:18px;height:18px;background:rgba(0,0,0,0.7);border:none;color:#fff;border-radius:50%;font-size:0.65em;cursor:pointer;display:none;align-items:center;justify-content:center;z-index:2;}
+.showcase-slot:hover .slot-remove{display:flex;}
+.showcase-slot .slot-num{font-size:1.2em;color:rgba(255,157,199,0.3);}
+.showcase-card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(70px,1fr));gap:8px;max-height:220px;overflow-y:auto;padding:4px;}
+.showcase-card-opt{border-radius:9px;overflow:hidden;border:2px solid var(--border);cursor:pointer;transition:all 0.2s;position:relative;}
+.showcase-card-opt:hover{border-color:var(--pink);transform:translateY(-2px);}
+.showcase-card-opt.selected{border-color:var(--pink);box-shadow:0 0 10px var(--pink-glow);}
+.showcase-card-opt img{width:100%;aspect-ratio:3/4;object-fit:cover;display:block;}
+.showcase-card-opt-name{font-size:0.6em;color:var(--text);padding:3px 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:rgba(0,0,0,0.5);}
+/* ── Profile music player ── */
+.profile-music-bar{display:flex;align-items:center;gap:10px;background:rgba(255,157,199,0.06);border:1px solid var(--border);border-radius:12px;padding:10px 14px;margin-bottom:16px;}
+.pmusic-btn{width:34px;height:34px;border-radius:50%;border:1px solid var(--pink);background:rgba(255,157,199,0.12);color:var(--pink);font-size:0.9em;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.2s;}
+.pmusic-btn:hover{background:rgba(255,157,199,0.25);}
+.pmusic-info{flex:1;min-width:0;}
+.pmusic-label{font-size:0.7em;color:var(--text-dim);letter-spacing:0.06em;margin-bottom:2px;}
+.pmusic-title{font-size:0.82em;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.pmusic-wave{display:flex;gap:2px;align-items:center;height:16px;flex-shrink:0;}
+.pmusic-wave span{width:2px;background:var(--pink);border-radius:2px;animation:pmwave 0.8s ease-in-out infinite;}
+.pmusic-wave span:nth-child(2){animation-delay:.1s;}.pmusic-wave span:nth-child(3){animation-delay:.2s;}.pmusic-wave span:nth-child(4){animation-delay:.3s;}
+@keyframes pmwave{0%,100%{height:4px;}50%{height:14px;}}
+.pmusic-wave.paused span{animation:none;height:4px;}
+/* ── Profile page showcase section ── */
+.profile-showcase-section{margin-bottom:20px;}
+.profile-showcase-cards{display:flex;gap:10px;justify-content:center;padding:4px;}
+.psc-card{width:clamp(72px,25%,96px);border-radius:12px;overflow:hidden;border:2px solid var(--border);position:relative;cursor:pointer;transition:transform 0.2s,box-shadow 0.2s;flex-shrink:0;}
+.psc-card:hover{transform:translateY(-5px);box-shadow:0 8px 24px rgba(255,157,199,0.25);}
+.psc-card img{width:100%;aspect-ratio:3/4;object-fit:cover;display:block;}
+.psc-card-label{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,0.85));padding:14px 5px 5px;text-align:center;}
+.psc-card-name{font-size:0.62em;color:#fff;font-family:'Cinzel Decorative',serif;display:block;line-height:1.2;}
+.psc-card-rarity{font-size:0.58em;display:block;margin-top:1px;}
+/* ── Room quick-link on profile ── */
+.profile-room-link{display:flex;align-items:center;gap:12px;background:rgba(255,157,199,0.04);border:1px solid var(--border);border-radius:14px;padding:12px 16px;margin-bottom:16px;cursor:pointer;transition:all 0.2s;}
+.profile-room-link:hover{border-color:var(--pink);background:rgba(255,157,199,0.1);}
+.prl-icon{width:40px;height:40px;border-radius:10px;background:rgba(255,157,199,0.1);border:1px solid rgba(255,157,199,0.2);display:flex;align-items:center;justify-content:center;font-size:1.3em;flex-shrink:0;}
+.prl-info{flex:1;min-width:0;}
+.prl-name{font-size:0.88em;color:var(--text);font-weight:600;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.prl-sub{font-size:0.72em;color:var(--text-dim);}
+.prl-arrow{color:var(--pink);font-size:1em;flex-shrink:0;}
 .edit-field{margin-bottom:16px;}
 .edit-label{font-size:0.82em;color:var(--text-dim);margin-bottom:6px;display:block;font-style:italic;}
 .edit-input,.edit-textarea{width:100%;background:rgba(255,157,199,0.05);border:1px solid var(--border);border-radius:10px;padding:10px 14px;color:var(--text);font-family:'Cormorant Garamond',serif;font-size:1em;transition:border-color 0.2s;}
@@ -11690,56 +11745,138 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 <!-- PROFILE EDIT MODAL -->
 <div class="profile-edit-modal" id="profileEditModal" onclick="closeProfileEdit(event)">
   <div class="profile-edit-box" id="profileEditBox">
+
+    <!-- Live preview banner -->
+    <div id="pePreviewBanner" style="height:80px;border-radius:14px;margin-bottom:16px;transition:background 0.3s;overflow:hidden;position:relative;">
+      <img id="pePreviewBannerImg" src="" alt="" style="width:100%;height:100%;object-fit:cover;display:none;"/>
+      <div style="position:absolute;inset:0;background:linear-gradient(to bottom,transparent 40%,rgba(0,0,0,0.6) 100%);"></div>
+      <div style="position:absolute;bottom:8px;left:12px;display:flex;align-items:center;gap:8px;">
+        <img id="pePreviewAvatar" src="" style="width:36px;height:36px;border-radius:50%;border:2px solid rgba(255,157,199,0.6);object-fit:cover;" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'"/>
+        <div>
+          <div id="pePreviewName" style="font-family:'Cinzel Decorative',serif;font-size:0.78em;color:#fff;line-height:1.1;"></div>
+          <div id="pePreviewTitle" style="font-size:0.65em;color:var(--pink);font-style:italic;"></div>
+        </div>
+      </div>
+    </div>
+
     <h3>✦ Customize Profile</h3>
 
-    <div class="edit-field">
-      <label class="edit-label">Display Name <span style="color:var(--text-dim);font-size:.85em">(max 24 chars)</span></label>
-      <div class="name-edit-wrap">
-        <input class="edit-input" id="editDisplayName" type="text" maxlength="24" placeholder="Your display name..."/>
-        <span class="name-char-count" id="nameCharCount">0/24</span>
+    <!-- Tabs -->
+    <div class="pe-tabs">
+      <button class="pe-tab active" onclick="switchPeTab('about',this)">👤 About</button>
+      <button class="pe-tab" onclick="switchPeTab('cards',this)">🎴 Cards</button>
+      <button class="pe-tab" onclick="switchPeTab('room',this)">🏠 Room</button>
+      <button class="pe-tab" onclick="switchPeTab('music',this)">🎵 Music</button>
+    </div>
+
+    <!-- ── ABOUT TAB ── -->
+    <div class="pe-panel active" id="petab-about">
+      <div class="edit-field">
+        <label class="edit-label">Display Name <span style="color:var(--text-dim);font-size:.85em">(max 24 chars)</span></label>
+        <div class="name-edit-wrap">
+          <input class="edit-input" id="editDisplayName" type="text" maxlength="24" placeholder="Your display name..." oninput="updateNameCount();updatePePreview()"/>
+          <span class="name-char-count" id="nameCharCount">0/24</span>
+        </div>
+      </div>
+
+      <div class="edit-field">
+        <label class="edit-label">Profile Picture <span style="color:var(--text-dim);font-size:.85em">(URL or upload)</span></label>
+        <div class="img-url-wrap">
+          <input class="edit-input" id="editAvatarUrl" type="text" placeholder="https://i.imgur.com/..." oninput="updatePePreview()"/>
+          <button onclick="previewAvatar()">Preview</button>
+          <label style="cursor:pointer;flex-shrink:0;padding:8px 12px;border-radius:10px;background:rgba(255,157,199,0.12);border:1px solid var(--border);color:var(--pink);font-size:0.82em;display:inline-flex;align-items:center;" title="Upload from gallery">
+            📁<input type="file" accept="image/*" style="display:none" onchange="handleAvatarFileUpload(this)"/>
+          </label>
+        </div>
+        <img class="img-preview-mini" id="avatarPreview" src="" alt="avatar preview" onerror="this.src=''"/>
+        <p style="font-size:.75em;color:var(--text-dim);margin-top:4px;">Leave blank to use your Discord avatar</p>
+      </div>
+
+      <div class="edit-field">
+        <label class="edit-label">Banner Image <span style="color:var(--text-dim);font-size:.85em">(overrides gradient)</span></label>
+        <div class="img-url-wrap">
+          <input class="edit-input" id="editBannerUrl" type="text" placeholder="https://i.imgur.com/... wide image works best" oninput="updatePePreview()"/>
+          <button onclick="previewBannerImg()">Preview</button>
+          <label style="cursor:pointer;flex-shrink:0;padding:8px 12px;border-radius:10px;background:rgba(255,157,199,0.12);border:1px solid var(--border);color:var(--pink);font-size:0.82em;display:inline-flex;align-items:center;" title="Upload from gallery">
+            📁<input type="file" accept="image/*" style="display:none" onchange="handleBannerFileUpload(this)"/>
+          </label>
+        </div>
+        <img class="img-preview-banner" id="bannerImgPreview" src="" alt="banner preview" onerror="this.src=''"/>
+      </div>
+
+      <div class="edit-field">
+        <label class="edit-label">Profile Gradient <span style="color:var(--text-dim);font-size:.85em">(used when no banner image)</span></label>
+        <div class="gradient-picker-row">
+          <label>From</label>
+          <input type="color" class="gradient-color-input" id="gradientStart" oninput="updateGradientPreview()"/>
+          <div class="gradient-preview-bar" id="gradientPreviewBar"></div>
+          <label>To</label>
+          <input type="color" class="gradient-color-input" id="gradientEnd" oninput="updateGradientPreview()"/>
+        </div>
+        <div style="margin-top:6px;">
+          <label class="edit-label" style="margin-bottom:6px;display:block;">Quick presets</label>
+          <div id="bannerColorPicker" class="banner-color-picker"></div>
+        </div>
+        <div id="bannerPreview" class="profile-banner-preview" style="display:none;"></div>
+      </div>
+
+      <div class="edit-field">
+        <label class="edit-label">Title</label>
+        <div class="title-picker" id="titlePicker"></div>
+      </div>
+
+      <div class="edit-field">
+        <label class="edit-label">Bio <span style="color:var(--text-dim);font-size:.85em">(max 160 chars)</span></label>
+        <textarea class="edit-textarea" id="editBio" maxlength="160" placeholder="your local card hoarder 🌸" oninput="updatePePreview()"></textarea>
       </div>
     </div>
 
-    <div class="edit-field">
-      <label class="edit-label">Profile Picture <span style="color:var(--text-dim);font-size:.85em">(URL or upload from gallery)</span></label>
-      <div class="img-url-wrap">
-        <input class="edit-input" id="editAvatarUrl" type="text" placeholder="https://i.imgur.com/... or Discord CDN URL"/>
-        <button onclick="previewAvatar()">Preview</button>
-        <label style="cursor:pointer;flex-shrink:0;padding:8px 12px;border-radius:10px;background:rgba(255,157,199,0.12);border:1px solid var(--border);color:var(--pink);font-size:0.82em;display:inline-flex;align-items:center;" title="Upload from gallery">
-          📁<input type="file" accept="image/*" style="display:none" onchange="handleAvatarFileUpload(this)"/>
-        </label>
+    <!-- ── CARDS TAB ── -->
+    <div class="pe-panel" id="petab-cards">
+      <div class="edit-field">
+        <label class="edit-label">Showcase Cards <span style="color:var(--text-dim);font-size:.85em">(up to 3 — shown on your profile)</span></label>
+        <div class="showcase-slots" id="showcaseSlots"></div>
+        <p style="font-size:.78em;color:var(--text-dim);margin-bottom:10px;">Pick from your collection:</p>
+        <div class="showcase-card-grid" id="showcaseCardGrid"></div>
       </div>
-      <img class="img-preview-mini" id="avatarPreview" src="" alt="avatar preview" onerror="this.src=''"/>
-      <p style="font-size:.75em;color:var(--text-dim);margin-top:4px;">Leave blank to use your Discord avatar</p>
     </div>
 
-    <div class="edit-field">
-      <label class="edit-label">Banner Image <span style="color:var(--text-dim);font-size:.85em">(URL or upload from gallery)</span></label>
-      <div class="img-url-wrap">
-        <input class="edit-input" id="editBannerUrl" type="text" placeholder="https://i.imgur.com/... wide image works best"/>
-        <button onclick="previewBannerImg()">Preview</button>
-        <label style="cursor:pointer;flex-shrink:0;padding:8px 12px;border-radius:10px;background:rgba(255,157,199,0.12);border:1px solid var(--border);color:var(--pink);font-size:0.82em;display:inline-flex;align-items:center;" title="Upload from gallery">
-          📁<input type="file" accept="image/*" style="display:none" onchange="handleBannerFileUpload(this)"/>
-        </label>
+    <!-- ── ROOM TAB ── -->
+    <div class="pe-panel" id="petab-room">
+      <div class="edit-field">
+        <label class="edit-label">Your Player Room</label>
+        <div id="peRoomInfo" style="margin-bottom:12px;"></div>
+        <p style="font-size:.8em;color:var(--text-dim);line-height:1.55;">Your room will appear as a quick link on your profile. Other players viewing your profile can join if your room is set to Public.</p>
+        <button class="profile-edit-btn" style="margin-top:12px;max-width:200px;" onclick="closeProfileEdit();goTo('social',null)">🏠 Go to My Room</button>
       </div>
-      <img class="img-preview-banner" id="bannerImgPreview" src="" alt="banner preview" onerror="this.src=''"/>
-      <p style="font-size:.75em;color:var(--text-dim);margin-top:4px;">Leave blank to use gradient color below</p>
     </div>
 
-    <div class="edit-field">
-      <label class="edit-label">Banner Color <span style="color:var(--text-dim);font-size:.85em">(used when no image is set)</span></label>
-      <div id="bannerPreview" class="profile-banner-preview"></div>
-      <div class="banner-color-picker" id="bannerColorPicker"></div>
-    </div>
-
-    <div class="edit-field">
-      <label class="edit-label">Title</label>
-      <div class="title-picker" id="titlePicker"></div>
-    </div>
-
-    <div class="edit-field">
-      <label class="edit-label">Bio <span style="color:var(--text-dim);font-size:.85em">(max 120 chars)</span></label>
-      <textarea class="edit-textarea" id="editBio" maxlength="120" placeholder="your local card hoarder 🌸"></textarea>
+    <!-- ── MUSIC TAB ── -->
+    <div class="pe-panel" id="petab-music">
+      <div class="edit-field">
+        <label class="edit-label">Profile Music <span style="color:var(--text-dim);font-size:.85em">(MP3 / audio URL)</span></label>
+        <div class="img-url-wrap">
+          <input class="edit-input" id="editProfileMusic" type="text" placeholder="https://example.com/song.mp3"/>
+          <button onclick="previewProfileMusic()">▶ Test</button>
+        </div>
+        <p style="font-size:.75em;color:var(--text-dim);margin-top:6px;line-height:1.5;">Plays softly when others visit your profile. Use a direct MP3 link (e.g. from Dropbox, a CDN, or GitHub). Must end in .mp3 or be a direct audio link.</p>
+        <div id="peMusicsPreview" style="margin-top:12px;display:none;">
+          <div class="profile-music-bar">
+            <button class="pmusic-btn" id="peMusicPlayBtn" onclick="togglePeMusicTest()">▶</button>
+            <div class="pmusic-info">
+              <div class="pmusic-label">PREVIEW</div>
+              <div class="pmusic-title" id="peMusicTestTitle">—</div>
+            </div>
+            <div class="pmusic-wave paused" id="peMusicWave">
+              <span></span><span></span><span></span><span></span>
+            </div>
+          </div>
+        </div>
+        <div class="edit-field" style="margin-top:12px;">
+          <label class="edit-label">Or clear music</label>
+          <button class="edit-btn-small" onclick="clearProfileMusic()">✕ Remove Music</button>
+        </div>
+      </div>
     </div>
 
     <div class="profile-edit-actions">
@@ -12055,6 +12192,28 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
             <div class="stat-box"><div class="stat-val" id="statPulls">0</div><div class="stat-lbl">🎴 Pulls</div></div>
             <div class="stat-box"><div class="stat-val" id="statUnique">0</div><div class="stat-lbl">🃏 Unique</div></div>
           </div>
+
+          <!-- Profile music bar -->
+          <div class="profile-music-bar" id="profileMusicBar" style="display:none;">
+            <button class="pmusic-btn" id="profileMusicPlayBtn" onclick="toggleProfileMusic()">▶</button>
+            <div class="pmusic-info">
+              <div class="pmusic-label">🎵 PROFILE MUSIC</div>
+              <div class="pmusic-title" id="profileMusicTitle">—</div>
+            </div>
+            <div class="pmusic-wave paused" id="profileMusicWave">
+              <span></span><span></span><span></span><span></span>
+            </div>
+          </div>
+
+          <!-- Showcase cards -->
+          <div class="profile-showcase-section" id="profileShowcaseSection" style="display:none;">
+            <div class="section-title" style="margin-bottom:10px;">✦ Showcase</div>
+            <div class="profile-showcase-cards" id="profileShowcaseCards"></div>
+          </div>
+
+          <!-- Room quick-link -->
+          <div id="profileRoomLink" style="display:none;"></div>
+
           <div class="section-title" style="margin-top:20px;">Equipped Card</div>
           <div class="equipped-card-preview" id="equippedPreview">
             <div style="color:var(--text-dim);font-style:italic;font-size:0.9em;">No card equipped — pull one first! ʚɞ</div>
@@ -15355,11 +15514,15 @@ let state = {
   equippedId:   null,
   totalPulls:   0,
   // profile customization
-  bio:          'your local card hoarder 🌸',
-  title:        '',
-  bannerColor:  'linear-gradient(135deg,#e0608a,#c084b8)',
-  ownedTitles:  [],
-  activeBoosts: {},  // { coinboost: expireTimestamp, xpboost: expireTimestamp }
+  bio:           'your local card hoarder 🌸',
+  title:         '',
+  bannerColor:   'linear-gradient(135deg,#e0608a,#c084b8)',
+  gradientStart: '#e0608a',
+  gradientEnd:   '#c084b8',
+  ownedTitles:   [],
+  activeBoosts:  {},  // { coinboost: expireTimestamp, xpboost: expireTimestamp }
+  profileMusic:  '',   // URL for profile background music
+  showcaseCards: [],   // up to 3 card IDs pinned on profile
 };
 let currentFilter = 'all';
 let openCardId = null;
@@ -16354,6 +16517,13 @@ async function loadPlayer(discordId){
     state.pvpLosses=p.pvp_losses??0;
     try{ state.ownedTitles=p.owned_titles?JSON.parse(p.owned_titles):[]; }catch(e){ state.ownedTitles=[]; }
     try{ state.activeBoosts=p.active_boosts?JSON.parse(p.active_boosts):{};} catch(e){ state.activeBoosts={}; }
+    state.profileMusic=p.profile_music??'';
+    state.gradientStart=p.profile_color_start??'#e0608a';
+    state.gradientEnd=p.profile_color_end??'#c084b8';
+    try{ state.showcaseCards=p.showcase_cards?JSON.parse(p.showcase_cards):[]; }catch(e){ state.showcaseCards=[]; }
+    if(!state.bannerImage && state.gradientStart && state.gradientEnd){
+      state.bannerColor=`linear-gradient(135deg,${state.gradientStart},${state.gradientEnd})`;
+    }
   } else {
     await sb.upsert('players',{
       discord_id:discordId,username:state.username,avatar:state.avatar||'',
@@ -16405,6 +16575,10 @@ async function savePlayer(){
     profile_banner:state.bannerImage,
     owned_titles:JSON.stringify(state.ownedTitles||[]),
     active_boosts:JSON.stringify(state.activeBoosts||{}),
+    profile_music:state.profileMusic||'',
+    profile_color_start:state.gradientStart||'#e0608a',
+    profile_color_end:state.gradientEnd||'#c084b8',
+    showcase_cards:JSON.stringify(state.showcaseCards||[]),
   });
 }
 async function saveCardToCollection(discordId,cardId){
@@ -17140,6 +17314,66 @@ function updateProfile(){
   // admin gear button in top nav
   const gearBtn=document.getElementById('navAdminGearBtn');
   if(gearBtn)gearBtn.style.display=state.isAdmin?'':'none';
+
+  // ── Profile Music Bar ──
+  const musicBar = document.getElementById('profileMusicBar');
+  const musicTitle = document.getElementById('profileMusicTitle');
+  if(musicBar){
+    if(state.profileMusic){
+      musicBar.style.display='flex';
+      const fname = state.profileMusic.split('/').pop().split('?')[0].replace(/\.(mp3|ogg|wav|m4a)$/i,'').replace(/[-_]/g,' ')||'Track';
+      if(musicTitle) musicTitle.textContent = fname;
+    } else {
+      musicBar.style.display='none';
+      if(_profileMusicAudio){ _profileMusicAudio.pause(); _profileMusicAudio=null; _profileMusicPlaying=false; }
+    }
+  }
+
+  // ── Showcase Cards ──
+  const showcaseSec = document.getElementById('profileShowcaseSection');
+  const showcaseEl = document.getElementById('profileShowcaseCards');
+  const picks = (state.showcaseCards||[]).filter(Boolean);
+  if(showcaseSec && showcaseEl){
+    if(picks.length){
+      showcaseSec.style.display='block';
+      showcaseEl.innerHTML = picks.map(cardId=>{
+        const c=(window.DEMO_CARDS||[]).find(x=>String(x.id)===String(cardId));
+        if(!c) return '';
+        const rarColor=RARITY_COLORS[c.rarity]||'#bdc3c7';
+        return `<div class="psc-card" style="border-color:${rarColor};box-shadow:0 0 10px ${rarColor}33;" onclick="openCard('${c.id}')">
+          <img src="${c.thumbnail||c.image}" alt="${c.name}" onerror="this.style.display='none'"/>
+          <div class="psc-card-label">
+            <span class="psc-card-name">${escapeHtml(c.name)}</span>
+            <span class="psc-card-rarity" style="color:${rarColor}">${c.rarityStars||''}</span>
+          </div>
+        </div>`;
+      }).join('');
+    } else {
+      showcaseSec.style.display='none';
+    }
+  }
+
+  // ── Room Quick-Link ──
+  const roomLinkEl = document.getElementById('profileRoomLink');
+  if(roomLinkEl && state.discordId && !state.isGuest){
+    sb.get('hub_rooms',{owner_id:state.discordId}).then(rooms=>{
+      if(rooms&&rooms.length){
+        const r=rooms[0];
+        roomLinkEl.style.display='block';
+        roomLinkEl.innerHTML=`<div class="profile-room-link" onclick="closeProfileEdit();goTo('social',null)" title="Go to your room">
+          <div class="prl-icon">🏠</div>
+          <div class="prl-info">
+            <div class="prl-name">${escapeHtml(r.name||'My Room')}</div>
+            <div class="prl-sub">${r.is_public?'🌐 Public · others can join':'🔒 Private'} · click to visit</div>
+          </div>
+          <div class="prl-arrow">›</div>
+        </div>`;
+      } else {
+        roomLinkEl.style.display='none';
+      }
+    }).catch(()=>{ roomLinkEl.style.display='none'; });
+  }
+
   const ep=document.getElementById('equippedPreview');
   if(state.equippedId){
     const c=(window.DEMO_CARDS||DEMO_CARDS).find(x=>x.id===state.equippedId);
@@ -17388,10 +17622,186 @@ const PROFILE_TITLES = [];  // titles are unlocked via the shop
 let editBannerColor = null;
 let editTitle = null;
 
+let _peMusicTestAudio = null;
+let _profileMusicAudio = null;
+let _profileMusicPlaying = false;
+
+function switchPeTab(tab, btn){
+  document.querySelectorAll('.pe-tab').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.pe-panel').forEach(p=>p.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  const panel = document.getElementById('petab-'+tab);
+  if(panel) panel.classList.add('active');
+  if(tab==='cards') renderShowcaseCardPicker();
+  if(tab==='room') renderPeRoomTab();
+}
+
+function updatePePreview(){
+  const name = (document.getElementById('editDisplayName')?.value||state.displayName||state.username||'Summoner');
+  const title = editTitle||state.title;
+  const bannerUrl = document.getElementById('editBannerUrl')?.value.trim()||state.bannerImage;
+  const avatarUrl = document.getElementById('editAvatarUrl')?.value.trim()||state.customAvatar||state.avatar||'https://cdn.discordapp.com/embed/avatars/0.png';
+  const peNameEl = document.getElementById('pePreviewName');
+  const peTitleEl = document.getElementById('pePreviewTitle');
+  const peAvatarEl = document.getElementById('pePreviewAvatar');
+  const peBannerEl = document.getElementById('pePreviewBanner');
+  const peBannerImg = document.getElementById('pePreviewBannerImg');
+  if(peNameEl) peNameEl.textContent = name;
+  if(peTitleEl) peTitleEl.textContent = title ? `✦ ${title} ✦` : '';
+  if(peAvatarEl) peAvatarEl.src = avatarUrl;
+  if(peBannerEl && peBannerImg){
+    if(bannerUrl){
+      peBannerImg.src = bannerUrl; peBannerImg.style.display='block';
+      peBannerEl.style.background='none';
+    } else {
+      peBannerImg.style.display='none';
+      const gs = document.getElementById('gradientStart')?.value||state.gradientStart||'#e0608a';
+      const ge = document.getElementById('gradientEnd')?.value||state.gradientEnd||'#c084b8';
+      peBannerEl.style.background=`linear-gradient(135deg,${gs},${ge})`;
+    }
+  }
+}
+
+function updateGradientPreview(){
+  const gs = document.getElementById('gradientStart')?.value||'#e0608a';
+  const ge = document.getElementById('gradientEnd')?.value||'#c084b8';
+  const bar = document.getElementById('gradientPreviewBar');
+  if(bar) bar.style.background = `linear-gradient(90deg,${gs},${ge})`;
+  // clear banner image if editing gradient
+  updatePePreview();
+}
+
+function renderShowcaseCardPicker(){
+  const slots = document.getElementById('showcaseSlots');
+  const grid = document.getElementById('showcaseCardGrid');
+  if(!slots||!grid) return;
+  const picks = [...(window._peShowcasePicks||state.showcaseCards||[])];
+
+  // Render slots
+  slots.innerHTML = [0,1,2].map(i=>{
+    const cardId = picks[i];
+    const card = cardId ? (window.DEMO_CARDS||[]).find(c=>String(c.id)===String(cardId)) : null;
+    const rarColor = card ? (RARITY_COLORS[card.rarity]||'#bdc3c7') : 'rgba(255,157,199,0.3)';
+    return `<div class="showcase-slot ${card?'filled':''}" style="${card?'border-color:'+rarColor+';':''}" onclick="pePickSlot(${i})">
+      ${card
+        ? `<img src="${card.thumbnail||card.image}" alt="${card.name}" onerror="this.style.display='none'"/>
+           <button class="slot-remove" onclick="event.stopPropagation();peClearSlot(${i})">✕</button>`
+        : `<span class="slot-num">${i+1}</span><span style="font-size:0.6em;color:rgba(255,157,199,0.4);margin-top:3px;">Pick</span>`
+      }
+    </div>`;
+  }).join('');
+
+  // Render card grid — all owned unique cards
+  const owned = [...new Set(state.collection)];
+  const cards = owned.map(id=>(window.DEMO_CARDS||[]).find(c=>String(c.id)===String(id))).filter(Boolean)
+    .sort((a,b)=>b.rarity-a.rarity);
+  const activeSlot = window._peActiveSlot ?? -1;
+  grid.innerHTML = cards.length ? cards.map(c=>{
+    const rarColor = RARITY_COLORS[c.rarity]||'#bdc3c7';
+    const sel = picks.includes(String(c.id))||picks.includes(c.id);
+    return `<div class="showcase-card-opt ${sel?'selected':''}" style="${sel?'border-color:'+rarColor+';':''}"
+      onclick="peSelectShowcaseCard('${c.id}')">
+      <img src="${c.thumbnail||c.image}" alt="${c.name}" onerror="this.style.display='none'"/>
+      <div class="showcase-card-opt-name">${c.name}</div>
+    </div>`;
+  }).join('') : '<div style="color:var(--text-dim);font-style:italic;font-size:0.85em;padding:10px;">Pull cards first to showcase them! 🎴</div>';
+}
+
+window._peActiveSlot = 0;
+window._peShowcasePicks = [];
+
+function pePickSlot(idx){
+  window._peActiveSlot = idx;
+  // Highlight active slot
+  document.querySelectorAll('.showcase-slot').forEach((s,i)=>{
+    s.style.outline = i===idx ? '2px solid var(--pink)' : 'none';
+  });
+}
+
+function peClearSlot(idx){
+  const picks = window._peShowcasePicks||[];
+  picks[idx] = null;
+  window._peShowcasePicks = picks;
+  renderShowcaseCardPicker();
+}
+
+function peSelectShowcaseCard(cardId){
+  const picks = [...(window._peShowcasePicks||[null,null,null])];
+  const slot = window._peActiveSlot ?? 0;
+  // Remove if already picked elsewhere
+  for(let i=0;i<3;i++) if(String(picks[i])===String(cardId)) picks[i]=null;
+  picks[slot] = String(cardId);
+  // Advance slot
+  window._peActiveSlot = Math.min(slot+1, 2);
+  window._peShowcasePicks = picks;
+  renderShowcaseCardPicker();
+}
+
+function renderPeRoomTab(){
+  const el = document.getElementById('peRoomInfo');
+  if(!el) return;
+  // Look up rooms belonging to user
+  sb.get('hub_rooms',{owner_id:state.discordId}).then(rooms=>{
+    if(!rooms||!rooms.length){
+      el.innerHTML=`<div style="background:rgba(255,157,199,0.04);border:1px solid var(--border);border-radius:12px;padding:14px 16px;color:var(--text-dim);font-size:0.85em;line-height:1.6;">
+        You don't have a player room yet. Create one in the <strong style="color:var(--pink)">Meo Hub</strong>!</div>`;
+      return;
+    }
+    const r = rooms[0];
+    el.innerHTML=`<div class="profile-room-link" style="cursor:default;">
+      <div class="prl-icon">🏠</div>
+      <div class="prl-info">
+        <div class="prl-name">${escapeHtml(r.name||'My Room')}</div>
+        <div class="prl-sub">${r.is_public?'🌐 Public — others can join':'🔒 Private'}</div>
+      </div>
+    </div>
+    <p style="font-size:0.78em;color:var(--text-dim);line-height:1.55;margin-top:-4px;">Your room is shown as a link on your profile. Visitors can click it to warp directly there (if it's Public).</p>`;
+  }).catch(()=>{
+    el.innerHTML='<div style="color:var(--text-dim);font-size:0.82em;">Could not load room info.</div>';
+  });
+}
+
+function previewProfileMusic(){
+  const url = document.getElementById('editProfileMusic')?.value.trim();
+  if(!url){ showToast('Enter a music URL first'); return; }
+  const prevEl = document.getElementById('peMusicsPreview');
+  const titleEl = document.getElementById('peMusicTestTitle');
+  if(prevEl) prevEl.style.display='block';
+  const fname = url.split('/').pop().split('?')[0].replace(/\.(mp3|ogg|wav|m4a)$/i,'').replace(/[-_]/g,' ')||'Track';
+  if(titleEl) titleEl.textContent = fname;
+  if(_peMusicTestAudio){ _peMusicTestAudio.pause(); _peMusicTestAudio=null; }
+  _peMusicTestAudio = new Audio(url);
+  _peMusicTestAudio.volume = 0.4;
+  _peMusicTestAudio.play().then(()=>setPeWave(true)).catch(()=>showToast('⚠️ Could not play — check the URL'));
+}
+
+function togglePeMusicTest(){
+  if(!_peMusicTestAudio) return previewProfileMusic();
+  if(_peMusicTestAudio.paused){ _peMusicTestAudio.play(); setPeWave(true); }
+  else { _peMusicTestAudio.pause(); setPeWave(false); }
+}
+
+function setPeWave(playing){
+  const wave = document.getElementById('peMusicWave');
+  const btn = document.getElementById('peMusicPlayBtn');
+  if(wave) wave.classList.toggle('paused', !playing);
+  if(btn) btn.textContent = playing ? '⏸' : '▶';
+}
+
+function clearProfileMusic(){
+  const inp = document.getElementById('editProfileMusic');
+  if(inp) inp.value='';
+  if(_peMusicTestAudio){ _peMusicTestAudio.pause(); _peMusicTestAudio=null; }
+  const prevEl=document.getElementById('peMusicsPreview');
+  if(prevEl) prevEl.style.display='none';
+}
+
 function openProfileEdit(){
   editBannerColor = state.bannerColor;
   editTitle = state.title;
-  // Populate fields
+  window._peShowcasePicks = [...(state.showcaseCards||[])];
+  window._peActiveSlot = 0;
+
   const nameEl=document.getElementById('editDisplayName');
   if(nameEl){
     nameEl.value=state.displayName||'';
@@ -17406,22 +17816,34 @@ function openProfileEdit(){
   const bannerUrlEl=document.getElementById('editBannerUrl');
   if(bannerUrlEl) bannerUrlEl.value=state.bannerImage||'';
   const bannerImgPrev=document.getElementById('bannerImgPreview');
-  if(bannerImgPrev) bannerImgPrev.src=state.bannerImage||'';
+  if(bannerImgPrev){ bannerImgPrev.src=state.bannerImage||''; bannerImgPrev.style.display=state.bannerImage?'block':'none'; }
 
-  document.getElementById('bannerPreview').style.background=state.bannerColor;
+  // Gradient pickers
+  const gsEl=document.getElementById('gradientStart');
+  const geEl=document.getElementById('gradientEnd');
+  if(gsEl) gsEl.value=state.gradientStart||'#e0608a';
+  if(geEl) geEl.value=state.gradientEnd||'#c084b8';
+  const bar=document.getElementById('gradientPreviewBar');
+  if(bar) bar.style.background=`linear-gradient(90deg,${state.gradientStart||'#e0608a'},${state.gradientEnd||'#c084b8'})`;
+
   document.getElementById('editBio').value=state.bio;
-  // banner colors
+
+  // Music
+  const musicEl=document.getElementById('editProfileMusic');
+  if(musicEl) musicEl.value=state.profileMusic||'';
+  const prevEl=document.getElementById('peMusicsPreview');
+  if(prevEl) prevEl.style.display='none';
+
+  // Banner color presets (still shown as quick-set for gradient)
   const cp=document.getElementById('bannerColorPicker');
-  cp.innerHTML=BANNER_COLORS.map(c=>`
+  if(cp) cp.innerHTML=BANNER_COLORS.map(c=>`
     <div class="banner-color-opt${c.v===state.bannerColor?' selected':''}" style="background:${c.v}" title="${c.label}"
-      onclick="selectBannerColor('${c.v}',this)"></div>
+      onclick="applyBannerPreset('${c.v}',this)"></div>
   `).join('');
-  // titles — only owned ones (from shop purchases + current equipped)
+
+  // Titles
   const tp=document.getElementById('titlePicker');
-  const ownedTitles = [...new Set([
-    ...(state.ownedTitles||[]),
-    ...(state.title ? [state.title] : [])
-  ])];
+  const ownedTitles = [...new Set([...(state.ownedTitles||[]),...(state.title?[state.title]:[])])];
   if(ownedTitles.length){
     tp.innerHTML=ownedTitles.map(t=>`
       <div class="title-opt${t===state.title?' selected':''}" onclick="selectTitle('${t.replace(/'/g,"\\'")}',this)">${t}</div>
@@ -17429,7 +17851,29 @@ function openProfileEdit(){
   } else {
     tp.innerHTML='<div style="color:var(--text-dim);font-size:0.85em;font-style:italic;">No titles yet — buy them in the Shop! 🛍️</div>';
   }
+
+  // Switch to About tab by default
+  switchPeTab('about', document.querySelector('.pe-tab'));
+
+  updatePePreview();
   document.getElementById('profileEditModal').classList.add('active');
+}
+
+function applyBannerPreset(v, el){
+  editBannerColor=v;
+  document.querySelectorAll('.banner-color-opt').forEach(x=>x.classList.remove('selected'));
+  el.classList.add('selected');
+  // Extract colors from gradient and set pickers
+  const match=v.match(/#[0-9a-fA-F]{6}/g);
+  if(match&&match.length>=2){
+    const gsEl=document.getElementById('gradientStart');
+    const geEl=document.getElementById('gradientEnd');
+    if(gsEl)gsEl.value=match[0];
+    if(geEl)geEl.value=match[1]||match[0];
+    const bar=document.getElementById('gradientPreviewBar');
+    if(bar)bar.style.background=`linear-gradient(90deg,${match[0]},${match[1]||match[0]})`;
+  }
+  updatePePreview();
 }
 
 function updateNameCount(){
@@ -17489,13 +17933,24 @@ async function saveProfileCustom(){
   state.bio=document.getElementById('editBio').value||state.bio;
   // Display name
   const newName=(document.getElementById('editDisplayName')?.value||'').trim();
-  state.displayName=newName; // empty = use Discord username
+  state.displayName=newName;
   // Custom avatar
   const newAvatar=(document.getElementById('editAvatarUrl')?.value||'').trim();
   state.customAvatar=newAvatar;
   // Banner image
   const newBannerImg=(document.getElementById('editBannerUrl')?.value||'').trim();
   state.bannerImage=newBannerImg;
+  // Gradient colors
+  const gs=document.getElementById('gradientStart')?.value||'#e0608a';
+  const ge=document.getElementById('gradientEnd')?.value||'#c084b8';
+  state.gradientStart=gs; state.gradientEnd=ge;
+  if(!state.bannerImage) state.bannerColor=`linear-gradient(135deg,${gs},${ge})`;
+  // Profile music
+  state.profileMusic=(document.getElementById('editProfileMusic')?.value||'').trim();
+  // Showcase cards
+  state.showcaseCards=(window._peShowcasePicks||[]).filter(Boolean).map(String);
+  // Stop any test audio
+  if(_peMusicTestAudio){ _peMusicTestAudio.pause(); _peMusicTestAudio=null; }
 
   updateProfile();
   if(state.discordId&&!state.isGuest)await savePlayer();
@@ -17506,6 +17961,31 @@ async function saveProfileCustom(){
 function closeProfileEdit(e){
   if(!e||e.target===document.getElementById('profileEditModal'))
     document.getElementById('profileEditModal').classList.remove('active');
+}
+
+function toggleProfileMusic(){
+  if(!state.profileMusic) return;
+  if(!_profileMusicAudio){
+    _profileMusicAudio = new Audio(state.profileMusic);
+    _profileMusicAudio.loop = true;
+    _profileMusicAudio.volume = 0.35;
+    _profileMusicAudio.onended = ()=>{ _profileMusicPlaying=false; setProfileMusicWave(false); };
+  }
+  if(_profileMusicPlaying){
+    _profileMusicAudio.pause();
+    _profileMusicPlaying=false;
+    setProfileMusicWave(false);
+  } else {
+    _profileMusicAudio.play().then(()=>{ _profileMusicPlaying=true; setProfileMusicWave(true); })
+      .catch(()=>showToast('⚠️ Could not play music'));
+  }
+}
+
+function setProfileMusicWave(playing){
+  const wave=document.getElementById('profileMusicWave');
+  const btn=document.getElementById('profileMusicPlayBtn');
+  if(wave) wave.classList.toggle('paused',!playing);
+  if(btn) btn.textContent=playing?'⏸':'▶';
 }
 
 // ══════════════════════════════════════════════
@@ -29540,45 +30020,85 @@ function openPlayerModal(player){
   const winRate  = (wins + losses) > 0 ? Math.round(wins/(wins+losses)*100) : 0;
   const equip    = (window.DEMO_CARDS||[]).find(c=>c.id===player.equipped_card);
   const name     = player.display_name || player.username || 'Summoner';
+  const gs       = player.profile_color_start||'#e0608a';
+  const ge       = player.profile_color_end||'#c084b8';
   const bannerBg = player.profile_banner
-    ? `url('${player.profile_banner}')`
-    : 'linear-gradient(135deg, var(--pink-deep), var(--purple), #1a0a2e)';
+    ? `url('${player.profile_banner}') center/cover no-repeat`
+    : `linear-gradient(135deg,${gs},${ge})`;
+
+  // Showcase cards
+  let showcaseHtml = '';
+  try {
+    const showcaseIds = player.showcase_cards ? JSON.parse(player.showcase_cards) : [];
+    const showcaseCards = showcaseIds.map(id=>(window.DEMO_CARDS||[]).find(c=>String(c.id)===String(id))).filter(Boolean);
+    if(showcaseCards.length){
+      showcaseHtml = `<div style="margin-bottom:14px;">
+        <div style="font-size:0.65em;color:var(--text-dim);letter-spacing:0.1em;margin-bottom:8px;text-transform:uppercase;">✦ Showcase</div>
+        <div style="display:flex;gap:8px;justify-content:center;">
+          ${showcaseCards.map(c=>{
+            const rc=RARITY_COLORS[c.rarity]||'#bdc3c7';
+            return `<div style="width:68px;border-radius:10px;overflow:hidden;border:2px solid ${rc};
+              box-shadow:0 0 10px ${rc}44;cursor:pointer;transition:transform .2s;flex-shrink:0;"
+              onclick="closePlayerModal();setTimeout(()=>openCard('${c.id}'),200)"
+              onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform=''">
+              <img src="${c.thumbnail||c.image}" style="width:100%;aspect-ratio:3/4;object-fit:cover;display:block;" onerror="this.style.display='none'"/>
+              <div style="background:rgba(0,0,0,0.75);padding:3px 4px;text-align:center;">
+                <div style="font-size:0.55em;color:#fff;font-family:'Cinzel Decorative',serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(c.name)}</div>
+                <div style="font-size:0.5em;color:${rc};margin-top:1px;">${c.rarityStars||''}</div>
+              </div>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>`;
+    }
+  } catch(e){}
+
+  // Profile music button
+  const musicUrl = player.profile_music||'';
+  const musicHtml = musicUrl ? `
+    <div style="display:flex;align-items:center;gap:8px;background:rgba(255,157,199,0.06);border:1px solid var(--border);
+      border-radius:10px;padding:8px 12px;margin-bottom:12px;">
+      <button onclick="toggleModalMusic('${escapeHtml(musicUrl)}',this)" style="width:28px;height:28px;border-radius:50%;border:1px solid var(--pink);
+        background:rgba(255,157,199,0.12);color:var(--pink);font-size:0.78em;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;">▶</button>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:0.6em;color:var(--text-dim);letter-spacing:.06em;margin-bottom:1px;">🎵 PROFILE MUSIC</div>
+        <div style="font-size:0.75em;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+          ${escapeHtml(musicUrl.split('/').pop().split('?')[0].replace(/\.(mp3|ogg|wav|m4a)$/i,'').replace(/[-_]/g,' ')||'Track')}
+        </div>
+      </div>
+    </div>` : '';
+
+  // Room link — fetch async and inject after render
+  const roomPlaceholderId = 'ppm-room-'+Date.now();
 
   content.innerHTML = `
     <div style="
       background:linear-gradient(135deg,var(--bg2),var(--bg3));
       border:1px solid var(--border); border-radius:24px;
-      max-width:460px; width:100%;
+      max-width:480px; width:100%;
       animation:modalIn 0.3s cubic-bezier(0.34,1.56,0.64,1);
       overflow:hidden; position:relative;
     ">
       <!-- Banner -->
-      <div style="
-        height:120px; width:100%;
-        background:${bannerBg};
-        background-size:cover; background-position:center;
-        position:relative; flex-shrink:0;
-      ">
-        <div style="position:absolute;inset:0;background:linear-gradient(to bottom,transparent 40%,rgba(13,6,16,0.8) 100%);"></div>
-        <!-- Close button -->
+      <div style="height:130px; width:100%; background:${bannerBg}; position:relative; flex-shrink:0;">
+        <div style="position:absolute;inset:0;background:linear-gradient(to bottom,transparent 40%,rgba(13,6,16,0.85) 100%);"></div>
         <button onclick="closePlayerModal()" style="
           position:absolute;top:10px;right:12px;
           background:rgba(0,0,0,0.5);border:none;color:#fff;
           width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:0.9em;
-          backdrop-filter:blur(4px); z-index:2;
-        ">✕</button>
+          backdrop-filter:blur(4px); z-index:2;">✕</button>
       </div>
 
-      <!-- Avatar — overlaps banner -->
+      <!-- Avatar + actions -->
       <div style="padding:0 22px 22px;">
-        <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-top:-36px;margin-bottom:12px;position:relative;z-index:2;">
+        <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-top:-40px;margin-bottom:12px;position:relative;z-index:2;">
           <div style="position:relative;">
             <img src="${player.profile_thumbnail||player.avatar||'https://cdn.discordapp.com/embed/avatars/0.png'}"
-              style="width:72px;height:72px;border-radius:50%;border:3px solid var(--bg2);
+              style="width:80px;height:80px;border-radius:50%;border:3px solid var(--bg2);
                      object-fit:cover;background:var(--bg2);display:block;
-                     box-shadow:0 4px 16px rgba(0,0,0,0.5);"
+                     box-shadow:0 4px 20px rgba(0,0,0,0.6);"
               onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'"/>
-            <div style="position:absolute;bottom:2px;right:2px;width:14px;height:14px;
+            <div style="position:absolute;bottom:3px;right:3px;width:14px;height:14px;
               border-radius:50%;background:#3ba55d;border:2px solid var(--bg2);"></div>
           </div>
           <div style="display:flex;gap:7px;padding-bottom:4px;">
@@ -29594,49 +30114,103 @@ function openPlayerModal(player){
           <div style="font-family:'Cinzel Decorative',serif;font-size:1.05em;color:var(--pink-pale);line-height:1.2;">${escapeHtml(name)}</div>
           ${player.username && player.display_name ? `<div style="font-size:0.75em;color:var(--text-dim);font-family:'JetBrains Mono',monospace;margin-top:1px;">@${escapeHtml(player.username)}</div>` : ''}
         </div>
-        <div style="font-size:0.82em;color:var(--pink);font-style:italic;margin-bottom:10px;">${escapeHtml(player.active_title||'Summoner')}</div>
+        <div style="font-size:0.82em;color:var(--pink);font-style:italic;margin-bottom:12px;">${escapeHtml(player.active_title||'✦ Summoner ✦')}</div>
 
         <!-- Bio -->
-        ${player.bio ? `<div style="font-size:0.87em;color:var(--text-dim);line-height:1.55;margin-bottom:14px;padding:10px 12px;background:rgba(255,157,199,0.04);border-radius:10px;border:1px solid var(--border);">${escapeHtml(player.bio)}</div>` : ''}
+        ${player.bio ? `<div style="font-size:0.87em;color:var(--text-dim);line-height:1.55;margin-bottom:12px;padding:10px 12px;background:rgba(255,157,199,0.04);border-radius:10px;border:1px solid var(--border);">${escapeHtml(player.bio)}</div>` : ''}
+
+        <!-- Music player -->
+        ${musicHtml}
+
+        <!-- Showcase cards -->
+        ${showcaseHtml}
 
         <!-- Stats -->
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;">
-          <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:11px 8px;text-align:center;">
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;">
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:10px 8px;text-align:center;">
             <div style="font-family:'JetBrains Mono',monospace;font-size:1.1em;font-weight:700;color:var(--pink);">${wins}</div>
-            <div style="font-size:0.65em;color:var(--text-dim);margin-top:2px;letter-spacing:0.04em;">PvP WINS</div>
+            <div style="font-size:0.62em;color:var(--text-dim);margin-top:2px;letter-spacing:0.04em;">PvP WINS</div>
           </div>
-          <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:11px 8px;text-align:center;">
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:10px 8px;text-align:center;">
             <div style="font-family:'JetBrains Mono',monospace;font-size:1.1em;font-weight:700;color:var(--gold);">${winRate}%</div>
-            <div style="font-size:0.65em;color:var(--text-dim);margin-top:2px;letter-spacing:0.04em;">WIN RATE</div>
+            <div style="font-size:0.62em;color:var(--text-dim);margin-top:2px;letter-spacing:0.04em;">WIN RATE</div>
           </div>
-          <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:11px 8px;text-align:center;">
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:10px 8px;text-align:center;">
             <div style="font-family:'JetBrains Mono',monospace;font-size:1.1em;font-weight:700;color:var(--purple);">${losses}</div>
-            <div style="font-size:0.65em;color:var(--text-dim);margin-top:2px;letter-spacing:0.04em;">LOSSES</div>
+            <div style="font-size:0.62em;color:var(--text-dim);margin-top:2px;letter-spacing:0.04em;">LOSSES</div>
           </div>
         </div>
 
         <!-- Equipped card -->
         ${equip ? `
         <div style="background:rgba(255,157,199,0.05);border:1px solid rgba(255,157,199,0.15);
-          border-radius:12px;padding:10px 12px;display:flex;gap:12px;align-items:center;">
+          border-radius:12px;padding:10px 12px;display:flex;gap:12px;align-items:center;margin-bottom:10px;">
           <img src="${equip.thumbnail||equip.image}" style="width:44px;height:62px;border-radius:7px;
             object-fit:cover;border:2px solid var(--pink);flex-shrink:0;"
             onerror="this.style.display='none'"/>
           <div style="flex:1;min-width:0;">
-            <div style="font-size:0.65em;color:var(--text-dim);letter-spacing:0.08em;margin-bottom:3px;">EQUIPPED CARD</div>
-            <div style="font-weight:600;font-size:0.9em;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(equip.name)}</div>
-            <div style="font-size:0.75em;color:var(--text-dim);margin-top:2px;">${escapeHtml(equip.rarityName||'')} ${equip.rarityStars||''}</div>
+            <div style="font-size:0.62em;color:var(--text-dim);letter-spacing:0.08em;margin-bottom:3px;">EQUIPPED CARD</div>
+            <div style="font-weight:600;font-size:0.88em;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(equip.name)}</div>
+            <div style="font-size:0.72em;color:var(--text-dim);margin-top:2px;">${escapeHtml(equip.rarityName||'')} ${equip.rarityStars||''}</div>
           </div>
         </div>` : ''}
+
+        <!-- Room link placeholder -->
+        <div id="${roomPlaceholderId}"></div>
       </div>
     </div>`;
 
   modal.classList.add('active');
+
+  // Async load room
+  if(player.discord_id){
+    sb.get('hub_rooms',{owner_id:player.discord_id}).then(rooms=>{
+      const el=document.getElementById(roomPlaceholderId);
+      if(!el) return;
+      if(rooms&&rooms.length){
+        const r=rooms.find(x=>x.is_public)||null;
+        if(r){
+          el.innerHTML=`<div onclick="closePlayerModal();goTo('social',null);setTimeout(()=>joinRoom('${r.id}','${(r.name||'').replace(/\\/g,'').replace(/'/g,'')}',true),500)" style="display:flex;align-items:center;gap:10px;
+            background:rgba(255,157,199,0.04);border:1px solid var(--border);border-radius:12px;
+            padding:10px 14px;cursor:pointer;transition:all .2s;margin-top:2px;"
+            onmouseover="this.style.borderColor='var(--pink)';this.style.background='rgba(255,157,199,0.1)'"
+            onmouseout="this.style.borderColor='var(--border)';this.style.background='rgba(255,157,199,0.04)'">
+            <div style="width:36px;height:36px;border-radius:9px;background:rgba(255,157,199,0.1);
+              border:1px solid rgba(255,157,199,0.2);display:flex;align-items:center;justify-content:center;font-size:1.1em;flex-shrink:0;">🏠</div>
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:0.82em;color:var(--text);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(r.name||"Player's Room")}</div>
+              <div style="font-size:0.68em;color:var(--text-dim);margin-top:1px;">🌐 Public Room · Tap to join</div>
+            </div>
+            <div style="color:var(--pink);font-size:1em;">›</div>
+          </div>`;
+        }
+      }
+    }).catch(()=>{});
+  }
+}
+
+// Modal music toggle — per-modal audio instance
+window._modalMusicAudio = null;
+function toggleModalMusic(url, btn){
+  if(!url) return;
+  if(!window._modalMusicAudio || window._modalMusicAudio.src !== url){
+    if(window._modalMusicAudio) window._modalMusicAudio.pause();
+    window._modalMusicAudio = new Audio(url);
+    window._modalMusicAudio.volume = 0.35;
+    window._modalMusicAudio.loop = true;
+  }
+  if(window._modalMusicAudio.paused){
+    window._modalMusicAudio.play().then(()=>{ if(btn) btn.textContent='⏸'; }).catch(()=>showToast('⚠️ Could not play'));
+  } else {
+    window._modalMusicAudio.pause();
+    if(btn) btn.textContent='▶';
+  }
 }
 
 function closePlayerModal(){
   const modal = document.getElementById('playerProfileModal');
   if(modal) modal.classList.remove('active');
+  if(window._modalMusicAudio){ window._modalMusicAudio.pause(); window._modalMusicAudio=null; }
 }
 
 // ══════════════════════════════════════════════
