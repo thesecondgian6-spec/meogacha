@@ -2695,13 +2695,16 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 
   /* ── Battle ── */
   .battle-moves-grid { grid-template-columns: 1fr 1fr; }
-  .bai-moves-cols { grid-template-columns: 1fr 1fr; gap: 7px; }
-  .battle-move-btn { padding: 8px 10px; }
-  .move-name { font-size: 0.65em; }
-  .move-desc { font-size: 0.68em; }
-  .battle-card-img { width: 90px; height: 128px; }
-  .battle-arena-bg { padding: 18px 14px; }
-  .battle-vs-badge { font-size: 1.4em; }
+  .bai-moves-cols { grid-template-columns: 1fr 1fr; gap: 6px; }
+  .battle-move-btn { padding: 7px 8px; }
+  .battle-move-ult-btn { padding: 7px 8px; }
+  .move-name { font-size: 0.62em; }
+  .move-desc { font-size: 0.62em; }
+  .battle-card-img { width: 80px; height: 113px; }
+  .battle-arena-bg { padding: 14px 12px; }
+  .battle-vs-badge { font-size: 1.3em; }
+  .battle-vs-header { gap: 8px; margin-bottom: 10px; }
+  .battle-log { max-height: 90px; font-size: 0.74em; padding: 8px 10px; }
 
   /* ── Section titles ── */
   .section-title { font-size: 0.88em; }
@@ -4041,8 +4044,8 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   background: radial-gradient(ellipse at 50% 30%, rgba(155,89,182,0.15), transparent 60%), radial-gradient(ellipse at 50% 80%, rgba(255,157,199,0.1), transparent 60%);
   border: 1px solid var(--border);
   border-radius: 24px;
-  padding: 28px;
-  margin-bottom: 24px;
+  padding: 18px 20px;
+  margin-bottom: 16px;
   overflow: hidden;
 }
 .battle-arena-bg::before {
@@ -4057,8 +4060,8 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 20px;
-  margin-bottom: 24px;
+  gap: 12px;
+  margin-bottom: 14px;
 }
 .battle-player-side, .battle-enemy-side {
   flex: 1;
@@ -4079,10 +4082,10 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   display: inline-block;
 }
 .battle-card-img {
-  width: 120px;
-  height: 170px;
+  width: 90px;
+  height: 127px;
   object-fit: cover;
-  border-radius: 14px;
+  border-radius: 12px;
   border: 2px solid var(--border);
   display: block;
   transition: all 0.3s;
@@ -4103,17 +4106,17 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   white-space: nowrap;
 }
 /* HP bars */
-.battle-hp-section { margin: 24px 0 18px; }
+.battle-hp-section { margin: 12px 0 10px; }
 .battle-combatant-row {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 12px;
+  gap: 8px;
+  margin-bottom: 7px;
 }
 .battle-combatant-label {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 0.78em;
-  min-width: 80px;
+  font-size: 0.72em;
+  min-width: 56px;
   color: var(--text-dim);
 }
 .battle-hp-track {
@@ -4154,13 +4157,13 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .battle-log {
   background: rgba(0,0,0,0.3);
   border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 14px 16px;
-  max-height: 160px;
+  border-radius: 12px;
+  padding: 10px 12px;
+  max-height: 110px;
   overflow-y: auto;
-  margin-bottom: 18px;
-  font-size: 0.82em;
-  line-height: 1.7;
+  margin-bottom: 10px;
+  font-size: 0.78em;
+  line-height: 1.6;
   scroll-behavior: smooth;
 }
 .battle-log::-webkit-scrollbar { width: 4px; }
@@ -4177,13 +4180,13 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .battle-moves-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin-bottom: 14px;
+  gap: 8px;
+  margin-bottom: 10px;
 }
 /* ── Two-column moves layout ── */
-.bai-moves-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.bai-moves-col { display: flex; flex-direction: column; gap: 7px; }
-.bai-moves-col-label { font-family: 'JetBrains Mono', monospace; font-size: 0.66em; color: var(--text-dim); letter-spacing: 0.1em; text-transform: uppercase; padding: 2px 4px; margin-bottom: 2px; }
+.bai-moves-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.bai-moves-col { display: flex; flex-direction: column; gap: 5px; }
+.bai-moves-col-label { font-family: 'JetBrains Mono', monospace; font-size: 0.62em; color: var(--text-dim); letter-spacing: 0.1em; text-transform: uppercase; padding: 2px 4px; margin-bottom: 1px; }
 .bai-passives-row { display: flex; flex-direction: column; gap: 4px; margin-bottom: 2px; }
 .bai-passive-chip { background: rgba(155,89,182,0.12); border: 1px solid rgba(155,89,182,0.25); border-radius: 8px; padding: 5px 9px; font-size: 0.72em; color: var(--purple); display: flex; align-items: center; gap: 5px; }
 .bai-passive-chip span { color: var(--text-dim); }
@@ -4191,8 +4194,8 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .battle-move-btn {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 12px 14px;
+  border-radius: 12px;
+  padding: 9px 11px;
   cursor: pointer;
   transition: all 0.2s;
   text-align: left;
@@ -4215,10 +4218,10 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 }
 .move-name {
   font-family: 'Cinzel Decorative', serif;
-  font-size: 0.72em;
+  font-size: 0.68em;
   color: var(--text);
   display: block;
-  margin-bottom: 3px;
+  margin-bottom: 2px;
 }
 .move-desc {
   font-size: 0.68em;
@@ -4246,6 +4249,50 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .move-type-def { background: rgba(52,152,219,0.2); color: #5dade2; }
 .move-type-ult { background: rgba(241,196,15,0.2); color: #f1c40f; }
 .move-type-spc { background: rgba(155,89,182,0.2); color: #c39bd3; }
+
+/* ── Ultimate move button — special golden styling ── */
+.battle-move-ult-btn {
+  background: linear-gradient(135deg, rgba(241,196,15,0.08), rgba(255,157,199,0.05)) !important;
+  border: 1px solid rgba(241,196,15,0.55) !important;
+  border-radius: 12px;
+  padding: 9px 11px;
+  cursor: pointer;
+  text-align: left;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.25s;
+  box-shadow: 0 0 14px rgba(241,196,15,0.12), inset 0 0 20px rgba(241,196,15,0.04);
+  animation: ultPulse 3s ease-in-out infinite;
+}
+.battle-move-ult-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(241,196,15,0.06), transparent 60%, rgba(255,157,199,0.04));
+  pointer-events: none;
+}
+.battle-move-ult-btn::after {
+  content: '✦ ULTIMATE';
+  position: absolute;
+  top: 5px;
+  right: 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.5em;
+  color: rgba(241,196,15,0.7);
+  letter-spacing: 0.08em;
+}
+.battle-move-ult-btn .move-name { color: #f1c40f !important; }
+.battle-move-ult-btn:hover:not(:disabled) {
+  border-color: rgba(241,196,15,0.9) !important;
+  background: linear-gradient(135deg, rgba(241,196,15,0.14), rgba(255,157,199,0.08)) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(241,196,15,0.25), inset 0 0 20px rgba(241,196,15,0.06);
+}
+.battle-move-ult-btn:disabled { opacity: 0.3; cursor: not-allowed; animation: none; }
+@keyframes ultPulse {
+  0%,100% { box-shadow: 0 0 14px rgba(241,196,15,0.12), inset 0 0 20px rgba(241,196,15,0.04); }
+  50% { box-shadow: 0 0 22px rgba(241,196,15,0.22), inset 0 0 20px rgba(241,196,15,0.07); }
+}
 
 /* Battle state badges */
 .battle-status-row {
@@ -4372,10 +4419,16 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 @keyframes rippleAnim { to{transform:scale(4);opacity:0;} }
 
 @media(max-width:700px){
-  .battle-moves-grid { grid-template-columns: 1fr; }
-  .battle-card-img { width: 90px; height: 128px; }
-  .battle-arena-bg { padding: 18px 14px; }
-  .battle-vs-badge { font-size: 1.4em; }
+  .battle-moves-grid { grid-template-columns: 1fr 1fr; }
+  .battle-card-img { width: 80px; height: 113px; }
+  .battle-arena-bg { padding: 14px 12px; }
+  .battle-vs-badge { font-size: 1.3em; }
+  .battle-move-btn { padding: 7px 8px; }
+  .battle-move-ult-btn { padding: 7px 8px; }
+  .move-name { font-size: 0.62em; }
+  .move-desc { font-size: 0.62em; }
+  .battle-vs-header { gap: 8px; margin-bottom: 10px; }
+  .battle-log { max-height: 90px; font-size: 0.74em; padding: 8px 10px; }
 }
 
 
@@ -11479,7 +11532,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
           <!-- Battle log -->
           <div class="battle-log" id="baiBattleLog"></div>
           <!-- MP display -->
-          <div style="text-align:right;font-family:'JetBrains Mono',monospace;font-size:0.72em;color:#f1c40f;margin-bottom:8px;">⚡ MP: <span id="baiBattleMP">3</span> <span style="color:var(--text-dim);font-size:0.9em;">(+1/turn)</span></div>
+          <div style="text-align:right;font-family:'JetBrains Mono',monospace;font-size:0.7em;color:#f1c40f;margin-bottom:5px;">⚡ MP: <span id="baiBattleMP">3</span> <span style="color:var(--text-dim);font-size:0.9em;">(+1/turn)</span></div>
           <!-- Moves -->
           <div class="battle-moves-grid" id="baiBattleMovesGrid"></div>
         </div>
@@ -17309,9 +17362,7 @@ async function startBattleAI() {
     : `<span style="color:${enemyColor};font-size:0.85em;">[${enemyRarityLabel}]</span>`;
   document.getElementById('baiBattleLog').innerHTML = '';
   document.getElementById('baiBattleOutcome').style.display = 'none';
-  // Inject settings UI + gear button for VS AI arena
-  injectBattleSettingsUI();
-  _injectBattleGearBtn('baiBattleArena','openBattleSettings');
+  // (settings gear button removed)
 
   _baiUpdateHPBars();
   _baiRenderMoves();
@@ -17379,24 +17430,25 @@ function _baiRenderMoves() {
     const isUlt = m.type === 'ult';
     const noMP = m.mpCost > (ps.playerMP || 0);
     const disabled = locked || noMP;
-    const borderClr = isUlt ? 'rgba(241,196,15,0.5)' : m.type === 'spc' ? 'rgba(255,157,199,0.4)' : m.type === 'def' ? 'rgba(93,173,226,0.35)' : 'var(--border)';
+    const borderClr = isUlt ? 'rgba(241,196,15,0.7)' : m.type === 'spc' ? 'rgba(255,157,199,0.4)' : m.type === 'def' ? 'rgba(93,173,226,0.35)' : 'var(--border)';
     const mpBadge = m.mpCost > 0 ? `<span style="font-family:'JetBrains Mono',monospace;font-size:0.62em;color:#f1c40f;float:right;">${m.mpCost}MP</span>` : '';
+    if (isUlt) {
+      return `<button class="battle-move-btn battle-move-ult-btn" onclick="${onclick}('${m.id}')" ${disabled ? 'disabled' : ''}>
+        <span class="move-name">${m.icon} ${m.name}${mpBadge}</span>
+        <span class="move-desc">${m.desc || ''}</span>
+      </button>`;
+    }
     return `<button class="battle-move-btn" onclick="${onclick}('${m.id}')" ${disabled ? 'disabled' : ''} style="border-color:${borderClr};">
       <span class="move-name">${m.icon} ${m.name}${mpBadge}</span>
       <span class="move-desc">${m.desc || ''}</span>
       ${m.power && m.type === 'atk' ? `<span class="move-power">PWR ${m.power}</span>` : ''}
     </button>`;
   };
+  };
 
   // Split: basic skills vs card abilities
   const basicMoves = moves.filter(m => !m.id.startsWith('active_') && !m.id.startsWith('ult_'));
   const abilMoves  = moves.filter(m =>  m.id.startsWith('active_') ||  m.id.startsWith('ult_'));
-
-  // Also pull passive info for display
-  const passives = getCardAbilities(ps.playerCard.id, ps.playerCard.rarity).filter(a => a.tier === 'passive');
-  const passiveHtml = passives.length
-    ? passives.map(p => `<div class="bai-passive-chip" title="${p.desc||''}">${p.icon} <span>${p.name}</span></div>`).join('')
-    : `<div class="bai-passive-chip bai-passive-none">— no passive —</div>`;
 
   grid.innerHTML = `<div class="bai-moves-cols">
     <div class="bai-moves-col">
@@ -17405,7 +17457,6 @@ function _baiRenderMoves() {
     </div>
     <div class="bai-moves-col">
       <div class="bai-moves-col-label">✨ Abilities</div>
-      <div class="bai-passives-row">${passiveHtml}</div>
       ${abilMoves.length ? abilMoves.map(m => mkBtn(m, '_baiPlayerMove')).join('') : `<div style="color:var(--text-dim);font-size:0.78em;font-style:italic;padding:6px 2px;">No active abilities</div>`}
     </div>
   </div>`;
@@ -19579,9 +19630,7 @@ function startBattle() {
   document.getElementById('battleEnemyName').textContent = enemyCard.name;
   document.getElementById('battleLog').innerHTML = '';
   document.getElementById('battleOutcome').style.display='none';
-  // Inject settings UI (idempotent) and add gear button to arena
-  injectBattleSettingsUI();
-  _injectBattleGearBtn('battleArena','openBattleSettings');
+  // (settings gear button removed)
   updateBattleHPBars();
   renderBattleMoves();
   battleLog(`⚡ ${playerCard.name} VS ${enemyCard.name}! The battle begins!`, 'system');
@@ -19609,12 +19658,19 @@ function renderBattleMoves(){
     const isUlt    = m.type === 'ult';
     const noMP     = m.mpCost > (battleState.playerMP||0);
     const disabled = locked || noMP;
-    const borderClr = isUlt ? 'rgba(241,196,15,0.5)' :
+    const borderClr = isUlt ? 'rgba(241,196,15,0.7)' :
                       m.type === 'spc' ? 'rgba(255,157,199,0.4)' :
                       m.type === 'def' ? 'rgba(93,173,226,0.35)' : 'var(--border)';
     const mpBadge = m.mpCost > 0
       ? `<span style="font-family:'JetBrains Mono',monospace;font-size:0.62em;color:#f1c40f;float:right;">${m.mpCost}MP</span>`
       : '';
+    if (isUlt) {
+      return `<button class="battle-move-btn battle-move-ult-btn" onclick="playerMove('${m.id}')"
+          ${disabled ? 'disabled' : ''}>
+        <span class="move-name">${m.icon} ${m.name}${mpBadge}</span>
+        <span class="move-desc">${m.desc||''}</span>
+      </button>`;
+    }
     return `<button class="battle-move-btn" onclick="playerMove('${m.id}')"
         ${disabled ? 'disabled' : ''}
         style="border-color:${borderClr};">
@@ -22993,7 +23049,6 @@ const TEMPLATE_CATEGORIES = EFFECT_CATEGORIES;
 // ════════════════════════════════════════════════════════
 
 const CSD_TIER_DATA = [
-  { value:'passive',  icon:'🔵', name:'Passive',  desc:'Auto-triggers — no button, fires on its own.' },
   { value:'active',   icon:'🟢', name:'Active',   desc:'Press to use — costs MP, guaranteed trigger.' },
   { value:'ultimate', icon:'🟡', name:'Ultimate', desc:'Powerful active — high MP cost, max impact.' },
 ];
@@ -23454,7 +23509,6 @@ function addAbilitySlot(prefill){
           </div>
           <div class="csd-menu" id="csd_tier_${idx}"></div>
           <select class="admin-input ab-tier-select csd-native" id="csd_tier_native_${idx}" onchange="onAbilityTierChange(this,${idx})">
-            <option value="passive"  ${prefillTier==='passive' ?'selected':''}>passive</option>
             <option value="active"   ${prefillTier==='active'  ?'selected':''}>active</option>
             <option value="ultimate" ${prefillTier==='ultimate'?'selected':''}>ultimate</option>
           </select>
@@ -28724,9 +28778,6 @@ function openPvpBattleScreen(battleId, battle){
   activePvpBattleId = battleId;
   renderPvpState(battle, battleId);
   document.getElementById('pvpBattleModal').classList.add('active');
-  // Inject settings UI + gear btn for PvP
-  injectBattleSettingsUI();
-  setTimeout(()=>_injectBattleGearBtn('pvpBattleContent','openBattleSettings'), 80);
 }
 
 function renderPvpState(battle, battleId){
@@ -32938,9 +32989,6 @@ function openBossArenaModal() {
   _wbBuildSpeedLines();
   _wbStartCinematic();
   _wbAutoPlayMusic();   // auto-play music on enter
-  // Inject settings UI + gear btn for World Boss
-  injectBattleSettingsUI();
-  setTimeout(()=>_injectBattleGearBtn('wbArenaModal','openBattleSettings'), 100);
 }
 function leaveBossArena(confirmed=false) {
   const confirmEl = document.getElementById('wbLeaveConfirm');
