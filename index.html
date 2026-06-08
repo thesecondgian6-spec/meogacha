@@ -6946,8 +6946,8 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .admin-input{width:100%;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-family:'Cormorant Garamond',serif;font-size:0.92em;outline:none;transition:border-color 0.2s;box-sizing:border-box;}
 .admin-input:focus{border-color:var(--pink);}
 .admin-input option{background:var(--bg2);color:var(--text);}
-.admin-card-row{display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:10px 14px;transition:border-color 0.2s;overflow:hidden;}
-.admin-card-row:hover{border-color:rgba(255,157,199,0.35);}
+.admin-card-row{display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:10px 14px;transition:all 0.22s;overflow:hidden;}
+.admin-card-row:hover{border-color:rgba(255,157,199,0.45);transform:translateY(-1px);box-shadow:0 4px 16px rgba(0,0,0,0.25);}
 .admin-card-thumb{width:48px;height:68px;object-fit:cover;border-radius:8px;flex-shrink:0;border:2px solid var(--border);}
 .admin-card-info{flex:1;min-width:0;}
 .admin-card-name{font-weight:600;font-size:0.9em;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
@@ -17109,10 +17109,27 @@ function switchCardTab(tab, btn) {
 }
 
 function _buildCardStats(c, lvl) {
-  const rarityMult = [0, 0.5, 0.7, 0.85, 1.0, 1.25, 1.5, 2.0][c.rarity] || 1;
-  const lvlMult = 1 + (lvl - 1) * 0.08;
-  const base = { HP: Math.round((80 + c.rarity * 25) * rarityMult * lvlMult), ATK: Math.round((10 + c.rarity * 8) * rarityMult * lvlMult), DEF: Math.round((5 + c.rarity * 5) * rarityMult * lvlMult), SPD: Math.round((8 + c.rarity * 3) * rarityMult * lvlMult), MP: Math.round((20 + c.rarity * 10) * rarityMult * lvlMult), LUCK: Math.round((5 + c.rarity * 4) * rarityMult * lvlMult) };
-  return base;
+  // HP matches actual battle formula: (80 + rarity*15) + passive hpboost abilities
+  const hpBoost = (typeof getCardAbilities === 'function')
+    ? getCardAbilities(c.id, c.rarity).filter(a=>a.battleEffect==='hpboost_passive'||a.battleEffect==='hpboost').reduce((s,a)=>s+(a.value||0),0)
+    : 0;
+  const baseHP = Math.round(80 + c.rarity * 15) + hpBoost;
+  // ATK: base strike = move.power(12) + rarity*2, boosted by passive atkboost %
+  const baseATK = 12 + (c.rarity * 2);
+  const atkBoostPct = (typeof getCardAbilities === 'function')
+    ? getCardAbilities(c.id, c.rarity).filter(a=>a.battleEffect==='atkboost_passive').reduce((s,a)=>s+(a.value||0),0)
+    : 0;
+  const displayATK = Math.round(baseATK * (1 + atkBoostPct / 100));
+  // DEF, SPD, MP, LUCK — scaled flavor stats (rarity-based)
+  const r = c.rarity;
+  return {
+    HP:   baseHP,
+    ATK:  displayATK,
+    DEF:  Math.round(8 + r * 5),
+    SPD:  Math.round(6 + r * 4),
+    MP:   3 + Math.round(r * 1.5),
+    LUCK: Math.round(10 + r * 6)
+  };
 }
 
 function _renderCardStatsPanel(c, lvl, color) {
@@ -26556,11 +26573,16 @@ function renderAdminCardList(){
     const enabledStyle=c.enabled
       ?'background:rgba(46,204,113,0.1);border-color:rgba(46,204,113,0.4);color:#2ecc71;'
       :'background:rgba(231,76,60,0.08);border-color:rgba(231,76,60,0.3);color:#e74c3c;';
-    return `<div class="admin-card-row">
-      <img class="admin-card-thumb" src="${c.image}" alt="${c.name}" onerror="this.style.background='#1c0f26'" style="border-color:${color}55;"/>
-      <div class="admin-card-info">
-        <div class="admin-card-name">${c.name}</div>
-        <div class="admin-card-meta"><span style="color:${color}">${c.rarity_name} ${c.rarity_stars}</span> · ${c.series}</div>
+    const thumbSrc = c.thumbnail || c.image || '';
+    return `<div class="admin-card-row" style="background:linear-gradient(135deg,${color}14,${color}06,var(--surface));border-color:${color}33;position:relative;overflow:hidden;">
+      <div style="position:absolute;inset:0;background:linear-gradient(90deg,${color}18 0%,transparent 55%);pointer-events:none;border-radius:12px;"></div>
+      <div style="position:relative;flex-shrink:0;display:flex;gap:6px;align-items:center;">
+        <img class="admin-card-thumb" src="${c.image}" alt="${c.name}" onerror="this.style.background='#1c0f26'" style="border-color:${color}88;box-shadow:0 0 10px ${color}44;"/>
+        ${thumbSrc && thumbSrc !== c.image ? `<img style="width:32px;height:44px;object-fit:cover;border-radius:5px;border:1px solid ${color}55;opacity:0.85;flex-shrink:0;" src="${thumbSrc}" alt="thumb" onerror="this.style.display='none'" title="Thumbnail"/>` : ''}
+      </div>
+      <div class="admin-card-info" style="position:relative;">
+        <div class="admin-card-name" style="color:var(--text);">${c.name}</div>
+        <div class="admin-card-meta"><span style="color:${color};font-weight:600;">${c.rarity_name} ${c.rarity_stars}</span> · ${c.series}</div>
         <div class="admin-card-meta" style="font-family:'JetBrains Mono',monospace;font-size:0.72em;">id: ${c.id}${c.limited?' · 💎 Limited':''}${c.for_battle===false?' · 🎀 Cosmetic':''}</div>
       </div>
       <div class="admin-card-actions">
