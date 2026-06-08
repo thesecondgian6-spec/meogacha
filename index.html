@@ -7503,6 +7503,15 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 /* Skin wish buttons */
 .gp-wish-btn-skin{background:linear-gradient(135deg,rgba(155,89,182,0.3),rgba(192,132,184,0.2)) !important;border-color:rgba(155,89,182,0.5) !important;}
 .gp-wish-btn-skin:hover{background:linear-gradient(135deg,rgba(155,89,182,0.5),rgba(192,132,184,0.35)) !important;border-color:#c084b8 !important;}
+/* ── Banner pool whitelist checkboxes ── */
+.pool-wl-item{display:flex;align-items:center;gap:7px;padding:5px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);background:rgba(255,255,255,0.03);cursor:pointer;transition:all 0.15s;min-width:0;flex:0 0 auto;}
+.pool-wl-item:hover{background:rgba(155,89,182,0.12);border-color:rgba(155,89,182,0.35);}
+.pool-wl-item input[type=checkbox]{accent-color:#c084b8;width:14px;height:14px;flex-shrink:0;cursor:pointer;}
+.pool-wl-item:has(input:checked){background:rgba(155,89,182,0.15);border-color:rgba(155,89,182,0.45);}
+.pool-wl-item img{width:32px;height:42px;object-fit:cover;border-radius:5px;flex-shrink:0;}
+.pool-wl-name{font-size:0.78em;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100px;}
+.pool-wl-rarity{font-size:0.62em;font-family:'JetBrains Mono',monospace;flex-shrink:0;}
+.pool-wl-card{font-size:0.62em;color:var(--text-dim);font-style:italic;flex-shrink:0;}
 /* Featured skins row in banner */
 .gp-skin-featured-row{display:flex;gap:8px;flex-wrap:wrap;}
 .gp-skin-feat-card{position:relative;width:clamp(70px,18vw,100px);cursor:pointer;transition:transform 0.2s;}
@@ -14841,6 +14850,30 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
         </div>
         </div><!-- end #bannerCardPoolSection -->
 
+        <!-- LR / Secret card whitelist — only for non-skin banners -->
+        <div id="bannerSpecialPoolSection">
+          <div class="admin-section-label" style="margin-top:4px;">
+            ⚗️ LR &amp; Secret Card Whitelist
+            <span class="admin-hint"> — only checked cards appear in this banner's pool</span>
+          </div>
+          <div id="bannerSpecialPoolList" style="display:flex;flex-wrap:wrap;gap:6px;max-height:180px;overflow-y:auto;padding:6px;background:rgba(0,0,0,0.2);border-radius:10px;border:1px solid rgba(255,255,255,0.06);margin-bottom:4px;">
+            <div style="color:var(--text-dim);font-size:0.8em;font-style:italic;padding:6px;">Loading cards…</div>
+          </div>
+          <div style="font-size:0.72em;color:var(--text-dim);margin-bottom:16px;font-family:'JetBrains Mono',monospace;">If none are checked, all LR/Secret cards are excluded from this banner.</div>
+        </div>
+
+        <!-- Skin whitelist — only for skin banners -->
+        <div id="bannerSkinPoolSection" style="display:none;">
+          <div class="admin-section-label" style="margin-top:4px;">
+            🎨 Skin Pool Whitelist
+            <span class="admin-hint"> — only checked skins appear in this banner's pull pool</span>
+          </div>
+          <div id="bannerSkinPoolList" style="display:flex;flex-wrap:wrap;gap:6px;max-height:220px;overflow-y:auto;padding:6px;background:rgba(0,0,0,0.2);border-radius:10px;border:1px solid rgba(255,255,255,0.06);margin-bottom:4px;">
+            <div style="color:var(--text-dim);font-size:0.8em;font-style:italic;padding:6px;">Loading skins…</div>
+          </div>
+          <div style="font-size:0.72em;color:var(--text-dim);margin-bottom:16px;font-family:'JetBrains Mono',monospace;">If none are checked, ALL skins are included in the pool.</div>
+        </div>
+
         <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;">
           <button class="admin-btn" id="bannerFormSubmitBtn" onclick="submitBannerForm()"
             style="background:linear-gradient(135deg,var(--pink-deep),var(--purple));color:#fff;flex:1;">
@@ -20500,8 +20533,12 @@ function setMobileNav(page){
 // POOL VIEW (all cards in banner)
 // ══════════════════════════════════════════════
 function openPoolView(){
+  const title = document.querySelector('#poolModal h3');
+  if(title) title.textContent = '🃏 All Cards in Pool';
   const grid=document.getElementById('poolGrid');
-  const RATE_UP_IDS=['deku','yuta'];
+  const banner = getActiveBanner();
+  const specialPool = parseSpecialPool(banner?.special_pool);
+  const RATE_UP_IDS = parseFeaturedCards(banner?.featured_cards||[]);
   const POOL_RARITY_ORDER=[
     {r:7,label:'[???]',rainbow:true},
     {r:6,label:'[LR]', rainbow:false},
@@ -20514,7 +20551,11 @@ function openPoolView(){
   // Build sections
   const sections=[];
   POOL_RARITY_ORDER.forEach(({r,label,rainbow})=>{
-    const group=(window.DEMO_CARDS||DEMO_CARDS).filter(c=>c.rarity===r);
+    const group=(window.DEMO_CARDS||DEMO_CARDS).filter(c=>{
+      if(c.rarity !== r) return false;
+      if(c.rarity >= 6) return specialPool.includes(c.id); // LR/Secret: whitelist only
+      return true;
+    });
     if(!group.length)return;
     sections.push({r,label,rainbow,group});
   });
@@ -20754,6 +20795,13 @@ function buildPool(){
   const type   = banner.banner_type || 'standard';
   const p      = getPity(type);
   let source   = (window.DEMO_CARDS||DEMO_CARDS).filter(c=>!c.limited);
+
+  // LR (rarity 6) and Secret (rarity 7) cards are excluded unless whitelisted on this banner
+  const specialPool = parseSpecialPool(banner.special_pool);
+  source = source.filter(c => {
+    if(c.rarity < 6) return true;           // normal cards always included
+    return specialPool.includes(c.id);       // high rarity only if whitelisted
+  });
 
   if(banner.series_filter){
     const tags = banner.series_filter.split(',').map(s=>s.trim().toLowerCase()).filter(Boolean);
@@ -21115,24 +21163,77 @@ async function pinBanner(id, currentlyPinned){
   }
 }
 
+// ── Parse special_pool / skin_pool JSON columns ──
+function parseSpecialPool(val){
+  if(!val) return [];
+  try { return Array.isArray(val) ? val : JSON.parse(val); } catch { return []; }
+}
+
+// ── Populate LR/Secret whitelist checkboxes in admin form ──
+function populateBannerSpecialPool(checkedIds=[]){
+  const el = document.getElementById('bannerSpecialPoolList');
+  if(!el) return;
+  const specials = (window.DEMO_CARDS||[]).filter(c=>c.rarity>=6);
+  if(!specials.length){ el.innerHTML='<div style="color:var(--text-dim);font-size:0.8em;font-style:italic;padding:6px;">No LR or Secret cards found.</div>'; return; }
+  el.innerHTML = specials.map(c=>{
+    const color = RARITY_COLORS[c.rarity]||'#bdc3c7';
+    const isRainbow = c.rarity===7;
+    const checked = checkedIds.includes(c.id) ? 'checked' : '';
+    return `<label class="pool-wl-item" style="--wl-color:${color}">
+      <input type="checkbox" value="${c.id}" ${checked} class="pool-wl-cb special-pool-cb"/>
+      <img src="${escapeHtml(c.thumbnail||c.image||'')}" onerror="this.style.display='none'"/>
+      <span class="pool-wl-name" ${isRainbow?'style="background:var(--rainbow);background-size:200%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:rainbowShift 2.5s linear infinite;"':''}>${escapeHtml(c.name)}</span>
+      <span class="pool-wl-rarity" style="color:${color}">${c.rarityName||''}</span>
+    </label>`;
+  }).join('');
+}
+
+// ── Populate skin whitelist checkboxes in admin form ──
+function populateBannerSkinPool(checkedIds=[]){
+  const el = document.getElementById('bannerSkinPoolList');
+  if(!el) return;
+  const allSkins = window.ALL_SKINS||[];
+  if(!allSkins.length){ el.innerHTML='<div style="color:var(--text-dim);font-size:0.8em;font-style:italic;padding:6px;">No skins found. Create some in Skin Manager first.</div>'; return; }
+  const rarityOrder = ['legendary','epic','rare','common'];
+  const sorted = [...allSkins].sort((a,b)=>{
+    return rarityOrder.indexOf(a.rarity||'rare') - rarityOrder.indexOf(b.rarity||'rare') || (a.name||'').localeCompare(b.name||'');
+  });
+  el.innerHTML = sorted.map(s=>{
+    const meta = SKIN_RARITY_META[s.rarity||'rare']||{};
+    const cardName = (window.DEMO_CARDS||[]).find(c=>c.id===s.card_id)?.name||'';
+    const checked = checkedIds.includes(s.id) ? 'checked' : '';
+    return `<label class="pool-wl-item" style="--wl-color:${meta.color||'#9b59b6'}">
+      <input type="checkbox" value="${s.id}" ${checked} class="pool-wl-cb skin-pool-cb"/>
+      <img src="${escapeHtml(s.thumbnail||s.image||'')}" onerror="this.style.display='none'"/>
+      <span class="pool-wl-name">${escapeHtml(s.name)}</span>
+      <span class="pool-wl-rarity" style="color:${meta.color||'#9b59b6'}">${meta.icon||''} ${meta.label||s.rarity}</span>
+      ${cardName?`<span class="pool-wl-card" style="color:var(--text-dim);font-size:0.85em;font-style:italic;">${escapeHtml(cardName)}</span>`:''}
+    </label>`;
+  }).join('');
+}
+
 // ── Toggle skin vs card form fields when banner type changes ──
-function onBannerTypeChange(type){
+function onBannerTypeChange(type, checkedSpecial=[], checkedSkins=[]){
   const isSkin = type === 'skin';
   // Featured label
   const hint = document.getElementById('bannerFeaturedHint');
   const addBtn = document.getElementById('addBannerFeaturedBtn');
-  const label = addBtn?.closest('div')?.previousElementSibling; // the admin-section-label div
-  const sectionLabel = document.querySelector('.admin-section-label[id="bannerFeaturedLabel"]') ||
-    (() => { const el = addBtn?.parentElement?.previousElementSibling; return el; })();
   if(hint) hint.textContent = isSkin ? '(1–5 rate-up skins shown in banner)' : '(1–5 rate-up cards shown prominently)';
   if(addBtn) addBtn.innerHTML = isSkin ? '➕ Add Featured Skin Slot' : '➕ Add Featured Card Slot';
   // Card pool section — hide for skin banners
   const poolSec = document.getElementById('bannerCardPoolSection');
   if(poolSec) poolSec.style.display = isSkin ? 'none' : '';
+  // Whitelist sections
+  const specialSec = document.getElementById('bannerSpecialPoolSection');
+  const skinSec    = document.getElementById('bannerSkinPoolSection');
+  if(specialSec) specialSec.style.display = isSkin ? 'none' : '';
+  if(skinSec)    skinSec.style.display    = isSkin ? '' : 'none';
+  // Populate whitelists
+  if(!isSkin) populateBannerSpecialPool(checkedSpecial);
+  else        populateBannerSkinPool(checkedSkins);
   // Rebuild featured slots with the correct picker type
   document.getElementById('bannerFeaturedSlots').innerHTML = '';
   _bannerFeaturedSlotCount = 0;
-}
 
 function addBannerFeaturedSlot(itemId=''){
   const container = document.getElementById('bannerFeaturedSlots');
@@ -21223,7 +21324,7 @@ function editBanner(bannerId){
   document.getElementById('bannerForm_image').value = b.image||'';
   document.getElementById('bannerForm_active').value = b.is_active?'true':'false';
   document.getElementById('bannerForm_type').value = b.banner_type||'character';
-  onBannerTypeChange(b.banner_type||'character');
+  onBannerTypeChange(b.banner_type||'character', parseSpecialPool(b.special_pool), parseSpecialPool(b.skin_pool));
   document.getElementById('bannerForm_seriesFilter').value = b.series_filter||'';
   document.getElementById('bannerForm_minRarity').value = String(b.min_rarity||1);
   const _rmEl = document.getElementById('bannerForm_rateMulti');
@@ -21277,6 +21378,14 @@ async function submitBannerForm(){
   const featuredCards = [];
   document.querySelectorAll('[id^="bfCard_"]').forEach(sel=>{ if(sel.value) featuredCards.push(sel.value); });
 
+  const isSkinBanner = (document.getElementById('bannerForm_type').value) === 'skin';
+
+  // Collect whitelist checkboxes
+  const specialPoolIds = [];
+  document.querySelectorAll('.special-pool-cb:checked').forEach(cb=>specialPoolIds.push(cb.value));
+  const skinPoolIds = [];
+  document.querySelectorAll('.skin-pool-cb:checked').forEach(cb=>skinPoolIds.push(cb.value));
+
   // Core columns — always saved, no migration needed
   const coreData = {
     name,
@@ -21284,7 +21393,9 @@ async function submitBannerForm(){
     image:          document.getElementById('bannerForm_image').value.trim(),
     is_active:      document.getElementById('bannerForm_active').value === 'true',
     banner_type:    document.getElementById('bannerForm_type').value || 'character',
-    featured_cards: JSON.stringify(featuredCards), // keep here so it survives any fallback
+    featured_cards: JSON.stringify(featuredCards),
+    special_pool:   isSkinBanner ? null       : JSON.stringify(specialPoolIds),
+    skin_pool:      isSkinBanner ? JSON.stringify(skinPoolIds) : null,
   };
 
   // Extended columns (pool filters, rate multiplier) — no char images here
@@ -21372,6 +21483,22 @@ async function submitBannerForm(){
       }
     } else {
       showToast(`✅ Banner "${name}" saved!`);
+    }
+
+    // ── Step 4: separately PATCH whitelist columns (graceful — might need migration) ──
+    if(savedId){
+      const whitelistData = isSkinBanner
+        ? { skin_pool: coreData.skin_pool }
+        : { special_pool: coreData.special_pool };
+      const wlResult = await _doFetch('PATCH', `?id=eq.${savedId}`, whitelistData);
+      if(!wlResult.ok){
+        const msg = wlResult.msg||'';
+        if(msg.toLowerCase().includes('column') || msg.toLowerCase().includes('does not exist')){
+          const col = isSkinBanner ? 'skin_pool' : 'special_pool';
+          console.warn(`[MeoGacha] Run in Supabase SQL Editor:\nALTER TABLE banners ADD COLUMN IF NOT EXISTS special_pool jsonb;\nALTER TABLE banners ADD COLUMN IF NOT EXISTS skin_pool jsonb;`);
+          showToast(`⚠️ Whitelist not saved — run migration (check console)`);
+        }
+      }
     }
 
     cancelBannerEdit();
@@ -33145,45 +33272,58 @@ function restoreCardDock(){
 // ── Skin pool view modal ──
 function openSkinPoolView(){
   const banner = getActiveBanner();
-  const pool = buildSkinPool(banner);
   const featuredIds = parseFeaturedCards(banner?.featured_cards||[]);
-  let html = '<div style="max-height:60vh;overflow-y:auto;padding-right:4px;">';
+  const allSkins = window.ALL_SKINS || [];
+
+  // Respect skin whitelist if set
+  const whitelist = parseSpecialPool(banner?.skin_pool);
+  const pool = whitelist.length ? allSkins.filter(s=>whitelist.includes(s.id)) : allSkins;
+
   const byRarity = {};
   pool.forEach(s=>{
     const r = s.rarity||'rare';
-    if(!byRarity[r]) byRarity[r]={skins:[],featured:false};
-    if(featuredIds.includes(s.id)) byRarity[r].featured=true;
-    if(!byRarity[r].skins.find(x=>x.id===s.id)) byRarity[r].skins.push(s);
+    if(!byRarity[r]) byRarity[r] = [];
+    if(!byRarity[r].find(x=>x.id===s.id)) byRarity[r].push(s);
   });
+
   const order = ['legendary','epic','rare','common'];
+  let html = '';
   order.forEach(r=>{
-    if(!byRarity[r]) return;
-    const meta = SKIN_RARITY_META[r];
-    html += `<div style="margin-bottom:14px;"><div style="font-family:'JetBrains Mono',monospace;font-size:0.7em;color:${meta.color};letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px;">${meta.icon} ${meta.label}</div>`;
-    html += '<div style="display:flex;flex-wrap:wrap;gap:8px;">';
-    byRarity[r].skins.forEach(s=>{
+    const group = byRarity[r];
+    if(!group?.length) return;
+    const meta = SKIN_RARITY_META[r] || {};
+    html += `<div class="rarity-group">
+      <div class="rarity-group-header">
+        <span style="color:${meta.color||'#bdc3c7'}">${meta.icon||''} ${meta.label||r}</span>
+        <span class="rarity-group-count">${group.length}</span>
+      </div>
+      <div class="pool-grid">`;
+    group.forEach(s=>{
       const isFeat = featuredIds.includes(s.id);
-      const cardName = (window.DEMO_CARDS||[]).find(c=>c.id===s.card_id)?.name||s.card_id;
-      html += `<div style="position:relative;width:68px;cursor:pointer;" onclick="openSkinPreview('${s.id}')">
-        <img src="${escapeHtml(s.thumbnail||s.image||'')}" style="width:68px;height:90px;object-fit:cover;border-radius:8px;border:1px solid ${meta.color}33;" onerror="this.style.background='#1c0f26'"/>
-        ${isFeat?'<div style="position:absolute;top:4px;right:4px;background:rgba(255,157,199,0.9);border-radius:4px;padding:1px 4px;font-size:0.5em;font-family:\'JetBrains Mono\',monospace;color:#000;font-weight:700;">RATE▲</div>':''}
-        <div style="font-size:0.55em;color:var(--text-dim);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(s.name)}</div>
-        <div style="font-size:0.5em;color:var(--text-dim);font-style:italic;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(cardName)}</div>
+      const cardName = (window.DEMO_CARDS||[]).find(c=>c.id===s.card_id)?.name||'';
+      html += `<div class="pool-card" onclick="closePoolView();setTimeout(()=>openSkinPreview('${s.id}'),220)" style="border-color:${isFeat?(meta.color||'var(--border)'):'var(--border)'}">
+        <img src="${escapeHtml(s.thumbnail||s.image||'')}" alt="${escapeHtml(s.name)}" onerror="this.style.background='#1c0f26'"/>
+        ${isFeat?'<div class="pool-card-rate-badge">RATE UP ↑</div>':''}
+        <div class="pool-card-label">
+          <span class="pool-card-name" style="color:${meta.color||'#bdc3c7'}">${escapeHtml(s.name)}</span>
+          <div class="pool-card-rarity" style="color:${meta.color||'#bdc3c7'}">${meta.icon||''} ${meta.label||r}</div>
+          ${cardName?`<div class="pool-card-rarity" style="color:var(--text-dim);font-style:italic;">${escapeHtml(cardName)}</div>`:''}
+        </div>
       </div>`;
     });
-    html += '</div></div>';
+    html += `</div></div><div class="rarity-divider"></div>`;
   });
-  html += '</div>';
-  // Reuse card pool modal if it exists, else show toast
-  const modal = document.getElementById('poolModal') || document.getElementById('cardPoolModal');
-  if(modal){
-    const body = modal.querySelector('.pool-body,.modal-body') || modal;
-    body.innerHTML = `<div class="section-title" style="margin-bottom:16px;">🎨 Skin Banner Pool</div>${html}`;
-    modal.classList.add('active');
-  } else {
-    showToast('🎨 Skin pool — open console for details');
-    console.log('[MeoGacha] Skin Pool:', pool);
+
+  if(!html) html = '<div style="color:var(--text-dim);font-style:italic;font-size:0.85em;text-align:center;padding:20px;">No skins in pool yet.</div>';
+
+  const grid = document.getElementById('poolGrid');
+  const title = document.querySelector('#poolModal h3');
+  if(grid){
+    grid.innerHTML = html;
+    grid.style.display = 'block';
   }
+  if(title) title.textContent = '🎨 Skin Banner Pool';
+  document.getElementById('poolModal').classList.add('active');
 }
 
 function openDockPoolView(){
@@ -33252,10 +33392,15 @@ function openSkinPreview(skinId){
 function buildSkinPool(banner){
   const all = window.ALL_SKINS || [];
   if(!all.length) return [];
+
+  // If skin whitelist is set, only include those skins
+  const whitelist = parseSpecialPool(banner?.skin_pool);
+  const source = whitelist.length ? all.filter(s=>whitelist.includes(s.id)) : all;
+  if(!source.length) return all; // fallback to all if whitelist empty
   const featuredIds = parseFeaturedCards(banner?.featured_cards || []);
   const rarityWeights = { legendary: 3, epic: 12, rare: 30, common: 55 };
   const pool = [];
-  all.forEach(skin => {
+  source.forEach(skin => {
     const w = rarityWeights[skin.rarity||'rare'] || 30;
     // Featured skins get 3× weight
     const copies = featuredIds.includes(skin.id) ? w * 3 : w;
