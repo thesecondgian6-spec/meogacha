@@ -2862,12 +2862,12 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 /* Bottom fade into dock — reduced so featured cards remain visible */
 .gp-stage-bottom-fade {
   position: absolute; bottom: 0; left: 0; right: 0; z-index: 6;
-  height: 80px;
+  height: 100px;
   background: linear-gradient(to bottom,
     transparent 0%,
-    rgba(5,2,16,0.15) 50%,
-    rgba(5,2,16,0.45) 80%,
-    var(--bg) 100%
+    rgba(5,2,16,0.2) 40%,
+    rgba(5,2,16,0.6) 80%,
+    rgba(5,2,16,0.97) 100%
   );
   pointer-events: none;
 }
@@ -3104,10 +3104,12 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .gp-feat-card-stars { font-size: 0.44em; display: block; margin-top: 2px; }
 .gp-feat-rateup {
   position: absolute; top: 5px; left: 0;
-  background: linear-gradient(135deg, var(--pink-deep), var(--purple));
+  background: linear-gradient(135deg, #c0116a, #9b21a0);
   color: #fff; font-family: "JetBrains Mono", monospace;
   font-size: 0.34em; font-weight: 700;
-  padding: 2px 5px 2px 4px; border-radius: 0 4px 4px 0;
+  padding: 2px 6px 2px 5px; border-radius: 0 5px 5px 0;
+  letter-spacing: 0.06em;
+  box-shadow: 0 2px 8px rgba(180,20,100,0.5);
 }
 .gp-rateup-note { font-size: 0.58em; color: rgba(255,255,255,0.25); font-style: italic; }
 
@@ -3195,97 +3197,154 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 
 /* ══ DOCK: pity bars + drop rates only ══ */
 .gp-dock {
-  background: linear-gradient(180deg, rgba(5,2,16,0.96) 0%, var(--bg) 100%);
-  padding: 14px clamp(14px,4vw,28px) 16px;
-  display: flex; flex-direction: column; gap: 12px;
-  border-top: 1px solid rgba(255,157,199,0.06);
+  background: linear-gradient(180deg, rgba(5,2,16,0.98) 0%, rgba(8,4,22,1) 100%);
+  padding: 0 0 4px;
+  display: flex; flex-direction: column; gap: 0;
+  position: relative;
+  border-top: 1px solid rgba(255,157,199,0.18);
+}
+/* Glowing top accent line */
+.gp-dock::before {
+  content: '';
+  position: absolute; top: -1px; left: 10%; right: 10%; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,157,199,0.7) 30%, rgba(192,132,255,0.8) 50%, rgba(255,157,199,0.7) 70%, transparent);
+  box-shadow: 0 0 12px rgba(255,157,199,0.4), 0 0 28px rgba(192,132,255,0.2);
+}
+
+/* Pity row: sits in a frosted strip */
+.gp-dock-pity-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px clamp(14px,4vw,24px) 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  background: rgba(255,157,199,0.02);
 }
 
 /* Pity bars: 2-col */
 .gp-pity-mini {
-  display: grid; grid-template-columns: 1fr 1fr; gap: 6px 16px;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 6px 20px;
+  flex: 1;
 }
-.gp-pity-bar-wrap { display: flex; align-items: center; gap: 7px; }
-.gp-pity-label { font-family: "JetBrains Mono", monospace; font-size: 0.54em; color: rgba(255,255,255,0.38); white-space: nowrap; width: 46px; flex-shrink: 0; }
-.gp-pity-track { flex: 1; height: 5px; background: rgba(255,255,255,0.07); border-radius: 3px; overflow: hidden; }
+.gp-pity-bar-wrap { display: flex; align-items: center; gap: 8px; }
+.gp-pity-label {
+  font-family: "JetBrains Mono", monospace; font-size: 0.52em;
+  color: rgba(255,255,255,0.45); white-space: nowrap; width: 50px; flex-shrink: 0;
+  letter-spacing: 0.04em;
+}
+.gp-pity-track {
+  flex: 1; height: 6px; background: rgba(255,255,255,0.06);
+  border-radius: 3px; overflow: hidden;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.5);
+}
 .gp-pity-fill { height: 100%; border-radius: 3px; transition: width 0.7s ease; }
-.gp-pity-fill.sr { background: linear-gradient(90deg, #9b59b6, #e088d4); box-shadow: 0 0 6px rgba(155,89,182,0.5); }
-.gp-pity-fill.ur { background: linear-gradient(90deg, #f1c40f, #ff9dc7); box-shadow: 0 0 6px rgba(241,196,15,0.45); }
-.gp-pity-num { font-family: "JetBrains Mono", monospace; font-size: 0.52em; color: rgba(255,255,255,0.32); white-space: nowrap; width: 32px; text-align: right; }
+.gp-pity-fill.sr {
+  background: linear-gradient(90deg, #9b59b6, #e088d4);
+  box-shadow: 0 0 8px rgba(224,136,212,0.6);
+}
+.gp-pity-fill.ur {
+  background: linear-gradient(90deg, #c8960a, #f1c40f, #ffe08a);
+  box-shadow: 0 0 8px rgba(241,196,15,0.55);
+}
+.gp-pity-num {
+  font-family: "JetBrains Mono", monospace; font-size: 0.5em;
+  color: rgba(255,255,255,0.38); white-space: nowrap; width: 34px; text-align: right;
+}
 
 /* Pull buttons: vertical stack */
 .gp-pull-row {
-  display: flex; flex-direction: column; gap: 5px;
+  display: flex; flex-direction: column; gap: 6px;
 }
 .gp-wish-btn {
   position: relative; display: flex; align-items: center; justify-content: space-between;
-  padding: 7px 11px; border-radius: 10px;
-  border: 1px solid rgba(255,157,199,0.42);
-  background: linear-gradient(135deg, rgba(30,10,50,0.9), rgba(60,20,80,0.8));
+  padding: 9px 14px; border-radius: 12px;
+  border: 1px solid rgba(255,157,199,0.45);
+  background: linear-gradient(135deg, rgba(28,8,48,0.95), rgba(58,16,82,0.85));
   color: #fff; cursor: pointer; font-family: "Cinzel Decorative", serif;
   transition: all 0.22s; overflow: hidden;
-  box-shadow: 0 4px 22px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.1);
-  max-width: 175px; width: 100%;
+  box-shadow: 0 4px 22px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.12), inset 0 -1px 0 rgba(0,0,0,0.3);
+  max-width: 200px; width: 100%;
 }
 .gp-wish-btn::after {
   content: ""; position: absolute; inset: 0;
-  background: linear-gradient(105deg, transparent 30%, rgba(255,157,199,0.15) 50%, transparent 70%);
+  background: linear-gradient(105deg, transparent 30%, rgba(255,157,199,0.18) 50%, transparent 70%);
   background-size: 200% 100%; background-position: 200% 0;
   transition: background-position 0.5s ease; pointer-events: none;
 }
-.gp-wish-btn:hover { transform: translateY(-2px); border-color: var(--pink); box-shadow: 0 8px 28px rgba(255,157,199,0.28); }
+.gp-wish-btn:hover { transform: translateY(-2px); border-color: var(--pink); box-shadow: 0 8px 32px rgba(255,157,199,0.32), 0 0 0 1px rgba(255,157,199,0.2); }
 .gp-wish-btn:hover::after { background-position: -200% 0; }
-.gp-wish-btn:active { transform: scale(0.98); }
+.gp-wish-btn:active { transform: scale(0.97); }
 .gp-wish-btn-10 {
-  background: linear-gradient(135deg, rgba(35,22,5,0.9), rgba(65,42,8,0.8));
-  border-color: rgba(241,196,15,0.48);
-  box-shadow: 0 4px 22px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.1);
+  background: linear-gradient(135deg, rgba(32,20,4,0.95), rgba(68,42,6,0.88));
+  border-color: rgba(241,196,15,0.52);
+  box-shadow: 0 4px 22px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.12), inset 0 -1px 0 rgba(0,0,0,0.3);
 }
 .gp-wish-btn-10::after {
-  background: linear-gradient(105deg, transparent 30%, rgba(241,196,15,0.18) 50%, transparent 70%);
+  background: linear-gradient(105deg, transparent 30%, rgba(241,196,15,0.2) 50%, transparent 70%);
   background-size: 200% 100%; background-position: 200% 0;
 }
-.gp-wish-btn-10:hover { border-color: #f1c40f; box-shadow: 0 8px 28px rgba(241,196,15,0.3); }
+.gp-wish-btn-10:hover { border-color: #f1c40f; box-shadow: 0 8px 32px rgba(241,196,15,0.32), 0 0 0 1px rgba(241,196,15,0.2); }
 .gp-wish-btn-10:hover::after { background-position: -200% 0; }
-.gp-wish-btn-left { display: flex; align-items: center; gap: 6px; }
-.gpb-icon { font-size: 0.62em; opacity: 0.7; letter-spacing: 0.04em; }
-.gpb-text { font-size: 0.68em; white-space: nowrap; }
-.gpb-cost { font-family: "JetBrains Mono", monospace; font-size: 0.58em; color: rgba(255,215,100,0.82); }
+.gp-wish-btn-left { display: flex; align-items: center; gap: 7px; }
+.gpb-icon { font-size: 0.65em; opacity: 0.75; letter-spacing: 0.04em; }
+.gpb-text { font-size: 0.7em; white-space: nowrap; }
+.gpb-cost { font-family: "JetBrains Mono", monospace; font-size: 0.6em; color: rgba(255,215,100,0.88); display: flex; align-items: center; gap: 3px; }
 
-/* View Pool: full-width subtle button */
+/* View Pool: full-width styled button */
 .gp-pool-btn {
-  background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1);
-  color: rgba(255,255,255,0.42); padding: 8px 18px; border-radius: 10px;
-  font-family: "Cormorant Garamond", serif; font-size: 0.82em;
-  cursor: pointer; transition: all 0.2s; text-align: center;
-  display: flex; align-items: center; justify-content: center; gap: 6px;
-  align-self: flex-start;
+  background: linear-gradient(135deg, rgba(255,157,199,0.06), rgba(192,132,255,0.04));
+  border: 1px solid rgba(255,157,199,0.22);
+  color: rgba(255,200,230,0.7); padding: 9px 18px; border-radius: 10px;
+  font-family: "Cinzel Decorative", serif; font-size: 0.62em; letter-spacing: 0.08em;
+  cursor: pointer; transition: all 0.22s; text-align: center;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  width: 100%; position: relative; overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.06);
 }
-.gp-pool-btn:hover { border-color: rgba(255,157,199,0.35); color: var(--pink); background: rgba(255,157,199,0.05); }
+.gp-pool-btn::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(105deg, transparent 35%, rgba(255,157,199,0.1) 50%, transparent 65%);
+  background-size: 200% 100%; background-position: 200% 0;
+  transition: background-position 0.5s ease; pointer-events: none;
+}
+.gp-pool-btn:hover { border-color: rgba(255,157,199,0.5); color: var(--pink); background: linear-gradient(135deg, rgba(255,157,199,0.1), rgba(192,132,255,0.07)); box-shadow: 0 4px 20px rgba(255,157,199,0.18); }
+.gp-pool-btn:hover::after { background-position: -200% 0; }
+
+/* Pool + Rates wrapper */
+.gp-dock-bottom {
+  padding: 12px clamp(14px,4vw,24px) 14px;
+  display: flex; flex-direction: column; gap: 10px;
+}
 
 /* Rates */
 .gp-rates-wrap {
-  border-top: 1px solid rgba(255,255,255,0.04);
-  padding-top: 10px;
+  background: rgba(255,255,255,0.018);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 12px;
+  padding: 10px 12px;
 }
 .gp-rates-heading {
-  font-family: "JetBrains Mono", monospace; font-size: 0.5em;
-  letter-spacing: 0.12em; color: rgba(255,255,255,0.18); text-transform: uppercase;
-  margin-bottom: 6px;
+  font-family: "JetBrains Mono", monospace; font-size: 0.48em;
+  letter-spacing: 0.14em; color: rgba(255,255,255,0.22); text-transform: uppercase;
+  margin-bottom: 8px; display: flex; align-items: center; gap: 6px;
 }
-.gp-rates-heading::before { content: "✦ "; color: var(--pink); opacity: 0.45; }
-.gp-rates-grid { display: flex; flex-wrap: wrap; gap: 5px; }
+.gp-rates-heading::before { content: "✦"; color: var(--pink); opacity: 0.6; font-size: 1em; }
+.gp-rates-heading::after { content: ""; flex: 1; height: 1px; background: rgba(255,255,255,0.05); margin-left: 4px; }
+.gp-rates-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
 .gp-rate-item {
-  display: flex; align-items: center; gap: 4px;
-  padding: 3px 8px 3px 6px; border-radius: 14px;
-  border: 1px solid rgba(var(--rc),0.22); background: rgba(var(--rc),0.05);
-  cursor: default; transition: background 0.14s;
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  padding: 5px 4px 6px; border-radius: 8px;
+  border: 1px solid rgba(var(--rc),0.18); background: rgba(var(--rc),0.04);
+  cursor: default; transition: all 0.16s;
 }
-.gp-rate-item:hover { background: rgba(var(--rc),0.14); }
-.gp-rate-dot { width: 5px; height: 5px; border-radius: 50%; background: rgba(var(--rc),1); box-shadow: 0 0 4px rgba(var(--rc),0.55); flex-shrink: 0; }
-.gp-rate-tag { font-family: "JetBrains Mono", monospace; font-size: 0.64em; font-weight: 700; }
-.gp-rate-pct { font-family: "JetBrains Mono", monospace; font-size: 0.6em; color: rgba(255,255,255,0.38); }
-.gp-rates-note { font-size: 0.54em; color: rgba(255,255,255,0.13); font-style: italic; font-family: "JetBrains Mono", monospace; margin-top: 6px; }
+.gp-rate-item:hover { background: rgba(var(--rc),0.12); transform: translateY(-2px); border-color: rgba(var(--rc),0.4); }
+.gp-rate-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(var(--rc),1); box-shadow: 0 0 6px rgba(var(--rc),0.7); flex-shrink: 0; }
+.gp-rate-tag { font-family: "JetBrains Mono", monospace; font-size: 0.6em; font-weight: 700; }
+.gp-rate-pct { font-family: "JetBrains Mono", monospace; font-size: 0.62em; color: rgba(255,255,255,0.5); font-weight: 600; }
+.gp-rates-note {
+  font-size: 0.5em; color: rgba(255,255,255,0.16); font-style: italic;
+  font-family: "JetBrains Mono", monospace; margin-top: 7px;
+  text-align: center; letter-spacing: 0.04em;
+}
 
 /* Hide old tab elements */
 .gp-tabs-wrap { display: none !important; }
@@ -3311,9 +3370,11 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   .gp-char-slide img { height: 100%; }
   .gp-banner-picker-btn { top: 10px; right: 10px; font-size: 0.58em; }
   .gp-banner-picker-btn .gpb-active-name { max-width: 68px; }
-  .gp-dock { padding: 10px 14px 12px; gap: 8px; }
+  .gp-dock { padding: 0 0 2px; }
+  .gp-dock-pity-row { padding: 8px 14px 9px; gap: 8px; }
+  .gp-dock-bottom { padding: 10px 14px 12px; gap: 8px; }
   .gp-pity-mini { grid-template-columns: 1fr 1fr; gap: 5px 12px; }
-  .gp-wish-btn, .gp-pool-btn { max-width: 200px; padding: 8px 12px; }
+  .gp-wish-btn, .gp-pool-btn { max-width: 220px; padding: 9px 13px; }
   .gpb-text { font-size: 0.72em; }
   .gpb-cost { font-size: 0.6em; }
 }
@@ -12216,40 +12277,47 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
     <!-- ══ BOTTOM DOCK: Pity + Drop Rates only ══ -->
     <div class="gp-dock">
 
-      <!-- Pity bars -->
-      <div class="gp-pity-mini" id="gpPityMini">
-        <div class="gp-pity-bar-wrap">
-          <div class="gp-pity-label">SSR Pity</div>
-          <div class="gp-pity-track"><div class="gp-pity-fill sr" id="gpPitySRBar"></div></div>
-          <div class="gp-pity-num" id="gpPitySRNum">0/40</div>
-        </div>
-        <div class="gp-pity-bar-wrap">
-          <div class="gp-pity-label">UR Pity</div>
-          <div class="gp-pity-track"><div class="gp-pity-fill ur" id="gpPityURBar"></div></div>
-          <div class="gp-pity-num" id="gpPityURNum">0/80</div>
+      <!-- Pity row -->
+      <div class="gp-dock-pity-row">
+        <div class="gp-pity-mini" id="gpPityMini">
+          <div class="gp-pity-bar-wrap">
+            <div class="gp-pity-label">SSR Pity</div>
+            <div class="gp-pity-track"><div class="gp-pity-fill sr" id="gpPitySRBar"></div></div>
+            <div class="gp-pity-num" id="gpPitySRNum">0/40</div>
+          </div>
+          <div class="gp-pity-bar-wrap">
+            <div class="gp-pity-label">UR Pity</div>
+            <div class="gp-pity-track"><div class="gp-pity-fill ur" id="gpPityURBar"></div></div>
+            <div class="gp-pity-num" id="gpPityURNum">0/80</div>
+          </div>
         </div>
       </div>
 
-      <!-- View Pool -->
-      <button class="gp-pool-btn" onclick="openPoolView()">🃏 View Pool</button>
+      <!-- Pool + Rates -->
+      <div class="gp-dock-bottom">
 
-      <!-- Drop rates only -->
-      <div class="gp-rates-wrap">
-        <div class="gp-rates-heading">Drop Rates</div>
-        <div class="gp-rates-grid">
-          <div class="gp-rate-item" style="--rc:189,195,199"><span class="gp-rate-dot"></span><span class="gp-rate-tag rN">[N]</span><span class="gp-rate-pct">42.6%</span></div>
-          <div class="gp-rate-item" style="--rc:46,204,113"><span class="gp-rate-dot"></span><span class="gp-rate-tag rR">[R]</span><span class="gp-rate-pct">29.8%</span></div>
-          <div class="gp-rate-item" style="--rc:52,152,219"><span class="gp-rate-dot"></span><span class="gp-rate-tag rSR">[SR]</span><span class="gp-rate-pct">17.0%</span></div>
-          <div class="gp-rate-item" style="--rc:155,89,182"><span class="gp-rate-dot"></span><span class="gp-rate-tag rSSR">[SSR]</span><span class="gp-rate-pct">6.4%</span></div>
-          <div class="gp-rate-item" style="--rc:241,196,15"><span class="gp-rate-dot"></span><span class="gp-rate-tag rUR">[UR]</span><span class="gp-rate-pct">2.1%</span></div>
-          <div class="gp-rate-item" style="--rc:255,107,157"><span class="gp-rate-dot"></span><span class="gp-rate-tag rLR">[LR]</span><span class="gp-rate-pct">0.9%</span></div>
-          <div class="gp-rate-item" style="--rc:255,100,200">
-            <span class="gp-rate-dot" style="background:linear-gradient(135deg,#ff79c6,#bd93f9);box-shadow:0 0 6px rgba(255,120,200,0.8)"></span>
-            <span class="gp-rate-tag" style="-webkit-text-fill-color:transparent;background:var(--rainbow);background-size:200%;-webkit-background-clip:text;animation:rainbowShift 2.5s linear infinite">[???]</span>
-            <span class="gp-rate-pct">0.4%</span>
+        <!-- View Pool -->
+        <button class="gp-pool-btn" onclick="openPoolView()">🃏 View Card Pool</button>
+
+        <!-- Drop rates -->
+        <div class="gp-rates-wrap">
+          <div class="gp-rates-heading">Drop Rates</div>
+          <div class="gp-rates-grid">
+            <div class="gp-rate-item" style="--rc:189,195,199"><span class="gp-rate-dot"></span><span class="gp-rate-tag rN">[N]</span><span class="gp-rate-pct">42.6%</span></div>
+            <div class="gp-rate-item" style="--rc:46,204,113"><span class="gp-rate-dot"></span><span class="gp-rate-tag rR">[R]</span><span class="gp-rate-pct">29.8%</span></div>
+            <div class="gp-rate-item" style="--rc:52,152,219"><span class="gp-rate-dot"></span><span class="gp-rate-tag rSR">[SR]</span><span class="gp-rate-pct">17.0%</span></div>
+            <div class="gp-rate-item" style="--rc:155,89,182"><span class="gp-rate-dot"></span><span class="gp-rate-tag rSSR">[SSR]</span><span class="gp-rate-pct">6.4%</span></div>
+            <div class="gp-rate-item" style="--rc:241,196,15"><span class="gp-rate-dot"></span><span class="gp-rate-tag rUR">[UR]</span><span class="gp-rate-pct">2.1%</span></div>
+            <div class="gp-rate-item" style="--rc:255,107,157"><span class="gp-rate-dot"></span><span class="gp-rate-tag rLR">[LR]</span><span class="gp-rate-pct">0.9%</span></div>
+            <div class="gp-rate-item" style="--rc:255,100,200">
+              <span class="gp-rate-dot" style="background:linear-gradient(135deg,#ff79c6,#bd93f9);box-shadow:0 0 6px rgba(255,120,200,0.8)"></span>
+              <span class="gp-rate-tag" style="-webkit-text-fill-color:transparent;background:var(--rainbow);background-size:200%;-webkit-background-clip:text;animation:rainbowShift 2.5s linear infinite">[???]</span>
+              <span class="gp-rate-pct">0.4%</span>
+            </div>
           </div>
+          <p class="gp-rates-note">✦ 10-pull guarantees SR+ &nbsp;·&nbsp; pity tracked per banner</p>
         </div>
-        <p class="gp-rates-note">✦ 10-pull guarantees SR+ &nbsp;·&nbsp; pity tracked per banner</p>
+
       </div>
 
     </div><!-- end gp-dock -->
