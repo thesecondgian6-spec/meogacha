@@ -30299,7 +30299,7 @@ function openPlayerModal(player){
     const showcaseCards = showcaseIds.map(id=>(window.DEMO_CARDS||[]).find(c=>String(c.id)===String(id))).filter(Boolean);
     if(showcaseCards.length){
       showcaseHtml = `<div style="margin-bottom:14px;">
-        <div style="font-size:0.65em;color:var(--text-dim);letter-spacing:0.1em;margin-bottom:8px;text-transform:uppercase;">✦ Showcase</div>
+        <div style="font-size:0.6em;color:rgba(255,255,255,0.35);letter-spacing:0.1em;margin-bottom:10px;text-transform:uppercase;font-family:'JetBrains Mono',monospace;">✦ Showcase</div>
         <div style="display:flex;gap:12px;justify-content:center;">
           ${showcaseCards.map(c=>{
             const rc=RARITY_COLORS[c.rarity]||'#bdc3c7';
@@ -30324,13 +30324,15 @@ function openPlayerModal(player){
   const musicUrl = player.profile_music||'';
   const modalMusicTitleId = 'ppm-music-title-'+Date.now();
   const musicHtml = musicUrl ? `
-    <div style="display:flex;align-items:center;gap:8px;background:rgba(255,157,199,0.06);border:1px solid var(--border);
-      border-radius:10px;padding:8px 12px;margin-bottom:12px;">
-      <button onclick="toggleModalMusic('${escapeHtml(musicUrl)}',this)" style="width:28px;height:28px;border-radius:50%;border:1px solid var(--pink);
-        background:rgba(255,157,199,0.12);color:var(--pink);font-size:0.78em;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;">▶</button>
+    <div style="display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);
+      border-radius:12px;padding:10px 14px;margin-bottom:14px;">
+      <button onclick="toggleModalMusic('${escapeHtml(musicUrl)}',this)" style="width:32px;height:32px;border-radius:50%;
+        border:1px solid rgba(255,157,199,0.5);
+        background:rgba(255,157,199,0.12);color:var(--pink);font-size:0.85em;cursor:pointer;flex-shrink:0;
+        display:flex;align-items:center;justify-content:center;">▶</button>
       <div style="flex:1;min-width:0;">
-        <div style="font-size:0.6em;color:var(--text-dim);letter-spacing:.06em;margin-bottom:1px;">🎵 PROFILE MUSIC</div>
-        <div id="${modalMusicTitleId}" style="font-size:0.75em;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+        <div style="font-size:0.58em;color:rgba(255,255,255,0.35);letter-spacing:.1em;text-transform:uppercase;margin-bottom:2px;">🎵 Profile Music</div>
+        <div id="${modalMusicTitleId}" style="font-size:0.78em;color:rgba(255,255,255,0.8);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
           ${escapeHtml(getMusicTitle(musicUrl))}
         </div>
       </div>
@@ -30349,50 +30351,72 @@ function openPlayerModal(player){
   content.innerHTML = `
     <div style="
       background:${modalCardBg};
-      border:1px solid var(--border); border-radius:24px;
-      max-width:480px; width:100%;
+      border:1px solid rgba(255,255,255,0.08);
+      border-radius:20px;
+      max-width:460px; width:100%;
       animation:modalIn 0.3s cubic-bezier(0.34,1.56,0.64,1);
       overflow:hidden; position:relative;
+      box-shadow:0 24px 64px rgba(0,0,0,0.8);
     ">
-      <!-- Banner -->
-      <div style="height:130px; width:100%; background:${bannerBg}; position:relative; flex-shrink:0;">
-        <div style="position:absolute;inset:0;background:linear-gradient(to bottom,transparent 40%,rgba(13,6,16,0.85) 100%);"></div>
+      <!-- Banner + close -->
+      <div style="height:150px;width:100%;background:${bannerBg};position:relative;flex-shrink:0;">
+        <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0.1) 0%,rgba(0,0,0,0.55) 100%);"></div>
         <button onclick="closePlayerModal()" style="
-          position:absolute;top:10px;right:12px;
-          background:rgba(0,0,0,0.5);border:none;color:#fff;
-          width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:0.9em;
-          backdrop-filter:blur(4px); z-index:2;">✕</button>
+          position:absolute;top:12px;right:12px;
+          background:rgba(0,0,0,0.45);border:1px solid rgba(255,255,255,0.15);color:#fff;
+          width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:1em;
+          backdrop-filter:blur(6px);z-index:2;display:flex;align-items:center;justify-content:center;line-height:1;">✕</button>
       </div>
 
-      <!-- Avatar + actions -->
-      <div style="padding:0 22px 22px;">
-        <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-top:-40px;margin-bottom:12px;position:relative;z-index:2;">
-          <div style="position:relative;">
+      <!-- Avatar row — overlaps banner -->
+      <div style="padding:0 20px 20px;">
+        <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-top:-44px;margin-bottom:14px;position:relative;z-index:2;">
+          <!-- Avatar with online dot -->
+          <div style="position:relative;flex-shrink:0;">
             <img src="${player.profile_thumbnail||player.avatar||'https://cdn.discordapp.com/embed/avatars/0.png'}"
-              style="width:80px;height:80px;border-radius:50%;border:3px solid var(--bg2);
-                     object-fit:cover;background:var(--bg2);display:block;
-                     box-shadow:0 4px 20px rgba(0,0,0,0.6);"
+              style="width:88px;height:88px;border-radius:50%;
+                     border:4px solid #0d0d0d;
+                     object-fit:cover;background:#111;display:block;
+                     box-shadow:0 4px 24px rgba(0,0,0,0.7);"
               onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'"/>
-            <div style="position:absolute;bottom:3px;right:3px;width:14px;height:14px;
-              border-radius:50%;background:#3ba55d;border:2px solid var(--bg2);"></div>
+            <div style="position:absolute;bottom:4px;right:4px;width:16px;height:16px;
+              border-radius:50%;background:#3ba55d;border:3px solid #0d0d0d;"></div>
           </div>
-          <div style="display:flex;gap:7px;padding-bottom:4px;">
-            <button class="btn-primary" style="font-size:0.72em;padding:7px 14px;"
-              onclick="challengeToPvp('${player.discord_id}');closePlayerModal()">⚔️ Challenge</button>
-            <button class="btn-secondary" style="font-size:0.72em;padding:7px 14px;"
-              onclick="openTradeWithPlayer('${player.discord_id}');closePlayerModal()">🔄 Trade</button>
+          <!-- Action buttons -->
+          <div style="display:flex;gap:8px;padding-bottom:6px;">
+            <button onclick="challengeToPvp('${player.discord_id}');closePlayerModal()" style="
+              background:linear-gradient(135deg,var(--pink-deep),var(--purple));
+              border:none;color:#fff;padding:9px 16px;border-radius:12px;
+              font-family:'Cinzel Decorative',serif;font-size:0.65em;
+              cursor:pointer;letter-spacing:0.04em;
+              box-shadow:0 4px 14px rgba(224,96,138,0.4);
+              transition:opacity .2s;" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">⚔️ Challenge</button>
+            <button onclick="openTradeWithPlayer('${player.discord_id}');closePlayerModal()" style="
+              background:rgba(255,255,255,0.08);
+              border:1px solid rgba(255,255,255,0.15);color:var(--text);
+              padding:9px 16px;border-radius:12px;
+              font-family:'Cinzel Decorative',serif;font-size:0.65em;
+              cursor:pointer;letter-spacing:0.04em;
+              transition:background .2s;" onmouseover="this.style.background='rgba(255,255,255,0.14)'" onmouseout="this.style.background='rgba(255,255,255,0.08)'">🔄 Trade</button>
           </div>
         </div>
 
-        <!-- Name & title -->
-        <div style="margin-bottom:4px;">
-          <div style="font-family:'Cinzel Decorative',serif;font-size:1.05em;color:var(--pink-pale);line-height:1.2;">${escapeHtml(name)}</div>
-          ${player.username && player.display_name ? `<div style="font-size:0.75em;color:var(--text-dim);font-family:'JetBrains Mono',monospace;margin-top:1px;">@${escapeHtml(player.username)}</div>` : ''}
+        <!-- Name, username, title -->
+        <div style="margin-bottom:3px;">
+          <span style="font-family:'Cinzel Decorative',serif;font-size:1.15em;color:#fff;font-weight:700;">${escapeHtml(name)}</span>
+          ${player.username && player.display_name ? `<span style="font-size:0.72em;color:rgba(255,255,255,0.4);font-family:'JetBrains Mono',monospace;margin-left:8px;">@${escapeHtml(player.username)}</span>` : ''}
         </div>
-        <div style="font-size:0.82em;color:var(--pink);font-style:italic;margin-bottom:12px;">${escapeHtml(player.active_title||'✦ Summoner ✦')}</div>
+        <div style="font-size:0.82em;color:var(--pink);font-style:italic;margin-bottom:14px;opacity:0.9;">${escapeHtml(player.active_title||'✦ Summoner ✦')}</div>
 
-        <!-- Bio -->
-        ${player.bio ? `<div style="font-size:0.87em;color:var(--text-dim);line-height:1.55;margin-bottom:12px;padding:10px 12px;background:rgba(255,157,199,0.04);border-radius:10px;border:1px solid var(--border);">${escapeHtml(player.bio)}</div>` : ''}
+        <!-- Thin divider -->
+        <div style="height:1px;background:rgba(255,255,255,0.07);margin-bottom:14px;"></div>
+
+        <!-- About Me -->
+        ${player.bio ? `
+        <div style="margin-bottom:14px;">
+          <div style="font-size:0.62em;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.35);font-family:'JetBrains Mono',monospace;margin-bottom:6px;">About Me</div>
+          <div style="font-size:0.86em;color:rgba(255,255,255,0.7);line-height:1.6;padding:10px 12px;background:rgba(255,255,255,0.04);border-radius:10px;border:1px solid rgba(255,255,255,0.07);">${escapeHtml(player.bio)}</div>
+        </div>` : ''}
 
         <!-- Music player -->
         ${musicHtml}
@@ -30400,33 +30424,33 @@ function openPlayerModal(player){
         <!-- Showcase cards -->
         ${showcaseHtml}
 
-        <!-- Stats -->
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;">
-          <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:10px 8px;text-align:center;">
-            <div style="font-family:'JetBrains Mono',monospace;font-size:1.1em;font-weight:700;color:var(--pink);">${wins}</div>
-            <div style="font-size:0.62em;color:var(--text-dim);margin-top:2px;letter-spacing:0.04em;">PvP WINS</div>
+        <!-- Stats row -->
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;">
+          <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:12px 8px;text-align:center;">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:1.15em;font-weight:700;color:var(--pink);">${wins}</div>
+            <div style="font-size:0.6em;color:rgba(255,255,255,0.38);margin-top:3px;letter-spacing:0.06em;text-transform:uppercase;">PvP Wins</div>
           </div>
-          <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:10px 8px;text-align:center;">
-            <div style="font-family:'JetBrains Mono',monospace;font-size:1.1em;font-weight:700;color:var(--gold);">${winRate}%</div>
-            <div style="font-size:0.62em;color:var(--text-dim);margin-top:2px;letter-spacing:0.04em;">WIN RATE</div>
+          <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:12px 8px;text-align:center;">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:1.15em;font-weight:700;color:var(--gold);">${winRate}%</div>
+            <div style="font-size:0.6em;color:rgba(255,255,255,0.38);margin-top:3px;letter-spacing:0.06em;text-transform:uppercase;">Win Rate</div>
           </div>
-          <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:10px 8px;text-align:center;">
-            <div style="font-family:'JetBrains Mono',monospace;font-size:1.1em;font-weight:700;color:var(--purple);">${losses}</div>
-            <div style="font-size:0.62em;color:var(--text-dim);margin-top:2px;letter-spacing:0.04em;">LOSSES</div>
+          <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:12px 8px;text-align:center;">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:1.15em;font-weight:700;color:rgba(255,255,255,0.5);">${losses}</div>
+            <div style="font-size:0.6em;color:rgba(255,255,255,0.38);margin-top:3px;letter-spacing:0.06em;text-transform:uppercase;">Losses</div>
           </div>
         </div>
 
         <!-- Equipped card -->
         ${equip ? `
-        <div style="background:rgba(255,157,199,0.05);border:1px solid rgba(255,157,199,0.15);
-          border-radius:12px;padding:10px 12px;display:flex;gap:12px;align-items:center;margin-bottom:10px;">
-          <img src="${equip.thumbnail||equip.image}" style="width:44px;height:62px;border-radius:7px;
-            object-fit:cover;border:2px solid var(--pink);flex-shrink:0;"
+        <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);
+          border-radius:12px;padding:12px;display:flex;gap:12px;align-items:center;margin-bottom:12px;">
+          <img src="${equip.thumbnail||equip.image}" style="width:46px;height:64px;border-radius:8px;
+            object-fit:cover;border:2px solid ${RARITY_COLORS[equip.rarity]||'var(--pink)'};flex-shrink:0;box-shadow:0 4px 12px rgba(0,0,0,0.5);"
             onerror="this.style.display='none'"/>
           <div style="flex:1;min-width:0;">
-            <div style="font-size:0.62em;color:var(--text-dim);letter-spacing:0.08em;margin-bottom:3px;">EQUIPPED CARD</div>
-            <div style="font-weight:600;font-size:0.88em;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(equip.name)}</div>
-            <div style="font-size:0.72em;color:var(--text-dim);margin-top:2px;">${escapeHtml(equip.rarityName||'')} ${equip.rarityStars||''}</div>
+            <div style="font-size:0.6em;color:rgba(255,255,255,0.35);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:4px;">Equipped Card</div>
+            <div style="font-weight:700;font-size:0.9em;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(equip.name)}</div>
+            <div style="font-size:0.72em;color:${RARITY_COLORS[equip.rarity]||'var(--pink)'};margin-top:3px;">${escapeHtml(equip.rarityName||'')} ${equip.rarityStars||''}</div>
           </div>
         </div>` : ''}
 
@@ -30450,18 +30474,18 @@ function openPlayerModal(player){
       if(rooms&&rooms.length){
         const r=rooms.find(x=>x.is_public)||null;
         if(r){
-          el.innerHTML=`<div onclick="closePlayerModal();joinRoomFromProfile('${r.id}','${(r.name||'').replace(/\\/g,'').replace(/'/g,'')}',true)" style="display:flex;align-items:center;gap:10px;
-            background:rgba(255,157,199,0.04);border:1px solid var(--border);border-radius:12px;
-            padding:10px 14px;cursor:pointer;transition:all .2s;margin-top:2px;"
-            onmouseover="this.style.borderColor='var(--pink)';this.style.background='rgba(255,157,199,0.1)'"
-            onmouseout="this.style.borderColor='var(--border)';this.style.background='rgba(255,157,199,0.04)'">
-            <div style="width:36px;height:36px;border-radius:9px;background:rgba(255,157,199,0.1);
-              border:1px solid rgba(255,157,199,0.2);display:flex;align-items:center;justify-content:center;font-size:1.1em;flex-shrink:0;">🏠</div>
+          el.innerHTML=`<div onclick="closePlayerModal();joinRoomFromProfile('${r.id}','${(r.name||'').replace(/\\/g,'').replace(/'/g,'')}'  ,true)" style="display:flex;align-items:center;gap:12px;
+            background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;
+            padding:12px 14px;cursor:pointer;transition:all .2s;"
+            onmouseover="this.style.background='rgba(255,255,255,0.09)';this.style.borderColor='rgba(255,157,199,0.35)'"
+            onmouseout="this.style.background='rgba(255,255,255,0.04)';this.style.borderColor='rgba(255,255,255,0.08)'">
+            <div style="width:38px;height:38px;border-radius:10px;background:rgba(255,157,199,0.12);
+              border:1px solid rgba(255,157,199,0.2);display:flex;align-items:center;justify-content:center;font-size:1.2em;flex-shrink:0;">🏠</div>
             <div style="flex:1;min-width:0;">
-              <div style="font-size:0.82em;color:var(--text);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(r.name||"Player's Room")}</div>
-              <div style="font-size:0.68em;color:var(--text-dim);margin-top:1px;">🌐 Public Room · Tap to join</div>
+              <div style="font-size:0.84em;color:#fff;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(r.name||"Player's Room")}</div>
+              <div style="font-size:0.66em;color:rgba(255,255,255,0.4);margin-top:2px;">🌐 Public Room · Tap to enter</div>
             </div>
-            <div style="color:var(--pink);font-size:1em;">›</div>
+            <div style="color:var(--pink);font-size:1.1em;opacity:0.7;">›</div>
           </div>`;
         }
       }
