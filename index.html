@@ -214,7 +214,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .card-thumb-rarity{font-size:0.75em;color:var(--text-dim);}
 .card-thumb-badge{position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.75);border-radius:6px;padding:2px 6px;font-size:0.7em;font-family:'JetBrains Mono',monospace;backdrop-filter:blur(4px);}
 .card-thumb-lvl{position:absolute;bottom:44px;left:8px;background:rgba(0,0,0,0.75);border-radius:6px;padding:2px 8px;font-size:0.7em;font-family:'JetBrains Mono',monospace;color:#f1c40f;backdrop-filter:blur(4px);}
-.card-thumb-series-logo{position:absolute;top:5px;left:5px;height:13px;width:auto;max-width:38px;object-fit:contain;filter:drop-shadow(0 1px 3px rgba(0,0,0,0.95));z-index:2;pointer-events:none;}
+.card-thumb-series-logo{position:absolute;top:4px;left:4px;height:10px;width:auto;max-width:28px;object-fit:contain;filter:drop-shadow(0 1px 3px rgba(0,0,0,0.95));z-index:2;pointer-events:none;}
 /* ══ CARD MODAL v2 — TABBED ══ */
 #cardModal{position:fixed;inset:0;z-index:300;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.88);backdrop-filter:blur(8px);padding:12px;}
 #cardModal.active{display:flex;}
@@ -224,17 +224,17 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 
 /* Hero art */
 .cm-hero{position:relative;flex-shrink:0;overflow:hidden;}
-.cm-hero-art{width:100%;aspect-ratio:16/7;object-fit:cover;border-radius:22px 22px 0 0;display:block;}
-.cm-hero-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,transparent 35%,rgba(0,0,0,0.7) 80%,rgba(0,0,0,0.92) 100%);border-radius:22px 22px 0 0;pointer-events:none;}
+.cm-hero-art{width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:22px 22px 0 0;display:block;}
+.cm-hero-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0.1) 0%,transparent 40%,rgba(0,0,0,0.45) 100%);border-radius:22px 22px 0 0;pointer-events:none;}
 .cm-series-logo{position:absolute;top:12px;right:14px;width:auto;height:38px;max-width:110px;object-fit:contain;filter:drop-shadow(0 2px 8px rgba(0,0,0,0.8));z-index:2;border-radius:6px;}
 .cm-rarity-strip{position:absolute;top:12px;left:14px;display:flex;align-items:center;gap:6px;background:rgba(0,0,0,0.55);backdrop-filter:blur(8px);border-radius:20px;padding:4px 10px;z-index:2;border:1px solid rgba(255,255,255,0.1);}
 .cm-rarity-strip span:first-child{font-family:'JetBrains Mono',monospace;font-size:0.72em;font-weight:700;letter-spacing:0.05em;}
 .cm-rarity-strip span:last-child{font-size:0.78em;letter-spacing:0.04em;}
-.cm-xp-row{position:absolute;bottom:10px;left:14px;right:14px;display:flex;align-items:center;gap:8px;z-index:2;}
+.cm-xp-row{display:flex;align-items:center;gap:10px;padding:7px 16px 0;background:transparent;}
 .cm-xp-lvl{font-family:'JetBrains Mono',monospace;font-size:0.72em;color:#f1c40f;white-space:nowrap;flex-shrink:0;}
-.cm-xp-track{flex:1;height:5px;background:rgba(255,255,255,0.12);border-radius:3px;overflow:hidden;}
+.cm-xp-track{flex:1;height:6px;background:rgba(255,255,255,0.1);border-radius:3px;overflow:hidden;}
 .cm-xp-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--pink-deep),var(--pink));transition:width 0.8s ease;}
-.cm-xp-text{font-family:'JetBrains Mono',monospace;font-size:0.66em;color:rgba(255,255,255,0.55);white-space:nowrap;flex-shrink:0;}
+.cm-xp-text{font-family:'JetBrains Mono',monospace;font-size:0.66em;color:rgba(255,255,255,0.45);white-space:nowrap;flex-shrink:0;}
 
 /* Name bar */
 .cm-namebar{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding:14px 18px 6px;flex-shrink:0;}
@@ -2748,7 +2748,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   .modal-box { max-height: 95vh; border-radius: 20px; }
   .modal-body { padding: 16px; }
   .modal-art { aspect-ratio: 16/10; }
-  .cm-hero-art { aspect-ratio: 16/8; }
+  .cm-hero-art { aspect-ratio: 16/9; }
   .cm-namebar { padding: 10px 14px 4px; }
   .cm-card-name { font-size: 1.1em; }
   .cm-tabs { padding: 0 14px; }
@@ -12074,12 +12074,13 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
           <span id="cmRarityLabel"></span>
           <span id="cmRarityStars"></span>
         </div>
-        <!-- XP bar pinned at bottom of hero -->
-        <div class="cm-xp-row">
-          <span class="cm-xp-lvl" id="modalLvl">Lv.1</span>
-          <div class="cm-xp-track"><div class="cm-xp-fill" id="modalXpFill" style="width:0%"></div></div>
-          <span class="cm-xp-text" id="modalXpText">0/100</span>
-        </div>
+      </div>
+
+      <!-- ── XP BAR — below hero, blended ── -->
+      <div class="cm-xp-row">
+        <span class="cm-xp-lvl" id="modalLvl">Lv.1</span>
+        <div class="cm-xp-track"><div class="cm-xp-fill" id="modalXpFill" style="width:0%"></div></div>
+        <span class="cm-xp-text" id="modalXpText">0/100</span>
       </div>
 
       <!-- ── NAME BLOCK ── -->
@@ -17066,7 +17067,9 @@ function renderCollection(){
 }
 function renderCardThumb(id,counts){
   const c=(window.DEMO_CARDS||DEMO_CARDS).find(x=>x.id===id);if(!c)return'';
-  const color=RARITY_COLORS[c.rarity]||'#bdc3c7';
+  const rarityColor=RARITY_COLORS[c.rarity]||'#bdc3c7';
+  const embedColor=c.color||null;
+  const color=rarityColor; // used for rarity strip display
   const isEquipped=state.equippedId===id;
   const cnt=counts[id]||1;
   const hasSkin = !!(window.EQUIPPED_SKINS && window.EQUIPPED_SKINS[id]);
@@ -17196,7 +17199,7 @@ function openCard(id){
   const c=(window.DEMO_CARDS||DEMO_CARDS).find(x=>x.id===id);if(!c)return;
   playModalSound();
   openCardId=id;
-  const color=RARITY_COLORS[c.rarity]||'#bdc3c7';
+  const color=c.color||RARITY_COLORS[c.rarity]||'#bdc3c7';
   const xp=state.xpMap[id]||0;
   const lvl=calcLevel(xp);
   const xpTable=[0,100,300,600,1000,1500,2100,2800,3600,4500];
@@ -17209,8 +17212,9 @@ function openCard(id){
   const fullImgSrc  = getCardImage(c);
   document.getElementById('modalArt').src = fullImgSrc;
 
-  // Parse hex color to rgb for rgba() — scoped outside so chip can use it too
-  const _hex = (color||'#9b59b6').replace('#','');
+  // Use embed color for background tint; fall back to rarity only if no embed color set
+  const _tintColor = embedColor || rarityColor;
+  const _hex = _tintColor.replace('#','');
   const _r = parseInt(_hex.substring(0,2),16)||155;
   const _g = parseInt(_hex.substring(2,4),16)||89;
   const _b = parseInt(_hex.substring(4,6),16)||182;
