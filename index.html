@@ -200,6 +200,13 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .anime-folder-sub{font-size:0.68em;color:var(--text-dim);}
 .anime-folder-progress{height:3px;background:rgba(255,157,199,0.1);border-radius:2px;margin-top:6px;}
 .anime-folder-progress-fill{height:100%;background:linear-gradient(90deg,var(--pink),var(--purple));border-radius:2px;transition:width 0.4s;}
+
+/* ── Storyline Cards ── */
+.sl-card-good{border-color:rgba(74,222,128,0.3) !important;}
+.sl-card-bad{border-color:rgba(248,113,113,0.25) !important;}
+.sl-card-done{border-color:rgba(192,132,184,0.3) !important;}
+/* ── Gallery Grid ── */
+#galleryGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;}
 .filter-btn{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:4px 12px;font-family:'JetBrains Mono',monospace;font-size:0.78em;cursor:pointer;transition:all 0.2s;color:var(--text-dim);}
 .filter-btn:hover,.filter-btn.active{border-color:var(--pink);color:var(--pink);}
 .lb-tab{flex:1;background:transparent;border:none;border-radius:10px;padding:8px 10px;font-family:'JetBrains Mono',monospace;font-size:0.78em;cursor:pointer;transition:all 0.22s;color:var(--text-dim);letter-spacing:0.03em;}
@@ -12491,15 +12498,38 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
       </div>
       <!-- Anime detail overlay (inside the tab) -->
       <div id="animeDetailView" style="display:none;margin-top:4px;">
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px;flex-wrap:wrap;">
+        <!-- Header -->
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap;">
           <button class="btn-secondary" style="padding:7px 18px;font-size:0.82em;" onclick="closeAnimeDetail()">← Back</button>
-          <div>
+          <div style="flex:1;">
             <div id="animeDetailTitle" style="font-family:'Cinzel Decorative',serif;font-size:1em;color:var(--pink-pale);"></div>
             <div id="animeDetailSub" style="font-size:0.75em;color:var(--text-dim);margin-top:2px;"></div>
           </div>
         </div>
-        <div id="animeDetailGrid" class="cards-grid"></div>
-        <div id="animeDetailEmpty" style="display:none;text-align:center;padding:40px;color:var(--text-dim);font-style:italic;">No cards from this series yet — keep pulling!</div>
+        <!-- Sub-tabs: Cards / Storylines / Gallery -->
+        <div style="display:flex;gap:6px;margin-bottom:14px;">
+          <button class="filter-btn active" id="adtab-cards" onclick="switchAnimeDetailTab('cards',this)">🃏 Card Collection</button>
+          <button class="filter-btn" id="adtab-storylines" onclick="switchAnimeDetailTab('storylines',this)">📖 Storylines</button>
+          <button class="filter-btn" id="adtab-gallery" onclick="switchAnimeDetailTab('gallery',this)">🖼️ Gallery</button>
+        </div>
+        <!-- Cards panel -->
+        <div id="adPanel-cards">
+          <div id="animeDetailGrid" class="cards-grid"></div>
+          <div id="animeDetailEmpty" style="display:none;text-align:center;padding:40px;color:var(--text-dim);font-style:italic;">No cards from this series yet — keep pulling!</div>
+        </div>
+        <!-- Storylines panel -->
+        <div id="adPanel-storylines" style="display:none;">
+          <div id="storylineListView"></div>
+          <div id="storylinePlayerView" style="display:none;"></div>
+        </div>
+        <!-- Gallery panel -->
+        <div id="adPanel-gallery" style="display:none;">
+          <div id="galleryGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;"></div>
+          <div id="galleryEmpty" style="display:none;text-align:center;padding:40px;color:var(--text-dim);font-style:italic;">
+            <div style="font-size:3em;margin-bottom:12px;">🖼️</div>
+            <div>Complete storylines to unlock gallery images!</div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -14346,6 +14376,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
       <button class="filter-btn" id="atab-anime"     onclick="switchAdminTab('anime',this)">📁 Anime Manager</button>
       <button class="filter-btn" id="atab-tools" onclick="switchAdminTab('tools',this)">🔧 Tools</button>
       <button class="filter-btn" id="atab-worldboss" onclick="switchAdminTab('worldboss',this)">⚔️ World Boss</button>
+      <button class="filter-btn" id="atab-storylines" onclick="switchAdminTab('storylines',this)">📖 Storylines</button>
     </div>
 
 <!-- ANIME MANAGER TAB -->
@@ -15317,6 +15348,99 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 
   </div>
 </div>
+
+<!-- STORYLINE MANAGER ADMIN TAB -->
+<div id="adminTab-storylines" style="display:none;">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start;" class="admin-storyline-grid">
+
+    <!-- Left: Storyline Form -->
+    <div class="admin-panel">
+      <h3 id="slFormTitle" style="font-family:'Cinzel Decorative',serif;font-size:0.88em;margin-bottom:16px;">📖 Create Storyline</h3>
+      <input type="hidden" id="slEditId"/>
+
+      <label class="admin-label">Anime Series * <span class="admin-hint">(must match series name exactly)</span></label>
+      <input class="admin-input" id="slForm_series" placeholder="e.g. The Quintessential Quintuplets" style="margin-bottom:8px;"/>
+
+      <label class="admin-label">Storyline Title *</label>
+      <input class="admin-input" id="slForm_title" placeholder="e.g. The Five Sisters" style="margin-bottom:8px;"/>
+
+      <label class="admin-label">Opening Text * <span class="admin-hint">(shown at story start)</span></label>
+      <textarea class="admin-input" id="slForm_intro" rows="3" placeholder="📚 You were hired to tutor 5 identical sisters..." style="margin-bottom:8px;resize:vertical;"></textarea>
+
+      <label class="admin-label">Thumbnail / GIF URL <span class="admin-hint">(optional, shown in story list)</span></label>
+      <input class="admin-input" id="slForm_thumb" placeholder="https://..." style="margin-bottom:8px;"/>
+
+      <label class="admin-label">Sort Order</label>
+      <input class="admin-input" id="slForm_sort" type="number" value="0" style="margin-bottom:16px;"/>
+
+      <div style="border-top:1px solid var(--border);padding-top:14px;margin-bottom:12px;">
+        <div class="admin-section-label" style="margin-bottom:10px;">📝 Story Scenes & Choices</div>
+        <div style="font-size:0.75em;color:var(--text-dim);margin-bottom:10px;font-style:italic;">Each scene has text + up to 4 choices. A choice can lead to the next scene ID, a Good Ending, or a Bad Ending.</div>
+        <div id="slScenesEditor"></div>
+        <button class="btn-secondary" style="font-size:0.78em;padding:6px 14px;margin-top:8px;width:100%;" onclick="slAddScene()">+ Add Scene</button>
+      </div>
+
+      <div style="border-top:1px solid var(--border);padding-top:14px;margin-bottom:14px;">
+        <div class="admin-section-label" style="margin-bottom:10px;">🏆 Endings</div>
+
+        <div style="background:rgba(100,220,100,0.05);border:1px solid rgba(100,220,100,0.2);border-radius:10px;padding:12px;margin-bottom:10px;">
+          <div style="color:#4ade80;font-size:0.8em;font-weight:700;margin-bottom:6px;">🌸 Good Ending</div>
+          <label class="admin-label" style="font-size:0.75em;">Ending Title</label>
+          <input class="admin-input" id="slForm_goodTitle" placeholder="e.g. The Promised Bride 💍" style="margin-bottom:6px;font-size:0.82em;"/>
+          <label class="admin-label" style="font-size:0.75em;">Ending Text</label>
+          <textarea class="admin-input" id="slForm_goodText" rows="2" placeholder="After countless exams, you finally understood their hearts." style="margin-bottom:6px;resize:vertical;font-size:0.82em;"></textarea>
+          <label class="admin-label" style="font-size:0.75em;">Ending GIF/Image URL</label>
+          <input class="admin-input" id="slForm_goodGif" placeholder="https://..." style="margin-bottom:6px;font-size:0.82em;"/>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+            <div>
+              <label class="admin-label" style="font-size:0.75em;">Coin Reward 🪙</label>
+              <input class="admin-input" id="slForm_goodCoins" type="number" value="200" style="font-size:0.82em;"/>
+            </div>
+            <div>
+              <label class="admin-label" style="font-size:0.75em;">XP Reward ⚡</label>
+              <input class="admin-input" id="slForm_goodXp" type="number" value="500" style="font-size:0.82em;"/>
+            </div>
+          </div>
+          <label class="admin-label" style="font-size:0.75em;margin-top:6px;">Gallery Image URLs <span class="admin-hint">(comma-separated, unlock on good ending)</span></label>
+          <textarea class="admin-input" id="slForm_goodGallery" rows="2" placeholder="https://img1.jpg, https://img2.gif" style="resize:vertical;font-size:0.82em;"></textarea>
+        </div>
+
+        <div style="background:rgba(255,80,80,0.05);border:1px solid rgba(255,80,80,0.2);border-radius:10px;padding:12px;">
+          <div style="color:#f87171;font-size:0.8em;font-weight:700;margin-bottom:6px;">💔 Bad Ending</div>
+          <label class="admin-label" style="font-size:0.75em;">Ending Title</label>
+          <input class="admin-input" id="slForm_badTitle" placeholder="e.g. Wait, Which One Was It? ❓" style="margin-bottom:6px;font-size:0.82em;"/>
+          <label class="admin-label" style="font-size:0.75em;">Ending Text</label>
+          <textarea class="admin-input" id="slForm_badText" rows="2" placeholder="You confidently called one by her name. It was the wrong sister." style="margin-bottom:6px;resize:vertical;font-size:0.82em;"></textarea>
+          <label class="admin-label" style="font-size:0.75em;">Ending GIF/Image URL</label>
+          <input class="admin-input" id="slForm_badGif" placeholder="https://..." style="font-size:0.82em;"/>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn-primary" style="flex:1;font-size:0.8em;" onclick="submitStorylineForm()">📖 Save Storyline</button>
+        <button class="btn-secondary" id="slCancelBtn" style="display:none;font-size:0.8em;" onclick="cancelStorylineEdit()">✕ Cancel</button>
+      </div>
+    </div>
+
+    <!-- Right: Storyline list -->
+    <div class="admin-panel">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <h3 style="font-family:'Cinzel Decorative',serif;font-size:0.85em;">All Storylines <span id="adminSlCount" style="color:var(--text-dim);font-size:0.8em;"></span></h3>
+        <button class="btn-secondary" style="font-size:0.75em;padding:4px 12px;" onclick="loadAdminStorylineList()">↺ Refresh</button>
+      </div>
+      <div id="adminStorylineList">
+        <div style="color:var(--text-dim);font-style:italic;font-size:0.85em;text-align:center;padding:20px;">No storylines yet.</div>
+      </div>
+
+      <div style="margin-top:20px;border-top:1px solid var(--border);padding-top:16px;">
+        <div class="admin-section-label" style="margin-bottom:8px;">📄 SQL Migration</div>
+        <div style="font-size:0.72em;color:var(--text-dim);margin-bottom:10px;">Run this in your Supabase SQL editor to create the required tables:</div>
+        <button class="btn-secondary" style="font-size:0.75em;width:100%;padding:8px;" onclick="showStorylineSql()">📋 Copy SQL Migration</button>
+      </div>
+    </div>
+  </div>
+</div>
+
   </div>
 </div>
 
@@ -25417,7 +25541,7 @@ function showAdminNav(){
 }
 
 function switchAdminTab(tab, btn){
-  ['cards','banners','skins','shop','tools','items','anime','worldboss'].forEach(t=>{
+  ['cards','banners','skins','shop','tools','items','anime','worldboss','storylines'].forEach(t=>{
     const el=document.getElementById('adminTab-'+t);
     const b=document.getElementById('atab-'+t);
     if(el)el.style.display=t===tab?'block':'none';
@@ -25436,6 +25560,7 @@ function switchAdminTab(tab, btn){
   }
   if(tab==='anime') { loadAdminAnimeList(); }
   if(tab==='worldboss') { loadAdminBossList(); populateWbCardSelector(); }
+  if(tab==='storylines') { loadAdminStorylineList(); slInitScenesEditor(); }
 }
 
 // ── Upload file to Supabase Storage ──
@@ -35351,6 +35476,8 @@ function openAnimeDetail(seriesName) {
   const dEmpty = document.getElementById('animeDetailEmpty');
   if(!detail || !dGrid) return;
 
+  window._currentAnimeSeries = seriesName;
+
   const allCards = window.DEMO_CARDS || DEMO_CARDS || [];
   const owned    = new Set(state.collection);
   const counts   = {};
@@ -35364,6 +35491,9 @@ function openAnimeDetail(seriesName) {
 
   if(grid) grid.style.display = 'none';
   detail.style.display = '';
+
+  // Switch to cards sub-tab by default
+  switchAnimeDetailTab('cards', document.getElementById('adtab-cards'));
 
   if(!seriesCards.length) {
     dGrid.innerHTML = '';
@@ -35389,7 +35519,6 @@ function openAnimeDetail(seriesName) {
     const cnt      = counts[c.id]||0;
 
     if(!isOwned) {
-      // Locked card — greyed silhouette
       return `<div class="card-thumb" style="opacity:0.35;filter:grayscale(1);cursor:default;pointer-events:none;">
         <img src="${thumbSrc}" alt="${escapeHtml(c.name)}" loading="lazy" style="filter:brightness(0.3);"/>
         <span class="card-thumb-badge" style="color:${color};">${c.rarityName}</span>
@@ -35400,7 +35529,6 @@ function openAnimeDetail(seriesName) {
       </div>`;
     }
 
-    // Owned card — normal thumb
     const isEquipped = state.equippedId === c.id;
     const isRainbow  = c.rarity === 7;
     const rarityDisplay = isRainbow
@@ -35418,15 +35546,701 @@ function openAnimeDetail(seriesName) {
   }).join('');
 }
 
+function switchAnimeDetailTab(tab, btn) {
+  ['cards','storylines','gallery'].forEach(t => {
+    const panel = document.getElementById('adPanel-'+t);
+    const tbtn  = document.getElementById('adtab-'+t);
+    if(panel) panel.style.display = t === tab ? '' : 'none';
+    if(tbtn)  tbtn.classList.toggle('active', t === tab);
+  });
+  const series = window._currentAnimeSeries || '';
+  if(tab === 'storylines') renderStorylineList(series);
+  if(tab === 'gallery')    renderGallery(series);
+}
+
 function closeAnimeDetail() {
   document.getElementById('animeDetailView').style.display = 'none';
   document.getElementById('animeCollGrid').style.display = 'grid';
+  window._currentAnimeSeries = null;
 }
 
 
 // ══════════════════════════════════════════════════════════════
-// ADMIN — ANIME MANAGER
+// STORYLINE SYSTEM
 // ══════════════════════════════════════════════════════════════
+
+window.STORYLINES_CACHE = [];
+window.PLAYER_STORYLINES_CACHE = []; // { discord_id, storyline_id, completed, ending_type, unlocked_images }
+
+// ── Load storylines from DB ──
+async function loadStorylines() {
+  try {
+    const rows = await sb.getAll('storylines');
+    window.STORYLINES_CACHE = (rows||[]).sort((a,b)=>(a.sort_order||0)-(b.sort_order||0));
+  } catch(e) {
+    window.STORYLINES_CACHE = [];
+    console.warn('[storyline] Table not found. Run SQL migration.', e);
+  }
+}
+
+// ── Load player storyline progress ──
+async function loadPlayerStorylines(discordId) {
+  if(!discordId) return;
+  try {
+    const rows = await sb.get('player_storylines', { discord_id: discordId });
+    window.PLAYER_STORYLINES_CACHE = rows || [];
+  } catch(e) {
+    window.PLAYER_STORYLINES_CACHE = [];
+  }
+}
+
+// ── Render storyline list in the player's anime detail tab ──
+async function renderStorylineList(seriesName) {
+  const container = document.getElementById('storylineListView');
+  const playerView = document.getElementById('storylinePlayerView');
+  if(!container) return;
+  playerView.style.display = 'none';
+  container.style.display = '';
+
+  if(!window.STORYLINES_CACHE.length) await loadStorylines();
+  if(state.discordId && !state.isGuest) await loadPlayerStorylines(state.discordId);
+
+  const stories = window.STORYLINES_CACHE.filter(s => s.series && s.series.toLowerCase() === seriesName.toLowerCase());
+
+  if(!stories.length) {
+    container.innerHTML = `<div style="text-align:center;padding:60px 20px;color:var(--text-dim);">
+      <div style="font-size:3em;margin-bottom:12px;">📖</div>
+      <div style="font-style:italic;">No storylines yet for this series.</div>
+      <div style="font-size:0.8em;margin-top:8px;">Check back soon, or ask the admin to add one!</div>
+    </div>`;
+    return;
+  }
+
+  const playerMap = {};
+  window.PLAYER_STORYLINES_CACHE.forEach(p => { playerMap[p.storyline_id] = p; });
+
+  container.innerHTML = stories.map(s => {
+    const progress = playerMap[s.id];
+    const isCompleted = progress && progress.completed;
+    const endingType  = progress?.ending_type || null;
+
+    let statusBadge = '';
+    let statusClass = '';
+    if(isCompleted && endingType === 'good') {
+      statusBadge = `<span style="background:rgba(74,222,128,0.15);color:#4ade80;border:1px solid rgba(74,222,128,0.3);border-radius:20px;padding:3px 10px;font-size:0.72em;font-weight:700;">🌸 Good Ending</span>`;
+      statusClass = 'sl-card-good';
+    } else if(isCompleted && endingType === 'bad') {
+      statusBadge = `<span style="background:rgba(248,113,113,0.12);color:#f87171;border:1px solid rgba(248,113,113,0.3);border-radius:20px;padding:3px 10px;font-size:0.72em;font-weight:700;">💔 Bad Ending</span>`;
+      statusClass = 'sl-card-bad';
+    } else if(isCompleted) {
+      statusBadge = `<span style="background:rgba(192,132,184,0.15);color:var(--purple);border:1px solid rgba(192,132,184,0.3);border-radius:20px;padding:3px 10px;font-size:0.72em;font-weight:700;">✓ Completed</span>`;
+      statusClass = 'sl-card-done';
+    }
+
+    const canReplay = isCompleted;
+    const btnLabel  = isCompleted ? '↺ Replay' : '▶ Start';
+    const btnColor  = isCompleted ? 'var(--text-dim)' : 'var(--pink)';
+
+    return `<div class="sl-card ${statusClass}" style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:12px;display:flex;gap:14px;align-items:flex-start;cursor:pointer;transition:border-color 0.2s;" onmouseenter="this.style.borderColor='var(--pink)'" onmouseleave="this.style.borderColor='var(--border)'">
+      ${s.thumb_url ? `<img src="${escapeHtml(s.thumb_url)}" style="width:64px;height:64px;object-fit:cover;border-radius:10px;flex-shrink:0;" onerror="this.style.display='none'"/>` : `<div style="width:64px;height:64px;border-radius:10px;background:rgba(255,157,199,0.08);display:flex;align-items:center;justify-content:center;font-size:2em;flex-shrink:0;">📖</div>`}
+      <div style="flex:1;min-width:0;">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px;">
+          <div style="font-family:'Cinzel Decorative',serif;font-size:0.88em;color:var(--pink-pale);">${escapeHtml(s.title)}</div>
+          ${statusBadge}
+        </div>
+        <div style="font-size:0.78em;color:var(--text-dim);font-style:italic;margin-bottom:10px;line-height:1.4;">${escapeHtml((s.intro_text||'').slice(0,100))}${(s.intro_text||'').length>100?'…':''}</div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+          <button class="btn-primary" style="font-size:0.75em;padding:6px 16px;color:${btnColor};" onclick="event.stopPropagation();startStoryline('${s.id}')">${btnLabel}</button>
+          ${isCompleted ? `
+            <span style="font-size:0.72em;color:var(--text-dim);">Good: 🪙${s.good_coins||0} ⚡${s.good_xp||0}</span>
+          ` : `<span style="font-size:0.72em;color:var(--text-dim);">🪙${s.good_coins||0} ⚡${s.good_xp||0} on good ending</span>`}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── Start / replay a storyline ──
+async function startStoryline(storylineId) {
+  if(!window.STORYLINES_CACHE.length) await loadStorylines();
+  const story = window.STORYLINES_CACHE.find(s => s.id === storylineId);
+  if(!story) { showToast('❌ Storyline not found'); return; }
+
+  const container = document.getElementById('storylineListView');
+  const playerView = document.getElementById('storylinePlayerView');
+  container.style.display = 'none';
+  playerView.style.display = '';
+
+  let scenes;
+  try { scenes = typeof story.scenes === 'string' ? JSON.parse(story.scenes) : (story.scenes||[]); }
+  catch(e) { scenes = []; }
+
+  window._slActive = {
+    story,
+    scenes,
+    currentSceneId: scenes.length ? scenes[0].id : null,
+    history: [],
+  };
+
+  renderStorylineScene();
+}
+
+// ── Render current scene ──
+function renderStorylineScene() {
+  const playerView = document.getElementById('storylinePlayerView');
+  if(!playerView || !window._slActive) return;
+
+  const { story, scenes, currentSceneId } = window._slActive;
+
+  if(currentSceneId === 'GOOD_END' || currentSceneId === 'BAD_END') {
+    renderStorylineEnding(currentSceneId === 'GOOD_END' ? 'good' : 'bad');
+    return;
+  }
+
+  const scene = scenes.find(s => s.id === currentSceneId);
+  if(!scene && currentSceneId !== 'GOOD_END' && currentSceneId !== 'BAD_END') {
+    playerView.innerHTML = `<div style="text-align:center;padding:40px;color:var(--text-dim);">Scene not found. <button class="btn-secondary" style="font-size:0.8em;" onclick="exitStorylinePlayer()">← Back</button></div>`;
+    return;
+  }
+
+  const choices = (scene.choices || []);
+  playerView.innerHTML = `
+    <div style="max-width:640px;margin:0 auto;">
+      <!-- Back button -->
+      <button class="btn-secondary" style="font-size:0.78em;padding:6px 14px;margin-bottom:16px;" onclick="exitStorylinePlayer()">← Back to Stories</button>
+
+      <!-- Story card -->
+      <div style="background:linear-gradient(135deg,rgba(255,157,199,0.05),rgba(192,132,184,0.05));border:1px solid var(--border);border-radius:20px;overflow:hidden;margin-bottom:16px;">
+        ${scene.image_url ? `<img src="${escapeHtml(scene.image_url)}" style="width:100%;max-height:260px;object-fit:cover;display:block;" onerror="this.style.display='none'"/>` : ''}
+        <div style="padding:20px;">
+          <div style="font-family:'Cormorant Garamond',serif;font-size:1.08em;line-height:1.7;color:var(--text);white-space:pre-wrap;">${escapeHtml(scene.text||'')}</div>
+        </div>
+      </div>
+
+      <!-- Choices -->
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        ${choices.map((c,i) => `
+          <button onclick="makeStoryChoice('${escapeHtml(c.next_scene_id||'')}')"
+            style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 18px;text-align:left;font-family:'Cormorant Garamond',serif;font-size:0.95em;color:var(--text);cursor:pointer;transition:all 0.2s;"
+            onmouseenter="this.style.borderColor='var(--pink)';this.style.background='rgba(255,157,199,0.08)'"
+            onmouseleave="this.style.borderColor='var(--border)';this.style.background='var(--surface)'">
+            <span style="color:var(--pink-deep);font-weight:700;margin-right:8px;">${String.fromCharCode(65+i)}.</span>${escapeHtml(c.text||'')}
+          </button>`).join('')}
+      </div>
+    </div>`;
+}
+
+// ── Player makes a choice ──
+function makeStoryChoice(nextSceneId) {
+  if(!window._slActive) return;
+  window._slActive.history.push(window._slActive.currentSceneId);
+  window._slActive.currentSceneId = nextSceneId;
+  renderStorylineScene();
+}
+
+// ── Render an ending ──
+async function renderStorylineEnding(type) {
+  const playerView = document.getElementById('storylinePlayerView');
+  if(!playerView || !window._slActive) return;
+  const { story } = window._slActive;
+  const isGood = type === 'good';
+
+  const endTitle = isGood ? (story.good_ending_title||'Good Ending') : (story.bad_ending_title||'Bad Ending');
+  const endText  = isGood ? (story.good_ending_text||'') : (story.bad_ending_text||'');
+  const endGif   = isGood ? (story.good_ending_gif||'') : (story.bad_ending_gif||'');
+  const coins    = isGood ? (story.good_coins||0) : 0;
+  const xp       = isGood ? (story.good_xp||0) : 0;
+  const goodGallery = isGood ? (story.good_gallery_images||'') : '';
+
+  // Check if already completed with this ending type
+  const existing = (window.PLAYER_STORYLINES_CACHE||[]).find(p => p.storyline_id === story.id);
+  const alreadyCompleted = existing && existing.completed;
+  const alreadyGood = existing && existing.ending_type === 'good';
+
+  // Award rewards only if: newly completed or upgrading from bad → good
+  let rewardGiven = false;
+  if(!alreadyCompleted || (isGood && !alreadyGood)) {
+    if(!state.isGuest && state.discordId) {
+      if(coins > 0) { state.coins += coins; updateCoins(); }
+      if(xp > 0 && state.equippedId) {
+        state.xpMap[state.equippedId] = (state.xpMap[state.equippedId]||0) + xp;
+        await saveXp(state.discordId, state.equippedId, state.xpMap[state.equippedId]).catch(()=>{});
+      }
+      await savePlayer().catch(()=>{});
+      rewardGiven = true;
+
+      // Unlock gallery images
+      const imageUrls = (goodGallery||'').split(',').map(s=>s.trim()).filter(Boolean);
+      const existingImages = (existing?.unlocked_images ? (typeof existing.unlocked_images === 'string' ? JSON.parse(existing.unlocked_images) : existing.unlocked_images) : []);
+      const mergedImages = [...new Set([...existingImages, ...imageUrls])];
+
+      // Save or upsert player progress
+      try {
+        const progressData = {
+          discord_id: state.discordId,
+          storyline_id: story.id,
+          completed: true,
+          ending_type: type,
+          unlocked_images: JSON.stringify(mergedImages),
+          completed_at: new Date().toISOString(),
+        };
+        await fetch(`${SUPABASE_URL}/rest/v1/player_storylines`, {
+          method: 'POST',
+          headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer '+SUPABASE_KEY, 'Content-Type': 'application/json', 'Prefer': 'resolution=merge-duplicates,return=minimal' },
+          body: JSON.stringify(progressData),
+        });
+        // Refresh cache
+        await loadPlayerStorylines(state.discordId);
+      } catch(e) { console.warn('[storyline] Could not save progress:', e); }
+    }
+  }
+
+  const accentColor = isGood ? '#4ade80' : '#f87171';
+  const bgGrad = isGood
+    ? 'linear-gradient(135deg,rgba(74,222,128,0.06),rgba(255,157,199,0.06))'
+    : 'linear-gradient(135deg,rgba(248,113,113,0.06),rgba(192,132,184,0.06))';
+  const borderCol = isGood ? 'rgba(74,222,128,0.25)' : 'rgba(248,113,113,0.25)';
+  const emoji = isGood ? '🌸' : '💔';
+
+  playerView.innerHTML = `
+    <div style="max-width:580px;margin:0 auto;text-align:center;">
+      <!-- Header -->
+      <div style="font-family:'Cinzel Decorative',serif;font-size:0.95em;color:${accentColor};margin-bottom:6px;letter-spacing:0.1em;">
+        STORYLINE COMPLETE!
+      </div>
+      <div style="font-size:0.75em;color:var(--text-dim);margin-bottom:20px;font-style:italic;">${escapeHtml(story.title)}</div>
+
+      <!-- Ending card -->
+      <div style="background:${bgGrad};border:1px solid ${borderCol};border-radius:20px;overflow:hidden;margin-bottom:20px;">
+        ${endGif ? `<img src="${escapeHtml(endGif)}" style="width:100%;max-height:280px;object-fit:cover;display:block;" onerror="this.style.display='none'"/>` : ''}
+        <div style="padding:22px;">
+          <div style="font-size:1.8em;margin-bottom:8px;">${emoji}</div>
+          <div style="font-family:'Cormorant Garamond',serif;font-size:0.9em;color:var(--text-dim);font-style:italic;margin-bottom:14px;line-height:1.6;white-space:pre-wrap;">${escapeHtml(story.intro_text||'')}</div>
+          <div style="font-family:'Cormorant Garamond',serif;font-size:1em;line-height:1.7;color:var(--text);margin-bottom:16px;white-space:pre-wrap;">${escapeHtml(endText)}</div>
+          <div style="background:rgba(255,255,255,0.04);border:1px solid ${borderCol};border-radius:12px;padding:12px;display:inline-block;">
+            <div style="font-size:0.72em;color:var(--text-dim);margin-bottom:3px;">Ending Unlocked</div>
+            <div style="font-family:'Cinzel Decorative',serif;font-size:0.9em;color:${accentColor};">${escapeHtml(endTitle)}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Rewards (good ending only) -->
+      ${isGood && rewardGiven ? `
+      <div style="display:flex;gap:10px;justify-content:center;margin-bottom:18px;flex-wrap:wrap;">
+        ${coins > 0 ? `<div style="background:rgba(241,196,15,0.1);border:1px solid rgba(241,196,15,0.3);border-radius:12px;padding:10px 18px;">
+          <div style="font-size:0.68em;color:var(--text-dim);margin-bottom:2px;">Coins Earned</div>
+          <div style="font-family:'JetBrains Mono',monospace;color:#f1c40f;font-size:1em;">🪙 +${coins}</div>
+        </div>` : ''}
+        ${xp > 0 ? `<div style="background:rgba(52,152,219,0.1);border:1px solid rgba(52,152,219,0.3);border-radius:12px;padding:10px 18px;">
+          <div style="font-size:0.68em;color:var(--text-dim);margin-bottom:2px;">XP Earned</div>
+          <div style="font-family:'JetBrains Mono',monospace;color:#3498db;font-size:1em;">⚡ +${xp}</div>
+        </div>` : ''}
+        ${goodGallery ? `<div style="background:rgba(192,132,184,0.1);border:1px solid rgba(192,132,184,0.3);border-radius:12px;padding:10px 18px;">
+          <div style="font-size:0.68em;color:var(--text-dim);margin-bottom:2px;">Gallery Unlocked</div>
+          <div style="color:var(--purple);font-size:1em;">🖼️ New Images!</div>
+        </div>` : ''}
+      </div>` : (isGood && alreadyGood ? `<div style="font-size:0.78em;color:var(--text-dim);margin-bottom:14px;font-style:italic;">Rewards already claimed for this ending.</div>` : '')}
+
+      <!-- Action buttons -->
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+        <button class="btn-primary" onclick="exitStorylinePlayer()">← Back to Stories</button>
+        <button class="btn-secondary" onclick="startStoryline('${story.id}')">↺ Replay</button>
+        ${isGood ? `<button class="btn-secondary" onclick="switchAnimeDetailTab('gallery',document.getElementById('adtab-gallery'))">🖼️ View Gallery</button>` : ''}
+      </div>
+    </div>`;
+}
+
+function exitStorylinePlayer() {
+  const container  = document.getElementById('storylineListView');
+  const playerView = document.getElementById('storylinePlayerView');
+  playerView.style.display = 'none';
+  container.style.display  = '';
+  window._slActive = null;
+  const series = window._currentAnimeSeries || '';
+  renderStorylineList(series);
+}
+
+// ── Gallery renderer ──
+async function renderGallery(seriesName) {
+  const grid  = document.getElementById('galleryGrid');
+  const empty = document.getElementById('galleryEmpty');
+  if(!grid) return;
+
+  if(!window.STORYLINES_CACHE.length) await loadStorylines();
+  if(state.discordId && !state.isGuest) await loadPlayerStorylines(state.discordId);
+
+  const stories = window.STORYLINES_CACHE.filter(s => s.series && s.series.toLowerCase() === seriesName.toLowerCase());
+  const playerMap = {};
+  window.PLAYER_STORYLINES_CACHE.forEach(p => { playerMap[p.storyline_id] = p; });
+
+  // Collect all unlocked gallery images
+  const images = [];
+  stories.forEach(s => {
+    const progress = playerMap[s.id];
+    if(progress && progress.unlocked_images) {
+      const imgs = typeof progress.unlocked_images === 'string' ? JSON.parse(progress.unlocked_images||'[]') : (progress.unlocked_images||[]);
+      imgs.forEach(url => { if(url) images.push({ url, storyTitle: s.title }); });
+    }
+  });
+
+  // Count total possible gallery items
+  const totalPossible = stories.reduce((sum, s) => {
+    const urls = (s.good_gallery_images||'').split(',').map(x=>x.trim()).filter(Boolean);
+    return sum + urls.length;
+  }, 0);
+
+  if(!images.length) {
+    grid.innerHTML = '';
+    empty.style.display = 'block';
+    // Show locked placeholder count
+    if(totalPossible > 0) {
+      empty.innerHTML = `<div style="font-size:3em;margin-bottom:12px;">🖼️</div>
+        <div>Complete storylines to unlock gallery images!</div>
+        <div style="font-size:0.8em;margin-top:8px;color:var(--text-dim);">0 / ${totalPossible} unlocked</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-top:20px;">
+          ${Array.from({length:Math.min(totalPossible,6)}).map(()=>`<div style="aspect-ratio:1;background:rgba(255,255,255,0.03);border:1px dashed var(--border);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:2em;opacity:0.4;">🔒</div>`).join('')}
+        </div>`;
+    }
+    return;
+  }
+
+  empty.style.display = 'none';
+  grid.innerHTML = `
+    <div style="font-size:0.75em;color:var(--text-dim);margin-bottom:12px;font-style:italic;">✨ ${images.length} / ${totalPossible} images unlocked</div>
+    ${images.map((img, i) => `
+      <div style="border-radius:14px;overflow:hidden;border:1px solid var(--border);cursor:pointer;transition:all 0.2s;background:rgba(255,255,255,0.02);"
+           onclick="openGalleryLightbox('${escapeHtml(img.url)}')"
+           onmouseenter="this.style.borderColor='var(--pink)';this.style.transform='scale(1.02)'"
+           onmouseleave="this.style.borderColor='var(--border)';this.style.transform='scale(1)'">
+        <img src="${escapeHtml(img.url)}" style="width:100%;aspect-ratio:1;object-fit:cover;display:block;" loading="lazy" onerror="this.parentElement.style.display='none'"/>
+        <div style="padding:8px 10px;">
+          <div style="font-size:0.68em;color:var(--text-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">📖 ${escapeHtml(img.storyTitle)}</div>
+        </div>
+      </div>`).join('')}`;
+}
+
+// ── Gallery lightbox ──
+function openGalleryLightbox(url) {
+  const existing = document.getElementById('galleryLightbox');
+  if(existing) existing.remove();
+  const lb = document.createElement('div');
+  lb.id = 'galleryLightbox';
+  lb.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.92);display:flex;align-items:center;justify-content:center;cursor:pointer;';
+  lb.onclick = () => lb.remove();
+  lb.innerHTML = `<img src="${escapeHtml(url)}" style="max-width:90vw;max-height:90vh;object-fit:contain;border-radius:16px;box-shadow:0 0 60px rgba(255,157,199,0.2);" onclick="event.stopPropagation()"/>
+    <button style="position:absolute;top:20px;right:24px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:#fff;width:36px;height:36px;border-radius:50%;font-size:1.2em;cursor:pointer;display:flex;align-items:center;justify-content:center;" onclick="document.getElementById('galleryLightbox').remove()">✕</button>`;
+  document.body.appendChild(lb);
+}
+
+// ══════════════════════════════════════════════════════════════
+// ADMIN — STORYLINE MANAGER
+// ══════════════════════════════════════════════════════════════
+
+let _slSceneCount = 0;
+
+function slInitScenesEditor() {
+  const ed = document.getElementById('slScenesEditor');
+  if(ed && !ed.children.length) slAddScene();
+}
+
+function slAddScene() {
+  _slSceneCount++;
+  const id = `slScene_${_slSceneCount}`;
+  const ed = document.getElementById('slScenesEditor');
+  if(!ed) return;
+  const div = document.createElement('div');
+  div.id = id;
+  div.style.cssText = 'background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:10px;';
+  div.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+      <span style="font-size:0.75em;color:var(--pink);font-family:'JetBrains Mono',monospace;">Scene ID: <input style="background:transparent;border:none;border-bottom:1px solid var(--border);color:var(--pink);font-family:'JetBrains Mono',monospace;font-size:1em;width:100px;" class="sl-scene-id" value="scene_${_slSceneCount}" placeholder="scene_1"/></span>
+      <button onclick="this.closest('[id^=slScene]').remove()" style="background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.3);color:#f87171;border-radius:8px;padding:2px 8px;font-size:0.72em;cursor:pointer;">✕ Remove</button>
+    </div>
+    <label class="admin-label" style="font-size:0.72em;">Scene Text</label>
+    <textarea class="admin-input sl-scene-text" rows="2" placeholder="Something happened..." style="margin-bottom:6px;font-size:0.82em;resize:vertical;"></textarea>
+    <label class="admin-label" style="font-size:0.72em;">Image/GIF URL <span class="admin-hint">(optional)</span></label>
+    <input class="admin-input sl-scene-img" placeholder="https://..." style="margin-bottom:8px;font-size:0.82em;"/>
+    <label class="admin-label" style="font-size:0.72em;">Choices <span class="admin-hint">(next_scene_id: use another scene ID, GOOD_END, or BAD_END)</span></label>
+    <div class="sl-choices-list"></div>
+    <button onclick="slAddChoice(this)" style="background:rgba(255,157,199,0.06);border:1px dashed var(--border);color:var(--text-dim);border-radius:8px;padding:4px 10px;font-size:0.72em;cursor:pointer;width:100%;margin-top:4px;">+ Add Choice</button>
+  `;
+  ed.appendChild(div);
+  // Add first default choice
+  slAddChoice(div.querySelector('button'));
+}
+
+function slAddChoice(btn) {
+  const list = btn.parentElement.querySelector('.sl-choices-list');
+  if(!list) return;
+  if(list.children.length >= 4) { showToast('Max 4 choices per scene'); return; }
+  const row = document.createElement('div');
+  row.style.cssText = 'display:grid;grid-template-columns:1fr 120px auto;gap:4px;margin-bottom:4px;';
+  row.innerHTML = `
+    <input class="admin-input sl-choice-text" placeholder="Choice text..." style="font-size:0.78em;padding:4px 8px;"/>
+    <input class="admin-input sl-choice-next" placeholder="next scene ID" style="font-size:0.78em;padding:4px 8px;"/>
+    <button onclick="this.parentElement.remove()" style="background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.2);color:#f87171;border-radius:6px;padding:2px 6px;font-size:0.7em;cursor:pointer;">✕</button>`;
+  list.appendChild(row);
+}
+
+function buildScenesJson() {
+  const sceneEls = document.querySelectorAll('#slScenesEditor > [id^="slScene"]');
+  const scenes = [];
+  sceneEls.forEach(el => {
+    const sceneId  = el.querySelector('.sl-scene-id')?.value?.trim() || '';
+    const text     = el.querySelector('.sl-scene-text')?.value?.trim() || '';
+    const imgUrl   = el.querySelector('.sl-scene-img')?.value?.trim() || '';
+    const choiceEls = el.querySelectorAll('.sl-choices-list > div');
+    const choices = [];
+    choiceEls.forEach(ce => {
+      const ct   = ce.querySelector('.sl-choice-text')?.value?.trim() || '';
+      const next = ce.querySelector('.sl-choice-next')?.value?.trim() || '';
+      if(ct) choices.push({ text: ct, next_scene_id: next });
+    });
+    if(sceneId) scenes.push({ id: sceneId, text, image_url: imgUrl, choices });
+  });
+  return scenes;
+}
+
+function loadScenesIntoEditor(scenes) {
+  const ed = document.getElementById('slScenesEditor');
+  if(!ed) return;
+  ed.innerHTML = '';
+  _slSceneCount = 0;
+  (scenes||[]).forEach(s => {
+    _slSceneCount++;
+    const id = `slScene_${_slSceneCount}`;
+    const div = document.createElement('div');
+    div.id = id;
+    div.style.cssText = 'background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:10px;';
+    div.innerHTML = `
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <span style="font-size:0.75em;color:var(--pink);font-family:'JetBrains Mono',monospace;">Scene ID: <input style="background:transparent;border:none;border-bottom:1px solid var(--border);color:var(--pink);font-family:'JetBrains Mono',monospace;font-size:1em;width:100px;" class="sl-scene-id" value="${escapeHtml(s.id||'')}" placeholder="scene_1"/></span>
+        <button onclick="this.closest('[id^=slScene]').remove()" style="background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.3);color:#f87171;border-radius:8px;padding:2px 8px;font-size:0.72em;cursor:pointer;">✕ Remove</button>
+      </div>
+      <label class="admin-label" style="font-size:0.72em;">Scene Text</label>
+      <textarea class="admin-input sl-scene-text" rows="2" style="margin-bottom:6px;font-size:0.82em;resize:vertical;">${escapeHtml(s.text||'')}</textarea>
+      <label class="admin-label" style="font-size:0.72em;">Image/GIF URL</label>
+      <input class="admin-input sl-scene-img" value="${escapeHtml(s.image_url||'')}" style="margin-bottom:8px;font-size:0.82em;"/>
+      <label class="admin-label" style="font-size:0.72em;">Choices</label>
+      <div class="sl-choices-list">${(s.choices||[]).map(c=>`<div style="display:grid;grid-template-columns:1fr 120px auto;gap:4px;margin-bottom:4px;"><input class="admin-input sl-choice-text" value="${escapeHtml(c.text||'')}" style="font-size:0.78em;padding:4px 8px;"/><input class="admin-input sl-choice-next" value="${escapeHtml(c.next_scene_id||'')}" style="font-size:0.78em;padding:4px 8px;"/><button onclick="this.parentElement.remove()" style="background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.2);color:#f87171;border-radius:6px;padding:2px 6px;font-size:0.7em;cursor:pointer;">✕</button></div>`).join('')}</div>
+      <button onclick="slAddChoice(this)" style="background:rgba(255,157,199,0.06);border:1px dashed var(--border);color:var(--text-dim);border-radius:8px;padding:4px 10px;font-size:0.72em;cursor:pointer;width:100%;margin-top:4px;">+ Add Choice</button>
+    `;
+    ed.appendChild(div);
+  });
+}
+
+async function submitStorylineForm() {
+  const editId  = document.getElementById('slEditId')?.value?.trim() || '';
+  const series  = document.getElementById('slForm_series')?.value?.trim() || '';
+  const title   = document.getElementById('slForm_title')?.value?.trim() || '';
+  const intro   = document.getElementById('slForm_intro')?.value?.trim() || '';
+  if(!series || !title) { showToast('⚠️ Series and Title are required.'); return; }
+
+  const scenes = buildScenesJson();
+
+  const data = {
+    series,
+    title,
+    intro_text: intro,
+    thumb_url: document.getElementById('slForm_thumb')?.value?.trim() || '',
+    sort_order: parseInt(document.getElementById('slForm_sort')?.value||'0'),
+    scenes: JSON.stringify(scenes),
+    good_ending_title: document.getElementById('slForm_goodTitle')?.value?.trim() || '',
+    good_ending_text:  document.getElementById('slForm_goodText')?.value?.trim() || '',
+    good_ending_gif:   document.getElementById('slForm_goodGif')?.value?.trim() || '',
+    good_coins: parseInt(document.getElementById('slForm_goodCoins')?.value||'0') || 0,
+    good_xp:    parseInt(document.getElementById('slForm_goodXp')?.value||'0') || 0,
+    good_gallery_images: document.getElementById('slForm_goodGallery')?.value?.trim() || '',
+    bad_ending_title:  document.getElementById('slForm_badTitle')?.value?.trim() || '',
+    bad_ending_text:   document.getElementById('slForm_badText')?.value?.trim() || '',
+    bad_ending_gif:    document.getElementById('slForm_badGif')?.value?.trim() || '',
+  };
+
+  try {
+    if(editId) {
+      await sb.update('storylines', data, { id: editId });
+      showToast('✅ Storyline updated!');
+    } else {
+      await sb.insert('storylines', data);
+      showToast('✅ Storyline created!');
+    }
+    cancelStorylineEdit();
+    await loadAdminStorylineList();
+    await loadStorylines();
+  } catch(e) {
+    showToast('❌ Save failed: ' + (e?.message||e));
+    console.error('[storyline] save error', e);
+  }
+}
+
+function cancelStorylineEdit() {
+  document.getElementById('slEditId').value = '';
+  document.getElementById('slForm_series').value = '';
+  document.getElementById('slForm_title').value = '';
+  document.getElementById('slForm_intro').value = '';
+  document.getElementById('slForm_thumb').value = '';
+  document.getElementById('slForm_sort').value = '0';
+  document.getElementById('slForm_goodTitle').value = '';
+  document.getElementById('slForm_goodText').value = '';
+  document.getElementById('slForm_goodGif').value = '';
+  document.getElementById('slForm_goodCoins').value = '200';
+  document.getElementById('slForm_goodXp').value = '500';
+  document.getElementById('slForm_goodGallery').value = '';
+  document.getElementById('slForm_badTitle').value = '';
+  document.getElementById('slForm_badText').value = '';
+  document.getElementById('slForm_badGif').value = '';
+  document.getElementById('slFormTitle').textContent = '📖 Create Storyline';
+  document.getElementById('slCancelBtn').style.display = 'none';
+  const ed = document.getElementById('slScenesEditor');
+  if(ed) { ed.innerHTML = ''; slAddScene(); }
+}
+
+async function loadAdminStorylineList() {
+  const list = document.getElementById('adminStorylineList');
+  const count = document.getElementById('adminSlCount');
+  if(!list) return;
+  list.innerHTML = '<div style="color:var(--text-dim);font-style:italic;font-size:0.82em;text-align:center;padding:16px;">Loading...</div>';
+  try {
+    const rows = await sb.getAll('storylines');
+    window.STORYLINES_CACHE = (rows||[]).sort((a,b)=>(a.sort_order||0)-(b.sort_order||0));
+    if(count) count.textContent = `(${window.STORYLINES_CACHE.length})`;
+    if(!window.STORYLINES_CACHE.length) {
+      list.innerHTML = '<div style="color:var(--text-dim);font-style:italic;font-size:0.85em;text-align:center;padding:20px;">No storylines yet.</div>';
+      return;
+    }
+    list.innerHTML = window.STORYLINES_CACHE.map(s => {
+      const scenes = (() => { try { return JSON.parse(s.scenes||'[]'); } catch(e) { return []; } })();
+      return `<div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:8px;display:flex;align-items:flex-start;gap:10px;">
+        <div style="flex:1;min-width:0;">
+          <div style="font-family:'Cinzel Decorative',serif;font-size:0.78em;color:var(--pink-pale);margin-bottom:2px;">${escapeHtml(s.title)}</div>
+          <div style="font-size:0.7em;color:var(--text-dim);">${escapeHtml(s.series)} · ${scenes.length} scene${scenes.length!==1?'s':''}</div>
+        </div>
+        <div style="display:flex;gap:6px;flex-shrink:0;">
+          <button class="admin-action-btn" onclick="slEditStoryline('${s.id}')" title="Edit">✏️</button>
+          <button class="admin-action-btn danger" onclick="slDeleteStoryline('${s.id}')" title="Delete">🗑</button>
+        </div>
+      </div>`;
+    }).join('');
+  } catch(e) {
+    list.innerHTML = '<div style="color:#f87171;font-size:0.82em;text-align:center;padding:16px;">Error loading. Run SQL migration first.</div>';
+  }
+}
+
+async function slEditStoryline(id) {
+  if(!window.STORYLINES_CACHE.length) await loadAdminStorylineList();
+  const s = window.STORYLINES_CACHE.find(x => x.id === id);
+  if(!s) return;
+  document.getElementById('slEditId').value = s.id;
+  document.getElementById('slForm_series').value = s.series||'';
+  document.getElementById('slForm_title').value = s.title||'';
+  document.getElementById('slForm_intro').value = s.intro_text||'';
+  document.getElementById('slForm_thumb').value = s.thumb_url||'';
+  document.getElementById('slForm_sort').value = s.sort_order||0;
+  document.getElementById('slForm_goodTitle').value = s.good_ending_title||'';
+  document.getElementById('slForm_goodText').value = s.good_ending_text||'';
+  document.getElementById('slForm_goodGif').value = s.good_ending_gif||'';
+  document.getElementById('slForm_goodCoins').value = s.good_coins||200;
+  document.getElementById('slForm_goodXp').value = s.good_xp||500;
+  document.getElementById('slForm_goodGallery').value = s.good_gallery_images||'';
+  document.getElementById('slForm_badTitle').value = s.bad_ending_title||'';
+  document.getElementById('slForm_badText').value = s.bad_ending_text||'';
+  document.getElementById('slForm_badGif').value = s.bad_ending_gif||'';
+  document.getElementById('slFormTitle').textContent = '✏️ Edit Storyline';
+  document.getElementById('slCancelBtn').style.display = '';
+  const scenes = (() => { try { return JSON.parse(s.scenes||'[]'); } catch(e) { return []; } })();
+  loadScenesIntoEditor(scenes);
+  // Scroll admin form into view
+  document.getElementById('slFormTitle').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+async function slDeleteStoryline(id) {
+  if(!confirm('Delete this storyline? All player progress for it will also be lost.')) return;
+  try {
+    await sb.delete('player_storylines', { storyline_id: id }).catch(()=>{});
+    await sb.delete('storylines', { id });
+    showToast('🗑 Storyline deleted.');
+    await loadAdminStorylineList();
+    await loadStorylines();
+  } catch(e) { showToast('❌ Delete failed.'); }
+}
+
+function showStorylineSql() {
+  const sql = `-- MeoGacha Storyline System SQL Migration
+-- Run in Supabase SQL Editor
+
+CREATE TABLE IF NOT EXISTS storylines (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  series TEXT NOT NULL,
+  title TEXT NOT NULL,
+  intro_text TEXT DEFAULT '',
+  thumb_url TEXT DEFAULT '',
+  sort_order INT DEFAULT 0,
+  scenes JSONB DEFAULT '[]',
+  good_ending_title TEXT DEFAULT '',
+  good_ending_text TEXT DEFAULT '',
+  good_ending_gif TEXT DEFAULT '',
+  good_coins INT DEFAULT 0,
+  good_xp INT DEFAULT 0,
+  good_gallery_images TEXT DEFAULT '',
+  bad_ending_title TEXT DEFAULT '',
+  bad_ending_text TEXT DEFAULT '',
+  bad_ending_gif TEXT DEFAULT '',
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+CREATE TABLE IF NOT EXISTS player_storylines (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  discord_id TEXT NOT NULL,
+  storyline_id UUID REFERENCES storylines(id) ON DELETE CASCADE,
+  completed BOOLEAN DEFAULT false,
+  ending_type TEXT DEFAULT 'none',
+  unlocked_images JSONB DEFAULT '[]',
+  completed_at TIMESTAMPTZ,
+  UNIQUE(discord_id, storyline_id)
+);
+
+-- RLS (enable row-level security)
+ALTER TABLE storylines ENABLE ROW LEVEL SECURITY;
+ALTER TABLE player_storylines ENABLE ROW LEVEL SECURITY;
+
+-- Policies: allow anon read/write (same pattern as other tables)
+CREATE POLICY "anon_select_storylines" ON storylines FOR SELECT TO anon USING (true);
+CREATE POLICY "anon_insert_storylines" ON storylines FOR INSERT TO anon WITH CHECK (true);
+CREATE POLICY "anon_update_storylines" ON storylines FOR UPDATE TO anon USING (true);
+CREATE POLICY "anon_delete_storylines" ON storylines FOR DELETE TO anon USING (true);
+
+CREATE POLICY "anon_select_psl" ON player_storylines FOR SELECT TO anon USING (true);
+CREATE POLICY "anon_insert_psl" ON player_storylines FOR INSERT TO anon WITH CHECK (true);
+CREATE POLICY "anon_update_psl" ON player_storylines FOR UPDATE TO anon USING (true);
+CREATE POLICY "anon_delete_psl" ON player_storylines FOR DELETE TO anon USING (true);`;
+
+  navigator.clipboard.writeText(sql).then(() => {
+    showToast('📋 SQL Migration copied to clipboard!');
+  }).catch(() => {
+    // Fallback: show in a modal
+    const modal = document.createElement('div');
+    modal.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.85);display:flex;align-items:center;justify-content:center;padding:20px;';
+    modal.innerHTML = `<div style="background:#111;border:1px solid var(--border);border-radius:16px;padding:20px;max-width:680px;width:100%;max-height:80vh;overflow:auto;">
+      <div style="font-family:'Cinzel Decorative',serif;font-size:0.85em;color:var(--pink);margin-bottom:12px;">📄 SQL Migration</div>
+      <textarea readonly style="width:100%;height:300px;background:#0a0a0a;border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:0.68em;padding:10px;">${sql}</textarea>
+      <button class="btn-secondary" style="margin-top:10px;width:100%;" onclick="this.closest('[style*=fixed]').remove()">Close</button>
+    </div>`;
+    document.body.appendChild(modal);
+  });
+}
+
+// Hook into init to load storylines
+(function() {
+  const _origInit = window.addEventListener;
+  // Load on app start by piggybacking loadAnimeCollections
+  const _origLoad = window.loadAnimeCollections;
+  if(typeof _origLoad === 'function') {
+    window.loadAnimeCollections = async function() {
+      await _origLoad();
+      await loadStorylines().catch(()=>{});
+    };
+  }
+})();
 
 let _adminAnimeCache = [];
 
