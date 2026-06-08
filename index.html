@@ -214,24 +214,90 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .card-thumb-rarity{font-size:0.75em;color:var(--text-dim);}
 .card-thumb-badge{position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.75);border-radius:6px;padding:2px 6px;font-size:0.7em;font-family:'JetBrains Mono',monospace;backdrop-filter:blur(4px);}
 .card-thumb-lvl{position:absolute;bottom:44px;left:8px;background:rgba(0,0,0,0.75);border-radius:6px;padding:2px 8px;font-size:0.7em;font-family:'JetBrains Mono',monospace;color:#f1c40f;backdrop-filter:blur(4px);}
-#cardModal{position:fixed;inset:0;z-index:300;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.85);backdrop-filter:blur(6px);padding:20px;}
+/* ══ CARD MODAL v2 — TABBED ══ */
+#cardModal{position:fixed;inset:0;z-index:300;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.88);backdrop-filter:blur(8px);padding:12px;}
 #cardModal.active{display:flex;}
-.modal-box{background:linear-gradient(135deg,var(--bg2),var(--bg3));border:1px solid var(--border);border-radius:24px;max-width:560px;width:100%;max-height:90vh;overflow:hidden;display:flex;flex-direction:column;animation:modalIn 0.3s cubic-bezier(0.34,1.56,0.64,1);position:relative;}
+.modal-box{background:var(--bg2);border:1px solid var(--border);border-radius:24px;max-width:480px;width:100%;max-height:92vh;overflow:hidden;display:flex;flex-direction:column;animation:modalIn 0.32s cubic-bezier(0.34,1.56,0.64,1);position:relative;}
 .modal-box-scroll{overflow-y:auto;max-height:90vh;border-radius:24px;}
-@keyframes modalIn{from{transform:scale(0.9);opacity:0;}to{transform:scale(1);opacity:1;}}
-.modal-art{width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:20px 20px 0 0;flex-shrink:0;}
-.modal-body{padding:24px;overflow-y:auto;flex:1;}.modal-body{padding:24px;}
-.modal-rarity{font-size:0.82em;font-family:'JetBrains Mono',monospace;margin-bottom:4px;}
-.modal-name{font-family:'Cinzel Decorative',serif;font-size:1.5em;margin-bottom:4px;}
-.modal-series{font-style:italic;color:var(--text-dim);margin-bottom:16px;}
-.modal-quote{font-style:italic;color:var(--pink-pale);border-left:2px solid var(--pink);padding-left:14px;margin-bottom:16px;line-height:1.6;}
-.modal-desc{color:var(--text-dim);font-size:0.92em;line-height:1.6;margin-bottom:20px;}
-.xp-bar-wrap{margin-bottom:20px;}
-.xp-bar-label{display:flex;justify-content:space-between;font-size:0.82em;margin-bottom:6px;}
-.xp-bar-label span:first-child{color:var(--text-dim);}
-.xp-bar-label span:last-child{font-family:'JetBrains Mono',monospace;color:var(--pink);}
-.xp-track{height:10px;background:rgba(255,255,255,0.06);border-radius:5px;overflow:hidden;}
-.xp-fill{height:100%;border-radius:5px;background:linear-gradient(90deg,var(--pink-deep),var(--pink));transition:width 0.8s ease;}
+@keyframes modalIn{from{transform:scale(0.88) translateY(12px);opacity:0;}to{transform:scale(1) translateY(0);opacity:1;}}
+
+/* Hero art */
+.cm-hero{position:relative;flex-shrink:0;overflow:hidden;}
+.cm-hero-art{width:100%;aspect-ratio:16/7;object-fit:cover;border-radius:22px 22px 0 0;display:block;}
+.cm-hero-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,transparent 35%,rgba(0,0,0,0.7) 80%,rgba(0,0,0,0.92) 100%);border-radius:22px 22px 0 0;pointer-events:none;}
+.cm-series-logo{position:absolute;top:12px;right:14px;width:auto;height:38px;max-width:110px;object-fit:contain;filter:drop-shadow(0 2px 8px rgba(0,0,0,0.8));z-index:2;border-radius:6px;}
+.cm-rarity-strip{position:absolute;top:12px;left:14px;display:flex;align-items:center;gap:6px;background:rgba(0,0,0,0.55);backdrop-filter:blur(8px);border-radius:20px;padding:4px 10px;z-index:2;border:1px solid rgba(255,255,255,0.1);}
+.cm-rarity-strip span:first-child{font-family:'JetBrains Mono',monospace;font-size:0.72em;font-weight:700;letter-spacing:0.05em;}
+.cm-rarity-strip span:last-child{font-size:0.78em;letter-spacing:0.04em;}
+.cm-xp-row{position:absolute;bottom:10px;left:14px;right:14px;display:flex;align-items:center;gap:8px;z-index:2;}
+.cm-xp-lvl{font-family:'JetBrains Mono',monospace;font-size:0.72em;color:#f1c40f;white-space:nowrap;flex-shrink:0;}
+.cm-xp-track{flex:1;height:5px;background:rgba(255,255,255,0.12);border-radius:3px;overflow:hidden;}
+.cm-xp-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--pink-deep),var(--pink));transition:width 0.8s ease;}
+.cm-xp-text{font-family:'JetBrains Mono',monospace;font-size:0.66em;color:rgba(255,255,255,0.55);white-space:nowrap;flex-shrink:0;}
+
+/* Name bar */
+.cm-namebar{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding:14px 18px 6px;flex-shrink:0;}
+.cm-card-name{font-family:'Cinzel Decorative',serif;font-size:1.3em;line-height:1.2;color:var(--text);}
+.cm-card-series{font-style:italic;font-size:0.82em;color:var(--pink-pale);margin-top:2px;}
+.cm-quick-btns{display:flex;gap:6px;flex-shrink:0;margin-top:2px;}
+.cm-qbtn{width:36px;height:36px;border-radius:50%;border:1px solid var(--border);background:rgba(255,255,255,0.04);font-size:1em;cursor:pointer;transition:all 0.18s;display:flex;align-items:center;justify-content:center;}
+.cm-qbtn:hover{transform:scale(1.12);}
+.cm-qbtn-equip:hover{background:rgba(255,157,199,0.18);border-color:rgba(255,157,199,0.5);}
+.cm-qbtn-cs:hover{background:rgba(52,152,219,0.18);border-color:rgba(52,152,219,0.5);}
+.cm-qbtn-sell:hover{background:rgba(231,76,60,0.18);border-color:rgba(231,76,60,0.5);}
+
+/* Tabs */
+.cm-tabs{display:flex;gap:4px;padding:0 18px 0;flex-shrink:0;border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none;}
+.cm-tabs::-webkit-scrollbar{display:none;}
+.cm-tab{padding:9px 14px;font-size:0.78em;font-family:'Cinzel Decorative',serif;letter-spacing:0.05em;border:none;background:transparent;color:var(--text-dim);cursor:pointer;border-bottom:2px solid transparent;transition:all 0.18s;white-space:nowrap;flex-shrink:0;}
+.cm-tab:hover{color:var(--pink-pale);}
+.cm-tab.active{color:var(--pink);border-bottom-color:var(--pink);}
+
+/* Panels */
+.cm-panels{flex:1;overflow-y:auto;min-height:0;}
+.cm-panel{display:none;padding:16px 18px 10px;animation:cmFadeIn 0.22s ease;}
+.cm-panel.active{display:block;}
+@keyframes cmFadeIn{from{opacity:0;transform:translateY(5px);}to{opacity:1;transform:translateY(0);}}
+
+/* Overview panel */
+.cm-quote{font-style:italic;color:var(--pink-pale);border-left:2px solid var(--pink);padding:8px 12px;margin-bottom:14px;line-height:1.6;font-size:0.9em;border-radius:0 8px 8px 0;background:rgba(255,157,199,0.05);}
+.cm-desc{color:var(--text-dim);font-size:0.88em;line-height:1.65;margin-bottom:14px;}
+
+/* Stats panel */
+.cm-stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px;}
+.cm-stat-box{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:12px 8px;text-align:center;transition:all 0.2s;}
+.cm-stat-box:hover{background:rgba(255,157,199,0.06);border-color:rgba(255,157,199,0.2);}
+.cm-stat-icon{font-size:1.2em;margin-bottom:4px;}
+.cm-stat-val{font-family:'JetBrains Mono',monospace;font-size:1.05em;font-weight:700;color:var(--pink);}
+.cm-stat-lbl{font-size:0.65em;color:var(--text-dim);margin-top:2px;letter-spacing:0.04em;text-transform:uppercase;}
+.cm-stat-bars{display:flex;flex-direction:column;gap:8px;}
+.cm-bar-row{display:flex;align-items:center;gap:10px;}
+.cm-bar-name{font-size:0.75em;color:var(--text-dim);width:48px;flex-shrink:0;font-family:'JetBrains Mono',monospace;}
+.cm-bar-track{flex:1;height:7px;background:rgba(255,255,255,0.07);border-radius:4px;overflow:hidden;}
+.cm-bar-fill{height:100%;border-radius:4px;transition:width 0.9s cubic-bezier(0.4,0,0.2,1);}
+.cm-bar-num{font-size:0.72em;font-family:'JetBrains Mono',monospace;color:var(--text-dim);width:30px;text-align:right;flex-shrink:0;}
+
+/* Evolve panel */
+.cm-evo-panel{background:rgba(155,89,182,0.06);border:1px solid rgba(155,89,182,0.2);border-radius:14px;padding:14px;}
+.cm-evo-header{font-family:'Cinzel Decorative',serif;font-size:0.75em;color:var(--purple);letter-spacing:0.1em;text-align:center;margin-bottom:14px;}
+.cm-evo-row{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+.cm-evo-card-img{width:56px;height:78px;object-fit:cover;border-radius:8px;flex-shrink:0;}
+.cm-evo-info{flex:1;min-width:0;}
+.cm-evo-target-name{font-family:'Cinzel Decorative',serif;font-size:0.78em;color:var(--pink-pale);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.cm-evo-target-rar{font-size:0.7em;margin-top:2px;}
+.cm-evo-reqs{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;}
+.cm-evo-req{font-size:0.7em;padding:3px 8px;border-radius:6px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);}
+.cm-evo-btn{width:100%;padding:10px;border-radius:10px;border:1px solid rgba(192,132,184,0.5);background:linear-gradient(135deg,rgba(155,89,182,0.35),rgba(224,96,138,0.25));color:#e8c6ff;font-family:'Cinzel Decorative',serif;font-size:0.72em;letter-spacing:0.06em;cursor:pointer;transition:all 0.2s;}
+.cm-evo-btn:hover{transform:translateY(-2px);box-shadow:0 4px 18px rgba(155,89,182,0.45);}
+.cm-evo-btn.locked{opacity:0.45;cursor:default;}
+.cm-evo-btn.locked:hover{transform:none;box-shadow:none;}
+
+/* Close */
+.cm-close-btn{display:block;width:calc(100% - 36px);margin:10px 18px 16px;padding:10px;border-radius:12px;border:1px solid var(--border);background:rgba(255,255,255,0.04);color:var(--text-dim);font-family:'Cinzel Decorative',serif;font-size:0.72em;letter-spacing:0.08em;cursor:pointer;transition:all 0.2s;flex-shrink:0;}
+.cm-close-btn:hover{background:rgba(231,76,60,0.1);border-color:rgba(231,76,60,0.35);color:#e74c3c;}
+
+/* Legacy compat — keep old IDs working */
+.modal-art,.modal-body,.modal-rarity,.modal-name,.modal-series,.modal-quote,.modal-desc,.xp-bar-wrap,.xp-bar-label,.xp-track,.xp-fill,.modal-actions{/* legacy classes — no-op, handled by new cm- classes */}
 .modal-actions{display:flex;gap:8px;flex-wrap:wrap;}
 .profile-card{border:1px solid var(--border);border-radius:24px;overflow:hidden;max-width:600px;margin:0 auto;background:var(--profile-card-bg,linear-gradient(135deg,var(--bg2),var(--bg3)));}
 .profile-banner{height:160px;background:linear-gradient(135deg,var(--pink-deep),var(--purple));position:relative;overflow:hidden;}
@@ -2676,9 +2742,16 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   .multi-collect-btn { width: calc(100% - 40px); }
 
   /* ── Modals ── */
-  .modal-box { max-height: 95vh; border-radius: 16px; }
+  .modal-box { max-height: 95vh; border-radius: 20px; }
   .modal-body { padding: 16px; }
   .modal-art { aspect-ratio: 16/10; }
+  .cm-hero-art { aspect-ratio: 16/8; }
+  .cm-namebar { padding: 10px 14px 4px; }
+  .cm-card-name { font-size: 1.1em; }
+  .cm-tabs { padding: 0 14px; }
+  .cm-tab { padding: 8px 10px; font-size: 0.72em; }
+  .cm-panel { padding: 12px 14px 8px; }
+  .cm-series-logo { height: 30px; top: 10px; right: 10px; }
   .modal-actions { padding: 12px 16px 16px !important; gap: 8px; }
   .modal-actions .btn-primary,
   .modal-actions .btn-secondary { flex: 1; padding: 10px 8px; font-size: 0.82em; }
@@ -11985,28 +12058,80 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 <div id="cardModal" onclick="closeModal(event)">
   <div class="modal-wrap">
     <div class="modal-box" id="modalBox">
-      <img id="modalArt" class="modal-art" src="" alt=""/>
-      <div class="modal-body">
-        <div id="modalRarity" class="modal-rarity"></div>
-        <div id="modalName" class="modal-name"></div>
-        <div id="modalSeries" class="modal-series"></div>
-        <div id="modalQuote" class="modal-quote"></div>
-        <div id="modalDesc" class="modal-desc"></div>
-        <div class="xp-bar-wrap">
-          <div class="xp-bar-label">
-            <span id="modalLvl">Lv.1</span>
-            <span id="modalXpText">0 / 100 XP</span>
-          </div>
-          <div class="xp-track"><div class="xp-fill" id="modalXpFill" style="width:0%"></div></div>
+
+      <!-- ── HERO SECTION ── -->
+      <div class="cm-hero" id="cmHero">
+        <img id="modalArt" class="cm-hero-art" src="" alt=""/>
+        <!-- Gradient overlay -->
+        <div class="cm-hero-overlay"></div>
+        <!-- Anime series logo top-right -->
+        <img id="cmSeriesLogo" class="cm-series-logo" src="" alt="" onerror="this.style.display='none'" style="display:none"/>
+        <!-- Rarity glow strip top-left -->
+        <div class="cm-rarity-strip" id="cmRarityStrip">
+          <span id="cmRarityLabel"></span>
+          <span id="cmRarityStars"></span>
+        </div>
+        <!-- XP bar pinned at bottom of hero -->
+        <div class="cm-xp-row">
+          <span class="cm-xp-lvl" id="modalLvl">Lv.1</span>
+          <div class="cm-xp-track"><div class="cm-xp-fill" id="modalXpFill" style="width:0%"></div></div>
+          <span class="cm-xp-text" id="modalXpText">0/100</span>
         </div>
       </div>
-      <!-- Pinned action bar — always visible at the bottom -->
-      <div class="modal-actions" style="padding:14px 24px 20px;border-top:1px solid var(--border);background:linear-gradient(135deg,var(--bg2),var(--bg3));border-radius:0 0 24px 24px;flex-shrink:0;">
-        <button class="btn-primary" onclick="closeModal()">Close</button>
-        <button class="btn-secondary" id="modalEquipBtn" onclick="equipCard()">⚔️ Equip</button>
-        <button class="btn-secondary" id="modalCutsceneBtn" style="display:none;" onclick="viewCardCutscene(openCardId)">🎬 Cutscene</button>
-        <button class="btn-secondary" id="modalSellBtn" style="display:none;color:#e74c3c;border-color:rgba(231,76,60,0.4);" onclick="openSellCardModal()">🪙 Sell</button>
+
+      <!-- ── NAME BLOCK ── -->
+      <div class="cm-namebar" id="cmNamebar">
+        <div>
+          <div class="cm-card-name" id="modalName"></div>
+          <div class="cm-card-series" id="modalSeries"></div>
+        </div>
+        <!-- Quick action buttons -->
+        <div class="cm-quick-btns">
+          <button class="cm-qbtn cm-qbtn-equip" id="modalEquipBtn" onclick="equipCard()" title="Equip">⚔️</button>
+          <button class="cm-qbtn cm-qbtn-cs" id="modalCutsceneBtn" style="display:none" onclick="viewCardCutscene(openCardId)" title="Cutscene">🎬</button>
+          <button class="cm-qbtn cm-qbtn-sell" id="modalSellBtn" style="display:none" onclick="openSellCardModal()" title="Sell">🪙</button>
+        </div>
       </div>
+
+      <!-- ── TABS ── -->
+      <div class="cm-tabs" id="cmTabs">
+        <button class="cm-tab active" data-tab="overview" onclick="switchCardTab('overview',this)">Overview</button>
+        <button class="cm-tab" data-tab="stats" onclick="switchCardTab('stats',this)">Stats</button>
+        <button class="cm-tab" id="cmEvoTab" data-tab="evolve" onclick="switchCardTab('evolve',this)" style="display:none">Evolution</button>
+        <button class="cm-tab" data-tab="skins" onclick="switchCardTab('skins',this)">Skins</button>
+      </div>
+
+      <!-- ── TAB PANELS ── -->
+      <div class="cm-panels" id="cmPanels">
+
+        <!-- OVERVIEW -->
+        <div class="cm-panel active" id="cmPanel-overview">
+          <div class="cm-quote" id="modalQuote"></div>
+          <div class="cm-desc" id="modalDesc"></div>
+          <div id="modalAbilities"></div>
+        </div>
+
+        <!-- STATS -->
+        <div class="cm-panel" id="cmPanel-stats">
+          <div class="cm-stats-grid" id="cmStatsGrid"></div>
+          <div class="cm-stat-bars" id="cmStatBars"></div>
+        </div>
+
+        <!-- EVOLVE -->
+        <div class="cm-panel" id="cmPanel-evolve">
+          <div id="cmEvoContent"></div>
+        </div>
+
+        <!-- SKINS -->
+        <div class="cm-panel" id="cmPanel-skins">
+          <div id="modalSkins"></div>
+        </div>
+
+      </div>
+
+      <!-- ── CLOSE BUTTON ── -->
+      <button class="cm-close-btn" onclick="closeModal()">✕ CLOSE</button>
+
     </div>
   </div>
 </div>
@@ -16975,6 +17100,68 @@ function filterCards(f,btn){
 // ══════════════════════════════════════════════
 // CARD MODAL
 // ══════════════════════════════════════════════
+function switchCardTab(tab, btn) {
+  document.querySelectorAll('.cm-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.cm-panel').forEach(p=>p.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  const panel = document.getElementById('cmPanel-'+tab);
+  if(panel) panel.classList.add('active');
+}
+
+function _buildCardStats(c, lvl) {
+  const rarityMult = [0, 0.5, 0.7, 0.85, 1.0, 1.25, 1.5, 2.0][c.rarity] || 1;
+  const lvlMult = 1 + (lvl - 1) * 0.08;
+  const base = { HP: Math.round((80 + c.rarity * 25) * rarityMult * lvlMult), ATK: Math.round((10 + c.rarity * 8) * rarityMult * lvlMult), DEF: Math.round((5 + c.rarity * 5) * rarityMult * lvlMult), SPD: Math.round((8 + c.rarity * 3) * rarityMult * lvlMult), MP: Math.round((20 + c.rarity * 10) * rarityMult * lvlMult), LUCK: Math.round((5 + c.rarity * 4) * rarityMult * lvlMult) };
+  return base;
+}
+
+function _renderCardStatsPanel(c, lvl, color) {
+  const stats = _buildCardStats(c, lvl);
+  const maxVals = { HP: 350, ATK: 120, DEF: 80, SPD: 70, MP: 160, LUCK: 60 };
+  const icons = { HP: '❤️', ATK: '⚔️', DEF: '🛡️', SPD: '💨', MP: '💠', LUCK: '🍀' };
+  const statBoxes = Object.entries(stats).map(([k, v]) => `<div class="cm-stat-box"><div class="cm-stat-icon">${icons[k]}</div><div class="cm-stat-val">${v}</div><div class="cm-stat-lbl">${k}</div></div>`).join('');
+  const barColors = { HP:'#e74c3c', ATK:'#e67e22', DEF:'#3498db', SPD:'#2ecc71', MP:'#9b59b6', LUCK:'#f1c40f' };
+  const statBars = Object.entries(stats).map(([k, v]) => {
+    const pct = Math.min(100, Math.round((v / (maxVals[k]||100)) * 100));
+    return `<div class="cm-bar-row"><span class="cm-bar-name">${k}</span><div class="cm-bar-track"><div class="cm-bar-fill" style="width:${pct}%;background:${barColors[k]||color};"></div></div><span class="cm-bar-num">${v}</span></div>`;
+  }).join('');
+  document.getElementById('cmStatsGrid').innerHTML = statBoxes;
+  document.getElementById('cmStatBars').innerHTML = statBars;
+}
+
+function _renderCardEvoPanel(cardId, color) {
+  const evoTab = document.getElementById('cmEvoTab');
+  const evoContent = document.getElementById('cmEvoContent');
+  const status = getEvolutionStatus(cardId);
+  const isOwned = state.collection.includes(cardId);
+  if (!isOwned || !status || !status.target) {
+    if(evoTab) evoTab.style.display = 'none';
+    if(evoContent) evoContent.innerHTML = '';
+    return;
+  }
+  if(evoTab) evoTab.style.display = '';
+  const { evo, target, level, levelMet, itemMet, itemInfo, canEvolve } = status;
+  const targetColor = RARITY_COLORS[target.rarity] || '#c084b8';
+  let reqHtml = `<span class="cm-evo-req" style="color:${levelMet?'#2ecc71':'#e74c3c'}">${levelMet?'✅':'❌'} Lv.${evo.required_level} Required</span>`;
+  if(evo.evolution_type === 'level_item' && evo.required_item) {
+    const qty = (window.PLAYER_INVENTORY||{})[evo.required_item] || 0;
+    const iEmoji = itemInfo ? (itemInfo.emoji||'🎁') : '🎁';
+    reqHtml += `<span class="cm-evo-req" style="color:${itemMet?'#2ecc71':'#e74c3c'}">${itemMet?'✅':'❌'} ${iEmoji} ×${qty}</span>`;
+  }
+  evoContent.innerHTML = `<div class="cm-evo-panel">
+    <div class="cm-evo-header">${canEvolve?'✦ READY TO EVOLVE ✦':'🔒 Evolution Path'}</div>
+    <div class="cm-evo-row">
+      <img class="cm-evo-card-img" src="${target.image||target.thumbnail||''}" alt="${target.name}" style="border:2px solid ${targetColor};box-shadow:0 0 14px ${targetColor}44;" onerror="this.style.display='none'"/>
+      <div class="cm-evo-info">
+        <div class="cm-evo-target-name">${target.name}</div>
+        <div class="cm-evo-target-rar" style="color:${targetColor}">${target.rarityName||''} ${target.rarityStars||''}</div>
+        <div class="cm-evo-reqs">${reqHtml}</div>
+      </div>
+    </div>
+    <button class="cm-evo-btn${canEvolve?'':' locked'}" onclick="${canEvolve?`openEvolutionModal('${cardId}')`:''}">${canEvolve?'✦ Evolve Now ✦':'Requirements Not Met'}</button>
+  </div>`;
+}
+
 function openCard(id){
   const c=(window.DEMO_CARDS||DEMO_CARDS).find(x=>x.id===id);if(!c)return;
   playModalSound();
@@ -16986,32 +17173,58 @@ function openCard(id){
   const nextXp=lvl<10?xpTable[lvl]:xpTable[9];
   const curFloor=xpTable[lvl-1];
   const pct=lvl>=10?100:Math.round(((xp-curFloor)/(nextXp-curFloor))*100);
-  // Use skin image if equipped
+
+  // Hero art
   document.getElementById('modalArt').src=getCardImage(c);
-  document.getElementById('modalRarity').innerHTML=`<span style="color:${color};font-family:'JetBrains Mono',monospace">${c.rarityName} ${c.rarityStars}</span>`;
+
+  // Rarity strip
+  document.getElementById('cmRarityLabel').textContent=c.rarityName||'';
+  document.getElementById('cmRarityLabel').style.color=color;
+  document.getElementById('cmRarityStars').textContent=c.rarityStars||'';
+  document.getElementById('cmRarityStars').style.color=color;
+
+  // Series logo — look up from ANIME_COLLECTIONS
+  const logoEl = document.getElementById('cmSeriesLogo');
+  if(logoEl) {
+    const seriesEntry = (window.ANIME_COLLECTIONS||[]).find(a=>a.name&&a.name.toLowerCase()===((c.series||'').toLowerCase()));
+    if(seriesEntry && seriesEntry.logo_url) {
+      logoEl.src = seriesEntry.logo_url;
+      logoEl.style.display = '';
+    } else {
+      logoEl.style.display = 'none';
+    }
+  }
+
+  // Name/Series
   document.getElementById('modalName').textContent=c.name;
   document.getElementById('modalSeries').textContent=c.series;
-  document.getElementById('modalQuote').textContent=`"${c.quote}"`;
-  document.getElementById('modalDesc').textContent=c.desc;
-  // Render abilities
-  let abEl = document.getElementById('modalAbilities');
-  if(!abEl){ abEl=document.createElement('div'); abEl.id='modalAbilities'; document.getElementById('modalDesc').insertAdjacentElement('afterend',abEl); }
-  abEl.innerHTML = renderAbilities(c.id, c.rarity);
-  // Render skin section
-  let skinEl = document.getElementById('modalSkins');
-  if(!skinEl){ skinEl=document.createElement('div'); skinEl.id='modalSkins'; abEl.insertAdjacentElement('afterend',skinEl); }
-  skinEl.innerHTML = renderCardModalSkins(id);
-  document.getElementById('modalLvl').textContent=lvl>=10?'Lv.10 ✦ MAX':`Lv.${lvl}`;
-  document.getElementById('modalXpText').textContent=lvl>=10?`${xp} XP`:`${xp} / ${nextXp} XP`;
+
+  // XP bar (in hero overlay)
+  document.getElementById('modalLvl').textContent=lvl>=10?'Lv.10 MAX':`Lv.${lvl}`;
+  document.getElementById('modalXpText').textContent=lvl>=10?`MAX`:`${xp}/${nextXp}`;
   document.getElementById('modalXpFill').style.width=pct+'%';
   document.getElementById('modalXpFill').style.background=`linear-gradient(90deg,${c.color||'var(--pink-deep)'},${color})`;
-  // Show equip button only if the card is in the player's collection
+
+  // Overview tab
+  document.getElementById('modalQuote').textContent=`"${c.quote}"`;
+  document.getElementById('modalDesc').textContent=c.desc;
+  document.getElementById('modalAbilities').innerHTML=renderAbilities(c.id, c.rarity);
+
+  // Stats tab
+  _renderCardStatsPanel(c, lvl, color);
+
+  // Skins tab
+  document.getElementById('modalSkins').innerHTML = renderCardModalSkins(id);
+
+  // Evolution tab
+  _renderCardEvoPanel(id, color);
+
+  // Action buttons
   const isOwned=state.collection.includes(id);
   const equipBtn=document.getElementById('modalEquipBtn');
   if(equipBtn)equipBtn.style.display=isOwned?'':'none';
   const csBtn=document.getElementById('modalCutsceneBtn');
   if(csBtn)csBtn.style.display=cardHasCutscene(id)?'':'none';
-  // Show sell button only for owned cards (not equipped, as safety UX)
   const sellBtn=document.getElementById('modalSellBtn');
   const SELL_PRICES={1:5,2:10,3:20,4:50,5:120,6:300,7:500};
   if(sellBtn){
@@ -17021,8 +17234,11 @@ function openCard(id){
       sellBtn.title='Sell for '+sp+' 🪙';
     } else { sellBtn.style.display='none'; }
   }
+
+  // Reset to overview tab
+  switchCardTab('overview', document.querySelector('.cm-tab[data-tab="overview"]'));
+
   document.getElementById('cardModal').classList.add('active');
-  _injectEvolveButton(id); 
 }
 function closeModal(e){
   if(!e||e.target===document.getElementById('cardModal'))
@@ -17262,8 +17478,8 @@ async function confirmSellCard(cardId, price, qty){
 
 // Inject evolution info + Evolve button into the card modal
 function _injectEvolveButton(cardId) {
-  const old = document.getElementById('modalEvoPanel');
-  if(old) old.remove();
+  // no-op — evolution is now handled by _renderCardEvoPanel in the Evolve tab
+  return;
   const status = getEvolutionStatus(cardId);
   const isOwned = state.collection.includes(cardId);
   if(!isOwned || !status) return;
