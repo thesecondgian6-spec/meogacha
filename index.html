@@ -3254,6 +3254,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .gp-bps-item[data-btype="collab"]    .gp-bps-type { color: #ffe066; }
 .gp-bps-item[data-btype="character"] .gp-bps-type { color: var(--pink); }
 .gp-bps-item[data-btype="skin"]      .gp-bps-type { color: #c8a0f0; }
+.gp-bps-section-label { font-family: 'JetBrains Mono', monospace; font-size: 0.58em; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.28); padding: 4px 6px 6px; border-bottom: 1px solid rgba(255,255,255,0.06); margin-bottom: 4px; }
 .gp-bps-active-check { color: var(--pink); font-size: 0.9em; flex-shrink: 0; opacity: 0; }
 .gp-bps-item.active .gp-bps-active-check { opacity: 1; }
 .gp-bps-pinned::after { content: "📌"; font-size: 0.55em; position: absolute; top: 6px; right: 30px; }
@@ -7499,8 +7500,20 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .skin-rarity-tab:hover{border-color:rgba(155,89,182,0.5);color:#c084b8;}
 .skin-rarity-tab.active{background:rgba(155,89,182,0.2);border-color:#c084b8;color:#c084b8;}
 .skin-rtab-count{background:rgba(155,89,182,0.25);border-radius:10px;padding:1px 6px;font-size:0.85em;}
+/* Skin wish buttons */
+.gp-wish-btn-skin{background:linear-gradient(135deg,rgba(155,89,182,0.3),rgba(192,132,184,0.2)) !important;border-color:rgba(155,89,182,0.5) !important;}
+.gp-wish-btn-skin:hover{background:linear-gradient(135deg,rgba(155,89,182,0.5),rgba(192,132,184,0.35)) !important;border-color:#c084b8 !important;}
+/* Featured skins row in banner */
+.gp-skin-featured-row{display:flex;gap:8px;flex-wrap:wrap;}
+.gp-skin-feat-card{position:relative;width:clamp(70px,18vw,100px);cursor:pointer;transition:transform 0.2s;}
+.gp-skin-feat-card:hover{transform:translateY(-4px);}
+.gp-skin-feat-card img{width:100%;aspect-ratio:2/3;object-fit:cover;border-radius:10px;border:1px solid rgba(192,132,184,0.4);box-shadow:0 4px 16px rgba(155,89,182,0.3);}
+.gp-skin-feat-info{position:absolute;bottom:0;left:0;right:0;padding:5px 6px;background:linear-gradient(to top,rgba(0,0,0,0.85),transparent);border-radius:0 0 10px 10px;}
+.gp-skin-feat-name{display:block;font-size:0.55em;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:'Cinzel Decorative',serif;}
+.gp-skin-feat-rarity{display:block;font-size:0.5em;font-family:'JetBrains Mono',monospace;margin-top:1px;}
 @media(max-width:700px){
   .skin-banner-section{max-height:200px;}
+  .gp-skin-feat-card{width:clamp(60px,15vw,80px);}
 }
 .skin-banner-wrap{max-width:680px;margin:0 auto;}
 .skin-banner-header{text-align:center;padding:12px 0 20px;}
@@ -12380,12 +12393,12 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
       <div class="gp-dock-pity-row">
         <div class="gp-pity-mini" id="gpPityMini">
           <div class="gp-pity-bar-wrap">
-            <div class="gp-pity-label">SSR Pity</div>
+            <div class="gp-pity-label" id="gpPityLabel1">SSR Pity</div>
             <div class="gp-pity-track"><div class="gp-pity-fill sr" id="gpPitySRBar"></div></div>
             <div class="gp-pity-num" id="gpPitySRNum">0/40</div>
           </div>
           <div class="gp-pity-bar-wrap">
-            <div class="gp-pity-label">UR Pity</div>
+            <div class="gp-pity-label" id="gpPityLabel2">UR Pity</div>
             <div class="gp-pity-track"><div class="gp-pity-fill ur" id="gpPityURBar"></div></div>
             <div class="gp-pity-num" id="gpPityURNum">0/80</div>
           </div>
@@ -12396,12 +12409,12 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
       <div class="gp-dock-bottom">
 
         <!-- View Pool -->
-        <button class="gp-pool-btn" onclick="openPoolView()">🃏 View Card Pool</button>
+        <button class="gp-pool-btn" id="gpPoolBtn" onclick="openDockPoolView()">🃏 View Card Pool</button>
 
         <!-- Drop rates -->
         <div class="gp-rates-wrap">
           <div class="gp-rates-heading">Drop Rates</div>
-          <div class="gp-rates-grid">
+          <div class="gp-rates-grid" id="gpRatesGrid">
             <div class="gp-rate-item" style="--rc:189,195,199"><span class="gp-rate-dot"></span><span class="gp-rate-tag rN">[N]</span><span class="gp-rate-pct">42.6%</span></div>
             <div class="gp-rate-item" style="--rc:46,204,113"><span class="gp-rate-dot"></span><span class="gp-rate-tag rR">[R]</span><span class="gp-rate-pct">29.8%</span></div>
             <div class="gp-rate-item" style="--rc:52,152,219"><span class="gp-rate-dot"></span><span class="gp-rate-tag rSR">[SR]</span><span class="gp-rate-pct">17.0%</span></div>
@@ -12414,7 +12427,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
               <span class="gp-rate-pct">0.4%</span>
             </div>
           </div>
-          <p class="gp-rates-note">✦ 10-pull guarantees SR+ &nbsp;·&nbsp; pity tracked per banner</p>
+          <p class="gp-rates-note" id="gpRatesNote">✦ 10-pull guarantees SR+ &nbsp;·&nbsp; pity tracked per banner</p>
         </div>
 
       </div>
@@ -14692,7 +14705,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
           </div>
           <div>
             <label class="admin-label">Banner Type</label>
-            <select class="admin-input" id="bannerForm_type">
+            <select class="admin-input" id="bannerForm_type" onchange="onBannerTypeChange(this.value)">
               <option value="character">⭐ Character Event</option>
               <option value="standard">🌐 Standard / Permanent</option>
               <option value="beginner">🌱 Beginner</option>
@@ -14788,7 +14801,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
           <img id="bannerFormCharPreview5" src="" alt="" style="max-height:90px;max-width:120px;margin-top:6px;object-fit:contain;border-radius:8px;display:none;" onerror="this.style.display='none'"/>
         </div>
 
-        <div class="admin-section-label">Featured Cards <span class="admin-hint">(1–5 rate-up cards shown prominently)</span></div>
+        <div class="admin-section-label">Featured Cards <span class="admin-hint" id="bannerFeaturedHint">(1–5 rate-up cards shown prominently)</span></div>
         <div class="banner-featured-picker" id="bannerFeaturedSlots">
           <!-- slots injected by JS -->
         </div>
@@ -14800,6 +14813,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
           ➕ Add Featured Card Slot
         </button>
 
+        <div id="bannerCardPoolSection">
         <div class="admin-section-label">Card Pool Filter <span class="admin-hint">(leave all blank = all cards. Pick series tags to restrict this banner's pool.)</span></div>
         <div style="margin-bottom:8px;">
           <label class="admin-label">Filter by Series (comma-separated, e.g. "One Piece, Naruto")</label>
@@ -14825,6 +14839,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
             <option value="5">5× — Mega rate-up</option>
           </select>
         </div>
+        </div><!-- end #bannerCardPoolSection -->
 
         <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;">
           <button class="admin-btn" id="bannerFormSubmitBtn" onclick="submitBannerForm()"
@@ -20684,7 +20699,10 @@ function renderBannerPickerList(){
   const list = document.getElementById('gpBannerPickerList');
   if(!list) return;
   const banners = window.ALL_BANNERS || [];
-  list.innerHTML = banners.map(b=>{
+  const cardBanners = banners.filter(b => (b.banner_type||'standard') !== 'skin');
+  const skinBanners = banners.filter(b => (b.banner_type||'standard') === 'skin');
+
+  const renderItem = b => {
     const meta = BANNER_TYPE_META[b.banner_type||'standard'] || BANNER_TYPE_META.standard;
     const isActive = b.id === activeBannerTab;
     const isPinned = !!b.is_pinned;
@@ -20699,7 +20717,19 @@ function renderBannerPickerList(){
       </div>
       <span class="gp-bps-active-check">✓</span>
     </div>`;
-  }).join('');
+  };
+
+  let html = '';
+  if(cardBanners.length){
+    html += `<div class="gp-bps-section-label">🃏 Card Banners</div>`;
+    html += cardBanners.map(renderItem).join('');
+  }
+  if(skinBanners.length){
+    html += `<div class="gp-bps-section-label" style="margin-top:${cardBanners.length?'10px':'0'};">🎨 Skin Banners</div>`;
+    html += skinBanners.map(renderItem).join('');
+  }
+  if(!banners.length) html = '<div style="color:var(--text-dim);font-style:italic;font-size:0.85em;text-align:center;padding:20px;">No banners available.</div>';
+  list.innerHTML = html;
 }
 
 function openBannerPicker(){
@@ -20769,6 +20799,7 @@ function renderActiveBanner(){
   if(gpPullRow) gpPullRow.style.display = '';
   const gpPityMini = document.getElementById('gpPityMini');
   if(gpPityMini) gpPityMini.style.display = '';
+  restoreCardDock();
 
   const meta        = BANNER_TYPE_META[type] || BANNER_TYPE_META.standard;
   const allCards = [...(window.DEMO_CARDS||[]), ...(window._adminCardCache||[])].filter((c,i,a)=>a.findIndex(x=>x.id===c.id)===i) || DEMO_CARDS;
@@ -20912,6 +20943,7 @@ setTimeout(()=>{ if(typeof initHubBooths==='function') initHubBooths(); }, 50);
 function updatePity(){
   const banner = getActiveBanner();
   const type   = banner ? (banner.banner_type||'standard') : 'character';
+  if(type === 'skin'){ updateSkinDock(); return; }
   const p      = getPity(type);
   const srPct  = Math.min(p.sr/40*100,100);
   const urPct  = Math.min(p.ur/80*100,100);
@@ -21083,24 +21115,56 @@ async function pinBanner(id, currentlyPinned){
   }
 }
 
-function addBannerFeaturedSlot(cardId=''){
+// ── Toggle skin vs card form fields when banner type changes ──
+function onBannerTypeChange(type){
+  const isSkin = type === 'skin';
+  // Featured label
+  const hint = document.getElementById('bannerFeaturedHint');
+  const addBtn = document.getElementById('addBannerFeaturedBtn');
+  const label = addBtn?.closest('div')?.previousElementSibling; // the admin-section-label div
+  const sectionLabel = document.querySelector('.admin-section-label[id="bannerFeaturedLabel"]') ||
+    (() => { const el = addBtn?.parentElement?.previousElementSibling; return el; })();
+  if(hint) hint.textContent = isSkin ? '(1–5 rate-up skins shown in banner)' : '(1–5 rate-up cards shown prominently)';
+  if(addBtn) addBtn.innerHTML = isSkin ? '➕ Add Featured Skin Slot' : '➕ Add Featured Card Slot';
+  // Card pool section — hide for skin banners
+  const poolSec = document.getElementById('bannerCardPoolSection');
+  if(poolSec) poolSec.style.display = isSkin ? 'none' : '';
+  // Rebuild featured slots with the correct picker type
+  document.getElementById('bannerFeaturedSlots').innerHTML = '';
+  _bannerFeaturedSlotCount = 0;
+}
+
+function addBannerFeaturedSlot(itemId=''){
   const container = document.getElementById('bannerFeaturedSlots');
   if(!container) return;
-  if(_bannerFeaturedSlotCount >= 5){ showToast('Max 5 featured cards'); return; }
+  if(_bannerFeaturedSlotCount >= 5){ showToast('Max 5 featured items'); return; }
   _bannerFeaturedSlotCount++;
   const idx = _bannerFeaturedSlotCount;
-  const allCards = window.DEMO_CARDS || DEMO_CARDS;
+  const isSkin = (document.getElementById('bannerForm_type')?.value || 'character') === 'skin';
   const slot = document.createElement('div');
   slot.className = 'banner-featured-slot';
   slot.id = `bfSlot_${idx}`;
-  slot.innerHTML = `
-    <select class="admin-input" id="bfCard_${idx}" style="flex:1;" onchange="previewBannerForm()">
-      <option value="">— pick a card —</option>
-      ${allCards.map(c=>`<option value="${c.id}" ${c.id===cardId?'selected':''}>[${c.rarityName}] ${c.name}</option>`).join('')}
-    </select>
-    <button onclick="removeBannerFeaturedSlot(${idx})" style="background:none;border:none;color:#e74c3c;font-size:1.1em;cursor:pointer;padding:4px 8px;">✕</button>`;
+
+  if(isSkin){
+    const allSkins = window.ALL_SKINS || [];
+    slot.innerHTML = `
+      <select class="admin-input" id="bfCard_${idx}" style="flex:1;" onchange="previewBannerForm()">
+        <option value="">— pick a skin —</option>
+        ${allSkins.map(s=>`<option value="${s.id}" ${s.id===itemId?'selected':''}>[${s.rarity||'rare'}] ${escapeHtml(s.name)} (for: ${(window.DEMO_CARDS||[]).find(c=>c.id===s.card_id)?.name||s.card_id})</option>`).join('')}
+      </select>
+      <button onclick="removeBannerFeaturedSlot(${idx})" style="background:none;border:none;color:#e74c3c;font-size:1.1em;cursor:pointer;padding:4px 8px;">✕</button>`;
+  } else {
+    const allCards = window.DEMO_CARDS || DEMO_CARDS;
+    slot.innerHTML = `
+      <select class="admin-input" id="bfCard_${idx}" style="flex:1;" onchange="previewBannerForm()">
+        <option value="">— pick a card —</option>
+        ${allCards.map(c=>`<option value="${c.id}" ${c.id===itemId?'selected':''}>[${c.rarityName}] ${c.name}</option>`).join('')}
+      </select>
+      <button onclick="removeBannerFeaturedSlot(${idx})" style="background:none;border:none;color:#e74c3c;font-size:1.1em;cursor:pointer;padding:4px 8px;">✕</button>`;
+  }
+
   container.appendChild(slot);
-  if(cardId){ previewBannerForm(); }
+  if(itemId){ previewBannerForm(); }
   const addBtn = document.getElementById('addBannerFeaturedBtn');
   if(addBtn) addBtn.style.display = _bannerFeaturedSlotCount >= 5 ? 'none' : '';
 }
@@ -21127,6 +21191,7 @@ function cancelBannerEdit(){
   document.getElementById('bannerForm_image').value = '';
   document.getElementById('bannerForm_active').value = 'false';
   document.getElementById('bannerForm_type').value = 'character';
+  onBannerTypeChange('character');
   document.getElementById('bannerForm_seriesFilter').value = '';
   document.getElementById('bannerForm_minRarity').value = '1';
   const _rmElC = document.getElementById('bannerForm_rateMulti');
@@ -21158,6 +21223,7 @@ function editBanner(bannerId){
   document.getElementById('bannerForm_image').value = b.image||'';
   document.getElementById('bannerForm_active').value = b.is_active?'true':'false';
   document.getElementById('bannerForm_type').value = b.banner_type||'character';
+  onBannerTypeChange(b.banner_type||'character');
   document.getElementById('bannerForm_seriesFilter').value = b.series_filter||'';
   document.getElementById('bannerForm_minRarity').value = String(b.min_rarity||1);
   const _rmEl = document.getElementById('bannerForm_rateMulti');
@@ -32929,26 +32995,31 @@ function renderSkinBanner(){
     return `<div class="gp-spark" style="width:${size}px;height:${size}px;left:${left}%;top:${top}%;animation-duration:${dur}s;animation-delay:${delay}s;box-shadow:0 0 ${size*3}px rgba(200,160,240,0.9);"></div>`;
   }).join('');
 
-  const allSkins = getSkinBannerPool(banner);
-  const rarityOrder = ['legendary','epic','rare','common'];
-  const rarityLabel = { legendary:'🌸 Legendary', epic:'🌟 Epic', rare:'💜 Rare', common:'⚪ Common' };
+  // Featured skins
+  const featuredIds = parseFeaturedCards(banner.featured_cards);
+  const allSkins = window.ALL_SKINS || [];
+  const featuredSkins = featuredIds.map(id => allSkins.find(s=>s.id===id)).filter(Boolean);
 
-  // Build rarity tabs (only show tabs that have skins)
-  const presentRarities = rarityOrder.filter(r => allSkins.some(s=>(s.rarity||'rare')===r));
-  const defaultRarity   = presentRarities[0] || 'rare';
-
-  const rarityTabsHtml = presentRarities.length > 1 ? `
-    <div class="skin-rarity-tabs" id="skinRarityTabs">
-      ${presentRarities.map((r,i)=>`
-        <button class="skin-rarity-tab${i===0?' active':''}" data-rarity="${r}" onclick="filterSkinBannerByRarity('${r}',this)">
-          ${rarityLabel[r]||r}
-          <span class="skin-rtab-count">${allSkins.filter(s=>(s.rarity||'rare')===r).length}</span>
-        </button>
-      `).join('')}
+  const featuredHtml = featuredSkins.length ? `
+    <div class="gp-featured-block">
+      <div class="gp-featured-label">✦ Rate Up Skins</div>
+      <div class="gp-skin-featured-row">
+        ${featuredSkins.map(skin=>{
+          const meta = SKIN_RARITY_META[skin.rarity||'rare'] || SKIN_RARITY_META.rare;
+          const thumbSrc = skin.thumbnail || skin.image || '';
+          return `<div class="gp-skin-feat-card" onclick="openSkinPreview('${skin.id}')">
+            <img src="${escapeHtml(thumbSrc)}" alt="${escapeHtml(skin.name)}" onerror="this.style.background='#1c0f26'"/>
+            <div class="gp-feat-rateup">RATE ▲</div>
+            <div class="gp-skin-feat-info">
+              <span class="gp-skin-feat-name">${escapeHtml(skin.name)}</span>
+              <span class="gp-skin-feat-rarity" style="color:${meta.color}">${meta.icon} ${meta.label}</span>
+            </div>
+          </div>`;
+        }).join('')}
+      </div>
+      <div class="gp-rateup-note">⬆️ Featured skins appear more often</div>
     </div>
   ` : '';
-
-  const skinsToShow = allSkins.filter(s=>(s.rarity||'rare')===defaultRarity);
 
   el.innerHTML = `
     <div class="gp-stage-bg" ${banner.image?`style="background-image:url('${banner.image}')"`:''}></div>
@@ -32961,45 +33032,298 @@ function renderSkinBanner(){
     <div class="gp-info">
       <div class="gp-info-top">
         <div class="gp-left-title">
-          <div class="gp-event-tag" style="background:rgba(155,89,182,0.15);border-color:rgba(155,89,182,0.4);color:#c084b8;">🎨 Card Skin Banner</div>
+          <div class="gp-event-tag" style="background:rgba(155,89,182,0.15);border-color:rgba(155,89,182,0.4);color:#c084b8;">🎨 Skin Banner</div>
           <div class="gp-banner-name">${escapeHtml(banner.name)}</div>
           <span class="gp-banner-name-rule"></span>
-          ${banner.description ? `<div class="gp-banner-desc">${escapeHtml(banner.description)}</div>` : `<div class="gp-banner-desc">Own exclusive skins forever — no gacha, just direct purchase!</div>`}
+          ${banner.description ? `<div class="gp-banner-desc">${escapeHtml(banner.description)}</div>` : `<div class="gp-banner-desc">Pull for exclusive cosmetic skins!</div>`}
         </div>
       </div>
       <div class="gp-info-bottom">
-        <!-- Skin grid replaces pull buttons -->
-        <div class="skin-banner-section">
-          ${rarityTabsHtml}
-          ${allSkins.length ? `
-            <div class="skin-cards-grid" id="skinBannerGrid">
-              ${skinsToShow.map(skin=>renderSkinCard(skin)).join('')}
-            </div>
-          ` : `
-            <div class="skin-empty-state">
-              <span class="skin-empty-icon">🎨</span>
-              <div>No skins available on this banner yet.</div>
-              <div style="font-size:0.8em;margin-top:6px;">Check back later or ask an admin to add skins!</div>
-            </div>
-          `}
+        <!-- Pull buttons for skin banner -->
+        <div class="gp-pull-row" id="gpPullRow">
+          <button class="gp-wish-btn gp-wish-btn-skin" onclick="doPullSkin(1)">
+            <div class="gp-wish-btn-left"><span class="gpb-icon">🎨</span><span class="gpb-text">Pull × 1</span></div>
+            <span class="gpb-cost">50 🪙</span>
+          </button>
+          <button class="gp-wish-btn gp-wish-btn-10 gp-wish-btn-skin" onclick="doPullSkin(5)">
+            <div class="gp-wish-btn-left"><span class="gpb-icon">🎨🎨</span><span class="gpb-text">Pull × 5</span></div>
+            <span class="gpb-cost">200 🪙</span>
+          </button>
         </div>
+        ${featuredHtml}
       </div>
     </div>
   `;
 
-  // Hide pull buttons & pity for skin banner
-  const gpPullRow = document.getElementById('gpPullRow');
-  if(gpPullRow) gpPullRow.style.display = 'none';
+  // Show pity bar
   const gpPityMini = document.getElementById('gpPityMini');
-  if(gpPityMini) gpPityMini.style.display = 'none';
+  if(gpPityMini) gpPityMini.style.display = '';
   const pitySection = document.getElementById('bannerPitySection');
   if(pitySection) pitySection.style.display = 'none';
+
+  // Update skin pity bars and dock
+  updateSkinDock();
 
   // Start character slideshow
   clearInterval(_gpCharTimer);
   _gpCharTimer = null;
   _gpCharIdx = 0;
   if(charImgs.length > 1) _gpStartCharSlideshow(charImgs.length);
+}
+
+// ── Update dock to show skin pity + rates when skin banner is active ──
+function updateSkinDock(){
+  const p = getPity('skin');
+  // Skin pity: Epic at 20, Legendary at 40
+  const epicPct = Math.min(p.sr/20*100, 100);
+  const legPct  = Math.min(p.ur/40*100, 100);
+  const l1 = document.getElementById('gpPityLabel1');
+  const l2 = document.getElementById('gpPityLabel2');
+  const sr = document.getElementById('gpPitySRNum');
+  const ur = document.getElementById('gpPityURNum');
+  const srBar = document.getElementById('gpPitySRBar');
+  const urBar = document.getElementById('gpPityURBar');
+  if(l1) l1.textContent = 'Epic Pity';
+  if(l2) l2.textContent = 'Legendary';
+  if(sr) sr.textContent = `${p.sr}/20`;
+  if(ur) ur.textContent = `${p.ur}/40`;
+  if(srBar) srBar.style.width = epicPct+'%';
+  if(urBar) urBar.style.width = legPct+'%';
+  // Pool button
+  const poolBtn = document.getElementById('gpPoolBtn');
+  if(poolBtn){ poolBtn.textContent = '🎨 View Skin Pool'; poolBtn.onclick = openSkinPoolView; }
+  // Rates
+  const ratesGrid = document.getElementById('gpRatesGrid');
+  const ratesNote = document.getElementById('gpRatesNote');
+  if(ratesGrid) ratesGrid.innerHTML = `
+    <div class="gp-rate-item" style="--rc:189,195,199"><span class="gp-rate-dot" style="background:#bdc3c7"></span><span class="gp-rate-tag" style="color:#bdc3c7">[Common]</span><span class="gp-rate-pct">55.0%</span></div>
+    <div class="gp-rate-item" style="--rc:155,89,182"><span class="gp-rate-dot" style="background:#9b59b6"></span><span class="gp-rate-tag" style="color:#9b59b6">[Rare]</span><span class="gp-rate-pct">30.0%</span></div>
+    <div class="gp-rate-item" style="--rc:241,196,15"><span class="gp-rate-dot" style="background:#f1c40f"></span><span class="gp-rate-tag" style="color:#f1c40f">[Epic]</span><span class="gp-rate-pct">12.0%</span></div>
+    <div class="gp-rate-item" style="--rc:255,107,157"><span class="gp-rate-dot" style="background:#ff6b9d"></span><span class="gp-rate-tag" style="color:#ff6b9d">[Legendary]</span><span class="gp-rate-pct">3.0%</span></div>
+  `;
+  if(ratesNote) ratesNote.textContent = '✦ Pity: Epic at 20 pulls · Legendary at 40 pulls';
+}
+
+// ── Restore card dock (called when switching away from skin banner) ──
+function restoreCardDock(){
+  const l1 = document.getElementById('gpPityLabel1');
+  const l2 = document.getElementById('gpPityLabel2');
+  if(l1) l1.textContent = 'SSR Pity';
+  if(l2) l2.textContent = 'UR Pity';
+  const poolBtn = document.getElementById('gpPoolBtn');
+  if(poolBtn){ poolBtn.textContent = '🃏 View Card Pool'; poolBtn.onclick = openPoolView; }
+  const ratesGrid = document.getElementById('gpRatesGrid');
+  const ratesNote = document.getElementById('gpRatesNote');
+  if(ratesGrid) ratesGrid.innerHTML = `
+    <div class="gp-rate-item" style="--rc:189,195,199"><span class="gp-rate-dot"></span><span class="gp-rate-tag rN">[N]</span><span class="gp-rate-pct">42.6%</span></div>
+    <div class="gp-rate-item" style="--rc:46,204,113"><span class="gp-rate-dot"></span><span class="gp-rate-tag rR">[R]</span><span class="gp-rate-pct">29.8%</span></div>
+    <div class="gp-rate-item" style="--rc:52,152,219"><span class="gp-rate-dot"></span><span class="gp-rate-tag rSR">[SR]</span><span class="gp-rate-pct">17.0%</span></div>
+    <div class="gp-rate-item" style="--rc:155,89,182"><span class="gp-rate-dot"></span><span class="gp-rate-tag rSSR">[SSR]</span><span class="gp-rate-pct">6.4%</span></div>
+    <div class="gp-rate-item" style="--rc:241,196,15"><span class="gp-rate-dot"></span><span class="gp-rate-tag rUR">[UR]</span><span class="gp-rate-pct">2.1%</span></div>
+    <div class="gp-rate-item" style="--rc:255,107,157"><span class="gp-rate-dot"></span><span class="gp-rate-tag rLR">[LR]</span><span class="gp-rate-pct">0.9%</span></div>
+    <div class="gp-rate-item" style="--rc:255,100,200">
+      <span class="gp-rate-dot" style="background:linear-gradient(135deg,#ff79c6,#bd93f9);box-shadow:0 0 6px rgba(255,120,200,0.8)"></span>
+      <span class="gp-rate-tag" style="-webkit-text-fill-color:transparent;background:var(--rainbow);background-size:200%;-webkit-background-clip:text;animation:rainbowShift 2.5s linear infinite">[???]</span>
+      <span class="gp-rate-pct">0.4%</span>
+    </div>
+  `;
+  if(ratesNote) ratesNote.textContent = '✦ 10-pull guarantees SR+ · pity tracked per banner';
+}
+
+// ── Skin pool view modal ──
+function openSkinPoolView(){
+  const banner = getActiveBanner();
+  const pool = buildSkinPool(banner);
+  const featuredIds = parseFeaturedCards(banner?.featured_cards||[]);
+  let html = '<div style="max-height:60vh;overflow-y:auto;padding-right:4px;">';
+  const byRarity = {};
+  pool.forEach(s=>{
+    const r = s.rarity||'rare';
+    if(!byRarity[r]) byRarity[r]={skins:[],featured:false};
+    if(featuredIds.includes(s.id)) byRarity[r].featured=true;
+    if(!byRarity[r].skins.find(x=>x.id===s.id)) byRarity[r].skins.push(s);
+  });
+  const order = ['legendary','epic','rare','common'];
+  order.forEach(r=>{
+    if(!byRarity[r]) return;
+    const meta = SKIN_RARITY_META[r];
+    html += `<div style="margin-bottom:14px;"><div style="font-family:'JetBrains Mono',monospace;font-size:0.7em;color:${meta.color};letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px;">${meta.icon} ${meta.label}</div>`;
+    html += '<div style="display:flex;flex-wrap:wrap;gap:8px;">';
+    byRarity[r].skins.forEach(s=>{
+      const isFeat = featuredIds.includes(s.id);
+      const cardName = (window.DEMO_CARDS||[]).find(c=>c.id===s.card_id)?.name||s.card_id;
+      html += `<div style="position:relative;width:68px;cursor:pointer;" onclick="openSkinPreview('${s.id}')">
+        <img src="${escapeHtml(s.thumbnail||s.image||'')}" style="width:68px;height:90px;object-fit:cover;border-radius:8px;border:1px solid ${meta.color}33;" onerror="this.style.background='#1c0f26'"/>
+        ${isFeat?'<div style="position:absolute;top:4px;right:4px;background:rgba(255,157,199,0.9);border-radius:4px;padding:1px 4px;font-size:0.5em;font-family:\'JetBrains Mono\',monospace;color:#000;font-weight:700;">RATE▲</div>':''}
+        <div style="font-size:0.55em;color:var(--text-dim);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(s.name)}</div>
+        <div style="font-size:0.5em;color:var(--text-dim);font-style:italic;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(cardName)}</div>
+      </div>`;
+    });
+    html += '</div></div>';
+  });
+  html += '</div>';
+  // Reuse card pool modal if it exists, else show toast
+  const modal = document.getElementById('poolModal') || document.getElementById('cardPoolModal');
+  if(modal){
+    const body = modal.querySelector('.pool-body,.modal-body') || modal;
+    body.innerHTML = `<div class="section-title" style="margin-bottom:16px;">🎨 Skin Banner Pool</div>${html}`;
+    modal.classList.add('active');
+  } else {
+    showToast('🎨 Skin pool — open console for details');
+    console.log('[MeoGacha] Skin Pool:', pool);
+  }
+}
+
+function openDockPoolView(){
+  const banner = getActiveBanner();
+  if(banner?.banner_type === 'skin') openSkinPoolView();
+  else openPoolView();
+}
+
+// ── Quick skin preview (click on featured skin in banner) ──
+function openSkinPreview(skinId){
+  const skin = (window.ALL_SKINS||[]).find(s=>s.id===skinId);
+  if(!skin) return;
+  // Open the card modal if possible
+  if(skin.card_id) openCard(skin.card_id);
+}
+
+// ── Build weighted skin pool ──
+function buildSkinPool(banner){
+  const all = window.ALL_SKINS || [];
+  if(!all.length) return [];
+  const featuredIds = parseFeaturedCards(banner?.featured_cards || []);
+  const rarityWeights = { legendary: 3, epic: 12, rare: 30, common: 55 };
+  const pool = [];
+  all.forEach(skin => {
+    const w = rarityWeights[skin.rarity||'rare'] || 30;
+    // Featured skins get 3× weight
+    const copies = featuredIds.includes(skin.id) ? w * 3 : w;
+    for(let i=0; i<copies; i++) pool.push(skin);
+  });
+  return pool.length ? pool : all;
+}
+
+// ── Skin pull pity ──
+function addPitySkin(skin){
+  const p = getPity('skin');
+  // Epic pity at 20, Legendary at 40
+  if(skin.rarity === 'legendary') { p.sr=0; p.ur=0; }
+  else if(skin.rarity === 'epic') { p.sr=0; p.ur++; }
+  else { p.sr++; p.ur++; }
+}
+
+// ── Apply skin pity guarantee ──
+function applyPitySkin(pool){
+  const p = getPity('skin');
+  if(p.ur >= 40){
+    // Must be legendary
+    const legPool = pool.filter(s=>s.rarity==='legendary');
+    return legPool.length ? legPool : pool;
+  }
+  if(p.sr >= 20){
+    // Must be epic or better
+    const epicPool = pool.filter(s=>s.rarity==='epic'||s.rarity==='legendary');
+    return epicPool.length ? epicPool : pool;
+  }
+  return pool;
+}
+
+// ── Skin pull logic ──
+async function doPullSkin(count){
+  if(state.coins < (count===1?50:200)){ showToast('Not enough Meo Coins! 🪙'); return; }
+  state.coins -= count===1?50:200;
+  updateCoins();
+
+  const banner = getActiveBanner();
+  const basePool = buildSkinPool(banner);
+  if(!basePool.length){ showToast('⚠️ No skins in this banner\'s pool yet!'); state.coins += count===1?50:200; updateCoins(); return; }
+
+  const results = [];
+  for(let i=0; i<count; i++){
+    const pool = applyPitySkin(basePool);
+    const skin = weightedPick(pool);
+    results.push(skin);
+    addPitySkin(skin);
+  }
+
+  // Grant skins to player
+  for(const skin of results){
+    if(!window.PLAYER_SKINS) window.PLAYER_SKINS = {};
+    window.PLAYER_SKINS[skin.id] = true;
+    // Save to DB if logged in
+    if(state.discordId && !state.isGuest){
+      try {
+        await sb.upsert('player_skins', { discord_id: state.discordId, skin_id: skin.id, obtained_at: new Date().toISOString() });
+      } catch(e){ console.warn('skin save error', e); }
+    }
+  }
+
+  if(state.discordId && !state.isGuest) await savePlayer().catch(()=>{});
+  else if(state.isGuest) saveGuestState();
+
+  updateSkinDock();
+
+  if(count === 1) showSkinPullScreen(results[0]);
+  else showSkinMultiPullScreen(results);
+}
+
+// ── Single skin pull result screen ──
+function showSkinPullScreen(skin){
+  const meta = SKIN_RARITY_META[skin.rarity||'rare'] || SKIN_RARITY_META.rare;
+  const isNew = true; // they just pulled it
+  const overlay = document.createElement('div');
+  overlay.id = 'skinPullOverlay';
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.92);display:flex;flex-direction:column;align-items:center;justify-content:center;animation:fadeIn 0.3s ease;';
+  overlay.innerHTML = `
+    <div style="text-align:center;max-width:360px;padding:32px 24px;position:relative;">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:0.75em;color:${meta.color};letter-spacing:0.2em;text-transform:uppercase;margin-bottom:12px;">${meta.icon} ${meta.label} Skin</div>
+      <div style="position:relative;display:inline-block;margin-bottom:20px;">
+        <img src="${escapeHtml(skin.thumbnail||skin.image||'')}" style="width:200px;height:266px;object-fit:cover;border-radius:16px;border:2px solid ${meta.color};box-shadow:0 0 40px ${meta.color}55;animation:float 3s ease-in-out infinite;" onerror="this.style.background='#1c0f26'"/>
+        <div style="position:absolute;inset:0;border-radius:16px;background:linear-gradient(to bottom,transparent 50%,rgba(0,0,0,0.7) 100%);pointer-events:none;"></div>
+        <div style="position:absolute;bottom:12px;left:0;right:0;text-align:center;font-family:'Cinzel Decorative',serif;font-size:0.78em;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,0.8);">${escapeHtml(skin.name)}</div>
+      </div>
+      <div style="font-size:0.85em;color:var(--text-dim);margin-bottom:6px;">
+        For: <span style="color:var(--text)">${escapeHtml((window.DEMO_CARDS||[]).find(c=>c.id===skin.card_id)?.name||skin.card_id)}</span>
+      </div>
+      <div style="display:flex;gap:10px;justify-content:center;margin-top:20px;flex-wrap:wrap;">
+        <button onclick="document.getElementById('skinPullOverlay')?.remove();doPullSkin(1)" class="gp-wish-btn gp-wish-btn-skin" style="font-size:0.8em;padding:8px 20px;">Pull Again 🎨</button>
+        <button onclick="document.getElementById('skinPullOverlay')?.remove()" class="btn-secondary" style="font-size:0.8em;padding:8px 20px;">Collect</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', e=>{ if(e.target===overlay) overlay.remove(); });
+  spawnParticles(4, meta.color);
+}
+
+// ── Multi skin pull result screen ──
+function showSkinMultiPullScreen(skins){
+  const overlay = document.createElement('div');
+  overlay.id = 'skinPullOverlay';
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.92);display:flex;flex-direction:column;align-items:center;justify-content:center;animation:fadeIn 0.3s ease;overflow-y:auto;padding:20px;';
+  const skinCards = skins.map((skin,i)=>{
+    const meta = SKIN_RARITY_META[skin.rarity||'rare'] || SKIN_RARITY_META.rare;
+    return `<div class="multi-card-item new-card skin-pull-card" style="animation-delay:${i*0.12}s">
+      <img class="multi-card-img" src="${escapeHtml(skin.thumbnail||skin.image||'')}" alt="${escapeHtml(skin.name)}" style="border-color:${meta.color};box-shadow:0 0 16px ${meta.color}55;" onerror="this.style.background='#1c0f26'"/>
+      <div class="multi-card-rarity" style="color:${meta.color}">${meta.icon} ${meta.label}</div>
+      <div class="multi-card-name">${escapeHtml(skin.name)}</div>
+    </div>`;
+  }).join('');
+  overlay.innerHTML = `
+    <div style="font-family:'Cinzel Decorative',serif;font-size:1em;color:#c084b8;text-align:center;margin-bottom:20px;letter-spacing:0.08em;">🎨 Skin Pull Results</div>
+    <div class="multi-cards-row" style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center;max-width:500px;">${skinCards}</div>
+    <div style="display:flex;gap:10px;margin-top:24px;flex-wrap:wrap;justify-content:center;">
+      <button onclick="document.getElementById('skinPullOverlay')?.remove();doPullSkin(5)" class="gp-wish-btn gp-wish-btn-skin" style="font-size:0.8em;padding:8px 20px;">Pull ×5 Again 🎨</button>
+      <button onclick="document.getElementById('skinPullOverlay')?.remove()" class="btn-secondary" style="font-size:0.8em;padding:8px 20px;">Collect All</button>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', e=>{ if(e.target===overlay) overlay.remove(); });
+  // Stagger reveal
+  overlay.querySelectorAll('.skin-pull-card').forEach((el,i)=>{
+    setTimeout(()=>{ el.classList.add('revealed'); spawnParticles(3,'#c084b8'); }, i*200+100);
+  });
 }
 
 // ── Filter skin banner grid by rarity tab ──
@@ -33022,7 +33346,6 @@ function filterSkinBannerByRarity(rarity, btn){
 function getSkinBannerPool(banner){
   const all = window.ALL_SKINS || [];
   const rarityTier = { legendary:0, epic:1, rare:2, common:3 };
-  // Sort by rarity (highest first), then name
   const sorted = [...all].sort((a,b)=>{
     const ra = rarityTier[a.rarity||'rare'] ?? 2;
     const rb = rarityTier[b.rarity||'rare'] ?? 2;
