@@ -206,7 +206,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .lb-tab:hover{color:var(--pink);background:rgba(255,157,199,0.07);}
 .lb-tab.active{background:linear-gradient(135deg,rgba(155,89,182,0.35),rgba(255,157,199,0.2));color:var(--pink);box-shadow:0 2px 12px rgba(155,89,182,0.25);}
 .cards-grid{display:flex;flex-wrap:nowrap;gap:10px;overflow-x:auto;padding-bottom:8px;scrollbar-width:thin;scrollbar-color:rgba(255,157,199,0.3) transparent;}.cards-grid::-webkit-scrollbar{height:4px;}.cards-grid::-webkit-scrollbar-thumb{background:rgba(255,157,199,0.3);border-radius:2px;}
-.card-thumb{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;cursor:pointer;transition:all 0.25s;position:relative;flex:0 0 calc(25% - 8px);min-width:80px;max-width:130px;}
+.card-thumb{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;cursor:pointer;transition:all 0.25s;position:relative;flex:0 0 calc(33.333% - 8px);min-width:90px;max-width:150px;}
 .card-thumb:hover{transform:translateY(-4px);box-shadow:0 8px 24px rgba(255,157,199,0.15);border-color:rgba(255,157,199,0.4);}
 .card-thumb img{width:100%;aspect-ratio:3/4;object-fit:cover;display:block;}
 .card-thumb-info{padding:8px 10px;}
@@ -2704,7 +2704,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   .pull-name { font-size: 1.3em; }
 
   /* ── Cards ── */
-  .cards-grid { gap: 8px; } .card-thumb { flex: 0 0 calc(25% - 6px); min-width:72px; max-width:110px; }
+  .cards-grid { gap: 8px; } .card-thumb { flex: 0 0 calc(33.333% - 6px); min-width:82px; max-width:140px; }
 
   /* ── Shop ── */
   .shop-grid { grid-template-columns: 1fr 1fr; }
@@ -2794,7 +2794,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 
 @media(max-width:380px){
   .pull-btn-group { grid-template-columns: 1fr; }
-  .cards-grid { gap: 6px; } .card-thumb { flex: 0 0 calc(25% - 5px); min-width:65px; }
+  .cards-grid { gap: 6px; } .card-thumb { flex: 0 0 calc(33.333% - 5px); min-width:78px; }
   .shop-grid { grid-template-columns: 1fr; }
   .admin-grid { grid-template-columns: 1fr; }
   .rates-grid { grid-template-columns: repeat(3, 1fr); }
@@ -17084,8 +17084,13 @@ function renderCardThumb(id,counts){
   // Series logo lookup
   const seriesEntryT = (window.ANIME_COLLECTIONS||[]).find(a=>a.name&&a.name.toLowerCase()===(c.series||'').toLowerCase());
   const seriesLogoT = seriesEntryT?.logo_url || '';
-  const cardBorderStyle = isRainbow ? `border-color:transparent;animation:rainbowBorder 2.5s linear infinite;` : `border-color:${color}55;`;
-  return`<div class="card-thumb${isRainbow?' rainbow-card':''}" onclick="openCard('${id}')" style="${cardBorderStyle}${isRainbow?'box-shadow:0 0 14px rgba(255,100,200,0.4);':''}">
+  const _hx = (c.color||color).replace('#','');
+  const _cr = parseInt(_hx.substring(0,2),16)||155;
+  const _cg = parseInt(_hx.substring(2,4),16)||89;
+  const _cb = parseInt(_hx.substring(4,6),16)||182;
+  const cardBgStyle = isRainbow ? '' : `background:linear-gradient(180deg, rgba(${_cr},${_cg},${_cb},0.18) 0%, rgba(${_cr},${_cg},${_cb},0.04) 55%, var(--surface) 100%);`;
+  const cardBorderStyle = isRainbow ? `border-color:transparent;animation:rainbowBorder 2.5s linear infinite;` : `border-color:rgba(${_cr},${_cg},${_cb},0.45);`;
+  return`<div class="card-thumb${isRainbow?' rainbow-card':''}" onclick="openCard('${id}')" style="${cardBgStyle}${cardBorderStyle}${isRainbow?'box-shadow:0 0 14px rgba(255,100,200,0.4);':''}">
     <img src="${thumbSrc}" alt="${c.name}" loading="lazy" onerror="this.style.background='#1c0f26'"/>
     ${badgeDisplay}
     <span class="card-thumb-lvl">Lv.${lvl}</span>
@@ -17204,12 +17209,17 @@ function openCard(id){
   const fullImgSrc  = getCardImage(c);
   document.getElementById('modalArt').src = thumbImgSrc;
 
-  // Tint modal background by card color
+  // Tint modal background by card color (hex → rgba, no color-mix needed)
   const modalBox = document.getElementById('modalBox');
   if(modalBox) {
-    modalBox.style.background = `linear-gradient(160deg, color-mix(in srgb, ${color} 18%, var(--bg2)) 0%, var(--bg2) 40%, var(--bg3) 100%)`;
-    modalBox.style.borderColor = color + '55';
-    modalBox.style.boxShadow   = `0 0 40px ${color}22, 0 8px 40px rgba(0,0,0,0.6)`;
+    // Parse hex color to rgb for rgba() usage
+    const _hex = (color||'#9b59b6').replace('#','');
+    const _r = parseInt(_hex.substring(0,2),16)||155;
+    const _g = parseInt(_hex.substring(2,4),16)||89;
+    const _b = parseInt(_hex.substring(4,6),16)||182;
+    modalBox.style.background = `linear-gradient(160deg, rgba(${_r},${_g},${_b},0.22) 0%, rgba(${_r},${_g},${_b},0.08) 40%, #0d0617 100%)`;
+    modalBox.style.borderColor = `rgba(${_r},${_g},${_b},0.5)`;
+    modalBox.style.boxShadow   = `0 0 50px rgba(${_r},${_g},${_b},0.18), 0 8px 40px rgba(0,0,0,0.7)`;
   }
 
   // Rarity strip
