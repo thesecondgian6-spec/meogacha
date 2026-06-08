@@ -3698,8 +3698,8 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .gradient-color-input{width:44px;height:36px;border-radius:8px;border:2px solid var(--border);cursor:pointer;padding:2px;background:transparent;}
 .gradient-preview-bar{height:32px;border-radius:8px;flex:1;transition:background 0.3s;border:1px solid var(--border);}
 /* ── Showcase card picker ── */
-.showcase-slots{display:flex;gap:10px;margin-bottom:12px;justify-content:center;}
-.showcase-slot{width:72px;height:100px;border-radius:10px;border:2px dashed rgba(255,157,199,0.3);background:rgba(255,157,199,0.04);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all 0.2s;position:relative;overflow:hidden;}
+.showcase-slots{display:flex;gap:12px;margin-bottom:12px;justify-content:center;}
+.showcase-slot{width:90px;height:125px;border-radius:12px;border:2px dashed rgba(255,157,199,0.3);background:rgba(255,157,199,0.04);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all 0.2s;position:relative;overflow:hidden;}
 .showcase-slot:hover{border-color:var(--pink);background:rgba(255,157,199,0.1);}
 .showcase-slot.filled{border-style:solid;border-color:var(--pink);}
 .showcase-slot img{width:100%;height:100%;object-fit:cover;display:block;}
@@ -3726,13 +3726,13 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .pmusic-wave.paused span{animation:none;height:4px;}
 /* ── Profile page showcase section ── */
 .profile-showcase-section{margin-bottom:20px;}
-.profile-showcase-cards{display:flex;gap:10px;justify-content:center;padding:4px;}
-.psc-card{width:clamp(72px,25%,96px);border-radius:12px;overflow:hidden;border:2px solid var(--border);position:relative;cursor:pointer;transition:transform 0.2s,box-shadow 0.2s;flex-shrink:0;}
-.psc-card:hover{transform:translateY(-5px);box-shadow:0 8px 24px rgba(255,157,199,0.25);}
+.profile-showcase-cards{display:flex;gap:14px;justify-content:center;padding:6px 4px;}
+.psc-card{width:clamp(100px,30%,130px);border-radius:14px;overflow:hidden;border:2px solid var(--border);position:relative;cursor:pointer;transition:transform 0.2s,box-shadow 0.2s;flex-shrink:0;}
+.psc-card:hover{transform:translateY(-6px);box-shadow:0 10px 30px rgba(255,157,199,0.3);}
 .psc-card img{width:100%;aspect-ratio:3/4;object-fit:cover;display:block;}
-.psc-card-label{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,0.85));padding:14px 5px 5px;text-align:center;}
-.psc-card-name{font-size:0.62em;color:#fff;font-family:'Cinzel Decorative',serif;display:block;line-height:1.2;}
-.psc-card-rarity{font-size:0.58em;display:block;margin-top:1px;}
+.psc-card-label{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,0.9));padding:18px 6px 7px;text-align:center;}
+.psc-card-name{font-size:0.65em;color:#fff;font-family:'Cinzel Decorative',serif;display:block;line-height:1.2;}
+.psc-card-rarity{font-size:0.6em;display:block;margin-top:2px;}
 /* ── Room quick-link on profile ── */
 .profile-room-link{display:flex;align-items:center;gap:12px;background:rgba(255,157,199,0.04);border:1px solid var(--border);border-radius:14px;padding:12px 16px;margin-bottom:16px;cursor:pointer;transition:all 0.2s;}
 .profile-room-link:hover{border-color:var(--pink);background:rgba(255,157,199,0.1);}
@@ -17302,6 +17302,10 @@ function updateProfile(){
     bannerEl.style.background='none';
     bannerImgEl.src=state.bannerImage;bannerImgEl.style.display='block';
   } else {
+    // Always recompute from gradient fields so picker changes are immediately visible
+    const gs=state.gradientStart||'#e0608a';
+    const ge=state.gradientEnd||'#c084b8';
+    state.bannerColor=`linear-gradient(135deg,${gs},${ge})`;
     bannerEl.style.background=state.bannerColor;
     bannerImgEl.style.display='none';
   }
@@ -17321,11 +17325,11 @@ function updateProfile(){
   if(musicBar){
     if(state.profileMusic){
       musicBar.style.display='flex';
-      const fname = state.profileMusic.split('/').pop().split('?')[0].replace(/\.(mp3|ogg|wav|m4a)$/i,'').replace(/[-_]/g,' ')||'Track';
-      if(musicTitle) musicTitle.textContent = fname;
+      if(musicTitle) musicTitle.textContent = getMusicTitle(state.profileMusic);
     } else {
       musicBar.style.display='none';
       if(_profileMusicAudio){ _profileMusicAudio.pause(); _profileMusicAudio=null; _profileMusicPlaying=false; }
+      const pif=document.getElementById('profileMusicIframe'); if(pif) pif.src='';
     }
   }
 
@@ -17626,6 +17630,136 @@ let _peMusicTestAudio = null;
 let _profileMusicAudio = null;
 let _profileMusicPlaying = false;
 
+// ── YouTube URL helpers ──
+function extractYtId(url){
+  if(!url) return null;
+  const m = url.match(/(?:youtube\.com\/(?:watch\?.*v=|embed\/|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+  return m ? m[1] : null;
+}
+function isYtUrl(url){ return !!extractYtId(url); }
+function ytEmbedUrl(videoId, autoplay=true){
+  return `https://www.youtube.com/embed/${videoId}?autoplay=${autoplay?1:0}&loop=1&playlist=${videoId}&controls=0&rel=0&modestbranding=1&enablejsapi=1`;
+}
+function getMusicTitle(url){
+  if(!url) return '—';
+  const ytId = extractYtId(url);
+  if(ytId) return '🎬 YouTube Track';
+  return url.split('/').pop().split('?')[0].replace(/\.(mp3|ogg|wav|m4a|flac)$/i,'').replace(/[-_]/g,' ')||'Track';
+}
+
+// ── Profile music iframe (hidden, reused) ──
+function getOrCreateProfileMusicFrame(id='profileMusicIframe'){
+  let f = document.getElementById(id);
+  if(!f){
+    f = document.createElement('iframe');
+    f.id = id;
+    f.style.cssText='position:fixed;width:0;height:0;border:none;opacity:0;pointer-events:none;z-index:-1;';
+    f.allow = 'autoplay';
+    document.body.appendChild(f);
+  }
+  return f;
+}
+
+// ── Editor preview music ──
+function previewProfileMusic(){
+  const url = document.getElementById('editProfileMusic')?.value.trim();
+  if(!url){ showToast('Enter a music URL first'); return; }
+  const prevEl = document.getElementById('peMusicsPreview');
+  const titleEl = document.getElementById('peMusicTestTitle');
+  if(prevEl) prevEl.style.display='block';
+  if(titleEl) titleEl.textContent = getMusicTitle(url);
+  // stop old
+  if(_peMusicTestAudio){ _peMusicTestAudio.pause(); _peMusicTestAudio=null; }
+  const ytId = extractYtId(url);
+  if(ytId){
+    const f = getOrCreateProfileMusicFrame('peMusicTestFrame');
+    f.src = ytEmbedUrl(ytId, true);
+    setPeWave(true);
+    // fetch title
+    fetch(`https://noembed.com/embed?url=https://www.youtube.com/watch?v=${ytId}`)
+      .then(r=>r.json()).then(d=>{ if(titleEl&&d.title) titleEl.textContent='🎬 '+d.title; }).catch(()=>{});
+  } else {
+    const f2 = document.getElementById('peMusicTestFrame');
+    if(f2) f2.src='';
+    _peMusicTestAudio = new Audio(url);
+    _peMusicTestAudio.volume = 0.4;
+    _peMusicTestAudio.play().then(()=>setPeWave(true)).catch(()=>showToast('⚠️ Could not play — check the URL'));
+  }
+}
+
+function togglePeMusicTest(){
+  const url = document.getElementById('editProfileMusic')?.value.trim();
+  if(!url) return;
+  const ytId = extractYtId(url);
+  if(ytId){
+    const f = document.getElementById('peMusicTestFrame');
+    if(!f || !f.src || f.src==='about:blank'){ previewProfileMusic(); return; }
+    // Toggle by clearing/restoring src
+    if(f.src.includes('autoplay=1')){ f.src = ytEmbedUrl(ytId, false); setPeWave(false); }
+    else { f.src = ytEmbedUrl(ytId, true); setPeWave(true); }
+    return;
+  }
+  if(!_peMusicTestAudio) return previewProfileMusic();
+  if(_peMusicTestAudio.paused){ _peMusicTestAudio.play(); setPeWave(true); }
+  else { _peMusicTestAudio.pause(); setPeWave(false); }
+}
+
+function setPeWave(playing){
+  const wave = document.getElementById('peMusicWave');
+  const btn = document.getElementById('peMusicPlayBtn');
+  if(wave) wave.classList.toggle('paused', !playing);
+  if(btn) btn.textContent = playing ? '⏸' : '▶';
+}
+
+function clearProfileMusic(){
+  const inp = document.getElementById('editProfileMusic');
+  if(inp) inp.value='';
+  if(_peMusicTestAudio){ _peMusicTestAudio.pause(); _peMusicTestAudio=null; }
+  const f = document.getElementById('peMusicTestFrame');
+  if(f) f.src='';
+  const prevEl=document.getElementById('peMusicsPreview');
+  if(prevEl) prevEl.style.display='none';
+  setPeWave(false);
+}
+
+// ── Profile page music player ──
+function toggleProfileMusic(){
+  if(!state.profileMusic) return;
+  const ytId = extractYtId(state.profileMusic);
+  if(ytId){
+    const f = getOrCreateProfileMusicFrame('profileMusicIframe');
+    if(_profileMusicPlaying){
+      f.src=''; _profileMusicPlaying=false; setProfileMusicWave(false);
+    } else {
+      f.src = ytEmbedUrl(ytId, true);
+      _profileMusicPlaying=true; setProfileMusicWave(true);
+    }
+    return;
+  }
+  // Direct audio
+  if(!_profileMusicAudio){
+    _profileMusicAudio = new Audio(state.profileMusic);
+    _profileMusicAudio.loop = true;
+    _profileMusicAudio.volume = 0.35;
+    _profileMusicAudio.onended = ()=>{ _profileMusicPlaying=false; setProfileMusicWave(false); };
+  }
+  if(_profileMusicPlaying){
+    _profileMusicAudio.pause();
+    _profileMusicPlaying=false;
+    setProfileMusicWave(false);
+  } else {
+    _profileMusicAudio.play().then(()=>{ _profileMusicPlaying=true; setProfileMusicWave(true); })
+      .catch(()=>showToast('⚠️ Could not play music'));
+  }
+}
+
+function setProfileMusicWave(playing){
+  const wave=document.getElementById('profileMusicWave');
+  const btn=document.getElementById('profileMusicPlayBtn');
+  if(wave) wave.classList.toggle('paused',!playing);
+  if(btn) btn.textContent=playing?'⏸':'▶';
+}
+
 function switchPeTab(tab, btn){
   document.querySelectorAll('.pe-tab').forEach(b=>b.classList.remove('active'));
   document.querySelectorAll('.pe-panel').forEach(p=>p.classList.remove('active'));
@@ -17761,41 +17895,6 @@ function renderPeRoomTab(){
   });
 }
 
-function previewProfileMusic(){
-  const url = document.getElementById('editProfileMusic')?.value.trim();
-  if(!url){ showToast('Enter a music URL first'); return; }
-  const prevEl = document.getElementById('peMusicsPreview');
-  const titleEl = document.getElementById('peMusicTestTitle');
-  if(prevEl) prevEl.style.display='block';
-  const fname = url.split('/').pop().split('?')[0].replace(/\.(mp3|ogg|wav|m4a)$/i,'').replace(/[-_]/g,' ')||'Track';
-  if(titleEl) titleEl.textContent = fname;
-  if(_peMusicTestAudio){ _peMusicTestAudio.pause(); _peMusicTestAudio=null; }
-  _peMusicTestAudio = new Audio(url);
-  _peMusicTestAudio.volume = 0.4;
-  _peMusicTestAudio.play().then(()=>setPeWave(true)).catch(()=>showToast('⚠️ Could not play — check the URL'));
-}
-
-function togglePeMusicTest(){
-  if(!_peMusicTestAudio) return previewProfileMusic();
-  if(_peMusicTestAudio.paused){ _peMusicTestAudio.play(); setPeWave(true); }
-  else { _peMusicTestAudio.pause(); setPeWave(false); }
-}
-
-function setPeWave(playing){
-  const wave = document.getElementById('peMusicWave');
-  const btn = document.getElementById('peMusicPlayBtn');
-  if(wave) wave.classList.toggle('paused', !playing);
-  if(btn) btn.textContent = playing ? '⏸' : '▶';
-}
-
-function clearProfileMusic(){
-  const inp = document.getElementById('editProfileMusic');
-  if(inp) inp.value='';
-  if(_peMusicTestAudio){ _peMusicTestAudio.pause(); _peMusicTestAudio=null; }
-  const prevEl=document.getElementById('peMusicsPreview');
-  if(prevEl) prevEl.style.display='none';
-}
-
 function openProfileEdit(){
   editBannerColor = state.bannerColor;
   editTitle = state.title;
@@ -17832,7 +17931,13 @@ function openProfileEdit(){
   const musicEl=document.getElementById('editProfileMusic');
   if(musicEl) musicEl.value=state.profileMusic||'';
   const prevEl=document.getElementById('peMusicsPreview');
-  if(prevEl) prevEl.style.display='none';
+  if(state.profileMusic){
+    if(prevEl) prevEl.style.display='block';
+    const titleEl=document.getElementById('peMusicTestTitle');
+    if(titleEl) titleEl.textContent=getMusicTitle(state.profileMusic);
+  } else {
+    if(prevEl) prevEl.style.display='none';
+  }
 
   // Banner color presets (still shown as quick-set for gradient)
   const cp=document.getElementById('bannerColorPicker');
@@ -17940,11 +18045,12 @@ async function saveProfileCustom(){
   // Banner image
   const newBannerImg=(document.getElementById('editBannerUrl')?.value||'').trim();
   state.bannerImage=newBannerImg;
-  // Gradient colors
+  // Gradient colors — always save
   const gs=document.getElementById('gradientStart')?.value||'#e0608a';
   const ge=document.getElementById('gradientEnd')?.value||'#c084b8';
   state.gradientStart=gs; state.gradientEnd=ge;
-  if(!state.bannerImage) state.bannerColor=`linear-gradient(135deg,${gs},${ge})`;
+  // bannerColor is always derived from gradients; image takes visual precedence in updateProfile
+  state.bannerColor=`linear-gradient(135deg,${gs},${ge})`;
   // Profile music
   state.profileMusic=(document.getElementById('editProfileMusic')?.value||'').trim();
   // Showcase cards
@@ -17961,31 +18067,6 @@ async function saveProfileCustom(){
 function closeProfileEdit(e){
   if(!e||e.target===document.getElementById('profileEditModal'))
     document.getElementById('profileEditModal').classList.remove('active');
-}
-
-function toggleProfileMusic(){
-  if(!state.profileMusic) return;
-  if(!_profileMusicAudio){
-    _profileMusicAudio = new Audio(state.profileMusic);
-    _profileMusicAudio.loop = true;
-    _profileMusicAudio.volume = 0.35;
-    _profileMusicAudio.onended = ()=>{ _profileMusicPlaying=false; setProfileMusicWave(false); };
-  }
-  if(_profileMusicPlaying){
-    _profileMusicAudio.pause();
-    _profileMusicPlaying=false;
-    setProfileMusicWave(false);
-  } else {
-    _profileMusicAudio.play().then(()=>{ _profileMusicPlaying=true; setProfileMusicWave(true); })
-      .catch(()=>showToast('⚠️ Could not play music'));
-  }
-}
-
-function setProfileMusicWave(playing){
-  const wave=document.getElementById('profileMusicWave');
-  const btn=document.getElementById('profileMusicPlayBtn');
-  if(wave) wave.classList.toggle('paused',!playing);
-  if(btn) btn.textContent=playing?'⏸':'▶';
 }
 
 // ══════════════════════════════════════════════
@@ -30034,19 +30115,20 @@ function openPlayerModal(player){
     if(showcaseCards.length){
       showcaseHtml = `<div style="margin-bottom:14px;">
         <div style="font-size:0.65em;color:var(--text-dim);letter-spacing:0.1em;margin-bottom:8px;text-transform:uppercase;">✦ Showcase</div>
-        <div style="display:flex;gap:8px;justify-content:center;">
+        <div style="display:flex;gap:12px;justify-content:center;">
           ${showcaseCards.map(c=>{
             const rc=RARITY_COLORS[c.rarity]||'#bdc3c7';
-            return `<div style="width:68px;border-radius:10px;overflow:hidden;border:2px solid ${rc};
-              box-shadow:0 0 10px ${rc}44;cursor:pointer;transition:transform .2s;flex-shrink:0;"
+            return `<div style="width:90px;border-radius:12px;overflow:hidden;border:2px solid ${rc};
+              box-shadow:0 0 14px ${rc}44;cursor:pointer;transition:transform .2s;flex-shrink:0;"
               onclick="closePlayerModal();setTimeout(()=>openCard('${c.id}'),200)"
-              onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform=''">
+              onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform=''">
               <img src="${c.thumbnail||c.image}" style="width:100%;aspect-ratio:3/4;object-fit:cover;display:block;" onerror="this.style.display='none'"/>
-              <div style="background:rgba(0,0,0,0.75);padding:3px 4px;text-align:center;">
-                <div style="font-size:0.55em;color:#fff;font-family:'Cinzel Decorative',serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(c.name)}</div>
-                <div style="font-size:0.5em;color:${rc};margin-top:1px;">${c.rarityStars||''}</div>
+              <div style="background:rgba(0,0,0,0.8);padding:5px 4px;text-align:center;">
+                <div style="font-size:0.58em;color:#fff;font-family:'Cinzel Decorative',serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(c.name)}</div>
+                <div style="font-size:0.55em;color:${rc};margin-top:2px;">${c.rarityStars||''}</div>
               </div>
             </div>`;
+          }).join('')}
           }).join('')}
         </div>
       </div>`;
@@ -30189,13 +30271,23 @@ function openPlayerModal(player){
   }
 }
 
-// Modal music toggle — per-modal audio instance
+// Modal music toggle — per-modal audio/iframe instance
 window._modalMusicAudio = null;
 function toggleModalMusic(url, btn){
   if(!url) return;
-  if(!window._modalMusicAudio || window._modalMusicAudio.src !== url){
+  const ytId = extractYtId(url);
+  if(ytId){
+    const f = getOrCreateProfileMusicFrame('modalMusicIframe');
+    const playing = f.src && f.src.includes('autoplay=1');
+    if(playing){ f.src=''; if(btn) btn.textContent='▶'; }
+    else { f.src=ytEmbedUrl(ytId,true); if(btn) btn.textContent='⏸'; }
+    return;
+  }
+  // Direct audio
+  if(!window._modalMusicAudio || window._modalMusicAudio._url!==url){
     if(window._modalMusicAudio) window._modalMusicAudio.pause();
     window._modalMusicAudio = new Audio(url);
+    window._modalMusicAudio._url = url;
     window._modalMusicAudio.volume = 0.35;
     window._modalMusicAudio.loop = true;
   }
@@ -30211,6 +30303,8 @@ function closePlayerModal(){
   const modal = document.getElementById('playerProfileModal');
   if(modal) modal.classList.remove('active');
   if(window._modalMusicAudio){ window._modalMusicAudio.pause(); window._modalMusicAudio=null; }
+  const mf = document.getElementById('modalMusicIframe');
+  if(mf) mf.src='';
 }
 
 // ══════════════════════════════════════════════
