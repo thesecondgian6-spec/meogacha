@@ -32995,24 +32995,36 @@ function renderSkinBanner(){
     return `<div class="gp-spark" style="width:${size}px;height:${size}px;left:${left}%;top:${top}%;animation-duration:${dur}s;animation-delay:${delay}s;box-shadow:0 0 ${size*3}px rgba(200,160,240,0.9);"></div>`;
   }).join('');
 
-  // Featured skins
+  // Featured skins — dynamic sizing like card banners
   const featuredIds = parseFeaturedCards(banner.featured_cards);
   const allSkins = window.ALL_SKINS || [];
   const featuredSkins = featuredIds.map(id => allSkins.find(s=>s.id===id)).filter(Boolean);
 
+  const fs = featuredSkins.length;
+  const skinCardHeight = fs === 1 ? 'clamp(200px, 52vw, 280px)'
+                       : fs === 2 ? 'clamp(160px, 42vw, 240px)'
+                       : fs === 3 ? 'clamp(120px, 30vw, 180px)'
+                       : fs === 4 ? 'clamp(90px,  22vw, 140px)'
+                       :            'clamp(76px,  17vw, 120px)';
+  const skinCardWidth  = fs === 1 ? 'clamp(130px, 34vw, 185px)'
+                       : fs === 2 ? 'clamp(104px, 27vw, 158px)'
+                       : fs === 3 ? 'clamp(78px,  19vw, 118px)'
+                       : fs === 4 ? 'clamp(58px,  14vw,  92px)'
+                       :            'clamp(50px,  11vw,  78px)';
+
   const featuredHtml = featuredSkins.length ? `
     <div class="gp-featured-block">
       <div class="gp-featured-label">✦ Rate Up Skins</div>
-      <div class="gp-skin-featured-row">
+      <div class="gp-featured-row" style="justify-content:flex-start">
         ${featuredSkins.map(skin=>{
           const meta = SKIN_RARITY_META[skin.rarity||'rare'] || SKIN_RARITY_META.rare;
           const thumbSrc = skin.thumbnail || skin.image || '';
-          return `<div class="gp-skin-feat-card" onclick="openSkinPreview('${skin.id}')">
+          return `<div class="gp-feat-card" style="height:${skinCardHeight};width:${skinCardWidth};aspect-ratio:unset;border-color:${meta.color}40;" onclick="openSkinPreview('${skin.id}')">
             <img src="${escapeHtml(thumbSrc)}" alt="${escapeHtml(skin.name)}" onerror="this.style.background='#1c0f26'"/>
             <div class="gp-feat-rateup">RATE ▲</div>
-            <div class="gp-skin-feat-info">
-              <span class="gp-skin-feat-name">${escapeHtml(skin.name)}</span>
-              <span class="gp-skin-feat-rarity" style="color:${meta.color}">${meta.icon} ${meta.label}</span>
+            <div class="gp-feat-card-info">
+              <span class="gp-feat-card-name">${escapeHtml(skin.name)}</span>
+              <span class="gp-feat-card-stars" style="color:${meta.color}">${meta.icon} ${meta.label}</span>
             </div>
           </div>`;
         }).join('')}
@@ -33184,8 +33196,56 @@ function openDockPoolView(){
 function openSkinPreview(skinId){
   const skin = (window.ALL_SKINS||[]).find(s=>s.id===skinId);
   if(!skin) return;
-  // Open the card modal if possible
-  if(skin.card_id) openCard(skin.card_id);
+  const meta = SKIN_RARITY_META[skin.rarity||'rare'] || SKIN_RARITY_META.rare;
+  const cardName = (window.DEMO_CARDS||[]).find(c=>c.id===skin.card_id)?.name || skin.card_id || '';
+  const isOwned = !!(window.PLAYER_SKINS && window.PLAYER_SKINS[skin.id]);
+  const equippedSkin = window.EQUIPPED_SKINS && window.EQUIPPED_SKINS[skin.card_id];
+  const isEquipped = equippedSkin === skin.id;
+  const price = parseInt(skin.price)||0;
+
+  let actionBtn = '';
+  if(!isOwned){
+    actionBtn = `<button class="skin-card-btn buy-btn" style="width:100%;padding:10px;" onclick="buySkin('${skin.id}');document.getElementById('skinPreviewModal')?.remove()">🪙 ${price} — Buy Skin</button>`;
+  } else if(isEquipped){
+    actionBtn = `<button class="skin-card-btn equipped-btn" style="width:100%;" disabled>✦ Equipped</button>
+      <button class="skin-card-btn remove-btn" style="width:100%;margin-top:6px;" onclick="unequipSkin('${skin.card_id}');document.getElementById('skinPreviewModal')?.remove()">Remove Skin</button>`;
+  } else {
+    actionBtn = `<button class="skin-card-btn equip-btn" style="width:100%;padding:10px;" onclick="equipSkin('${skin.id}','${skin.card_id}');document.getElementById('skinPreviewModal')?.remove()">🎨 Equip Skin</button>`;
+  }
+
+  const overlay = document.createElement('div');
+  overlay.id = 'skinPreviewModal';
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:9998;background:rgba(0,0,0,0.88);display:flex;align-items:center;justify-content:center;padding:16px;animation:fadeIn 0.25s ease;';
+  overlay.innerHTML = `
+    <div style="background:#0d0d14;border:1px solid rgba(155,89,182,0.35);border-radius:20px;max-width:420px;width:100%;max-height:90vh;overflow-y:auto;position:relative;">
+      <!-- Close -->
+      <button onclick="document.getElementById('skinPreviewModal')?.remove()" style="position:absolute;top:12px;right:14px;background:none;border:none;color:var(--text-dim);font-size:1.4em;cursor:pointer;z-index:1;line-height:1;">✕</button>
+
+      <!-- Main art (full width) -->
+      ${skin.image ? `<img src="${escapeHtml(skin.image)}" alt="${escapeHtml(skin.name)}"
+        style="width:100%;max-height:320px;object-fit:cover;object-position:top;border-radius:20px 20px 0 0;display:block;"
+        onerror="this.style.display='none'"/>` : ''}
+
+      <div style="padding:20px 20px 24px;">
+        <!-- Header row: thumbnail + info -->
+        <div style="display:flex;gap:14px;align-items:flex-start;margin-bottom:16px;">
+          ${skin.thumbnail ? `<img src="${escapeHtml(skin.thumbnail)}" alt=""
+            style="width:72px;height:96px;object-fit:cover;border-radius:10px;border:1px solid ${meta.color}55;flex-shrink:0;"
+            onerror="this.style.display='none'"/>` : ''}
+          <div style="flex:1;min-width:0;">
+            <div style="font-family:'Cinzel Decorative',serif;font-size:0.95em;color:var(--text);margin-bottom:4px;line-height:1.25;">${escapeHtml(skin.name)}</div>
+            <div class="skin-card-rarity-badge skin-rarity-${skin.rarity||'rare'}" style="display:inline-flex;margin-bottom:6px;">${meta.icon} ${meta.label}</div>
+            ${cardName ? `<div style="font-size:0.72em;color:var(--text-dim);font-family:'JetBrains Mono',monospace;">For: ${escapeHtml(cardName)}</div>` : ''}
+            ${skin.description ? `<div style="font-size:0.82em;color:var(--text-dim);font-style:italic;margin-top:6px;line-height:1.5;">${escapeHtml(skin.description)}</div>` : ''}
+          </div>
+        </div>
+        <!-- Action -->
+        ${actionBtn}
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', e=>{ if(e.target===overlay) overlay.remove(); });
 }
 
 // ── Build weighted skin pool ──
@@ -33254,7 +33314,7 @@ async function doPullSkin(count){
     // Save to DB if logged in
     if(state.discordId && !state.isGuest){
       try {
-        await sb.upsert('player_skins', { discord_id: state.discordId, skin_id: skin.id, obtained_at: new Date().toISOString() });
+        await sb.upsert('player_skins', { discord_id: state.discordId, skin_id: skin.id, card_id: skin.card_id, equipped: false });
       } catch(e){ console.warn('skin save error', e); }
     }
   }
