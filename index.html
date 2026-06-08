@@ -205,8 +205,8 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .lb-tab{flex:1;background:transparent;border:none;border-radius:10px;padding:8px 10px;font-family:'JetBrains Mono',monospace;font-size:0.78em;cursor:pointer;transition:all 0.22s;color:var(--text-dim);letter-spacing:0.03em;}
 .lb-tab:hover{color:var(--pink);background:rgba(255,157,199,0.07);}
 .lb-tab.active{background:linear-gradient(135deg,rgba(155,89,182,0.35),rgba(255,157,199,0.2));color:var(--pink);box-shadow:0 2px 12px rgba(155,89,182,0.25);}
-.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px;}
-.card-thumb{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;cursor:pointer;transition:all 0.25s;position:relative;}
+.cards-grid{display:flex;flex-wrap:nowrap;gap:10px;overflow-x:auto;padding-bottom:8px;scrollbar-width:thin;scrollbar-color:rgba(255,157,199,0.3) transparent;}.cards-grid::-webkit-scrollbar{height:4px;}.cards-grid::-webkit-scrollbar-thumb{background:rgba(255,157,199,0.3);border-radius:2px;}
+.card-thumb{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;cursor:pointer;transition:all 0.25s;position:relative;flex:0 0 calc(25% - 8px);min-width:80px;max-width:130px;}
 .card-thumb:hover{transform:translateY(-4px);box-shadow:0 8px 24px rgba(255,157,199,0.15);border-color:rgba(255,157,199,0.4);}
 .card-thumb img{width:100%;aspect-ratio:3/4;object-fit:cover;display:block;}
 .card-thumb-info{padding:8px 10px;}
@@ -214,10 +214,11 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .card-thumb-rarity{font-size:0.75em;color:var(--text-dim);}
 .card-thumb-badge{position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.75);border-radius:6px;padding:2px 6px;font-size:0.7em;font-family:'JetBrains Mono',monospace;backdrop-filter:blur(4px);}
 .card-thumb-lvl{position:absolute;bottom:44px;left:8px;background:rgba(0,0,0,0.75);border-radius:6px;padding:2px 8px;font-size:0.7em;font-family:'JetBrains Mono',monospace;color:#f1c40f;backdrop-filter:blur(4px);}
+.card-thumb-series-logo{position:absolute;top:6px;left:6px;height:20px;width:auto;max-width:52px;object-fit:contain;filter:drop-shadow(0 1px 4px rgba(0,0,0,0.9));z-index:2;pointer-events:none;}
 /* ══ CARD MODAL v2 — TABBED ══ */
 #cardModal{position:fixed;inset:0;z-index:300;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.88);backdrop-filter:blur(8px);padding:12px;}
 #cardModal.active{display:flex;}
-.modal-box{background:var(--bg2);border:1px solid var(--border);border-radius:24px;max-width:480px;width:100%;max-height:92vh;overflow:hidden;display:flex;flex-direction:column;animation:modalIn 0.32s cubic-bezier(0.34,1.56,0.64,1);position:relative;}
+.modal-box{background:var(--bg2);border:1px solid var(--border);border-radius:24px;max-width:480px;width:100%;max-height:92vh;overflow:hidden;display:flex;flex-direction:column;animation:modalIn 0.32s cubic-bezier(0.34,1.56,0.64,1);position:relative;transition:background 0.4s ease,border-color 0.4s ease,box-shadow 0.4s ease;}
 .modal-box-scroll{overflow-y:auto;max-height:90vh;border-radius:24px;}
 @keyframes modalIn{from{transform:scale(0.88) translateY(12px);opacity:0;}to{transform:scale(1) translateY(0);opacity:1;}}
 
@@ -239,6 +240,8 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .cm-namebar{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding:14px 18px 6px;flex-shrink:0;}
 .cm-card-name{font-family:'Cinzel Decorative',serif;font-size:1.3em;line-height:1.2;color:var(--text);}
 .cm-card-series{font-style:italic;font-size:0.82em;color:var(--pink-pale);margin-top:2px;}
+.cm-thumb-chip{flex-shrink:0;margin-right:4px;}
+.cm-thumb-chip img{width:44px;height:60px;object-fit:cover;border-radius:8px;border:2px solid var(--border);box-shadow:0 2px 10px rgba(0,0,0,0.4);}
 .cm-quick-btns{display:flex;gap:6px;flex-shrink:0;margin-top:2px;}
 .cm-qbtn{width:36px;height:36px;border-radius:50%;border:1px solid var(--border);background:rgba(255,255,255,0.04);font-size:1em;cursor:pointer;transition:all 0.18s;display:flex;align-items:center;justify-content:center;}
 .cm-qbtn:hover{transform:scale(1.12);}
@@ -2701,7 +2704,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   .pull-name { font-size: 1.3em; }
 
   /* ── Cards ── */
-  .cards-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; }
+  .cards-grid { gap: 8px; } .card-thumb { flex: 0 0 calc(25% - 6px); min-width:72px; max-width:110px; }
 
   /* ── Shop ── */
   .shop-grid { grid-template-columns: 1fr 1fr; }
@@ -2791,7 +2794,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 
 @media(max-width:380px){
   .pull-btn-group { grid-template-columns: 1fr; }
-  .cards-grid { grid-template-columns: repeat(2, 1fr); }
+  .cards-grid { gap: 6px; } .card-thumb { flex: 0 0 calc(25% - 5px); min-width:65px; }
   .shop-grid { grid-template-columns: 1fr; }
   .admin-grid { grid-template-columns: 1fr; }
   .rates-grid { grid-template-columns: repeat(3, 1fr); }
@@ -17078,11 +17081,16 @@ function renderCardThumb(id,counts){
     ?`<span class="card-thumb-badge"><span class="rarity-rainbow">${c.rarityName}</span></span>`
     :`<span class="card-thumb-badge" style="color:${color}">${c.rarityName}</span>`;
   const borderStyle=isRainbow?`style="border-color:transparent;background-clip:padding-box;outline:2px solid;outline-color:transparent;animation:rainbowBorder 2.5s linear infinite;"`:'';
-  return`<div class="card-thumb${isRainbow?' rainbow-card':''}" onclick="openCard('${id}')" ${isRainbow?`style="box-shadow:0 0 14px rgba(255,100,200,0.4)"`:''}">
+  // Series logo lookup
+  const seriesEntryT = (window.ANIME_COLLECTIONS||[]).find(a=>a.name&&a.name.toLowerCase()===(c.series||'').toLowerCase());
+  const seriesLogoT = seriesEntryT?.logo_url || '';
+  const cardBorderStyle = isRainbow ? `border-color:transparent;animation:rainbowBorder 2.5s linear infinite;` : `border-color:${color}55;`;
+  return`<div class="card-thumb${isRainbow?' rainbow-card':''}" onclick="openCard('${id}')" style="${cardBorderStyle}${isRainbow?'box-shadow:0 0 14px rgba(255,100,200,0.4);':''}">
     <img src="${thumbSrc}" alt="${c.name}" loading="lazy" onerror="this.style.background='#1c0f26'"/>
     ${badgeDisplay}
     <span class="card-thumb-lvl">Lv.${lvl}</span>
     ${hasSkin ? '<span class="skin-active-badge">🎨 Skin</span>' : ''}
+    ${seriesLogoT ? `<img class="card-thumb-series-logo" src="${seriesLogoT}" alt="" onerror="this.style.display='none'"/>` : ''}
     <div class="card-thumb-info">
       <div class="card-thumb-name">${isEquipped?'⚔️ ':''}${c.name}</div>
       <div class="card-thumb-rarity">${rarityDisplay}</div>
@@ -17191,8 +17199,18 @@ function openCard(id){
   const curFloor=xpTable[lvl-1];
   const pct=lvl>=10?100:Math.round(((xp-curFloor)/(nextXp-curFloor))*100);
 
-  // Hero art
-  document.getElementById('modalArt').src=getCardImage(c);
+  // Hero art — use thumbnail for the modal hero (less lag), full image for the overlay
+  const thumbImgSrc = getCardThumbnail(c);
+  const fullImgSrc  = getCardImage(c);
+  document.getElementById('modalArt').src = thumbImgSrc;
+
+  // Tint modal background by card color
+  const modalBox = document.getElementById('modalBox');
+  if(modalBox) {
+    modalBox.style.background = `linear-gradient(160deg, color-mix(in srgb, ${color} 18%, var(--bg2)) 0%, var(--bg2) 40%, var(--bg3) 100%)`;
+    modalBox.style.borderColor = color + '55';
+    modalBox.style.boxShadow   = `0 0 40px ${color}22, 0 8px 40px rgba(0,0,0,0.6)`;
+  }
 
   // Rarity strip
   document.getElementById('cmRarityLabel').textContent=c.rarityName||'';
@@ -17215,6 +17233,23 @@ function openCard(id){
   // Name/Series
   document.getElementById('modalName').textContent=c.name;
   document.getElementById('modalSeries').textContent=c.series;
+
+  // Thumbnail profile chip — show static thumbnail next to name if different from main art
+  let thumbChip = document.getElementById('cmThumbChip');
+  if(!thumbChip) {
+    thumbChip = document.createElement('div');
+    thumbChip.id = 'cmThumbChip';
+    thumbChip.className = 'cm-thumb-chip';
+    const namebar = document.getElementById('cmNamebar');
+    if(namebar) namebar.insertBefore(thumbChip, namebar.firstChild);
+  }
+  // Show thumbnail if it exists AND is different from the main art
+  if(thumbImgSrc && thumbImgSrc !== fullImgSrc) {
+    thumbChip.innerHTML = `<img src="${thumbImgSrc}" alt="${c.name}" style="border-color:${color}88" onerror="this.parentElement.style.display='none'"/>`;
+    thumbChip.style.display = '';
+  } else {
+    thumbChip.style.display = 'none';
+  }
 
   // XP bar (in hero overlay)
   document.getElementById('modalLvl').textContent=lvl>=10?'Lv.10 MAX':`Lv.${lvl}`;
@@ -26577,8 +26612,7 @@ function renderAdminCardList(){
     return `<div class="admin-card-row" style="background:linear-gradient(135deg,${color}14,${color}06,var(--surface));border-color:${color}33;position:relative;overflow:hidden;">
       <div style="position:absolute;inset:0;background:linear-gradient(90deg,${color}18 0%,transparent 55%);pointer-events:none;border-radius:12px;"></div>
       <div style="position:relative;flex-shrink:0;display:flex;gap:6px;align-items:center;">
-        <img class="admin-card-thumb" src="${c.image}" alt="${c.name}" onerror="this.style.background='#1c0f26'" style="border-color:${color}88;box-shadow:0 0 10px ${color}44;"/>
-        ${thumbSrc && thumbSrc !== c.image ? `<img style="width:32px;height:44px;object-fit:cover;border-radius:5px;border:1px solid ${color}55;opacity:0.85;flex-shrink:0;" src="${thumbSrc}" alt="thumb" onerror="this.style.display='none'" title="Thumbnail"/>` : ''}
+        <img class="admin-card-thumb" src="${thumbSrc || c.image}" alt="${c.name}" onerror="this.src=''; this.style.background='#1c0f26'" style="border-color:${color}88;box-shadow:0 0 10px ${color}44;" title="${thumbSrc && thumbSrc !== c.image ? 'Thumbnail' : 'Main image (no thumbnail set)'}"/>
       </div>
       <div class="admin-card-info" style="position:relative;">
         <div class="admin-card-name" style="color:var(--text);">${c.name}</div>
