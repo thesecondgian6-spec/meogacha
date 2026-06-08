@@ -225,7 +225,8 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 /* Hero art */
 .cm-hero{position:relative;flex-shrink:0;overflow:hidden;}
 .cm-hero-art{width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:22px 22px 0 0;display:block;}
-.cm-hero-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0.1) 0%,transparent 30%,rgba(0,0,0,0.35) 60%,rgba(13,6,23,0.82) 85%,rgba(13,6,23,1) 100%);border-radius:22px 22px 0 0;pointer-events:none;}
+.cm-hero{-webkit-mask-image:linear-gradient(to bottom,black 0%,black 50%,transparent 100%);mask-image:linear-gradient(to bottom,black 0%,black 50%,transparent 100%);}
+.cm-hero-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0.15) 0%,transparent 50%);border-radius:22px 22px 0 0;pointer-events:none;}
 .cm-series-logo{position:absolute;top:12px;right:14px;width:auto;height:38px;max-width:110px;object-fit:contain;filter:drop-shadow(0 2px 8px rgba(0,0,0,0.8));z-index:2;border-radius:6px;}
 .cm-rarity-strip{position:absolute;top:12px;left:14px;display:flex;align-items:center;gap:6px;background:rgba(0,0,0,0.55);backdrop-filter:blur(8px);border-radius:20px;padding:4px 10px;z-index:2;border:1px solid rgba(255,255,255,0.1);}
 .cm-rarity-strip span:first-child{font-family:'JetBrains Mono',monospace;font-size:0.72em;font-weight:700;letter-spacing:0.05em;}
