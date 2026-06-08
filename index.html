@@ -3392,17 +3392,18 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 }
 .gp-rates-heading::before { content: "✦"; color: var(--pink); opacity: 0.6; font-size: 1em; }
 .gp-rates-heading::after { content: ""; flex: 1; height: 1px; background: rgba(255,255,255,0.05); margin-left: 4px; }
-.gp-rates-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
+.gp-rates-grid { display: flex; flex-wrap: wrap; gap: 4px; }
 .gp-rate-item {
-  display: flex; flex-direction: column; align-items: center; gap: 2px;
-  padding: 5px 4px 6px; border-radius: 8px;
-  border: 1px solid rgba(var(--rc),0.18); background: rgba(var(--rc),0.04);
+  display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 4px;
+  padding: 5px 7px; border-radius: 7px;
+  border: 1px solid rgba(var(--rc),0.2); background: rgba(var(--rc),0.05);
   cursor: default; transition: all 0.16s;
+  flex: 1 1 calc(25% - 4px); min-width: 0;
 }
-.gp-rate-item:hover { background: rgba(var(--rc),0.12); transform: translateY(-2px); border-color: rgba(var(--rc),0.4); }
-.gp-rate-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(var(--rc),1); box-shadow: 0 0 6px rgba(var(--rc),0.7); flex-shrink: 0; }
-.gp-rate-tag { font-family: "JetBrains Mono", monospace; font-size: 0.6em; font-weight: 700; }
-.gp-rate-pct { font-family: "JetBrains Mono", monospace; font-size: 0.62em; color: rgba(255,255,255,0.5); font-weight: 600; }
+.gp-rate-item:hover { background: rgba(var(--rc),0.12); border-color: rgba(var(--rc),0.4); }
+.gp-rate-dot { width: 5px; height: 5px; border-radius: 50%; background: rgba(var(--rc),1); box-shadow: 0 0 5px rgba(var(--rc),0.7); flex-shrink: 0; }
+.gp-rate-tag { font-family: "JetBrains Mono", monospace; font-size: 0.56em; font-weight: 700; }
+.gp-rate-pct { font-family: "JetBrains Mono", monospace; font-size: 0.54em; color: rgba(255,255,255,0.5); font-weight: 600; }
 .gp-rates-note {
   font-size: 0.5em; color: rgba(255,255,255,0.16); font-style: italic;
   font-family: "JetBrains Mono", monospace; margin-top: 7px;
@@ -3450,7 +3451,26 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   .gp-feat-card { max-height: none; }
 }
 
-/* ── Legacy classes kept alive for existing code compatibility ── */
+/* ── Rarity-7 [???] Rainbow styles ── */
+@keyframes rainbowBorder {
+  0%   { border-color: #ff0055; box-shadow: 0 0 20px #ff005599, 0 0 40px #ff005533; }
+  16%  { border-color: #ff7700; box-shadow: 0 0 20px #ff770099, 0 0 40px #ff770033; }
+  33%  { border-color: #ffdd00; box-shadow: 0 0 20px #ffdd0099, 0 0 40px #ffdd0033; }
+  50%  { border-color: #00ff88; box-shadow: 0 0 20px #00ff8899, 0 0 40px #00ff8833; }
+  66%  { border-color: #00aaff; box-shadow: 0 0 20px #00aaff99, 0 0 40px #00aaff33; }
+  83%  { border-color: #cc00ff; box-shadow: 0 0 20px #cc00ff99, 0 0 40px #cc00ff33; }
+  100% { border-color: #ff0055; box-shadow: 0 0 20px #ff005599, 0 0 40px #ff005533; }
+}
+.rarity-rainbow-border {
+  animation: rainbowBorder 2.5s linear infinite !important;
+}
+.rarity-rainbow-text {
+  background: linear-gradient(90deg,#ff0055,#ff7700,#ffdd00,#00ff88,#00aaff,#cc00ff,#ff0055);
+  background-size: 200%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: rainbowShift 2s linear infinite;
+}
 .banner-tabs-wrap { display: none !important; } /* replaced by gp-tabs-wrap */
 #bannerPitySection { display: none !important; } /* pity now in gp-dock */
 
@@ -7470,6 +7490,18 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   --skin-legendary: #ff6b9d;
 }
 .skin-active-badge{position:absolute;bottom:42px;right:6px;background:rgba(155,89,182,0.85);border-radius:5px;padding:1px 5px;font-size:0.6em;font-family:'JetBrains Mono',monospace;color:#fff;backdrop-filter:blur(3px);letter-spacing:0.04em;}
+/* ── Skin banner inside gp-stage ── */
+.skin-banner-section{width:100%;max-height:260px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(155,89,182,0.4) transparent;}
+.skin-banner-section::-webkit-scrollbar{width:4px;}
+.skin-banner-section::-webkit-scrollbar-thumb{background:rgba(155,89,182,0.4);border-radius:4px;}
+.skin-rarity-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;}
+.skin-rarity-tab{background:rgba(155,89,182,0.08);border:1px solid rgba(155,89,182,0.25);color:var(--text-dim);padding:5px 12px;border-radius:20px;font-family:'JetBrains Mono',monospace;font-size:0.72em;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:5px;white-space:nowrap;}
+.skin-rarity-tab:hover{border-color:rgba(155,89,182,0.5);color:#c084b8;}
+.skin-rarity-tab.active{background:rgba(155,89,182,0.2);border-color:#c084b8;color:#c084b8;}
+.skin-rtab-count{background:rgba(155,89,182,0.25);border-radius:10px;padding:1px 6px;font-size:0.85em;}
+@media(max-width:700px){
+  .skin-banner-section{max-height:200px;}
+}
 .skin-banner-wrap{max-width:680px;margin:0 auto;}
 .skin-banner-header{text-align:center;padding:12px 0 20px;}
 .skin-banner-title{font-family:'Cinzel Decorative',serif;font-size:1.4em;background:linear-gradient(135deg,#c084b8,#9b59b6,#c084b8);background-size:300%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:shimmer 5s linear infinite;margin-bottom:6px;}
@@ -15855,7 +15887,12 @@ async function buyItem(id,name,price){
 
 const FLAVOURS = ['A card stirs...','Something stirs...','A quiet presence...','A formidable existence...','The air goes still...']; // legacy
 
-const RARITY_COLORS = {1:'#bdc3c7',2:'#2ecc71',3:'#3498db',4:'#9b59b6',5:'#f1c40f',6:'#ff6b9d',7:'#1abc9c'};
+const RARITY_COLORS = {1:'#bdc3c7',2:'#2ecc71',3:'#3498db',4:'#9b59b6',5:'#f1c40f',6:'#ff6b9d',7:'#ff79c6'};
+// Returns 'rainbow' for rarity 7 (for display/text), solid color for effects
+function getRarityColor(rarity, forDisplay=false) {
+  if(rarity===7 && forDisplay) return 'rainbow';
+  return RARITY_COLORS[rarity] || '#bdc3c7';
+}
 
 // ══════════════════════════════════════════════
 // ADMIN — add your Discord ID here
@@ -16702,6 +16739,9 @@ function spawnPullStarfield(container, color) {
 }
 
 function buildStarHTML(count, color) {
+  if(color === 'rainbow') {
+    return Array.from({length:count},(_,i)=>`<span class="pull-star-item rarity-rainbow-text" style="animation-delay:${0.4+i*0.08}s">★</span>`).join('');
+  }
   return Array.from({length:count},(_,i)=>`<span class="pull-star-item" style="color:${color};animation-delay:${0.4+i*0.08}s">★</span>`).join('');
 }
 
@@ -16771,19 +16811,32 @@ function showPullScreen(card) {
   // ── Card image ──
   const artEl = document.getElementById('pullCardArt');
   artEl.src = card.image;
-  artEl.style.borderColor = color;
-  artEl.style.boxShadow = `0 0 ${rarity*12}px ${color}99, 0 0 ${rarity*24}px ${color}44`;
+  if(rarity === 7) {
+    artEl.classList.add('rarity-rainbow-border');
+    artEl.style.borderColor = '';
+    artEl.style.boxShadow = '';
+  } else {
+    artEl.classList.remove('rarity-rainbow-border');
+    artEl.style.borderColor = color;
+    artEl.style.boxShadow = `0 0 ${rarity*12}px ${color}99, 0 0 ${rarity*24}px ${color}44`;
+  }
   // force reflow so animation replays
   void artEl.offsetWidth;
   cinematic.classList.add(revealClass);
 
   // ── Stars ──
-  document.getElementById('pullStars').innerHTML = buildStarHTML(rarity, color);
+  document.getElementById('pullStars').innerHTML = buildStarHTML(rarity, getRarityColor(rarity, true));
 
   // ── Rarity label ──
   const rarLabel = document.getElementById('pullRarityLabel');
   rarLabel.textContent = card.rarityName;
-  rarLabel.style.color = color;
+  if(rarity === 7) {
+    rarLabel.classList.add('rarity-rainbow-text');
+    rarLabel.style.color = '';
+  } else {
+    rarLabel.classList.remove('rarity-rainbow-text');
+    rarLabel.style.color = color;
+  }
 
   // ── Name with rarity styling ──
   const nameEl = document.getElementById('pullCardName');
@@ -17370,10 +17423,17 @@ function openCard(id){
   }
 
   // Rarity strip
-  document.getElementById('cmRarityLabel').textContent=c.rarityName||'';
-  document.getElementById('cmRarityLabel').style.color=color;
-  document.getElementById('cmRarityStars').textContent=c.rarityStars||'';
-  document.getElementById('cmRarityStars').style.color=color;
+  const rarLabelEl = document.getElementById('cmRarityLabel');
+  const rarStarsEl = document.getElementById('cmRarityStars');
+  rarLabelEl.textContent = c.rarityName||'';
+  rarStarsEl.textContent = c.rarityStars||'';
+  if(c.rarity === 7) {
+    rarLabelEl.classList.add('rarity-rainbow-text'); rarLabelEl.style.color = '';
+    rarStarsEl.classList.add('rarity-rainbow-text'); rarStarsEl.style.color = '';
+  } else {
+    rarLabelEl.classList.remove('rarity-rainbow-text'); rarLabelEl.style.color = color;
+    rarStarsEl.classList.remove('rarity-rainbow-text'); rarStarsEl.style.color = color;
+  }
 
   // Series logo — look up from ANIME_COLLECTIONS
   const logoEl = document.getElementById('cmSeriesLogo');
@@ -20784,14 +20844,6 @@ function renderActiveBanner(){
           <div class="gp-banner-name">${banner.name}</div>
           <span class="gp-banner-name-rule"></span>
           ${banner.description ? `<div class="gp-banner-desc">${banner.description}</div>` : ''}
-          <div class="gp-prob-box">
-            <div class="gp-prob-header">
-              <span class="gp-prob-header-icon">✦</span>
-              <span class="gp-prob-header-text">Probability Increased!</span>
-            </div>
-            <div class="gp-prob-highlight">Every <strong>10 pulls</strong> guarantees at least one <strong>SR or higher</strong> card.</div>
-            <div class="gp-prob-body">Rate-up featured cards have double the appearance rate during this event. Pity is tracked separately per banner.</div>
-          </div>
         </div>
       </div>
 
@@ -20816,12 +20868,13 @@ function renderActiveBanner(){
             <div class="gp-featured-row" style="justify-content:${featRowJustify}">
               ${featuredCards.map(c=>{
                 const color = RARITY_COLORS[c.rarity]||'#bdc3c7';
-                return `<div class="gp-feat-card" style="height:${featCardHeight};width:${featCardWidth};aspect-ratio:unset" onclick="openCard('${c.id}')">
+                const isSecret = c.rarity === 7;
+                return `<div class="gp-feat-card ${isSecret?'rarity-rainbow-border':''}" style="height:${featCardHeight};width:${featCardWidth};aspect-ratio:unset;${!isSecret?`border-color:${color}40`:''}" onclick="openCard('${c.id}')">
                   <img src="${c.thumbnail||c.image}" alt="${c.name}" onerror="this.style.background='#1c0f26'"/>
                   <div class="gp-feat-rateup">RATE ▲</div>
                   <div class="gp-feat-card-info">
                     <span class="gp-feat-card-name">${c.name}</span>
-                    <span class="gp-feat-card-stars" style="color:${color}">${c.rarityStars}</span>
+                    <span class="gp-feat-card-stars ${isSecret?'rarity-rainbow-text':''}" ${!isSecret?`style="color:${color}"`:''}>${c.rarityStars}</span>
                   </div>
                 </div>`;
               }).join('')}
@@ -32848,54 +32901,134 @@ function renderSkinBanner(){
   const el = document.getElementById('pullBannerContainer');
   if(!el) return;
 
-  const skinsForBanner = getSkinBannerPool(banner);
+  // Build char showcase (same as regular banners)
+  const charImgs = [banner.char_image_1, banner.char_image_2, banner.char_image_3, banner.char_image_4, banner.char_image_5].filter(Boolean);
+  const charShowcaseHtml = charImgs.length ? `
+    <div class="gp-char-showcase" id="gpCharShowcase">
+      <div class="gp-char-halo"></div>
+      ${charImgs.map((src,i)=>`
+        <div class="gp-char-slide${i===0?' active':''}" data-slide="${i}">
+          <img src="${src}" alt="Character art" onerror="this.parentElement.style.display='none'"/>
+        </div>
+      `).join('')}
+    </div>
+    ${charImgs.length > 1 ? `
+      <div class="gp-char-dots">
+        ${charImgs.map((_,i)=>`<button class="gp-char-dot${i===0?' active':''}" onclick="gpCharGoTo(${i})" aria-label="Character ${i+1}"></button>`).join('')}
+      </div>
+    ` : ''}
+  ` : '';
+
+  // Build sparks
+  const sparks = Array.from({length:18}, (_,i) => {
+    const size  = (Math.random()*3+1).toFixed(1);
+    const left  = (Math.random()*90+5).toFixed(1);
+    const top   = (Math.random()*80+10).toFixed(1);
+    const dur   = (Math.random()*4+3).toFixed(1);
+    const delay = (Math.random()*5).toFixed(1);
+    return `<div class="gp-spark" style="width:${size}px;height:${size}px;left:${left}%;top:${top}%;animation-duration:${dur}s;animation-delay:${delay}s;box-shadow:0 0 ${size*3}px rgba(200,160,240,0.9);"></div>`;
+  }).join('');
+
+  const allSkins = getSkinBannerPool(banner);
+  const rarityOrder = ['legendary','epic','rare','common'];
+  const rarityLabel = { legendary:'🌸 Legendary', epic:'🌟 Epic', rare:'💜 Rare', common:'⚪ Common' };
+
+  // Build rarity tabs (only show tabs that have skins)
+  const presentRarities = rarityOrder.filter(r => allSkins.some(s=>(s.rarity||'rare')===r));
+  const defaultRarity   = presentRarities[0] || 'rare';
+
+  const rarityTabsHtml = presentRarities.length > 1 ? `
+    <div class="skin-rarity-tabs" id="skinRarityTabs">
+      ${presentRarities.map((r,i)=>`
+        <button class="skin-rarity-tab${i===0?' active':''}" data-rarity="${r}" onclick="filterSkinBannerByRarity('${r}',this)">
+          ${rarityLabel[r]||r}
+          <span class="skin-rtab-count">${allSkins.filter(s=>(s.rarity||'rare')===r).length}</span>
+        </button>
+      `).join('')}
+    </div>
+  ` : '';
+
+  const skinsToShow = allSkins.filter(s=>(s.rarity||'rare')===defaultRarity);
 
   el.innerHTML = `
-    <div class="skin-banner-wrap">
-      <div class="banner-hero" style="margin-bottom:20px;">
-        ${banner.image ? `<img class="banner-hero-media" src="${banner.image}" alt="" onerror="this.style.display='none'"/>` : ''}
-        <div class="banner-hero-body">
-          <div class="banner-type-badge btb-skin">🎨 Card Skin Banner</div>
-          <div class="banner-hero-title">${escapeHtml(banner.name)}</div>
-          <div class="banner-hero-desc">${escapeHtml(banner.description||'Exclusive cosmetic skins for your cards. Own it forever — no gacha, just direct purchase!')}</div>
+    <div class="gp-stage-bg" ${banner.image?`style="background-image:url('${banner.image}')"`:''}></div>
+    <div class="gp-stage-vignette"></div>
+    <div class="gp-stage-bottom-fade"></div>
+    <div class="gp-sparks">${sparks}</div>
+
+    ${charShowcaseHtml}
+
+    <div class="gp-info">
+      <div class="gp-info-top">
+        <div class="gp-left-title">
+          <div class="gp-event-tag" style="background:rgba(155,89,182,0.15);border-color:rgba(155,89,182,0.4);color:#c084b8;">🎨 Card Skin Banner</div>
+          <div class="gp-banner-name">${escapeHtml(banner.name)}</div>
+          <span class="gp-banner-name-rule"></span>
+          ${banner.description ? `<div class="gp-banner-desc">${escapeHtml(banner.description)}</div>` : `<div class="gp-banner-desc">Own exclusive skins forever — no gacha, just direct purchase!</div>`}
         </div>
       </div>
-      <div class="section-title" style="margin-bottom:16px;">🎨 Available Skins</div>
-      ${skinsForBanner.length ? `
-        <div class="skin-cards-grid" id="skinBannerGrid">
-          ${skinsForBanner.map(skin=>renderSkinCard(skin)).join('')}
+      <div class="gp-info-bottom">
+        <!-- Skin grid replaces pull buttons -->
+        <div class="skin-banner-section">
+          ${rarityTabsHtml}
+          ${allSkins.length ? `
+            <div class="skin-cards-grid" id="skinBannerGrid">
+              ${skinsToShow.map(skin=>renderSkinCard(skin)).join('')}
+            </div>
+          ` : `
+            <div class="skin-empty-state">
+              <span class="skin-empty-icon">🎨</span>
+              <div>No skins available on this banner yet.</div>
+              <div style="font-size:0.8em;margin-top:6px;">Check back later or ask an admin to add skins!</div>
+            </div>
+          `}
         </div>
-      ` : `
-        <div class="skin-empty-state">
-          <span class="skin-empty-icon">🎨</span>
-          <div>No skins available on this banner yet.</div>
-          <div style="font-size:0.8em;margin-top:6px;">Check back later or ask an admin to add skins!</div>
-        </div>
-      `}
+      </div>
     </div>
   `;
 
-  // Hide pull buttons for skin banner
+  // Hide pull buttons & pity for skin banner
   const gpPullRow = document.getElementById('gpPullRow');
   if(gpPullRow) gpPullRow.style.display = 'none';
   const gpPityMini = document.getElementById('gpPityMini');
   if(gpPityMini) gpPityMini.style.display = 'none';
-  // Legacy references (no-op now, kept for safety)
-  const pullBtns = document.querySelector('.pull-btn-group');
-  if(pullBtns && pullBtns.closest('.banner-card')) pullBtns.closest('.banner-card').style.display = 'none';
   const pitySection = document.getElementById('bannerPitySection');
   if(pitySection) pitySection.style.display = 'none';
+
+  // Start character slideshow
+  clearInterval(_gpCharTimer);
+  _gpCharTimer = null;
+  _gpCharIdx = 0;
+  if(charImgs.length > 1) _gpStartCharSlideshow(charImgs.length);
 }
 
-// ── Get skins that belong to this banner's featured card list ──
+// ── Filter skin banner grid by rarity tab ──
+function filterSkinBannerByRarity(rarity, btn){
+  // Update active tab
+  document.querySelectorAll('#skinRarityTabs .skin-rarity-tab').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+
+  const banner = getActiveBanner();
+  const allSkins = getSkinBannerPool(banner);
+  const filtered = allSkins.filter(s=>(s.rarity||'rare')===rarity);
+  const grid = document.getElementById('skinBannerGrid');
+  if(!grid) return;
+  grid.innerHTML = filtered.length
+    ? filtered.map(skin=>renderSkinCard(skin)).join('')
+    : `<div class="skin-empty-state" style="grid-column:1/-1;"><span class="skin-empty-icon">🎨</span><div>No ${rarity} skins on this banner.</div></div>`;
+}
+
+// ── Get all skins for this banner (sorted by rarity tier) ──
 function getSkinBannerPool(banner){
   const all = window.ALL_SKINS || [];
-  // If banner has featured_cards, only show skins for those cards
-  const featured = parseFeaturedCards(banner.featured_cards);
-  if(featured.length){
-    return all.filter(s => featured.includes(s.card_id));
-  }
-  return all; // show all skins
+  const rarityTier = { legendary:0, epic:1, rare:2, common:3 };
+  // Sort by rarity (highest first), then name
+  const sorted = [...all].sort((a,b)=>{
+    const ra = rarityTier[a.rarity||'rare'] ?? 2;
+    const rb = rarityTier[b.rarity||'rare'] ?? 2;
+    return ra !== rb ? ra - rb : (a.name||'').localeCompare(b.name||'');
+  });
+  return sorted;
 }
 
 // ── Render a single skin card tile ──
