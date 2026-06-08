@@ -17213,7 +17213,7 @@ function openCard(id){
   document.getElementById('modalArt').src = fullImgSrc;
 
   // Use embed color for background tint; fall back to rarity only if no embed color set
-  const _tintColor = embedColor || rarityColor;
+  const _tintColor = c.color || RARITY_COLORS[c.rarity] || '#9b59b6';
   const _hex = _tintColor.replace('#','');
   const _r = parseInt(_hex.substring(0,2),16)||155;
   const _g = parseInt(_hex.substring(2,4),16)||89;
