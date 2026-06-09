@@ -15376,6 +15376,23 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
       <label class="admin-label">Thumbnail / GIF URL <span class="admin-hint">(optional)</span></label>
       <input class="admin-input" id="slForm_thumb" placeholder="https://..." style="margin-bottom:8px;"/>
 
+      <label class="admin-label">Background Music <span class="admin-hint">(plays during storyline)</span></label>
+      <div style="display:flex;gap:6px;margin-bottom:4px;">
+        <button id="slMusicModeUrl" onclick="slToggleMusicMode('url')" style="flex:1;background:rgba(255,157,199,0.15);border:1px solid var(--pink);color:var(--pink);border-radius:8px;padding:4px 8px;font-size:0.72em;cursor:pointer;">🔗 URL</button>
+        <button id="slMusicModeFile" onclick="slToggleMusicMode('file')" style="flex:1;background:var(--surface);border:1px solid var(--border);color:var(--text-dim);border-radius:8px;padding:4px 8px;font-size:0.72em;cursor:pointer;">📁 Upload File</button>
+      </div>
+      <div id="slMusicUrlRow">
+        <input class="admin-input" id="slForm_music" placeholder="https://... (.mp3, .ogg, etc.)" style="margin-bottom:8px;font-size:0.82em;"/>
+      </div>
+      <div id="slMusicFileRow" style="display:none;">
+        <input type="file" id="slForm_musicFile" accept="audio/*" onchange="slHandleMusicUpload(this)" style="display:none;"/>
+        <div style="display:flex;gap:6px;margin-bottom:8px;">
+          <button onclick="document.getElementById('slForm_musicFile').click()" style="flex:1;background:rgba(255,157,199,0.06);border:1px dashed var(--border);color:var(--text-dim);border-radius:8px;padding:6px;font-size:0.78em;cursor:pointer;">📂 Choose Audio File</button>
+          <button onclick="slClearMusicFile()" style="background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.2);color:#f87171;border-radius:8px;padding:6px 10px;font-size:0.78em;cursor:pointer;">✕</button>
+        </div>
+        <div id="slMusicFileName" style="font-size:0.72em;color:var(--text-dim);margin-bottom:8px;font-style:italic;">No file chosen</div>
+      </div>
+
       <label class="admin-label">Sort Order</label>
       <input class="admin-input" id="slForm_sort" type="number" value="0" style="margin-bottom:16px;"/>
 
@@ -35670,6 +35687,8 @@ async function startStoryline(storylineId) {
   catch(e) { scenes = []; }
 
   window._slActive = { story, scenes, currentSceneId: scenes.length ? scenes[0].id : null };
+  const musicSrc = story.music_url || '';
+  if(musicSrc) slStartMusic(musicSrc);
   renderStorylineScene();
 }
 
@@ -35678,8 +35697,9 @@ function renderStorylineScene() {
   if(!playerView || !window._slActive) return;
   const { story, scenes, currentSceneId } = window._slActive;
 
-  if(currentSceneId === 'GOOD_END' || currentSceneId === 'BAD_END') {
-    renderStorylineEnding(currentSceneId === 'GOOD_END' ? 'good' : 'bad');
+  const normalizedSceneId = (currentSceneId||'').trim().toUpperCase();
+  if(normalizedSceneId === 'GOOD_END' || normalizedSceneId === 'BAD_END') {
+    renderStorylineEnding(normalizedSceneId === 'GOOD_END' ? 'good' : 'bad');
     return;
   }
 
@@ -35690,9 +35710,16 @@ function renderStorylineScene() {
   }
 
   const choices = scene.choices || [];
+  const musicSrc = story.music_url || '';
   playerView.innerHTML = `
     <div style="max-width:640px;margin:0 auto;">
-      <button class="btn-secondary" style="font-size:0.78em;padding:6px 14px;margin-bottom:16px;" onclick="exitStorylinePlayer()">← Back to Stories</button>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <button class="btn-secondary" style="font-size:0.78em;padding:6px 14px;" onclick="exitStorylinePlayer()">← Back to Stories</button>
+        ${musicSrc ? `<div style="display:flex;align-items:center;gap:6px;">
+          <button id="slMusicToggleBtn" onclick="slToggleMusicPlayback()" style="background:rgba(255,157,199,0.08);border:1px solid rgba(255,157,199,0.2);border-radius:8px;padding:4px 8px;font-size:0.78em;color:var(--pink);cursor:pointer;">🎵 Music On</button>
+          <input type="range" id="slMusicVolSlider" min="0" max="1" step="0.05" value="0.45" oninput="slSetVolume(this.value)" style="width:60px;accent-color:var(--pink);cursor:pointer;"/>
+        </div>` : ''}
+      </div>
       <div style="background:linear-gradient(135deg,rgba(255,157,199,0.05),rgba(192,132,184,0.05));border:1px solid var(--border);border-radius:20px;overflow:hidden;margin-bottom:16px;">
         ${scene.image_url ? `<img src="${escapeHtml(scene.image_url)}" style="width:100%;max-height:260px;object-fit:cover;display:block;" onerror="this.style.display='none'"/>` : ''}
         <div style="padding:20px;">
@@ -35701,7 +35728,7 @@ function renderStorylineScene() {
       </div>
       <div style="display:flex;flex-direction:column;gap:8px;">
         ${choices.map((c,i) => `
-          <button onclick="makeStoryChoice('${escapeHtml(c.next_scene_id||'')}')"
+          <button onclick="makeStoryChoice('${escapeJs(c.next_scene_id||'')}')"
             style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 18px;text-align:left;font-family:'Cormorant Garamond',serif;font-size:0.95em;color:var(--text);cursor:pointer;transition:all 0.2s;"
             onmouseenter="this.style.borderColor='var(--pink)';this.style.background='rgba(255,157,199,0.08)'"
             onmouseleave="this.style.borderColor='var(--border)';this.style.background='var(--surface)'">
@@ -35713,7 +35740,7 @@ function renderStorylineScene() {
 
 function makeStoryChoice(nextSceneId) {
   if(!window._slActive) return;
-  window._slActive.currentSceneId = nextSceneId;
+  window._slActive.currentSceneId = (nextSceneId||'').trim();
   renderStorylineScene();
 }
 
@@ -35796,6 +35823,7 @@ async function renderStorylineEnding(type) {
 }
 
 function exitStorylinePlayer() {
+  slStopMusic();
   document.getElementById('storylinePlayerView').style.display = 'none';
   document.getElementById('storylineListView').style.display   = '';
   window._slActive = null;
@@ -35858,9 +35886,115 @@ function openGalleryLightbox(url) {
   document.body.appendChild(lb);
 }
 
-// ══════════════════════════════════════════════════════════════
-// ADMIN — STORYLINE MANAGER
-// ══════════════════════════════════════════════════════════════
+function slToggleMusicMode(mode) {
+  const urlRow  = document.getElementById('slMusicUrlRow');
+  const fileRow = document.getElementById('slMusicFileRow');
+  const btnUrl  = document.getElementById('slMusicModeUrl');
+  const btnFile = document.getElementById('slMusicModeFile');
+  if(!urlRow || !fileRow) return;
+  const isUrl = mode === 'url';
+  urlRow.style.display  = isUrl ? '' : 'none';
+  fileRow.style.display = isUrl ? 'none' : '';
+  btnUrl.style.background  = isUrl ? 'rgba(255,157,199,0.15)' : 'var(--surface)';
+  btnUrl.style.borderColor = isUrl ? 'var(--pink)' : 'var(--border)';
+  btnUrl.style.color       = isUrl ? 'var(--pink)' : 'var(--text-dim)';
+  btnFile.style.background  = !isUrl ? 'rgba(255,157,199,0.15)' : 'var(--surface)';
+  btnFile.style.borderColor = !isUrl ? 'var(--pink)' : 'var(--border)';
+  btnFile.style.color       = !isUrl ? 'var(--pink)' : 'var(--text-dim)';
+}
+
+let _slMusicDataUrl = null;
+function slHandleMusicUpload(input) {
+  const file = input.files[0];
+  if(!file) return;
+  const nameEl = document.getElementById('slMusicFileName');
+  if(nameEl) nameEl.textContent = file.name;
+  const reader = new FileReader();
+  reader.onload = e => { _slMusicDataUrl = e.target.result; };
+  reader.readAsDataURL(file);
+}
+function slClearMusicFile() {
+  _slMusicDataUrl = null;
+  const inp = document.getElementById('slForm_musicFile');
+  if(inp) inp.value = '';
+  const nameEl = document.getElementById('slMusicFileName');
+  if(nameEl) nameEl.textContent = 'No file chosen';
+}
+
+function slToggleImgMode(btn, mode) {
+  const block = btn.closest('.sl-scene-block');
+  if(!block) return;
+  const urlRow  = block.querySelector('.sl-img-url-row');
+  const fileRow = block.querySelector('.sl-img-file-row');
+  const btnUrl  = block.querySelector('.sl-imgmode-url');
+  const btnFile = block.querySelector('.sl-imgmode-file');
+  const isUrl = mode === 'url';
+  urlRow.style.display  = isUrl ? '' : 'none';
+  fileRow.style.display = isUrl ? 'none' : '';
+  btnUrl.style.background  = isUrl ? 'rgba(255,157,199,0.15)' : 'var(--surface)';
+  btnUrl.style.borderColor = isUrl ? 'var(--pink)' : 'var(--border)';
+  btnUrl.style.color       = isUrl ? 'var(--pink)' : 'var(--text-dim)';
+  btnFile.style.background  = !isUrl ? 'rgba(255,157,199,0.15)' : 'var(--surface)';
+  btnFile.style.borderColor = !isUrl ? 'var(--pink)' : 'var(--border)';
+  btnFile.style.color       = !isUrl ? 'var(--pink)' : 'var(--text-dim)';
+}
+
+function slHandleSceneImgUpload(input) {
+  const file = input.files[0];
+  if(!file) return;
+  const block = input.closest('.sl-scene-block');
+  if(!block) return;
+  const nameEl = block.querySelector('.sl-img-file-name');
+  if(nameEl) nameEl.textContent = file.name;
+  const reader = new FileReader();
+  reader.onload = e => {
+    // Store as data URL in the hidden input (replaces URL input for building JSON)
+    const hidden = block.querySelector('.sl-img-file-row .sl-scene-img');
+    if(hidden) hidden.value = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function slClearSceneImg(btn) {
+  const block = btn.closest('.sl-scene-block');
+  if(!block) return;
+  const hidden = block.querySelector('.sl-img-file-row .sl-scene-img');
+  if(hidden) hidden.value = '';
+  const fileInput = block.querySelector('.sl-img-file-input');
+  if(fileInput) fileInput.value = '';
+  const nameEl = block.querySelector('.sl-img-file-name');
+  if(nameEl) nameEl.textContent = 'No file chosen';
+}
+
+// Storyline music player
+let _slAudio = null;
+function slStartMusic(src) {
+  slStopMusic();
+  if(!src) return;
+  _slAudio = new Audio(src);
+  _slAudio.loop = true;
+  _slAudio.volume = 0.45;
+  _slAudio.play().catch(()=>{});
+}
+function slStopMusic() {
+  if(_slAudio) { try { _slAudio.pause(); _slAudio.src = ''; } catch(e){} _slAudio = null; }
+}
+function slToggleMusicPlayback() {
+  if(!_slAudio) return;
+  const btn = document.getElementById('slMusicToggleBtn');
+  if(_slAudio.paused) {
+    _slAudio.play().catch(()=>{});
+    if(btn) btn.textContent = '🎵 Music On';
+  } else {
+    _slAudio.pause();
+    if(btn) btn.textContent = '🔇 Music Off';
+  }
+}
+function slSetVolume(v) {
+  if(_slAudio) _slAudio.volume = parseFloat(v);
+}
+
+
 
 let _slSceneCount = 0;
 
@@ -35888,8 +36022,21 @@ function slAddScene() {
     </div>
     <label class="admin-label" style="font-size:0.72em;">Scene Text</label>
     <textarea class="admin-input sl-scene-text" rows="2" placeholder="Something happened..." style="margin-bottom:6px;font-size:0.82em;resize:vertical;"></textarea>
-    <label class="admin-label" style="font-size:0.72em;">Image/GIF URL <span class="admin-hint">(optional)</span></label>
-    <input class="admin-input sl-scene-img" placeholder="https://..." style="margin-bottom:8px;font-size:0.82em;"/>
+    <label class="admin-label" style="font-size:0.72em;">Image/GIF <span class="admin-hint">(optional)</span></label>
+    <div style="display:flex;gap:4px;margin-bottom:4px;">
+      <button onclick="slToggleImgMode(this,'url')" class="sl-imgmode-url" style="flex:1;background:rgba(255,157,199,0.15);border:1px solid var(--pink);color:var(--pink);border-radius:6px;padding:2px 6px;font-size:0.68em;cursor:pointer;">🔗 URL</button>
+      <button onclick="slToggleImgMode(this,'file')" class="sl-imgmode-file" style="flex:1;background:var(--surface);border:1px solid var(--border);color:var(--text-dim);border-radius:6px;padding:2px 6px;font-size:0.68em;cursor:pointer;">📁 Upload</button>
+    </div>
+    <div class="sl-img-url-row"><input class="admin-input sl-scene-img" placeholder="https://..." style="margin-bottom:8px;font-size:0.82em;"/></div>
+    <div class="sl-img-file-row" style="display:none;">
+      <input type="file" accept="image/*,video/gif" class="sl-img-file-input" style="display:none;" onchange="slHandleSceneImgUpload(this)"/>
+      <div style="display:flex;gap:4px;margin-bottom:4px;">
+        <button onclick="this.closest('.sl-scene-block').querySelector('.sl-img-file-input').click()" style="flex:1;background:rgba(255,157,199,0.06);border:1px dashed var(--border);color:var(--text-dim);border-radius:8px;padding:4px;font-size:0.72em;cursor:pointer;">📂 Choose Image</button>
+        <button onclick="slClearSceneImg(this)" style="background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.2);color:#f87171;border-radius:8px;padding:4px 8px;font-size:0.72em;cursor:pointer;">✕</button>
+      </div>
+      <div class="sl-img-file-name" style="font-size:0.68em;color:var(--text-dim);margin-bottom:8px;font-style:italic;">No file chosen</div>
+      <input class="sl-scene-img" type="hidden" value=""/>
+    </div>
     <label class="admin-label" style="font-size:0.72em;">Choices <span class="admin-hint">(next ID: another scene ID, GOOD_END, or BAD_END)</span></label>
     <div class="sl-choices-list">
       <div style="display:grid;grid-template-columns:1fr 120px auto;gap:4px;margin-bottom:4px;">
@@ -35921,7 +36068,14 @@ function buildScenesJson() {
   document.querySelectorAll('#slScenesEditor .sl-scene-block').forEach(el => {
     const sceneId = el.querySelector('.sl-scene-id')?.value?.trim() || '';
     const text    = el.querySelector('.sl-scene-text')?.value?.trim() || '';
-    const imgUrl  = el.querySelector('.sl-scene-img')?.value?.trim() || '';
+    const fileRow = el.querySelector('.sl-img-file-row');
+    const isFile  = fileRow && fileRow.style.display !== 'none';
+    let imgUrl = '';
+    if(isFile) {
+      imgUrl = el.querySelector('.sl-img-file-row .sl-scene-img')?.value || '';
+    } else {
+      imgUrl = el.querySelector('.sl-img-url-row .sl-scene-img')?.value?.trim() || '';
+    }
     const choices = [];
     el.querySelectorAll('.sl-choices-list > div').forEach(ce => {
       const ct   = ce.querySelector('.sl-choice-text')?.value?.trim() || '';
@@ -35951,8 +36105,21 @@ function loadScenesIntoEditor(scenes) {
       </div>
       <label class="admin-label" style="font-size:0.72em;">Scene Text</label>
       <textarea class="admin-input sl-scene-text" rows="2" style="margin-bottom:6px;font-size:0.82em;resize:vertical;">${escapeHtml(s.text||'')}</textarea>
-      <label class="admin-label" style="font-size:0.72em;">Image/GIF URL</label>
-      <input class="admin-input sl-scene-img" value="${escapeHtml(s.image_url||'')}" style="margin-bottom:8px;font-size:0.82em;"/>
+      <label class="admin-label" style="font-size:0.72em;">Image/GIF</label>
+      <div style="display:flex;gap:4px;margin-bottom:4px;">
+        <button onclick="slToggleImgMode(this,'url')" class="sl-imgmode-url" style="flex:1;background:rgba(255,157,199,0.15);border:1px solid var(--pink);color:var(--pink);border-radius:6px;padding:2px 6px;font-size:0.68em;cursor:pointer;">🔗 URL</button>
+        <button onclick="slToggleImgMode(this,'file')" class="sl-imgmode-file" style="flex:1;background:var(--surface);border:1px solid var(--border);color:var(--text-dim);border-radius:6px;padding:2px 6px;font-size:0.68em;cursor:pointer;">📁 Upload</button>
+      </div>
+      <div class="sl-img-url-row"><input class="admin-input sl-scene-img" value="${escapeHtml(s.image_url||'')}" style="margin-bottom:8px;font-size:0.82em;"/></div>
+      <div class="sl-img-file-row" style="display:none;">
+        <input type="file" accept="image/*,video/gif" class="sl-img-file-input" style="display:none;" onchange="slHandleSceneImgUpload(this)"/>
+        <div style="display:flex;gap:4px;margin-bottom:4px;">
+          <button onclick="this.closest('.sl-scene-block').querySelector('.sl-img-file-input').click()" style="flex:1;background:rgba(255,157,199,0.06);border:1px dashed var(--border);color:var(--text-dim);border-radius:8px;padding:4px;font-size:0.72em;cursor:pointer;">📂 Choose Image</button>
+          <button onclick="slClearSceneImg(this)" style="background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.2);color:#f87171;border-radius:8px;padding:4px 8px;font-size:0.72em;cursor:pointer;">✕</button>
+        </div>
+        <div class="sl-img-file-name" style="font-size:0.68em;color:var(--text-dim);margin-bottom:8px;font-style:italic;">No file chosen</div>
+        <input class="sl-scene-img" type="hidden" value=""/>
+      </div>
       <label class="admin-label" style="font-size:0.72em;">Choices</label>
       <div class="sl-choices-list">${(s.choices||[]).map(c=>`<div style="display:grid;grid-template-columns:1fr 120px auto;gap:4px;margin-bottom:4px;"><input class="admin-input sl-choice-text" value="${escapeHtml(c.text||'')}" style="font-size:0.78em;padding:4px 8px;"/><input class="admin-input sl-choice-next" value="${escapeHtml(c.next_scene_id||'')}" style="font-size:0.78em;padding:4px 8px;"/><button onclick="this.parentElement.remove()" style="background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.2);color:#f87171;border-radius:6px;padding:2px 6px;font-size:0.7em;cursor:pointer;">✕</button></div>`).join('')}</div>
       <button class="sl-add-choice-btn" onclick="slAddChoice(this)" style="background:rgba(255,157,199,0.06);border:1px dashed var(--border);color:var(--text-dim);border-radius:8px;padding:4px 10px;font-size:0.72em;cursor:pointer;width:100%;margin-top:4px;">+ Add Choice</button>`;
@@ -35990,6 +36157,12 @@ async function submitStorylineForm() {
     bad_ending_title: document.getElementById('slForm_badTitle')?.value?.trim() || '',
     bad_ending_text:  document.getElementById('slForm_badText')?.value?.trim() || '',
     bad_ending_gif:   document.getElementById('slForm_badGif')?.value?.trim() || '',
+    music_url: (() => {
+      const fileRow = document.getElementById('slMusicFileRow');
+      const isFile = fileRow && fileRow.style.display !== 'none';
+      if(isFile && _slMusicDataUrl) return _slMusicDataUrl;
+      return document.getElementById('slForm_music')?.value?.trim() || '';
+    })(),
   };
 
   try {
@@ -36027,6 +36200,10 @@ function cancelStorylineEdit() {
   document.getElementById('slForm_badTitle').value   = '';
   document.getElementById('slForm_badText').value    = '';
   document.getElementById('slForm_badGif').value     = '';
+  const slMusicInp = document.getElementById('slForm_music');
+  if(slMusicInp) slMusicInp.value = '';
+  slClearMusicFile();
+  slToggleMusicMode('url');
   document.getElementById('slFormTitle').textContent = '📖 Create Storyline';
   document.getElementById('slCancelBtn').style.display = 'none';
   const ed = document.getElementById('slScenesEditor');
@@ -36083,6 +36260,17 @@ async function slEditStoryline(id) {
   document.getElementById('slForm_badTitle').value   = s.bad_ending_title||'';
   document.getElementById('slForm_badText').value    = s.bad_ending_text||'';
   document.getElementById('slForm_badGif').value     = s.bad_ending_gif||'';
+  const musicUrl = s.music_url||'';
+  if(musicUrl.startsWith('data:')) {
+    slToggleMusicMode('file');
+    _slMusicDataUrl = musicUrl;
+    const nameEl = document.getElementById('slMusicFileName');
+    if(nameEl) nameEl.textContent = 'Previously uploaded file';
+  } else {
+    slToggleMusicMode('url');
+    const mInp = document.getElementById('slForm_music');
+    if(mInp) mInp.value = musicUrl;
+  }
   document.getElementById('slFormTitle').textContent = '✏️ Edit Storyline';
   document.getElementById('slCancelBtn').style.display = '';
   const scenes = Array.isArray(s.scenes) ? s.scenes : (() => { try { return JSON.parse(s.scenes||'[]'); } catch(e) { return []; } })();
@@ -36122,6 +36310,7 @@ CREATE TABLE IF NOT EXISTS storylines (
   bad_ending_title TEXT DEFAULT '',
   bad_ending_text TEXT DEFAULT '',
   bad_ending_gif TEXT DEFAULT '',
+  music_url TEXT DEFAULT '',
   created_at TIMESTAMPTZ DEFAULT now()
 );
 
@@ -36138,6 +36327,9 @@ CREATE TABLE IF NOT EXISTS player_storylines (
 
 ALTER TABLE storylines ENABLE ROW LEVEL SECURITY;
 ALTER TABLE player_storylines ENABLE ROW LEVEL SECURITY;
+
+-- Run these if upgrading an existing storylines table:
+ALTER TABLE storylines ADD COLUMN IF NOT EXISTS music_url TEXT DEFAULT '';
 
 CREATE POLICY "anon_select_storylines" ON storylines FOR SELECT TO anon USING (true);
 CREATE POLICY "anon_insert_storylines" ON storylines FOR INSERT TO anon WITH CHECK (true);
