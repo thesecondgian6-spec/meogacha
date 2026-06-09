@@ -35753,7 +35753,7 @@ async function renderStorylineEnding(type) {
         await fetch(`${SUPABASE_URL}/rest/v1/player_storylines`, {
           method: 'POST',
           headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer '+SUPABASE_KEY, 'Content-Type': 'application/json', 'Prefer': 'resolution=merge-duplicates,return=minimal' },
-          body: JSON.stringify({ discord_id: state.discordId, storyline_id: story.id, completed: true, ending_type: type, unlocked_images: JSON.stringify(mergedImages), completed_at: new Date().toISOString() }),
+          body: JSON.stringify({ discord_id: state.discordId, storyline_id: story.id, completed: true, ending_type: type, unlocked_images: mergedImages, completed_at: new Date().toISOString() }),
         });
         await loadPlayerStorylines(state.discordId);
       } catch(e) { console.warn('[storyline] Could not save progress:', e); }
@@ -35980,7 +35980,7 @@ async function submitStorylineForm() {
     intro_text: document.getElementById('slForm_intro')?.value?.trim() || '',
     thumb_url:  document.getElementById('slForm_thumb')?.value?.trim() || '',
     sort_order: parseInt(document.getElementById('slForm_sort')?.value||'0'),
-    scenes: JSON.stringify(buildScenesJson()),
+    scenes: buildScenesJson(),
     good_ending_title: document.getElementById('slForm_goodTitle')?.value?.trim() || '',
     good_ending_text:  document.getElementById('slForm_goodText')?.value?.trim() || '',
     good_ending_gif:   document.getElementById('slForm_goodGif')?.value?.trim() || '',
@@ -36047,7 +36047,7 @@ async function loadAdminStorylineList() {
       return;
     }
     list.innerHTML = window.STORYLINES_CACHE.map(s => {
-      const scenes = (() => { try { return JSON.parse(s.scenes||'[]'); } catch(e) { return []; } })();
+      const scenes = Array.isArray(s.scenes) ? s.scenes : (() => { try { return JSON.parse(s.scenes||'[]'); } catch(e) { return []; } })();
       return `<div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:8px;display:flex;align-items:flex-start;gap:10px;">
         <div style="flex:1;min-width:0;">
           <div style="font-family:'Cinzel Decorative',serif;font-size:0.78em;color:var(--pink-pale);margin-bottom:2px;">${escapeHtml(s.title)}</div>
@@ -36085,7 +36085,7 @@ async function slEditStoryline(id) {
   document.getElementById('slForm_badGif').value     = s.bad_ending_gif||'';
   document.getElementById('slFormTitle').textContent = '✏️ Edit Storyline';
   document.getElementById('slCancelBtn').style.display = '';
-  const scenes = (() => { try { return JSON.parse(s.scenes||'[]'); } catch(e) { return []; } })();
+  const scenes = Array.isArray(s.scenes) ? s.scenes : (() => { try { return JSON.parse(s.scenes||'[]'); } catch(e) { return []; } })();
   loadScenesIntoEditor(scenes);
   document.getElementById('slFormTitle').scrollIntoView({ behavior:'smooth', block:'start' });
 }
