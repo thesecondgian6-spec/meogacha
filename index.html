@@ -14639,6 +14639,25 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
               </div>
             </div>
 
+            <div style="margin-bottom:14px;">
+              <label class="admin-label">Card Music <span class="admin-hint">(plays when card modal opens)</span></label>
+              <div style="display:flex;gap:6px;margin-bottom:4px;">
+                <button id="cardMusicModeUrl" onclick="cardToggleMusicMode('url')" style="flex:1;background:rgba(255,157,199,0.15);border:1px solid var(--pink);color:var(--pink);border-radius:8px;padding:4px 8px;font-size:0.72em;cursor:pointer;">🔗 URL</button>
+                <button id="cardMusicModeFile" onclick="cardToggleMusicMode('file')" style="flex:1;background:var(--surface);border:1px solid var(--border);color:var(--text-dim);border-radius:8px;padding:4px 8px;font-size:0.72em;cursor:pointer;">📁 Upload File</button>
+              </div>
+              <div id="cardMusicUrlRow">
+                <input class="admin-input" id="cardForm_music" placeholder="https://... (.mp3, .ogg, etc.)" style="font-size:0.82em;"/>
+              </div>
+              <div id="cardMusicFileRow" style="display:none;">
+                <input type="file" id="cardForm_musicFile" accept="audio/*" style="display:none;" onchange="cardHandleMusicUpload(this)"/>
+                <div style="display:flex;gap:6px;margin-bottom:4px;">
+                  <button onclick="document.getElementById('cardForm_musicFile').click()" style="flex:1;background:rgba(255,157,199,0.06);border:1px dashed var(--border);color:var(--text-dim);border-radius:8px;padding:6px;font-size:0.78em;cursor:pointer;">📂 Choose Audio File</button>
+                  <button onclick="cardClearMusicFile()" style="background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.2);color:#f87171;border-radius:8px;padding:6px 10px;font-size:0.78em;cursor:pointer;">✕</button>
+                </div>
+                <div id="cardMusicFileName" style="font-size:0.72em;color:var(--text-dim);font-style:italic;">No file chosen</div>
+              </div>
+            </div>
+
             <div class="admin-section-label">Story</div>
             <div style="margin-bottom:10px;">
               <label class="admin-label">Quote</label>
@@ -16493,6 +16512,54 @@ function playModalSound(){
   }catch(e){}
 }
 
+// ── Card Modal Music ──
+let _cardModalAudio = null;
+window._cardMusicDataUrl = null;
+
+function cardModalPlayMusic(src) {
+  cardModalStopMusic();
+  if(!src) return;
+  _cardModalAudio = new Audio(src);
+  _cardModalAudio.loop = true;
+  _cardModalAudio.volume = 0.4;
+  _cardModalAudio.play().catch(()=>{});
+}
+function cardModalStopMusic() {
+  if(_cardModalAudio) {
+    try { _cardModalAudio.pause(); _cardModalAudio.src = ''; } catch(e){}
+    _cardModalAudio = null;
+  }
+}
+function cardToggleMusicMode(mode) {
+  const urlRow  = document.getElementById('cardMusicUrlRow');
+  const fileRow = document.getElementById('cardMusicFileRow');
+  const btnUrl  = document.getElementById('cardMusicModeUrl');
+  const btnFile = document.getElementById('cardMusicModeFile');
+  if(!urlRow || !fileRow) return;
+  const isUrl = mode === 'url';
+  urlRow.style.display  = isUrl ? '' : 'none';
+  fileRow.style.display = isUrl ? 'none' : '';
+  if(btnUrl)  { btnUrl.style.background  = isUrl ? 'rgba(255,157,199,0.15)' : 'var(--surface)'; btnUrl.style.borderColor  = isUrl ? 'var(--pink)' : 'var(--border)'; btnUrl.style.color  = isUrl ? 'var(--pink)' : 'var(--text-dim)'; }
+  if(btnFile) { btnFile.style.background = !isUrl ? 'rgba(255,157,199,0.15)' : 'var(--surface)'; btnFile.style.borderColor = !isUrl ? 'var(--pink)' : 'var(--border)'; btnFile.style.color = !isUrl ? 'var(--pink)' : 'var(--text-dim)'; }
+}
+function cardHandleMusicUpload(input) {
+  const file = input.files[0];
+  if(!file) return;
+  const nameEl = document.getElementById('cardMusicFileName');
+  if(nameEl) nameEl.textContent = file.name;
+  const reader = new FileReader();
+  reader.onload = e => { window._cardMusicDataUrl = e.target.result; };
+  reader.readAsDataURL(file);
+}
+function cardClearMusicFile() {
+  window._cardMusicDataUrl = null;
+  const inp = document.getElementById('cardForm_musicFile');
+  if(inp) inp.value = '';
+  const nameEl = document.getElementById('cardMusicFileName');
+  if(nameEl) nameEl.textContent = 'No file chosen';
+}
+// ── end Card Modal Music ──
+
 // ── EQUIP CARD ──
 function playEquipSound(){
   try{
@@ -17234,6 +17301,7 @@ async function loadCards(){
       limited:     r.limited,
       limitedFor:  r.limited_for,
       forBattle:   r.for_battle !== false,
+      music_url:   r.music_url || '',
     }));
     console.log(`Loaded ${window.DEMO_CARDS.length} cards from DB`);
   }
@@ -17596,6 +17664,8 @@ function _renderCardEvoPanel(cardId, color) {
 function openCard(id){
   const c=(window.DEMO_CARDS||DEMO_CARDS).find(x=>x.id===id);if(!c)return;
   playModalSound();
+  // Play card music if set
+  cardModalPlayMusic(c.music_url || '');
   openCardId=id;
   const color=c.color||RARITY_COLORS[c.rarity]||'#bdc3c7';
   const xp=state.xpMap[id]||0;
@@ -17710,8 +17780,10 @@ function openCard(id){
   document.getElementById('cardModal').classList.add('active');
 }
 function closeModal(e){
-  if(!e||e.target===document.getElementById('cardModal'))
+  if(!e||e.target===document.getElementById('cardModal')){
     document.getElementById('cardModal').classList.remove('active');
+    cardModalStopMusic();
+  }
 }
 
 // ── Sell Card ──
@@ -17933,6 +18005,7 @@ async function confirmSellCard(cardId, price, qty){
 
   // Close card modal, refresh
   document.getElementById('cardModal')?.classList.remove('active');
+  cardModalStopMusic();
   renderCollection();
   updateProfile();
   if(state.discordId && !state.isGuest) await savePlayer();
@@ -18017,6 +18090,7 @@ async function equipCard(){
     state.equippedId=openCardId;
     showToast(`⚔️ ${(window.DEMO_CARDS||DEMO_CARDS).find(x=>x.id===openCardId)?.name} equipped!`); playEquipSound();
     document.getElementById('cardModal').classList.remove('active');
+    cardModalStopMusic();
     updateProfile();renderCollection();
     if(state.discordId&&!state.isGuest)await savePlayer();
     if(state.isGuest)saveGuestState();
@@ -27087,6 +27161,12 @@ async function submitCardForm(){
     limited:    document.getElementById('cardForm_limited').checked,
     limited_for:document.getElementById('cardForm_limitedFor').value.trim(),
     for_battle: document.getElementById('cardForm_for_battle').checked,
+    music_url: (() => {
+      const fileRow = document.getElementById('cardMusicFileRow');
+      const isFile  = fileRow && fileRow.style.display !== 'none';
+      if(isFile && window._cardMusicDataUrl) return window._cardMusicDataUrl;
+      return document.getElementById('cardForm_music')?.value?.trim() || '';
+    })(),
   };
 
   const btn=document.getElementById('cardFormSubmitBtn');
@@ -27100,7 +27180,7 @@ async function submitCardForm(){
     if(!cardRes.ok){
       const errBody = await cardRes.json().catch(()=>null);
       const detail = errBody?.message || errBody?.hint || errBody?.details || JSON.stringify(errBody) || cardRes.statusText;
-      throw new Error('Cards upsert failed ('+cardRes.status+'): '+detail);
+      throw new Error('Cards upsert failed ('+cardRes.status+'): '+detail+'. If new column — run: ALTER TABLE cards ADD COLUMN IF NOT EXISTS music_url TEXT DEFAULT \'\';');
     }
 
     // Save abilities — always delete old rows first, then reinsert
@@ -27136,6 +27216,10 @@ function cancelCardEdit(){
   ['id','name','series','quote','desc','image','thumbnail','limitedFor'].forEach(f=>{
     const el=document.getElementById('cardForm_'+f);if(el)el.value='';
   });
+  // Clear music
+  const cm = document.getElementById('cardForm_music'); if(cm) cm.value = '';
+  cardClearMusicFile();
+  cardToggleMusicMode('url');
   document.getElementById('cardForm_rarity').value='4';
   document.getElementById('cardForm_color').value='#9b59b6';
   document.getElementById('cardForm_colorpicker').value='#9b59b6';
@@ -27224,6 +27308,18 @@ async function editCard(cardId){
   document.getElementById('cardForm_limitedFor').value=c.limited_for||'';
   document.getElementById('cardForm_for_battle').checked=c.for_battle!==false;
   document.getElementById('limitedForWrap').style.display=c.limited?'':'none';
+  // Populate music
+  const musicUrl = c.music_url || '';
+  if(musicUrl.startsWith('data:')) {
+    cardToggleMusicMode('file');
+    window._cardMusicDataUrl = musicUrl;
+    const nameEl = document.getElementById('cardMusicFileName');
+    if(nameEl) nameEl.textContent = 'Previously uploaded file';
+  } else {
+    cardToggleMusicMode('url');
+    const mInp = document.getElementById('cardForm_music');
+    if(mInp) mInp.value = musicUrl;
+  }
 
   // Load existing abilities — use in-memory cache (kept fresh by loadCards)
   // then fall back to a direct DB fetch if cache is missing
@@ -35851,38 +35947,59 @@ async function renderGallery(seriesName) {
   const playerMap = {};
   window.PLAYER_STORYLINES_CACHE.forEach(p => { playerMap[p.storyline_id] = p; });
 
-  const images = [];
+  // Build full slot list: unlocked + locked
+  const unlockedImages = [];
+  let totalLocked = 0;
   stories.forEach(s => {
     const progress = playerMap[s.id];
+    const total    = (s.good_gallery_images||'').split(',').map(x=>x.trim()).filter(Boolean).length;
     if(progress && progress.unlocked_images) {
       const imgs = typeof progress.unlocked_images==='string' ? JSON.parse(progress.unlocked_images||'[]') : (progress.unlocked_images||[]);
-      imgs.forEach(url => { if(url) images.push({ url, storyTitle: s.title }); });
+      imgs.forEach(url => { if(url) unlockedImages.push({ url, storyTitle: s.title }); });
     }
+    // Count locked slots = total possible minus what's unlocked from this story
+    const unlockedCount = progress?.unlocked_images
+      ? (typeof progress.unlocked_images==='string' ? JSON.parse(progress.unlocked_images||'[]') : (progress.unlocked_images||[])).filter(Boolean).length
+      : 0;
+    totalLocked += Math.max(0, total - unlockedCount);
   });
 
-  const totalPossible = stories.reduce((sum,s) => sum + (s.good_gallery_images||'').split(',').map(x=>x.trim()).filter(Boolean).length, 0);
+  const totalPossible = unlockedImages.length + totalLocked;
 
-  if(!images.length) {
+  if(!totalPossible) {
     grid.innerHTML = '';
     empty.style.display = 'block';
     empty.innerHTML = `<div style="font-size:3em;margin-bottom:12px;">🖼️</div>
-      <div>Complete storylines to unlock gallery images!</div>
-      ${totalPossible>0?`<div style="font-size:0.8em;margin-top:8px;color:var(--text-dim);">0 / ${totalPossible} unlocked</div>`:''}`;
+      <div>Complete storylines to unlock gallery images!</div>`;
     return;
   }
 
   empty.style.display = 'none';
-  // Store image list on grid element so click handler can access data URLs safely
-  grid._galleryImages = images;
-  grid.innerHTML = `<div style="grid-column:1/-1;font-size:0.75em;color:var(--text-dim);font-style:italic;">✨ ${images.length} / ${totalPossible} images unlocked</div>
-    ${images.map((img, idx) => `
-      <div data-gidx="${idx}" style="border-radius:14px;overflow:hidden;border:1px solid var(--border);cursor:pointer;transition:all 0.2s;"
-           onmouseenter="this.style.borderColor='var(--pink)';this.style.transform='scale(1.02)'"
-           onmouseleave="this.style.borderColor='var(--border)';this.style.transform='scale(1)'">
-        <img src="${escapeHtml(img.url)}" style="width:100%;aspect-ratio:1;object-fit:cover;display:block;pointer-events:none;" loading="lazy" onerror="this.parentElement.style.display='none'"/>
-        <div style="padding:6px 10px;font-size:0.68em;color:var(--text-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;pointer-events:none;">📖 ${escapeHtml(img.storyTitle)}</div>
-      </div>`).join('')}`;
-  // Attach click via delegation so data URLs never go in inline attrs
+  grid._galleryImages = unlockedImages;
+
+  const unlockedHtml = unlockedImages.map((img, idx) => `
+    <div data-gidx="${idx}" style="border-radius:14px;overflow:hidden;border:1px solid var(--border);cursor:pointer;transition:all 0.2s;position:relative;"
+         onmouseenter="this.style.borderColor='var(--pink)';this.style.transform='scale(1.03)'"
+         onmouseleave="this.style.borderColor='var(--border)';this.style.transform='scale(1)'">
+      <img src="${escapeHtml(img.url)}" style="width:100%;aspect-ratio:1;object-fit:cover;display:block;pointer-events:none;" loading="lazy" onerror="this.parentElement.style.display='none'"/>
+      <div style="padding:6px 10px;font-size:0.68em;color:var(--text-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;pointer-events:none;">📖 ${escapeHtml(img.storyTitle)}</div>
+    </div>`).join('');
+
+  const lockedHtml = Array(totalLocked).fill(0).map(() => `
+    <div style="border-radius:14px;overflow:hidden;border:1px solid rgba(255,255,255,0.07);position:relative;aspect-ratio:1;background:rgba(255,255,255,0.03);">
+      <div style="width:100%;height:calc(100% - 28px);display:flex;align-items:center;justify-content:center;filter:blur(0px);background:repeating-linear-gradient(45deg,rgba(255,255,255,0.015) 0px,rgba(255,255,255,0.015) 2px,transparent 2px,transparent 12px);">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px;opacity:0.45;">
+          <div style="font-size:1.6em;filter:grayscale(1);">🔒</div>
+          <div style="font-size:0.6em;color:var(--text-dim);letter-spacing:0.05em;font-family:'JetBrains Mono',monospace;">LOCKED</div>
+        </div>
+      </div>
+      <div style="padding:6px 10px;font-size:0.68em;color:rgba(255,255,255,0.2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">🔒 ???</div>
+    </div>`).join('');
+
+  grid.innerHTML = `
+    <div style="grid-column:1/-1;font-size:0.75em;color:var(--text-dim);font-style:italic;">✨ ${unlockedImages.length} / ${totalPossible} images unlocked</div>
+    ${unlockedHtml}${lockedHtml}`;
+
   grid.onclick = e => {
     const card = e.target.closest('[data-gidx]');
     if(!card || !grid._galleryImages) return;
