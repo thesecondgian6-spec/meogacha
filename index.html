@@ -15364,7 +15364,8 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
       <input type="hidden" id="slEditId"/>
 
       <label class="admin-label">Anime Series * <span class="admin-hint">(must match series name exactly)</span></label>
-      <input class="admin-input" id="slForm_series" placeholder="e.g. The Quintessential Quintuplets" style="margin-bottom:8px;"/>
+      <input class="admin-input" id="slForm_series" placeholder="e.g. The Quintessential Quintuplets" list="slSeriesSuggestions" style="margin-bottom:8px;" onfocus="slPopulateSeriesList()"/>
+      <datalist id="slSeriesSuggestions"></datalist>
 
       <label class="admin-label">Storyline Title *</label>
       <input class="admin-input" id="slForm_title" placeholder="e.g. The Five Sisters" style="margin-bottom:8px;"/>
@@ -25564,7 +25565,7 @@ function switchAdminTab(tab, btn){
   }
   if(tab==='anime') { loadAdminAnimeList(); }
   if(tab==='worldboss') { loadAdminBossList(); populateWbCardSelector(); }
-  if(tab==='storylines') { loadAdminStorylineList(); slInitScenesEditor(); }
+  if(tab==='storylines') { loadAdminStorylineList(); slInitScenesEditor(); const dl=document.getElementById('slSeriesSuggestions'); if(dl) delete dl.dataset.populated; }
 }
 
 // ── Upload file to Supabase Storage ──
@@ -35580,6 +35581,7 @@ async function loadStorylines() {
   } catch(e) {
     window.STORYLINES_CACHE = [];
     console.warn('[storyline] Table not found. Run SQL migration.', e);
+    showToast('⚠️ Storylines table missing — run SQL migration!');
   }
 }
 
@@ -35958,6 +35960,15 @@ function loadScenesIntoEditor(scenes) {
   });
 }
 
+function slPopulateSeriesList() {
+  const dl = document.getElementById('slSeriesSuggestions');
+  if(!dl || dl.dataset.populated) return;
+  const cards = window.DEMO_CARDS || [];
+  const series = [...new Set(cards.map(c => c.series).filter(Boolean))].sort();
+  dl.innerHTML = series.map(s => `<option value="${escapeHtml(s)}">`).join('');
+  dl.dataset.populated = '1';
+}
+
 async function submitStorylineForm() {
   const editId = document.getElementById('slEditId')?.value?.trim() || '';
   const series = document.getElementById('slForm_series')?.value?.trim() || '';
@@ -35983,10 +35994,12 @@ async function submitStorylineForm() {
 
   try {
     if(editId) {
-      await sb.update('storylines', data, { id: editId });
+      const ok = await sb.update('storylines', data, { id: editId });
+      if(!ok) throw new Error('Update failed — check DB error above or run SQL migration.');
       showToast('✅ Storyline updated!');
     } else {
-      await sb.insert('storylines', data);
+      const ok = await sb.insert('storylines', data);
+      if(!ok) throw new Error('Insert failed — check DB error above or run SQL migration.');
       showToast('✅ Storyline created!');
     }
     cancelStorylineEdit();
