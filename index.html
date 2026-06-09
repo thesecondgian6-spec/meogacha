@@ -15424,8 +15424,17 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
               <input class="admin-input" id="slForm_goodXp" type="number" value="500" style="font-size:0.82em;"/>
             </div>
           </div>
-          <label class="admin-label" style="font-size:0.75em;margin-top:6px;">Gallery Image URLs <span class="admin-hint">(comma-separated)</span></label>
-          <textarea class="admin-input" id="slForm_goodGallery" rows="2" placeholder="https://img1.jpg, https://img2.gif" style="resize:vertical;font-size:0.82em;"></textarea>
+          <label class="admin-label" style="font-size:0.75em;margin-top:6px;">Gallery Images <span class="admin-hint">(unlock on good ending)</span></label>
+          <div style="display:flex;gap:4px;margin-bottom:6px;">
+            <input class="admin-input" id="slGalleryUrlInput" placeholder="Paste image URL and press +" style="font-size:0.78em;flex:1;" onkeydown="if(event.key==='Enter'){event.preventDefault();slGalleryAddUrl();}"/>
+            <button onclick="slGalleryAddUrl()" style="background:rgba(255,157,199,0.12);border:1px solid var(--pink);color:var(--pink);border-radius:8px;padding:4px 10px;font-size:0.8em;cursor:pointer;white-space:nowrap;">+ Add</button>
+          </div>
+          <div style="margin-bottom:6px;">
+            <input type="file" id="slGalleryFileInput" accept="image/*" multiple style="display:none;" onchange="slGalleryHandleFiles(this)"/>
+            <button onclick="document.getElementById('slGalleryFileInput').click()" style="width:100%;background:rgba(255,157,199,0.06);border:1px dashed rgba(255,157,199,0.3);color:var(--text-dim);border-radius:8px;padding:6px;font-size:0.75em;cursor:pointer;">📂 Upload Images (multi-select supported)</button>
+          </div>
+          <div id="slGalleryPreview" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(72px,1fr));gap:6px;min-height:0;"></div>
+          <input type="hidden" id="slForm_goodGallery"/>
         </div>
 
         <div style="background:rgba(255,80,80,0.05);border:1px solid rgba(255,80,80,0.2);border-radius:10px;padding:12px;">
@@ -35863,15 +35872,23 @@ async function renderGallery(seriesName) {
   }
 
   empty.style.display = 'none';
+  // Store image list on grid element so click handler can access data URLs safely
+  grid._galleryImages = images;
   grid.innerHTML = `<div style="grid-column:1/-1;font-size:0.75em;color:var(--text-dim);font-style:italic;">✨ ${images.length} / ${totalPossible} images unlocked</div>
-    ${images.map(img => `
-      <div style="border-radius:14px;overflow:hidden;border:1px solid var(--border);cursor:pointer;transition:all 0.2s;"
-           onclick="openGalleryLightbox('${escapeHtml(img.url)}')"
+    ${images.map((img, idx) => `
+      <div data-gidx="${idx}" style="border-radius:14px;overflow:hidden;border:1px solid var(--border);cursor:pointer;transition:all 0.2s;"
            onmouseenter="this.style.borderColor='var(--pink)';this.style.transform='scale(1.02)'"
            onmouseleave="this.style.borderColor='var(--border)';this.style.transform='scale(1)'">
-        <img src="${escapeHtml(img.url)}" style="width:100%;aspect-ratio:1;object-fit:cover;display:block;" loading="lazy" onerror="this.parentElement.style.display='none'"/>
-        <div style="padding:6px 10px;font-size:0.68em;color:var(--text-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">📖 ${escapeHtml(img.storyTitle)}</div>
+        <img src="${escapeHtml(img.url)}" style="width:100%;aspect-ratio:1;object-fit:cover;display:block;pointer-events:none;" loading="lazy" onerror="this.parentElement.style.display='none'"/>
+        <div style="padding:6px 10px;font-size:0.68em;color:var(--text-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;pointer-events:none;">📖 ${escapeHtml(img.storyTitle)}</div>
       </div>`).join('')}`;
+  // Attach click via delegation so data URLs never go in inline attrs
+  grid.onclick = e => {
+    const card = e.target.closest('[data-gidx]');
+    if(!card || !grid._galleryImages) return;
+    const img = grid._galleryImages[parseInt(card.dataset.gidx)];
+    if(img) openGalleryLightbox(img.url);
+  };
 }
 
 function openGalleryLightbox(url) {
@@ -35881,8 +35898,17 @@ function openGalleryLightbox(url) {
   lb.id = 'galleryLightbox';
   lb.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.92);display:flex;align-items:center;justify-content:center;cursor:pointer;';
   lb.onclick = () => lb.remove();
-  lb.innerHTML = `<img src="${escapeHtml(url)}" style="max-width:90vw;max-height:90vh;object-fit:contain;border-radius:16px;" onclick="event.stopPropagation()"/>
-    <button style="position:absolute;top:20px;right:24px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:#fff;width:36px;height:36px;border-radius:50%;font-size:1.2em;cursor:pointer;" onclick="document.getElementById('galleryLightbox').remove()">✕</button>`;
+  const imgEl = document.createElement('img');
+  imgEl.src = url;
+  imgEl.style.cssText = 'max-width:90vw;max-height:90vh;object-fit:contain;border-radius:16px;';
+  imgEl.onclick = e => e.stopPropagation();
+  const closeBtn = document.createElement('button');
+  closeBtn.style.cssText = 'position:absolute;top:20px;right:24px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:#fff;width:36px;height:36px;border-radius:50%;font-size:1.2em;cursor:pointer;';
+  closeBtn.textContent = '✕';
+  closeBtn.onclick = e => { e.stopPropagation(); lb.remove(); };
+  lb.appendChild(imgEl);
+  lb.appendChild(closeBtn);
+  document.body.appendChild(lb);
   document.body.appendChild(lb);
 }
 
@@ -35966,7 +35992,79 @@ function slClearSceneImg(btn) {
   if(nameEl) nameEl.textContent = 'No file chosen';
 }
 
-// Storyline music player
+// ── Gallery image manager ──────────────────────────────────────
+let _slGalleryImages = []; // array of { src: string (url or data:) }
+
+function slGallerySyncHidden() {
+  const hidden = document.getElementById('slForm_goodGallery');
+  if(hidden) hidden.value = _slGalleryImages.map(i => i.src).join(',');
+}
+
+function slGalleryRenderPreview() {
+  const preview = document.getElementById('slGalleryPreview');
+  if(!preview) return;
+  if(!_slGalleryImages.length) { preview.innerHTML = ''; return; }
+  preview.innerHTML = _slGalleryImages.map((img, idx) => `
+    <div style="position:relative;border-radius:10px;overflow:hidden;border:1px solid var(--border);aspect-ratio:1;">
+      <img src="${escapeHtml(img.src)}" style="width:100%;height:100%;object-fit:cover;display:block;" onerror="this.style.opacity='0.2'"/>
+      <button onclick="slGalleryRemove(${idx})" style="position:absolute;top:3px;right:3px;background:rgba(0,0,0,0.7);border:none;color:#f87171;border-radius:50%;width:18px;height:18px;font-size:0.6em;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;">✕</button>
+    </div>`).join('');
+}
+
+function slGalleryAddUrl() {
+  const inp = document.getElementById('slGalleryUrlInput');
+  if(!inp) return;
+  const url = inp.value.trim();
+  if(!url) return;
+  _slGalleryImages.push({ src: url });
+  inp.value = '';
+  slGalleryRenderPreview();
+  slGallerySyncHidden();
+}
+
+function slGalleryHandleFiles(input) {
+  const files = Array.from(input.files || []);
+  if(!files.length) return;
+  let loaded = 0;
+  files.forEach(file => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      _slGalleryImages.push({ src: e.target.result });
+      loaded++;
+      if(loaded === files.length) {
+        slGalleryRenderPreview();
+        slGallerySyncHidden();
+      }
+    };
+    reader.readAsDataURL(file);
+  });
+  input.value = '';
+}
+
+function slGalleryRemove(idx) {
+  _slGalleryImages.splice(idx, 1);
+  slGalleryRenderPreview();
+  slGallerySyncHidden();
+}
+
+function slGalleryClearAll() {
+  _slGalleryImages = [];
+  slGalleryRenderPreview();
+  slGallerySyncHidden();
+  const urlInp = document.getElementById('slGalleryUrlInput');
+  if(urlInp) urlInp.value = '';
+  const fileInp = document.getElementById('slGalleryFileInput');
+  if(fileInp) fileInp.value = '';
+}
+
+function slGalleryLoadFromCsv(csv) {
+  _slGalleryImages = (csv||'').split(',').map(s => s.trim()).filter(Boolean).map(src => ({ src }));
+  slGalleryRenderPreview();
+  slGallerySyncHidden();
+}
+// ── end Gallery image manager ──────────────────────────────────
+
+
 let _slAudio = null;
 function slStartMusic(src) {
   slStopMusic();
@@ -36197,6 +36295,7 @@ function cancelStorylineEdit() {
   document.getElementById('slForm_goodCoins').value  = '200';
   document.getElementById('slForm_goodXp').value     = '500';
   document.getElementById('slForm_goodGallery').value= '';
+  slGalleryClearAll();
   document.getElementById('slForm_badTitle').value   = '';
   document.getElementById('slForm_badText').value    = '';
   document.getElementById('slForm_badGif').value     = '';
@@ -36256,7 +36355,7 @@ async function slEditStoryline(id) {
   document.getElementById('slForm_goodGif').value    = s.good_ending_gif||'';
   document.getElementById('slForm_goodCoins').value  = s.good_coins||200;
   document.getElementById('slForm_goodXp').value     = s.good_xp||500;
-  document.getElementById('slForm_goodGallery').value= s.good_gallery_images||'';
+  slGalleryLoadFromCsv(s.good_gallery_images||'');
   document.getElementById('slForm_badTitle').value   = s.bad_ending_title||'';
   document.getElementById('slForm_badText').value    = s.bad_ending_text||'';
   document.getElementById('slForm_badGif').value     = s.bad_ending_gif||'';
