@@ -8500,6 +8500,10 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   border-radius: 16px;
   overflow: hidden;
 }
+.arena-inner-banner{position:relative;width:100%;height:110px;border-radius:14px;overflow:hidden;margin-bottom:16px;}
+.arena-inner-banner img{width:100%;height:100%;object-fit:cover;object-position:center 30%;}
+.arena-inner-banner-overlay{position:absolute;inset:0;background:linear-gradient(135deg,rgba(15,5,0,0.55),rgba(8,3,0,0.75));}
+.arena-inner-banner-text{position:absolute;bottom:10px;left:14px;font-family:'Cinzel Decorative',serif;font-size:0.82em;color:#f0b27a;text-shadow:0 0 14px rgba(230,126,34,0.7);letter-spacing:0.04em;}
 .arena-box-header {
   display: flex;
   align-items: center;
@@ -13482,7 +13486,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
     <!-- ══════════════════════════════════ -->
     <div class="hub-zone" id="hubZone-rooms" style="display:none;">
       <div class="zone-banner zone-banner-rooms">
-        <img class="zone-banner-gif" src="https://media1.tenor.com/m/PKQz3kmo2akAAAAC/welcome.gif" alt=""/>
+        <img class="zone-banner-gif" src="https://media1.tenor.com/m/Bv37u6GJKkkAAAAC/bar-feelre.gif" alt=""/>
         <div class="zone-banner-overlay" style="background:linear-gradient(180deg,rgba(4,18,10,0.45) 0%,rgba(2,10,5,0.85) 100%);"></div>
         <div class="zone-banner-content">
           <div class="zone-banner-title">🏠 Player Rooms</div>
@@ -13791,7 +13795,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
     <!-- ══════════════════════════════════ -->
     <div class="hub-zone" id="hubZone-food" style="display:none;">
       <div class="zone-banner zone-banner-food">
-        <img class="zone-banner-gif" src="https://media1.tenor.com/m/Bv37u6GJKkkAAAAC/bar-feelre.gif" alt=""/>
+        <img class="zone-banner-gif" src="https://media1.tenor.com/m/PKQz3kmo2akAAAAC/welcome.gif" alt=""/>
         <div class="zone-banner-overlay" style="background:linear-gradient(180deg,rgba(30,5,2,0.35) 0%,rgba(20,3,1,0.88) 100%);"></div>
         <div class="zone-banner-content">
           <div class="zone-banner-title">🍜 Food Corner</div>
@@ -14326,6 +14330,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
     <!-- ══════════════════════════════════ -->
     <div class="hub-zone" id="hubZone-trades" style="display:none;">
       <div class="zone-banner zone-banner-trades">
+        <img class="zone-banner-gif" src="https://media1.tenor.com/m/CPjuFUkuOc4AAAAC/luffy-vs-lucci-one-piece.gif" alt=""/>
         <div class="zone-banner-overlay" style="background:linear-gradient(135deg,rgba(20,17,0,0.7),rgba(10,9,0,0.9));"></div>
         <div class="zone-banner-content">
           <div class="zone-banner-title" style="color:#f1c40f;text-shadow:0 0 20px rgba(241,196,15,0.6);">🔄 Trade Post</div>
@@ -14372,6 +14377,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
     <!-- ══════════════════════════════════ -->
     <div class="hub-zone" id="hubZone-arena" style="display:none;">
       <div class="zone-banner" style="background:linear-gradient(135deg,#1a0900,#2c1400,#1a0d00);">
+        <img class="zone-banner-gif" src="https://media1.tenor.com/m/CPjuFUkuOc4AAAAC/luffy-vs-lucci-one-piece.gif" alt=""/>
         <div class="zone-banner-overlay" style="background:linear-gradient(135deg,rgba(30,8,0,0.5),rgba(15,5,0,0.85));"></div>
         <div class="zone-banner-content">
           <div class="zone-banner-title" style="color:#f0b27a;text-shadow:0 0 20px rgba(230,126,34,0.7);">⚔️ Trading & Arena Hub</div>
@@ -14391,6 +14397,11 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 
       <!-- TRADE panel -->
       <div id="arenaPanel-trade">
+        <div class="arena-inner-banner">
+          <img src="https://media1.tenor.com/m/CPjuFUkuOc4AAAAC/luffy-vs-lucci-one-piece.gif" alt="">
+          <div class="arena-inner-banner-overlay"></div>
+          <div class="arena-inner-banner-text">🔄 Trade Post</div>
+        </div>
         <div class="arena-panel-grid">
 
           <!-- LEFT: Player list / direct trade request -->
@@ -14421,6 +14432,11 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 
       <!-- PVP panel -->
       <div id="arenaPanel-pvp" style="display:none;">
+        <div class="arena-inner-banner">
+          <img src="https://media1.tenor.com/m/CPjuFUkuOc4AAAAC/luffy-vs-lucci-one-piece.gif" alt="">
+          <div class="arena-inner-banner-overlay"></div>
+          <div class="arena-inner-banner-text">⚔️ PvP Battle Arena</div>
+        </div>
         <div class="arena-panel-grid">
 
           <!-- LEFT: Player list to challenge -->
