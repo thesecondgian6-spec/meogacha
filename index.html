@@ -3811,6 +3811,18 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .dm-tile.dm-wrong{background:rgba(231,76,60,0.2);border-color:#e74c3c;}
 .dm-tile.dm-correct{background:rgba(46,204,113,0.2);border-color:#2ecc71;}
 .dm-feedback{font-size:0.75em;color:var(--text-dim);font-style:italic;text-align:center;min-height:18px;}
+/* QUINTUPLETS EXAM BLITZ */
+.qt-question-box{background:rgba(255,157,199,0.05);border:1px solid var(--border);border-radius:16px;padding:14px 16px;text-align:center;}
+.qt-q-counter{font-family:'JetBrains Mono',monospace;font-size:0.6em;color:var(--text-dim);letter-spacing:0.1em;margin-bottom:6px;}
+.qt-question{font-size:0.9em;color:var(--pink-pale);font-weight:600;line-height:1.4;}
+.qt-sisters-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.qt-sister-btn{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 8px;border-radius:14px;border:1px solid var(--border);background:rgba(255,255,255,0.03);cursor:pointer;transition:all 0.15s;user-select:none;-webkit-user-select:none;}
+.qt-sister-btn:hover{border-color:var(--sc,var(--pink));background:rgba(255,157,199,0.08);transform:translateY(-2px);}
+.qt-s-emoji{font-size:1.6em;}
+.qt-s-name{font-family:'JetBrains Mono',monospace;font-size:0.65em;color:var(--sc,var(--text-dim));}
+.qt-sister-btn.qt-correct-flash{border-color:#2ecc71;background:rgba(46,204,113,0.18);box-shadow:0 0 14px rgba(46,204,113,0.3);}
+.qt-sister-btn.qt-wrong-flash{border-color:#e74c3c;background:rgba(231,76,60,0.15);}
+.qt-feedback{font-size:0.75em;color:var(--text-dim);font-style:italic;text-align:center;min-height:18px;}
 
 /* ══ MINIGAME STYLES ══ */
 
@@ -20541,7 +20553,56 @@ function openActivity(type) {
   document.getElementById('actBackBtn').style.display = 'none';
 
   document.getElementById('actModal').classList.add('active');
-  _actShowPicker();
+
+  // Pick a random theme from this activity's pool
+  const pool = type==='work' ? WORK_THEMES : type==='train' ? TRAIN_THEMES : QUEST_THEMES;
+  // Avoid repeating last played theme if possible
+  const last = _actLastTheme[type];
+  const choices = pool.length > 1 ? pool.filter(t => t.id !== last) : pool;
+  const theme = choices[Math.floor(Math.random() * choices.length)];
+  _actLastTheme[type] = theme.id;
+  _actCurrentThemes = pool;
+
+  // Show a quick "scene reveal" before launching
+  _actLaunchTheme(theme);
+}
+
+const _actLastTheme = {};
+
+function _actLaunchTheme(theme) {
+  const type = _actCurrentType;
+  document.getElementById('actModalTitle').textContent =
+    type==='work' ? '🧵 Work' : type==='train' ? '⚡ Train' : '🗺️ Quest';
+  document.getElementById('actModalSub').textContent = theme.scene;
+  document.getElementById('actPicker').classList.remove('active');
+  document.getElementById('actPicker').innerHTML = '';
+  document.getElementById('actBackBtn').style.display = 'none';
+
+  // Brief scene card before game starts
+  const gameEl = document.getElementById('actGame');
+  gameEl.style.display = 'block';
+  gameEl.innerHTML = `
+    <div style="display:flex;flex-direction:column;gap:12px;align-items:center;padding:8px 0;">
+      <div style="font-size:2.6em">${theme.icon}</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:0.6em;color:${theme.color};letter-spacing:0.1em;text-transform:uppercase;">${theme.anime}</div>
+      <div style="font-family:'Cinzel Decorative',serif;font-size:0.9em;color:var(--pink-pale);text-align:center;">${theme.name}</div>
+      <div style="font-size:0.78em;color:var(--text-dim);font-style:italic;text-align:center;line-height:1.5;padding:0 4px;">${theme.quote}</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:0.65em;color:var(--text-dim);margin-top:4px;">Starting in <span id="actCountdown">3</span>...</div>
+    </div>`;
+
+  let n = 3;
+  const cdInterval = setInterval(() => {
+    n--;
+    const el = document.getElementById('actCountdown');
+    if(el) el.textContent = n > 0 ? n : '🎮';
+    if(n <= 0) {
+      clearInterval(cdInterval);
+      gameEl.innerHTML = '';
+      if(type === 'work') startWorkGame(theme);
+      else if(type === 'train') startTrainGame(theme);
+      else startQuestGame(theme);
+    }
+  }, 900);
 }
 
 function _actShowPicker() {
@@ -20697,105 +20758,108 @@ function _brTick() {
 
 // ── QUINTUPLETS: Memory Match ──
 // Sisters & subjects flash, then you match them
-const QUINT_SISTERS = [
-  { name:'Ichika', emoji:'💄', color:'#e74c3c' },
-  { name:'Nino',   emoji:'🎵', color:'#e91e8c' },
-  { name:'Miku',   emoji:'🎧', color:'#3498db' },
-  { name:'Yotsuba',emoji:'🍀', color:'#2ecc71' },
-  { name:'Itsuki', emoji:'🍎', color:'#f39c12' },
+// ── QUINTUPLETS: Exam Answer Blitz ──
+// A question appears — tap the sister whose answer matches. Fast-paced, 10 questions.
+const QT_SISTERS = [
+  { name:'Ichika',  emoji:'💄', color:'#e74c3c' },
+  { name:'Nino',    emoji:'🎵', color:'#e91e8c' },
+  { name:'Miku',    emoji:'🎧', color:'#3498db' },
+  { name:'Yotsuba', emoji:'🍀', color:'#2ecc71' },
+  { name:'Itsuki',  emoji:'🍎', color:'#f39c12' },
 ];
-const QUINT_SUBJECTS = ['📐 Math','📖 Lit','🌍 History','🔬 Science','🗣 English'];
+const QT_QA = [
+  { q:'Who cooks for the family?',         a:'Nino'    },
+  { q:'Who loves Shingen Takeda?',          a:'Miku'    },
+  { q:'Who is the actress?',                a:'Ichika'  },
+  { q:'Who is the athlete & sports girl?',  a:'Yotsuba' },
+  { q:'Who wants to be a teacher?',         a:'Itsuki'  },
+  { q:'Who wears headphones?',              a:'Miku'    },
+  { q:'Who has the twin-tail hairstyle?',   a:'Nino'    },
+  { q:'Who is the class rep type?',         a:'Itsuki'  },
+  { q:'Who always smiles and is energetic?',a:'Yotsuba' },
+  { q:'Who has the most star talent?',      a:'Ichika'  },
+  { q:'Who dresses Fuutarou up?',           a:'Nino'    },
+  { q:'Who fell for him first (arguably)?', a:'Miku'    },
+  { q:'Who is the oldest quintuplet?',      a:'Ichika'  },
+  { q:'Who is always eating?',              a:'Itsuki'  },
+  { q:'Who does outdoor club activities?',  a:'Yotsuba' },
+];
 let _qt = {};
 
 function _startQuintuplets(theme) {
-  _qt = { theme, round:0, totalRounds:5, score:0, phase:'show', pairs:[], selected:null };
+  const questions = [...QT_QA].sort(()=>Math.random()-0.5).slice(0,10);
+  _qt = { theme, questions, qIdx:0, score:0, total:10, timeLeft:5, interval:null, answered:false };
   const el = document.getElementById('actGame');
-  el.innerHTML = `<div class="mg-container" id="qtContainer">
+  el.innerHTML = `<div class="mg-container">
     <div class="mg-header">
-      <span class="mg-label">📚 Quintuplet Tutoring</span>
-      <span class="mg-score" id="qtScore">⭐ 0 matched</span>
+      <span class="mg-label">📚 Exam Blitz!</span>
+      <span class="mg-timer" id="qtTimer">⏱ 5s</span>
+      <span class="mg-score" id="qtScore">0 / 10</span>
     </div>
-    <div class="mg-tip" id="qtTip">Memorize who needs what subject!</div>
-    <div class="qt-area" id="qtArea"></div>
-    <div class="qt-feedback" id="qtFeedback">"Even I can do this..." — Fuutarou</div>
+    <div class="qt-question-box">
+      <div class="qt-q-counter" id="qtCounter">Q1 / 10</div>
+      <div class="qt-question" id="qtQuestion">Loading...</div>
+    </div>
+    <div class="qt-sisters-grid" id="qtSistersGrid"></div>
+    <div class="qt-feedback" id="qtFeedback">"Who's the best student?" — Fuutarou</div>
   </div>`;
-  _qtNextRound();
+  _qtShowQuestion();
 }
 
-function _qtNextRound() {
-  if(_qt.round >= _qt.totalRounds) { _finishMinigame('work', _qt.score/(_qt.totalRounds*2), _qt.theme); return; }
-  _qt.round++;
-  // Pick 3 sisters and assign subjects
-  const sisters = [...QUINT_SISTERS].sort(()=>Math.random()-0.5).slice(0,3);
-  const subjects = [...QUINT_SUBJECTS].sort(()=>Math.random()-0.5).slice(0,3);
-  _qt.pairs = sisters.map((s,i)=>({ sister:s, subject:subjects[i], matched:false }));
-  _qt.phase = 'show';
-  const tipEl = document.getElementById('qtTip');
-  if(tipEl) tipEl.textContent = `Round ${_qt.round}/${_qt.totalRounds} — Memorize! 👀`;
-  _qtRenderShow();
-  _actTimeout1 = setTimeout(() => { _qt.phase = 'match'; _qtRenderMatch(); }, 2200);
-}
-
-function _qtRenderShow() {
-  const area = document.getElementById('qtArea');
-  if(!area) return;
-  area.innerHTML = `<div class="qt-show">${_qt.pairs.map(p=>`
-    <div class="qt-pair-show" style="border-color:${p.sister.color}40;background:${p.sister.color}10;">
-      <div class="qt-sister-emoji">${p.sister.emoji}</div>
-      <div class="qt-sister-name" style="color:${p.sister.color}">${p.sister.name}</div>
-      <div class="qt-subject">${p.subject}</div>
-    </div>`).join('')}</div>`;
-}
-
-function _qtRenderMatch() {
-  const area = document.getElementById('qtArea');
-  const tipEl = document.getElementById('qtTip');
-  if(!area) return;
-  if(tipEl) tipEl.textContent = 'Now match each sister to their subject!';
-  // Shuffle sisters and subjects separately
-  const shuffledSisters = [..._qt.pairs].sort(()=>Math.random()-0.5);
-  const shuffledSubjects = [..._qt.pairs].sort(()=>Math.random()-0.5);
-  _qt.shuffledSisters = shuffledSisters;
-  _qt.shuffledSubjects = shuffledSubjects;
-  _qt.selectedSister = null;
-  area.innerHTML = `
-    <div class="qt-match">
-      <div class="qt-col" id="qtSisters">
-        ${shuffledSisters.map((p,i)=>`<div class="qt-item qt-sister-item${p.matched?' qt-done':''}" data-sidx="${i}" onclick="_qtPickSister(${i})" style="--qc:${p.sister.color}">${p.sister.emoji} ${p.sister.name}</div>`).join('')}
-      </div>
-      <div class="qt-col" id="qtSubjects">
-        ${shuffledSubjects.map((p,i)=>`<div class="qt-item qt-subj-item${p.matched?' qt-done':''}" data-sidx="${i}" onclick="_qtPickSubject(${i})">${p.subject}</div>`).join('')}
-      </div>
-    </div>`;
-}
-
-function _qtPickSister(i) {
-  if(_qt.shuffledSisters[i].matched) return;
-  _qt.selectedSister = i;
-  document.querySelectorAll('.qt-sister-item').forEach((el,idx) => el.classList.toggle('qt-selected', idx===i));
-}
-
-function _qtPickSubject(i) {
-  if(_qt.selectedSister === null) return;
-  if(_qt.shuffledSubjects[i].matched) return;
-  const sister = _qt.shuffledSisters[_qt.selectedSister];
-  const subj = _qt.shuffledSubjects[i];
-  const fb = document.getElementById('qtFeedback');
-  if(sister.subject === subj.subject) {
-    sister.matched = true; subj.matched = true;
-    _qt.score++;
-    if(fb) fb.textContent = `✅ ${sister.sister.name} — ${subj.subject.split(' ')[1]}! Correct!`;
-    _qtRenderMatch();
-    // Check if all matched
-    if(_qt.shuffledSisters.every(p=>p.matched)) {
-      _qt.score++; // bonus for full round
-      _actTimeout1 = setTimeout(_qtNextRound, 700);
-    }
-  } else {
-    if(fb) fb.textContent = `❌ Wrong! ${sister.sister.name} needs ${sister.subject}`;
-    document.querySelectorAll('.qt-sister-item').forEach(el=>el.classList.remove('qt-selected'));
-    _qt.selectedSister = null;
+function _qtShowQuestion() {
+  if(_qt.qIdx >= _qt.total) {
+    _finishMinigame('work', _qt.score / _qt.total, _qt.theme);
+    return;
   }
+  _qt.answered = false;
+  _qt.timeLeft = 5;
+  const q = _qt.questions[_qt.qIdx];
+  const ctrEl = document.getElementById('qtCounter');
+  const qEl   = document.getElementById('qtQuestion');
+  const tmEl  = document.getElementById('qtTimer');
+  const grid  = document.getElementById('qtSistersGrid');
+  if(ctrEl) ctrEl.textContent = `Q${_qt.qIdx+1} / ${_qt.total}`;
+  if(qEl)   qEl.textContent   = q.q;
+  if(tmEl)  tmEl.textContent  = `⏱ 5s`;
+  if(grid)  grid.innerHTML    = QT_SISTERS.map(s => `
+    <div class="qt-sister-btn" style="--sc:${s.color}" onclick="_qtAnswer('${s.name}')">
+      <span class="qt-s-emoji">${s.emoji}</span>
+      <span class="qt-s-name">${s.name}</span>
+    </div>`).join('');
+  clearInterval(_qt.interval);
+  _qt.interval = setInterval(() => {
+    _qt.timeLeft--;
+    const t = document.getElementById('qtTimer');
+    if(t) { t.textContent = `⏱ ${_qt.timeLeft}s`; if(_qt.timeLeft<=2) t.style.color='#e74c3c'; else t.style.color='#f1c40f'; }
+    if(_qt.timeLeft <= 0) { clearInterval(_qt.interval); if(!_qt.answered) _qtAnswer(null); }
+  }, 1000);
+}
+
+function _qtAnswer(name) {
+  if(_qt.answered) return;
+  _qt.answered = true;
+  clearInterval(_qt.interval);
+  const correct = _qt.questions[_qt.qIdx].a;
+  const fb = document.getElementById('qtFeedback');
+  if(name === correct) {
+    _qt.score++;
+    if(fb) fb.textContent = `✅ Correct! It's ${correct}!`;
+    document.querySelectorAll('.qt-sister-btn').forEach(el => {
+      if(el.querySelector('.qt-s-name').textContent === correct) el.classList.add('qt-correct-flash');
+    });
+  } else {
+    const msg = name ? `❌ Wrong! The answer is ${correct}.` : `⏰ Time's up! It was ${correct}.`;
+    if(fb) fb.textContent = msg;
+    document.querySelectorAll('.qt-sister-btn').forEach(el => {
+      const n = el.querySelector('.qt-s-name').textContent;
+      if(n === correct) el.classList.add('qt-correct-flash');
+      else if(n === name) el.classList.add('qt-wrong-flash');
+    });
+  }
+  const sc = document.getElementById('qtScore');
+  if(sc) sc.textContent = `${_qt.score} / ${_qt.total}`;
+  _qt.qIdx++;
+  _actTimeout1 = setTimeout(_qtShowQuestion, 900);
 }
 
 // ── ANTEIKU: Cup Fill Skill Shot ──
@@ -20830,7 +20894,7 @@ function _startAnteiku(theme) {
 }
 
 function _akNextCustomer() {
-  if(_ak.round >= _ak.totalRounds) { _finishMinigame('work', _ak.score/(_ak.totalRounds), _ak.theme); return; }
+  if(_ak.round >= _ak.totalRounds) { _finishMinigame('work', Math.min(1, _ak.score/_ak.totalRounds), _ak.theme); return; }
   _ak.round++;
   const isGhoul = Math.random() > 0.45;
   // Ghouls want a very precise amount, humans are more forgiving
@@ -20891,14 +20955,9 @@ function _akPourFrame() {
 }
 
 function _finishWork() {
+  // Each work game calls _finishMinigame directly; this is just a safety cleanup
   _actClearAll();
   clearInterval(_br.interval);
-  const theme = _br.theme || _qt.theme || _ak.theme;
-  let pct = 0;
-  if(theme && theme.id==='baratie') pct = _br.total>0 ? _br.score/_br.total : 0;
-  else if(theme && theme.id==='quintuplets') pct = _qt.score/(_qt.totalRounds*2);
-  else pct = _ak.score/_ak.totalRounds;
-  _finishMinigame('work', Math.min(1,pct), theme);
 }
 
 // ═══════════════════════════════════════════
@@ -20970,7 +21029,7 @@ function _gjTick() {
     _gj.done = true;
     clearInterval(_gj.interval);
     cancelAnimationFrame(_gj.frameId);
-    _finishMinigame('train', _gj.peak/100, _gj.theme);
+    _finishMinigame('train', Math.min(1, _gj.peak/100), _gj.theme);
   }
 }
 
@@ -21122,12 +21181,10 @@ function _saTick() {
 }
 
 function _finishTrain(){
+  // Each train game calls _finishMinigame directly; this is just a safety cleanup
   _actClearAll();
   clearInterval(_gj.interval); clearInterval(_sa.interval);
   cancelAnimationFrame(_bw.frameId);
-  const theme = _gj.theme || _bw.theme || _sa.theme;
-  // pct already handled inside each game's finish call, this is fallback
-  _finishMinigame('train', 0.5, theme);
 }
 
 // ═══════════════════════════════════════════
@@ -21321,7 +21378,7 @@ function _atFrame() {
         _at.done = true;
         clearInterval(_at.interval); clearInterval(_at.spawnInterval);
         cancelAnimationFrame(_at.frameId);
-        _actTimeout1 = setTimeout(()=>_finishMinigame('quest',Math.min(1,_at.score/120),_at.theme),500);
+        _actTimeout1 = setTimeout(()=>_finishMinigame('quest',Math.min(1,_at.score/32),_at.theme),500);
       }
       return false;
     }
@@ -21341,7 +21398,7 @@ function _atTick() {
     _at.done = true;
     clearInterval(_at.interval); clearInterval(_at.spawnInterval);
     cancelAnimationFrame(_at.frameId);
-    _finishMinigame('quest', Math.min(1,_at.score/120), _at.theme);
+    _finishMinigame('quest', Math.min(1,_at.score/32), _at.theme);
   }
 }
 
@@ -21367,7 +21424,7 @@ function _startDanMachiSequence(theme) {
 }
 
 function _dmNextRound() {
-  if(_dm.round >= _dm.maxRounds) { _finishMinigame('quest', _dm.score/(_dm.maxRounds*3), _dm.theme); return; }
+  if(_dm.round >= _dm.maxRounds) { _finishMinigame('quest', Math.min(1, _dm.score/15), _dm.theme); return; }
   _dm.round++;
   const rdEl = document.getElementById('dmRound');
   if(rdEl) rdEl.textContent = `Floor ${_dm.round} / ${_dm.maxRounds}`;
@@ -21433,11 +21490,10 @@ function _dmTap(i) {
 }
 
 function _finishQuest(){
+  // Each quest game calls _finishMinigame directly; this is just a safety cleanup
   _actClearAll();
   clearInterval(_at.interval); clearInterval(_at.spawnInterval);
   cancelAnimationFrame(_at.frameId); cancelAnimationFrame(_ks.frameId);
-  const theme = _ks.theme || _at.theme || _dm.theme;
-  _finishMinigame('quest', 0.5, theme);
 }
 
 
