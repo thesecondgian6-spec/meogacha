@@ -35877,6 +35877,7 @@ function slAddScene() {
   if(!ed) return;
   const div = document.createElement('div');
   div.id = `slScene_${_slSceneCount}`;
+  div.classList.add('sl-scene-block');
   div.style.cssText = 'background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:10px;';
   div.innerHTML = `
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
@@ -35888,18 +35889,21 @@ function slAddScene() {
     <label class="admin-label" style="font-size:0.72em;">Image/GIF URL <span class="admin-hint">(optional)</span></label>
     <input class="admin-input sl-scene-img" placeholder="https://..." style="margin-bottom:8px;font-size:0.82em;"/>
     <label class="admin-label" style="font-size:0.72em;">Choices <span class="admin-hint">(next ID: another scene ID, GOOD_END, or BAD_END)</span></label>
-    <div class="sl-choices-list"></div>
+    <div class="sl-choices-list">
+      <div style="display:grid;grid-template-columns:1fr 120px auto;gap:4px;margin-bottom:4px;">
+        <input class="admin-input sl-choice-text" placeholder="Choice text..." style="font-size:0.78em;padding:4px 8px;"/>
+        <input class="admin-input sl-choice-next" placeholder="GOOD_END / scene_2" style="font-size:0.78em;padding:4px 8px;"/>
+        <button onclick="this.parentElement.remove()" style="background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.2);color:#f87171;border-radius:6px;padding:2px 6px;font-size:0.7em;cursor:pointer;">✕</button>
+      </div>
+    </div>
     <button class="sl-add-choice-btn" onclick="slAddChoice(this)" style="background:rgba(255,157,199,0.06);border:1px dashed var(--border);color:var(--text-dim);border-radius:8px;padding:4px 10px;font-size:0.72em;cursor:pointer;width:100%;margin-top:4px;">+ Add Choice</button>`;
-  div.classList.add('sl-scene-block');
   ed.appendChild(div);
-  // Add a default first choice using the correct button
-  slAddChoice(div.querySelector('.sl-add-choice-btn'));
 }
 
 function slAddChoice(btn) {
-  // Walk up to find the scene block, then find its choices list
+  if(!btn) return;
   const sceneBlock = btn.closest('.sl-scene-block');
-  const list = sceneBlock ? sceneBlock.querySelector('.sl-choices-list') : btn.parentElement.querySelector('.sl-choices-list');
+  const list = sceneBlock ? sceneBlock.querySelector('.sl-choices-list') : (btn.parentElement ? btn.parentElement.querySelector('.sl-choices-list') : null);
   if(!list) return;
   if(list.children.length >= 4) { showToast('Max 4 choices per scene'); return; }
   const row = document.createElement('div');
