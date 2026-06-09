@@ -35600,7 +35600,7 @@ async function renderStorylineList(seriesName) {
   playerView.style.display = 'none';
   container.style.display  = '';
 
-  if(!window.STORYLINES_CACHE.length) await loadStorylines();
+  await loadStorylines();
   if(state.discordId && !state.isGuest) await loadPlayerStorylines(state.discordId);
 
   const stories = window.STORYLINES_CACHE.filter(s => s.series && s.series.toLowerCase() === seriesName.toLowerCase());
