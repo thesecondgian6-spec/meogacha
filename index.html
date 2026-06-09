@@ -3704,6 +3704,23 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .act-result-text{font-family:'Cinzel Decorative',serif;font-size:1em;color:var(--pink-pale);margin-bottom:6px;}
 .act-result-rewards{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:12px 0;}
 .act-close-btn{width:100%;padding:12px;border-radius:14px;background:linear-gradient(135deg,var(--pink-deep),var(--purple));border:none;color:#fff;font-family:'Cinzel Decorative',serif;font-size:0.82em;cursor:pointer;margin-top:6px;letter-spacing:0.04em;}
+/* ── THEME PICKER ── */
+.act-picker{display:none;flex-direction:column;gap:10px;padding:4px 0;}
+.act-picker.active{display:flex;}
+.act-picker-label{font-family:'JetBrains Mono',monospace;font-size:0.63em;color:var(--text-dim);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:2px;}
+.act-theme-card{display:flex;align-items:flex-start;gap:12px;padding:13px 14px;border-radius:16px;border:1px solid var(--border);background:rgba(255,157,199,0.03);cursor:pointer;transition:all 0.2s;position:relative;overflow:hidden;}
+.act-theme-card:hover{border-color:var(--atc-color,rgba(255,157,199,0.5));background:rgba(255,157,199,0.06);transform:translateY(-2px);box-shadow:0 6px 22px var(--atc-glow,rgba(255,157,199,0.12));}
+.act-theme-card::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at left center,var(--atc-glow,rgba(255,157,199,0.06)),transparent 70%);pointer-events:none;}
+.atc-icon{font-size:2.1em;line-height:1;flex-shrink:0;margin-top:1px;}
+.atc-body{flex:1;min-width:0;}
+.atc-anime{font-family:'JetBrains Mono',monospace;font-size:0.58em;color:var(--atc-color,var(--text-dim));letter-spacing:0.08em;text-transform:uppercase;margin-bottom:2px;}
+.atc-name{font-family:'Cinzel Decorative',serif;font-size:0.82em;color:var(--pink-pale);margin-bottom:4px;line-height:1.3;}
+.atc-quote{font-size:0.73em;color:var(--text-dim);font-style:italic;line-height:1.45;}
+.atc-arrow{font-size:1em;color:var(--atc-color,var(--text-dim));opacity:0.55;flex-shrink:0;align-self:center;transition:transform 0.2s;}
+.act-theme-card:hover .atc-arrow{transform:translateX(3px);opacity:1;}
+.act-modal-back{background:none;border:1px solid var(--border);border-radius:10px;color:var(--text-dim);font-size:0.72em;padding:4px 10px;cursor:pointer;font-family:'JetBrains Mono',monospace;transition:all 0.15s;display:none;margin-bottom:8px;}
+.act-modal-back:hover{border-color:var(--pink);color:var(--pink);}
+.act-result-theme{font-family:'JetBrains Mono',monospace;font-size:0.6em;color:var(--text-dim);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:6px;}
 
 /* ══ MINIGAME STYLES ══ */
 
@@ -12864,8 +12881,10 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   <!-- ACTIVITY MODAL -->
   <div class="act-modal" id="actModal">
     <div class="act-modal-box">
+      <button class="act-modal-back" id="actBackBtn" onclick="_actShowPicker()">← Choose Scene</button>
       <div class="act-modal-title" id="actModalTitle">Activity</div>
       <div class="act-modal-sub" id="actModalSub"></div>
+      <div id="actPicker" class="act-picker active"></div>
       <div id="actGame" style="display:none;"></div>
       <div class="act-progress-wrap" id="actProgressWrap">
         <div class="act-progress-label"><span id="actProgressLabel">Progress</span><span id="actProgressVal">0 / 3</span></div>
@@ -20321,6 +20340,7 @@ function battleAIRematch() {
 let _actFrameId = null;
 let _actTimeout1 = null;
 let _actTimeout2 = null;
+let _actCurrentType = null;
 
 function _actClearAll() {
   if(_actFrameId) { cancelAnimationFrame(_actFrameId); _actFrameId = null; }
@@ -20330,61 +20350,159 @@ function _actClearAll() {
 
 // ── WORK THEMES ──
 const WORK_THEMES = [
-  { char:'Marin Kitagawa', anime:'My Dress-Up Darling', scene:'🧵 Marin\'s cosplay deadline is TONIGHT! Stitch the glowing fabric points before she moves to the next piece!', btn:'✂️' },
-  { char:'Fuutarou Uesugi', anime:'Quintessential Quintuplets', scene:'📚 Five sisters, five subjects, one night. Fuutarou needs you to stamp the study spots before the quintuplets fall asleep!', btn:'📚' },
-  { char:'Marin & Sajuna', anime:'My Dress-Up Darling', scene:'👗 Wig-styling session! Pin the hot spots on the mannequin before Sajuna starts the next cosplay piece!', btn:'📌' },
+  {
+    id:'baratie', char:'Sanji', anime:'One Piece', icon:'🍳',
+    color:'rgba(241,196,15,0.8)', glow:'rgba(241,196,15,0.12)',
+    name:'Baratie Kitchen Rush',
+    quote:'"Every plate that leaves this kitchen is a masterpiece. Now MOVE, we have 20 orders waiting!"',
+    scene:'⚓ The Baratie is packed tonight! Sanji\'s barking orders — tap the glowing dishes before they burn and the pirates riot!',
+    cellIcon:'🍽️', hitIcon:'✅', btn:'🍳',
+  },
+  {
+    id:'quintuplets', char:'Fuutarou Uesugi', anime:'The Quintessential Quintuplets', icon:'📚',
+    color:'rgba(255,107,180,0.8)', glow:'rgba(255,107,180,0.12)',
+    name:'Tutor the Quintuplets',
+    quote:'"Don\'t slack off! Five different subjects, five sisters, and they all need help at the same time."',
+    scene:'📖 Exam night crisis! The Nakano sisters keep dozing off — tap the glowing study spots before they lose focus!',
+    cellIcon:'📓', hitIcon:'⭐', btn:'📚',
+  },
+  {
+    id:'anteiku', char:'Touka Kirishima', anime:'Tokyo Ghoul', icon:'☕',
+    color:'rgba(160,100,60,0.9)', glow:'rgba(160,100,60,0.15)',
+    name:'Anteiku Café Service',
+    quote:'"Serve them right or Yoshimura will know. Humans get coffee, ghouls get the other menu. Don\'t mix them up."',
+    scene:'☕ The café is packed with both humans AND ghouls tonight. Tap the glowing orders before customers get impatient!',
+    cellIcon:'🍵', hitIcon:'☕', btn:'☕',
+  },
 ];
 
 // ── TRAIN THEMES ──
 const TRAIN_THEMES = [
-  { char:'Urokodaki Sakonji', anime:'Demon Slayer', scene:'"Water Breathing — First Form." Urokodaki watches from the mist. Release your breath the instant the needle hits gold.', btn:'💨', label:'RELEASE BREATH', color:'rgba(93,173,226,0.9)' },
-  { char:'Satoru Gojo', anime:'Jujutsu Kaisen', scene:'Gojo smirks behind his blindfold. "Channel your cursed energy to peak resonance. Overflow and you\'re out." Hit it perfectly.', btn:'⚡', label:'UNLEASH', color:'rgba(192,132,184,0.9)' },
-  { char:'Kakashi Hatake', anime:'Naruto', scene:'"Chakra control isn\'t about raw power — it\'s timing." One eye on you, one on the needle. Tap at the exact apex.', btn:'🌀', label:'FOCUS', color:'rgba(46,204,113,0.9)' },
+  {
+    id:'gojo', char:'Satoru Gojo', anime:'Jujutsu Kaisen', icon:'🔵',
+    color:'rgba(130,200,255,0.85)', glow:'rgba(130,200,255,0.14)',
+    name:'Cursed Energy w/ Gojo',
+    quote:'"The weak don\'t get to have limits. Channel your cursed energy to PEAK resonance — overflow and you\'re done."',
+    scene:'Gojo smirks behind his blindfold. Hit the golden zone at perfect resonance to earn his approval.',
+    btn:'🔵', label:'UNLEASH', needleColor:'rgba(130,200,255,0.95)',
+  },
+  {
+    id:'urokodaki', char:'Urokodaki Sakonji', anime:'Demon Slayer', icon:'💨',
+    color:'rgba(93,173,226,0.85)', glow:'rgba(93,173,226,0.12)',
+    name:'Water Breathing Training',
+    quote:'"Total Concentration. Release your breath at the precise moment — not a second before, not a second after."',
+    scene:'The mist is thick on Mt. Sagiri. Release your breath the instant the needle hits gold.',
+    btn:'💧', label:'RELEASE BREATH', needleColor:'rgba(93,173,226,0.95)',
+  },
+  {
+    id:'saitama', char:'Saitama', anime:'One Punch Man', icon:'👊',
+    color:'rgba(255,220,60,0.85)', glow:'rgba(255,220,60,0.14)',
+    name:"Saitama's Training Regime",
+    quote:'"100 push-ups. 100 sit-ups. 100 squats. 10KM run. No excuses, no weaknesses."',
+    scene:'Saitama stares blankly. "Just hit it." Time your strike at the peak — he won\'t be impressed, but YOU will level up.',
+    btn:'👊', label:'PUNCH', needleColor:'rgba(255,220,60,0.95)',
+  },
 ];
 
 // ── QUEST THEMES ──
 const QUEST_THEMES = [
-  { char:'Kazuma Sato', anime:'KonoSuba', scene:'"I didn\'t choose this dungeon. Well, technically I did. Let\'s just hope Aqua isn\'t here to jinx the tiles."', emoji:'🗺️' },
-  { char:'Tanjiro Kamado', anime:'Demon Slayer', scene:'The ruins of a demon stronghold loom. Tanjiro grips his blade. Every tile holds a secret — or a danger.', emoji:'🏯' },
-  { char:'Bell Cranel', anime:'DanMachi', scene:'Level B dungeon of Orario. Bell\'s instincts are sharp tonight — but the dungeon never plays fair.', emoji:'⚔️' },
+  {
+    id:'konosuba', char:'Kazuma Satou', anime:'KonoSuba', icon:'🗺️',
+    color:'rgba(255,157,80,0.8)', glow:'rgba(255,157,80,0.12)',
+    name:'KonoSuba Dungeon Crawl',
+    quote:'"I didn\'t choose this dungeon — well, technically I did. Let\'s hope Aqua isn\'t here to jinx the tiles."',
+    scene:'Kazuma sighs as the dungeon stretches ahead. Aqua is already crying somewhere. Classic party.',
+    tileBack:'❓', monsterEmoji:'👹',
+  },
+  {
+    id:'aot', char:'Levi Ackerman', anime:'Attack on Titan', icon:'⚔️',
+    color:'rgba(180,180,180,0.85)', glow:'rgba(180,180,180,0.1)',
+    name:'Survey Corps Mission',
+    quote:'"Don\'t hesitate. In the field, a second of doubt is a death sentence. Move forward."',
+    scene:'Beyond Wall Maria. Every tile is a gamble — titans, supplies, or traps. Levi trusts no one to survive but himself.',
+    tileBack:'🔲', monsterEmoji:'👁️',
+  },
+  {
+    id:'danmachi', char:'Bell Cranel', anime:'DanMachi', icon:'🔔',
+    color:'rgba(255,255,180,0.8)', glow:'rgba(255,255,180,0.1)',
+    name:'Dungeon of Orario',
+    quote:'"I\'ll get stronger. Hestia believes in me, and Ais saved my life. I won\'t waste that."',
+    scene:"Level B of Orario's dungeon. Bell's instincts are sharp tonight — but the dungeon never plays fair.",
+    tileBack:'❓', monsterEmoji:'🐉',
+  },
 ];
+
+let _actCurrentThemes = [];
 
 function openActivity(type) {
   const left = getCooldownLeft(type);
   if(left > 0) { showToast(`⏳ On cooldown! Ready in ${fmtTime(left)}`); playErrorSound(); return; }
   playActivitySound(type);
   _actClearAll();
+  _actCurrentType = type;
 
   document.getElementById('actProgressWrap').style.display = 'none';
   document.getElementById('actScene').style.display = 'none';
   document.getElementById('actChoices').style.display = 'none';
   document.getElementById('actResult').style.display = 'none';
   document.getElementById('actCloseBtn').style.display = 'none';
+  document.getElementById('actGame').style.display = 'none';
+  document.getElementById('actGame').innerHTML = '';
+  document.getElementById('actBackBtn').style.display = 'none';
+
+  document.getElementById('actModal').classList.add('active');
+  _actShowPicker();
+}
+
+function _actShowPicker() {
+  _actClearAll();
+  const type = _actCurrentType;
+  const themes = type==='work' ? WORK_THEMES : type==='train' ? TRAIN_THEMES : QUEST_THEMES;
+  _actCurrentThemes = themes;
+
+  const titles = { work:'🧵 Choose Your Work Scene', train:'⚡ Choose Your Training', quest:'🗺️ Choose Your Quest' };
+  document.getElementById('actModalTitle').textContent = titles[type];
+  document.getElementById('actModalSub').textContent = 'Pick an anime scenario to begin:';
+  document.getElementById('actGame').style.display = 'none';
+  document.getElementById('actGame').innerHTML = '';
+  document.getElementById('actResult').style.display = 'none';
+  document.getElementById('actCloseBtn').style.display = 'none';
+  document.getElementById('actBackBtn').style.display = 'none';
+
+  const picker = document.getElementById('actPicker');
+  picker.innerHTML = `<div class="act-picker-label">${type==='work'?'💼 Work':type==='train'?'⚡ Training':'🗺️ Quest'} — Pick Your Scene</div>` +
+    themes.map((t,i) => `
+      <div class="act-theme-card" style="--atc-color:${t.color};--atc-glow:${t.glow};" onclick="_actPickTheme(${i})">
+        <div class="atc-icon">${t.icon}</div>
+        <div class="atc-body">
+          <div class="atc-anime">${t.anime}</div>
+          <div class="atc-name">${t.name}</div>
+          <div class="atc-quote">${t.quote}</div>
+        </div>
+        <div class="atc-arrow">›</div>
+      </div>`).join('');
+  picker.classList.add('active');
+}
+
+function _actPickTheme(idx) {
+  const type = _actCurrentType;
+  const theme = _actCurrentThemes[idx];
+
+  document.getElementById('actPicker').classList.remove('active');
+  document.getElementById('actPicker').innerHTML = '';
+  document.getElementById('actModalTitle').textContent =
+    type==='work' ? '🧵 Work' : type==='train' ? '⚡ Train' : '🗺️ Quest';
+  document.getElementById('actModalSub').textContent = theme.scene;
+  document.getElementById('actBackBtn').style.display = 'block';
 
   const gameEl = document.getElementById('actGame');
   gameEl.style.display = 'block';
   gameEl.innerHTML = '';
-  document.getElementById('actModal').classList.add('active');
 
-  if(type === 'work') {
-    const theme = WORK_THEMES[Math.floor(Math.random()*WORK_THEMES.length)];
-    document.getElementById('actModalTitle').textContent = '🪡 Work';
-    document.getElementById('actModalSub').textContent = theme.scene;
-    startWorkGame(theme);
-  } else if(type === 'train') {
-    const theme = TRAIN_THEMES[Math.floor(Math.random()*TRAIN_THEMES.length)];
-    document.getElementById('actModalTitle').textContent = '⚡ Train';
-    document.getElementById('actModalSub').textContent = theme.scene;
-    startTrainGame(theme);
-  } else {
-    const theme = QUEST_THEMES[Math.floor(Math.random()*QUEST_THEMES.length)];
-    document.getElementById('actModalTitle').textContent = '🌌 Quest';
-    document.getElementById('actModalSub').textContent = theme.scene;
-    startQuestGame(theme);
-  }
+  if(type === 'work') startWorkGame(theme);
+  else if(type === 'train') startTrainGame(theme);
+  else startQuestGame(theme);
 }
-
-// ═══════════════════════════════════════════
 // 🪡 WORK GAME — Stitch Whack-a-Mole
 //   Cosplay panels light up briefly → click them!
 // ═══════════════════════════════════════════
@@ -20404,15 +20522,18 @@ function startWorkGame(theme) {
 function _renderWG() {
   const el = document.getElementById('actGame');
   if(!el) return;
+  const t = _wg.theme;
+  const cellIcon = t.cellIcon || '🪡';
+  const hitLabel = t.id==='baratie' ? '🍽️ served' : t.id==='quintuplets' ? '📝 stamped' : t.id==='anteiku' ? '☕ served' : '✂️ stitched';
   el.innerHTML = `
     <div class="wg-container">
       <div class="wg-info">
         <span class="wg-round-lbl" id="wgRound">Round 1 / ${WG_ROUNDS.length}</span>
-        <span class="wg-hits" id="wgHits">✂️ 0 stitched</span>
+        <span class="wg-hits" id="wgHits">${cellIcon} 0 ${hitLabel.split(' ')[1]||'done'}</span>
       </div>
       <div class="wg-progress-wrap"><div class="wg-progress-bar" id="wgPB" style="width:0%"></div></div>
       <div class="wg-grid" id="wgGrid">
-        ${Array(9).fill(0).map((_,i)=>`<div class="wg-cell" id="wgC${i}" data-idx="${i}" data-alive="0">🪡</div>`).join('')}
+        ${Array(9).fill(0).map((_,i)=>`<div class="wg-cell" id="wgC${i}" data-idx="${i}" data-alive="0">${cellIcon}</div>`).join('')}
       </div>
       <div class="wg-tip" id="wgTip">Get ready...</div>
     </div>`;
@@ -20466,7 +20587,9 @@ function _wgClick(idx) {
     c.dataset.alive = '0';
     _wg.hits++;
     const hEl = document.getElementById('wgHits');
-    if(hEl) hEl.textContent = `✂️ ${_wg.hits} stitched`;
+    const ci = _wg.theme.cellIcon || '✂️';
+    const verb = _wg.theme.id==='baratie'?'served':_wg.theme.id==='quintuplets'?'stamped':_wg.theme.id==='anteiku'?'served':'stitched';
+    if(hEl) hEl.textContent = `${ci} ${_wg.hits} ${verb}`;
     setTimeout(() => c && c.classList.remove('wg-hit'), 380);
   } else if(!c.classList.contains('wg-hit') && !c.classList.contains('wg-miss')) {
     c.classList.add('wg-wrong');
@@ -20477,7 +20600,7 @@ function _wgClick(idx) {
 function _finishWork() {
   _actClearAll();
   const pct = _wg.total > 0 ? _wg.hits / _wg.total : 0;
-  _finishMinigame('work', pct);
+  _finishMinigame('work', pct, _wg.theme);
 }
 
 // ═══════════════════════════════════════════
@@ -20498,7 +20621,7 @@ function _renderTG() {
     <div class="tg-container">
       <div class="tg-info">
         <span id="tgRound" style="font-family:'JetBrains Mono',monospace;font-size:0.74em;color:var(--text-dim);">Form 1 / ${_tg.total}</span>
-        <span id="tgHits" class="tg-hits">⚡ 0 energy</span>
+        <span id="tgHits" class="tg-hits">${_tg.theme.btn} 0 energy</span>
       </div>
       <div class="tg-ring-wrap">
         <canvas id="tgCanvas" width="220" height="220"></canvas>
@@ -20506,7 +20629,7 @@ function _renderTG() {
           <span class="tg-btn-inner">${_tg.theme.btn}</span>
         </button>
       </div>
-      <div class="tg-feedback" id="tgFeedback">Take a breath... Focus your energy.</div>
+      <div class="tg-feedback" id="tgFeedback">${_tg.theme.id==='saitama'?'Saitama looks bored. Prove yourself.':_tg.theme.id==='gojo'?'Feel the cursed energy...':_tg.theme.id==='urokodaki'?'Total Concentration. Breathe.':'Focus your energy...'}</div>
       <div class="tg-hint">Tap <strong style="color:var(--pink);">${_tg.theme.label}</strong> when the needle enters the <span style="color:#f1c40f;">✦ golden zone</span></div>
     </div>`;
   _tgStartRound();
@@ -20579,17 +20702,20 @@ function _tgRelease() {
   const distC=Math.abs(ang-center);
   const half=_tg.zoneSize/2;
   let msg;
+  const tid = _tg.theme.id;
   if(inZone&&distC<half*0.35){
-    msg='🔥 PERFECT! Peak resonance!'; _tg.hits+=2;
+    msg = tid==='gojo' ? '🔵 INFINITY! Perfect cursed resonance!' : tid==='saitama' ? '👊 PERFECT STRIKE! Saitama nods slightly.' : '💧 PERFECT! Total Concentration!';
+    _tg.hits+=2;
   } else if(inZone){
-    msg='✨ Good timing!'; _tg.hits+=1;
+    msg = tid==='gojo' ? '✨ Good — but Gojo expects more.' : tid==='saitama' ? '👍 Decent. Keep going.' : '✨ Good timing! Hold the form!';
+    _tg.hits+=1;
   } else {
-    msg='💨 Missed the zone... breathe again.';
+    msg = tid==='gojo' ? '💨 Overflow. Cursed energy scattered.' : tid==='saitama' ? '😐 You missed. Again.' : '💨 Lost focus... breathe and reset.';
   }
   const fb=document.getElementById('tgFeedback');
   const hEl=document.getElementById('tgHits');
   if(fb) fb.textContent=msg;
-  if(hEl) hEl.textContent=`⚡ ${_tg.hits} energy`;
+  if(hEl) hEl.textContent=`${_tg.theme.btn} ${_tg.hits} energy`;
   _tg.round++;
   _actTimeout1=setTimeout(_tgStartRound, 950);
 }
@@ -20597,7 +20723,7 @@ function _tgRelease() {
 function _finishTrain(){
   _actClearAll();
   const pct=(_tg.total*2)>0 ? _tg.hits/(_tg.total*2) : 0;
-  _finishMinigame('train',pct);
+  _finishMinigame('train',pct,_tg.theme);
 }
 
 // ═══════════════════════════════════════════
@@ -20644,7 +20770,7 @@ function _renderQG() {
           <div class="qg-tile${t.revealed?' revealed':''}" id="qgT${i}" onclick="_qgFlip(${i})">
             ${t.revealed
               ?`<span class="qg-tile-emoji">${t.emoji}</span><div class="qg-tile-label">${t.label}</div>`
-              :`<span class="qg-tile-back">❓</span>`}
+              :`<span class="qg-tile-back">${_qg.theme.tileBack||'❓'}</span>`}
           </div>`).join('')}
       </div>
       <div class="qg-log">
@@ -20674,13 +20800,13 @@ function _finishQuest(){
   _actClearAll();
   const maxPossible=_qg.maxPicks*4;
   const pct=Math.min(_qg.score/(maxPossible*0.55),1);
-  _finishMinigame('quest',pct);
+  _finishMinigame('quest',pct,_qg.theme);
 }
 
 // ═══════════════════════════════════════════
 // 🏆 SHARED — Grade + Rewards
 // ═══════════════════════════════════════════
-async function _finishMinigame(type, ratio) {
+async function _finishMinigame(type, ratio, theme) {
   _actClearAll();
   const grade=ratio>=0.9?'S':ratio>=0.7?'A':ratio>=0.5?'B':'C';
   const rewards={
@@ -20721,10 +20847,13 @@ async function _finishMinigame(type, ratio) {
     B:'Solid effort! Keep pushing your limits!',
     C:'Room to grow — every session makes you stronger.',
   };
+  const themeTag = theme ? `<div class="act-result-theme">${theme.icon||''} ${theme.anime} · ${theme.name}</div>` : '';
   document.getElementById('actGame').style.display='none';
+  document.getElementById('actBackBtn').style.display='none';
   const resultEl=document.getElementById('actResult');
   resultEl.style.display='block';
   resultEl.innerHTML=`
+    ${themeTag}
     <div class="act-result-big">${gradeEmoji}</div>
     <div class="act-result-text">Grade ${grade} — ${msgs[grade]}</div>
     <div class="act-result-rewards">
@@ -20743,6 +20872,9 @@ function closeActivity(){
   document.getElementById('actModal').classList.remove('active');
   document.getElementById('actScene').style.display='block';
   document.getElementById('actGame').style.display='none';
+  document.getElementById('actPicker').classList.remove('active');
+  document.getElementById('actPicker').innerHTML='';
+  document.getElementById('actBackBtn').style.display='none';
   updateProfile(); renderCollection();
 }
 
