@@ -12511,9 +12511,21 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
     <div class="nav-right" id="navRight">
       <div class="nav-coins">🪙 <span id="coinDisplay">1000</span></div>
       <button class="nav-admin-gear-btn" id="navAdminGearBtn" style="display:none" onclick="goTo('admin',null)" title="Admin Panel">⚙️</button>
-      <button class="nav-profile-avatar-btn" onclick="goTo('profile',null)" title="View Profile" id="navProfileBtn">
-        <img id="navProfileAvatar" src="https://cdn.discordapp.com/embed/avatars/0.png" alt="Profile"/>
-      </button>
+      <div class="nav-avatar-wrap" id="navAvatarWrap">
+        <button class="nav-profile-avatar-btn" onclick="toggleNavDropdown(event)" title="Menu" id="navProfileBtn">
+          <img id="navProfileAvatar" src="https://cdn.discordapp.com/embed/avatars/0.png" alt="Profile"/>
+        </button>
+        <!-- Avatar dropdown -->
+        <div class="nav-avatar-dropdown" id="navAvatarDropdown">
+          <div class="nav-dd-arrow"></div>
+          <button class="nav-dd-item" onclick="closeNavDropdown();goTo('profile',null)">👤 View Profile</button>
+          <button class="nav-dd-item" onclick="closeNavDropdown();goTo('daily',null)">📅 Daily Rewards</button>
+          <button class="nav-dd-item" onclick="closeNavDropdown();openRedeemCodesModal()">🎟️ Redeem Codes</button>
+          <button class="nav-dd-item" onclick="closeNavDropdown();openGuideModal()">📖 Guide</button>
+          <div class="nav-dd-divider"></div>
+          <button class="nav-dd-item" onclick="closeNavDropdown();openSettingsModal()">⚙️ Settings</button>
+        </div>
+      </div>
     </div>
     <!-- legacy mobile coins kept for JS compat, hidden -->
     <div id="mobileCoins" style="display:none">🪙 <span id="coinDisplayMobile">1000</span></div>
@@ -14534,7 +14546,9 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   <div class="page" id="page-admin">
     <div class="section-title">⚙️ Admin Panel</div>
     <div style="display:flex;gap:8px;margin-bottom:24px;flex-wrap:wrap;">
-      <button class="filter-btn active" id="atab-cards" onclick="switchAdminTab('cards',this)">🎴 Card Manager</button>
+      <button class="filter-btn" id="atab-codes" onclick="switchAdminTab('codes',this)">🎟️ Codes</button>
+      <button class="filter-btn" id="atab-announce" onclick="switchAdminTab('announce',this)">📢 Announce</button>
+      <button class="filter-btn" id="atab-cards" onclick="switchAdminTab('cards',this)">🎴 Card Manager</button>
       <button class="filter-btn" id="atab-banners" onclick="switchAdminTab('banners',this)">🏮 Banner Manager</button>
       <button class="filter-btn" id="atab-skins" onclick="switchAdminTab('skins',this)">🎨 Skin Manager</button>
       <button class="filter-btn" id="atab-shop" onclick="switchAdminTab('shop',this)">🛍️ Shop Manager</button>
@@ -18484,6 +18498,14 @@ function goTo(page,btn){ playNavSound();
     if(!window._adminCardCache||!window._adminCardCache.length) loadAdminCardList();
     populateShopItemDropdown();
     toggleEvoFields();
+    // Ensure default tab (cards) is active if no tab is yet active
+    const anyActive = document.querySelector('#page-admin .filter-btn.active');
+    if(!anyActive) {
+      const cardsTab = document.getElementById('atab-cards');
+      const cardsPanel = document.getElementById('adminTab-cards');
+      if(cardsTab) cardsTab.classList.add('active');
+      if(cardsPanel) cardsPanel.style.display = 'block';
+    }
   }
 }
 
@@ -37696,6 +37718,1309 @@ if(_origLoadAll_anime) {
 // Pre-load on page startup
 document.addEventListener('DOMContentLoaded', () => {
   setTimeout(() => loadAnimeCollections(), 800);
+});
+</script>
+
+<!-- ═══════════════════════════════════════════════════════
+     NEW FEATURES: Nav Dropdown, Settings, Codes, Announce, Enhanced Tools
+═══════════════════════════════════════════════════════ -->
+<style>
+/* ── Nav Avatar Dropdown ── */
+.nav-avatar-wrap { position: relative; }
+.nav-avatar-dropdown {
+  position: absolute; top: calc(100% + 10px); right: 0;
+  background: linear-gradient(160deg, #0e0516, #130a20);
+  border: 1px solid rgba(255,157,199,0.25);
+  border-radius: 14px;
+  min-width: 200px;
+  padding: 6px 0;
+  z-index: 9999;
+  opacity: 0; pointer-events: none;
+  transform: translateY(-8px) scale(0.96);
+  transition: all 0.18s cubic-bezier(0.34,1.4,0.64,1);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,157,199,0.08);
+}
+.nav-avatar-dropdown.open { opacity: 1; pointer-events: all; transform: translateY(0) scale(1); }
+.nav-dd-arrow {
+  position: absolute; top: -6px; right: 14px;
+  width: 12px; height: 12px;
+  background: #130a20;
+  border-top: 1px solid rgba(255,157,199,0.25);
+  border-left: 1px solid rgba(255,157,199,0.25);
+  transform: rotate(45deg);
+}
+.nav-dd-item {
+  display: block; width: 100%;
+  background: none; border: none;
+  text-align: left; padding: 9px 16px;
+  color: var(--text); font-family: 'Cormorant Garamond', serif;
+  font-size: 0.9em; cursor: pointer; transition: background 0.15s;
+  white-space: nowrap;
+}
+.nav-dd-item:hover { background: rgba(255,157,199,0.1); color: var(--pink); }
+.nav-dd-divider { height: 1px; background: rgba(255,157,199,0.12); margin: 4px 10px; }
+
+/* ── Announcement Popup ── */
+#announcementOverlay {
+  position: fixed; inset: 0; z-index: 9000;
+  background: rgba(0,0,0,0.85); backdrop-filter: blur(10px);
+  display: none; align-items: center; justify-content: center; padding: 20px;
+}
+#announcementOverlay.open { display: flex; }
+.announce-box {
+  background: linear-gradient(160deg, #0e0516, #13071d);
+  border: 1px solid rgba(255,157,199,0.3);
+  border-radius: 24px;
+  max-width: 480px; width: 100%;
+  overflow: hidden;
+  animation: modalIn 0.4s cubic-bezier(0.34,1.4,0.64,1);
+  box-shadow: 0 0 80px rgba(255,157,199,0.12);
+}
+.announce-banner {
+  width: 100%; height: 200px; object-fit: cover; display: block;
+}
+.announce-banner-placeholder {
+  width: 100%; height: 200px;
+  background: linear-gradient(135deg, rgba(255,157,199,0.08), rgba(192,132,184,0.12));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 3em; color: rgba(255,157,199,0.3);
+}
+.announce-body { padding: 24px; }
+.announce-label {
+  font-family: 'JetBrains Mono', monospace; font-size: 0.65em;
+  letter-spacing: 0.2em; color: var(--pink); text-transform: uppercase;
+  margin-bottom: 6px; opacity: 0.8;
+}
+.announce-title {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: clamp(1.1em, 4vw, 1.6em); color: var(--pink-pale);
+  margin-bottom: 14px; line-height: 1.2;
+  filter: drop-shadow(0 0 12px rgba(255,157,199,0.3));
+}
+.announce-text {
+  color: var(--text-dim); font-size: 0.92em; line-height: 1.7;
+  margin-bottom: 20px; white-space: pre-line;
+}
+.announce-close {
+  width: 100%; padding: 11px;
+  background: linear-gradient(135deg, var(--pink-deep), var(--purple));
+  border: none; border-radius: 12px; color: #fff;
+  font-family: 'Cinzel Decorative', serif; font-size: 0.78em;
+  letter-spacing: 0.05em; cursor: pointer; transition: all 0.2s;
+  box-shadow: 0 4px 16px rgba(224,96,138,0.35);
+}
+.announce-close:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(224,96,138,0.45); }
+
+/* ── Settings Modal ── */
+#settingsModal {
+  position: fixed; inset: 0; z-index: 8000;
+  background: rgba(0,0,0,0.85); backdrop-filter: blur(10px);
+  display: none; align-items: center; justify-content: center; padding: 20px;
+}
+#settingsModal.open { display: flex; }
+.settings-box {
+  background: linear-gradient(160deg, #0e0516, #13071d);
+  border: 1px solid rgba(255,157,199,0.25);
+  border-radius: 24px; max-width: 460px; width: 100%;
+  max-height: 85vh; overflow-y: auto;
+  animation: modalIn 0.35s cubic-bezier(0.34,1.4,0.64,1);
+  box-shadow: 0 0 60px rgba(0,0,0,0.5);
+}
+.settings-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 20px 22px 0; margin-bottom: 6px;
+}
+.settings-title {
+  font-family: 'Cinzel Decorative', serif; font-size: 1em; color: var(--pink-pale);
+}
+.settings-close {
+  background: rgba(255,255,255,0.06); border: 1px solid var(--border);
+  color: var(--text-dim); border-radius: 50%; width: 32px; height: 32px;
+  font-size: 1em; cursor: pointer; transition: all 0.15s;
+}
+.settings-close:hover { background: rgba(255,157,199,0.15); color: var(--pink); }
+.settings-section { padding: 0 22px 16px; }
+.settings-section-title {
+  font-family: 'JetBrains Mono', monospace; font-size: 0.65em;
+  letter-spacing: 0.15em; color: var(--pink); text-transform: uppercase;
+  margin: 18px 0 10px; opacity: 0.8;
+}
+.settings-row {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; padding: 10px 0; border-bottom: 1px solid rgba(255,157,199,0.07);
+}
+.settings-row:last-child { border-bottom: none; }
+.settings-label { font-size: 0.88em; color: var(--text); }
+.settings-sublabel { font-size: 0.72em; color: var(--text-dim); margin-top: 1px; }
+.settings-quality-group { display: flex; gap: 6px; }
+.settings-quality-btn {
+  padding: 5px 14px; border-radius: 20px; font-size: 0.78em; cursor: pointer;
+  border: 1px solid var(--border); background: var(--surface); color: var(--text-dim);
+  transition: all 0.18s; font-family: 'JetBrains Mono', monospace;
+}
+.settings-quality-btn.active {
+  border-color: var(--pink); background: rgba(255,157,199,0.12); color: var(--pink);
+}
+.settings-toggle {
+  position: relative; width: 44px; height: 24px;
+  background: rgba(255,255,255,0.08); border: 1px solid var(--border);
+  border-radius: 12px; cursor: pointer; transition: all 0.2s; flex-shrink: 0;
+}
+.settings-toggle.on {
+  background: linear-gradient(135deg, var(--pink-deep), var(--purple));
+  border-color: var(--pink);
+}
+.settings-toggle::after {
+  content: ''; position: absolute; top: 2px; left: 2px;
+  width: 18px; height: 18px; background: #fff; border-radius: 50%;
+  transition: transform 0.2s; box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+}
+.settings-toggle.on::after { transform: translateX(20px); }
+
+/* ── Redeem Codes Modal ── */
+#redeemCodesModal {
+  position: fixed; inset: 0; z-index: 8000;
+  background: rgba(0,0,0,0.85); backdrop-filter: blur(10px);
+  display: none; align-items: center; justify-content: center; padding: 20px;
+}
+#redeemCodesModal.open { display: flex; }
+.redeem-box {
+  background: linear-gradient(160deg, #0e0516, #13071d);
+  border: 1px solid rgba(255,157,199,0.25); border-radius: 24px;
+  max-width: 400px; width: 100%;
+  animation: modalIn 0.35s cubic-bezier(0.34,1.4,0.64,1);
+  overflow: hidden; box-shadow: 0 0 60px rgba(0,0,0,0.5);
+}
+.redeem-header {
+  padding: 20px 22px 0; display: flex; align-items: center;
+  justify-content: space-between; margin-bottom: 4px;
+}
+.redeem-body { padding: 18px 22px 22px; }
+.redeem-input-wrap {
+  display: flex; gap: 8px; margin-bottom: 14px;
+}
+.redeem-input {
+  flex: 1; background: rgba(255,255,255,0.05); border: 1px solid var(--border);
+  border-radius: 10px; padding: 10px 14px; color: var(--text);
+  font-family: 'JetBrains Mono', monospace; font-size: 0.9em;
+  text-transform: uppercase; letter-spacing: 0.04em;
+}
+.redeem-input:focus { outline: none; border-color: var(--pink); }
+.redeem-submit {
+  padding: 10px 18px; border-radius: 10px;
+  background: linear-gradient(135deg, var(--pink-deep), var(--purple));
+  border: none; color: #fff; font-family: 'Cinzel Decorative', serif;
+  font-size: 0.72em; cursor: pointer; white-space: nowrap;
+  letter-spacing: 0.04em; transition: all 0.2s;
+}
+.redeem-submit:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(224,96,138,0.3); }
+#redeemResult {
+  font-size: 0.85em; padding: 10px 14px; border-radius: 10px;
+  display: none; text-align: center;
+}
+#redeemResult.success {
+  background: rgba(46,204,113,0.1); border: 1px solid rgba(46,204,113,0.3);
+  color: #2ecc71; display: block;
+}
+#redeemResult.error {
+  background: rgba(231,76,60,0.1); border: 1px solid rgba(231,76,60,0.3);
+  color: #e74c3c; display: block;
+}
+
+/* ── Guide Modal ── */
+#guideModal {
+  position: fixed; inset: 0; z-index: 8000;
+  background: rgba(0,0,0,0.88); backdrop-filter: blur(12px);
+  display: none; align-items: center; justify-content: center; padding: 20px;
+}
+#guideModal.open { display: flex; }
+.guide-box {
+  background: linear-gradient(160deg, #0e0516, #13071d);
+  border: 1px solid rgba(255,157,199,0.25); border-radius: 24px;
+  max-width: 520px; width: 100%; max-height: 85vh; overflow-y: auto;
+  animation: modalIn 0.35s cubic-bezier(0.34,1.4,0.64,1);
+}
+.guide-section { padding: 18px 22px; border-bottom: 1px solid rgba(255,157,199,0.08); }
+.guide-section:last-child { border-bottom: none; }
+.guide-section-title {
+  font-family: 'Cinzel Decorative', serif; font-size: 0.85em; color: var(--pink);
+  margin-bottom: 10px; display: flex; align-items: center; gap: 8px;
+}
+.guide-section p { color: var(--text-dim); font-size: 0.85em; line-height: 1.65; margin-bottom: 6px; }
+
+/* ── Admin: Enhanced Player Grant Panel ── */
+.admin-player-search-wrap {
+  position: relative;
+}
+.admin-player-results {
+  position: absolute; top: 100%; left: 0; right: 0; z-index: 200;
+  background: #0e0516; border: 1px solid rgba(255,157,199,0.2);
+  border-radius: 10px; max-height: 220px; overflow-y: auto;
+  margin-top: 4px; display: none;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+}
+.admin-player-result-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 12px; cursor: pointer; transition: background 0.15s;
+  border-bottom: 1px solid rgba(255,157,199,0.06);
+}
+.admin-player-result-item:last-child { border-bottom: none; }
+.admin-player-result-item:hover { background: rgba(255,157,199,0.08); }
+.admin-player-result-item img {
+  width: 28px; height: 28px; border-radius: 50%; object-fit: cover;
+  border: 1px solid var(--border); flex-shrink: 0;
+}
+.admin-player-result-name { font-size: 0.85em; color: var(--text); }
+.admin-player-result-id { font-size: 0.7em; color: var(--text-dim); font-family: 'JetBrains Mono', monospace; }
+.admin-selected-player {
+  display: none; align-items: center; gap: 10px;
+  background: rgba(255,157,199,0.06); border: 1px solid rgba(255,157,199,0.2);
+  border-radius: 10px; padding: 8px 12px; margin-bottom: 10px;
+}
+.admin-selected-player.shown { display: flex; }
+.admin-selected-player img {
+  width: 32px; height: 32px; border-radius: 50%; object-fit: cover;
+  border: 1px solid var(--pink); flex-shrink: 0;
+}
+
+/* ── Admin Codes Tab ── */
+.code-list-item {
+  display: flex; align-items: center; gap: 8px;
+  border: 1px solid var(--border); border-radius: 10px;
+  padding: 9px 12px; margin-bottom: 7px; font-size: 0.82em;
+}
+.code-tag {
+  font-family: 'JetBrains Mono', monospace; font-size: 0.9em;
+  color: var(--gold); background: rgba(241,196,15,0.08);
+  border: 1px solid rgba(241,196,15,0.2); border-radius: 6px;
+  padding: 2px 8px; letter-spacing: 0.05em;
+}
+.code-uses {
+  font-family: 'JetBrains Mono', monospace; font-size: 0.75em;
+  color: var(--text-dim); margin-left: auto; white-space: nowrap;
+}
+</style>
+
+<!-- ANNOUNCEMENT POPUP -->
+<div id="announcementOverlay">
+  <div class="announce-box" id="announceBox">
+    <div id="announceBannerWrap">
+      <div class="announce-banner-placeholder" id="announceBannerPlaceholder">📢</div>
+    </div>
+    <div class="announce-body">
+      <div class="announce-label">✦ MeoGacha Update</div>
+      <div class="announce-title" id="announceTitleDisplay">Welcome to MeoGacha!</div>
+      <div class="announce-text" id="announceTextDisplay">New cards and features have arrived. Check out the latest banner! ✨</div>
+      <button class="announce-close" onclick="closeAnnouncement()">✦ Got it! ✦</button>
+    </div>
+  </div>
+</div>
+
+<!-- SETTINGS MODAL -->
+<div id="settingsModal" onclick="if(event.target===this)closeSettingsModal()">
+  <div class="settings-box">
+    <div class="settings-header">
+      <div class="settings-title">⚙️ Settings</div>
+      <button class="settings-close" onclick="closeSettingsModal()">✕</button>
+    </div>
+    <div class="settings-section">
+      <div class="settings-section-title">🎨 Graphics Quality</div>
+      <div class="settings-row">
+        <div>
+          <div class="settings-label">Particle Effects & Animations</div>
+          <div class="settings-sublabel">Lower = better performance on older devices</div>
+        </div>
+        <div class="settings-quality-group">
+          <button class="settings-quality-btn" id="sqLow" onclick="setGraphicsQuality('low')">Low</button>
+          <button class="settings-quality-btn active" id="sqMed" onclick="setGraphicsQuality('medium')">Med</button>
+          <button class="settings-quality-btn" id="sqHigh" onclick="setGraphicsQuality('high')">High</button>
+        </div>
+      </div>
+      <div class="settings-row">
+        <div>
+          <div class="settings-label">Sakura Petals</div>
+          <div class="settings-sublabel">Falling petals on the main screen</div>
+        </div>
+        <div class="settings-toggle on" id="togglePetals" onclick="toggleSetting('petals',this)"></div>
+      </div>
+      <div class="settings-row">
+        <div>
+          <div class="settings-label">Background Stars</div>
+          <div class="settings-sublabel">Animated star canvas</div>
+        </div>
+        <div class="settings-toggle on" id="toggleStars" onclick="toggleSetting('stars',this)"></div>
+      </div>
+      <div class="settings-section-title">🔊 Audio</div>
+      <div class="settings-row">
+        <div>
+          <div class="settings-label">Mute All Music</div>
+          <div class="settings-sublabel">BGM, battle music, boss music</div>
+        </div>
+        <div class="settings-toggle" id="toggleMuteMusic" onclick="toggleSetting('muteMusic',this)"></div>
+      </div>
+      <div class="settings-row">
+        <div>
+          <div class="settings-label">Mute Sound Effects</div>
+          <div class="settings-sublabel">Battle hits, UI sounds</div>
+        </div>
+        <div class="settings-toggle" id="toggleMuteSFX" onclick="toggleSetting('muteSFX',this)"></div>
+      </div>
+      <div class="settings-section-title">🎴 Gameplay</div>
+      <div class="settings-row">
+        <div>
+          <div class="settings-label">Card Cutscenes</div>
+          <div class="settings-sublabel">Show cutscene on new card pulls</div>
+        </div>
+        <div class="settings-toggle on" id="toggleCutscenes" onclick="toggleSetting('cutscenes',this)"></div>
+      </div>
+      <div class="settings-row">
+        <div>
+          <div class="settings-label">Ability Cutscenes</div>
+          <div class="settings-sublabel">Show cutscene on ultimate abilities</div>
+        </div>
+        <div class="settings-toggle on" id="toggleAbilityCutscenes" onclick="toggleSetting('abilityCutscenes',this)"></div>
+      </div>
+      <div class="settings-row">
+        <div>
+          <div class="settings-label">Battle VFX</div>
+          <div class="settings-sublabel">Visual effects during battles</div>
+        </div>
+        <div class="settings-toggle on" id="toggleBattleVFX" onclick="toggleSetting('battleVFX',this)"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- REDEEM CODES MODAL -->
+<div id="redeemCodesModal" onclick="if(event.target===this)closeRedeemCodesModal()">
+  <div class="redeem-box">
+    <div class="redeem-header">
+      <div style="font-family:'Cinzel Decorative',serif;font-size:0.95em;color:var(--pink-pale);">🎟️ Redeem Code</div>
+      <button class="settings-close" onclick="closeRedeemCodesModal()">✕</button>
+    </div>
+    <div class="redeem-body">
+      <div style="color:var(--text-dim);font-size:0.82em;margin-bottom:16px;font-style:italic;">Enter a promo code to receive coins, cards, items, and more!</div>
+      <div class="redeem-input-wrap">
+        <input class="redeem-input" id="redeemCodeInput" placeholder="ENTER CODE" maxlength="30" oninput="this.value=this.value.toUpperCase()" onkeydown="if(event.key==='Enter')submitRedeemCode()"/>
+        <button class="redeem-submit" onclick="submitRedeemCode()">Redeem</button>
+      </div>
+      <div id="redeemResult"></div>
+    </div>
+  </div>
+</div>
+
+<!-- GUIDE MODAL -->
+<div id="guideModal" onclick="if(event.target===this)closeGuideModal()">
+  <div class="guide-box">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 22px 0;">
+      <div style="font-family:'Cinzel Decorative',serif;font-size:0.95em;color:var(--pink-pale);">📖 Game Guide</div>
+      <button class="settings-close" onclick="closeGuideModal()">✕</button>
+    </div>
+    <div class="guide-section">
+      <div class="guide-section-title">🎴 Gacha & Pulling</div>
+      <p>Use the Pull page to draw cards from the current banner. 1 pull costs 10 🪙 (or the listed cost). Higher pity = better chance at rare cards!</p>
+      <p>Soft pity starts at 70 pulls — your SR chances increase each pull past that. Hard pity guarantees an SR at 90 pulls.</p>
+    </div>
+    <div class="guide-section">
+      <div class="guide-section-title">⭐ Card Rarities</div>
+      <p>[N] Normal → [R] Rare → [SR] Super Rare → [SSR] Super Super Rare → [UR] Ultra Rare → [LR] Legendary Rare → [S] Secret</p>
+      <p>Higher rarity cards have better base stats and more powerful abilities!</p>
+    </div>
+    <div class="guide-section">
+      <div class="guide-section-title">⚔️ Battle System</div>
+      <p>Equip a card from your collection to use in PvP battles and Activities. Each card has unique abilities — Passive (always active), Active (costs 2 MP), and Ultimate (costs 4 MP).</p>
+    </div>
+    <div class="guide-section">
+      <div class="guide-section-title">🔮 Card Evolution</div>
+      <p>Some cards can evolve into a stronger form! Check the Evolve tab in any card's detail page to see requirements. You may need copies or special items.</p>
+    </div>
+    <div class="guide-section">
+      <div class="guide-section-title">🪙 Earning Coins</div>
+      <p>Coins from: Daily Login, Activities (Work/Train/Quest), selling cards, winning PvP, World Boss raids, and special codes!</p>
+    </div>
+    <div class="guide-section">
+      <div class="guide-section-title">🎟️ Promo Codes</div>
+      <p>Watch announcements and social media for limited codes that give coins, items, and exclusive cards. Codes expire after a set number of uses!</p>
+    </div>
+  </div>
+</div>
+
+<!-- SCRIPT: All new features -->
+<script>
+// ════════════════════════════════════════════════
+// SETTINGS SYSTEM
+// ════════════════════════════════════════════════
+const SETTINGS_KEY = 'meogacha_settings';
+const defaultSettings = {
+  graphicsQuality: 'medium',
+  petals: true,
+  stars: true,
+  muteMusic: false,
+  muteSFX: false,
+  cutscenes: true,
+  abilityCutscenes: true,
+  battleVFX: true
+};
+
+function loadSettings() {
+  try { return Object.assign({}, defaultSettings, JSON.parse(localStorage.getItem(SETTINGS_KEY)||'{}')); }
+  catch(e) { return {...defaultSettings}; }
+}
+
+function saveSettings(s) {
+  try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(s)); } catch(e) {}
+}
+
+function applySettings(s) {
+  // Graphics quality
+  const q = s.graphicsQuality || 'medium';
+  ['sqLow','sqMed','sqHigh'].forEach(id => document.getElementById(id)?.classList.remove('active'));
+  if(q==='low') document.getElementById('sqLow')?.classList.add('active');
+  else if(q==='high') document.getElementById('sqHigh')?.classList.add('active');
+  else document.getElementById('sqMed')?.classList.add('active');
+
+  // Petals
+  const petalEls = document.querySelectorAll('.petal');
+  petalEls.forEach(p => p.style.display = s.petals ? '' : 'none');
+  if(!s.petals) { const pc = window._petalCancelled; } // handled by flag
+
+  // Stars
+  const starsEl = document.getElementById('stars');
+  if(starsEl) starsEl.style.display = s.stars ? '' : 'none';
+
+  // Music muting
+  const localAudio = document.getElementById('roomLocalAudio');
+  if(localAudio) localAudio.muted = !!s.muteMusic;
+  const ytIframes = document.querySelectorAll('iframe[src*="youtube"]');
+  // We set global flags for the audio systems to check
+  window.SETTINGS_MUTE_MUSIC = !!s.muteMusic;
+  window.SETTINGS_MUTE_SFX = !!s.muteSFX;
+
+  // Battle VFX
+  if(typeof BATTLE_SETTINGS !== 'undefined') {
+    BATTLE_SETTINGS.vfxEnabled = !!s.battleVFX;
+  }
+
+  // Graphics quality → affect particle counts
+  window.SETTINGS_QUALITY = q;
+
+  // Cutscenes
+  window.SETTINGS_CUTSCENES = !!s.cutscenes;
+  window.SETTINGS_ABILITY_CUTSCENES = !!s.abilityCutscenes;
+
+  // Update toggles UI
+  const toggleIds = ['petals','stars','muteMusic','muteSFX','cutscenes','abilityCutscenes','battleVFX'];
+  toggleIds.forEach(key => {
+    const el = document.getElementById('toggle' + key.charAt(0).toUpperCase() + key.slice(1));
+    if(el) el.classList.toggle('on', !!s[key]);
+  });
+}
+
+function openSettingsModal() {
+  const s = loadSettings();
+  applySettings(s);
+  document.getElementById('settingsModal').classList.add('open');
+}
+function closeSettingsModal() { document.getElementById('settingsModal').classList.remove('open'); }
+
+function setGraphicsQuality(q) {
+  const s = loadSettings(); s.graphicsQuality = q; saveSettings(s); applySettings(s);
+  showToast(q==='low'?'🎨 Graphics set to Low — max performance!':q==='high'?'🎨 Graphics set to High — max sparkles! ✨':'🎨 Graphics set to Medium');
+}
+
+function toggleSetting(key, el) {
+  const s = loadSettings();
+  s[key] = !s[key];
+  saveSettings(s);
+  el.classList.toggle('on', !!s[key]);
+  applySettings(s);
+  // Show feedback
+  const labels = {
+    petals: ['🌸 Petals hidden','🌸 Petals enabled'],
+    stars: ['✦ Stars hidden','✦ Stars enabled'],
+    muteMusic: ['🔊 Music unmuted','🔇 Music muted'],
+    muteSFX: ['🔊 SFX unmuted','🔇 SFX muted'],
+    cutscenes: ['🎴 Card cutscenes off','🎴 Card cutscenes on'],
+    abilityCutscenes: ['✨ Ability cutscenes off','✨ Ability cutscenes on'],
+    battleVFX: ['⚔️ Battle VFX off','⚔️ Battle VFX on'],
+  };
+  if(labels[key]) showToast(labels[key][s[key]?1:0]);
+}
+
+// Apply settings on page load
+document.addEventListener('DOMContentLoaded', () => {
+  setTimeout(() => applySettings(loadSettings()), 400);
+});
+
+// ════════════════════════════════════════════════
+// NAV AVATAR DROPDOWN
+// ════════════════════════════════════════════════
+function toggleNavDropdown(e) {
+  e.stopPropagation();
+  const dd = document.getElementById('navAvatarDropdown');
+  dd.classList.toggle('open');
+}
+function closeNavDropdown() {
+  document.getElementById('navAvatarDropdown')?.classList.remove('open');
+}
+document.addEventListener('click', e => {
+  if(!document.getElementById('navAvatarWrap')?.contains(e.target)) closeNavDropdown();
+});
+
+// ════════════════════════════════════════════════
+// ANNOUNCEMENT SYSTEM
+// ════════════════════════════════════════════════
+const ANNOUNCE_KEY = 'meogacha_last_announce';
+
+async function loadAndShowAnnouncement() {
+  try {
+    const rows = await sb.get('announcements', { is_active: true }, { order: 'created_at.desc', limit: 1 });
+    const ann = rows && rows[0];
+    if(!ann) return;
+    // Check if player already saw this announcement
+    const seen = localStorage.getItem(ANNOUNCE_KEY);
+    if(seen === ann.id) return;
+    // Show it
+    document.getElementById('announceTitleDisplay').textContent = ann.title || 'Announcement';
+    document.getElementById('announceTextDisplay').textContent = ann.body || '';
+    const bannerWrap = document.getElementById('announceBannerWrap');
+    const placeholder = document.getElementById('announceBannerPlaceholder');
+    if(ann.gif_url) {
+      placeholder.style.display = 'none';
+      let img = bannerWrap.querySelector('img.announce-banner');
+      if(!img) { img = document.createElement('img'); img.className='announce-banner'; img.alt=''; bannerWrap.prepend(img); }
+      img.src = ann.gif_url;
+      img.style.display = 'block';
+    } else {
+      placeholder.style.display = '';
+    }
+    document.getElementById('announcementOverlay').classList.add('open');
+    // Store ID so it's not shown again until changed
+    window._currentAnnounceId = ann.id;
+  } catch(e) {
+    // announcements table may not exist yet — silently fail
+  }
+}
+
+function closeAnnouncement() {
+  if(window._currentAnnounceId) {
+    try { localStorage.setItem(ANNOUNCE_KEY, window._currentAnnounceId); } catch(e) {}
+  }
+  document.getElementById('announcementOverlay').classList.remove('open');
+}
+
+// ════════════════════════════════════════════════
+// GUIDE MODAL
+// ════════════════════════════════════════════════
+function openGuideModal() { document.getElementById('guideModal').classList.add('open'); }
+function closeGuideModal() { document.getElementById('guideModal').classList.remove('open'); }
+
+// ════════════════════════════════════════════════
+// REDEEM CODES SYSTEM
+// ════════════════════════════════════════════════
+function openRedeemCodesModal() {
+  document.getElementById('redeemCodeInput').value = '';
+  const r = document.getElementById('redeemResult');
+  r.className = ''; r.style.display = 'none';
+  document.getElementById('redeemCodesModal').classList.add('open');
+}
+function closeRedeemCodesModal() { document.getElementById('redeemCodesModal').classList.remove('open'); }
+
+async function submitRedeemCode() {
+  if(!state.discordId || state.isGuest) { showToast('⚠️ Log in to redeem codes!'); return; }
+  const code = (document.getElementById('redeemCodeInput')?.value||'').trim().toUpperCase();
+  if(!code) { showToast('Enter a code first!'); return; }
+  const resultEl = document.getElementById('redeemResult');
+
+  try {
+    // Look up the code
+    const codes = await sb.get('promo_codes', { code }, { limit: 1 });
+    const c = codes && codes[0];
+    if(!c) {
+      resultEl.textContent = '❌ Code not found or invalid.';
+      resultEl.className = 'error'; return;
+    }
+    if(!c.is_active) {
+      resultEl.textContent = '❌ This code has expired.';
+      resultEl.className = 'error'; return;
+    }
+    if(c.max_uses > 0 && (c.times_used || 0) >= c.max_uses) {
+      resultEl.textContent = '❌ This code has been fully redeemed.';
+      resultEl.className = 'error'; return;
+    }
+    // Check if already redeemed by this player
+    const prior = await sb.get('code_redemptions', { code_id: c.id, discord_id: state.discordId }, { limit: 1 });
+    if(prior && prior.length) {
+      resultEl.textContent = '⚠️ You already redeemed this code!';
+      resultEl.className = 'error'; return;
+    }
+
+    // Apply rewards
+    const rewards = c.rewards || {};
+    let rewardDesc = [];
+
+    if(rewards.coins) {
+      state.coins = (state.coins||0) + rewards.coins;
+      updateCoins();
+      if(state.discordId && !state.isGuest) {
+        await sb.update('players', { coins: state.coins }, { discord_id: state.discordId });
+      }
+      rewardDesc.push(`${rewards.coins} 🪙 Coins`);
+    }
+
+    if(rewards.cards && Array.isArray(rewards.cards)) {
+      for(const cardId of rewards.cards) {
+        if(state.discordId && !state.isGuest) {
+          try { await saveCardToCollection(state.discordId, cardId); } catch(_) {}
+        }
+        state.collection.push(cardId);
+      }
+      rewardDesc.push(`${rewards.cards.length} 🎴 Card${rewards.cards.length>1?'s':''}`);
+    }
+
+    if(rewards.items && Array.isArray(rewards.items)) {
+      for(const item of rewards.items) {
+        await giveItemToPlayer(state.discordId, item.key, item.qty||1);
+        rewardDesc.push(`×${item.qty||1} ${item.key}`);
+      }
+    }
+
+    // Record redemption
+    await fetch(`${SUPABASE_URL}/rest/v1/code_redemptions`, {
+      method: 'POST',
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer '+SUPABASE_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+      body: JSON.stringify({ code_id: c.id, discord_id: state.discordId, redeemed_at: new Date().toISOString() })
+    });
+    // Increment use count
+    await sb.update('promo_codes', { times_used: (c.times_used||0) + 1 }, { id: c.id });
+
+    resultEl.textContent = '✅ Code redeemed! Rewards: ' + (rewardDesc.join(', ') || 'none');
+    resultEl.className = 'success';
+    showToast('🎟️ Code redeemed! ' + rewardDesc.join(', '));
+    try { spawnParticles(6, '#f1c40f'); } catch(_) {}
+  } catch(e) {
+    resultEl.textContent = '❌ Error: ' + e.message;
+    resultEl.className = 'error';
+  }
+}
+
+// ════════════════════════════════════════════════
+// ADMIN: PLAYER SEARCH (for grant tools)
+// ════════════════════════════════════════════════
+let _adminAllPlayers = [];
+let _grantTargetId = '';
+let _grantTargetName = '';
+
+async function adminLoadPlayerSearch() {
+  if(_adminAllPlayers.length) return;
+  try {
+    const rows = await sb.get('players', {}, { select: 'discord_id,username,avatar,profile_thumbnail', limit: 500 });
+    _adminAllPlayers = rows || [];
+  } catch(e) { _adminAllPlayers = []; }
+}
+
+function adminSearchPlayers(query, inputId, resultsId, selectedId) {
+  const q = query.toLowerCase().trim();
+  const el = document.getElementById(resultsId);
+  if(!el) return;
+  if(!q) { el.style.display = 'none'; return; }
+  const filtered = _adminAllPlayers.filter(p =>
+    (p.username||'').toLowerCase().includes(q) || (p.discord_id||'').includes(q)
+  ).slice(0, 12);
+  if(!filtered.length) { el.style.display = 'none'; return; }
+  el.innerHTML = filtered.map(p => `
+    <div class="admin-player-result-item" onclick="adminSelectPlayer('${p.discord_id}','${escapeHtml(p.username||'Unknown')}','${p.avatar||p.profile_thumbnail||''}','${inputId}','${resultsId}','${selectedId}')">
+      <img src="${p.avatar||p.profile_thumbnail||'https://cdn.discordapp.com/embed/avatars/0.png'}" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'"/>
+      <div>
+        <div class="admin-player-result-name">${escapeHtml(p.username||'Unknown')}</div>
+        <div class="admin-player-result-id">${p.discord_id}</div>
+      </div>
+    </div>`).join('');
+  el.style.display = 'block';
+}
+
+function adminSelectPlayer(discordId, name, avatar, inputId, resultsId, selectedId) {
+  _grantTargetId = discordId;
+  _grantTargetName = name;
+  const input = document.getElementById(inputId);
+  if(input) input.value = name + ' (' + discordId + ')';
+  const results = document.getElementById(resultsId);
+  if(results) results.style.display = 'none';
+  const sel = document.getElementById(selectedId);
+  if(sel) {
+    sel.classList.add('shown');
+    sel.innerHTML = `<img src="${avatar||'https://cdn.discordapp.com/embed/avatars/0.png'}" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'"/>
+      <div><div style="font-size:0.88em;color:var(--pink)">${escapeHtml(name)}</div><div style="font-size:0.7em;color:var(--text-dim);font-family:'JetBrains Mono',monospace;">${discordId}</div></div>
+      <button onclick="adminClearPlayerSelect('${inputId}','${resultsId}','${selectedId}')" style="margin-left:auto;background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:0.9em;">✕</button>`;
+  }
+  // sync all discord ID fields
+  ['adminGiveTargetId','grantPlayerId'].forEach(id => {
+    const el = document.getElementById(id); if(el) el.value = discordId;
+  });
+}
+
+function adminClearPlayerSelect(inputId, resultsId, selectedId) {
+  _grantTargetId = ''; _grantTargetName = '';
+  const input = document.getElementById(inputId); if(input) input.value = '';
+  const sel = document.getElementById(selectedId); if(sel) { sel.classList.remove('shown'); sel.innerHTML = ''; }
+  ['adminGiveTargetId','grantPlayerId'].forEach(id => {
+    const el = document.getElementById(id); if(el) el.value = '';
+  });
+}
+
+// ════════════════════════════════════════════════
+// ADMIN: GRANT PANEL (coins, items, skins, cards)
+// ════════════════════════════════════════════════
+async function adminGrantPlayerCoins() {
+  if(!checkAdmin()) return;
+  const targetId = _grantTargetId || (document.getElementById('adminGiveTargetId')?.value||'').trim();
+  const amt = parseInt(document.getElementById('adminGiveAmt')?.value)||0;
+  if(!targetId) { showToast('⚠️ Select a player first!'); return; }
+  if(!amt) { showToast('⚠️ Enter an amount'); return; }
+  try {
+    const rows = await sb.get('players', { discord_id: targetId }, { limit: 1 });
+    const player = rows && rows[0];
+    if(!player) { showToast('❌ Player not found'); return; }
+    const newCoins = (player.coins||0) + amt;
+    await sb.update('players', { coins: newCoins }, { discord_id: targetId });
+    showToast(`💸 Gave ${amt} 🪙 to ${_grantTargetName||targetId}`);
+    if(targetId === state.discordId) { state.coins = newCoins; updateCoins(); }
+  } catch(e) { showToast('❌ ' + e.message); }
+}
+
+async function adminGrantPlayerCard() {
+  if(!checkAdmin()) return;
+  const targetId = _grantTargetId || (document.getElementById('adminGiveTargetId')?.value||'').trim();
+  const cardId = (document.getElementById('grantCardId')?.value||'').trim();
+  if(!targetId || !cardId) { showToast('⚠️ Select player and card ID'); return; }
+  const card = (window.DEMO_CARDS||[]).find(c=>c.id===cardId);
+  if(!card) { showToast('❌ Card ID not found — double check it'); return; }
+  try {
+    await saveCardToCollection(targetId, cardId);
+    if(targetId === state.discordId) state.collection.push(cardId);
+    showToast(`🎴 Gave "${card.name}" to ${_grantTargetName||targetId}`);
+  } catch(e) { showToast('❌ ' + e.message); }
+}
+
+async function adminGrantPlayerItem() {
+  if(!checkAdmin()) return;
+  const targetId = _grantTargetId || (document.getElementById('adminGiveTargetId')?.value||'').trim();
+  const key = (document.getElementById('giveItem_key')?.value||'').trim();
+  const qty = parseInt(document.getElementById('giveItem_qty')?.value)||1;
+  if(!targetId || !key) { showToast('Fill in player and item key'); return; }
+  const origId = state.discordId;
+  state.discordId = targetId;
+  await giveItemToPlayer(targetId, key, qty);
+  state.discordId = origId;
+  showToast(`🎁 Gave ×${qty} ${key} to ${_grantTargetName||targetId}`);
+}
+
+async function adminGrantPlayerSkin() {
+  if(!checkAdmin()) return;
+  const targetId = _grantTargetId || (document.getElementById('adminGiveTargetId')?.value||'').trim();
+  const skinId = (document.getElementById('grantSkinId')?.value||'').trim();
+  if(!targetId || !skinId) { showToast('⚠️ Select player and skin'); return; }
+  try {
+    const skin = (window.ALL_SKINS||[]).find(s=>s.id===skinId||s.skin_id===skinId);
+    const cardId = skin?.card_id || '';
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/player_skins`, {
+      method: 'POST',
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer '+SUPABASE_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+      body: JSON.stringify({ discord_id: targetId, skin_id: skinId, card_id: cardId, equipped: false })
+    });
+    showToast(`🎨 Gave skin to ${_grantTargetName||targetId}`);
+  } catch(e) { showToast('❌ ' + e.message); }
+}
+
+// ════════════════════════════════════════════════
+// ADMIN: PROMO CODE MAKER
+// ════════════════════════════════════════════════
+let _adminCodeCache = [];
+
+function adminGenerateCode() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let code = '';
+  for(let i=0;i<10;i++) {
+    if(i===4||i===7) code+='-';
+    code += chars[Math.floor(Math.random()*chars.length)];
+  }
+  const el = document.getElementById('codeFormCode');
+  if(el) el.value = code;
+}
+
+function addCodeRewardRow() {
+  const list = document.getElementById('codeRewardsList');
+  if(!list) return;
+  const types = [
+    {v:'coins', l:'🪙 Coins'},
+    {v:'card', l:'🎴 Card (by ID)'},
+    {v:'item', l:'🎁 Item (by key)'},
+  ];
+  const div = document.createElement('div');
+  div.style.cssText = 'display:flex;gap:8px;align-items:center;margin-bottom:8px;';
+  div.innerHTML = `<select class="admin-input" style="flex:1;padding:7px 10px;" onchange="updateCodeRewardFields(this)">
+    ${types.map(t=>`<option value="${t.v}">${t.l}</option>`).join('')}
+  </select>
+  <input class="admin-input code-reward-value" placeholder="Amount / ID / Key" style="flex:1.5;"/>
+  <button onclick="this.parentElement.remove()" style="background:rgba(231,76,60,0.12);border:1px solid rgba(231,76,60,0.25);color:#e74c3c;border-radius:8px;width:30px;height:30px;cursor:pointer;flex-shrink:0;">✕</button>`;
+  list.appendChild(div);
+}
+
+async function adminCreateCode() {
+  if(!checkAdmin()) return;
+  const code = (document.getElementById('codeFormCode')?.value||'').trim().toUpperCase();
+  const maxUses = parseInt(document.getElementById('codeFormMaxUses')?.value)||0;
+  const expiresVal = document.getElementById('codeFormExpires')?.value;
+  if(!code) { showToast('⚠️ Generate or enter a code first!'); return; }
+
+  // Collect rewards
+  const rewardRows = document.querySelectorAll('#codeRewardsList > div');
+  const rewards = { coins: 0, cards: [], items: [] };
+  rewardRows.forEach(row => {
+    const type = row.querySelector('select')?.value;
+    const val = (row.querySelector('.code-reward-value')?.value||'').trim();
+    if(!val) return;
+    if(type==='coins') rewards.coins = (rewards.coins||0) + parseInt(val)||0;
+    else if(type==='card') rewards.cards.push(val);
+    else if(type==='item') {
+      const parts = val.split(':');
+      rewards.items.push({ key: parts[0], qty: parseInt(parts[1])||1 });
+    }
+  });
+  if(!rewards.coins) delete rewards.coins;
+  if(!rewards.cards.length) delete rewards.cards;
+  if(!rewards.items.length) delete rewards.items;
+  if(!Object.keys(rewards).length) { showToast('⚠️ Add at least one reward!'); return; }
+
+  const payload = {
+    code,
+    rewards,
+    max_uses: maxUses,
+    times_used: 0,
+    is_active: true,
+    created_at: new Date().toISOString(),
+    expires_at: expiresVal ? new Date(expiresVal).toISOString() : null
+  };
+
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/promo_codes`, {
+      method: 'POST',
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer '+SUPABASE_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+      body: JSON.stringify(payload)
+    });
+    if(!res.ok) { const b=await res.json().catch(()=>null); showToast('❌ '+(b?.message||`HTTP ${res.status}`)); return; }
+    showToast(`🎟️ Code "${code}" created!`);
+    // Copy to clipboard
+    try { await navigator.clipboard.writeText(code); showToast('📋 Code copied to clipboard!'); } catch(_) {}
+    // Clear form + reload list
+    document.getElementById('codeFormCode').value = '';
+    document.getElementById('codeRewardsList').innerHTML = '';
+    await adminLoadCodeList();
+  } catch(e) { showToast('❌ ' + e.message); }
+}
+
+async function adminLoadCodeList() {
+  const el = document.getElementById('adminCodeList');
+  if(!el) return;
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/promo_codes?order=created_at.desc&limit=50`, {
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer '+SUPABASE_KEY }
+    });
+    _adminCodeCache = await res.json().catch(()=>[]);
+    const cnt = document.getElementById('adminCodeCount');
+    if(cnt) cnt.textContent = `(${_adminCodeCache.length})`;
+  } catch(e) { el.innerHTML='<div style="color:#e74c3c;font-size:0.82em;padding:14px;text-align:center;">⚠️ Run the promo codes SQL migration first.</div>'; return; }
+
+  if(!_adminCodeCache.length) {
+    el.innerHTML = '<div style="color:var(--text-dim);font-style:italic;font-size:0.82em;text-align:center;padding:14px;">No codes created yet.</div>';
+    return;
+  }
+  el.innerHTML = _adminCodeCache.map(c => {
+    const r = c.rewards || {};
+    const rewardTags = [
+      r.coins ? `🪙${r.coins}` : '',
+      (r.cards||[]).length ? `🎴×${r.cards.length}` : '',
+      (r.items||[]).length ? `🎁×${r.items.length}` : '',
+    ].filter(Boolean).join(' ');
+    const usedOf = c.max_uses > 0 ? `${c.times_used||0}/${c.max_uses}` : `${c.times_used||0}/∞`;
+    return `<div class="code-list-item">
+      <span class="code-tag">${escapeHtml(c.code)}</span>
+      <span style="font-size:0.78em;color:var(--text-dim);">${rewardTags}</span>
+      <span class="code-uses">${usedOf} uses</span>
+      <span style="font-size:0.7em;padding:2px 7px;border-radius:10px;background:${c.is_active?'rgba(46,204,113,0.12)':'rgba(231,76,60,0.12)'};color:${c.is_active?'#2ecc71':'#e74c3c'};border:1px solid ${c.is_active?'rgba(46,204,113,0.25)':'rgba(231,76,60,0.25)'};">${c.is_active?'Active':'Off'}</span>
+      <button class="admin-action-btn" onclick="adminToggleCode('${c.id}',${!c.is_active})" title="${c.is_active?'Deactivate':'Activate'}">${c.is_active?'⏸':'▶'}</button>
+      <button class="admin-action-btn danger" onclick="adminDeleteCode('${c.id}','${escapeHtml(c.code).replace(/'/g,"\\'")}')">🗑️</button>
+    </div>`;
+  }).join('');
+}
+
+async function adminToggleCode(codeId, newActive) {
+  await sb.update('promo_codes', { is_active: newActive }, { id: codeId });
+  showToast(newActive ? '▶ Code activated' : '⏸ Code deactivated');
+  await adminLoadCodeList();
+}
+async function adminDeleteCode(codeId, codeName) {
+  if(!confirm(`Delete code "${codeName}"?`)) return;
+  await sb.delete('promo_codes', { id: codeId });
+  showToast('🗑️ Code deleted'); await adminLoadCodeList();
+}
+
+// ════════════════════════════════════════════════
+// ADMIN: ANNOUNCEMENT MANAGER
+// ════════════════════════════════════════════════
+async function adminSaveAnnouncement() {
+  if(!checkAdmin()) return;
+  const title = (document.getElementById('announceFormTitle')?.value||'').trim();
+  const body = (document.getElementById('announceFormBody')?.value||'').trim();
+  const gif = (document.getElementById('announceFormGif')?.value||'').trim();
+  if(!title) { showToast('⚠️ Title is required!'); return; }
+
+  // Deactivate all existing announcements first
+  try {
+    await fetch(`${SUPABASE_URL}/rest/v1/announcements?is_active=eq.true`, {
+      method: 'PATCH',
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer '+SUPABASE_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+      body: JSON.stringify({ is_active: false })
+    });
+  } catch(_) {}
+
+  const payload = { title, body, gif_url: gif, is_active: true, created_at: new Date().toISOString() };
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/announcements`, {
+      method: 'POST',
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer '+SUPABASE_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+      body: JSON.stringify(payload)
+    });
+    if(!res.ok) { const b=await res.json().catch(()=>null); showToast('❌ '+(b?.message||`HTTP ${res.status}`)); return; }
+    showToast('📢 Announcement saved & activated! Players will see it on next login.');
+    adminPreviewAnnouncement();
+    adminLoadAnnouncementList();
+  } catch(e) { showToast('❌ ' + e.message); }
+}
+
+async function adminLoadAnnouncementList() {
+  const el = document.getElementById('adminAnnounceList');
+  if(!el) return;
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/announcements?order=created_at.desc&limit=10`, {
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer '+SUPABASE_KEY }
+    });
+    const list = await res.json().catch(()=>[]);
+    if(!list.length) { el.innerHTML='<div style="color:var(--text-dim);font-style:italic;font-size:0.82em;text-align:center;padding:14px;">No announcements yet.</div>'; return; }
+    el.innerHTML = list.map(a => `<div style="border:1px solid var(--border);border-radius:10px;padding:10px 12px;margin-bottom:8px;display:flex;align-items:center;gap:10px;">
+      ${a.gif_url?`<img src="${escapeHtml(a.gif_url)}" style="width:48px;height:36px;object-fit:cover;border-radius:6px;flex-shrink:0;"/>`:'<div style="width:48px;height:36px;background:rgba(255,157,199,0.06);border-radius:6px;flex-shrink:0;display:flex;align-items:center;justify-content:center;">📢</div>'}
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:0.85em;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(a.title)}</div>
+        <div style="font-size:0.7em;color:var(--text-dim);margin-top:2px;">${(a.body||'').slice(0,50)}${(a.body||'').length>50?'…':''}</div>
+      </div>
+      <span style="font-size:0.68em;padding:2px 7px;border-radius:10px;background:${a.is_active?'rgba(46,204,113,0.12)':'rgba(255,255,255,0.05)'};color:${a.is_active?'#2ecc71':'var(--text-dim)'};border:1px solid ${a.is_active?'rgba(46,204,113,0.25)':'rgba(255,255,255,0.08)'};flex-shrink:0;">${a.is_active?'Live':'Off'}</span>
+      <button class="admin-action-btn danger" onclick="adminDeleteAnnouncement('${a.id}')">🗑️</button>
+    </div>`).join('');
+  } catch(e) { el.innerHTML='<div style="color:#e74c3c;font-size:0.82em;padding:14px;text-align:center;">⚠️ Run the announcements SQL migration first.</div>'; }
+}
+
+async function adminDeleteAnnouncement(id) {
+  if(!confirm('Delete this announcement?')) return;
+  await fetch(`${SUPABASE_URL}/rest/v1/announcements?id=eq.${id}`, { method:'DELETE', headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY} });
+  showToast('🗑️ Deleted'); adminLoadAnnouncementList();
+}
+
+function adminPreviewAnnouncement() {
+  const title = (document.getElementById('announceFormTitle')?.value||'Announcement Title');
+  const body = (document.getElementById('announceFormBody')?.value||'');
+  const gif = (document.getElementById('announceFormGif')?.value||'').trim();
+  const prev = document.getElementById('announcePrevBox');
+  if(!prev) return;
+  prev.style.display = '';
+  const emptyEl = document.getElementById('announcePrevEmpty');
+  if(emptyEl) emptyEl.style.display = 'none';
+  prev.querySelector('.announce-title').textContent = title;
+  prev.querySelector('.announce-text').textContent = body;
+  const bw = prev.querySelector('.announce-banner-img-wrap');
+  const ph = prev.querySelector('.announce-banner-placeholder');
+  if(gif) {
+    ph.style.display = 'none';
+    let img = bw.querySelector('img');
+    if(!img) { img=document.createElement('img'); img.className='announce-banner'; img.alt=''; bw.appendChild(img); }
+    img.src = gif; img.style.display='block';
+  } else {
+    ph.style.display=''; const img=bw.querySelector('img'); if(img) img.style.display='none';
+  }
+}
+
+// ════════════════════════════════════════════════
+// PATCH: switchAdminTab to include new tabs
+// ════════════════════════════════════════════════
+(function(){
+  const _orig = window.switchAdminTab;
+  window.switchAdminTab = function(tab, btn) {
+    // Hide new tabs too
+    ['codes','announce'].forEach(t => {
+      const el = document.getElementById('adminTab-'+t);
+      const b = document.getElementById('atab-'+t);
+      if(el) el.style.display = t===tab ? 'block' : 'none';
+      if(b) b.classList.toggle('active', t===tab);
+    });
+    if(tab === 'codes') { adminLoadPlayerSearch(); adminLoadCodeList(); return; }
+    if(tab === 'announce') { adminLoadAnnouncementList(); return; }
+    _orig(tab, btn);
+  };
+
+  // Ensure cards tab is default when page loads if no tab active
+  window.addEventListener('load', () => {
+    // Set codes first tab as NOT active — keep cards as default
+    const firstTab = document.getElementById('atab-cards');
+    if(firstTab) firstTab.classList.add('active');
+  });
+})();
+
+// ════════════════════════════════════════════════
+// PATCH: loadAll to show announcement
+// ════════════════════════════════════════════════
+(function(){
+  const _orig = typeof loadAll === 'function' ? loadAll : null;
+  if(_orig) {
+    window.loadAll = async function(discordId) {
+      await _orig(discordId);
+      setTimeout(loadAndShowAnnouncement, 800);
+    };
+  }
+})();
+
+// Also patch goTo to load player search lazily
+const _origGoToSettings = window.goTo;
+if(_origGoToSettings) {
+  window.goTo = function(page, btn) {
+    _origGoToSettings(page, btn);
+    if(page === 'admin') adminLoadPlayerSearch();
+  };
+}
+</script>
+
+<!-- ADMIN: CODES TAB HTML -->
+<div id="adminTab-codes" style="display:none;">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start;" class="admin-two-col-grid">
+    <!-- Left: Code Builder -->
+    <div class="admin-panel">
+      <h3 style="font-family:'Cinzel Decorative',serif;font-size:0.88em;margin-bottom:18px;">🎟️ Create Promo Code</h3>
+
+      <label class="admin-label">Code <span class="admin-hint">(auto-generated or custom)</span></label>
+      <div style="display:flex;gap:8px;margin-bottom:12px;">
+        <input class="admin-input" id="codeFormCode" placeholder="e.g. MEOW-ABCD-1234" style="flex:1;text-transform:uppercase;letter-spacing:0.05em;font-family:'JetBrains Mono',monospace;"/>
+        <button class="admin-btn" onclick="adminGenerateCode()" style="padding:8px 14px;white-space:nowrap;">🎲 Generate</button>
+      </div>
+
+      <label class="admin-label">Max Uses <span class="admin-hint">(0 = unlimited)</span></label>
+      <input class="admin-input" id="codeFormMaxUses" type="number" value="0" min="0" style="margin-bottom:12px;"/>
+
+      <label class="admin-label">Expires <span class="admin-hint">(leave blank = no expiry)</span></label>
+      <input class="admin-input" id="codeFormExpires" type="datetime-local" style="margin-bottom:14px;"/>
+
+      <label class="admin-label">Rewards <span class="admin-hint">(add one or more)</span></label>
+      <div id="codeRewardsList" style="margin-bottom:8px;"></div>
+      <button class="admin-btn" onclick="addCodeRewardRow()" style="width:100%;margin-bottom:14px;background:rgba(255,157,199,0.06);border-color:rgba(255,157,199,0.2);">➕ Add Reward</button>
+
+      <button class="admin-btn" onclick="adminCreateCode()" style="width:100%;background:linear-gradient(135deg,var(--pink-deep),var(--purple));color:#fff;border:none;">
+        🎟️ Create Code
+      </button>
+    </div>
+
+    <!-- Right: Code List -->
+    <div class="admin-panel">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+        <h3 style="font-family:'Cinzel Decorative',serif;font-size:0.88em;">Active Codes <span id="adminCodeCount" style="font-size:0.75em;color:var(--text-dim);font-family:'JetBrains Mono',monospace;"></span></h3>
+        <button class="admin-btn" onclick="adminLoadCodeList()" style="padding:6px 12px;font-size:0.82em;">↺ Refresh</button>
+      </div>
+      <div id="adminCodeList">
+        <div style="color:var(--text-dim);font-style:italic;font-size:0.82em;text-align:center;padding:20px;">No codes yet — create your first code!</div>
+      </div>
+
+      <!-- SQL Migration hint -->
+      <details style="margin-top:16px;">
+        <summary style="font-size:0.75em;color:var(--text-dim);cursor:pointer;padding:6px 0;">📋 SQL Migration (run once)</summary>
+        <div style="background:#080310;border:1px solid var(--border);border-radius:10px;padding:12px;margin-top:8px;font-family:'JetBrains Mono',monospace;font-size:0.62em;color:var(--text-dim);white-space:pre-wrap;line-height:1.5;user-select:all;">CREATE TABLE IF NOT EXISTS promo_codes (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  code text UNIQUE NOT NULL,
+  rewards jsonb DEFAULT '{}',
+  max_uses int DEFAULT 0,
+  times_used int DEFAULT 0,
+  is_active boolean DEFAULT true,
+  created_at timestamptz DEFAULT now(),
+  expires_at timestamptz DEFAULT NULL
+);
+CREATE TABLE IF NOT EXISTS code_redemptions (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  code_id uuid REFERENCES promo_codes(id) ON DELETE CASCADE,
+  discord_id text NOT NULL,
+  redeemed_at timestamptz DEFAULT now(),
+  UNIQUE(code_id, discord_id)
+);
+ALTER TABLE promo_codes ENABLE ROW LEVEL SECURITY;
+ALTER TABLE code_redemptions ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "anon_read_codes" ON promo_codes FOR SELECT USING (true);
+CREATE POLICY "anon_write_codes" ON promo_codes FOR ALL USING (true);
+CREATE POLICY "anon_read_redeem" ON code_redemptions FOR SELECT USING (true);
+CREATE POLICY "anon_write_redeem" ON code_redemptions FOR ALL USING (true);</div>
+      </details>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN: ANNOUNCE TAB HTML -->
+<div id="adminTab-announce" style="display:none;">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start;" class="admin-two-col-grid">
+    <!-- Left: Compose -->
+    <div class="admin-panel">
+      <h3 style="font-family:'Cinzel Decorative',serif;font-size:0.88em;margin-bottom:18px;">📢 Compose Announcement</h3>
+
+      <label class="admin-label">Title *</label>
+      <input class="admin-input" id="announceFormTitle" placeholder="e.g. New Banner: Sakura Season!" maxlength="80" style="margin-bottom:10px;" oninput="adminPreviewAnnouncement()"/>
+
+      <label class="admin-label">Banner GIF URL <span class="admin-hint">(optional — appears at top)</span></label>
+      <input class="admin-input" id="announceFormGif" placeholder="https://media.tenor.com/..." style="margin-bottom:10px;" oninput="adminPreviewAnnouncement()"/>
+
+      <label class="admin-label">Message *</label>
+      <textarea class="admin-input" id="announceFormBody" placeholder="Describe your update, new cards, events..." rows="5" maxlength="600" style="resize:none;margin-bottom:14px;" oninput="adminPreviewAnnouncement()"></textarea>
+
+      <button class="admin-btn" onclick="adminSaveAnnouncement()" style="width:100%;background:linear-gradient(135deg,var(--pink-deep),var(--purple));color:#fff;border:none;">
+        📢 Save & Activate
+      </button>
+      <div style="font-size:0.72em;color:var(--text-dim);margin-top:8px;text-align:center;font-style:italic;">This will show as a popup to all players on their next visit. Previous announcements will be deactivated.</div>
+
+      <!-- SQL Migration hint -->
+      <details style="margin-top:16px;">
+        <summary style="font-size:0.75em;color:var(--text-dim);cursor:pointer;padding:6px 0;">📋 SQL Migration (run once)</summary>
+        <div style="background:#080310;border:1px solid var(--border);border-radius:10px;padding:12px;margin-top:8px;font-family:'JetBrains Mono',monospace;font-size:0.62em;color:var(--text-dim);white-space:pre-wrap;line-height:1.5;user-select:all;">CREATE TABLE IF NOT EXISTS announcements (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  title text NOT NULL,
+  body text DEFAULT '',
+  gif_url text DEFAULT '',
+  is_active boolean DEFAULT true,
+  created_at timestamptz DEFAULT now()
+);
+ALTER TABLE announcements ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "anon_read_ann" ON announcements FOR SELECT USING (true);
+CREATE POLICY "anon_write_ann" ON announcements FOR ALL USING (true);</div>
+      </details>
+    </div>
+
+    <!-- Right: Preview + List -->
+    <div>
+      <div class="admin-panel" style="margin-bottom:16px;">
+        <h3 style="font-family:'Cinzel Decorative',serif;font-size:0.82em;margin-bottom:12px;">Preview</h3>
+        <div id="announcePrevBox" style="display:none;border:1px solid rgba(255,157,199,0.2);border-radius:16px;overflow:hidden;background:linear-gradient(160deg,#0e0516,#13071d);">
+          <div class="announce-banner-img-wrap">
+            <div class="announce-banner-placeholder" style="height:120px;font-size:2em;">📢</div>
+          </div>
+          <div class="announce-body" style="padding:16px;">
+            <div class="announce-label">✦ MeoGacha Update</div>
+            <div class="announce-title" style="font-size:1em;"></div>
+            <div class="announce-text" style="font-size:0.82em;margin-bottom:12px;"></div>
+            <div style="text-align:center;padding:6px 0;border-radius:8px;background:linear-gradient(135deg,var(--pink-deep),var(--purple));color:#fff;font-family:'Cinzel Decorative',serif;font-size:0.68em;">✦ Got it! ✦</div>
+          </div>
+        </div>
+        <div id="announcePrevEmpty" style="color:var(--text-dim);font-style:italic;font-size:0.82em;text-align:center;padding:20px;">Fill in the form to see a preview</div>
+      </div>
+
+      <div class="admin-panel">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+          <h3 style="font-family:'Cinzel Decorative',serif;font-size:0.82em;">Past Announcements</h3>
+          <button class="admin-btn" onclick="adminLoadAnnouncementList()" style="padding:5px 10px;font-size:0.78em;">↺</button>
+        </div>
+        <div id="adminAnnounceList">
+          <div style="color:var(--text-dim);font-style:italic;font-size:0.82em;text-align:center;padding:14px;">No announcements yet.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN: TOOLS TAB — Enhanced Grant Panel -->
+<script>
+// Patch the tools tab HTML to use player search
+document.addEventListener('DOMContentLoaded', () => {
+  const toolsTab = document.getElementById('adminTab-tools');
+  if(!toolsTab) return;
+
+  // Find and replace "Give Coins to Player" panel
+  const oldCoinsPanel = toolsTab.querySelector('.admin-panel:nth-child(2)');
+  
+  // Build the new upgraded grant panel
+  const grantPanel = document.createElement('div');
+  grantPanel.className = 'admin-panel';
+  grantPanel.style.marginTop = '16px';
+  grantPanel.innerHTML = `
+    <h3 style="font-family:'Cinzel Decorative',serif;font-size:0.88em;margin-bottom:16px;">👑 Grant to Player</h3>
+
+    <!-- Player Search -->
+    <label class="admin-label">Search Player</label>
+    <div class="admin-player-search-wrap" style="margin-bottom:8px;">
+      <input class="admin-input" id="grantPlayerSearch" placeholder="Search by name or Discord ID…"
+        oninput="adminSearchPlayers(this.value,'grantPlayerSearch','grantPlayerResults','grantSelectedPlayer')"
+        onfocus="adminSearchPlayers(this.value,'grantPlayerSearch','grantPlayerResults','grantSelectedPlayer')"/>
+      <div id="grantPlayerResults" class="admin-player-results"></div>
+    </div>
+    <div id="grantSelectedPlayer" class="admin-selected-player" style="margin-bottom:12px;"></div>
+    <input type="hidden" id="grantPlayerId"/>
+    <input type="hidden" id="adminGiveTargetId"/>
+
+    <!-- Tabs: Coins, Cards, Items, Skins -->
+    <div style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;" id="grantTypeTabs">
+      <button class="filter-btn active" onclick="switchGrantTab('coins',this)">🪙 Coins</button>
+      <button class="filter-btn" onclick="switchGrantTab('card',this)">🎴 Card</button>
+      <button class="filter-btn" onclick="switchGrantTab('item',this)">🎁 Item</button>
+      <button class="filter-btn" onclick="switchGrantTab('skin',this)">🎨 Skin</button>
+    </div>
+
+    <div id="grantPane-coins">
+      <input class="admin-input" id="adminGiveAmt" type="number" placeholder="Amount" value="500" style="margin-bottom:10px;"/>
+      <button class="admin-btn" onclick="adminGrantPlayerCoins()" style="width:100%;">💸 Give Coins</button>
+    </div>
+
+    <div id="grantPane-card" style="display:none;">
+      <label class="admin-label">Card ID</label>
+      <input class="admin-input" id="grantCardId" placeholder="e.g. naruto_001" style="margin-bottom:10px;"/>
+      <button class="admin-btn" onclick="adminGrantPlayerCard()" style="width:100%;">🎴 Give Card</button>
+    </div>
+
+    <div id="grantPane-item" style="display:none;">
+      <label class="admin-label">Item Key</label>
+      <input class="admin-input" id="giveItem_key" placeholder="e.g. star_fragment" style="margin-bottom:8px;"/>
+      <label class="admin-label">Quantity</label>
+      <input class="admin-input" id="giveItem_qty" type="number" value="1" min="1" style="margin-bottom:10px;"/>
+      <button class="admin-btn" onclick="adminGrantPlayerItem()" style="width:100%;">🎁 Give Item</button>
+    </div>
+
+    <div id="grantPane-skin" style="display:none;">
+      <label class="admin-label">Skin ID</label>
+      <input class="admin-input" id="grantSkinId" placeholder="Skin UUID from Skin Manager" style="margin-bottom:10px;"/>
+      <button class="admin-btn" onclick="adminGrantPlayerSkin()" style="width:100%;">🎨 Give Skin</button>
+    </div>
+  `;
+
+  // Remove the old "Give Coins to Player" panel and insert the new one
+  if(oldCoinsPanel) {
+    toolsTab.insertBefore(grantPanel, oldCoinsPanel.nextSibling);
+    oldCoinsPanel.remove();
+  } else {
+    toolsTab.insertBefore(grantPanel, toolsTab.firstChild.nextSibling);
+  }
+});
+
+function switchGrantTab(tab, btn) {
+  ['coins','card','item','skin'].forEach(t => {
+    const el = document.getElementById('grantPane-'+t);
+    if(el) el.style.display = t===tab ? '' : 'none';
+  });
+  document.querySelectorAll('#grantTypeTabs .filter-btn').forEach(b => b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+}
+
+// Close dropdown when clicking outside grant search
+document.addEventListener('click', e => {
+  const results = document.getElementById('grantPlayerResults');
+  const wrap = document.getElementById('grantPlayerSearch')?.closest('.admin-player-search-wrap');
+  if(results && wrap && !wrap.contains(e.target)) results.style.display = 'none';
 });
 </script>
 
