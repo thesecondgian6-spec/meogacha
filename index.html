@@ -3721,6 +3721,96 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .act-modal-back{background:none;border:1px solid var(--border);border-radius:10px;color:var(--text-dim);font-size:0.72em;padding:4px 10px;cursor:pointer;font-family:'JetBrains Mono',monospace;transition:all 0.15s;display:none;margin-bottom:8px;}
 .act-modal-back:hover{border-color:var(--pink);color:var(--pink);}
 .act-result-theme{font-family:'JetBrains Mono',monospace;font-size:0.6em;color:var(--text-dim);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:6px;}
+/* SHARED MINIGAME LAYOUT */
+.mg-container{padding:4px 0;display:flex;flex-direction:column;gap:10px;}
+.mg-header{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.mg-label{font-family:'Cinzel Decorative',serif;font-size:0.72em;color:var(--pink-pale);flex:1;min-width:0;}
+.mg-timer{font-family:'JetBrains Mono',monospace;font-size:0.72em;color:#f1c40f;flex-shrink:0;}
+.mg-score{font-family:'JetBrains Mono',monospace;font-size:0.72em;color:var(--pink);flex-shrink:0;}
+.mg-progress-txt{font-family:'JetBrains Mono',monospace;font-size:0.68em;color:var(--text-dim);flex-shrink:0;}
+.mg-tip{font-size:0.75em;color:var(--text-dim);font-style:italic;text-align:center;line-height:1.4;}
+/* BARATIE */
+.br-queue{display:flex;flex-wrap:wrap;gap:6px;min-height:56px;padding:4px;}
+.br-ticket{display:flex;flex-direction:column;align-items:center;padding:6px 10px;border-radius:10px;border:1px solid var(--border);background:rgba(241,196,15,0.05);cursor:pointer;transition:all 0.15s;font-size:0.82em;gap:2px;}
+.br-ticket:hover{border-color:rgba(241,196,15,0.5);background:rgba(241,196,15,0.1);}
+.br-ticket.selected{border-color:#f1c40f;background:rgba(241,196,15,0.18);box-shadow:0 0 10px rgba(241,196,15,0.3);}
+.br-ticket.br-ticket-done{opacity:0;transform:scale(0.8);transition:all 0.3s;}
+.br-ticket.br-ticket-wrong{border-color:#e74c3c;background:rgba(231,76,60,0.15);}
+.br-ticket-dest{font-size:0.75em;color:var(--text-dim);}
+.br-stations{display:flex;gap:8px;justify-content:center;}
+.br-station{flex:1;padding:10px 6px;border-radius:12px;border:1px solid var(--border);background:rgba(255,157,199,0.04);cursor:pointer;text-align:center;font-size:0.8em;transition:all 0.2s;}
+.br-station:hover,.br-station.br-st-ready{border-color:rgba(255,157,199,0.5);background:rgba(255,157,199,0.1);}
+.br-feedback{font-size:0.75em;color:var(--text-dim);font-style:italic;text-align:center;min-height:18px;}
+/* QUINTUPLETS */
+.qt-show{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;}
+.qt-pair-show{display:flex;flex-direction:column;align-items:center;padding:10px 12px;border-radius:14px;border:1px solid;gap:4px;}
+.qt-sister-emoji{font-size:1.6em;}
+.qt-sister-name{font-family:'JetBrains Mono',monospace;font-size:0.65em;letter-spacing:0.05em;}
+.qt-subject{font-size:0.72em;color:var(--text-dim);}
+.qt-match{display:flex;gap:12px;justify-content:center;}
+.qt-col{display:flex;flex-direction:column;gap:6px;flex:1;}
+.qt-item{padding:9px 10px;border-radius:12px;border:1px solid var(--border);background:rgba(255,157,199,0.04);cursor:pointer;font-size:0.79em;text-align:center;transition:all 0.17s;user-select:none;-webkit-user-select:none;}
+.qt-item:hover:not(.qt-done){border-color:rgba(255,157,199,0.4);background:rgba(255,157,199,0.08);}
+.qt-sister-item.qt-selected{border-color:var(--pink);background:rgba(255,157,199,0.14);box-shadow:0 0 10px rgba(255,157,199,0.2);}
+.qt-item.qt-done{opacity:0.35;cursor:default;}
+.qt-item.qt-wrong{border-color:#e74c3c;background:rgba(231,76,60,0.12);}
+.qt-item.qt-correct{border-color:#2ecc71;background:rgba(46,204,113,0.12);}
+/* ANTEIKU */
+.ak-customer{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:12px;border:1px solid var(--border);background:rgba(255,157,199,0.03);}
+.ak-cust-icon{font-size:1.8em;}
+.ak-cust-type{font-family:'JetBrains Mono',monospace;font-size:0.65em;font-weight:700;letter-spacing:0.1em;}
+.ak-cust-hint{font-size:0.73em;color:var(--text-dim);}
+.ak-cup-wrap{display:flex;justify-content:center;padding:4px 0;}
+.ak-cup-track{position:relative;width:48px;height:140px;border:2px solid rgba(255,157,199,0.25);border-radius:4px 4px 8px 8px;overflow:hidden;background:rgba(255,157,199,0.03);}
+.ak-cup-zone{position:absolute;left:0;right:0;border:2px solid;border-radius:2px;transition:all 0.3s;pointer-events:none;}
+.ak-cup-fill{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(to top,rgba(139,90,60,0.8),rgba(180,120,70,0.6));transition:height 0.05s linear;}
+.ak-cup-labels{position:absolute;right:-38px;top:0;bottom:0;display:flex;flex-direction:column;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:0.5em;color:var(--text-dim);}
+.ak-pour-btn{width:100%;padding:12px;border-radius:14px;background:linear-gradient(135deg,rgba(139,90,60,0.6),rgba(80,40,20,0.8));border:1px solid rgba(139,90,60,0.4);color:#e8cba0;font-family:'Cinzel Decorative',serif;font-size:0.8em;cursor:pointer;transition:all 0.12s;letter-spacing:0.05em;user-select:none;-webkit-user-select:none;}
+.ak-pour-btn:active{transform:scale(0.97);}
+.ak-feedback{font-size:0.73em;color:var(--text-dim);font-style:italic;text-align:center;min-height:18px;}
+/* GOJO */
+.gj-arena{display:flex;flex-direction:column;align-items:center;gap:8px;}
+.gj-eye{font-size:2.4em;transition:filter 0.1s;}
+.gj-bar-wrap{width:100%;height:18px;background:rgba(255,255,255,0.05);border-radius:9px;border:1px solid rgba(255,255,255,0.08);position:relative;overflow:hidden;}
+.gj-bar-fill{height:100%;border-radius:9px;transition:width 0.05s,background 0.3s;}
+.gj-bar-threshold{position:absolute;top:50%;transform:translateY(-50%);font-size:0.65em;color:rgba(241,196,15,0.7);pointer-events:none;}
+.gj-label{font-size:0.78em;color:var(--text-dim);font-style:italic;text-align:center;}
+.gj-tap-btn{width:100%;padding:14px;border-radius:14px;background:linear-gradient(135deg,#1a2a4a,#2a1a4a);border:2px solid rgba(130,200,255,0.3);color:#a0d8ff;font-family:'Cinzel Decorative',serif;font-size:0.82em;cursor:pointer;letter-spacing:0.05em;transition:all 0.08s;user-select:none;-webkit-user-select:none;}
+.gj-tap-btn:active{transform:scale(0.97);border-color:rgba(130,200,255,0.8);box-shadow:0 0 20px rgba(130,200,255,0.3);}
+/* WATER BREATHING */
+.bw-arena{display:flex;flex-direction:column;align-items:center;gap:6px;}
+.bw-status{font-size:0.82em;color:var(--text-dim);font-style:italic;text-align:center;min-height:20px;transition:color 0.2s;}
+.bw-tap-btn{width:100%;padding:13px;border-radius:14px;background:linear-gradient(135deg,rgba(20,40,80,0.8),rgba(10,30,60,0.9));border:2px solid rgba(93,173,226,0.3);color:#7ec8e3;font-family:'Cinzel Decorative',serif;font-size:0.8em;cursor:pointer;letter-spacing:0.06em;transition:all 0.1s;user-select:none;-webkit-user-select:none;}
+.bw-tap-btn:active{transform:scale(0.97);border-color:rgba(93,173,226,0.9);box-shadow:0 0 18px rgba(93,173,226,0.35);}
+/* SAITAMA */
+.sa-arena{display:flex;flex-direction:column;align-items:center;gap:8px;}
+.sa-saitama{font-size:2.6em;transition:all 0.1s;}
+.sa-bar-wrap{width:100%;height:16px;background:rgba(255,255,255,0.05);border-radius:8px;border:1px solid rgba(255,255,255,0.08);overflow:hidden;}
+.sa-bar-fill{height:100%;border-radius:8px;background:linear-gradient(90deg,#f39c12,#f1c40f);transition:width 0.08s;}
+.sa-label{font-size:0.78em;color:var(--text-dim);font-style:italic;}
+.sa-punch-btn{width:100%;padding:15px;border-radius:14px;background:linear-gradient(135deg,#2a2200,#3a3000);border:2px solid rgba(255,220,60,0.3);color:#f1c40f;font-family:'Cinzel Decorative',serif;font-size:0.88em;cursor:pointer;letter-spacing:0.05em;transition:all 0.08s;user-select:none;-webkit-user-select:none;}
+.sa-punch-btn:active{transform:scale(0.96);border-color:rgba(255,220,60,0.9);box-shadow:0 0 22px rgba(255,220,60,0.35);}
+/* KONOSUBA WHEEL */
+.ks-wheel-wrap{position:relative;width:220px;height:230px;margin:0 auto;display:flex;align-items:flex-start;justify-content:center;}
+.ks-pointer{position:absolute;top:-2px;left:50%;transform:translateX(-50%);font-size:1.2em;color:#f1c40f;z-index:2;line-height:1;}
+.ks-result{font-size:0.8em;text-align:center;color:var(--text-dim);min-height:22px;font-style:italic;padding:4px 0;}
+.ks-spin-btn{width:100%;padding:12px;border-radius:14px;background:linear-gradient(135deg,var(--pink-deep),var(--purple));border:none;color:#fff;font-family:'Cinzel Decorative',serif;font-size:0.8em;cursor:pointer;letter-spacing:0.05em;transition:all 0.15s;}
+.ks-spin-btn:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 6px 20px var(--pink-glow);}
+.ks-spin-btn:disabled{opacity:0.45;cursor:not-allowed;}
+/* AOT DODGE */
+.at-arena-wrap{display:flex;justify-content:center;}
+.at-controls{display:flex;gap:10px;justify-content:center;}
+.at-btn{flex:1;max-width:130px;padding:14px;border-radius:14px;background:rgba(60,60,80,0.6);border:1px solid rgba(180,180,180,0.2);color:#ccc;font-family:'JetBrains Mono',monospace;font-size:0.82em;cursor:pointer;transition:background 0.1s;user-select:none;-webkit-user-select:none;}
+.at-btn:active{background:rgba(100,100,130,0.7);}
+/* DANMACHI SEQUENCE */
+.dm-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;max-width:240px;margin:0 auto;}
+.dm-tile{aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:2em;border-radius:16px;border:1px solid var(--border);background:rgba(255,157,199,0.04);cursor:pointer;transition:all 0.12s;user-select:none;-webkit-user-select:none;}
+.dm-tile.dm-active-input:hover{background:rgba(255,157,199,0.1);}
+.dm-tile.dm-lit{background:rgba(255,220,60,0.25);border-color:#f1c40f;box-shadow:0 0 20px rgba(255,220,60,0.5);transform:scale(1.06);}
+.dm-tile.dm-pressed{background:rgba(93,173,226,0.2);border-color:#5dade2;transform:scale(0.96);}
+.dm-tile.dm-wrong{background:rgba(231,76,60,0.2);border-color:#e74c3c;}
+.dm-tile.dm-correct{background:rgba(46,204,113,0.2);border-color:#2ecc71;}
+.dm-feedback{font-size:0.75em;color:var(--text-dim);font-style:italic;text-align:center;min-height:18px;}
 
 /* ══ MINIGAME STYLES ══ */
 
@@ -20506,302 +20596,851 @@ function _actPickTheme(idx) {
 // 🪡 WORK GAME — Stitch Whack-a-Mole
 //   Cosplay panels light up briefly → click them!
 // ═══════════════════════════════════════════
-const WG_ROUNDS = [
-  { count:2, ms:1500, label:'Warm Up 🌸' },
-  { count:3, ms:1100, label:'Pick up the pace! 🔥' },
-  { count:3, ms:800,  label:'Pro speed! ⚡' },
-  { count:4, ms:580,  label:'MARIN MODE 🌟' },
-];
-let _wg = {};
+// ═══════════════════════════════════════════
+// 🍳 WORK: BARATIE — Order Rush (drag/sort orders)
+//   Tickets appear at top — tap them to assign to a station
+// ═══════════════════════════════════════════
+const BARATIE_ORDERS = ['🍖 Meat','🍜 Ramen','🥩 Steak','🍣 Sushi','🦐 Shrimp','🥗 Salad','🍛 Curry','🍱 Bento','🐟 Fish'];
+const BARATIE_STATIONS = ['🔥 Grill','🍲 Stove','🥢 Prep'];
+let _br = {};
 
 function startWorkGame(theme) {
-  _wg = { round:0, hits:0, total:0, active:new Set(), theme };
-  _renderWG();
+  if(theme.id === 'baratie') _startBaratie(theme);
+  else if(theme.id === 'quintuplets') _startQuintuplets(theme);
+  else _startAnteiku(theme);
 }
 
-function _renderWG() {
+function _startBaratie(theme) {
+  _br = { theme, score:0, total:0, timeLeft:25, queue:[], interval:null };
   const el = document.getElementById('actGame');
-  if(!el) return;
-  const t = _wg.theme;
-  const cellIcon = t.cellIcon || '🪡';
-  const hitLabel = t.id==='baratie' ? '🍽️ served' : t.id==='quintuplets' ? '📝 stamped' : t.id==='anteiku' ? '☕ served' : '✂️ stitched';
   el.innerHTML = `
-    <div class="wg-container">
-      <div class="wg-info">
-        <span class="wg-round-lbl" id="wgRound">Round 1 / ${WG_ROUNDS.length}</span>
-        <span class="wg-hits" id="wgHits">${cellIcon} 0 ${hitLabel.split(' ')[1]||'done'}</span>
+    <div class="mg-container">
+      <div class="mg-header">
+        <span class="mg-label">⚓ Baratie Kitchen</span>
+        <span class="mg-timer" id="brTimer">⏱ 25s</span>
+        <span class="mg-score" id="brScore">🍽️ 0 served</span>
       </div>
-      <div class="wg-progress-wrap"><div class="wg-progress-bar" id="wgPB" style="width:0%"></div></div>
-      <div class="wg-grid" id="wgGrid">
-        ${Array(9).fill(0).map((_,i)=>`<div class="wg-cell" id="wgC${i}" data-idx="${i}" data-alive="0">${cellIcon}</div>`).join('')}
+      <div class="mg-tip">Tap a ticket, then tap a station to serve it!</div>
+      <div class="br-queue" id="brQueue"></div>
+      <div class="br-stations" id="brStations">
+        ${BARATIE_STATIONS.map((s,i)=>`<div class="br-station" id="brSt${i}" data-idx="${i}" onclick="_brAssign(${i})">${s}</div>`).join('')}
       </div>
-      <div class="wg-tip" id="wgTip">Get ready...</div>
+      <div class="br-feedback" id="brFeedback">"Get moving! I didn't open this restaurant for slackers!"</div>
     </div>`;
-  const grid = document.getElementById('wgGrid');
-  if(grid) grid.onclick = (e) => {
-    const cell = e.target.closest('.wg-cell');
-    if(cell) _wgClick(parseInt(cell.dataset.idx));
-  };
-  _actTimeout1 = setTimeout(_wgRunRound, 800);
+  _br.interval = setInterval(_brTick, 1000);
+  _brSpawnOrder();
+  _brSpawnOrder();
 }
 
-function _wgRunRound() {
-  if(_wg.round >= WG_ROUNDS.length) { _finishWork(); return; }
-  const cfg = WG_ROUNDS[_wg.round];
-  const tipEl = document.getElementById('wgTip');
-  const rdEl  = document.getElementById('wgRound');
-  const pbEl  = document.getElementById('wgPB');
-  if(tipEl) tipEl.textContent = `${cfg.label} — Tap the glowing spots! (${cfg.count} at once)`;
-  if(rdEl)  rdEl.textContent  = `Round ${_wg.round+1} / ${WG_ROUNDS.length}`;
-  if(pbEl)  pbEl.style.width  = `${(_wg.round / WG_ROUNDS.length) * 100}%`;
-
-  _wg.active = new Set();
-  while(_wg.active.size < cfg.count) _wg.active.add(Math.floor(Math.random() * 9));
-  _wg.active.forEach(idx => {
-    const c = document.getElementById(`wgC${idx}`);
-    if(c) { c.classList.add('wg-active'); c.dataset.alive = '1'; }
-  });
-  _wg.total += cfg.count;
-
-  _actTimeout1 = setTimeout(() => {
-    _wg.active.forEach(idx => {
-      const c = document.getElementById(`wgC${idx}`);
-      if(c && c.dataset.alive === '1') {
-        c.classList.remove('wg-active');
-        c.classList.add('wg-miss');
-        c.dataset.alive = '0';
-        setTimeout(() => c && c.classList.remove('wg-miss'), 450);
-      }
-    });
-    _wg.round++;
-    _actTimeout2 = setTimeout(_wgRunRound, 600);
-  }, cfg.ms);
+function _brSpawnOrder() {
+  if(_br.queue.length >= 5) return;
+  const order = BARATIE_ORDERS[Math.floor(Math.random()*BARATIE_ORDERS.length)];
+  const station = Math.floor(Math.random()*3);
+  const id = Date.now() + Math.random();
+  _br.queue.push({ id, order, station, selected:false });
+  _brRenderQueue();
 }
 
-function _wgClick(idx) {
-  const c = document.getElementById(`wgC${idx}`);
-  if(!c) return;
-  if(c.dataset.alive === '1') {
-    c.classList.remove('wg-active');
-    c.classList.add('wg-hit');
-    c.dataset.alive = '0';
-    _wg.hits++;
-    const hEl = document.getElementById('wgHits');
-    const ci = _wg.theme.cellIcon || '✂️';
-    const verb = _wg.theme.id==='baratie'?'served':_wg.theme.id==='quintuplets'?'stamped':_wg.theme.id==='anteiku'?'served':'stitched';
-    if(hEl) hEl.textContent = `${ci} ${_wg.hits} ${verb}`;
-    setTimeout(() => c && c.classList.remove('wg-hit'), 380);
-  } else if(!c.classList.contains('wg-hit') && !c.classList.contains('wg-miss')) {
-    c.classList.add('wg-wrong');
-    setTimeout(() => c && c.classList.remove('wg-wrong'), 290);
+function _brRenderQueue() {
+  const el = document.getElementById('brQueue');
+  if(!el) return;
+  el.innerHTML = _br.queue.map(t => `
+    <div class="br-ticket${t.selected?' selected':''}" id="brT${t.id}" onclick="_brSelect('${t.id}')">
+      <span>${t.order}</span>
+      <span class="br-ticket-dest">→ ${BARATIE_STATIONS[t.station]}</span>
+    </div>`).join('');
+}
+
+let _brSelected = null;
+function _brSelect(id) {
+  _brSelected = id;
+  _br.queue.forEach(t => t.selected = (String(t.id) === String(id)));
+  _brRenderQueue();
+  document.querySelectorAll('.br-station').forEach(s => s.classList.add('br-st-ready'));
+}
+
+function _brAssign(stIdx) {
+  if(!_brSelected) return;
+  const t = _br.queue.find(x => String(x.id) === String(_brSelected));
+  if(!t) return;
+  const correct = t.station === stIdx;
+  const fb = document.getElementById('brFeedback');
+  if(correct) {
+    _br.score++; _br.total++;
+    if(fb) fb.textContent = ['"Perfect! That\'s what I call cooking!"','💥 Order out! Next!','✅ Sanji nods in approval.','🔥 Flawless! Keep the pace!'][Math.floor(Math.random()*4)];
+    const el = document.getElementById(`brT${t.id}`);
+    if(el) { el.classList.add('br-ticket-done'); setTimeout(() => { _br.queue = _br.queue.filter(x=>x.id!==t.id); _brRenderQueue(); _brSpawnOrder(); }, 400); }
+  } else {
+    _br.total++;
+    if(fb) fb.textContent = ['"WRONG STATION! Are you blind?!"','❌ That goes to ' + BARATIE_STATIONS[t.station] + '!','🤬 Sanji kicks a pan at the wall.'][Math.floor(Math.random()*3)];
+    const el = document.getElementById(`brT${t.id}`);
+    if(el) { el.classList.add('br-ticket-wrong'); setTimeout(() => el.classList.remove('br-ticket-wrong'), 500); }
   }
+  _brSelected = null;
+  _br.queue.forEach(t2 => t2.selected = false);
+  document.querySelectorAll('.br-station').forEach(s => s.classList.remove('br-st-ready'));
+  _brRenderQueue();
+  const sc = document.getElementById('brScore');
+  if(sc) sc.textContent = `🍽️ ${_br.score} served`;
+}
+
+function _brTick() {
+  _br.timeLeft--;
+  const el = document.getElementById('brTimer');
+  if(el) el.textContent = `⏱ ${_br.timeLeft}s`;
+  if(_br.timeLeft % 6 === 0) _brSpawnOrder();
+  if(_br.timeLeft <= 0) {
+    clearInterval(_br.interval);
+    _finishMinigame('work', _br.total>0 ? _br.score/_br.total : 0, _br.theme);
+  }
+}
+
+// ── QUINTUPLETS: Memory Match ──
+// Sisters & subjects flash, then you match them
+const QUINT_SISTERS = [
+  { name:'Ichika', emoji:'💄', color:'#e74c3c' },
+  { name:'Nino',   emoji:'🎵', color:'#e91e8c' },
+  { name:'Miku',   emoji:'🎧', color:'#3498db' },
+  { name:'Yotsuba',emoji:'🍀', color:'#2ecc71' },
+  { name:'Itsuki', emoji:'🍎', color:'#f39c12' },
+];
+const QUINT_SUBJECTS = ['📐 Math','📖 Lit','🌍 History','🔬 Science','🗣 English'];
+let _qt = {};
+
+function _startQuintuplets(theme) {
+  _qt = { theme, round:0, totalRounds:5, score:0, phase:'show', pairs:[], selected:null };
+  const el = document.getElementById('actGame');
+  el.innerHTML = `<div class="mg-container" id="qtContainer">
+    <div class="mg-header">
+      <span class="mg-label">📚 Quintuplet Tutoring</span>
+      <span class="mg-score" id="qtScore">⭐ 0 matched</span>
+    </div>
+    <div class="mg-tip" id="qtTip">Memorize who needs what subject!</div>
+    <div class="qt-area" id="qtArea"></div>
+    <div class="qt-feedback" id="qtFeedback">"Even I can do this..." — Fuutarou</div>
+  </div>`;
+  _qtNextRound();
+}
+
+function _qtNextRound() {
+  if(_qt.round >= _qt.totalRounds) { _finishMinigame('work', _qt.score/(_qt.totalRounds*2), _qt.theme); return; }
+  _qt.round++;
+  // Pick 3 sisters and assign subjects
+  const sisters = [...QUINT_SISTERS].sort(()=>Math.random()-0.5).slice(0,3);
+  const subjects = [...QUINT_SUBJECTS].sort(()=>Math.random()-0.5).slice(0,3);
+  _qt.pairs = sisters.map((s,i)=>({ sister:s, subject:subjects[i], matched:false }));
+  _qt.phase = 'show';
+  const tipEl = document.getElementById('qtTip');
+  if(tipEl) tipEl.textContent = `Round ${_qt.round}/${_qt.totalRounds} — Memorize! 👀`;
+  _qtRenderShow();
+  _actTimeout1 = setTimeout(() => { _qt.phase = 'match'; _qtRenderMatch(); }, 2200);
+}
+
+function _qtRenderShow() {
+  const area = document.getElementById('qtArea');
+  if(!area) return;
+  area.innerHTML = `<div class="qt-show">${_qt.pairs.map(p=>`
+    <div class="qt-pair-show" style="border-color:${p.sister.color}40;background:${p.sister.color}10;">
+      <div class="qt-sister-emoji">${p.sister.emoji}</div>
+      <div class="qt-sister-name" style="color:${p.sister.color}">${p.sister.name}</div>
+      <div class="qt-subject">${p.subject}</div>
+    </div>`).join('')}</div>`;
+}
+
+function _qtRenderMatch() {
+  const area = document.getElementById('qtArea');
+  const tipEl = document.getElementById('qtTip');
+  if(!area) return;
+  if(tipEl) tipEl.textContent = 'Now match each sister to their subject!';
+  // Shuffle sisters and subjects separately
+  const shuffledSisters = [..._qt.pairs].sort(()=>Math.random()-0.5);
+  const shuffledSubjects = [..._qt.pairs].sort(()=>Math.random()-0.5);
+  _qt.shuffledSisters = shuffledSisters;
+  _qt.shuffledSubjects = shuffledSubjects;
+  _qt.selectedSister = null;
+  area.innerHTML = `
+    <div class="qt-match">
+      <div class="qt-col" id="qtSisters">
+        ${shuffledSisters.map((p,i)=>`<div class="qt-item qt-sister-item${p.matched?' qt-done':''}" data-sidx="${i}" onclick="_qtPickSister(${i})" style="--qc:${p.sister.color}">${p.sister.emoji} ${p.sister.name}</div>`).join('')}
+      </div>
+      <div class="qt-col" id="qtSubjects">
+        ${shuffledSubjects.map((p,i)=>`<div class="qt-item qt-subj-item${p.matched?' qt-done':''}" data-sidx="${i}" onclick="_qtPickSubject(${i})">${p.subject}</div>`).join('')}
+      </div>
+    </div>`;
+}
+
+function _qtPickSister(i) {
+  if(_qt.shuffledSisters[i].matched) return;
+  _qt.selectedSister = i;
+  document.querySelectorAll('.qt-sister-item').forEach((el,idx) => el.classList.toggle('qt-selected', idx===i));
+}
+
+function _qtPickSubject(i) {
+  if(_qt.selectedSister === null) return;
+  if(_qt.shuffledSubjects[i].matched) return;
+  const sister = _qt.shuffledSisters[_qt.selectedSister];
+  const subj = _qt.shuffledSubjects[i];
+  const fb = document.getElementById('qtFeedback');
+  if(sister.subject === subj.subject) {
+    sister.matched = true; subj.matched = true;
+    _qt.score++;
+    if(fb) fb.textContent = `✅ ${sister.sister.name} — ${subj.subject.split(' ')[1]}! Correct!`;
+    _qtRenderMatch();
+    // Check if all matched
+    if(_qt.shuffledSisters.every(p=>p.matched)) {
+      _qt.score++; // bonus for full round
+      _actTimeout1 = setTimeout(_qtNextRound, 700);
+    }
+  } else {
+    if(fb) fb.textContent = `❌ Wrong! ${sister.sister.name} needs ${sister.subject}`;
+    document.querySelectorAll('.qt-sister-item').forEach(el=>el.classList.remove('qt-selected'));
+    _qt.selectedSister = null;
+  }
+}
+
+// ── ANTEIKU: Cup Fill Skill Shot ──
+// Hold button to fill cup — release in the zone for each customer type
+let _ak = {};
+
+function _startAnteiku(theme) {
+  _ak = { theme, round:0, totalRounds:6, score:0, holding:false, fill:0, fillSpeed:1.8, frameId:null };
+  const el = document.getElementById('actGame');
+  el.innerHTML = `<div class="mg-container" id="akContainer">
+    <div class="mg-header">
+      <span class="mg-label">☕ Anteiku Café</span>
+      <span class="mg-progress-txt" id="akRound">Customer 1 / ${_ak.totalRounds}</span>
+      <span class="mg-score" id="akScore">☕ 0 served</span>
+    </div>
+    <div class="ak-customer" id="akCustomer"></div>
+    <div class="ak-cup-wrap">
+      <div class="ak-cup-track">
+        <div class="ak-cup-zone" id="akZone"></div>
+        <div class="ak-cup-fill" id="akFill" style="height:0%"></div>
+        <div class="ak-cup-labels">
+          <span>FULL</span><span>ZONE</span><span>EMPTY</span>
+        </div>
+      </div>
+    </div>
+    <button class="ak-pour-btn" id="akBtn" onpointerdown="_akStartPour()" onpointerup="_akStopPour()" ontouchstart="event.preventDefault();_akStartPour()" ontouchend="event.preventDefault();_akStopPour()">
+      ☕ Hold to Pour
+    </button>
+    <div class="ak-feedback" id="akFeedback">"Serve with precision. They'll know the difference." — Yoshimura</div>
+  </div>`;
+  _akNextCustomer();
+}
+
+function _akNextCustomer() {
+  if(_ak.round >= _ak.totalRounds) { _finishMinigame('work', _ak.score/(_ak.totalRounds), _ak.theme); return; }
+  _ak.round++;
+  const isGhoul = Math.random() > 0.45;
+  // Ghouls want a very precise amount, humans are more forgiving
+  const zoneStart = isGhoul ? 45 + Math.floor(Math.random()*15) : 30 + Math.floor(Math.random()*30);
+  const zoneSize = isGhoul ? 16 : 28;
+  _ak.currentCustomer = { isGhoul, zoneStart, zoneSize };
+  _ak.fill = 0;
+  _ak.holding = false;
+
+  const custEl = document.getElementById('akCustomer');
+  const zoneEl = document.getElementById('akZone');
+  const rdEl = document.getElementById('akRound');
+  const fillEl = document.getElementById('akFill');
+
+  if(rdEl) rdEl.textContent = `Customer ${_ak.round} / ${_ak.totalRounds}`;
+  if(fillEl) fillEl.style.height = '0%';
+  if(custEl) custEl.innerHTML = `
+    <div class="ak-cust-icon">${isGhoul ? '👁️' : '😊'}</div>
+    <div class="ak-cust-type" style="color:${isGhoul?'#c084b8':'#5dade2'}">${isGhoul ? 'GHOUL' : 'HUMAN'}</div>
+    <div class="ak-cust-hint">${isGhoul ? 'Precise pour required...' : 'Regular coffee, please!'}</div>`;
+  if(zoneEl) { zoneEl.style.bottom = zoneStart+'%'; zoneEl.style.height = zoneSize+'%'; zoneEl.style.background = isGhoul ? 'rgba(192,100,220,0.35)' : 'rgba(93,173,226,0.3)'; }
+  if(document.getElementById('akFeedback')) document.getElementById('akFeedback').textContent = '"Next customer. Stay focused."';
+}
+
+function _akStartPour() {
+  if(_ak.fill >= 100) return;
+  _ak.holding = true;
+  _akPourFrame();
+}
+
+function _akStopPour() {
+  _ak.holding = false;
+  cancelAnimationFrame(_ak.frameId);
+  // Check result
+  const c = _ak.currentCustomer;
+  const inZone = _ak.fill >= c.zoneStart && _ak.fill <= c.zoneStart + c.zoneSize;
+  const center = c.zoneStart + c.zoneSize/2;
+  const dist = Math.abs(_ak.fill - center);
+  const fb = document.getElementById('akFeedback');
+  if(inZone && dist < c.zoneSize*0.25) {
+    _ak.score++;
+    if(fb) fb.textContent = `✅ ${c.isGhoul?'"...acceptable." — ghoul nods.':'"Thank you! Just right!" 😊'}`;
+  } else if(inZone) {
+    _ak.score += 0.7;
+    if(fb) fb.textContent = `☕ Close enough. Customer satisfied.`;
+  } else {
+    if(fb) fb.textContent = c.isGhoul ? `😤 Wrong amount. The ghoul is displeased.` : `"That's too ${_ak.fill < c.zoneStart ? 'little':'much'}!"`;
+  }
+  _actTimeout1 = setTimeout(_akNextCustomer, 900);
+}
+
+function _akPourFrame() {
+  if(!_ak.holding || _ak.fill >= 100) { if(_ak.fill>=100) _akStopPour(); return; }
+  _ak.fill = Math.min(100, _ak.fill + _ak.fillSpeed);
+  const fillEl = document.getElementById('akFill');
+  if(fillEl) fillEl.style.height = _ak.fill + '%';
+  _ak.frameId = requestAnimationFrame(_akPourFrame);
 }
 
 function _finishWork() {
   _actClearAll();
-  const pct = _wg.total > 0 ? _wg.hits / _wg.total : 0;
-  _finishMinigame('work', pct, _wg.theme);
+  clearInterval(_br.interval);
+  const theme = _br.theme || _qt.theme || _ak.theme;
+  let pct = 0;
+  if(theme && theme.id==='baratie') pct = _br.total>0 ? _br.score/_br.total : 0;
+  else if(theme && theme.id==='quintuplets') pct = _qt.score/(_qt.totalRounds*2);
+  else pct = _ak.score/_ak.totalRounds;
+  _finishMinigame('work', Math.min(1,pct), theme);
 }
 
 // ═══════════════════════════════════════════
-// ⚡ TRAIN GAME — Precision Timing Ring
-//   Spinning needle → tap when it hits the golden zone
+// ⚡ TRAIN GAMES
 // ═══════════════════════════════════════════
-let _tg = {};
-
 function startTrainGame(theme) {
-  _tg = { round:0, total:5, hits:0, angle:Math.random()*360, speed:2.3, zoneStart:55, zoneSize:85, theme, running:false };
-  _renderTG();
+  if(theme.id === 'gojo') _startGojoMash(theme);
+  else if(theme.id === 'urokodaki') _startBreathRhythm(theme);
+  else _startSaitamaCounter(theme);
 }
 
-function _renderTG() {
+// ── GOJO: Cursed Energy Mash ──
+// Rapidly tap to fill the CE meter. It drains over time. Hold it at max for 3 seconds.
+let _gj = {};
+function _startGojoMash(theme) {
+  _gj = { theme, energy:0, maxEnergy:100, drainRate:0.6, tapGain:4.5, frameId:null, timeLeft:20, done:false };
   const el = document.getElementById('actGame');
-  if(!el) return;
-  el.innerHTML = `
-    <div class="tg-container">
-      <div class="tg-info">
-        <span id="tgRound" style="font-family:'JetBrains Mono',monospace;font-size:0.74em;color:var(--text-dim);">Form 1 / ${_tg.total}</span>
-        <span id="tgHits" class="tg-hits">${_tg.theme.btn} 0 energy</span>
+  el.innerHTML = `<div class="mg-container">
+    <div class="mg-header">
+      <span class="mg-label">🔵 Cursed Energy</span>
+      <span class="mg-timer" id="gjTimer">⏱ 20s</span>
+      <span class="mg-score" id="gjPeak">Peak: 0%</span>
+    </div>
+    <div class="gj-arena">
+      <div class="gj-eye" id="gjEye">👁️</div>
+      <div class="gj-bar-wrap">
+        <div class="gj-bar-fill" id="gjFill" style="width:0%"></div>
+        <div class="gj-bar-threshold" style="left:75%">∞</div>
       </div>
-      <div class="tg-ring-wrap">
-        <canvas id="tgCanvas" width="220" height="220"></canvas>
-        <button class="tg-center-btn" id="tgBtn" onclick="_tgRelease()">
-          <span class="tg-btn-inner">${_tg.theme.btn}</span>
-        </button>
-      </div>
-      <div class="tg-feedback" id="tgFeedback">${_tg.theme.id==='saitama'?'Saitama looks bored. Prove yourself.':_tg.theme.id==='gojo'?'Feel the cursed energy...':_tg.theme.id==='urokodaki'?'Total Concentration. Breathe.':'Focus your energy...'}</div>
-      <div class="tg-hint">Tap <strong style="color:var(--pink);">${_tg.theme.label}</strong> when the needle enters the <span style="color:#f1c40f;">✦ golden zone</span></div>
-    </div>`;
-  _tgStartRound();
+      <div class="gj-label" id="gjLabel">Channel cursed energy!</div>
+    </div>
+    <button class="gj-tap-btn" id="gjBtn" onclick="_gjTap()">⚡ TAP RAPIDLY</button>
+    <div class="mg-tip">"Keep it above 75% to reach Infinity — <em>don't stop tapping!</em>"</div>
+  </div>`;
+  _gj.peak = 0;
+  _gj.aboveThresholdFrames = 0;
+  _gj.interval = setInterval(_gjTick, 1000);
+  _gjFrame();
 }
 
-function _tgStartRound() {
-  if(_tg.round >= _tg.total) { _finishTrain(); return; }
-  const rdEl = document.getElementById('tgRound');
-  const fbEl = document.getElementById('tgFeedback');
-  if(rdEl) rdEl.textContent = `Form ${_tg.round+1} / ${_tg.total}`;
-  if(fbEl) fbEl.textContent = _tg.round === 0 ? 'Focus your energy...' : '...ready...';
-  _tg.angle = Math.random() * 360;
-  _tg.speed = 2.3 + _tg.round * 0.48;
-  _tg.zoneSize = Math.max(26, 85 - _tg.round * 11);
-  _tg.running = true;
-  _tgDraw();
+function _gjTap() {
+  if(_gj.done) return;
+  _gj.energy = Math.min(100, _gj.energy + _gj.tapGain);
+  if(_gj.energy > _gj.peak) _gj.peak = _gj.energy;
+  const pk = document.getElementById('gjPeak');
+  if(pk) pk.textContent = `Peak: ${Math.round(_gj.peak)}%`;
 }
 
-function _tgDraw() {
-  if(!_tg.running) return;
-  const canvas = document.getElementById('tgCanvas');
-  if(!canvas) { _tg.running = false; return; }
+function _gjFrame() {
+  if(_gj.done) return;
+  _gj.energy = Math.max(0, _gj.energy - _gj.drainRate);
+  const fillEl = document.getElementById('gjFill');
+  const eyeEl = document.getElementById('gjEye');
+  const lblEl = document.getElementById('gjLabel');
+  if(fillEl) {
+    fillEl.style.width = _gj.energy + '%';
+    fillEl.style.background = _gj.energy >= 75 ? 'linear-gradient(90deg,#5b9fff,#a0d8ff)' : _gj.energy >= 40 ? 'linear-gradient(90deg,#c084b8,#9b59b6)' : 'linear-gradient(90deg,#555,#888)';
+  }
+  if(eyeEl) eyeEl.style.filter = `brightness(${0.5 + _gj.energy/100}) drop-shadow(0 0 ${Math.round(_gj.energy/5)}px ${_gj.energy>=75?'#5b9fff':'#9b59b6'})`;
+  if(lblEl) lblEl.textContent = _gj.energy>=90?'💥 INFINITY UNLOCKED!':_gj.energy>=75?'🔵 Approaching Infinity...':_gj.energy>=40?'⚡ Keep pushing!':'💨 Energy fading... tap faster!';
+  _gj.frameId = requestAnimationFrame(_gjFrame);
+}
+
+function _gjTick() {
+  _gj.timeLeft--;
+  const el = document.getElementById('gjTimer');
+  if(el) el.textContent = `⏱ ${_gj.timeLeft}s`;
+  if(_gj.timeLeft <= 0) {
+    _gj.done = true;
+    clearInterval(_gj.interval);
+    cancelAnimationFrame(_gj.frameId);
+    _finishMinigame('train', _gj.peak/100, _gj.theme);
+  }
+}
+
+// ── UROKODAKI: Breath Rhythm ──
+// A wave pulses on screen — tap exactly when it peaks
+let _bw = {};
+function _startBreathRhythm(theme) {
+  _bw = { theme, round:0, total:7, hits:0, frameId:null, phase:0, phaseSpeed:0.04, peaked:false, peaked_at:null, waiting:false };
+  const el = document.getElementById('actGame');
+  el.innerHTML = `<div class="mg-container">
+    <div class="mg-header">
+      <span class="mg-label">💨 Water Breathing</span>
+      <span class="mg-progress-txt" id="bwRound">Breath 1 / ${_bw.total}</span>
+      <span class="mg-score" id="bwHits">💧 0 perfect</span>
+    </div>
+    <div class="bw-arena">
+      <canvas id="bwCanvas" width="300" height="120"></canvas>
+      <div class="bw-status" id="bwStatus">Inhale... focus your breathing.</div>
+    </div>
+    <button class="bw-tap-btn" id="bwBtn" onclick="_bwTap()">💧 EXHALE</button>
+    <div class="mg-tip">"Tap <strong>EXHALE</strong> exactly when the wave crests — Total Concentration."</div>
+  </div>`;
+  _bwFrame();
+}
+
+function _bwFrame() {
+  const canvas = document.getElementById('bwCanvas');
+  if(!canvas) return;
   const ctx = canvas.getContext('2d');
-  const cx=110, cy=110, r=88, tw=17;
-  ctx.clearRect(0,0,220,220);
+  const W=300, H=120;
+  ctx.clearRect(0,0,W,H);
 
-  // Background track
-  ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2);
-  ctx.strokeStyle='rgba(255,157,199,0.09)'; ctx.lineWidth=tw; ctx.stroke();
+  _bw.phase = (_bw.phase + _bw.phaseSpeed) % (Math.PI*2);
+  const waveY = H/2 + Math.sin(_bw.phase) * (H*0.38);
+  const peak = waveY < H*0.25;
 
-  // Golden zone arc
-  const zS=(_tg.zoneStart-90)*Math.PI/180, zE=(_tg.zoneStart+_tg.zoneSize-90)*Math.PI/180;
-  const grd=ctx.createLinearGradient(cx-r,cy,cx+r,cy);
-  grd.addColorStop(0,'rgba(241,196,15,0.92)'); grd.addColorStop(1,'rgba(255,210,60,0.75)');
-  ctx.beginPath(); ctx.arc(cx,cy,r,zS,zE);
-  ctx.strokeStyle=grd; ctx.lineWidth=tw; ctx.stroke();
-
-  // Center mark of zone
-  const midZ=_tg.zoneStart+_tg.zoneSize/2;
-  const mRad=(midZ-90)*Math.PI/180;
-  const mx=cx+r*Math.cos(mRad), my=cy+r*Math.sin(mRad);
-  ctx.beginPath(); ctx.arc(mx,my,7,0,Math.PI*2);
-  ctx.fillStyle='rgba(241,196,15,0.7)'; ctx.fill();
-
-  // Needle dot
-  const nRad=(_tg.angle-90)*Math.PI/180;
-  const nx=cx+r*Math.cos(nRad), ny=cy+r*Math.sin(nRad);
-  // Glow halo
-  const inZoneNow=_tg.angle>=_tg.zoneStart&&_tg.angle<=_tg.zoneStart+_tg.zoneSize;
-  if(inZoneNow){
-    ctx.beginPath(); ctx.arc(nx,ny,18,0,Math.PI*2);
-    ctx.fillStyle='rgba(255,255,255,0.12)'; ctx.fill();
+  // Draw wave
+  ctx.beginPath();
+  for(let x=0; x<=W; x++) {
+    const y = H/2 + Math.sin(_bw.phase + (x/W)*Math.PI*2) * (H*0.38);
+    x===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
   }
-  ctx.beginPath(); ctx.arc(nx,ny,11,0,Math.PI*2);
-  ctx.fillStyle='#fff'; ctx.fill();
-  ctx.strokeStyle=inZoneNow?'rgba(241,196,15,0.9)':'rgba(255,157,199,0.8)';
-  ctx.lineWidth=2.5; ctx.stroke();
+  ctx.strokeStyle = peak ? 'rgba(93,173,226,0.95)' : 'rgba(93,173,226,0.45)';
+  ctx.lineWidth = peak ? 3.5 : 2;
+  ctx.stroke();
 
-  _tg.angle=(_tg.angle+_tg.speed)%360;
-  _actFrameId=requestAnimationFrame(_tgDraw);
+  // Fill below wave
+  ctx.beginPath();
+  for(let x=0; x<=W; x++) {
+    const y = H/2 + Math.sin(_bw.phase + (x/W)*Math.PI*2) * (H*0.38);
+    x===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+  }
+  ctx.lineTo(W,H); ctx.lineTo(0,H); ctx.closePath();
+  ctx.fillStyle = peak ? 'rgba(93,173,226,0.18)' : 'rgba(93,173,226,0.07)';
+  ctx.fill();
+
+  // Peak marker dot
+  const dotX = W/2, dotY = H/2 + Math.sin(_bw.phase + Math.PI) * (H*0.38);
+  ctx.beginPath(); ctx.arc(dotX, dotY, peak?10:6, 0, Math.PI*2);
+  ctx.fillStyle = peak ? 'rgba(93,173,226,0.9)' : 'rgba(93,173,226,0.3)';
+  ctx.fill();
+
+  const status = document.getElementById('bwStatus');
+  if(status) status.textContent = peak ? '💧 CREST — Exhale NOW!' : '... breathe in ...';
+  if(status) status.style.color = peak ? 'rgba(93,173,226,0.95)' : 'var(--text-dim)';
+
+  _bw.frameId = requestAnimationFrame(_bwFrame);
 }
 
-function _tgRelease() {
-  if(!_tg.running) return;
-  _tg.running=false;
-  cancelAnimationFrame(_actFrameId);
-  const ang=_tg.angle;
-  const inZone=ang>=_tg.zoneStart&&ang<=_tg.zoneStart+_tg.zoneSize;
-  const center=_tg.zoneStart+_tg.zoneSize/2;
-  const distC=Math.abs(ang-center);
-  const half=_tg.zoneSize/2;
-  let msg;
-  const tid = _tg.theme.id;
-  if(inZone&&distC<half*0.35){
-    msg = tid==='gojo' ? '🔵 INFINITY! Perfect cursed resonance!' : tid==='saitama' ? '👊 PERFECT STRIKE! Saitama nods slightly.' : '💧 PERFECT! Total Concentration!';
-    _tg.hits+=2;
-  } else if(inZone){
-    msg = tid==='gojo' ? '✨ Good — but Gojo expects more.' : tid==='saitama' ? '👍 Decent. Keep going.' : '✨ Good timing! Hold the form!';
-    _tg.hits+=1;
+function _bwTap() {
+  if(_bw.round >= _bw.total) return;
+  const peak = (_bw.phase % (Math.PI*2)) > Math.PI*1.5 || (_bw.phase % (Math.PI*2)) < Math.PI*0.2;
+  const fb = document.getElementById('bwStatus');
+  if(peak) {
+    _bw.hits++;
+    if(fb) { fb.textContent = '✨ Perfect breath!'; fb.style.color='rgba(93,173,226,0.95)'; }
   } else {
-    msg = tid==='gojo' ? '💨 Overflow. Cursed energy scattered.' : tid==='saitama' ? '😐 You missed. Again.' : '💨 Lost focus... breathe and reset.';
+    if(fb) { fb.textContent = '💨 Off rhythm... wait for the crest.'; fb.style.color='var(--text-dim)'; }
   }
-  const fb=document.getElementById('tgFeedback');
-  const hEl=document.getElementById('tgHits');
-  if(fb) fb.textContent=msg;
-  if(hEl) hEl.textContent=`${_tg.theme.btn} ${_tg.hits} energy`;
-  _tg.round++;
-  _actTimeout1=setTimeout(_tgStartRound, 950);
+  _bw.round++;
+  const hEl = document.getElementById('bwHits');
+  const rEl = document.getElementById('bwRound');
+  if(hEl) hEl.textContent = `💧 ${_bw.hits} perfect`;
+  if(rEl) rEl.textContent = `Breath ${Math.min(_bw.round+1,_bw.total)} / ${_bw.total}`;
+  if(_bw.round >= _bw.total) {
+    _actTimeout1 = setTimeout(() => {
+      cancelAnimationFrame(_bw.frameId);
+      _finishMinigame('train', _bw.hits/_bw.total, _bw.theme);
+    }, 600);
+  }
+}
+
+// ── SAITAMA: Endurance Counter ──
+// Tap 100 times as fast as possible within time limit
+let _sa = {};
+function _startSaitamaCounter(theme) {
+  _sa = { theme, count:0, target:80, timeLeft:18, done:false };
+  const el = document.getElementById('actGame');
+  el.innerHTML = `<div class="mg-container">
+    <div class="mg-header">
+      <span class="mg-label">👊 Saitama's Regime</span>
+      <span class="mg-timer" id="saTimer">⏱ 18s</span>
+      <span class="mg-score" id="saCount">0 / 80</span>
+    </div>
+    <div class="sa-arena">
+      <div class="sa-saitama" id="saSaitama">😐</div>
+      <div class="sa-bar-wrap">
+        <div class="sa-bar-fill" id="saFill" style="width:0%"></div>
+      </div>
+      <div class="sa-label" id="saLabel">He's not impressed yet.</div>
+    </div>
+    <button class="sa-punch-btn" id="saBtn" onclick="_saPunch()">👊 PUNCH</button>
+    <div class="mg-tip">"100 push-ups, 100 sit-ups... tap <strong>${_sa.target}x</strong> to prove yourself."</div>
+  </div>`;
+  _sa.interval = setInterval(_saTick, 1000);
+}
+
+function _saPunch() {
+  if(_sa.done) return;
+  _sa.count++;
+  const pct = Math.min(100, (_sa.count / _sa.target) * 100);
+  const fillEl = document.getElementById('saFill');
+  const countEl = document.getElementById('saCount');
+  const saiEl = document.getElementById('saSaitama');
+  const lblEl = document.getElementById('saLabel');
+  if(fillEl) fillEl.style.width = pct + '%';
+  if(countEl) countEl.textContent = `${_sa.count} / ${_sa.target}`;
+  if(saiEl) saiEl.textContent = pct<30?'😐':pct<60?'😑':pct<90?'🤨':'😮';
+  if(lblEl) lblEl.textContent = pct<30?'He\'s not impressed.':pct<60?'"...okay."':pct<90?'"Not bad."':'"...huh."';
+  if(_sa.count >= _sa.target) {
+    _sa.done = true;
+    clearInterval(_sa.interval);
+    if(saiEl) saiEl.textContent = '🤜';
+    if(lblEl) lblEl.textContent = '"You did it. But I still don\'t feel anything."';
+    _actTimeout1 = setTimeout(() => _finishMinigame('train', 1.0, _sa.theme), 800);
+  }
+}
+
+function _saTick() {
+  if(_sa.done) return;
+  _sa.timeLeft--;
+  const el = document.getElementById('saTimer');
+  if(el) el.textContent = `⏱ ${_sa.timeLeft}s`;
+  if(_sa.timeLeft <= 0) {
+    _sa.done = true;
+    clearInterval(_sa.interval);
+    _finishMinigame('train', Math.min(1, _sa.count/_sa.target), _sa.theme);
+  }
 }
 
 function _finishTrain(){
   _actClearAll();
-  const pct=(_tg.total*2)>0 ? _tg.hits/(_tg.total*2) : 0;
-  _finishMinigame('train',pct,_tg.theme);
+  clearInterval(_gj.interval); clearInterval(_sa.interval);
+  cancelAnimationFrame(_bw.frameId);
+  const theme = _gj.theme || _bw.theme || _sa.theme;
+  // pct already handled inside each game's finish call, this is fallback
+  _finishMinigame('train', 0.5, theme);
 }
 
 // ═══════════════════════════════════════════
-// 🗺️ QUEST GAME — Dungeon Tile Explorer
-//   Flip face-down tiles, collect loot, survive!
+// 🗺️ QUEST GAMES
 // ═══════════════════════════════════════════
-const QG_TILE_POOL = [
-  { emoji:'💰', label:'Gold Hoard!',  score:3, hearts:0,  msg:'A cache of gold coins! Jackpot!' },
-  { emoji:'💎', label:'Gem Cache!',   score:4, hearts:0,  msg:'Rare gems hidden in the wall!' },
-  { emoji:'✨', label:'Blessing!',    score:4, hearts:0,  msg:'A benevolent spirit blesses your journey!' },
-  { emoji:'📜', label:'Technique!',  score:2, hearts:0,  msg:'An ancient scroll — a lost technique!' },
-  { emoji:'🍃', label:'Safe Room',   score:1, hearts:0,  msg:'Just dust and silence. Safe passage.' },
-  { emoji:'🕯️', label:'Quiet Path',  score:1, hearts:0,  msg:'A lone candle flickers. Nothing here.' },
-  { emoji:'🌙', label:'Moonbeam',    score:1, hearts:0,  msg:'Moonlight filters in. Peaceful, empty.' },
-  { emoji:'⚔️', label:'Monster!',    score:1, hearts:-1, msg:'A demon ambushes you — you survive, barely!' },
-  { emoji:'👹', label:'Oni Attack!', score:1, hearts:-1, msg:'An Oni leaps from the shadows!' },
-  { emoji:'💀', label:'Trap!',       score:0, hearts:-1, msg:'A cursed seal activates underfoot!' },
-  { emoji:'🕳️', label:'Pitfall!',   score:0, hearts:-1, msg:'The floor collapses — you grab the ledge!' },
-  { emoji:'🎲', label:'Mystery...',  score:0, hearts:0,  msg:'...', mystery:true },
-];
-let _qg = {};
-
 function startQuestGame(theme) {
-  const pool=[...QG_TILE_POOL];
-  for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]];}
-  _qg={ tiles:pool.slice(0,12).map((t,i)=>({...t,id:i,revealed:false})), hearts:3, picks:0, maxPicks:8, score:0, log:[], theme };
-  _renderQG();
+  if(theme.id === 'konosuba') _startKonosubaWheel(theme);
+  else if(theme.id === 'aot') _startAOTDodge(theme);
+  else _startDanMachiSequence(theme);
 }
 
-function _renderQG() {
-  const el=document.getElementById('actGame');
-  if(!el) return;
-  const heartsStr='❤️'.repeat(_qg.hearts)+'🖤'.repeat(Math.max(0,3-_qg.hearts));
-  el.innerHTML=`
-    <div class="qg-container">
-      <div class="qg-status">
-        <span class="qg-hearts">${heartsStr}</span>
-        <span style="font-family:'JetBrains Mono',monospace;font-size:0.74em;color:var(--text-dim);">${_qg.picks}/${_qg.maxPicks} tiles</span>
-        <span class="qg-score">⭐ ${_qg.score}</span>
-      </div>
-      <div class="qg-theme-text">"${_qg.theme.char} ventures deeper..."</div>
-      <div class="qg-grid">
-        ${_qg.tiles.map((t,i)=>`
-          <div class="qg-tile${t.revealed?' revealed':''}" id="qgT${i}" onclick="_qgFlip(${i})">
-            ${t.revealed
-              ?`<span class="qg-tile-emoji">${t.emoji}</span><div class="qg-tile-label">${t.label}</div>`
-              :`<span class="qg-tile-back">${_qg.theme.tileBack||'❓'}</span>`}
-          </div>`).join('')}
-      </div>
-      <div class="qg-log">
-        ${_qg.log.length
-          ? _qg.log.slice(0,3).map((l,i)=>`<div class="qg-log-entry" style="opacity:${1-i*0.28}">${l}</div>`).join('')
-          : '<div class="qg-log-entry">Choose a tile to begin exploring...</div>'}
-      </div>
-    </div>`;
+// ── KONOSUBA: Chaos Wheel ──
+// Spin a wheel, get random outcomes — some good, some Aqua-tier disasters
+const KS_OUTCOMES = [
+  { emoji:'💰', label:'TREASURE!', score:4, msg:'Kazuma found a gold stash. Lucky!', color:'#f1c40f' },
+  { emoji:'💎', label:'RARE DROP!', score:5, msg:'An ultra-rare item! Even Kazuma is speechless.', color:'#a29bfe' },
+  { emoji:'✨', label:'BLESSING!', score:3, msg:'Eris smiles upon you. +score!', color:'#74b9ff' },
+  { emoji:'🗡️', label:'MONSTER!', score:2, msg:'Darkness charges in. Monster defeated (somehow).', color:'#fd79a8' },
+  { emoji:'💥', label:'EXPLOSION!', score:3, msg:'Megumin casts Explosion. It worked... barely.', color:'#e17055' },
+  { emoji:'💧', label:'AQUA CRIES', score:1, msg:'"Waaah! I\'m a goddess!" — Aqua, useless as always.', color:'#0984e3' },
+  { emoji:'🃏', label:'CURSED!', score:0, msg:'Aqua trips over a cursed seal. Party morale -1.', color:'#6c5ce7' },
+  { emoji:'😴', label:'NAPPING', score:0, msg:'Kazuma decides this isn\'t worth it. He takes a nap.', color:'#b2bec3' },
+];
+let _ks = {};
+
+function _startKonosubaWheel(theme) {
+  _ks = { theme, spins:0, maxSpins:5, totalScore:0, maxScore:5*5, spinning:false, angle:0, velocity:0 };
+  const el = document.getElementById('actGame');
+  el.innerHTML = `<div class="mg-container">
+    <div class="mg-header">
+      <span class="mg-label">🎰 KonoSuba Wheel</span>
+      <span class="mg-progress-txt" id="ksSpins">Spin 1 / ${_ks.maxSpins}</span>
+      <span class="mg-score" id="ksScore">⭐ 0 pts</span>
+    </div>
+    <div class="ks-wheel-wrap">
+      <canvas id="ksCanvas" width="220" height="220"></canvas>
+      <div class="ks-pointer">▼</div>
+    </div>
+    <div class="ks-result" id="ksResult">"This party is hopeless." — Kazuma</div>
+    <button class="ks-spin-btn" id="ksSpinBtn" onclick="_ksSpin()">🎰 SPIN!</button>
+  </div>`;
+  _ksDrawWheel(0);
 }
 
-function _qgFlip(i) {
-  const tile=_qg.tiles[i];
-  if(tile.revealed || _qg.picks>=_qg.maxPicks || _qg.hearts<=0) return;
-  tile.revealed=true; _qg.picks++;
-  if(tile.mystery){
-    if(Math.random()<0.5){ tile.emoji='💰';tile.score=3;tile.hearts=0;tile.msg='Mystery was TREASURE! Lucky day!';tile.label='Lucky!'; }
-    else { tile.emoji='💀';tile.score=0;tile.hearts=-1;tile.msg='Mystery was a CURSE! Run!';tile.label='Cursed!'; }
+function _ksDrawWheel(angle) {
+  const canvas = document.getElementById('ksCanvas');
+  if(!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const cx=110, cy=110, r=100, n=KS_OUTCOMES.length;
+  ctx.clearRect(0,0,220,220);
+  const slice = (Math.PI*2)/n;
+  KS_OUTCOMES.forEach((o,i) => {
+    const start = angle + i*slice - Math.PI/2;
+    ctx.beginPath(); ctx.moveTo(cx,cy);
+    ctx.arc(cx,cy,r,start,start+slice);
+    ctx.closePath();
+    ctx.fillStyle = o.color + '99';
+    ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+    ctx.lineWidth = 1.5;
+    ctx.fill(); ctx.stroke();
+    ctx.save();
+    ctx.translate(cx + Math.cos(start+slice/2)*r*0.65, cy + Math.sin(start+slice/2)*r*0.65);
+    ctx.rotate(start+slice/2+Math.PI/2);
+    ctx.font = '18px serif';
+    ctx.textAlign='center';
+    ctx.fillStyle='#fff';
+    ctx.fillText(o.emoji,0,6);
+    ctx.restore();
+  });
+  // Center
+  ctx.beginPath(); ctx.arc(cx,cy,18,0,Math.PI*2);
+  ctx.fillStyle='rgba(20,15,30,0.9)'; ctx.fill();
+  ctx.strokeStyle='rgba(255,157,199,0.4)'; ctx.lineWidth=2; ctx.stroke();
+}
+
+function _ksSpin() {
+  if(_ks.spinning || _ks.spins >= _ks.maxSpins) return;
+  _ks.spinning = true;
+  document.getElementById('ksSpinBtn').disabled = true;
+  _ks.velocity = 0.22 + Math.random()*0.18;
+  _ksSpinFrame();
+}
+
+function _ksSpinFrame() {
+  _ks.angle = (_ks.angle + _ks.velocity) % (Math.PI*2);
+  _ks.velocity *= 0.975;
+  _ksDrawWheel(_ks.angle);
+  if(_ks.velocity > 0.003) {
+    _ks.frameId = requestAnimationFrame(_ksSpinFrame);
+  } else {
+    _ks.spinning = false;
+    _ksLand();
   }
-  _qg.hearts=Math.max(0,_qg.hearts+tile.hearts);
-  _qg.score+=tile.score;
-  _qg.log.unshift(`${tile.emoji} ${tile.msg}`);
-  _renderQG();
-  if(_qg.hearts<=0||_qg.picks>=_qg.maxPicks) _actTimeout1=setTimeout(_finishQuest, 700);
+}
+
+function _ksLand() {
+  const n = KS_OUTCOMES.length;
+  const slice = (Math.PI*2)/n;
+  // Pointer is at top (angle = -PI/2 from center), find which slice it hits
+  const adjusted = (Math.PI*2.5 - _ks.angle) % (Math.PI*2);
+  const idx = Math.floor(adjusted / slice) % n;
+  const outcome = KS_OUTCOMES[idx];
+  _ks.totalScore += outcome.score;
+  _ks.spins++;
+  const rsEl = document.getElementById('ksResult');
+  const scEl = document.getElementById('ksScore');
+  const spEl = document.getElementById('ksSpins');
+  if(rsEl) rsEl.innerHTML = `${outcome.emoji} <strong>${outcome.label}</strong> — ${outcome.msg}`;
+  if(scEl) scEl.textContent = `⭐ ${_ks.totalScore} pts`;
+  if(spEl) spEl.textContent = `Spin ${Math.min(_ks.spins+1,_ks.maxSpins)} / ${_ks.maxSpins}`;
+  if(_ks.spins >= _ks.maxSpins) {
+    _actTimeout1 = setTimeout(() => _finishMinigame('quest', Math.min(1,_ks.totalScore/_ks.maxScore), _ks.theme), 900);
+  } else {
+    const btn = document.getElementById('ksSpinBtn');
+    if(btn) btn.disabled = false;
+  }
+}
+
+// ── AOT: Dodge the Titans ──
+// Move your character left/right, titan hands fall from above
+let _at = {};
+function _startAOTDodge(theme) {
+  _at = { theme, x:140, speed:0, width:280, height:300, titans:[], timeLeft:20, score:0, hits:0, maxHits:3, frameId:null, done:false };
+  const el = document.getElementById('actGame');
+  el.innerHTML = `<div class="mg-container">
+    <div class="mg-header">
+      <span class="mg-label">⚔️ Survey Corps</span>
+      <span class="mg-timer" id="atTimer">⏱ 20s</span>
+      <span class="mg-score" id="atScore">❤️❤️❤️ · 0pts</span>
+    </div>
+    <div class="at-arena-wrap">
+      <canvas id="atCanvas" width="280" height="200"></canvas>
+    </div>
+    <div class="at-controls">
+      <button class="at-btn" onpointerdown="_atLeft(true)" onpointerup="_atLeft(false)" ontouchstart="event.preventDefault();_atLeft(true)" ontouchend="event.preventDefault();_atLeft(false)">← LEFT</button>
+      <button class="at-btn" onpointerdown="_atRight(true)" onpointerup="_atRight(false)" ontouchstart="event.preventDefault();_atRight(true)" ontouchend="event.preventDefault();_atRight(false)">RIGHT →</button>
+    </div>
+    <div class="mg-tip">"Don't get hit. That's all." — Levi</div>
+  </div>`;
+  _at.interval = setInterval(_atTick, 1000);
+  _at.spawnInterval = setInterval(_atSpawnTitan, 1200);
+  _atFrame();
+}
+
+function _atLeft(on) { _at.speed = on ? -5 : 0; }
+function _atRight(on) { _at.speed = on ? 5 : 0; }
+
+function _atSpawnTitan() {
+  if(_at.done) return;
+  _at.titans.push({ x: 20 + Math.random()*240, y:-20, vy:2+Math.random()*2.5, size:22+Math.random()*12 });
+}
+
+function _atFrame() {
+  if(_at.done) return;
+  const canvas = document.getElementById('atCanvas');
+  if(!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W=280, H=200;
+  ctx.clearRect(0,0,W,H);
+
+  // Background
+  ctx.fillStyle='rgba(15,10,25,0.5)'; ctx.fillRect(0,0,W,H);
+  // Ground line
+  ctx.strokeStyle='rgba(180,180,180,0.2)'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(0,H-28); ctx.lineTo(W,H-28); ctx.stroke();
+
+  // Move player
+  _at.x = Math.max(14, Math.min(W-14, _at.x + _at.speed));
+
+  // Draw titans (hands)
+  _at.titans.forEach(t => {
+    t.y += t.vy;
+    ctx.font = `${t.size}px serif`;
+    ctx.textAlign='center';
+    ctx.fillText('🤚', t.x, t.y);
+  });
+
+  // Draw player (ODM gear soldier)
+  ctx.font='22px serif'; ctx.textAlign='center';
+  ctx.fillText('🗡️', _at.x, H-12);
+
+  // Collision check
+  _at.titans = _at.titans.filter(t => {
+    const hit = Math.abs(t.x - _at.x) < 22 && t.y > H-50 && t.y < H-5;
+    if(hit) {
+      _at.hits++;
+      const sc = document.getElementById('atScore');
+      const hearts = '❤️'.repeat(Math.max(0,_at.maxHits-_at.hits))+'🖤'.repeat(Math.min(_at.hits,_at.maxHits));
+      if(sc) sc.textContent = `${hearts} · ${_at.score}pts`;
+      if(_at.hits >= _at.maxHits && !_at.done) {
+        _at.done = true;
+        clearInterval(_at.interval); clearInterval(_at.spawnInterval);
+        cancelAnimationFrame(_at.frameId);
+        _actTimeout1 = setTimeout(()=>_finishMinigame('quest',Math.min(1,_at.score/120),_at.theme),500);
+      }
+      return false;
+    }
+    if(t.y > H+10) { _at.score += 2; return false; } // dodged
+    return true;
+  });
+
+  _at.frameId = requestAnimationFrame(_atFrame);
+}
+
+function _atTick() {
+  if(_at.done) return;
+  _at.timeLeft--;
+  const el = document.getElementById('atTimer');
+  if(el) el.textContent = `⏱ ${_at.timeLeft}s`;
+  if(_at.timeLeft <= 0) {
+    _at.done = true;
+    clearInterval(_at.interval); clearInterval(_at.spawnInterval);
+    cancelAnimationFrame(_at.frameId);
+    _finishMinigame('quest', Math.min(1,_at.score/120), _at.theme);
+  }
+}
+
+// ── DANMACHI: Simon Says Sequence ──
+// Tiles light up in sequence — repeat the pattern
+let _dm = {};
+function _startDanMachiSequence(theme) {
+  _dm = { theme, sequence:[], playerSeq:[], round:0, maxRounds:5, score:0, showing:false };
+  const el = document.getElementById('actGame');
+  el.innerHTML = `<div class="mg-container">
+    <div class="mg-header">
+      <span class="mg-label">🔔 Orario Dungeon</span>
+      <span class="mg-progress-txt" id="dmRound">Floor 1 / ${_dm.maxRounds}</span>
+      <span class="mg-score" id="dmScore">⭐ 0</span>
+    </div>
+    <div class="mg-tip" id="dmTip">Watch the sequence, then repeat it!</div>
+    <div class="dm-grid" id="dmGrid">
+      ${[0,1,2,3].map(i=>`<div class="dm-tile" id="dmT${i}" onclick="_dmTap(${i})">${['🗡️','🛡️','🏹','✨'][i]}</div>`).join('')}
+    </div>
+    <div class="dm-feedback" id="dmFeedback">"The dungeon always reveals itself... if you pay attention." — Hestia</div>
+  </div>`;
+  _actTimeout1 = setTimeout(_dmNextRound, 600);
+}
+
+function _dmNextRound() {
+  if(_dm.round >= _dm.maxRounds) { _finishMinigame('quest', _dm.score/(_dm.maxRounds*3), _dm.theme); return; }
+  _dm.round++;
+  const rdEl = document.getElementById('dmRound');
+  if(rdEl) rdEl.textContent = `Floor ${_dm.round} / ${_dm.maxRounds}`;
+  // Add one more to sequence
+  _dm.sequence.push(Math.floor(Math.random()*4));
+  _dm.playerSeq = [];
+  _dm.showing = true;
+  _dmShowSequence(0);
+}
+
+function _dmShowSequence(idx) {
+  if(idx >= _dm.sequence.length) {
+    _dm.showing = false;
+    const fb = document.getElementById('dmFeedback');
+    if(fb) fb.textContent = 'Now repeat the sequence!';
+    document.querySelectorAll('.dm-tile').forEach(t=>t.classList.add('dm-active-input'));
+    return;
+  }
+  const tipEl = document.getElementById('dmTip');
+  if(tipEl) tipEl.textContent = `Sequence length: ${_dm.sequence.length} — Watch carefully!`;
+  const tileEl = document.getElementById(`dmT${_dm.sequence[idx]}`);
+  if(tileEl) {
+    tileEl.classList.add('dm-lit');
+    _actTimeout1 = setTimeout(() => {
+      tileEl.classList.remove('dm-lit');
+      _actTimeout2 = setTimeout(() => _dmShowSequence(idx+1), 280);
+    }, 550);
+  }
+}
+
+function _dmTap(i) {
+  if(_dm.showing) return;
+  _dm.playerSeq.push(i);
+  const tileEl = document.getElementById(`dmT${i}`);
+  if(tileEl) { tileEl.classList.add('dm-pressed'); setTimeout(()=>tileEl.classList.remove('dm-pressed'),200); }
+
+  const pos = _dm.playerSeq.length - 1;
+  if(_dm.playerSeq[pos] !== _dm.sequence[pos]) {
+    // Wrong
+    const fb = document.getElementById('dmFeedback');
+    if(fb) fb.textContent = '❌ Wrong path! Bell trips and resets.';
+    document.querySelectorAll('.dm-tile').forEach(t=>{ t.classList.add('dm-wrong'); t.classList.remove('dm-active-input'); });
+    setTimeout(()=>{
+      document.querySelectorAll('.dm-tile').forEach(t=>t.classList.remove('dm-wrong'));
+      _actTimeout1 = setTimeout(_dmNextRound, 400);
+    }, 600);
+    return;
+  }
+
+  if(_dm.playerSeq.length === _dm.sequence.length) {
+    // Correct!
+    _dm.score += _dm.sequence.length;
+    const fb = document.getElementById('dmFeedback');
+    const scEl = document.getElementById('dmScore');
+    if(fb) fb.textContent = `✅ Perfect! Floor ${_dm.round} cleared!`;
+    if(scEl) scEl.textContent = `⭐ ${_dm.score}`;
+    document.querySelectorAll('.dm-tile').forEach(t=>{ t.classList.add('dm-correct'); t.classList.remove('dm-active-input'); });
+    setTimeout(()=>{
+      document.querySelectorAll('.dm-tile').forEach(t=>t.classList.remove('dm-correct','dm-active-input'));
+      _actTimeout1 = setTimeout(_dmNextRound, 400);
+    }, 700);
+  }
 }
 
 function _finishQuest(){
   _actClearAll();
-  const maxPossible=_qg.maxPicks*4;
-  const pct=Math.min(_qg.score/(maxPossible*0.55),1);
-  _finishMinigame('quest',pct,_qg.theme);
+  clearInterval(_at.interval); clearInterval(_at.spawnInterval);
+  cancelAnimationFrame(_at.frameId); cancelAnimationFrame(_ks.frameId);
+  const theme = _ks.theme || _at.theme || _dm.theme;
+  _finishMinigame('quest', 0.5, theme);
 }
+
+
 
 // ═══════════════════════════════════════════
 // 🏆 SHARED — Grade + Rewards
