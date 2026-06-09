@@ -35864,7 +35864,7 @@ let _slSceneCount = 0;
 
 function slInitScenesEditor() {
   const ed = document.getElementById('slScenesEditor');
-  if(ed && !ed.children.length) slAddScene();
+  if(ed && !ed.children.length) { _slSceneCount = 0; slAddScene(); }
 }
 
 function slAddScene() {
@@ -35877,7 +35877,7 @@ function slAddScene() {
   div.innerHTML = `
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
       <span style="font-size:0.75em;color:var(--pink);font-family:'JetBrains Mono',monospace;">Scene ID: <input style="background:transparent;border:none;border-bottom:1px solid var(--border);color:var(--pink);font-family:'JetBrains Mono',monospace;font-size:1em;width:100px;" class="sl-scene-id" value="scene_${_slSceneCount}" placeholder="scene_1"/></span>
-      <button onclick="this.closest('div[id^=slScene]').remove()" style="background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.3);color:#f87171;border-radius:8px;padding:2px 8px;font-size:0.72em;cursor:pointer;">✕ Remove</button>
+      <button onclick="this.closest('.sl-scene-block').remove()" style="background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.3);color:#f87171;border-radius:8px;padding:2px 8px;font-size:0.72em;cursor:pointer;">✕ Remove</button>
     </div>
     <label class="admin-label" style="font-size:0.72em;">Scene Text</label>
     <textarea class="admin-input sl-scene-text" rows="2" placeholder="Something happened..." style="margin-bottom:6px;font-size:0.82em;resize:vertical;"></textarea>
@@ -35885,26 +35885,30 @@ function slAddScene() {
     <input class="admin-input sl-scene-img" placeholder="https://..." style="margin-bottom:8px;font-size:0.82em;"/>
     <label class="admin-label" style="font-size:0.72em;">Choices <span class="admin-hint">(next ID: another scene ID, GOOD_END, or BAD_END)</span></label>
     <div class="sl-choices-list"></div>
-    <button onclick="slAddChoice(this)" style="background:rgba(255,157,199,0.06);border:1px dashed var(--border);color:var(--text-dim);border-radius:8px;padding:4px 10px;font-size:0.72em;cursor:pointer;width:100%;margin-top:4px;">+ Add Choice</button>`;
+    <button class="sl-add-choice-btn" onclick="slAddChoice(this)" style="background:rgba(255,157,199,0.06);border:1px dashed var(--border);color:var(--text-dim);border-radius:8px;padding:4px 10px;font-size:0.72em;cursor:pointer;width:100%;margin-top:4px;">+ Add Choice</button>`;
+  div.classList.add('sl-scene-block');
   ed.appendChild(div);
-  slAddChoice(div.querySelector('button'));
+  // Add a default first choice using the correct button
+  slAddChoice(div.querySelector('.sl-add-choice-btn'));
 }
 
 function slAddChoice(btn) {
-  const list = btn.parentElement.querySelector('.sl-choices-list');
+  // Walk up to find the scene block, then find its choices list
+  const sceneBlock = btn.closest('.sl-scene-block');
+  const list = sceneBlock ? sceneBlock.querySelector('.sl-choices-list') : btn.parentElement.querySelector('.sl-choices-list');
   if(!list) return;
   if(list.children.length >= 4) { showToast('Max 4 choices per scene'); return; }
   const row = document.createElement('div');
   row.style.cssText = 'display:grid;grid-template-columns:1fr 120px auto;gap:4px;margin-bottom:4px;';
   row.innerHTML = `<input class="admin-input sl-choice-text" placeholder="Choice text..." style="font-size:0.78em;padding:4px 8px;"/>
-    <input class="admin-input sl-choice-next" placeholder="next scene ID" style="font-size:0.78em;padding:4px 8px;"/>
+    <input class="admin-input sl-choice-next" placeholder="GOOD_END / BAD_END / scene_2" style="font-size:0.78em;padding:4px 8px;"/>
     <button onclick="this.parentElement.remove()" style="background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.2);color:#f87171;border-radius:6px;padding:2px 6px;font-size:0.7em;cursor:pointer;">✕</button>`;
   list.appendChild(row);
 }
 
 function buildScenesJson() {
   const scenes = [];
-  document.querySelectorAll('#slScenesEditor > div[id^="slScene"]').forEach(el => {
+  document.querySelectorAll('#slScenesEditor .sl-scene-block').forEach(el => {
     const sceneId = el.querySelector('.sl-scene-id')?.value?.trim() || '';
     const text    = el.querySelector('.sl-scene-text')?.value?.trim() || '';
     const imgUrl  = el.querySelector('.sl-scene-img')?.value?.trim() || '';
@@ -35928,11 +35932,12 @@ function loadScenesIntoEditor(scenes) {
     _slSceneCount++;
     const div = document.createElement('div');
     div.id = `slScene_${_slSceneCount}`;
+    div.classList.add('sl-scene-block');
     div.style.cssText = 'background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:10px;';
     div.innerHTML = `
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
         <span style="font-size:0.75em;color:var(--pink);font-family:'JetBrains Mono',monospace;">Scene ID: <input style="background:transparent;border:none;border-bottom:1px solid var(--border);color:var(--pink);font-family:'JetBrains Mono',monospace;font-size:1em;width:100px;" class="sl-scene-id" value="${escapeHtml(s.id||'')}"/></span>
-        <button onclick="this.closest('div[id^=slScene]').remove()" style="background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.3);color:#f87171;border-radius:8px;padding:2px 8px;font-size:0.72em;cursor:pointer;">✕ Remove</button>
+        <button onclick="this.closest('.sl-scene-block').remove()" style="background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.3);color:#f87171;border-radius:8px;padding:2px 8px;font-size:0.72em;cursor:pointer;">✕ Remove</button>
       </div>
       <label class="admin-label" style="font-size:0.72em;">Scene Text</label>
       <textarea class="admin-input sl-scene-text" rows="2" style="margin-bottom:6px;font-size:0.82em;resize:vertical;">${escapeHtml(s.text||'')}</textarea>
@@ -35940,7 +35945,7 @@ function loadScenesIntoEditor(scenes) {
       <input class="admin-input sl-scene-img" value="${escapeHtml(s.image_url||'')}" style="margin-bottom:8px;font-size:0.82em;"/>
       <label class="admin-label" style="font-size:0.72em;">Choices</label>
       <div class="sl-choices-list">${(s.choices||[]).map(c=>`<div style="display:grid;grid-template-columns:1fr 120px auto;gap:4px;margin-bottom:4px;"><input class="admin-input sl-choice-text" value="${escapeHtml(c.text||'')}" style="font-size:0.78em;padding:4px 8px;"/><input class="admin-input sl-choice-next" value="${escapeHtml(c.next_scene_id||'')}" style="font-size:0.78em;padding:4px 8px;"/><button onclick="this.parentElement.remove()" style="background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.2);color:#f87171;border-radius:6px;padding:2px 6px;font-size:0.7em;cursor:pointer;">✕</button></div>`).join('')}</div>
-      <button onclick="slAddChoice(this)" style="background:rgba(255,157,199,0.06);border:1px dashed var(--border);color:var(--text-dim);border-radius:8px;padding:4px 10px;font-size:0.72em;cursor:pointer;width:100%;margin-top:4px;">+ Add Choice</button>`;
+      <button class="sl-add-choice-btn" onclick="slAddChoice(this)" style="background:rgba(255,157,199,0.06);border:1px dashed var(--border);color:var(--text-dim);border-radius:8px;padding:4px 10px;font-size:0.72em;cursor:pointer;width:100%;margin-top:4px;">+ Add Choice</button>`;
     ed.appendChild(div);
   });
 }
