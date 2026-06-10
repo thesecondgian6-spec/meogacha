@@ -218,6 +218,10 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .card-thumb-rarity{font-size:0.75em;color:var(--text-dim);}
 .card-thumb-badge{position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.75);border-radius:6px;padding:2px 6px;font-size:0.7em;font-family:'JetBrains Mono',monospace;backdrop-filter:blur(4px);}
 .card-thumb-lvl{position:absolute;bottom:44px;left:8px;background:rgba(0,0,0,0.75);border-radius:6px;padding:2px 8px;font-size:0.7em;font-family:'JetBrains Mono',monospace;color:#f1c40f;backdrop-filter:blur(4px);}
+.card-fav-btn{position:absolute;top:6px;right:6px;background:rgba(0,0,0,0.55);border:none;border-radius:6px;padding:2px 5px;font-size:0.8em;cursor:pointer;line-height:1;backdrop-filter:blur(4px);color:rgba(255,255,255,0.4);transition:transform 0.15s,color 0.15s;z-index:2;}
+.card-fav-btn:hover{transform:scale(1.2);}
+.card-fav-btn.active{color:#f1c40f;}
+.fav-filter-btn.active{border-color:#f1c40f!important;color:#f1c40f!important;}
 .card-thumb-series-logo{position:absolute;top:4px;left:4px;height:10px;width:auto;max-width:28px;object-fit:contain;filter:drop-shadow(0 1px 3px rgba(0,0,0,0.95));z-index:2;pointer-events:none;}
 /* ══ CARD MODAL v2 — TABBED ══ */
 #cardModal{position:fixed;inset:0;z-index:300;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.88);backdrop-filter:blur(8px);padding:12px;}
@@ -3908,26 +3912,87 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .qg-log-entry:first-child{color:var(--text);}
 
 /* ══ DAILY LOGIN ══ */
+.daily-streak-wrap {
+  margin-bottom: 28px;
+  background: linear-gradient(135deg, rgba(241,196,15,0.07), rgba(255,157,199,0.05));
+  border: 1px solid rgba(241,196,15,0.22);
+  border-radius: 22px; overflow: hidden;
+}
+.daily-streak-top {
+  display: flex; align-items: center; gap: 16px;
+  padding: 18px 20px 14px; flex-wrap: wrap;
+}
+.daily-flame { font-size: 2.4em; animation: orbPulse 2s ease-in-out infinite; flex-shrink: 0; }
+.daily-streak-info { flex: 1; min-width: 0; }
+.daily-streak-info h3 {
+  font-family: 'Cinzel Decorative', serif; font-size: 0.95em;
+  color: #f1c40f; margin-bottom: 3px;
+}
+.daily-streak-info p { color: var(--text-dim); font-size: 0.78em; }
+.daily-streak-num {
+  font-family: 'Cinzel Decorative', serif; font-size: 2em;
+  color: #f1c40f; line-height: 1; flex-shrink: 0;
+}
+.daily-streak-num span {
+  font-family: 'JetBrains Mono', monospace; font-size: 0.38em;
+  color: rgba(241,196,15,0.6); display: block; text-align: center; margin-top: 2px;
+}
+.daily-calendar {
+  display: grid; grid-template-columns: repeat(7, 1fr);
+  gap: 6px; padding: 0 16px 16px;
+}
+.day-box {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; padding: 8px 4px; text-align: center;
+  position: relative; transition: transform 0.2s;
+}
+.day-box.claimed {
+  border-color: rgba(46,204,113,0.5); background: rgba(46,204,113,0.07);
+}
+.day-box.claimed .day-reward { filter: grayscale(0.3); }
+.day-box.today {
+  border-color: var(--pink); background: rgba(255,157,199,0.08);
+  box-shadow: 0 0 14px rgba(255,157,199,0.2);
+  animation: orbPulse 2s ease-in-out infinite;
+}
+.day-box.future { opacity: 0.38; }
+.day-box.day7 { border-color: rgba(241,196,15,0.5); }
+.day-box.day7.today { border-color: #f1c40f; box-shadow: 0 0 18px rgba(241,196,15,0.3); }
+.day-num {
+  font-family: 'JetBrains Mono', monospace; font-size: 0.55em;
+  color: var(--text-dim); margin-bottom: 3px; letter-spacing: 0.04em;
+}
+.day-reward { font-size: 1.05em; line-height: 1.2; }
+.day-reward-amt {
+  font-family: 'JetBrains Mono', monospace; font-size: 0.5em;
+  color: #f1c40f; margin-top: 2px; line-height: 1.2;
+}
+.day-check {
+  position: absolute; top: 3px; right: 4px; font-size: 0.55em;
+}
+.daily-claim-wrap { padding: 0 16px 16px; }
+.daily-claim-btn {
+  width: 100%; padding: 13px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #c9900a, #f1c40f);
+  border: none; color: #0d0610;
+  font-family: 'Cinzel Decorative', serif; font-size: 0.82em;
+  font-weight: 700; cursor: pointer; letter-spacing: 0.05em;
+  transition: all 0.25s; box-shadow: 0 4px 20px rgba(241,196,15,0.25);
+}
+.daily-claim-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(241,196,15,0.4); }
+.daily-claim-btn:disabled { opacity: 0.38; cursor: not-allowed; background: rgba(100,80,110,0.4); color: var(--text-dim); }
+.daily-next-time {
+  text-align: center; font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6em; color: rgba(255,255,255,0.25);
+  padding: 0 16px 14px; letter-spacing: 0.06em;
+}
+
 .daily-streak-banner{background:linear-gradient(135deg,rgba(241,196,15,0.12),rgba(255,157,199,0.08));border:1px solid rgba(241,196,15,0.3);border-radius:18px;padding:20px 24px;margin-bottom:24px;display:flex;align-items:center;gap:18px;flex-wrap:wrap;}
-.daily-flame{font-size:3em;animation:orbPulse 2s ease-in-out infinite;}
-.daily-streak-info h3{font-family:'Cinzel Decorative',serif;font-size:1.1em;color:#f1c40f;margin-bottom:4px;}
-.daily-streak-info p{color:var(--text-dim);font-size:0.85em;}
-.daily-calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-bottom:24px;}
-.day-box{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:10px 6px;text-align:center;position:relative;}
-.day-box.claimed{border-color:rgba(241,196,15,0.5);background:rgba(241,196,15,0.08);}
-.day-box.today{border-color:var(--pink);box-shadow:0 0 12px var(--pink-glow);animation:orbPulse 2s ease-in-out infinite;}
-.day-box.future{opacity:0.45;}
-.day-num{font-family:'JetBrains Mono',monospace;font-size:0.65em;color:var(--text-dim);margin-bottom:4px;}
-.day-reward{font-size:1.1em;}
-.day-reward-amt{font-family:'JetBrains Mono',monospace;font-size:0.6em;color:#f1c40f;}
-.day-check{position:absolute;top:4px;right:4px;font-size:0.6em;}
-.daily-claim-btn{width:100%;padding:14px;border-radius:16px;background:linear-gradient(135deg,#f1c40f,#ff9dc7);border:none;color:#000;font-family:'Cinzel Decorative',serif;font-size:0.9em;font-weight:700;cursor:pointer;letter-spacing:0.05em;transition:all 0.25s;box-shadow:0 4px 20px rgba(241,196,15,0.3);}
-.daily-claim-btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 8px 28px rgba(241,196,15,0.4);}
-.daily-claim-btn:disabled{opacity:0.4;cursor:not-allowed;background:rgba(100,80,110,0.4);}
 
 @media(max-width:700px){
-  .daily-calendar{grid-template-columns:repeat(4,1fr);}
-  .activities-grid{grid-template-columns:1fr;}
+  .daily-calendar { grid-template-columns: repeat(4, 1fr); gap: 5px; }
+  .activities-grid { grid-template-columns: 1fr; }
 }
 
 /* ── ADMIN ── */
@@ -8306,11 +8371,22 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 /* ── Player Profile Modal ── */
 #playerProfileModal {
   position:fixed;inset:0;z-index:500;display:none;
-  align-items:center;justify-content:center;
-  background:rgba(0,0,0,0.88);backdrop-filter:blur(8px);padding:20px;
+  align-items:flex-end;justify-content:center;
+  background:rgba(0,0,0,0.88);backdrop-filter:blur(8px);
 }
 #playerProfileModal.active{display:flex;}
-#playerProfileContent{ max-width:460px; width:100%; }
+#playerProfileContent{
+  max-width:460px; width:100%;
+  max-height:92dvh;
+  overflow-y:auto;
+  border-radius:24px 24px 0 0;
+  -webkit-overflow-scrolling:touch;
+}
+#playerProfileContent::-webkit-scrollbar{ display:none; }
+@media(min-width:600px){
+  #playerProfileModal { align-items:center; padding:20px; }
+  #playerProfileContent { border-radius:20px; max-height:88vh; }
+}
 
 /* ── Trade Confirmation Modal ── */
 #tradeConfirmModal {
@@ -12631,7 +12707,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
     </div><!-- end gp-dock -->
 
     <!-- ── Pull History Button ── -->
-    <div style="max-width:780px;margin:0 auto;padding:0 0 40px;display:flex;justify-content:center;">
+    <div style="max-width:780px;margin:0 auto;padding:0 0 100px;display:flex;justify-content:center;">
       <button onclick="openPullHistory()" style="background:rgba(255,157,199,0.06);border:1px solid rgba(255,157,199,0.18);border-radius:14px;color:rgba(255,255,255,0.5);font-family:'JetBrains Mono',monospace;font-size:0.65em;letter-spacing:0.1em;padding:12px 28px;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:8px;" onmouseover="this.style.background='rgba(255,157,199,0.1)';this.style.color='rgba(255,255,255,0.75)'" onmouseout="this.style.background='rgba(255,157,199,0.06)';this.style.color='rgba(255,255,255,0.5)'">
         ⟡ PULL HISTORY
       </button>
@@ -12656,11 +12732,19 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 
     <!-- CARDS TAB -->
     <div id="collPanel-cards">
-      <div style="display:flex;gap:8px;margin-bottom:12px;align-items:center;flex-wrap:wrap;">
-        <input id="cardSearchInput_coll" class="admin-input" placeholder="🔍 Search cards..." style="flex:1;min-width:160px;padding:7px 14px;font-size:0.85em;" oninput="renderCollection()"/>
+      <div style="display:flex;gap:8px;margin-bottom:10px;align-items:center;flex-wrap:wrap;">
+        <input id="cardSearchInput_coll" class="admin-input" placeholder="🔍 Search cards..." style="flex:1;min-width:140px;padding:7px 14px;font-size:0.85em;" oninput="renderCollection()"/>
+        <select id="cardSortSelect" onchange="renderCollection()" style="background:var(--surface);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:0.72em;padding:7px 10px;cursor:pointer;outline:none;">
+          <option value="rarity_desc">★ Rarity ↓</option>
+          <option value="rarity_asc">★ Rarity ↑</option>
+          <option value="name_asc">A–Z</option>
+          <option value="level_desc">Lv. ↓</option>
+          <option value="dupes_desc">Dupes ↓</option>
+        </select>
       </div>
-      <div class="coll-filter">
+      <div class="coll-filter" style="margin-bottom:10px;">
         <button class="filter-btn active" onclick="filterCards('all',this)">All</button>
+        <button class="filter-btn fav-filter-btn" onclick="filterCards('fav',this)">⭐ Fav</button>
         <button class="filter-btn" onclick="filterCards('N',this)" style="color:var(--rN);">[N]</button>
         <button class="filter-btn" onclick="filterCards('R',this)" style="color:var(--rR);">[R]</button>
         <button class="filter-btn" onclick="filterCards('SR',this)" style="color:var(--rSR);">[SR]</button>
@@ -12872,6 +12956,26 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
         <div class="act-page-title">⚔️ Activities</div>
         <div class="act-page-sub">Battle, train, work & quest — earn coins and XP every day</div>
       </div>
+    </div>
+
+    <!-- ── Daily Streak Calendar ── -->
+    <div class="daily-streak-wrap">
+      <div class="daily-streak-top">
+        <div class="daily-flame">🔥</div>
+        <div class="daily-streak-info">
+          <h3>Daily Login Reward</h3>
+          <p id="streakSub">Log in every day to keep your streak going!</p>
+        </div>
+        <div class="daily-streak-num">
+          <span id="streakCount">0</span>
+          <span>STREAK</span>
+        </div>
+      </div>
+      <div class="daily-calendar" id="dailyCalendar"></div>
+      <div class="daily-claim-wrap">
+        <button class="daily-claim-btn" id="dailyClaimBtn" onclick="claimDailyReward()">✦ Claim Today's Reward</button>
+      </div>
+      <div class="daily-next-time" id="dailyNextTime"></div>
     </div>
 
     <div class="activities-grid">
@@ -18055,61 +18159,102 @@ const RARITY_ORDER = [
   {key:'R',  r:2, label:'[R]',    rainbow:false},
   {key:'N',  r:1, label:'[N]',    rainbow:false},
 ];
+// ── Favorites ──
+function getFavKey(){ return state.discordId ? 'mg_favs_'+state.discordId : 'mg_favs_guest'; }
+function loadFavs(){ try{ return new Set(JSON.parse(localStorage.getItem(getFavKey())||'[]')); }catch(e){ return new Set(); } }
+function saveFavs(set){ localStorage.setItem(getFavKey(), JSON.stringify([...set])); }
+function toggleFav(cardId, e){
+  if(e){ e.stopPropagation(); }
+  const favs = loadFavs();
+  favs.has(cardId) ? favs.delete(cardId) : favs.add(cardId);
+  saveFavs(favs);
+  renderCollection();
+}
+
 function renderCollection(){
   const grid=document.getElementById('cardsGrid');
   const empty=document.getElementById('emptyCollection');
   const owned=[...new Set(state.collection)];
   const counts={};state.collection.forEach(id=>{counts[id]=(counts[id]||0)+1;});
   const searchQ=(document.getElementById('cardSearchInput_coll')?.value||'').toLowerCase().trim();
+  const sortVal=(document.getElementById('cardSortSelect')?.value)||'rarity_desc';
+  const favs=loadFavs();
+
   let filtered=owned;
-  if(currentFilter!=='all'){
+
+  // Rarity filter
+  if(currentFilter==='fav'){
+    filtered=owned.filter(id=>favs.has(id));
+  } else if(currentFilter!=='all'){
     const rMap={N:1,R:2,SR:3,SSR:4,UR:5,LR:6,S:7};
     const r=rMap[currentFilter];
     filtered=owned.filter(id=>{const c=(window.DEMO_CARDS||DEMO_CARDS).find(x=>x.id===id);return c&&c.rarity===r;});
   }
+
+  // Search
   if(searchQ){
     filtered=filtered.filter(id=>{
       const c=(window.DEMO_CARDS||DEMO_CARDS).find(x=>x.id===id);
       return c&&(c.name.toLowerCase().includes(searchQ)||c.series.toLowerCase().includes(searchQ));
     });
   }
+
+  // Sort
+  filtered.sort((a,b)=>{
+    const ca=(window.DEMO_CARDS||DEMO_CARDS).find(x=>x.id===a);
+    const cb=(window.DEMO_CARDS||DEMO_CARDS).find(x=>x.id===b);
+    if(!ca||!cb) return 0;
+    switch(sortVal){
+      case 'rarity_desc': return cb.rarity-ca.rarity;
+      case 'rarity_asc':  return ca.rarity-cb.rarity;
+      case 'name_asc':    return ca.name.localeCompare(cb.name);
+      case 'level_desc':  return (state.xpMap[b]||0)-(state.xpMap[a]||0);
+      case 'dupes_desc':  return (counts[b]||1)-(counts[a]||1);
+      default:            return cb.rarity-ca.rarity;
+    }
+  });
+
   document.getElementById('collTotal').textContent=`${state.collection.length} pulls`;
   document.getElementById('collUniq').textContent=`${owned.length} unique`;
   if(!filtered.length){grid.innerHTML='';empty.style.display='block';return;}
   empty.style.display='none';
 
-  if(currentFilter==='all'){
-    // Build sections outside the grid — each rarity gets a header + its own card grid
-    let html='';
-    const sections=[];
-    RARITY_ORDER.forEach(({r,label,rainbow})=>{
-      const group=filtered.filter(id=>{const c=(window.DEMO_CARDS||DEMO_CARDS).find(x=>x.id===id);return c&&c.rarity===r;});
-      if(!group.length)return;
-      sections.push({r,label,rainbow,group});
-    });
-    sections.forEach(({r,label,rainbow,group},idx)=>{
-      const color=RARITY_COLORS[r]||'#bdc3c7';
-      const headerLabel=rainbow
-        ?`<span class="rarity-rainbow">${label}</span>`
-        :`<span style="color:${color}">${label}</span>`;
-      if(idx>0) html+=`<div class="rarity-divider"></div>`;
-      html+=`<div class="rarity-group">
-        <div class="rarity-group-header">${headerLabel}<span class="rarity-group-count">${group.length}</span></div>
-        <div class="cards-grid">${group.map(id=>renderCardThumb(id,counts)).join('')}</div>
-      </div>`;
-    });
-    grid.innerHTML=html;
-    grid.className=''; // remove cards-grid from wrapper when grouped
-  } else {
+  // When a specific rarity/fav filter is active, show flat grid (already sorted)
+  if(currentFilter!=='all'){
     grid.className='cards-grid';
-    grid.innerHTML=filtered.map(id=>renderCardThumb(id,counts)).join('');
+    grid.innerHTML=filtered.map(id=>renderCardThumb(id,counts,favs)).join('');
+    return;
   }
+
+  // All — group by rarity (sorted within each group)
+  let html='';
+  const sections=[];
+  RARITY_ORDER.forEach(({r,label,rainbow})=>{
+    const group=filtered.filter(id=>{const c=(window.DEMO_CARDS||DEMO_CARDS).find(x=>x.id===id);return c&&c.rarity===r;});
+    if(!group.length)return;
+    sections.push({r,label,rainbow,group});
+  });
+  sections.forEach(({r,label,rainbow,group},idx)=>{
+    const color=RARITY_COLORS[r]||'#bdc3c7';
+    const headerLabel=rainbow
+      ?`<span class="rarity-rainbow">${label}</span>`
+      :`<span style="color:${color}">${label}</span>`;
+    if(idx>0) html+=`<div class="rarity-divider"></div>`;
+    html+=`<div class="rarity-group">
+      <div class="rarity-group-header">${headerLabel}<span class="rarity-group-count">${group.length}</span></div>
+      <div class="cards-grid">${group.map(id=>renderCardThumb(id,counts,favs)).join('')}</div>
+    </div>`;
+  });
+  grid.innerHTML=html;
+  grid.className='';
 }
-function renderCardThumb(id,counts){
+function renderCardThumb(id,counts,favs){
   const c=(window.DEMO_CARDS||DEMO_CARDS).find(x=>x.id===id);if(!c)return'';
+  if(!favs) favs=loadFavs();
+  const isFav=favs.has(id)||favs.has(String(id));
   const rarityColor=RARITY_COLORS[c.rarity]||'#bdc3c7';
   const embedColor=c.color||null;
-  const color=rarityColor; // used for rarity strip display
+  const color=rarityColor;
   const isEquipped=state.equippedId===id;
   const cnt=counts[id]||1;
   const hasSkin = !!(window.EQUIPPED_SKINS && window.EQUIPPED_SKINS[id]);
@@ -18124,7 +18269,6 @@ function renderCardThumb(id,counts){
     ?`<span class="card-thumb-badge"><span class="rarity-rainbow">${c.rarityName}</span></span>`
     :`<span class="card-thumb-badge" style="color:${color}">${c.rarityName}</span>`;
   const borderStyle=isRainbow?`style="border-color:transparent;background-clip:padding-box;outline:2px solid;outline-color:transparent;animation:rainbowBorder 2.5s linear infinite;"`:'';
-  // Series logo lookup
   const seriesEntryT = (window.ANIME_COLLECTIONS||[]).find(a=>a.name&&a.name.toLowerCase()===(c.series||'').toLowerCase());
   const seriesLogoT = seriesEntryT?.logo_url || '';
   const _hx = (c.color||color).replace('#','');
@@ -18137,6 +18281,7 @@ function renderCardThumb(id,counts){
     <img src="${thumbSrc}" alt="${c.name}" loading="lazy" onerror="this.style.background='#1c0f26'"/>
     ${badgeDisplay}
     <span class="card-thumb-lvl">Lv.${lvl}</span>
+    <button class="card-fav-btn${isFav?' active':''}" onclick="toggleFav('${id}',event)" title="${isFav?'Remove from favourites':'Add to favourites'}">${isFav?'⭐':'☆'}</button>
     ${hasSkin ? '<span class="skin-active-badge">🎨 Skin</span>' : ''}
     ${seriesLogoT ? `<img class="card-thumb-series-logo" src="${seriesLogoT}" alt="" onerror="this.style.display='none'"/>` : ''}
     <div class="card-thumb-info">
@@ -19643,32 +19788,72 @@ function renderDailyCalendar(){
   const today = new Date();
   const cal = document.getElementById('dailyCalendar');
   if(!cal) return;
+
+  const todaySlot = d.lastClaim && isSameDay(d.lastClaim, today) ? (d.streak-1)%7 : d.streak%7;
+
   let html='';
   for(let i=0;i<7;i++){
-    const reward = DAILY_REWARDS[i];
-    const dayNum = i+1;
-    const isClaimed = d.streak > i || (d.history && d.history.includes(i));
-    const isToday = (d.streak % 7) === i && !d.lastClaim;
+    const reward  = DAILY_REWARDS[i];
     const alreadyClaimedToday = d.lastClaim && isSameDay(d.lastClaim, today) && (d.streak-1)%7 === i;
-    const claimedActual = d.streak > i || alreadyClaimedToday;
-    const todaySlot = d.lastClaim && isSameDay(d.lastClaim, today) ? (d.streak-1)%7 : d.streak%7;
-    const cls = i<todaySlot ? 'claimed' : (i===todaySlot && d.lastClaim && isSameDay(d.lastClaim,today)) ? 'claimed today' : (i===todaySlot) ? 'today' : 'future';
-    html+=`<div class="day-box ${cls}">
-      <div class="day-num">Day ${dayNum}</div>
-      <div class="day-reward">🪙</div>
-      <div class="day-reward-amt">${reward.label}</div>
-      ${cls.includes('claimed')?'<div class="day-check">✅</div>':''}
+    const isPast  = i < todaySlot;
+    const isToday = i === todaySlot;
+    const isClaimed = isPast || alreadyClaimedToday;
+    const isWeekly  = i === 6;
+
+    let cls = 'future';
+    if(isClaimed || (isToday && d.lastClaim && isSameDay(d.lastClaim, today))) cls = 'claimed';
+    else if(isToday) cls = 'today';
+    if(isWeekly) cls += ' day7';
+
+    const rewardIcon = isWeekly ? '🌟' : (reward.xp ? '⚡' : '🪙');
+    const amtLine    = isWeekly ? `${reward.coins}🪙` : `+${reward.coins}`;
+
+    html += `<div class="day-box ${cls}">
+      <div class="day-num">Day ${i+1}</div>
+      <div class="day-reward">${rewardIcon}</div>
+      <div class="day-reward-amt">${amtLine}</div>
+      ${cls.includes('claimed') ? '<div class="day-check">✓</div>' : ''}
     </div>`;
   }
   cal.innerHTML = html;
-  // streak count
-  document.getElementById('streakCount').textContent = d.streak;
-  document.getElementById('streakSub').textContent = d.streak>=7 ? `🎉 Full week! Bonus streak active!` : `Log in every day to keep your streak going!`;
-  // claim button
+
+  // Streak count & subtitle
+  const streakEl = document.getElementById('streakCount');
+  const subEl    = document.getElementById('streakSub');
+  if(streakEl) streakEl.textContent = d.streak;
+  if(subEl) subEl.textContent = d.streak >= 7 ? '🎉 Full week! Keep the streak alive!' : 'Log in every day to keep your streak going!';
+
+  // Claim button state
   const btn = document.getElementById('dailyClaimBtn');
   const alreadyClaimed = d.lastClaim && isSameDay(d.lastClaim, today);
-  btn.disabled = alreadyClaimed;
-  btn.textContent = alreadyClaimed ? '✅ Already Claimed Today' : '✦ Claim Today\'s Reward';
+  if(btn){
+    btn.disabled    = !!alreadyClaimed;
+    btn.textContent = alreadyClaimed ? '✅ Already Claimed Today' : '✦ Claim Today\'s Reward';
+  }
+
+  // Countdown to next reset
+  const timerEl = document.getElementById('dailyNextTime');
+  if(timerEl){
+    if(alreadyClaimed){
+      const midnight = new Date(today); midnight.setHours(24,0,0,0);
+      const msLeft = midnight - Date.now();
+      const h = Math.floor(msLeft/3600000);
+      const m = Math.floor((msLeft%3600000)/60000);
+      timerEl.textContent = `Next reward in ${h}h ${m}m`;
+      // Live countdown
+      if(!timerEl._cdInterval){
+        timerEl._cdInterval = setInterval(()=>{
+          const ms = new Date().setHours(24,0,0,0) - Date.now();
+          if(ms <= 0){ clearInterval(timerEl._cdInterval); timerEl._cdInterval=null; renderDailyCalendar(); return; }
+          const hh=Math.floor(ms/3600000), mm=Math.floor((ms%3600000)/60000), ss=Math.floor((ms%60000)/1000);
+          timerEl.textContent = `Next reward in ${hh}h ${mm}m ${ss}s`;
+        }, 1000);
+      }
+    } else {
+      if(timerEl._cdInterval){ clearInterval(timerEl._cdInterval); timerEl._cdInterval=null; }
+      timerEl.textContent = '';
+    }
+  }
 }
 
 async function claimDailyReward(){
@@ -32693,7 +32878,6 @@ function openPlayerModal(player){
               </div>
             </div>`;
           }).join('')}
-          }).join('')}
         </div>
       </div>`;
     }
@@ -32731,12 +32915,16 @@ function openPlayerModal(player){
     <div style="
       background:${modalCardBg};
       border:1px solid rgba(255,255,255,0.08);
-      border-radius:20px;
-      max-width:460px; width:100%;
+      border-radius:24px 24px 0 0;
+      width:100%;
       animation:modalIn 0.3s cubic-bezier(0.34,1.56,0.64,1);
       overflow:hidden; position:relative;
-      box-shadow:0 24px 64px rgba(0,0,0,0.8);
+      box-shadow:0 -8px 40px rgba(0,0,0,0.6);
     ">
+      <!-- drag handle -->
+      <div style="display:flex;justify-content:center;padding:10px 0 0;">
+        <div style="width:36px;height:4px;border-radius:2px;background:rgba(255,255,255,0.15);"></div>
+      </div>
       <!-- Banner + close -->
       <div style="height:150px;width:100%;background:${bannerBg};position:relative;flex-shrink:0;">
         <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0.1) 0%,rgba(0,0,0,0.55) 100%);"></div>
