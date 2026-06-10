@@ -218,10 +218,14 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .card-thumb-rarity{font-size:0.75em;color:var(--text-dim);}
 .card-thumb-badge{position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.75);border-radius:6px;padding:2px 6px;font-size:0.7em;font-family:'JetBrains Mono',monospace;backdrop-filter:blur(4px);}
 .card-thumb-lvl{position:absolute;bottom:44px;left:8px;background:rgba(0,0,0,0.75);border-radius:6px;padding:2px 8px;font-size:0.7em;font-family:'JetBrains Mono',monospace;color:#f1c40f;backdrop-filter:blur(4px);}
-.card-fav-btn{position:absolute;top:6px;right:6px;background:rgba(0,0,0,0.55);border:none;border-radius:6px;padding:2px 5px;font-size:0.8em;cursor:pointer;line-height:1;backdrop-filter:blur(4px);color:rgba(255,255,255,0.4);transition:transform 0.15s,color 0.15s;z-index:2;}
+.card-fav-btn{position:absolute;bottom:44px;right:8px;background:rgba(0,0,0,0.55);border:none;border-radius:6px;padding:2px 5px;font-size:0.8em;cursor:pointer;line-height:1;backdrop-filter:blur(4px);color:rgba(255,255,255,0.4);transition:transform 0.15s,color 0.15s;z-index:2;}
 .card-fav-btn:hover{transform:scale(1.2);}
 .card-fav-btn.active{color:#f1c40f;}
 .fav-filter-btn.active{border-color:#f1c40f!important;color:#f1c40f!important;}
+@keyframes sortMenuIn{from{opacity:0;transform:translateY(-6px) scale(0.97);}to{opacity:1;transform:translateY(0) scale(1);}}
+.sort-menu-item{padding:8px 12px;border-radius:8px;font-family:'JetBrains Mono',monospace;font-size:0.78em;color:rgba(255,255,255,0.6);cursor:pointer;transition:all .15s;white-space:nowrap;}
+.sort-menu-item:hover{background:rgba(255,157,199,0.12);color:var(--pink);}
+.sort-menu-item.active{background:rgba(255,157,199,0.15);color:var(--pink);font-weight:700;}
 .card-thumb-series-logo{position:absolute;top:4px;left:4px;height:10px;width:auto;max-width:28px;object-fit:contain;filter:drop-shadow(0 1px 3px rgba(0,0,0,0.95));z-index:2;pointer-events:none;}
 /* ══ CARD MODAL v2 — TABBED ══ */
 #cardModal{position:fixed;inset:0;z-index:300;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.88);backdrop-filter:blur(8px);padding:12px;}
@@ -8372,20 +8376,26 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 #playerProfileModal {
   position:fixed;inset:0;z-index:500;display:none;
   align-items:flex-end;justify-content:center;
-  background:rgba(0,0,0,0.88);backdrop-filter:blur(8px);
+  background:rgba(0,0,0,0);backdrop-filter:blur(0px);
+  transition:background 0.35s ease, backdrop-filter 0.35s ease;
 }
 #playerProfileModal.active{display:flex;}
+#playerProfileModal.faded-in{background:rgba(0,0,0,0.88);backdrop-filter:blur(8px);}
 #playerProfileContent{
   max-width:460px; width:100%;
-  max-height:92dvh;
+  max-height:96dvh;
   overflow-y:auto;
   border-radius:24px 24px 0 0;
   -webkit-overflow-scrolling:touch;
+  transform:translateY(100%);
+  transition:transform 0.35s cubic-bezier(0.34,1.2,0.64,1);
 }
+#playerProfileModal.faded-in #playerProfileContent{transform:translateY(0);}
 #playerProfileContent::-webkit-scrollbar{ display:none; }
 @media(min-width:600px){
   #playerProfileModal { align-items:center; padding:20px; }
-  #playerProfileContent { border-radius:20px; max-height:88vh; }
+  #playerProfileContent { border-radius:20px; max-height:92dvh; transform:scale(0.9) translateY(0); opacity:0; transition:transform 0.3s cubic-bezier(0.34,1.2,0.64,1), opacity 0.3s ease; }
+  #playerProfileModal.faded-in #playerProfileContent { transform:scale(1); opacity:1; }
 }
 
 /* ── Trade Confirmation Modal ── */
@@ -12734,7 +12744,24 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
     <div id="collPanel-cards">
       <div style="display:flex;gap:8px;margin-bottom:10px;align-items:center;flex-wrap:wrap;">
         <input id="cardSearchInput_coll" class="admin-input" placeholder="🔍 Search cards..." style="flex:1;min-width:140px;padding:7px 14px;font-size:0.85em;" oninput="renderCollection()"/>
-        <select id="cardSortSelect" onchange="renderCollection()" style="background:var(--surface);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:0.72em;padding:7px 10px;cursor:pointer;outline:none;">
+        <div id="cardSortDropdown" style="position:relative;flex-shrink:0;" onclick="toggleSortDropdown(event)">
+          <button id="cardSortBtn" style="background:var(--surface);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:0.72em;padding:7px 10px;cursor:pointer;outline:none;display:flex;align-items:center;gap:6px;white-space:nowrap;">
+            <span id="cardSortLabel">★ Rarity ↓</span>
+            <span style="font-size:0.8em;opacity:0.6;transition:transform .2s;" id="cardSortArrow">▾</span>
+          </button>
+          <div id="cardSortMenu" style="display:none;position:absolute;right:0;top:calc(100% + 6px);z-index:200;
+            background:#1a0d1f;border:1px solid rgba(255,157,199,0.25);border-radius:14px;
+            padding:6px;min-width:160px;
+            box-shadow:0 8px 32px rgba(0,0,0,0.7),0 0 0 1px rgba(255,157,199,0.08);
+            backdrop-filter:blur(16px);animation:sortMenuIn .15s ease;">
+            <div class="sort-menu-item active" data-val="rarity_desc" onclick="selectSort(this)">★ Rarity ↓</div>
+            <div class="sort-menu-item" data-val="rarity_asc" onclick="selectSort(this)">★ Rarity ↑</div>
+            <div class="sort-menu-item" data-val="name_asc" onclick="selectSort(this)">A–Z Name</div>
+            <div class="sort-menu-item" data-val="level_desc" onclick="selectSort(this)">Lv. ↓ Level</div>
+            <div class="sort-menu-item" data-val="dupes_desc" onclick="selectSort(this)">× Dupes ↓</div>
+          </div>
+        </div>
+        <select id="cardSortSelect" style="display:none;" onchange="renderCollection()">
           <option value="rarity_desc">★ Rarity ↓</option>
           <option value="rarity_asc">★ Rarity ↑</option>
           <option value="name_asc">A–Z</option>
@@ -18295,6 +18322,33 @@ function filterCards(f,btn){
   currentFilter=f;
   document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
+  renderCollection();
+}
+
+function toggleSortDropdown(e){
+  e.stopPropagation();
+  const menu=document.getElementById('cardSortMenu');
+  const arrow=document.getElementById('cardSortArrow');
+  const isOpen=menu.style.display==='block';
+  menu.style.display=isOpen?'none':'block';
+  if(arrow) arrow.style.transform=isOpen?'':'rotate(180deg)';
+  if(!isOpen){
+    const close=()=>{menu.style.display='none';if(arrow)arrow.style.transform='';document.removeEventListener('click',close);};
+    setTimeout(()=>document.addEventListener('click',close),0);
+  }
+}
+
+function selectSort(el){
+  document.querySelectorAll('.sort-menu-item').forEach(i=>i.classList.remove('active'));
+  el.classList.add('active');
+  const val=el.dataset.val;
+  const label=document.getElementById('cardSortLabel');
+  if(label) label.textContent=el.textContent;
+  const sel=document.getElementById('cardSortSelect');
+  if(sel){ sel.value=val; }
+  document.getElementById('cardSortMenu').style.display='none';
+  const arrow=document.getElementById('cardSortArrow');
+  if(arrow) arrow.style.transform='';
   renderCollection();
 }
 
@@ -32862,19 +32916,19 @@ function openPlayerModal(player){
     const showcaseIds = player.showcase_cards ? JSON.parse(player.showcase_cards) : [];
     const showcaseCards = showcaseIds.map(id=>(window.DEMO_CARDS||[]).find(c=>String(c.id)===String(id))).filter(Boolean);
     if(showcaseCards.length){
-      showcaseHtml = `<div style="margin-bottom:14px;">
-        <div style="font-size:0.6em;color:rgba(255,255,255,0.35);letter-spacing:0.1em;margin-bottom:10px;text-transform:uppercase;font-family:'JetBrains Mono',monospace;">✦ Showcase</div>
-        <div style="display:flex;gap:12px;justify-content:center;">
+      showcaseHtml = `<div style="margin-bottom:10px;">
+        <div style="font-size:0.6em;color:rgba(255,255,255,0.35);letter-spacing:0.1em;margin-bottom:8px;text-transform:uppercase;font-family:'JetBrains Mono',monospace;">✦ Showcase</div>
+        <div style="display:flex;gap:8px;justify-content:center;">
           ${showcaseCards.map(c=>{
             const rc=RARITY_COLORS[c.rarity]||'#bdc3c7';
-            return `<div style="width:90px;border-radius:12px;overflow:hidden;border:2px solid ${rc};
+            return `<div style="width:80px;border-radius:12px;overflow:hidden;border:2px solid ${rc};
               box-shadow:0 0 14px ${rc}44;cursor:pointer;transition:transform .2s;flex-shrink:0;"
               onclick="closePlayerModal();setTimeout(()=>openCard('${c.id}'),200)"
-              onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform=''">
+              onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform=''">
               <img src="${c.thumbnail||c.image}" style="width:100%;aspect-ratio:3/4;object-fit:cover;display:block;" onerror="this.style.display='none'"/>
-              <div style="background:rgba(0,0,0,0.8);padding:5px 4px;text-align:center;">
-                <div style="font-size:0.58em;color:#fff;font-family:'Cinzel Decorative',serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(c.name)}</div>
-                <div style="font-size:0.55em;color:${rc};margin-top:2px;">${c.rarityStars||''}</div>
+              <div style="background:rgba(0,0,0,0.8);padding:4px;text-align:center;">
+                <div style="font-size:0.55em;color:#fff;font-family:'Cinzel Decorative',serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(c.name)}</div>
+                <div style="font-size:0.52em;color:${rc};margin-top:1px;">${c.rarityStars||''}</div>
               </div>
             </div>`;
           }).join('')}
@@ -32888,8 +32942,8 @@ function openPlayerModal(player){
   const modalMusicTitleId = 'ppm-music-title-'+Date.now();
   const musicHtml = musicUrl ? `
     <div style="display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);
-      border-radius:12px;padding:10px 14px;margin-bottom:14px;">
-      <button onclick="toggleModalMusic('${escapeHtml(musicUrl)}',this)" style="width:32px;height:32px;border-radius:50%;
+      border-radius:12px;padding:10px 14px;margin-bottom:10px;">
+      <button onclick="toggleModalMusic('${escapeHtml(musicUrl)}',this)" class="ppm-play-btn" style="width:32px;height:32px;border-radius:50%;
         border:1px solid rgba(255,157,199,0.5);
         background:rgba(255,157,199,0.12);color:var(--pink);font-size:0.85em;cursor:pointer;flex-shrink:0;
         display:flex;align-items:center;justify-content:center;">▶</button>
@@ -32926,7 +32980,7 @@ function openPlayerModal(player){
         <div style="width:36px;height:4px;border-radius:2px;background:rgba(255,255,255,0.15);"></div>
       </div>
       <!-- Banner + close -->
-      <div style="height:150px;width:100%;background:${bannerBg};position:relative;flex-shrink:0;">
+      <div style="height:110px;width:100%;background:${bannerBg};position:relative;flex-shrink:0;">
         <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0.1) 0%,rgba(0,0,0,0.55) 100%);"></div>
         <button onclick="closePlayerModal()" style="
           position:absolute;top:12px;right:12px;
@@ -32936,12 +32990,12 @@ function openPlayerModal(player){
       </div>
 
       <!-- Avatar row — overlaps banner -->
-      <div style="padding:0 20px 20px;">
-        <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-top:-44px;margin-bottom:14px;position:relative;z-index:2;">
+      <div style="padding:0 16px 16px;">
+        <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-top:-40px;margin-bottom:10px;position:relative;z-index:2;">
           <!-- Avatar with online dot -->
           <div style="position:relative;flex-shrink:0;">
             <img src="${player.profile_thumbnail||player.avatar||'https://cdn.discordapp.com/embed/avatars/0.png'}"
-              style="width:88px;height:88px;border-radius:50%;
+              style="width:76px;height:76px;border-radius:50%;
                      border:4px solid #0d0d0d;
                      object-fit:cover;background:#111;display:block;
                      box-shadow:0 4px 24px rgba(0,0,0,0.7);"
@@ -32969,20 +33023,20 @@ function openPlayerModal(player){
         </div>
 
         <!-- Name, username, title -->
-        <div style="margin-bottom:3px;">
-          <span style="font-family:'Cinzel Decorative',serif;font-size:1.15em;color:#fff;font-weight:700;">${escapeHtml(name)}</span>
+        <div style="margin-bottom:2px;">
+          <span style="font-family:'Cinzel Decorative',serif;font-size:1.1em;color:#fff;font-weight:700;">${escapeHtml(name)}</span>
           ${player.username && player.display_name ? `<span style="font-size:0.72em;color:rgba(255,255,255,0.4);font-family:'JetBrains Mono',monospace;margin-left:8px;">@${escapeHtml(player.username)}</span>` : ''}
         </div>
-        <div style="font-size:0.82em;color:var(--pink);font-style:italic;margin-bottom:14px;opacity:0.9;">${escapeHtml(player.active_title||'✦ Summoner ✦')}</div>
+        <div style="font-size:0.8em;color:var(--pink);font-style:italic;margin-bottom:10px;opacity:0.9;">${escapeHtml(player.active_title||'✦ Summoner ✦')}</div>
 
         <!-- Thin divider -->
-        <div style="height:1px;background:rgba(255,255,255,0.07);margin-bottom:14px;"></div>
+        <div style="height:1px;background:rgba(255,255,255,0.07);margin-bottom:10px;"></div>
 
         <!-- About Me -->
         ${player.bio ? `
-        <div style="margin-bottom:14px;">
-          <div style="font-size:0.62em;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.35);font-family:'JetBrains Mono',monospace;margin-bottom:6px;">About Me</div>
-          <div style="font-size:0.86em;color:rgba(255,255,255,0.7);line-height:1.6;padding:10px 12px;background:rgba(255,255,255,0.04);border-radius:10px;border:1px solid rgba(255,255,255,0.07);">${escapeHtml(player.bio)}</div>
+        <div style="margin-bottom:10px;">
+          <div style="font-size:0.62em;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.35);font-family:'JetBrains Mono',monospace;margin-bottom:4px;">About Me</div>
+          <div style="font-size:0.84em;color:rgba(255,255,255,0.7);line-height:1.5;padding:8px 10px;background:rgba(255,255,255,0.04);border-radius:10px;border:1px solid rgba(255,255,255,0.07);">${escapeHtml(player.bio)}</div>
         </div>` : ''}
 
         <!-- Music player -->
@@ -32992,32 +33046,32 @@ function openPlayerModal(player){
         ${showcaseHtml}
 
         <!-- Stats row -->
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;">
-          <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:12px 8px;text-align:center;">
-            <div style="font-family:'JetBrains Mono',monospace;font-size:1.15em;font-weight:700;color:var(--pink);">${wins}</div>
-            <div style="font-size:0.6em;color:rgba(255,255,255,0.38);margin-top:3px;letter-spacing:0.06em;text-transform:uppercase;">PvP Wins</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px;">
+          <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:9px 6px;text-align:center;">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:1.1em;font-weight:700;color:var(--pink);">${wins}</div>
+            <div style="font-size:0.58em;color:rgba(255,255,255,0.38);margin-top:2px;letter-spacing:0.06em;text-transform:uppercase;">PvP Wins</div>
           </div>
-          <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:12px 8px;text-align:center;">
-            <div style="font-family:'JetBrains Mono',monospace;font-size:1.15em;font-weight:700;color:var(--gold);">${winRate}%</div>
-            <div style="font-size:0.6em;color:rgba(255,255,255,0.38);margin-top:3px;letter-spacing:0.06em;text-transform:uppercase;">Win Rate</div>
+          <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:9px 6px;text-align:center;">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:1.1em;font-weight:700;color:var(--gold);">${winRate}%</div>
+            <div style="font-size:0.58em;color:rgba(255,255,255,0.38);margin-top:2px;letter-spacing:0.06em;text-transform:uppercase;">Win Rate</div>
           </div>
-          <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:12px 8px;text-align:center;">
-            <div style="font-family:'JetBrains Mono',monospace;font-size:1.15em;font-weight:700;color:rgba(255,255,255,0.5);">${losses}</div>
-            <div style="font-size:0.6em;color:rgba(255,255,255,0.38);margin-top:3px;letter-spacing:0.06em;text-transform:uppercase;">Losses</div>
+          <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:9px 6px;text-align:center;">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:1.1em;font-weight:700;color:rgba(255,255,255,0.5);">${losses}</div>
+            <div style="font-size:0.58em;color:rgba(255,255,255,0.38);margin-top:2px;letter-spacing:0.06em;text-transform:uppercase;">Losses</div>
           </div>
         </div>
 
         <!-- Equipped card -->
         ${equip ? `
         <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);
-          border-radius:12px;padding:12px;display:flex;gap:12px;align-items:center;margin-bottom:12px;">
-          <img src="${equip.thumbnail||equip.image}" style="width:46px;height:64px;border-radius:8px;
+          border-radius:12px;padding:10px;display:flex;gap:10px;align-items:center;margin-bottom:10px;">
+          <img src="${equip.thumbnail||equip.image}" style="width:40px;height:56px;border-radius:8px;
             object-fit:cover;border:2px solid ${RARITY_COLORS[equip.rarity]||'var(--pink)'};flex-shrink:0;box-shadow:0 4px 12px rgba(0,0,0,0.5);"
             onerror="this.style.display='none'"/>
           <div style="flex:1;min-width:0;">
-            <div style="font-size:0.6em;color:rgba(255,255,255,0.35);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:4px;">Equipped Card</div>
-            <div style="font-weight:700;font-size:0.9em;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(equip.name)}</div>
-            <div style="font-size:0.72em;color:${RARITY_COLORS[equip.rarity]||'var(--pink)'};margin-top:3px;">${escapeHtml(equip.rarityName||'')} ${equip.rarityStars||''}</div>
+            <div style="font-size:0.6em;color:rgba(255,255,255,0.35);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:3px;">Equipped Card</div>
+            <div style="font-weight:700;font-size:0.88em;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(equip.name)}</div>
+            <div style="font-size:0.7em;color:${RARITY_COLORS[equip.rarity]||'var(--pink)'};margin-top:2px;">${escapeHtml(equip.rarityName||'')} ${equip.rarityStars||''}</div>
           </div>
         </div>` : ''}
 
@@ -33027,6 +33081,38 @@ function openPlayerModal(player){
     </div>`;
 
   modal.classList.add('active');
+  // Trigger fade-in animation after next frame
+  requestAnimationFrame(()=>requestAnimationFrame(()=>modal.classList.add('faded-in')));
+
+  // Auto-play profile music with fade-in
+  if(musicUrl){
+    const ytId = (typeof extractYtId==='function') ? extractYtId(musicUrl) : null;
+    if(ytId){
+      setTimeout(()=>{
+        const f = (typeof getOrCreateProfileMusicFrame==='function') ? getOrCreateProfileMusicFrame('modalMusicIframe') : null;
+        if(f && (!f.src||f.src===''||f.src==='about:blank')){
+          f.src = (typeof ytEmbedUrl==='function') ? ytEmbedUrl(ytId) : `https://www.youtube.com/embed/${ytId}?autoplay=1&enablejsapi=1`;
+          const playBtn = modal.querySelector('.ppm-play-btn');
+          if(playBtn) playBtn.textContent='⏸';
+        }
+      }, 600);
+    } else {
+      setTimeout(()=>{
+        if(!window._modalMusicAudio||window._modalMusicAudio._url!==musicUrl){
+          if(window._modalMusicAudio) window._modalMusicAudio.pause();
+          window._modalMusicAudio = new Audio(musicUrl);
+          window._modalMusicAudio._url = musicUrl;
+          window._modalMusicAudio.volume = 0;
+          window._modalMusicAudio.loop = true;
+        }
+        window._modalMusicAudio.play().then(()=>{
+          let v=0; const fi=setInterval(()=>{v=Math.min(v+0.05,0.35);window._modalMusicAudio.volume=v;if(v>=0.35)clearInterval(fi);},60);
+          const playBtn = modal.querySelector('.ppm-play-btn');
+          if(playBtn) playBtn.textContent='⏸';
+        }).catch(()=>{});
+      }, 400);
+    }
+  }
 
   // Fetch real YouTube title for music bar
   if(musicUrl && extractYtId(musicUrl)){
@@ -33097,10 +33183,20 @@ function toggleModalMusic(url, btn){
 
 function closePlayerModal(){
   const modal = document.getElementById('playerProfileModal');
-  if(modal) modal.classList.remove('active');
-  if(window._modalMusicAudio){ window._modalMusicAudio.pause(); window._modalMusicAudio=null; }
+  if(!modal) return;
+  // Fade out music
+  if(window._modalMusicAudio && !window._modalMusicAudio.paused){
+    const audio = window._modalMusicAudio;
+    let v = audio.volume;
+    const fo = setInterval(()=>{v=Math.max(v-0.05,0);audio.volume=v;if(v<=0){clearInterval(fo);audio.pause();window._modalMusicAudio=null;}},40);
+  } else {
+    if(window._modalMusicAudio){ window._modalMusicAudio.pause(); window._modalMusicAudio=null; }
+  }
   const mf = document.getElementById('modalMusicIframe');
-  if(mf) mf.src='';
+  if(mf){ try{mf.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}','*');}catch(e){} setTimeout(()=>{mf.src='';},400); }
+  // Animate out
+  modal.classList.remove('faded-in');
+  setTimeout(()=>modal.classList.remove('active'), 350);
 }
 
 // ══════════════════════════════════════════════
