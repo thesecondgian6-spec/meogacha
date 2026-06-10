@@ -3422,6 +3422,85 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 /* No gp-btns class used anymore */
 .gp-btns { display: contents; }
 
+/* ── Pull History Panel ── */
+.ph-wrap {
+  background: rgba(255,157,199,0.02);
+  border: 1px solid rgba(255,157,199,0.1);
+  border-radius: 14px;
+  overflow: hidden;
+  margin-top: 20px;
+}
+.ph-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(255,157,199,0.08);
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.2s;
+}
+.ph-header:hover { background: rgba(255,157,199,0.04); }
+.ph-title {
+  font-family: 'JetBrains Mono', monospace; font-size: 0.62em;
+  color: rgba(255,255,255,0.35); letter-spacing: 0.14em; text-transform: uppercase;
+  display: flex; align-items: center; gap: 7px;
+}
+.ph-title::before { content: '⟡'; color: var(--pink); opacity: 0.7; }
+.ph-toggle-icon { font-size: 0.65em; color: rgba(255,255,255,0.25); transition: transform 0.25s; }
+.ph-wrap.open .ph-toggle-icon { transform: rotate(180deg); }
+.ph-body { display: none; padding: 6px 0; max-height: 320px; overflow-y: auto; }
+.ph-wrap.open .ph-body { display: block; }
+.ph-body::-webkit-scrollbar { width: 3px; }
+.ph-body::-webkit-scrollbar-thumb { background: rgba(255,157,199,0.25); border-radius: 3px; }
+.ph-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 7px 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+  transition: background 0.15s;
+}
+.ph-row:last-child { border-bottom: none; }
+.ph-row:hover { background: rgba(255,157,199,0.04); }
+.ph-thumb {
+  width: 32px; height: 32px; border-radius: 6px; object-fit: cover;
+  border: 1px solid var(--ph-color, rgba(255,157,199,0.3));
+  box-shadow: 0 0 8px var(--ph-color, rgba(255,157,199,0.2));
+  flex-shrink: 0;
+}
+.ph-thumb-fallback {
+  width: 32px; height: 32px; border-radius: 6px; flex-shrink: 0;
+  background: rgba(255,157,199,0.08);
+  border: 1px solid var(--ph-color, rgba(255,157,199,0.3));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.9em;
+}
+.ph-info { flex: 1; min-width: 0; }
+.ph-card-name {
+  font-size: 0.8em; color: var(--text); white-space: nowrap;
+  overflow: hidden; text-overflow: ellipsis;
+}
+.ph-meta {
+  font-family: 'JetBrains Mono', monospace; font-size: 0.54em;
+  color: rgba(255,255,255,0.3); margin-top: 2px;
+}
+.ph-rarity-tag {
+  font-family: 'JetBrains Mono', monospace; font-size: 0.52em;
+  font-weight: 700; padding: 2px 7px; border-radius: 6px;
+  border: 1px solid var(--ph-color, rgba(255,157,199,0.3));
+  color: var(--ph-color, var(--pink));
+  background: rgba(0,0,0,0.25);
+  white-space: nowrap; flex-shrink: 0;
+}
+.ph-empty {
+  padding: 24px 16px; text-align: center;
+  font-family: 'JetBrains Mono', monospace; font-size: 0.6em;
+  color: rgba(255,255,255,0.2); font-style: italic;
+}
+.ph-loading {
+  padding: 18px 16px; text-align: center;
+  font-family: 'JetBrains Mono', monospace; font-size: 0.58em;
+  color: rgba(255,157,199,0.35); animation: pulse 1.5s ease-in-out infinite;
+}
+@keyframes pulse { 0%,100%{opacity:0.4;} 50%{opacity:1;} }
+
 /* ── Mobile ── */
 @media (max-width: 700px) {
   #page-pull.active { height: auto; min-height: 0; overflow-y: auto; }
@@ -12621,6 +12700,19 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 
     </div><!-- end gp-dock -->
 
+    <!-- ── Pull History ── -->
+    <div style="max-width:780px;margin:0 auto;padding:0 0 32px;">
+      <div class="ph-wrap" id="pullHistoryWrap">
+        <div class="ph-header" onclick="togglePullHistory()">
+          <div class="ph-title">Recent Pulls</div>
+          <span class="ph-toggle-icon">▼</span>
+        </div>
+        <div class="ph-body" id="pullHistoryBody">
+          <div class="ph-loading">Loading pull history…</div>
+        </div>
+      </div>
+    </div>
+
   </div>
 
   <!-- COLLECTION -->
@@ -15750,6 +15842,28 @@ CREATE POLICY "anon_read_ann" ON announcements FOR SELECT USING (true);
 CREATE POLICY "anon_write_ann" ON announcements FOR ALL USING (true);
 -- If table already exists, add showcase column:
 ALTER TABLE announcements ADD COLUMN IF NOT EXISTS showcase jsonb DEFAULT '[]';</div>
+
+        <!-- Pull History SQL Migration -->
+        <details style="margin-top:10px;">
+          <summary style="font-family:'JetBrains Mono',monospace;font-size:0.68em;color:var(--pink);cursor:pointer;padding:4px 0;">📜 Pull History Table (run once)</summary>
+          <div style="background:#080310;border:1px solid var(--border);border-radius:10px;padding:10px;margin-top:6px;font-family:'JetBrains Mono',monospace;font-size:0.6em;color:var(--text-dim);white-space:pre-wrap;line-height:1.5;user-select:all;">CREATE TABLE IF NOT EXISTS pull_history (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  discord_id text NOT NULL,
+  card_id text NOT NULL,
+  card_name text DEFAULT '',
+  rarity int DEFAULT 1,
+  rarity_name text DEFAULT '',
+  banner_id text DEFAULT '',
+  banner_name text DEFAULT '',
+  banner_type text DEFAULT 'standard',
+  pulled_at timestamptz DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS ph_discord_idx ON pull_history(discord_id);
+CREATE INDEX IF NOT EXISTS ph_pulled_at_idx ON pull_history(pulled_at DESC);
+ALTER TABLE pull_history ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "anon_read_ph" ON pull_history FOR SELECT USING (true);
+CREATE POLICY "anon_insert_ph" ON pull_history FOR INSERT WITH CHECK (true);</div>
+        </details>
       </details>
     </div>
     <div>
@@ -17695,24 +17809,175 @@ function showLoadingOverlay(show){
 // PULL
 // ══════════════════════════════════════════════
 async function doPull(count){
-  if(state.coins<(count===1?50:200)){showToast('Not enough Meo Coins! 🪙');return;}
-  state.coins-=count===1?50:200;
-  state.totalPulls+=count;
+  const cost = count===1 ? 50 : 200;
+  if(state.coins < cost){ showToast('Not enough Meo Coins! 🪙'); return; }
+
+  // ── Snapshot state for rollback ──
+  const _coinsBefore    = state.coins;
+  const _pullsBefore    = state.totalPulls;
+  const _pitySRBefore   = state.pitySR;
+  const _pityURBefore   = state.pityUR;
+  const _pityMapBefore  = JSON.stringify(state.pityMap||{});
+  const _collBefore     = [...state.collection];
+
+  // ── Optimistic UI deduction ──
+  state.coins -= cost;
+  state.totalPulls += count;
   updateCoins();
-  if(count===1){
-    const card=weightedPick(buildPool());
-    await handlePullResult([card]);
-    // Play cutscene first if card has one, THEN show the pull screen
-    if(cardHasCutscene(card.id)){
-      await playCardCutscene(card, /*fromPull=*/true);
+
+  try {
+    if(count===1){
+      const card = weightedPick(buildPool());
+      await handlePullResult([card]);
+      await savePityNow(); // ← immediate server-side pity persist
+      await logPullHistory([card]);
+      if(cardHasCutscene(card.id)){
+        await playCardCutscene(card, /*fromPull=*/true);
+      }
+      showPullScreen(card);
+    } else {
+      const results = [];
+      for(let i=0;i<count;i++) results.push(weightedPick(buildPool()));
+      await handlePullResult(results);
+      await savePityNow();
+      await logPullHistory(results);
+      showMultiPullScreen(results);
     }
-    showPullScreen(card);
-  } else {
-    const results=[];
-    for(let i=0;i<count;i++)results.push(weightedPick(buildPool()));
-    await handlePullResult(results);
-    showMultiPullScreen(results);
+  } catch(err) {
+    // ── Full rollback on any failure ──
+    console.error('[MeoGacha] Pull failed, rolling back:', err);
+    state.coins       = _coinsBefore;
+    state.totalPulls  = _pullsBefore;
+    state.pitySR      = _pitySRBefore;
+    state.pityUR      = _pityURBefore;
+    try { state.pityMap = JSON.parse(_pityMapBefore); } catch(_){}
+    state.collection  = _collBefore;
+    updateCoins();
+    updatePity();
+    showToast('⚠️ Pull failed — your coins were returned. Please try again!');
   }
+}
+
+// ── Save pity to server immediately after a pull (server-authoritative) ──
+async function savePityNow(){
+  if(!state.discordId || state.isGuest) return;
+  try {
+    await sb.update('players', {
+      pity_sr:  state.pitySR,
+      pity_ur:  state.pityUR,
+      pity_map: JSON.stringify(state.pityMap||{}),
+      coins:    state.coins,
+      total_pulls: state.totalPulls,
+    }, { discord_id: state.discordId });
+  } catch(e) {
+    console.warn('[MeoGacha] savePityNow failed (non-critical):', e);
+  }
+}
+
+// ── Log each pull to pull_history table ──
+async function logPullHistory(cards){
+  if(!state.discordId || state.isGuest) return;
+  const banner = getActiveBanner();
+  const rows = cards.map(card => ({
+    discord_id:  state.discordId,
+    card_id:     card.id,
+    card_name:   card.name,
+    rarity:      card.rarity,
+    rarity_name: card.rarityName||'',
+    banner_id:   banner?.id||'unknown',
+    banner_name: banner?.name||'Unknown Banner',
+    banner_type: banner?.banner_type||'standard',
+    pulled_at:   new Date().toISOString(),
+  }));
+  try {
+    for(const row of rows) await sb.insert('pull_history', row);
+    refreshPullHistoryIfOpen();
+  } catch(e) {
+    console.warn('[MeoGacha] logPullHistory failed (non-critical):', e);
+  }
+}
+
+// ── Pull History UI ──
+let _phLoaded = false;
+let _phOpen   = false;
+
+function togglePullHistory(){
+  const wrap = document.getElementById('pullHistoryWrap');
+  if(!wrap) return;
+  _phOpen = !_phOpen;
+  wrap.classList.toggle('open', _phOpen);
+  if(_phOpen && !_phLoaded) loadPullHistory();
+}
+
+async function loadPullHistory(){
+  const body = document.getElementById('pullHistoryBody');
+  if(!body) return;
+  body.innerHTML = '<div class="ph-loading">Loading pull history…</div>';
+
+  if(state.isGuest || !state.discordId){
+    renderPullHistoryRows(body, window._sessionPulls ? [...window._sessionPulls].reverse() : []);
+    _phLoaded = true;
+    return;
+  }
+  try {
+    const rows = await sb.get('pull_history', { discord_id: state.discordId }, {
+      order: 'pulled_at.desc',
+      limit: 50,
+    });
+    renderPullHistoryRows(body, rows || []);
+  } catch(e) {
+    body.innerHTML = '<div class="ph-empty">Couldn\'t load history — check your connection.</div>';
+  }
+  _phLoaded = true;
+}
+
+function renderPullHistoryRows(body, rows){
+  if(!rows || rows.length === 0){
+    body.innerHTML = '<div class="ph-empty">No pulls yet — your history will appear here! ✦</div>';
+    return;
+  }
+  const RARITY_COLORS_PH = {
+    1:'#bdc3c7',2:'#2ecc71',3:'#3498db',
+    4:'#9b59b6',5:'#f1c40f',6:'#ff6b9d',7:'#1abc9c',
+  };
+  body.innerHTML = rows.map(row => {
+    const color  = RARITY_COLORS_PH[row.rarity] || '#ff9dc7';
+    const card   = (window.allCards || []).find(c => c.id === row.card_id);
+    const img    = card?.image || '';
+    const name   = row.card_name || card?.name || row.card_id || 'Unknown Card';
+    const rname  = row.rarity_name || card?.rarityName || `Rarity ${row.rarity}`;
+    const banner = row.banner_name || 'Unknown Banner';
+    const when   = row.pulled_at ? fmtPullTime(row.pulled_at) : '';
+    const colorEsc = color.replace(/['"]/g,'');
+    const thumb = img
+      ? `<img class="ph-thumb" src="${img}" alt="${name}" style="--ph-color:${colorEsc}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`+
+        `<div class="ph-thumb-fallback" style="--ph-color:${colorEsc};display:none">✦</div>`
+      : `<div class="ph-thumb-fallback" style="--ph-color:${colorEsc}">✦</div>`;
+    return `<div class="ph-row">
+      ${thumb}
+      <div class="ph-info">
+        <div class="ph-card-name">${name}</div>
+        <div class="ph-meta">${banner}${when ? ' · '+when : ''}</div>
+      </div>
+      <div class="ph-rarity-tag" style="--ph-color:${colorEsc}">${rname}</div>
+    </div>`;
+  }).join('');
+}
+
+function fmtPullTime(iso){
+  try {
+    const diff = Date.now() - new Date(iso).getTime();
+    const mins = Math.floor(diff / 60000);
+    if(mins < 1)  return 'just now';
+    if(mins < 60) return `${mins}m ago`;
+    const hrs = Math.floor(mins / 60);
+    if(hrs < 24)  return `${hrs}h ago`;
+    return `${Math.floor(hrs / 24)}d ago`;
+  } catch(_){ return ''; }
+}
+
+function refreshPullHistoryIfOpen(){
+  if(_phOpen){ _phLoaded = false; loadPullHistory(); }
 }
 
 function showMultiPullScreen(cards){
