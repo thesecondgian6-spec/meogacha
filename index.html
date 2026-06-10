@@ -15723,11 +15723,11 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
           <span style="font-size:0.68em;color:var(--text-dim);">Cards, skins, titles shown visually in popup</span>
         </div>
         <div id="announceShowcaseList" style="display:flex;flex-direction:column;gap:7px;margin-bottom:8px;"></div>
-        <div style="display:flex;gap:6px;flex-wrap:wrap;">
-          <button class="admin-btn" onclick="addAnnounceShowcaseRow('card')" style="flex:1;font-size:0.72em;padding:6px 8px;background:rgba(255,157,199,0.06);border-color:rgba(255,157,199,0.2);">🎴 Add Card</button>
-          <button class="admin-btn" onclick="addAnnounceShowcaseRow('skin')" style="flex:1;font-size:0.72em;padding:6px 8px;background:rgba(155,89,182,0.06);border-color:rgba(155,89,182,0.2);">🎨 Add Skin</button>
-          <button class="admin-btn" onclick="addAnnounceShowcaseRow('title')" style="flex:1;font-size:0.72em;padding:6px 8px;background:rgba(241,196,15,0.06);border-color:rgba(241,196,15,0.2);">🎀 Add Title</button>
-          <button class="admin-btn" onclick="addAnnounceShowcaseRow('custom')" style="flex:1;font-size:0.72em;padding:6px 8px;background:rgba(26,188,156,0.06);border-color:rgba(26,188,156,0.2);">🖼️ Custom</button>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+          <button class="admin-btn" onclick="addAnnounceShowcaseRow('card')" style="font-size:0.75em;padding:7px 8px;background:rgba(255,157,199,0.06);border-color:rgba(255,157,199,0.2);">🎴 Add Card</button>
+          <button class="admin-btn" onclick="addAnnounceShowcaseRow('skin')" style="font-size:0.75em;padding:7px 8px;background:rgba(155,89,182,0.06);border-color:rgba(155,89,182,0.2);">🎨 Add Skin</button>
+          <button class="admin-btn" onclick="addAnnounceShowcaseRow('title')" style="font-size:0.75em;padding:7px 8px;background:rgba(241,196,15,0.06);border-color:rgba(241,196,15,0.2);">🎀 Add Title</button>
+          <button class="admin-btn" onclick="addAnnounceShowcaseRow('custom')" style="font-size:0.75em;padding:7px 8px;background:rgba(26,188,156,0.06);border-color:rgba(26,188,156,0.2);">🖼️ Custom</button>
         </div>
       </div>
 
@@ -39181,6 +39181,14 @@ document.addEventListener('click', e => {
   cursor:default;
 }
 .showcase-card-chip:hover { transform:translateY(-2px); box-shadow:0 6px 20px rgba(0,0,0,0.4); }
+@media(max-width:600px){
+  .announce-showcase-row { gap:5px; }
+  .announce-showcase-type-badge { font-size:0.6em; }
+  .showcase-grid { gap:6px; }
+  .showcase-card-chip, .showcase-skin-chip, .showcase-custom-chip { width:76px; }
+  .showcase-card-img, .showcase-skin-img { width:76px; height:94px; }
+  .showcase-card-img-ph, .showcase-skin-img-ph { width:76px; height:94px; }
+}
 .showcase-card-img {
   width:90px;height:110px;object-fit:cover;display:block;flex-shrink:0;
 }
@@ -39247,19 +39255,23 @@ document.addEventListener('click', e => {
 }
 /* ── Admin showcase row ── */
 .announce-showcase-row {
-  display:flex;gap:6px;align-items:center;
+  display:flex;gap:6px;align-items:flex-start;flex-wrap:wrap;
   background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);
   border-radius:8px;padding:7px 9px;
 }
 .announce-showcase-type-badge {
   font-size:0.62em;padding:2px 7px;border-radius:10px;
-  font-family:'JetBrains Mono',monospace;flex-shrink:0;
+  font-family:'JetBrains Mono',monospace;flex-shrink:0;white-space:nowrap;
+}
+.announce-showcase-row .sc-inputs {
+  display:flex;flex-direction:column;gap:4px;flex:1;min-width:0;
 }
 .announce-showcase-row input {
-  flex:1;background:none;border:none;border-bottom:1px solid rgba(255,255,255,0.1);
-  color:var(--text);font-size:0.8em;padding:2px 4px;outline:none;
+  width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);
+  border-radius:6px;color:var(--text);font-size:0.78em;padding:4px 8px;
+  outline:none;box-sizing:border-box;
 }
-.announce-showcase-row input:focus { border-bottom-color:var(--pink); }
+.announce-showcase-row input:focus { border-color:var(--pink); }
 .announce-showcase-row input::placeholder { color:rgba(255,255,255,0.2); }
 </style>
 
@@ -39427,9 +39439,11 @@ function addAnnounceShowcaseRow(type) {
   div.dataset.type = type;
   div.innerHTML = `
     <span class="announce-showcase-type-badge" style="background:${meta.color};color:var(--text);">${meta.badge}</span>
-    <input class="sc-ref" placeholder="${escapeHtml(meta.p1)}" oninput="adminPreviewAnnouncement()"/>
-    <input class="sc-img" placeholder="${escapeHtml(meta.p2)}" oninput="adminPreviewAnnouncement()"/>
-    <button onclick="this.closest('.announce-showcase-row').remove();adminPreviewAnnouncement()" style="background:rgba(231,76,60,0.1);border:1px solid rgba(231,76,60,0.2);color:#e74c3c;border-radius:6px;width:24px;height:24px;cursor:pointer;flex-shrink:0;font-size:0.7em;">✕</button>`;
+    <div class="sc-inputs">
+      <input class="sc-ref" placeholder="${escapeHtml(meta.p1)}" oninput="adminPreviewAnnouncement()"/>
+      <input class="sc-img" placeholder="${escapeHtml(meta.p2)}" oninput="adminPreviewAnnouncement()"/>
+    </div>
+    <button onclick="this.closest('.announce-showcase-row').remove();adminPreviewAnnouncement()" style="background:rgba(231,76,60,0.1);border:1px solid rgba(231,76,60,0.2);color:#e74c3c;border-radius:6px;width:24px;height:24px;cursor:pointer;flex-shrink:0;font-size:0.7em;align-self:center;">✕</button>`;
   list.appendChild(div);
   adminPreviewAnnouncement();
 }
