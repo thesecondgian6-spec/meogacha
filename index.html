@@ -15666,6 +15666,76 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   </div>
 </div>
 
+<!-- ADMIN: CODES TAB (inside page-admin) -->
+<div id="adminTab-codes-real" style="display:none;">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start;" class="admin-two-col-grid">
+    <div class="admin-panel">
+      <h3 style="font-family:'Cinzel Decorative',serif;font-size:0.88em;margin-bottom:18px;">🎟️ Create Promo Code</h3>
+      <label class="admin-label">Code <span class="admin-hint">(auto-generated or custom)</span></label>
+      <div style="display:flex;gap:8px;margin-bottom:12px;">
+        <input class="admin-input" id="codeFormCode" placeholder="e.g. MEOW-ABCD-1234" style="flex:1;text-transform:uppercase;letter-spacing:0.05em;font-family:'JetBrains Mono',monospace;"/>
+        <button class="admin-btn" onclick="adminGenerateCode()" style="padding:8px 14px;white-space:nowrap;">🎲 Generate</button>
+      </div>
+      <label class="admin-label">Max Uses <span class="admin-hint">(0 = unlimited)</span></label>
+      <input class="admin-input" id="codeFormMaxUses" type="number" value="0" min="0" style="margin-bottom:12px;"/>
+      <label class="admin-label">Expires <span class="admin-hint">(leave blank = no expiry)</span></label>
+      <input class="admin-input" id="codeFormExpires" type="datetime-local" style="margin-bottom:14px;"/>
+      <label class="admin-label">Rewards <span class="admin-hint">(add one or more)</span></label>
+      <div id="codeRewardsList" style="margin-bottom:8px;"></div>
+      <button class="admin-btn" onclick="addCodeRewardRow()" style="width:100%;margin-bottom:14px;background:rgba(255,157,199,0.06);border-color:rgba(255,157,199,0.2);">➕ Add Reward</button>
+      <button class="admin-btn" onclick="adminCreateCode()" style="width:100%;background:linear-gradient(135deg,var(--pink-deep),var(--purple));color:#fff;border:none;">🎟️ Create Code</button>
+    </div>
+    <div class="admin-panel">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+        <h3 style="font-family:'Cinzel Decorative',serif;font-size:0.88em;">Active Codes <span id="adminCodeCount" style="font-size:0.75em;color:var(--text-dim);font-family:'JetBrains Mono',monospace;"></span></h3>
+        <button class="admin-btn" onclick="adminLoadCodeList()" style="padding:6px 12px;font-size:0.82em;">↺ Refresh</button>
+      </div>
+      <div id="adminCodeList"><div style="color:var(--text-dim);font-style:italic;font-size:0.82em;text-align:center;padding:20px;">No codes yet — create your first!</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN: ANNOUNCE TAB (inside page-admin) -->
+<div id="adminTab-announce-real" style="display:none;">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start;" class="admin-two-col-grid">
+    <div class="admin-panel">
+      <h3 style="font-family:'Cinzel Decorative',serif;font-size:0.88em;margin-bottom:18px;">📢 Compose Announcement</h3>
+      <label class="admin-label">Title *</label>
+      <input class="admin-input" id="announceFormTitle" placeholder="e.g. New Banner: Sakura Season!" maxlength="80" style="margin-bottom:10px;" oninput="adminPreviewAnnouncement()"/>
+      <label class="admin-label">Banner GIF URL <span class="admin-hint">(optional)</span></label>
+      <input class="admin-input" id="announceFormGif" placeholder="https://media.tenor.com/..." style="margin-bottom:10px;" oninput="adminPreviewAnnouncement()"/>
+      <label class="admin-label">Message *</label>
+      <textarea class="admin-input" id="announceFormBody" placeholder="Describe your update, new cards, events..." rows="5" maxlength="600" style="resize:none;margin-bottom:14px;" oninput="adminPreviewAnnouncement()"></textarea>
+      <button class="admin-btn" onclick="adminSaveAnnouncement()" style="width:100%;background:linear-gradient(135deg,var(--pink-deep),var(--purple));color:#fff;border:none;">📢 Save & Activate</button>
+      <div style="font-size:0.72em;color:var(--text-dim);margin-top:8px;text-align:center;font-style:italic;">Shows as a popup to all players on next visit. Previous announcements deactivated.</div>
+    </div>
+    <div>
+      <div class="admin-panel" style="margin-bottom:16px;">
+        <h3 style="font-family:'Cinzel Decorative',serif;font-size:0.82em;margin-bottom:12px;">Preview</h3>
+        <div id="announcePrevBox" style="display:none;border:1px solid rgba(255,157,199,0.2);border-radius:16px;overflow:hidden;background:linear-gradient(160deg,#0e0516,#13071d);">
+          <div class="announce-banner-img-wrap">
+            <div class="announce-banner-placeholder" style="height:120px;font-size:2em;">📢</div>
+          </div>
+          <div class="announce-body" style="padding:16px;">
+            <div class="announce-label">✦ MeoGacha Update</div>
+            <div class="announce-title" style="font-size:1em;"></div>
+            <div class="announce-text" style="font-size:0.82em;margin-bottom:12px;"></div>
+            <div style="text-align:center;padding:6px 0;border-radius:8px;background:linear-gradient(135deg,var(--pink-deep),var(--purple));color:#fff;font-family:'Cinzel Decorative',serif;font-size:0.68em;">✦ Got it! ✦</div>
+          </div>
+        </div>
+        <div id="announcePrevEmpty" style="color:var(--text-dim);font-style:italic;font-size:0.82em;text-align:center;padding:20px;">Fill in the form to see a preview</div>
+      </div>
+      <div class="admin-panel">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+          <h3 style="font-family:'Cinzel Decorative',serif;font-size:0.82em;">Past Announcements</h3>
+          <button class="admin-btn" onclick="adminLoadAnnouncementList()" style="padding:5px 10px;font-size:0.78em;">↺</button>
+        </div>
+        <div id="adminAnnounceList"><div style="color:var(--text-dim);font-style:italic;font-size:0.82em;text-align:center;padding:14px;">No announcements yet.</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
   </div>
 </div>
 
@@ -38754,15 +38824,20 @@ function adminPreviewAnnouncement() {
 (function(){
   const _orig = window.switchAdminTab;
   window.switchAdminTab = function(tab, btn) {
-    // Hide new tabs too
+    // Always hide the new real tabs first
     ['codes','announce'].forEach(t => {
-      const el = document.getElementById('adminTab-'+t);
+      const el = document.getElementById('adminTab-'+t+'-real');
       const b = document.getElementById('atab-'+t);
       if(el) el.style.display = t===tab ? 'block' : 'none';
       if(b) b.classList.toggle('active', t===tab);
     });
     if(tab === 'codes') { adminLoadPlayerSearch(); adminLoadCodeList(); return; }
     if(tab === 'announce') { adminLoadAnnouncementList(); return; }
+    // For all other tabs, also ensure new tabs are hidden, then call original
+    ['codes','announce'].forEach(t => {
+      const el = document.getElementById('adminTab-'+t+'-real');
+      if(el) el.style.display = 'none';
+    });
     _orig(tab, btn);
   };
 
@@ -38797,143 +38872,6 @@ if(_origGoToSettings) {
 }
 </script>
 
-<!-- ADMIN: CODES TAB HTML -->
-<div id="adminTab-codes" style="display:none;">
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start;" class="admin-two-col-grid">
-    <!-- Left: Code Builder -->
-    <div class="admin-panel">
-      <h3 style="font-family:'Cinzel Decorative',serif;font-size:0.88em;margin-bottom:18px;">🎟️ Create Promo Code</h3>
-
-      <label class="admin-label">Code <span class="admin-hint">(auto-generated or custom)</span></label>
-      <div style="display:flex;gap:8px;margin-bottom:12px;">
-        <input class="admin-input" id="codeFormCode" placeholder="e.g. MEOW-ABCD-1234" style="flex:1;text-transform:uppercase;letter-spacing:0.05em;font-family:'JetBrains Mono',monospace;"/>
-        <button class="admin-btn" onclick="adminGenerateCode()" style="padding:8px 14px;white-space:nowrap;">🎲 Generate</button>
-      </div>
-
-      <label class="admin-label">Max Uses <span class="admin-hint">(0 = unlimited)</span></label>
-      <input class="admin-input" id="codeFormMaxUses" type="number" value="0" min="0" style="margin-bottom:12px;"/>
-
-      <label class="admin-label">Expires <span class="admin-hint">(leave blank = no expiry)</span></label>
-      <input class="admin-input" id="codeFormExpires" type="datetime-local" style="margin-bottom:14px;"/>
-
-      <label class="admin-label">Rewards <span class="admin-hint">(add one or more)</span></label>
-      <div id="codeRewardsList" style="margin-bottom:8px;"></div>
-      <button class="admin-btn" onclick="addCodeRewardRow()" style="width:100%;margin-bottom:14px;background:rgba(255,157,199,0.06);border-color:rgba(255,157,199,0.2);">➕ Add Reward</button>
-
-      <button class="admin-btn" onclick="adminCreateCode()" style="width:100%;background:linear-gradient(135deg,var(--pink-deep),var(--purple));color:#fff;border:none;">
-        🎟️ Create Code
-      </button>
-    </div>
-
-    <!-- Right: Code List -->
-    <div class="admin-panel">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
-        <h3 style="font-family:'Cinzel Decorative',serif;font-size:0.88em;">Active Codes <span id="adminCodeCount" style="font-size:0.75em;color:var(--text-dim);font-family:'JetBrains Mono',monospace;"></span></h3>
-        <button class="admin-btn" onclick="adminLoadCodeList()" style="padding:6px 12px;font-size:0.82em;">↺ Refresh</button>
-      </div>
-      <div id="adminCodeList">
-        <div style="color:var(--text-dim);font-style:italic;font-size:0.82em;text-align:center;padding:20px;">No codes yet — create your first code!</div>
-      </div>
-
-      <!-- SQL Migration hint -->
-      <details style="margin-top:16px;">
-        <summary style="font-size:0.75em;color:var(--text-dim);cursor:pointer;padding:6px 0;">📋 SQL Migration (run once)</summary>
-        <div style="background:#080310;border:1px solid var(--border);border-radius:10px;padding:12px;margin-top:8px;font-family:'JetBrains Mono',monospace;font-size:0.62em;color:var(--text-dim);white-space:pre-wrap;line-height:1.5;user-select:all;">CREATE TABLE IF NOT EXISTS promo_codes (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  code text UNIQUE NOT NULL,
-  rewards jsonb DEFAULT '{}',
-  max_uses int DEFAULT 0,
-  times_used int DEFAULT 0,
-  is_active boolean DEFAULT true,
-  created_at timestamptz DEFAULT now(),
-  expires_at timestamptz DEFAULT NULL
-);
-CREATE TABLE IF NOT EXISTS code_redemptions (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  code_id uuid REFERENCES promo_codes(id) ON DELETE CASCADE,
-  discord_id text NOT NULL,
-  redeemed_at timestamptz DEFAULT now(),
-  UNIQUE(code_id, discord_id)
-);
-ALTER TABLE promo_codes ENABLE ROW LEVEL SECURITY;
-ALTER TABLE code_redemptions ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "anon_read_codes" ON promo_codes FOR SELECT USING (true);
-CREATE POLICY "anon_write_codes" ON promo_codes FOR ALL USING (true);
-CREATE POLICY "anon_read_redeem" ON code_redemptions FOR SELECT USING (true);
-CREATE POLICY "anon_write_redeem" ON code_redemptions FOR ALL USING (true);</div>
-      </details>
-    </div>
-  </div>
-</div>
-
-<!-- ADMIN: ANNOUNCE TAB HTML -->
-<div id="adminTab-announce" style="display:none;">
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start;" class="admin-two-col-grid">
-    <!-- Left: Compose -->
-    <div class="admin-panel">
-      <h3 style="font-family:'Cinzel Decorative',serif;font-size:0.88em;margin-bottom:18px;">📢 Compose Announcement</h3>
-
-      <label class="admin-label">Title *</label>
-      <input class="admin-input" id="announceFormTitle" placeholder="e.g. New Banner: Sakura Season!" maxlength="80" style="margin-bottom:10px;" oninput="adminPreviewAnnouncement()"/>
-
-      <label class="admin-label">Banner GIF URL <span class="admin-hint">(optional — appears at top)</span></label>
-      <input class="admin-input" id="announceFormGif" placeholder="https://media.tenor.com/..." style="margin-bottom:10px;" oninput="adminPreviewAnnouncement()"/>
-
-      <label class="admin-label">Message *</label>
-      <textarea class="admin-input" id="announceFormBody" placeholder="Describe your update, new cards, events..." rows="5" maxlength="600" style="resize:none;margin-bottom:14px;" oninput="adminPreviewAnnouncement()"></textarea>
-
-      <button class="admin-btn" onclick="adminSaveAnnouncement()" style="width:100%;background:linear-gradient(135deg,var(--pink-deep),var(--purple));color:#fff;border:none;">
-        📢 Save & Activate
-      </button>
-      <div style="font-size:0.72em;color:var(--text-dim);margin-top:8px;text-align:center;font-style:italic;">This will show as a popup to all players on their next visit. Previous announcements will be deactivated.</div>
-
-      <!-- SQL Migration hint -->
-      <details style="margin-top:16px;">
-        <summary style="font-size:0.75em;color:var(--text-dim);cursor:pointer;padding:6px 0;">📋 SQL Migration (run once)</summary>
-        <div style="background:#080310;border:1px solid var(--border);border-radius:10px;padding:12px;margin-top:8px;font-family:'JetBrains Mono',monospace;font-size:0.62em;color:var(--text-dim);white-space:pre-wrap;line-height:1.5;user-select:all;">CREATE TABLE IF NOT EXISTS announcements (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  title text NOT NULL,
-  body text DEFAULT '',
-  gif_url text DEFAULT '',
-  is_active boolean DEFAULT true,
-  created_at timestamptz DEFAULT now()
-);
-ALTER TABLE announcements ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "anon_read_ann" ON announcements FOR SELECT USING (true);
-CREATE POLICY "anon_write_ann" ON announcements FOR ALL USING (true);</div>
-      </details>
-    </div>
-
-    <!-- Right: Preview + List -->
-    <div>
-      <div class="admin-panel" style="margin-bottom:16px;">
-        <h3 style="font-family:'Cinzel Decorative',serif;font-size:0.82em;margin-bottom:12px;">Preview</h3>
-        <div id="announcePrevBox" style="display:none;border:1px solid rgba(255,157,199,0.2);border-radius:16px;overflow:hidden;background:linear-gradient(160deg,#0e0516,#13071d);">
-          <div class="announce-banner-img-wrap">
-            <div class="announce-banner-placeholder" style="height:120px;font-size:2em;">📢</div>
-          </div>
-          <div class="announce-body" style="padding:16px;">
-            <div class="announce-label">✦ MeoGacha Update</div>
-            <div class="announce-title" style="font-size:1em;"></div>
-            <div class="announce-text" style="font-size:0.82em;margin-bottom:12px;"></div>
-            <div style="text-align:center;padding:6px 0;border-radius:8px;background:linear-gradient(135deg,var(--pink-deep),var(--purple));color:#fff;font-family:'Cinzel Decorative',serif;font-size:0.68em;">✦ Got it! ✦</div>
-          </div>
-        </div>
-        <div id="announcePrevEmpty" style="color:var(--text-dim);font-style:italic;font-size:0.82em;text-align:center;padding:20px;">Fill in the form to see a preview</div>
-      </div>
-
-      <div class="admin-panel">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-          <h3 style="font-family:'Cinzel Decorative',serif;font-size:0.82em;">Past Announcements</h3>
-          <button class="admin-btn" onclick="adminLoadAnnouncementList()" style="padding:5px 10px;font-size:0.78em;">↺</button>
-        </div>
-        <div id="adminAnnounceList">
-          <div style="color:var(--text-dim);font-style:italic;font-size:0.82em;text-align:center;padding:14px;">No announcements yet.</div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
 
 <!-- ADMIN: TOOLS TAB — Enhanced Grant Panel -->
 <script>
