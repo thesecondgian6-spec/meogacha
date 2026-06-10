@@ -12521,6 +12521,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
           <button class="nav-dd-item" onclick="closeNavDropdown();goTo('profile',null)">👤 View Profile</button>
           <button class="nav-dd-item" onclick="closeNavDropdown();openDailyManual()">📅 Daily Rewards</button>
           <button class="nav-dd-item" onclick="closeNavDropdown();openRedeemCodesModal()">🎟️ Redeem Codes</button>
+          <button class="nav-dd-item" onclick="closeNavDropdown();openUpdateLogModal()">📋 Update Log</button>
           <button class="nav-dd-item" onclick="closeNavDropdown();openGuideModal()">📖 Guide</button>
           <div class="nav-dd-divider"></div>
           <button class="nav-dd-item" onclick="closeNavDropdown();openSettingsModal()">⚙️ Settings</button>
@@ -14859,7 +14860,15 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
               <input class="admin-input" id="cardForm_limitedFor" placeholder="Discord ID of the card owner"/>
             </div>
 
-            <!-- ABILITIES INLINE -->
+            <!-- TITLE DROP -->
+            <div style="background:rgba(255,157,199,0.04);border:1px solid rgba(255,157,199,0.15);border-radius:10px;padding:10px 12px;margin-bottom:10px;">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+                <span style="font-size:0.9em;">🎀</span>
+                <label class="admin-label" style="margin:0;">Title Drop <span class="admin-hint">(granted to player on pull — recommended for LR+)</span></label>
+              </div>
+              <input class="admin-input" id="cardForm_titleDrop" placeholder="e.g. ✦ Legendary Summoner ✦  (leave blank for no title drop)" style="font-size:0.85em;"/>
+              <div style="font-size:0.68em;color:var(--text-dim);margin-top:5px;font-style:italic;">💡 Players will receive this title automatically when they pull this card for the first time.</div>
+            </div>
             <div class="admin-section-label" style="margin-top:18px;">
               Abilities <span class="admin-hint">(up to 5 — auto-saved with card)</span>
             </div>
@@ -15705,9 +15714,43 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
       <label class="admin-label">Banner GIF URL <span class="admin-hint">(optional)</span></label>
       <input class="admin-input" id="announceFormGif" placeholder="https://media.tenor.com/..." style="margin-bottom:10px;" oninput="adminPreviewAnnouncement()"/>
       <label class="admin-label">Message *</label>
-      <textarea class="admin-input" id="announceFormBody" placeholder="Describe your update, new cards, events..." rows="5" maxlength="600" style="resize:none;margin-bottom:14px;" oninput="adminPreviewAnnouncement()"></textarea>
+      <textarea class="admin-input" id="announceFormBody" placeholder="Describe your update, new cards, events..." rows="4" maxlength="600" style="resize:none;margin-bottom:14px;" oninput="adminPreviewAnnouncement()"></textarea>
+
+      <!-- Showcase Builder -->
+      <div style="background:rgba(255,157,199,0.04);border:1px solid rgba(255,157,199,0.15);border-radius:12px;padding:12px;margin-bottom:14px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:0.65em;letter-spacing:0.12em;color:var(--pink);text-transform:uppercase;">✨ Showcase Items</div>
+          <span style="font-size:0.68em;color:var(--text-dim);">Cards, skins, titles shown visually in popup</span>
+        </div>
+        <div id="announceShowcaseList" style="display:flex;flex-direction:column;gap:7px;margin-bottom:8px;"></div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+          <button class="admin-btn" onclick="addAnnounceShowcaseRow('card')" style="flex:1;font-size:0.72em;padding:6px 8px;background:rgba(255,157,199,0.06);border-color:rgba(255,157,199,0.2);">🎴 Add Card</button>
+          <button class="admin-btn" onclick="addAnnounceShowcaseRow('skin')" style="flex:1;font-size:0.72em;padding:6px 8px;background:rgba(155,89,182,0.06);border-color:rgba(155,89,182,0.2);">🎨 Add Skin</button>
+          <button class="admin-btn" onclick="addAnnounceShowcaseRow('title')" style="flex:1;font-size:0.72em;padding:6px 8px;background:rgba(241,196,15,0.06);border-color:rgba(241,196,15,0.2);">🎀 Add Title</button>
+          <button class="admin-btn" onclick="addAnnounceShowcaseRow('custom')" style="flex:1;font-size:0.72em;padding:6px 8px;background:rgba(26,188,156,0.06);border-color:rgba(26,188,156,0.2);">🖼️ Custom</button>
+        </div>
+      </div>
+
       <button class="admin-btn" onclick="adminSaveAnnouncement()" style="width:100%;background:linear-gradient(135deg,var(--pink-deep),var(--purple));color:#fff;border:none;">📢 Save & Activate</button>
-      <div style="font-size:0.72em;color:var(--text-dim);margin-top:8px;text-align:center;font-style:italic;">Shows as a popup to all players on next visit. Previous announcements deactivated.</div>
+      <div style="font-size:0.72em;color:var(--text-dim);margin-top:8px;text-align:center;font-style:italic;">Shows as a popup + appears in the Update Log for all players.</div>
+
+      <details style="margin-top:14px;">
+        <summary style="font-size:0.72em;color:var(--text-dim);cursor:pointer;padding:4px 0;">📋 SQL Migration (run once in Supabase)</summary>
+        <div style="background:#080310;border:1px solid var(--border);border-radius:10px;padding:10px;margin-top:6px;font-family:'JetBrains Mono',monospace;font-size:0.6em;color:var(--text-dim);white-space:pre-wrap;line-height:1.5;user-select:all;">CREATE TABLE IF NOT EXISTS announcements (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  title text NOT NULL,
+  body text DEFAULT '',
+  gif_url text DEFAULT '',
+  showcase jsonb DEFAULT '[]',
+  is_active boolean DEFAULT true,
+  created_at timestamptz DEFAULT now()
+);
+ALTER TABLE announcements ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "anon_read_ann" ON announcements FOR SELECT USING (true);
+CREATE POLICY "anon_write_ann" ON announcements FOR ALL USING (true);
+-- If table already exists, add showcase column:
+ALTER TABLE announcements ADD COLUMN IF NOT EXISTS showcase jsonb DEFAULT '[]';</div>
+      </details>
     </div>
     <div>
       <div class="admin-panel" style="margin-bottom:16px;">
@@ -15720,6 +15763,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
             <div class="announce-label">✦ MeoGacha Update</div>
             <div class="announce-title" style="font-size:1em;"></div>
             <div class="announce-text" style="font-size:0.82em;margin-bottom:12px;"></div>
+            <div id="announcePrevShowcase" style="margin-bottom:10px;"></div>
             <div style="text-align:center;padding:6px 0;border-radius:8px;background:linear-gradient(135deg,var(--pink-deep),var(--purple));color:#fff;font-family:'Cinzel Decorative',serif;font-size:0.68em;">✦ Got it! ✦</div>
           </div>
         </div>
@@ -17522,6 +17566,42 @@ async function savePlayer(){
 async function saveCardToCollection(discordId,cardId){
   await sb.insert('collection',{discord_id:discordId,card_id:cardId});
 }
+
+// ── Grant a title to a player (used by codes, card drops, admin grant) ──
+async function grantTitleToPlayer(discordId, titleText, sourceName) {
+  if(!titleText) return;
+  if(!state.ownedTitles) state.ownedTitles = [];
+  const alreadyOwns = state.ownedTitles.includes(titleText);
+  if(discordId && discordId === state.discordId && !alreadyOwns){
+    state.ownedTitles.push(titleText);
+  }
+  if(discordId && !state.isGuest){
+    try {
+      await sb.insert('player_titles', { discord_id: discordId, title: titleText });
+    } catch(_) {}
+    // Also update owned_titles JSON on player row
+    if(discordId === state.discordId){
+      await sb.update('players', { owned_titles: JSON.stringify(state.ownedTitles) }, { discord_id: discordId });
+    } else {
+      // For other players (admin grant), fetch and merge their titles
+      try {
+        const rows = await sb.get('players', { discord_id: discordId }, { limit: 1 });
+        const p = rows && rows[0];
+        let titles = [];
+        try { titles = p?.owned_titles ? JSON.parse(p.owned_titles) : []; } catch(_){}
+        if(!titles.includes(titleText)){
+          titles.push(titleText);
+          await sb.update('players', { owned_titles: JSON.stringify(titles) }, { discord_id: discordId });
+        }
+      } catch(_) {}
+    }
+  }
+  if(!alreadyOwns && discordId === state.discordId){
+    const from = sourceName ? ` from ${sourceName}` : '';
+    showToast(`🎀 New Title Unlocked${from}: "${titleText}"`);
+    try { spawnParticles(5, '#ff6b9d'); } catch(_){}
+  }
+}
 async function saveXp(discordId,cardId,xp){
   await sb.upsert('card_xp',{discord_id:discordId,card_id:cardId,xp});
 }
@@ -17547,6 +17627,7 @@ async function loadCards(){
       limitedFor:  r.limited_for,
       forBattle:   r.for_battle !== false,
       music_url:   r.music_url || '',
+      title_drop:  r.title_drop || '',
     }));
     console.log(`Loaded ${window.DEMO_CARDS.length} cards from DB`);
   }
@@ -17680,6 +17761,11 @@ async function handlePullResult(cards){
       if(state.discordId&&!state.isGuest)await saveXp(state.discordId,card.id,state.xpMap[card.id]);
     }
     if(state.discordId&&!state.isGuest)await saveCardToCollection(state.discordId,card.id);
+
+    // ── Title Drop: grant on first pull of cards with a title_drop set ──
+    if(!isDupe && card.title_drop){
+      await grantTitleToPlayer(state.discordId, card.title_drop, card.name);
+    }
   }
   if(state.discordId&&!state.isGuest)await savePlayer();
   if(state.isGuest)saveGuestState();
@@ -28270,6 +28356,7 @@ async function submitCardForm(){
     limited:    document.getElementById('cardForm_limited').checked,
     limited_for:document.getElementById('cardForm_limitedFor').value.trim(),
     for_battle: document.getElementById('cardForm_for_battle').checked,
+    title_drop: (document.getElementById('cardForm_titleDrop')?.value||'').trim(),
     music_url: (() => {
       const fileRow = document.getElementById('cardMusicFileRow');
       const isFile  = fileRow && fileRow.style.display !== 'none';
@@ -28289,7 +28376,7 @@ async function submitCardForm(){
     if(!cardRes.ok){
       const errBody = await cardRes.json().catch(()=>null);
       const detail = errBody?.message || errBody?.hint || errBody?.details || JSON.stringify(errBody) || cardRes.statusText;
-      throw new Error('Cards upsert failed ('+cardRes.status+'): '+detail+'. If new column — run: ALTER TABLE cards ADD COLUMN IF NOT EXISTS music_url TEXT DEFAULT \'\';');
+      throw new Error('Cards upsert failed ('+cardRes.status+'): '+detail+'. If new column — run: ALTER TABLE cards ADD COLUMN IF NOT EXISTS music_url TEXT DEFAULT \'\'; ALTER TABLE cards ADD COLUMN IF NOT EXISTS title_drop TEXT DEFAULT \'\';');
     }
 
     // Save abilities — always delete old rows first, then reinsert
@@ -28322,7 +28409,7 @@ function cancelCardEdit(){
   document.getElementById('cardFormSubmitBtn').textContent='➕ Add Card';
   document.getElementById('cardFormCancelBtn').style.display='none';
   document.getElementById('editCardId_orig').value='';
-  ['id','name','series','quote','desc','image','thumbnail','limitedFor'].forEach(f=>{
+  ['id','name','series','quote','desc','image','thumbnail','limitedFor','titleDrop'].forEach(f=>{
     const el=document.getElementById('cardForm_'+f);if(el)el.value='';
   });
   // Clear music
@@ -28417,6 +28504,9 @@ async function editCard(cardId){
   document.getElementById('cardForm_limitedFor').value=c.limited_for||'';
   document.getElementById('cardForm_for_battle').checked=c.for_battle!==false;
   document.getElementById('limitedForWrap').style.display=c.limited?'':'none';
+  // Title drop
+  const tdEl = document.getElementById('cardForm_titleDrop');
+  if(tdEl) tdEl.value = c.title_drop || '';
   // Populate music
   const musicUrl = c.music_url || '';
   if(musicUrl.startsWith('data:')) {
@@ -38517,7 +38607,12 @@ async function submitRedeemCode() {
       }
     }
 
-    // Record redemption
+    if(rewards.titles && Array.isArray(rewards.titles)) {
+      for(const titleText of rewards.titles) {
+        await grantTitleToPlayer(state.discordId, titleText, 'Code');
+        rewardDesc.push(`🎀 "${titleText}"`);
+      }
+    }
     await fetch(`${SUPABASE_URL}/rest/v1/code_redemptions`, {
       method: 'POST',
       headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer '+SUPABASE_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
@@ -38647,8 +38742,17 @@ async function adminGrantPlayerItem() {
   showToast(`🎁 Gave ×${qty} ${key} to ${_grantTargetName||targetId}`);
 }
 
-async function adminGrantPlayerSkin() {
+async function adminGrantPlayerTitle() {
   if(!checkAdmin()) return;
+  const targetId = _grantTargetId || (document.getElementById('adminGiveTargetId')?.value||'').trim();
+  const titleText = (document.getElementById('grantTitleText')?.value||'').trim();
+  if(!targetId) { showToast('⚠️ Select a player first!'); return; }
+  if(!titleText) { showToast('⚠️ Enter a title text'); return; }
+  await grantTitleToPlayer(targetId, titleText, 'Admin');
+  showToast(`🎀 Gave title "${titleText}" to ${_grantTargetName||targetId}`);
+}
+
+async function adminGrantPlayerSkin() {
   const targetId = _grantTargetId || (document.getElementById('adminGiveTargetId')?.value||'').trim();
   const skinId = (document.getElementById('grantSkinId')?.value||'').trim();
   if(!targetId || !skinId) { showToast('⚠️ Select player and skin'); return; }
@@ -38687,6 +38791,7 @@ function addCodeRewardRow() {
     {v:'coins', l:'🪙 Coins'},
     {v:'card', l:'🎴 Card (by ID)'},
     {v:'item', l:'🎁 Item (by key)'},
+    {v:'title', l:'🎀 Title (text)'},
   ];
   const div = document.createElement('div');
   div.style.cssText = 'display:flex;gap:8px;align-items:center;margin-bottom:8px;';
@@ -38707,13 +38812,14 @@ async function adminCreateCode() {
 
   // Collect rewards
   const rewardRows = document.querySelectorAll('#codeRewardsList > div');
-  const rewards = { coins: 0, cards: [], items: [] };
+  const rewards = { coins: 0, cards: [], items: [], titles: [] };
   rewardRows.forEach(row => {
     const type = row.querySelector('select')?.value;
     const val = (row.querySelector('.code-reward-value')?.value||'').trim();
     if(!val) return;
     if(type==='coins') rewards.coins = (rewards.coins||0) + parseInt(val)||0;
     else if(type==='card') rewards.cards.push(val);
+    else if(type==='title') rewards.titles.push(val);
     else if(type==='item') {
       const parts = val.split(':');
       rewards.items.push({ key: parts[0], qty: parseInt(parts[1])||1 });
@@ -38722,6 +38828,7 @@ async function adminCreateCode() {
   if(!rewards.coins) delete rewards.coins;
   if(!rewards.cards.length) delete rewards.cards;
   if(!rewards.items.length) delete rewards.items;
+  if(!rewards.titles.length) delete rewards.titles;
   if(!Object.keys(rewards).length) { showToast('⚠️ Add at least one reward!'); return; }
 
   const payload = {
@@ -38773,6 +38880,7 @@ async function adminLoadCodeList() {
       r.coins ? `🪙${r.coins}` : '',
       (r.cards||[]).length ? `🎴×${r.cards.length}` : '',
       (r.items||[]).length ? `🎁×${r.items.length}` : '',
+      (r.titles||[]).length ? `🎀×${r.titles.length}` : '',
     ].filter(Boolean).join(' ');
     const usedOf = c.max_uses > 0 ? `${c.times_used||0}/${c.max_uses}` : `${c.times_used||0}/∞`;
     return `<div class="code-list-item">
@@ -38940,6 +39048,7 @@ document.addEventListener('DOMContentLoaded', () => {
       <button class="filter-btn" onclick="switchGrantTab('card',this)">🎴 Card</button>
       <button class="filter-btn" onclick="switchGrantTab('item',this)">🎁 Item</button>
       <button class="filter-btn" onclick="switchGrantTab('skin',this)">🎨 Skin</button>
+      <button class="filter-btn" onclick="switchGrantTab('title',this)">🎀 Title</button>
     </div>
 
     <div id="grantPane-coins">
@@ -38966,6 +39075,13 @@ document.addEventListener('DOMContentLoaded', () => {
       <input class="admin-input" id="grantSkinId" placeholder="Skin UUID from Skin Manager" style="margin-bottom:10px;"/>
       <button class="admin-btn" onclick="adminGrantPlayerSkin()" style="width:100%;">🎨 Give Skin</button>
     </div>
+
+    <div id="grantPane-title" style="display:none;">
+      <label class="admin-label">Title Text</label>
+      <input class="admin-input" id="grantTitleText" placeholder="e.g. ✦ Legendary Summoner ✦" style="margin-bottom:6px;font-size:0.88em;"/>
+      <div style="font-size:0.7em;color:var(--text-dim);margin-bottom:10px;font-style:italic;">Enter the exact title string the player will receive and see on their profile.</div>
+      <button class="admin-btn" onclick="adminGrantPlayerTitle()" style="width:100%;">🎀 Give Title</button>
+    </div>
   `;
 
   // Remove the old "Give Coins to Player" panel and insert the new one
@@ -38978,7 +39094,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function switchGrantTab(tab, btn) {
-  ['coins','card','item','skin'].forEach(t => {
+  ['coins','card','item','skin','title'].forEach(t => {
     const el = document.getElementById('grantPane-'+t);
     if(el) el.style.display = t===tab ? '' : 'none';
   });
@@ -38992,6 +39108,467 @@ document.addEventListener('click', e => {
   const wrap = document.getElementById('grantPlayerSearch')?.closest('.admin-player-search-wrap');
   if(results && wrap && !wrap.contains(e.target)) results.style.display = 'none';
 });
+</script>
+
+<!-- ══════════════════════════════════════════
+     UPDATE LOG MODAL
+══════════════════════════════════════════ -->
+<style>
+/* ── Update Log Modal ── */
+#updateLogModal {
+  position:fixed;inset:0;z-index:8500;
+  background:rgba(0,0,0,0.88);backdrop-filter:blur(12px);
+  display:none;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto;
+}
+#updateLogModal.open{display:flex;}
+.update-log-box {
+  background:linear-gradient(160deg,#0e0516,#13071d);
+  border:1px solid rgba(255,157,199,0.2);border-radius:24px;
+  max-width:560px;width:100%;margin:auto;
+  animation:modalIn 0.35s cubic-bezier(0.34,1.4,0.64,1);
+  box-shadow:0 0 60px rgba(0,0,0,0.5);
+  overflow:hidden;
+}
+.update-log-header {
+  display:flex;align-items:center;justify-content:space-between;
+  padding:20px 22px 16px;
+  border-bottom:1px solid rgba(255,157,199,0.1);
+  position:sticky;top:0;background:linear-gradient(160deg,#0e0516,#13071d);z-index:2;
+}
+.update-log-title {
+  font-family:'Cinzel Decorative',serif;font-size:0.95em;color:var(--pink-pale);
+  display:flex;align-items:center;gap:8px;
+}
+.update-log-entries { padding:16px 20px 22px; display:flex;flex-direction:column;gap:16px; }
+.update-log-entry {
+  border:1px solid rgba(255,157,199,0.12);border-radius:16px;overflow:hidden;
+  transition:border-color 0.2s;
+}
+.update-log-entry:hover { border-color:rgba(255,157,199,0.22); }
+.update-log-entry-banner {
+  width:100%;height:140px;object-fit:cover;display:block;
+}
+.update-log-entry-banner-ph {
+  width:100%;height:90px;
+  background:linear-gradient(135deg,rgba(255,157,199,0.06),rgba(192,132,184,0.1));
+  display:flex;align-items:center;justify-content:center;font-size:2em;color:rgba(255,157,199,0.2);
+}
+.update-log-entry-body { padding:14px 16px; }
+.update-log-entry-date {
+  font-family:'JetBrains Mono',monospace;font-size:0.6em;
+  color:var(--text-dim);letter-spacing:0.1em;margin-bottom:4px;
+}
+.update-log-entry-title {
+  font-family:'Cinzel Decorative',serif;font-size:0.88em;
+  color:var(--pink-pale);margin-bottom:8px;line-height:1.3;
+}
+.update-log-entry-body-text {
+  font-size:0.82em;color:var(--text-dim);line-height:1.65;
+  white-space:pre-line;margin-bottom:10px;
+}
+/* ── Showcase Grid ── */
+.showcase-grid {
+  display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;
+}
+.showcase-card-chip {
+  display:flex;align-items:flex-start;gap:0;
+  border-radius:12px;overflow:hidden;
+  border:1px solid rgba(255,255,255,0.08);
+  background:rgba(255,255,255,0.03);
+  width:90px;flex-shrink:0;
+  flex-direction:column;
+  transition:transform 0.18s,box-shadow 0.18s;
+  cursor:default;
+}
+.showcase-card-chip:hover { transform:translateY(-2px); box-shadow:0 6px 20px rgba(0,0,0,0.4); }
+.showcase-card-img {
+  width:90px;height:110px;object-fit:cover;display:block;flex-shrink:0;
+}
+.showcase-card-img-ph {
+  width:90px;height:110px;display:flex;align-items:center;justify-content:center;
+  font-size:2em;background:rgba(255,255,255,0.04);flex-shrink:0;
+}
+.showcase-card-info {
+  padding:5px 6px;width:100%;box-sizing:border-box;
+}
+.showcase-card-rarity {
+  font-family:'JetBrains Mono',monospace;font-size:0.52em;font-weight:700;
+  letter-spacing:0.04em;margin-bottom:1px;
+}
+.showcase-card-name {
+  font-size:0.62em;color:var(--text);line-height:1.2;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+}
+.showcase-card-note {
+  font-size:0.58em;color:var(--pink);margin-top:2px;font-style:italic;
+}
+.showcase-skin-chip {
+  display:flex;flex-direction:column;align-items:center;
+  border-radius:12px;overflow:hidden;
+  border:1px solid rgba(155,89,182,0.2);background:rgba(155,89,182,0.04);
+  width:90px;flex-shrink:0;cursor:default;
+  transition:transform 0.18s,box-shadow 0.18s;
+}
+.showcase-skin-chip:hover { transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,0.4); }
+.showcase-skin-img {
+  width:90px;height:110px;object-fit:cover;display:block;
+}
+.showcase-skin-img-ph {
+  width:90px;height:110px;display:flex;align-items:center;justify-content:center;
+  font-size:2em;background:rgba(155,89,182,0.06);
+}
+.showcase-skin-info {
+  padding:5px 6px;width:100%;box-sizing:border-box;text-align:center;
+}
+.showcase-title-chip {
+  display:inline-flex;align-items:center;justify-content:center;
+  padding:8px 14px;border-radius:20px;
+  background:linear-gradient(135deg,rgba(255,157,199,0.12),rgba(192,132,184,0.12));
+  border:1px solid rgba(255,157,199,0.3);
+  font-size:0.82em;color:var(--pink-pale);
+  font-family:'Cormorant Garamond',serif;font-style:italic;
+  cursor:default;transition:all 0.18s;
+}
+.showcase-title-chip:hover { background:rgba(255,157,199,0.2); transform:scale(1.03); }
+.showcase-custom-chip {
+  display:flex;flex-direction:column;align-items:center;
+  border-radius:12px;overflow:hidden;
+  border:1px solid rgba(26,188,156,0.2);background:rgba(26,188,156,0.04);
+  width:90px;flex-shrink:0;
+  transition:transform 0.18s;cursor:default;
+}
+.showcase-custom-chip:hover { transform:translateY(-2px); }
+.showcase-label-row {
+  display:flex;align-items:center;gap:6px;margin-bottom:6px;
+}
+.showcase-section-label {
+  font-family:'JetBrains Mono',monospace;font-size:0.6em;letter-spacing:0.1em;
+  text-transform:uppercase;color:var(--text-dim);
+}
+/* ── Admin showcase row ── */
+.announce-showcase-row {
+  display:flex;gap:6px;align-items:center;
+  background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);
+  border-radius:8px;padding:7px 9px;
+}
+.announce-showcase-type-badge {
+  font-size:0.62em;padding:2px 7px;border-radius:10px;
+  font-family:'JetBrains Mono',monospace;flex-shrink:0;
+}
+.announce-showcase-row input {
+  flex:1;background:none;border:none;border-bottom:1px solid rgba(255,255,255,0.1);
+  color:var(--text);font-size:0.8em;padding:2px 4px;outline:none;
+}
+.announce-showcase-row input:focus { border-bottom-color:var(--pink); }
+.announce-showcase-row input::placeholder { color:rgba(255,255,255,0.2); }
+</style>
+
+<!-- UPDATE LOG MODAL HTML -->
+<div id="updateLogModal" onclick="if(event.target===this)closeUpdateLogModal()">
+  <div class="update-log-box">
+    <div class="update-log-header">
+      <div class="update-log-title">📋 Update Log</div>
+      <button class="settings-close" onclick="closeUpdateLogModal()">✕</button>
+    </div>
+    <div class="update-log-entries" id="updateLogEntries">
+      <div style="text-align:center;padding:30px;color:var(--text-dim);font-style:italic;">Loading...</div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════════
+// UPDATE LOG
+// ════════════════════════════════════════════════
+async function openUpdateLogModal() {
+  document.getElementById('updateLogModal').classList.add('open');
+  await loadUpdateLogEntries();
+}
+function closeUpdateLogModal() {
+  document.getElementById('updateLogModal').classList.remove('open');
+}
+
+async function loadUpdateLogEntries() {
+  const el = document.getElementById('updateLogEntries');
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/announcements?order=created_at.desc&limit=30`, {
+      headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY}
+    });
+    const list = await res.json().catch(()=>[]);
+    if(!list.length){
+      el.innerHTML='<div style="text-align:center;padding:30px;color:var(--text-dim);font-style:italic;">No updates yet. Check back soon! ✨</div>';
+      return;
+    }
+    el.innerHTML = list.map(a => buildUpdateLogEntry(a)).join('');
+  } catch(e) {
+    el.innerHTML='<div style="text-align:center;padding:20px;color:#e74c3c;font-size:0.85em;">⚠️ Could not load updates. Try again later.</div>';
+  }
+}
+
+function buildUpdateLogEntry(a) {
+  const dateStr = a.created_at ? new Date(a.created_at).toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'}) : '';
+  const liveBadge = a.is_active ? `<span style="display:inline-block;background:rgba(46,204,113,0.12);border:1px solid rgba(46,204,113,0.3);color:#2ecc71;font-family:'JetBrains Mono',monospace;font-size:0.6em;padding:1px 8px;border-radius:10px;margin-left:6px;vertical-align:middle;">LATEST</span>` : '';
+
+  const bannerHtml = a.gif_url
+    ? `<img src="${escapeHtml(a.gif_url)}" class="update-log-entry-banner" alt="" loading="lazy" onerror="this.style.display='none'">`
+    : `<div class="update-log-entry-banner-ph">📢</div>`;
+
+  const showcaseHtml = buildShowcaseHtml(a.showcase || [], true);
+
+  return `<div class="update-log-entry">
+    ${bannerHtml}
+    <div class="update-log-entry-body">
+      <div class="update-log-entry-date">✦ ${dateStr}</div>
+      <div class="update-log-entry-title">${escapeHtml(a.title||'')}${liveBadge}</div>
+      ${a.body ? `<div class="update-log-entry-body-text">${escapeHtml(a.body)}</div>` : ''}
+      ${showcaseHtml}
+    </div>
+  </div>`;
+}
+
+// ════════════════════════════════════════════════
+// SHOWCASE RENDERER (used in popup + update log)
+// ════════════════════════════════════════════════
+function buildShowcaseHtml(items, compact) {
+  if(!items || !items.length) return '';
+
+  // Group by type
+  const cards   = items.filter(i=>i.type==='card');
+  const skins   = items.filter(i=>i.type==='skin');
+  const titles  = items.filter(i=>i.type==='title');
+  const customs = items.filter(i=>i.type==='custom');
+
+  let html = '';
+
+  if(cards.length) {
+    html += `<div class="showcase-label-row"><span class="showcase-section-label">🎴 New Cards</span></div>`;
+    html += `<div class="showcase-grid">`;
+    cards.forEach(item => {
+      const card = (window.DEMO_CARDS||[]).find(c=>c.id===item.ref_id);
+      const rd = RARITY_MAP[card?.rarity||4] || RARITY_MAP[4];
+      const img = card?.thumbnail || card?.image || item.image_url || '';
+      const name = card?.name || item.label || item.ref_id || '???';
+      const rarityName = card ? (RARITY_MAP[card.rarity]?.name||'') : '';
+      html += `<div class="showcase-card-chip" style="border-color:${rd.color}22;">
+        ${img ? `<img src="${escapeHtml(img)}" class="showcase-card-img" alt="" loading="lazy" onerror="this.style.display='none'">` : `<div class="showcase-card-img-ph">🎴</div>`}
+        <div class="showcase-card-info">
+          <div class="showcase-card-rarity" style="color:${rd.color};">${rarityName}</div>
+          <div class="showcase-card-name">${escapeHtml(name)}</div>
+          ${item.note ? `<div class="showcase-card-note">${escapeHtml(item.note)}</div>` : ''}
+        </div>
+      </div>`;
+    });
+    html += `</div>`;
+  }
+
+  if(skins.length) {
+    html += `<div class="showcase-label-row" style="margin-top:10px;"><span class="showcase-section-label">🎨 New Skins</span></div>`;
+    html += `<div class="showcase-grid">`;
+    skins.forEach(item => {
+      const img = item.image_url || '';
+      const name = item.label || item.ref_id || 'Skin';
+      html += `<div class="showcase-skin-chip">
+        ${img ? `<img src="${escapeHtml(img)}" class="showcase-skin-img" alt="" loading="lazy" onerror="this.style.display='none'">` : `<div class="showcase-skin-img-ph">🎨</div>`}
+        <div class="showcase-skin-info">
+          <div style="font-size:0.62em;color:#c084b8;font-weight:600;">${escapeHtml(name)}</div>
+          ${item.note ? `<div class="showcase-card-note" style="color:#c084b8;">${escapeHtml(item.note)}</div>` : ''}
+        </div>
+      </div>`;
+    });
+    html += `</div>`;
+  }
+
+  if(customs.length) {
+    const hasImg = customs.some(i=>i.image_url);
+    if(hasImg) {
+      html += `<div class="showcase-label-row" style="margin-top:10px;"><span class="showcase-section-label">🖼️ Featured</span></div>`;
+      html += `<div class="showcase-grid">`;
+      customs.forEach(item => {
+        const img = item.image_url || '';
+        const name = item.label || '';
+        html += `<div class="showcase-custom-chip">
+          ${img ? `<img src="${escapeHtml(img)}" class="showcase-skin-img" alt="" loading="lazy" onerror="this.style.display='none'">` : `<div class="showcase-skin-img-ph">🖼️</div>`}
+          ${name ? `<div class="showcase-skin-info"><div style="font-size:0.62em;color:var(--text-dim);">${escapeHtml(name)}</div>${item.note?`<div class="showcase-card-note" style="color:#1abc9c;">${escapeHtml(item.note)}</div>`:''}</div>` : ''}
+        </div>`;
+      });
+      html += `</div>`;
+    }
+  }
+
+  if(titles.length) {
+    html += `<div class="showcase-label-row" style="margin-top:10px;"><span class="showcase-section-label">🎀 New Titles</span></div>`;
+    html += `<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px;">`;
+    titles.forEach(item => {
+      html += `<div class="showcase-title-chip">${escapeHtml(item.label||item.ref_id||'Title')}</div>`;
+    });
+    html += `</div>`;
+  }
+
+  return html ? `<div class="showcase-wrap">${html}</div>` : '';
+}
+
+// ════════════════════════════════════════════════
+// ADMIN: SHOWCASE BUILDER
+// ════════════════════════════════════════════════
+const SHOWCASE_TYPE_META = {
+  card:   { badge:'🎴 Card',   color:'rgba(255,157,199,0.15)',  p1:'Card ID (e.g. naruto_001)',       p2:'Note (e.g. New LR!)' },
+  skin:   { badge:'🎨 Skin',   color:'rgba(155,89,182,0.15)',   p1:'Skin name or ID',                 p2:'Image URL (required)' },
+  title:  { badge:'🎀 Title',  color:'rgba(241,196,15,0.15)',   p1:'Title text (e.g. ✦ Legendary ✦)', p2:'Note' },
+  custom: { badge:'🖼️ Custom', color:'rgba(26,188,156,0.15)',   p1:'Label',                           p2:'Image URL (required)' },
+};
+
+function addAnnounceShowcaseRow(type) {
+  const list = document.getElementById('announceShowcaseList');
+  if(!list) return;
+  const meta = SHOWCASE_TYPE_META[type];
+  const idx = Date.now();
+  const div = document.createElement('div');
+  div.className = 'announce-showcase-row';
+  div.dataset.type = type;
+  div.innerHTML = `
+    <span class="announce-showcase-type-badge" style="background:${meta.color};color:var(--text);">${meta.badge}</span>
+    <input class="sc-ref" placeholder="${escapeHtml(meta.p1)}" oninput="adminPreviewAnnouncement()"/>
+    <input class="sc-img" placeholder="${escapeHtml(meta.p2)}" oninput="adminPreviewAnnouncement()"/>
+    <button onclick="this.closest('.announce-showcase-row').remove();adminPreviewAnnouncement()" style="background:rgba(231,76,60,0.1);border:1px solid rgba(231,76,60,0.2);color:#e74c3c;border-radius:6px;width:24px;height:24px;cursor:pointer;flex-shrink:0;font-size:0.7em;">✕</button>`;
+  list.appendChild(div);
+  adminPreviewAnnouncement();
+}
+
+function collectAnnounceShowcase() {
+  const rows = document.querySelectorAll('#announceShowcaseList .announce-showcase-row');
+  const items = [];
+  rows.forEach(row => {
+    const type = row.dataset.type;
+    const ref  = (row.querySelector('.sc-ref')?.value||'').trim();
+    const img  = (row.querySelector('.sc-img')?.value||'').trim();
+    if(!ref && !img) return;
+    if(type==='card')   items.push({ type, ref_id: ref, note: img });
+    else if(type==='title') items.push({ type, label: ref, note: img });
+    else if(type==='skin')  items.push({ type, ref_id: ref, image_url: img });
+    else if(type==='custom') items.push({ type, label: ref, image_url: img });
+  });
+  return items;
+}
+
+// ════════════════════════════════════════════════
+// PATCH adminSaveAnnouncement to include showcase
+// ════════════════════════════════════════════════
+(function(){
+  const _orig = window.adminSaveAnnouncement;
+  window.adminSaveAnnouncement = async function() {
+    if(!checkAdmin()) return;
+    const title = (document.getElementById('announceFormTitle')?.value||'').trim();
+    const body  = (document.getElementById('announceFormBody')?.value||'').trim();
+    const gif   = (document.getElementById('announceFormGif')?.value||'').trim();
+    const showcase = collectAnnounceShowcase();
+    if(!title) { showToast('⚠️ Title is required!'); return; }
+
+    try {
+      await fetch(`${SUPABASE_URL}/rest/v1/announcements?is_active=eq.true`, {
+        method:'PATCH',
+        headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},
+        body:JSON.stringify({is_active:false})
+      });
+    } catch(_){}
+
+    const payload = { title, body, gif_url:gif, showcase, is_active:true, created_at:new Date().toISOString() };
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/announcements`, {
+      method:'POST',
+      headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},
+      body:JSON.stringify(payload)
+    });
+    if(!res.ok){ const b=await res.json().catch(()=>null); showToast('❌ '+(b?.message||`HTTP ${res.status}`)); return; }
+    showToast('📢 Announcement saved! Players will see it on next login.');
+
+    // Reset form
+    ['announceFormTitle','announceFormGif','announceFormBody'].forEach(id=>{
+      const el=document.getElementById(id); if(el) el.value='';
+    });
+    document.getElementById('announceShowcaseList').innerHTML = '';
+    adminPreviewAnnouncement();
+    adminLoadAnnouncementList();
+  };
+})();
+
+// ════════════════════════════════════════════════
+// PATCH adminPreviewAnnouncement to show showcase
+// ════════════════════════════════════════════════
+(function(){
+  const _orig = window.adminPreviewAnnouncement;
+  window.adminPreviewAnnouncement = function() {
+    const title   = (document.getElementById('announceFormTitle')?.value||'Announcement Title');
+    const body    = (document.getElementById('announceFormBody')?.value||'');
+    const gif     = (document.getElementById('announceFormGif')?.value||'').trim();
+    const prev    = document.getElementById('announcePrevBox');
+    const empty   = document.getElementById('announcePrevEmpty');
+    if(!prev) return;
+    prev.style.display = '';
+    if(empty) empty.style.display = 'none';
+    prev.querySelector('.announce-title').textContent = title;
+    prev.querySelector('.announce-text').textContent  = body;
+    const bw = prev.querySelector('.announce-banner-img-wrap');
+    const ph = prev.querySelector('.announce-banner-placeholder');
+    if(gif){
+      ph.style.display='none';
+      let img=bw.querySelector('img');
+      if(!img){img=document.createElement('img');img.className='announce-banner';img.alt='';bw.prepend(img);}
+      img.src=gif;img.style.display='block';
+    } else {
+      ph.style.display='';
+      const img=bw.querySelector('img');if(img)img.style.display='none';
+    }
+    // Showcase preview
+    const sc = document.getElementById('announcePrevShowcase');
+    if(sc) sc.innerHTML = buildShowcaseHtml(collectAnnounceShowcase(), true);
+  };
+})();
+
+// ════════════════════════════════════════════════
+// PATCH loadAndShowAnnouncement to include showcase
+// ════════════════════════════════════════════════
+(function(){
+  const _origLoad = window.loadAndShowAnnouncement;
+  window.loadAndShowAnnouncement = async function() {
+    try {
+      const rows = await sb.get('announcements', {is_active:true}, {order:'created_at.desc',limit:1});
+      const ann = rows && rows[0];
+      if(!ann) return;
+      const seen = localStorage.getItem(ANNOUNCE_KEY);
+      if(seen === ann.id) return;
+
+      document.getElementById('announceTitleDisplay').textContent = ann.title||'Announcement';
+      document.getElementById('announceTextDisplay').textContent  = ann.body||'';
+
+      // Banner
+      const bannerWrap = document.getElementById('announceBannerWrap');
+      const placeholder = document.getElementById('announceBannerPlaceholder');
+      if(ann.gif_url){
+        placeholder.style.display='none';
+        let img=bannerWrap.querySelector('img.announce-banner');
+        if(!img){img=document.createElement('img');img.className='announce-banner';img.alt='';bannerWrap.prepend(img);}
+        img.src=ann.gif_url;img.style.display='block';
+      } else {
+        placeholder.style.display='';
+      }
+
+      // Showcase inside popup
+      let showcaseEl = document.getElementById('announceShowcaseDisplay');
+      if(!showcaseEl){
+        showcaseEl = document.createElement('div');
+        showcaseEl.id = 'announceShowcaseDisplay';
+        showcaseEl.style.cssText = 'padding:0 0 10px;';
+        const announceBody = document.querySelector('#announcementOverlay .announce-body');
+        const announceText = document.getElementById('announceTextDisplay');
+        if(announceBody && announceText) announceBody.insertBefore(showcaseEl, announceText.nextSibling);
+      }
+      const sc = ann.showcase || [];
+      showcaseEl.innerHTML = sc.length ? buildShowcaseHtml(sc, false) : '';
+
+      document.getElementById('announcementOverlay').classList.add('open');
+      window._currentAnnounceId = ann.id;
+    } catch(e) {}
+  };
+})();
 </script>
 
 <!-- CHAT REPLY / DELETE SQL MIGRATION (run once in Supabase SQL Editor):
