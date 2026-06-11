@@ -32959,7 +32959,7 @@ function renderChatMsg(msg){
         if(msgSkin) flexImg = msgSkin.image || msgSkin.thumbnail || flexImg;
       }
       const rarityColor = card.rarityColor || 'var(--pink)';
-      const isLR = (card.rarity||'').toUpperCase()==='LR' || (card.rarityName||'').toUpperCase().includes('LR');
+      const isLR = String(card.rarityName||'').toUpperCase().includes('LR') || String(card.rarity||'').toUpperCase()==='LR';
       const borderStyle = isLR
         ? 'border:2px solid transparent;background:linear-gradient(var(--bg2),var(--bg2)) padding-box, linear-gradient(90deg,#ff0000,#ff7700,#ffdd00,#00ff00,#00aaff,#cc00ff,#ff0077) border-box;'
         : `border:2px solid ${rarityColor};`;
@@ -33194,7 +33194,7 @@ function _renderFlexGrid(cards){
   if(empty) empty.style.display = 'none';
   cards.forEach(card=>{
     const rarityColor = card.rarityColor || 'var(--pink)';
-    const isLR = (card.rarityName||'').toUpperCase().includes('LR') || (card.rarity||'').toUpperCase()==='LR';
+    const isLR = String(card.rarityName||'').toUpperCase().includes('LR') || String(card.rarity||'').toUpperCase()==='LR';
     const div = document.createElement('div');
     div.className = 'card-thumb flex-picker-card';
     div.style.cssText = `position:relative;border:2px solid ${isLR?'transparent':rarityColor};${isLR?'background:linear-gradient(var(--bg2),var(--bg2)) padding-box,'+window.getComputedStyle(document.documentElement).getPropertyValue('--rainbow').trim()+' border-box;':''}`;
