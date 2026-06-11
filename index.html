@@ -3685,12 +3685,12 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 }
 .own-profile-banner-fade{
   position:absolute;inset:0;
-  background:linear-gradient(to bottom,rgba(0,0,0,0.04) 0%,rgba(0,0,0,0.2) 48%,var(--own-banner-fade,#1a0a12) 82%,var(--own-banner-fade,#1a0a12) 100%);
+  background:linear-gradient(to bottom,rgba(0,0,0,0) 0%,rgba(0,0,0,0.25) 55%,var(--own-banner-fade,#1a0a12) 88%,var(--own-banner-fade,#1a0a12) 100%);
 }
-/* Avatar wrapper — hangs below banner */
+/* Avatar wrapper — hangs below banner, LEFT side */
 .own-profile-avatar-wrap{
-  position:absolute;bottom:-50px;left:50%;transform:translateX(-50%);
-  width:96px;height:96px;cursor:pointer;z-index:6;
+  position:absolute;bottom:-46px;left:20px;
+  width:92px;height:92px;cursor:pointer;z-index:6;
 }
 .own-profile-ring{
   position:absolute;inset:-4px;border-radius:50%;
@@ -3702,12 +3702,28 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   background:var(--own-ring-gap,#1a0a12);
 }
 .own-profile-avatar-circle{
-  position:relative;width:96px;height:96px;border-radius:50%;overflow:hidden;
+  position:relative;width:92px;height:92px;border-radius:50%;overflow:hidden;
   box-shadow:0 8px 30px rgba(0,0,0,0.9);
 }
 /* Body below banner */
 .own-profile-body{
-  padding:0 14px 24px;display:flex;flex-direction:column;gap:10px;margin-top:58px;
+  padding:0 14px 24px;display:flex;flex-direction:column;gap:10px;margin-top:14px;
+}
+/* Avatar-name row: spacer on left, name+buttons on right */
+.own-avatar-name-row{
+  display:flex;align-items:flex-end;gap:10px;min-height:52px;
+}
+.own-name-col{
+  flex:1;min-width:0;padding-bottom:2px;
+}
+.own-name-col .profile-name{
+  font-family:'Cinzel Decorative',serif;font-size:1em;color:#fff;
+  font-weight:700;letter-spacing:0.02em;white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis;text-align:left;
+}
+.own-name-col .profile-title{
+  font-size:0.76em;color:var(--pink);font-style:italic;
+  opacity:0.9;margin-top:1px;text-align:left;margin-bottom:0;
 }
 /* Section cards */
 .own-section-card{
@@ -3761,15 +3777,6 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 /* Music bar inside own-section-card */
 .own-section-card.profile-music-bar{
   display:flex;align-items:center;gap:11px;padding:11px 14px;
-}
-/* name/title centred */
-.own-profile-body .profile-name{
-  font-family:'Cinzel Decorative',serif;font-size:1.1em;color:#fff;
-  font-weight:700;letter-spacing:0.03em;text-align:center;
-}
-.own-profile-body .profile-title{
-  font-size:0.78em;color:var(--pink);font-style:italic;
-  opacity:0.9;margin-top:2px;text-align:center;margin-bottom:0;
 }
 
 /* ══ PROFILE AVATAR CLICK HINT ══ */
@@ -13016,7 +13023,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
             <img class="banner-img" id="profileBannerImg" src="" alt="" style="display:none;"/>
             <div class="own-profile-banner-fade" id="profileBannerFade"></div>
           </div>
-          <!-- Avatar — centred, hangs below banner bottom -->
+          <!-- Avatar — LEFT side, overlapping banner bottom -->
           <div class="own-profile-avatar-wrap" onclick="openProfileEdit()" title="Click to change avatar">
             <div class="own-profile-ring"></div>
             <div class="own-profile-ring-gap" id="profileRingGap"></div>
@@ -13029,16 +13036,18 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
         <!-- ── Scrollable body ── -->
         <div class="own-profile-body">
 
-          <!-- Name + title -->
-          <div style="text-align:center;margin-bottom:10px;">
-            <div class="profile-name" id="profileName">Summoner</div>
-            <div class="profile-title" id="profileTitle">✦ Founding Member ✦</div>
-          </div>
-
-          <!-- Action buttons row -->
-          <div style="display:flex;gap:8px;justify-content:center;margin-bottom:4px;">
-            <div id="adminProfileBadge" style="display:none;"><span class="admin-badge">👑 ADMIN</span></div>
-            <button class="profile-edit-fab" onclick="openProfileEdit()">✏️ Edit Profile</button>
+          <!-- Avatar row: avatar left, name+buttons right -->
+          <div class="own-avatar-name-row">
+            <!-- spacer so name row aligns below avatar bottom -->
+            <div style="width:100px;flex-shrink:0;"></div>
+            <div class="own-name-col">
+              <div class="profile-name" id="profileName">Summoner</div>
+              <div class="profile-title" id="profileTitle">✦ Founding Member ✦</div>
+              <div style="display:flex;gap:7px;align-items:center;margin-top:8px;flex-wrap:wrap;">
+                <div id="adminProfileBadge" style="display:none;"><span class="admin-badge">👑 ADMIN</span></div>
+                <button class="profile-edit-fab" onclick="openProfileEdit()">✏️ Edit Profile</button>
+              </div>
+            </div>
           </div>
 
           <!-- Stats row -->
@@ -33101,7 +33110,7 @@ function openPlayerModal(player){
         <!-- Banner image + fade, clipped in their own inner div -->
         <div style="position:absolute;inset:0;border-radius:24px 24px 0 0;overflow:hidden;">
           <div style="position:absolute;inset:0;background:${bannerBg};background-size:cover;background-position:center top;"></div>
-          <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0.04) 0%,rgba(0,0,0,0.2) 48%,${hexMixM(gs,0.35)} 82%,${hexMixM(gs,0.35)} 100%);"></div>
+          <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0) 0%,rgba(0,0,0,0.25) 55%,${hexMixM(gs,0.35)} 88%,${hexMixM(gs,0.35)} 100%);"></div>
         </div>
         <!-- Drag handle -->
         <div style="display:flex;justify-content:center;padding:10px 0 0;position:relative;z-index:2;">
@@ -33113,44 +33122,38 @@ function openPlayerModal(player){
           background:rgba(0,0,0,0.55);border:1px solid rgba(255,255,255,0.2);color:#fff;
           width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:0.9em;
           backdrop-filter:blur(8px);z-index:3;display:flex;align-items:center;justify-content:center;line-height:1;">✕</button>
-        <!-- Avatar — centred, hangs below banner, NOT clipped -->
-        <div style="position:absolute;bottom:-48px;left:50%;transform:translateX(-50%);z-index:6;width:92px;height:92px;">
-          <!-- Spinning conic gradient ring -->
+        <!-- Avatar — LEFT side, overlapping banner bottom -->
+        <div style="position:absolute;bottom:-44px;left:18px;z-index:6;width:88px;height:88px;">
+          <!-- Spinning ring -->
           <div style="position:absolute;inset:-4px;border-radius:50%;background:conic-gradient(var(--pink) 0%,var(--purple) 30%,rgba(255,255,255,0.08) 50%,var(--purple) 70%,var(--pink) 100%);animation:spinRing 3.5s linear infinite;"></div>
-          <!-- Solid gap ring between gradient and avatar -->
+          <!-- Gap ring -->
           <div style="position:absolute;inset:-1px;border-radius:50%;background:${hexMixM(gs,0.35)};"></div>
-          <!-- Avatar image, clipped to circle -->
-          <div style="position:relative;width:92px;height:92px;border-radius:50%;overflow:hidden;box-shadow:0 8px 30px rgba(0,0,0,0.9);">
+          <!-- Avatar -->
+          <div style="position:relative;width:88px;height:88px;border-radius:50%;overflow:hidden;box-shadow:0 8px 28px rgba(0,0,0,0.95);">
             <img src="${player.profile_thumbnail||player.avatar||'https://cdn.discordapp.com/embed/avatars/0.png'}"
               style="width:100%;height:100%;object-fit:cover;display:block;"
               onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'"/>
           </div>
-          <!-- Online / offline status badge -->
-          <div style="
-            position:absolute;bottom:3px;right:1px;
-            width:20px;height:20px;border-radius:50%;
-            background:${player.is_online===false?'#747f8d':'#3ba55d'};
-            border:3px solid ${hexMixM(gs,0.35)};
-            box-shadow:0 0 8px ${player.is_online===false?'rgba(116,127,141,0.6)':'rgba(59,165,93,0.9)'};
-            z-index:7;
-          " title="${player.is_online===false?'Offline':'Online'}"></div>
+          <!-- Online/offline badge -->
+          <div style="position:absolute;bottom:3px;right:1px;width:18px;height:18px;border-radius:50%;background:${player.is_online===false?'#747f8d':'#3ba55d'};border:3px solid ${hexMixM(gs,0.35)};box-shadow:0 0 8px ${player.is_online===false?'rgba(116,127,141,0.6)':'rgba(59,165,93,0.9)'};z-index:7;" title="${player.is_online===false?'Offline':'Online'}"></div>
         </div>
       </div>
 
       <!-- ── Scrollable content below banner ── -->
-      <div style="padding:0 14px 24px;flex:1;display:flex;flex-direction:column;overflow-y:auto;min-height:0;gap:10px;margin-top:56px;">
+      <div style="padding:0 14px 24px;flex:1;display:flex;flex-direction:column;overflow-y:auto;min-height:0;gap:10px;margin-top:12px;">
 
-        <!-- Name + title + action buttons -->
-        <div style="text-align:center;margin-bottom:2px;">
-          <div style="font-family:'Cinzel Decorative',serif;font-size:1.1em;color:#fff;font-weight:700;letter-spacing:0.03em;">${escapeHtml(name)}</div>
-          <div style="font-size:0.78em;color:var(--pink);font-style:italic;opacity:0.9;margin-top:2px;">${escapeHtml(player.active_title||'✦ Summoner ✦')}</div>
+        <!-- Avatar row: spacer left + name/buttons right -->
+        <div style="display:flex;align-items:flex-end;gap:10px;min-height:50px;">
+          <div style="width:96px;flex-shrink:0;"></div>
+          <div style="flex:1;min-width:0;padding-bottom:2px;">
+            <div style="font-family:'Cinzel Decorative',serif;font-size:1em;color:#fff;font-weight:700;letter-spacing:0.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(name)}</div>
+            <div style="font-size:0.76em;color:var(--pink);font-style:italic;opacity:0.9;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(player.active_title||'✦ Summoner ✦')}</div>
+            <div style="display:flex;gap:7px;margin-top:8px;flex-wrap:wrap;">
+              <button onclick="challengeToPvp('${player.discord_id}');closePlayerModal()" style="background:linear-gradient(135deg,var(--pink-deep),var(--purple));border:none;color:#fff;padding:7px 14px;border-radius:10px;font-family:'Cinzel Decorative',serif;font-size:0.58em;cursor:pointer;white-space:nowrap;letter-spacing:0.03em;box-shadow:0 3px 12px rgba(224,96,138,0.4);">⚔️ Challenge</button>
+              <button onclick="openTradeWithPlayer('${player.discord_id}');closePlayerModal()" style="background:rgba(255,255,255,0.09);border:1px solid rgba(255,255,255,0.2);color:var(--text);padding:7px 14px;border-radius:10px;font-family:'Cinzel Decorative',serif;font-size:0.58em;cursor:pointer;white-space:nowrap;letter-spacing:0.03em;">🔄 Trade</button>
+            </div>
+          </div>
         </div>
-        <div style="display:flex;gap:8px;justify-content:center;">
-          <button onclick="challengeToPvp('${player.discord_id}');closePlayerModal()" style="background:linear-gradient(135deg,var(--pink-deep),var(--purple));border:none;color:#fff;padding:8px 18px;border-radius:10px;font-family:'Cinzel Decorative',serif;font-size:0.62em;cursor:pointer;white-space:nowrap;letter-spacing:0.03em;box-shadow:0 3px 14px rgba(224,96,138,0.45);">⚔️ Challenge</button>
-          <button onclick="openTradeWithPlayer('${player.discord_id}');closePlayerModal()" style="background:rgba(255,255,255,0.09);border:1px solid rgba(255,255,255,0.2);color:var(--text);padding:8px 18px;border-radius:10px;font-family:'Cinzel Decorative',serif;font-size:0.62em;cursor:pointer;white-space:nowrap;letter-spacing:0.03em;">🔄 Trade</button>
-        </div>
-
-        <!-- 1. About Me -->
         ${player.bio ? `<div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.09);border-radius:12px;padding:11px 14px;">
           <div style="font-size:0.6em;color:rgba(255,255,255,0.35);letter-spacing:0.12em;text-transform:uppercase;font-family:'JetBrains Mono',monospace;margin-bottom:5px;">About Me</div>
           <div style="font-size:0.86em;color:rgba(255,255,255,0.78);line-height:1.55;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;">${escapeHtml(player.bio)}</div>
