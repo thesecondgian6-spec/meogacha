@@ -2739,7 +2739,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   .anime-folder-locked-icon { font-size: 1.5em; }
 
   /* ── Profile ── */
-  .profile-banner-area { height: 140px; }
+  .profile-banner-area { height: 130px; }
   .profile-avatar-row { margin-top: -46px; padding: 0 14px; }
   .profile-avatar-outer { width: 80px; height: 80px; border-width: 4px; }
   .profile-avatar-actions { gap: 6px; }
@@ -2749,6 +2749,9 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   .profile-stats { grid-template-columns: repeat(3, 1fr); gap: 7px; }
   .stat-box { padding: 9px 5px; }
   .stat-val { font-size: 0.92em; }
+  .own-profile-banner { height: 130px; }
+  .own-profile-avatar-wrap { width: 68px; height: 68px; bottom: -34px; }
+  .own-profile-avatar-circle { width: 68px; height: 68px; }
 
   /* ── Rates ── */
   .rates-grid { grid-template-columns: repeat(4, 1fr); }
@@ -3675,7 +3678,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 
 /* ══ OWN PROFILE — modal-matching redesign ══ */
 .own-profile-banner{
-  position:relative;height:185px;flex-shrink:0;border-radius:20px 20px 0 0;
+  position:relative;height:155px;flex-shrink:0;border-radius:20px 20px 0 0;
 }
 .own-profile-banner-inner{
   position:absolute;inset:0;border-radius:20px 20px 0 0;overflow:hidden;
@@ -3685,12 +3688,22 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 }
 .own-profile-banner-fade{
   position:absolute;inset:0;
-  background:linear-gradient(to bottom,rgba(0,0,0,0) 0%,rgba(0,0,0,0.25) 55%,var(--own-banner-fade,#1a0a12) 88%,var(--own-banner-fade,#1a0a12) 100%);
+  background:linear-gradient(to bottom,rgba(0,0,0,0) 0%,rgba(0,0,0,0.18) 70%,rgba(0,0,0,0.45) 100%);
+}
+/* Glowing accent line at the bottom of the banner */
+.own-profile-banner-inner::after{
+  content:'';
+  position:absolute;
+  bottom:0;left:0;right:0;
+  height:2px;
+  background:linear-gradient(90deg,transparent 0%,var(--pink) 25%,#fff8 50%,var(--purple) 75%,transparent 100%);
+  box-shadow:0 0 12px 2px var(--pink-glow),0 0 28px 4px rgba(192,132,184,0.35);
+  z-index:3;
 }
 /* Avatar wrapper — hangs below banner, LEFT side */
 .own-profile-avatar-wrap{
-  position:absolute;bottom:-46px;left:20px;
-  width:92px;height:92px;cursor:pointer;z-index:6;
+  position:absolute;bottom:-38px;left:20px;
+  width:76px;height:76px;cursor:pointer;z-index:6;
 }
 .own-profile-ring{
   position:absolute;inset:-4px;border-radius:50%;
@@ -3702,24 +3715,25 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   background:var(--own-ring-gap,#1a0a12);
 }
 .own-profile-avatar-circle{
-  position:relative;width:92px;height:92px;border-radius:50%;overflow:hidden;
+  position:relative;width:76px;height:76px;border-radius:50%;overflow:hidden;
   box-shadow:0 8px 30px rgba(0,0,0,0.9);
 }
 /* Body below banner */
 .own-profile-body{
-  padding:0 14px 24px;display:flex;flex-direction:column;gap:10px;margin-top:14px;
+  padding:0 14px 24px;display:flex;flex-direction:column;gap:10px;margin-top:8px;
 }
 /* Avatar-name row: spacer on left, name+buttons on right */
 .own-avatar-name-row{
-  display:flex;align-items:flex-end;gap:10px;min-height:52px;
+  display:flex;align-items:flex-end;gap:10px;min-height:44px;
 }
 .own-name-col{
   flex:1;min-width:0;padding-bottom:2px;
 }
 .own-name-col .profile-name{
-  font-family:'Cinzel Decorative',serif;font-size:1em;color:#fff;
-  font-weight:700;letter-spacing:0.02em;white-space:nowrap;
+  font-family:'Cinzel Decorative',serif;font-size:1.05em;color:#fff;
+  font-weight:700;letter-spacing:0.02em;
   overflow:hidden;text-overflow:ellipsis;text-align:left;
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap;
 }
 .own-name-col .profile-title{
   font-size:0.76em;color:var(--pink);font-style:italic;
@@ -13038,13 +13052,11 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 
           <!-- Avatar row: avatar left, name+buttons right -->
           <div class="own-avatar-name-row">
-            <!-- spacer so name row aligns below avatar bottom -->
-            <div style="width:100px;flex-shrink:0;"></div>
+            <!-- spacer so name row aligns below avatar bottom -->\n            <div style="width:84px;flex-shrink:0;"></div>
             <div class="own-name-col">
-              <div class="profile-name" id="profileName">Summoner</div>
+              <div class="profile-name" id="profileName">Summoner<div id="adminProfileBadge" style="display:none;"><span class="admin-badge">👑 ADMIN</span></div></div>
               <div class="profile-title" id="profileTitle">✦ Founding Member ✦</div>
               <div style="display:flex;gap:7px;align-items:center;margin-top:8px;flex-wrap:wrap;">
-                <div id="adminProfileBadge" style="display:none;"><span class="admin-badge">👑 ADMIN</span></div>
                 <button class="profile-edit-fab" onclick="openProfileEdit()">✏️ Edit Profile</button>
               </div>
             </div>
@@ -33100,17 +33112,19 @@ function openPlayerModal(player){
       border:1px solid rgba(255,255,255,0.08);
       border-radius:24px 24px 0 0;
       width:100%; height:100%;
-      overflow:hidden; position:relative;
+      overflow:visible; position:relative;
       display:flex; flex-direction:column;
       box-shadow:0 -8px 40px rgba(0,0,0,0.6);
     ">
 
-      <!-- ── BANNER — outer has no overflow:hidden so avatar isn't clipped ── -->
-      <div style="position:relative;height:185px;flex-shrink:0;border-radius:24px 24px 0 0;">
+      <!-- ── BANNER — outer overflow:visible so avatar isn't clipped ── -->
+      <div style="position:relative;height:155px;flex-shrink:0;border-radius:24px 24px 0 0;">
         <!-- Banner image + fade, clipped in their own inner div -->
         <div style="position:absolute;inset:0;border-radius:24px 24px 0 0;overflow:hidden;">
           <div style="position:absolute;inset:0;background:${bannerBg};background-size:cover;background-position:center top;"></div>
-          <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0) 0%,rgba(0,0,0,0.25) 55%,${hexMixM(gs,0.35)} 88%,${hexMixM(gs,0.35)} 100%);"></div>
+          <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0) 0%,rgba(0,0,0,0.18) 70%,rgba(0,0,0,0.45) 100%);"></div>
+          <!-- Glowing accent line at banner bottom -->
+          <div style="position:absolute;bottom:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent 0%,${gs} 25%,rgba(255,255,255,0.6) 50%,${ge} 75%,transparent 100%);box-shadow:0 0 12px 2px ${gs}88,0 0 28px 4px ${ge}44;z-index:3;"></div>
         </div>
         <!-- Drag handle -->
         <div style="display:flex;justify-content:center;padding:10px 0 0;position:relative;z-index:2;">
@@ -33123,30 +33137,31 @@ function openPlayerModal(player){
           width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:0.9em;
           backdrop-filter:blur(8px);z-index:3;display:flex;align-items:center;justify-content:center;line-height:1;">✕</button>
         <!-- Avatar — LEFT side, overlapping banner bottom -->
-        <div style="position:absolute;bottom:-44px;left:18px;z-index:6;width:88px;height:88px;">
+        <div style="position:absolute;bottom:-38px;left:18px;z-index:6;width:76px;height:76px;">
           <!-- Spinning ring -->
           <div style="position:absolute;inset:-4px;border-radius:50%;background:conic-gradient(var(--pink) 0%,var(--purple) 30%,rgba(255,255,255,0.08) 50%,var(--purple) 70%,var(--pink) 100%);animation:spinRing 3.5s linear infinite;"></div>
           <!-- Gap ring -->
           <div style="position:absolute;inset:-1px;border-radius:50%;background:${hexMixM(gs,0.35)};"></div>
           <!-- Avatar -->
-          <div style="position:relative;width:88px;height:88px;border-radius:50%;overflow:hidden;box-shadow:0 8px 28px rgba(0,0,0,0.95);">
+          <div style="position:relative;width:76px;height:76px;border-radius:50%;overflow:hidden;box-shadow:0 8px 28px rgba(0,0,0,0.95);">
             <img src="${player.profile_thumbnail||player.avatar||'https://cdn.discordapp.com/embed/avatars/0.png'}"
               style="width:100%;height:100%;object-fit:cover;display:block;"
               onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'"/>
           </div>
           <!-- Online/offline badge -->
-          <div style="position:absolute;bottom:3px;right:1px;width:18px;height:18px;border-radius:50%;background:${player.is_online===false?'#747f8d':'#3ba55d'};border:3px solid ${hexMixM(gs,0.35)};box-shadow:0 0 8px ${player.is_online===false?'rgba(116,127,141,0.6)':'rgba(59,165,93,0.9)'};z-index:7;" title="${player.is_online===false?'Offline':'Online'}"></div>
+          <div style="position:absolute;bottom:3px;right:1px;width:16px;height:16px;border-radius:50%;background:${player.is_online===false?'#747f8d':'#3ba55d'};border:3px solid ${hexMixM(gs,0.35)};box-shadow:0 0 8px ${player.is_online===false?'rgba(116,127,141,0.6)':'rgba(59,165,93,0.9)'};z-index:7;" title="${player.is_online===false?'Offline':'Online'}"></div>
         </div>
       </div>
 
-      <!-- ── Scrollable content below banner ── -->
-      <div style="padding:0 14px 24px;flex:1;display:flex;flex-direction:column;overflow-y:auto;min-height:0;gap:10px;margin-top:12px;">
+      <!-- ── Scrollable content below banner — needs overflow:hidden wrapper to contain properly ── -->
+      <div style="flex:1;overflow:hidden;border-radius:0 0 24px 24px;">
+      <div style="padding:0 14px 24px;height:100%;display:flex;flex-direction:column;overflow-y:auto;gap:10px;margin-top:8px;">
 
         <!-- Avatar row: spacer left + name/buttons right -->
-        <div style="display:flex;align-items:flex-end;gap:10px;min-height:50px;">
-          <div style="width:96px;flex-shrink:0;"></div>
+        <div style="display:flex;align-items:flex-end;gap:10px;min-height:44px;flex-shrink:0;">
+          <div style="width:84px;flex-shrink:0;"></div>
           <div style="flex:1;min-width:0;padding-bottom:2px;">
-            <div style="font-family:'Cinzel Decorative',serif;font-size:1em;color:#fff;font-weight:700;letter-spacing:0.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(name)}</div>
+            <div style="font-family:'Cinzel Decorative',serif;font-size:1.05em;color:#fff;font-weight:700;letter-spacing:0.02em;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">${escapeHtml(name)}</div>
             <div style="font-size:0.76em;color:var(--pink);font-style:italic;opacity:0.9;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(player.active_title||'✦ Summoner ✦')}</div>
             <div style="display:flex;gap:7px;margin-top:8px;flex-wrap:wrap;">
               <button onclick="challengeToPvp('${player.discord_id}');closePlayerModal()" style="background:linear-gradient(135deg,var(--pink-deep),var(--purple));border:none;color:#fff;padding:7px 14px;border-radius:10px;font-family:'Cinzel Decorative',serif;font-size:0.58em;cursor:pointer;white-space:nowrap;letter-spacing:0.03em;box-shadow:0 3px 12px rgba(224,96,138,0.4);">⚔️ Challenge</button>
@@ -33219,6 +33234,7 @@ function openPlayerModal(player){
         <div id="${roomPlaceholderId}"></div>
 
       </div><!-- end scroll area -->
+      </div><!-- end overflow wrapper -->
     </div>`;
 
   modal.classList.add('active');
