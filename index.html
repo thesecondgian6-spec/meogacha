@@ -1966,13 +1966,13 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .hzc-plaza-bubbles { display: flex; flex-direction: column; gap: 6px; width: 100%; }
 /* ── Flex Portrait Card in Chat ── */
 .chat-flex-portrait {
-  border-radius: 14px; overflow: hidden; cursor: pointer;
+  border-radius: 12px; overflow: hidden; cursor: pointer;
   transition: transform 0.25s, box-shadow 0.25s;
-  max-width: 160px; margin: 6px 0; display: block;
+  width: 110px; flex-shrink: 0; margin: 4px 0; display: block;
   box-shadow: 0 4px 18px rgba(0,0,0,0.5);
 }
 .chat-flex-portrait:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 10px 28px rgba(0,0,0,0.6); }
-.cfp-img-wrap { position: relative; width: 100%; aspect-ratio: 3/4; overflow: hidden; }
+.cfp-img-wrap { position: relative; width: 100%; aspect-ratio: 2/3; overflow: hidden; border-radius: 12px 12px 0 0; }
 .cfp-img { width: 100%; height: 100%; object-fit: cover; object-position: top center; display: block; }
 .cfp-shimmer {
   position: absolute; inset: 0;
@@ -1980,20 +1980,61 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   pointer-events: none;
 }
 .cfp-rarity-badge {
-  position: absolute; bottom: 6px; left: 0; right: 0; text-align: center;
-  font-family: 'JetBrains Mono', monospace; font-size: 0.56em; letter-spacing: 0.08em;
+  position: absolute; bottom: 5px; left: 0; right: 0; text-align: center;
+  font-family: 'JetBrains Mono', monospace; font-size: 0.5em; letter-spacing: 0.08em;
   text-shadow: 0 1px 6px rgba(0,0,0,0.9);
 }
 .cfp-label {
-  position: absolute; top: 6px; right: 6px;
-  font-family: 'JetBrains Mono', monospace; font-size: 0.45em; letter-spacing: 0.15em;
+  position: absolute; top: 5px; right: 5px;
+  font-family: 'JetBrains Mono', monospace; font-size: 0.42em; letter-spacing: 0.12em;
   color: rgba(255,255,255,0.75); background: rgba(0,0,0,0.6);
-  border-radius: 5px; padding: 2px 5px; backdrop-filter: blur(4px);
+  border-radius: 4px; padding: 2px 4px; backdrop-filter: blur(4px);
 }
 .cfp-info {
-  padding: 7px 10px; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px);
+  padding: 5px 8px 6px; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px);
+  border-radius: 0 0 12px 12px;
 }
-.cfp-name { font-family: 'Cinzel Decorative', serif; font-size: 0.65em; color: var(--pink-pale); line-height: 1.3; }
+.cfp-name { font-family: 'Cinzel Decorative', serif; font-size: 0.58em; color: var(--pink-pale); line-height: 1.3; }
+.chat-gif-wrap { margin: 4px 0; border-radius: 10px; overflow: hidden; max-width: 200px; }
+.chat-gif { width: 100%; display: block; border-radius: 10px; }
+#gifPickerModal {
+  position: fixed; inset: 0; z-index: 360; display: none;
+  align-items: flex-end; justify-content: center;
+  background: rgba(0,0,0,0.75); backdrop-filter: blur(8px);
+}
+#gifPickerModal.open { display: flex; }
+.gif-picker-panel {
+  width: 100%; max-width: 420px; max-height: 70vh;
+  background: var(--bg2); border-radius: 20px 20px 0 0;
+  border: 1px solid rgba(255,157,199,0.2); border-bottom: none;
+  display: flex; flex-direction: column; overflow: hidden;
+  box-shadow: 0 -8px 40px rgba(0,0,0,0.6);
+}
+.gif-picker-header {
+  display: flex; align-items: center; gap: 10px;
+  padding: 14px 16px 10px; border-bottom: 1px solid rgba(255,157,199,0.12); flex-shrink: 0;
+}
+.gif-picker-title { font-family: 'Cinzel Decorative', serif; font-size: 0.72em; color: var(--pink-pale); letter-spacing: 0.05em; flex: 1; }
+.gif-picker-close { background: none; border: none; color: var(--text-dim); font-size: 1.1em; cursor: pointer; padding: 4px; border-radius: 6px; transition: color 0.15s; }
+.gif-picker-close:hover { color: var(--pink); }
+.gif-picker-search-wrap { padding: 8px 14px; flex-shrink: 0; }
+.gif-picker-search {
+  width: 100%; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,157,199,0.2);
+  border-radius: 8px; padding: 8px 12px; color: var(--text); font-size: 0.88em;
+  font-family: 'Cormorant Garamond', serif; outline: none; box-sizing: border-box; transition: border-color 0.2s;
+}
+.gif-picker-search:focus { border-color: rgba(255,157,199,0.45); }
+.gif-picker-search::placeholder { color: rgba(155,111,136,0.6); }
+.gif-picker-grid {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px;
+  padding: 6px 14px 20px; overflow-y: auto;
+  scrollbar-width: thin; scrollbar-color: rgba(255,157,199,0.3) transparent; flex: 1;
+}
+.gif-picker-item { border-radius: 8px; overflow: hidden; cursor: pointer; aspect-ratio: 16/9; background: rgba(255,255,255,0.04); transition: transform 0.15s, box-shadow 0.15s; }
+.gif-picker-item:hover { transform: scale(1.03); box-shadow: 0 4px 14px rgba(255,157,199,0.25); }
+.gif-picker-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.gif-picker-loading { grid-column: 1/-1; text-align: center; padding: 30px; color: var(--text-dim); font-size: 0.82em; font-family: 'JetBrains Mono', monospace; }
+.gif-picker-trending-label { padding: 0 14px 6px; font-size: 0.68em; font-family: 'JetBrains Mono', monospace; color: var(--text-dim); letter-spacing: 0.08em; flex-shrink: 0; }
 .hzc-plaza-info-panel { display:flex;flex-direction:column;gap:0;width:100%;background:rgba(255,157,199,0.04);border:1px solid rgba(255,157,199,0.18);border-radius:14px;overflow:hidden; }
 .hzc-pip-row { display:flex;align-items:center;gap:10px;padding:9px 12px; }
 .hzc-pip-icon { font-size:1.2em;flex-shrink:0;width:24px;text-align:center; }
@@ -13824,6 +13865,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
                 <div class="mention-dropdown" id="mentionDropdown"></div>
                 <input id="chatInput" placeholder="Chat in the plaza… say hi! ʚɞ" maxlength="300"
                   onkeydown="chatInputKeydown(event)" oninput="chatInputChange(this)"/>
+                <button class="chat-flex-btn" title="Send a GIF" onclick="openGifPicker('lobby')" style="font-size:0.85em;letter-spacing:0.03em;font-family:'JetBrains Mono',monospace;color:rgba(100,220,255,0.7);">GIF</button>
                 <button class="chat-flex-btn" title="Flex a card" onclick="openFlexPicker()">✨</button>
               </div>
               <button class="chat-send-btn" onclick="submitChat()">Send ✦</button>
@@ -14021,6 +14063,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
             </div>
             <div class="chat-input-wrap">
               <input id="roomChatInput" placeholder="Chat in the room..." maxlength="300" onkeydown="if(event.key==='Enter')submitRoomChat()"/>
+              <button class="chat-flex-btn" title="Send a GIF" onclick="openGifPicker('room')" style="font-size:0.85em;letter-spacing:0.03em;font-family:'JetBrains Mono',monospace;color:rgba(100,220,255,0.7);">GIF</button>
             </div>
             <button class="chat-send-btn" onclick="submitRoomChat()">Send ✦</button>
           </div>
@@ -14370,6 +14413,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
               <div class="chat-input-wrap">
                 <input id="cinemaChatInput" placeholder="React to the video..." maxlength="200"
                   onkeydown="if(event.key==='Enter')submitCinemaChat()"/>
+                <button class="chat-flex-btn" title="Send a GIF" onclick="openGifPicker('cinema')" style="font-size:0.85em;letter-spacing:0.03em;font-family:'JetBrains Mono',monospace;color:rgba(100,220,255,0.7);">GIF</button>
               </div>
               <button class="chat-send-btn" style="padding:8px 14px;font-size:0.8em;" onclick="submitCinemaChat()">✦</button>
             </div>
@@ -31381,15 +31425,13 @@ function renderRoomChatMsg(msg){
         <span class="chat-time">${time}</span>
       </div>
       ${replyHtml}
-      <div class="chat-text">${escapeHtml(msg.content||'')}</div>
+      ${msg.msg_type==='gif'?`<div class="chat-gif-wrap"><img class="chat-gif" src="${escapeHtml(msg.content||'')}" alt="GIF" loading="lazy"/></div>`:`<div class="chat-text">${escapeHtml(msg.content||'')}</div>`}
     </div>`;
   const ph=feed.querySelector('[data-placeholder]');
   if(ph) ph.remove();
   feed.appendChild(div);
   while(feed.children.length>100) feed.removeChild(feed.firstChild);
-}
-
-async function deleteRoomMsg(id, el){
+}(id, el){
   if(!id) return;
   try {
     await fetch(`${SUPABASE_URL}/rest/v1/hub_room_messages?id=eq.${id}`,{
@@ -31818,7 +31860,7 @@ function renderCinemaMsg(msg){
         <span class="chat-time">${time}</span>
       </div>
       ${replyHtml}
-      <div class="chat-text">${escapeHtml(msg.content||'')}</div>
+      ${msg.msg_type==='gif'?`<div class="chat-gif-wrap"><img class="chat-gif" src="${escapeHtml(msg.content||'')}" alt="GIF" loading="lazy"/></div>`:`<div class="chat-text">${escapeHtml(msg.content||'')}</div>`}
     </div>`;
   const ph=feed.querySelector('[data-placeholder]');
   if(ph) ph.remove();
@@ -32950,7 +32992,9 @@ function renderChatMsg(msg){
 
   let contentHtml = replyHtml;
 
-  if(msg.msg_type === 'flex' && msg.card_id){
+  if(msg.msg_type === 'gif' && msg.content){
+    contentHtml += `<div class="chat-gif-wrap"><img class="chat-gif" src="${escapeHtml(msg.content)}" alt="GIF" loading="lazy" onerror="this.parentElement.style.display='none'"/></div>`;
+  } else if(msg.msg_type === 'flex' && msg.card_id){
     const card = (window.DEMO_CARDS||[]).find(c=>c.id===msg.card_id);
     if(card){
       let flexImg = card.thumbnail || card.image || '';
@@ -32983,8 +33027,8 @@ function renderChatMsg(msg){
     }
   }
 
-  // Only show text line if there's actual content (flex messages send empty text)
-  if(msg.content && msg.content.trim()){
+  // Only show text line if there's actual content (flex/gif messages use content differently)
+  if(msg.content && msg.content.trim() && msg.msg_type !== 'flex' && msg.msg_type !== 'gif'){
     contentHtml += `<div class="chat-text">${formatChatText(msg.content)}</div>`;
   }
 
@@ -33227,6 +33271,83 @@ function filterFlexPicker(query){
 function closeFlexPicker(){
   const el = document.getElementById('flexPickerModal');
   if(el) el.style.display = 'none';
+}
+
+// ── GIF Picker ──────────────────────────────────────────────────────────────
+let _gifPickerTarget = 'lobby'; // 'lobby' | 'room' | 'cinema'
+let _gifSearchTimer = null;
+const TENOR_KEY = 'AIzaSyAyimkuYQYF_FXVql9lUqgxJRt7GXkd19I'; // public demo key
+
+async function openGifPicker(target = 'lobby'){
+  _gifPickerTarget = target;
+  const modal = document.getElementById('gifPickerModal');
+  if(!modal) return;
+  modal.classList.add('open');
+  const input = document.getElementById('gifSearchInput');
+  if(input){ input.value = ''; input.focus(); }
+  document.getElementById('gifPickerLabel').textContent = '✦ TRENDING';
+  await loadGifs('');
+}
+
+function closeGifPicker(){
+  const modal = document.getElementById('gifPickerModal');
+  if(modal) modal.classList.remove('open');
+}
+
+function gifSearchDebounce(val){
+  clearTimeout(_gifSearchTimer);
+  _gifSearchTimer = setTimeout(()=>{
+    document.getElementById('gifPickerLabel').textContent = val.trim() ? `✦ RESULTS FOR "${val.toUpperCase()}"` : '✦ TRENDING';
+    loadGifs(val.trim());
+  }, 400);
+}
+
+async function loadGifs(query){
+  const grid = document.getElementById('gifPickerGrid');
+  if(!grid) return;
+  grid.innerHTML = '<div class="gif-picker-loading">Loading GIFs…</div>';
+  try{
+    const endpoint = query
+      ? `https://tenor.googleapis.com/v2/search?q=${encodeURIComponent(query+' anime')}&key=${TENOR_KEY}&limit=20&media_filter=gif,tinygif`
+      : `https://tenor.googleapis.com/v2/featured?key=${TENOR_KEY}&limit=20&q=anime&media_filter=gif,tinygif`;
+    const res = await fetch(endpoint);
+    const data = await res.json();
+    grid.innerHTML = '';
+    if(!data.results || !data.results.length){
+      grid.innerHTML = '<div class="gif-picker-loading">No GIFs found ʚɞ</div>';
+      return;
+    }
+    data.results.forEach(r=>{
+      const media = r.media_formats;
+      const src = media.tinygif?.url || media.gif?.url;
+      if(!src) return;
+      const item = document.createElement('div');
+      item.className = 'gif-picker-item';
+      item.innerHTML = `<img src="${src}" loading="lazy" alt="gif"/>`;
+      item.onclick = () => sendGif(src);
+      grid.appendChild(item);
+    });
+  } catch(e){
+    grid.innerHTML = '<div class="gif-picker-loading">Couldn\'t load GIFs 😢</div>';
+  }
+}
+
+async function sendGif(url){
+  closeGifPicker();
+  const target = _gifPickerTarget;
+  if(target === 'lobby'){
+    await sendChatMsg(url, 'gif');
+  } else if(target === 'room'){
+    if(!state.discordId || !_currentRoomId) return;
+    try { await sb.insert(ROOM_CHAT_TABLE, { room_id:_currentRoomId, user_id:state.discordId, username:state.username||'Player', avatar_url:state.customAvatar||state.avatar||'', content:url, msg_type:'gif' }); }
+    catch(e){ showToast('Could not send GIF'); }
+  } else if(target === 'cinema'){
+    if(!state.discordId) return;
+    const { CINEMA_CHAT_TABLE } = window;
+    if(!CINEMA_CHAT_TABLE) return;
+    try { await sb.insert(CINEMA_CHAT_TABLE, { user_id:state.discordId, username:state.username||'Player', avatar_url:state.customAvatar||state.avatar||'', content:url, msg_type:'gif' }); }
+    catch(e){ showToast('Could not send GIF'); }
+  }
 }
 
 async function flexCardInChat(cardId){
@@ -37390,7 +37511,22 @@ let _adminEvoCache = [];
   </div>
 </div>
 
-<!-- EVOLUTION MODAL --> 
+<!-- GIF PICKER MODAL -->
+<div id="gifPickerModal" onclick="if(event.target===this)closeGifPicker()">
+  <div class="gif-picker-panel">
+    <div class="gif-picker-header">
+      <span class="gif-picker-title">✦ Send a GIF</span>
+      <button class="gif-picker-close" onclick="closeGifPicker()">✕</button>
+    </div>
+    <div class="gif-picker-search-wrap">
+      <input class="gif-picker-search" id="gifSearchInput" placeholder="Search anime GIFs…" oninput="gifSearchDebounce(this.value)" autocomplete="off"/>
+    </div>
+    <div class="gif-picker-trending-label" id="gifPickerLabel">✦ TRENDING</div>
+    <div class="gif-picker-grid" id="gifPickerGrid">
+      <div class="gif-picker-loading">Loading GIFs…</div>
+    </div>
+  </div>
+</div> 
 <div id="evolutionModal" style="position:fixed;inset:0;z-index:500;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.96);backdrop-filter:blur(12px);">
   <div style="text-align:center;max-width:480px;width:92%;padding:20px;animation:pullIn 0.5s cubic-bezier(0.34,1.56,0.64,1);">
     <div id="evoModalGlow" style="position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 50% 40%,rgba(192,132,184,0.25),transparent 65%);"></div>
