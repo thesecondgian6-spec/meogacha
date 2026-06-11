@@ -1142,7 +1142,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
     flex: unset;
   }
   .hzc-title { font-size: 1em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .hzc-desc { display: none !important; }
+  .hzc-desc { display: block !important; font-size: 0.7em !important; margin-bottom: 6px !important; }
   .hzc-badge { font-size: 0.5em; }
   .hzc-enter { font-size: 0.6em; margin-top: 6px; }
   .hzc-tags { display: flex; flex-wrap: wrap; gap: 4px; }
@@ -1964,7 +1964,36 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 
 /* Plaza bubbles */
 .hzc-plaza-bubbles { display: flex; flex-direction: column; gap: 6px; width: 100%; }
-/* ── Info Panel (replaces plaza bubbles & rooms list) ── */
+/* ── Flex Portrait Card in Chat ── */
+.chat-flex-portrait {
+  border-radius: 16px; overflow: hidden; cursor: pointer;
+  transition: transform 0.25s, box-shadow 0.25s;
+  max-width: 220px; margin: 6px 0; display: block;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.5);
+}
+.chat-flex-portrait:hover { transform: translateY(-4px) scale(1.02); box-shadow: 0 12px 36px rgba(0,0,0,0.6); }
+.cfp-img-wrap { position: relative; width: 100%; aspect-ratio: 3/4; overflow: hidden; }
+.cfp-img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.cfp-shimmer {
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 50%, rgba(255,255,255,0.04) 100%);
+  pointer-events: none;
+}
+.cfp-rarity-badge {
+  position: absolute; bottom: 8px; left: 0; right: 0; text-align: center;
+  font-family: 'JetBrains Mono', monospace; font-size: 0.62em; letter-spacing: 0.08em;
+  text-shadow: 0 1px 6px rgba(0,0,0,0.9);
+}
+.cfp-label {
+  position: absolute; top: 8px; right: 8px;
+  font-family: 'JetBrains Mono', monospace; font-size: 0.5em; letter-spacing: 0.15em;
+  color: rgba(255,255,255,0.7); background: rgba(0,0,0,0.55);
+  border-radius: 6px; padding: 2px 6px; backdrop-filter: blur(4px);
+}
+.cfp-info {
+  padding: 10px 12px; background: rgba(0,0,0,0.75); backdrop-filter: blur(8px);
+}
+.cfp-name { font-family: 'Cinzel Decorative', serif; font-size: 0.72em; color: var(--pink-pale); line-height: 1.3; }
 .hzc-plaza-info-panel { display:flex;flex-direction:column;gap:0;width:100%;background:rgba(255,157,199,0.04);border:1px solid rgba(255,157,199,0.18);border-radius:14px;overflow:hidden; }
 .hzc-pip-row { display:flex;align-items:center;gap:10px;padding:9px 12px; }
 .hzc-pip-icon { font-size:1.2em;flex-shrink:0;width:24px;text-align:center; }
@@ -2090,7 +2119,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   .hzc-left { width:100%; height:auto; padding:0 14px 10px; gap:6px; overflow:visible; flex:unset; }
   .hzc-right { width:100% !important; min-width:unset !important; height:auto !important; padding:10px 14px 14px !important; overflow:hidden !important; border-left:none !important; border-top:1px solid rgba(255,255,255,0.07); background:rgba(0,0,0,0.3); }
   .hzc-title { font-size:1em; }
-  .hzc-desc { display:none !important; }
+  .hzc-desc { display:block !important; font-size:0.68em !important; margin-bottom:5px !important; }
   .hzc-neon-rack { top:10px;right:12px; }
   .hzc-neon { font-size:0.6em; }
   .hzc-cinema-marquee-top { display:none; }
@@ -19282,6 +19311,10 @@ function updateHomeSpotlight(){
 // NAV
 // ══════════════════════════════════════════════
 function goTo(page,btn){ playNavSound();
+  // Pause cinema video if leaving the hub
+  if(page !== 'social'){
+    try { if(_ytPlayer && typeof _ytPlayer.pauseVideo === 'function') _ytPlayer.pauseVideo(); } catch(e){}
+  }
   // home is now the Meo Hub
   if(page==='home') page='social';
   // battle is now embedded in activities
@@ -30223,6 +30256,12 @@ function enterHubZone(zone){
   // Gacha booth just navigates to the pull page
   if(zone==='gacha'){ goTo('pull', null); return; }
 
+  // Pause cinema if we're leaving it
+  const currentlyInCinema = document.getElementById('hubZone-cinema')?.style.display !== 'none';
+  if(currentlyInCinema && zone !== 'cinema'){
+    try { if(_ytPlayer && typeof _ytPlayer.pauseVideo === 'function') _ytPlayer.pauseVideo(); } catch(e){}
+  }
+
   const zones=['lobby','rooms','food','cinema','arcade','trades','leaderboard','arena'];
   zones.forEach(z=>{
     const el=document.getElementById('hubZone-'+z);
@@ -30237,12 +30276,26 @@ function enterHubZone(zone){
   if(zone==='leaderboard') loadLeaderboard('pvp');
   if(zone==='lobby'){ loadLobbyLeaderboardPreview(); initChat(); }
   if(zone==='arcade') syncArcadeWallet();
-  if(zone==='cinema') initCinemaChat();
+  if(zone==='cinema'){
+    initCinemaChat();
+    // Resume video if it was paused when we left
+    setTimeout(()=>{
+      try { if(_ytPlayer && typeof _ytPlayer.getPlayerState === 'function'){
+        if(_ytPlayer.getPlayerState() === 2) _ytPlayer.playVideo(); // 2 = paused
+      }} catch(e){}
+    }, 300);
+  }
   if(zone==='rooms') refreshRoomsList();
   if(zone==='arena'){ loadMyTrades(); loadLeaderboard('pvp','arenaPvpLeaderboard'); loadArenaTradePlayerList(); }
 }
 
 function returnToHubMap(){
+  // Pause cinema video when leaving
+  const currentlyInCinema = document.getElementById('hubZone-cinema')?.style.display !== 'none';
+  if(currentlyInCinema){
+    try { if(_ytPlayer && typeof _ytPlayer.pauseVideo === 'function') _ytPlayer.pauseVideo(); } catch(e){}
+  }
+
   const zones=['lobby','rooms','food','cinema','arcade','trades','leaderboard','arena'];
   zones.forEach(z=>{
     const el=document.getElementById('hubZone-'+z);
@@ -32900,27 +32953,40 @@ function renderChatMsg(msg){
   if(msg.msg_type === 'flex' && msg.card_id){
     const card = (window.DEMO_CARDS||[]).find(c=>c.id===msg.card_id);
     if(card){
-      // Resolve thumbnail: prefer skin stored in the message (sender's skin), fall back to base art
-      let flexThumb = card.thumbnail || card.image || '';
+      let flexImg = card.image || card.thumbnail || '';
       if(msg.skin_id){
         const msgSkin = (window.ALL_SKINS||[]).find(s=>s.id===msg.skin_id);
-        if(msgSkin) flexThumb = msgSkin.thumbnail || msgSkin.image || flexThumb;
+        if(msgSkin) flexImg = msgSkin.image || msgSkin.thumbnail || flexImg;
       }
-      // Show a small skin badge if the sender had a skin equipped
-      const skinBadge = msg.skin_id ? '<span style="font-size:0.6em;background:rgba(155,89,182,0.85);color:#fff;border-radius:4px;padding:1px 5px;margin-left:5px;font-family:\'JetBrains Mono\',monospace;vertical-align:middle;">🎨 Skin</span>' : '';
+      const rarityColor = card.rarityColor || 'var(--pink)';
+      const isLR = (card.rarity||'').toUpperCase()==='LR' || (card.rarityName||'').toUpperCase().includes('LR');
+      const borderStyle = isLR
+        ? 'border:2px solid transparent;background:linear-gradient(var(--bg2),var(--bg2)) padding-box, linear-gradient(90deg,#ff0000,#ff7700,#ffdd00,#00ff00,#00aaff,#cc00ff,#ff0077) border-box;'
+        : `border:2px solid ${rarityColor};`;
+      const skinBadge = msg.skin_id ? `<span style="font-size:0.55em;background:rgba(155,89,182,0.9);color:#fff;border-radius:4px;padding:1px 5px;font-family:'JetBrains Mono',monospace;">🎨 Skin</span>` : '';
+      const quoteHtml = card.quote ? `<div style="font-size:0.7em;color:rgba(255,255,255,0.6);font-style:italic;line-height:1.4;margin-top:6px;padding-top:6px;border-top:1px solid rgba(255,255,255,0.1);">"${escapeHtml(card.quote)}"</div>` : '';
+      const seriesHtml = card.series ? `<div style="font-size:0.65em;font-family:'JetBrains Mono',monospace;color:rgba(255,255,255,0.45);margin-top:3px;letter-spacing:0.04em;">${escapeHtml(card.series)}</div>` : '';
       contentHtml += `
-        <div class="chat-flex-card" onclick="openCardById('${card.id}')">
-          <img class="flex-thumb" src="${flexThumb}"
-            onerror="this.style.display='none'"/>
-          <div>
-            <div class="flex-name">${escapeHtml(card.name)}${skinBadge}</div>
-            <div class="flex-rarity">${escapeHtml(card.rarityName||'')} ${card.rarityStars||''}</div>
+        <div class="chat-flex-portrait" style="${borderStyle}" onclick="openCardById('${card.id}')">
+          <div class="cfp-img-wrap">
+            <img src="${flexImg}" onerror="this.style.display='none'" class="cfp-img"/>
+            <div class="cfp-shimmer"></div>
+            <div class="cfp-rarity-badge" style="color:${rarityColor};">${escapeHtml(card.rarityName||'')} ${card.rarityStars||''}</div>
+            <div class="cfp-label">✦ FLEX ✦</div>
+          </div>
+          <div class="cfp-info">
+            <div class="cfp-name">${escapeHtml(card.name)} ${skinBadge}</div>
+            ${seriesHtml}
+            ${quoteHtml}
           </div>
         </div>`;
     }
   }
 
-  contentHtml += `<div class="chat-text">${formatChatText(msg.content)}</div>`;
+  // Only show text line if there's actual content (flex messages send empty text)
+  if(msg.content && msg.content.trim()){
+    contentHtml += `<div class="chat-text">${formatChatText(msg.content)}</div>`;
+  }
 
   // Action buttons — trade/challenge on others' flex messages
   if(!isMe && msg.msg_type === 'flex' && msg.card_id){
@@ -33168,14 +33234,8 @@ async function flexCardInChat(cardId){
   if(!card) return;
   // Pass the currently equipped skin so other players can see it in the flex
   const equippedSkinId = (window.EQUIPPED_SKINS && window.EQUIPPED_SKINS[cardId]) || null;
-  // Hype message based on rarity
-  const r = (card.rarityName||'').toUpperCase();
-  let msg = `Look what I pulled! ✨ ${card.rarityName} card`;
-  if(r.includes('LR')) msg = `🌈 OH MY GOD. I just pulled an [LR] ${card.name}!! AAAAA`;
-  else if(r.includes('UR')) msg = `✨ NO WAY — just pulled a [UR] ${card.name}!! come see this`;
-  else if(r.includes('SSR')) msg = `🌟 Just pulled [SSR] ${card.name}!! Let's gooo`;
-  else if(r.includes('SR')) msg = `💜 Check out my [SR] ${card.name}~`;
-  await sendChatMsg(msg, 'flex', cardId, null, equippedSkinId);
+  // Send with empty text — the card portrait widget is the flex
+  await sendChatMsg('', 'flex', cardId, null, equippedSkinId);
 }
 
 // ══════════════════════════════════════════════
