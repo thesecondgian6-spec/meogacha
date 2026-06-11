@@ -18248,8 +18248,8 @@ function renderCollection(){
   if(!filtered.length){grid.innerHTML='';empty.style.display='block';return;}
   empty.style.display='none';
 
-  // When a specific rarity/fav filter is active, show flat grid (already sorted)
-  if(currentFilter!=='all'){
+  // Flat grid for rarity filter, fav filter, or non-rarity sorts
+  if(currentFilter!=='all' || (sortVal!=='rarity_desc' && sortVal!=='rarity_asc')){
     grid.className='cards-grid cards-grid--wrap';
     grid.innerHTML=filtered.map(id=>renderCardThumb(id,counts,favs)).join('');
     return;
@@ -32994,7 +32994,7 @@ function openPlayerModal(player){
       box-shadow:0 -8px 40px rgba(0,0,0,0.6);
     ">
       <!-- Banner with avatar overlapping -->
-      <div style="position:relative;height:160px;background:${bannerBg};flex-shrink:0;">
+      <div style="position:relative;height:110px;background:${bannerBg};flex-shrink:0;">
         <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0.05) 0%,rgba(0,0,0,0.5) 100%);"></div>
         <!-- drag handle inside banner -->
         <div style="display:flex;justify-content:center;padding:8px 0 0;position:relative;z-index:2;">
