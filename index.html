@@ -31431,7 +31431,9 @@ function renderRoomChatMsg(msg){
   if(ph) ph.remove();
   feed.appendChild(div);
   while(feed.children.length>100) feed.removeChild(feed.firstChild);
-}(id, el){
+}
+
+async function deleteRoomMsg(id, el){
   if(!id) return;
   try {
     await fetch(`${SUPABASE_URL}/rest/v1/hub_room_messages?id=eq.${id}`,{
@@ -33319,7 +33321,7 @@ async function loadGifs(query){
     }
     data.results.forEach(r=>{
       const media = r.media_formats;
-      const src = media.tinygif?.url || media.gif?.url;
+      const src = (media.tinygif && media.tinygif.url) || (media.gif && media.gif.url);
       if(!src) return;
       const item = document.createElement('div');
       item.className = 'gif-picker-item';
@@ -33334,18 +33336,17 @@ async function loadGifs(query){
 
 async function sendGif(url){
   closeGifPicker();
+  const s = window.state || {};
   const target = _gifPickerTarget;
   if(target === 'lobby'){
     await sendChatMsg(url, 'gif');
   } else if(target === 'room'){
-    if(!state.discordId || !_currentRoomId) return;
-    try { await sb.insert(ROOM_CHAT_TABLE, { room_id:_currentRoomId, user_id:state.discordId, username:state.username||'Player', avatar_url:state.customAvatar||state.avatar||'', content:url, msg_type:'gif' }); }
+    if(!s.discordId || !_currentRoomId) return;
+    try { await sb.insert(ROOM_CHAT_TABLE, { room_id:_currentRoomId, user_id:s.discordId, username:s.username||'Player', avatar_url:s.customAvatar||s.avatar||'', content:url, msg_type:'gif' }); }
     catch(e){ showToast('Could not send GIF'); }
   } else if(target === 'cinema'){
-    if(!state.discordId) return;
-    const { CINEMA_CHAT_TABLE } = window;
-    if(!CINEMA_CHAT_TABLE) return;
-    try { await sb.insert(CINEMA_CHAT_TABLE, { user_id:state.discordId, username:state.username||'Player', avatar_url:state.customAvatar||state.avatar||'', content:url, msg_type:'gif' }); }
+    if(!s.discordId) return;
+    try { await sb.insert('cinema_chat', { user_id:s.discordId, username:s.username||'Player', avatar_url:s.customAvatar||s.avatar||'', content:url, msg_type:'gif' }); }
     catch(e){ showToast('Could not send GIF'); }
   }
 }
