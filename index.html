@@ -3673,6 +3673,105 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 }
 .profile-bio:hover{color:var(--text);border-color:rgba(255,157,199,0.25);}
 
+/* ══ OWN PROFILE — modal-matching redesign ══ */
+.own-profile-banner{
+  position:relative;height:185px;flex-shrink:0;border-radius:20px 20px 0 0;
+}
+.own-profile-banner-inner{
+  position:absolute;inset:0;border-radius:20px 20px 0 0;overflow:hidden;
+}
+.own-profile-banner-inner .banner-img{
+  position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0.9;
+}
+.own-profile-banner-fade{
+  position:absolute;inset:0;
+  background:linear-gradient(to bottom,rgba(0,0,0,0.04) 0%,rgba(0,0,0,0.2) 48%,var(--own-banner-fade,#1a0a12) 82%,var(--own-banner-fade,#1a0a12) 100%);
+}
+/* Avatar wrapper — hangs below banner */
+.own-profile-avatar-wrap{
+  position:absolute;bottom:-50px;left:50%;transform:translateX(-50%);
+  width:96px;height:96px;cursor:pointer;z-index:6;
+}
+.own-profile-ring{
+  position:absolute;inset:-4px;border-radius:50%;
+  background:conic-gradient(var(--pink) 0%,var(--purple) 30%,rgba(255,255,255,0.08) 50%,var(--purple) 70%,var(--pink) 100%);
+  animation:spinRing 3.5s linear infinite;
+}
+.own-profile-ring-gap{
+  position:absolute;inset:-1px;border-radius:50%;
+  background:var(--own-ring-gap,#1a0a12);
+}
+.own-profile-avatar-circle{
+  position:relative;width:96px;height:96px;border-radius:50%;overflow:hidden;
+  box-shadow:0 8px 30px rgba(0,0,0,0.9);
+}
+/* Body below banner */
+.own-profile-body{
+  padding:0 14px 24px;display:flex;flex-direction:column;gap:10px;margin-top:58px;
+}
+/* Section cards */
+.own-section-card{
+  background:rgba(255,255,255,0.05);
+  border:1px solid rgba(255,255,255,0.09);
+  border-radius:12px;padding:11px 14px;
+}
+.own-section-label{
+  font-size:0.6em;color:rgba(255,255,255,0.35);
+  letter-spacing:0.12em;text-transform:uppercase;
+  font-family:'JetBrains Mono',monospace;margin-bottom:6px;
+}
+/* Override bio inside own-section-card */
+.own-section-card .profile-bio{
+  background:none;border:none;padding:0;margin-bottom:0;
+}
+/* Stats row */
+.own-stats-row{
+  display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;
+}
+.own-stats-row .stat-box{
+  background:rgba(255,255,255,0.05);
+  border:1px solid rgba(255,255,255,0.09);
+  border-radius:12px;padding:12px 6px;text-align:center;
+}
+.own-stats-row .stat-val{
+  font-family:'JetBrains Mono',monospace;font-size:1.1em;font-weight:700;color:var(--pink);
+}
+.own-stats-row .stat-lbl{
+  font-size:0.62em;color:rgba(255,255,255,0.38);text-transform:uppercase;
+  letter-spacing:0.08em;margin-top:4px;
+}
+/* Showcase cards inside own-section-card — centred flex like modal */
+.own-section-card .profile-showcase-cards{
+  display:flex;gap:10px;justify-content:center;
+}
+.own-section-card .psc-card{
+  flex:1;max-width:110px;border-radius:12px;overflow:hidden;
+  border:2px solid #bdc3c7;cursor:pointer;transition:transform .2s;
+}
+.own-section-card .psc-card:hover{transform:translateY(-4px);}
+.own-section-card .psc-card img{width:100%;aspect-ratio:3/4;object-fit:cover;display:block;}
+.own-section-card .psc-card-label{
+  background:rgba(0,0,0,0.88);padding:5px 4px;text-align:center;
+}
+.own-section-card .psc-card-name{
+  font-size:0.6em;color:#fff;font-family:'Cinzel Decorative',serif;
+  display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.own-section-card .psc-card-rarity{font-size:0.58em;display:block;margin-top:2px;}
+/* Music bar inside own-section-card */
+.own-section-card.profile-music-bar{
+  display:flex;align-items:center;gap:11px;padding:11px 14px;
+}
+/* name/title centred */
+.own-profile-body .profile-name{
+  font-family:'Cinzel Decorative',serif;font-size:1.1em;color:#fff;
+  font-weight:700;letter-spacing:0.03em;text-align:center;
+}
+.own-profile-body .profile-title{
+  font-size:0.78em;color:var(--pink);font-style:italic;
+  opacity:0.9;margin-top:2px;text-align:center;margin-bottom:0;
+}
+
 /* ══ PROFILE AVATAR CLICK HINT ══ */
 .avatar-hint{font-size:.65em;color:var(--text-dim);font-style:italic;margin-top:2px;text-align:center;}
 
@@ -12908,44 +13007,56 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   <!-- PROFILE -->
   <div class="page" id="page-profile">
     <div class="profile-wrap">
-      <div class="profile-card">
-        <!-- BANNER -->
-        <div class="profile-banner-area" id="profileBannerEl">
-          <img class="banner-img" id="profileBannerImg" src="" alt="" style="display:none;"/>
-        </div>
-        <!-- AVATAR ROW — Discord style: avatar left, edit button right -->
-        <div class="profile-avatar-row">
-          <div class="profile-avatar-outer" onclick="openProfileEdit()" title="Click to change avatar">
-            <img class="profile-avatar-img" id="profileAvatar" src="https://cdn.discordapp.com/embed/avatars/0.png" alt="avatar"/>
+      <div class="profile-card" id="profileCardEl">
+
+        <!-- ── BANNER — outer has no overflow so avatar isn't clipped ── -->
+        <div class="own-profile-banner" id="profileBannerEl">
+          <!-- Inner clip div: contains image + fade only -->
+          <div class="own-profile-banner-inner">
+            <img class="banner-img" id="profileBannerImg" src="" alt="" style="display:none;"/>
+            <div class="own-profile-banner-fade" id="profileBannerFade"></div>
           </div>
-          <div class="profile-avatar-actions">
+          <!-- Avatar — centred, hangs below banner bottom -->
+          <div class="own-profile-avatar-wrap" onclick="openProfileEdit()" title="Click to change avatar">
+            <div class="own-profile-ring"></div>
+            <div class="own-profile-ring-gap" id="profileRingGap"></div>
+            <div class="own-profile-avatar-circle">
+              <img class="profile-avatar-img" id="profileAvatar" src="https://cdn.discordapp.com/embed/avatars/0.png" alt="avatar"/>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Scrollable body ── -->
+        <div class="own-profile-body">
+
+          <!-- Name + title -->
+          <div style="text-align:center;margin-bottom:10px;">
+            <div class="profile-name" id="profileName">Summoner</div>
+            <div class="profile-title" id="profileTitle">✦ Founding Member ✦</div>
+          </div>
+
+          <!-- Action buttons row -->
+          <div style="display:flex;gap:8px;justify-content:center;margin-bottom:4px;">
             <div id="adminProfileBadge" style="display:none;"><span class="admin-badge">👑 ADMIN</span></div>
             <button class="profile-edit-fab" onclick="openProfileEdit()">✏️ Edit Profile</button>
           </div>
-        </div>
-        <!-- BODY -->
-        <div class="profile-body">
-          <!-- Name & title -->
-          <div class="profile-name" id="profileName">Summoner</div>
-          <div class="profile-title" id="profileTitle">✦ Founding Member ✦</div>
 
-          <!-- Stats row — Discord-style inline chips -->
-          <div class="profile-stats" style="margin-bottom:14px;">
+          <!-- Stats row -->
+          <div class="profile-stats own-stats-row">
             <div class="stat-box"><div class="stat-val" id="statCoins">1000</div><div class="stat-lbl">🪙 Coins</div></div>
             <div class="stat-box"><div class="stat-val" id="statPulls">0</div><div class="stat-lbl">🎴 Pulls</div></div>
             <div class="stat-box"><div class="stat-val" id="statUnique">0</div><div class="stat-lbl">🃏 Unique</div></div>
           </div>
 
-          <!-- Divider -->
-          <div style="height:1px;background:rgba(255,255,255,0.06);margin-bottom:14px;"></div>
-
-          <!-- Bio — click to edit -->
-          <div style="font-size:0.68em;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-dim);margin-bottom:6px;font-family:'JetBrains Mono',monospace;">About Me</div>
-          <div class="profile-bio" id="profileBio" onclick="openProfileEdit()" title="Click to edit bio">your local card hoarder 🌸</div>
+          <!-- Bio -->
+          <div class="own-section-card" onclick="openProfileEdit()" title="Click to edit bio" style="cursor:pointer;">
+            <div class="own-section-label">About Me</div>
+            <div class="profile-bio" id="profileBio">your local card hoarder 🌸</div>
+          </div>
 
           <!-- Profile music bar -->
-          <div class="profile-music-bar" id="profileMusicBar" style="display:none;">
-            <button class="pmusic-btn" id="profileMusicPlayBtn" onclick="toggleProfileMusic()">▶</button>
+          <div class="profile-music-bar own-section-card" id="profileMusicBar" style="display:none;">
+            <button class="pmusic-btn" id="profileMusicPlayBtn" onclick="toggleProfileMusic();event.stopPropagation()">▶</button>
             <div class="pmusic-info">
               <div class="pmusic-label">🎵 PROFILE MUSIC</div>
               <div class="pmusic-title" id="profileMusicTitle">—</div>
@@ -12956,19 +13067,21 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
           </div>
 
           <!-- Showcase cards -->
-          <div class="profile-showcase-section" id="profileShowcaseSection" style="display:none;">
-            <div class="section-title" style="margin-bottom:10px;">✦ Showcase</div>
+          <div class="own-section-card" id="profileShowcaseSection" style="display:none;">
+            <div class="own-section-label" style="text-align:center;margin-bottom:10px;">✦ Showcase</div>
             <div class="profile-showcase-cards" id="profileShowcaseCards"></div>
           </div>
 
-          <!-- Equipped card section -->
-          <div class="section-title" style="margin-top:16px;">Equipped Card</div>
-          <div class="equipped-card-preview" id="equippedPreview">
-            <div style="color:var(--text-dim);font-style:italic;font-size:0.9em;">No card equipped — pull one first! ʚɞ</div>
+          <!-- Equipped card -->
+          <div class="own-section-card" id="equippedPreviewWrap">
+            <div class="own-section-label">Equipped Card</div>
+            <div class="equipped-card-preview" id="equippedPreview">
+              <div style="color:var(--text-dim);font-style:italic;font-size:0.9em;">No card equipped — pull one first! ʚɞ</div>
+            </div>
           </div>
 
           <!-- Sign out -->
-          <div style="margin-top:20px;text-align:center;">
+          <div style="margin-top:4px;text-align:center;padding-bottom:8px;">
             <button onclick="logout()" style="background:rgba(231,76,60,0.08);border:1px solid rgba(231,76,60,0.25);color:#e74c3c;padding:8px 24px;border-radius:10px;font-family:'Cormorant Garamond',serif;font-size:0.88em;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.background='rgba(231,76,60,0.18)'" onmouseout="this.style.background='rgba(231,76,60,0.08)'">🚪 Sign Out</button>
           </div>
         </div>
@@ -18973,6 +19086,14 @@ function updateProfile(){
     const tint1 = hexMix(gs, 0.35);
     const tint2 = hexMix(ge, 0.22);
     profileCard.style.setProperty('--profile-card-bg', `linear-gradient(180deg, ${tint1} 0%, ${tint2} 45%, #0d0d0d 100%)`);
+    // Set banner fade + ring gap colour so avatar blends into card bg
+    profileCard.style.setProperty('--own-banner-fade', tint1);
+    profileCard.style.setProperty('--own-ring-gap', tint1);
+    // Update the inner fade overlay gradient to match
+    const fadeEl = document.getElementById('profileBannerFade');
+    if(fadeEl) fadeEl.style.background = `linear-gradient(to bottom,rgba(0,0,0,0.04) 0%,rgba(0,0,0,0.2) 48%,${tint1} 82%,${tint1} 100%)`;
+    const ringGap = document.getElementById('profileRingGap');
+    if(ringGap) ringGap.style.background = tint1;
   }
   // admin badge
   const ab=document.getElementById('adminProfileBadge');
@@ -32976,7 +33097,7 @@ function openPlayerModal(player){
     ">
 
       <!-- ── BANNER — outer has no overflow:hidden so avatar isn't clipped ── -->
-      <div style="position:relative;height:140px;flex-shrink:0;border-radius:24px 24px 0 0;">
+      <div style="position:relative;height:185px;flex-shrink:0;border-radius:24px 24px 0 0;">
         <!-- Banner image + fade, clipped in their own inner div -->
         <div style="position:absolute;inset:0;border-radius:24px 24px 0 0;overflow:hidden;">
           <div style="position:absolute;inset:0;background:${bannerBg};background-size:cover;background-position:center top;"></div>
