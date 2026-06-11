@@ -1964,6 +1964,15 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 
 /* Plaza bubbles */
 .hzc-plaza-bubbles { display: flex; flex-direction: column; gap: 6px; width: 100%; }
+/* ── Info Panel (replaces plaza bubbles & rooms list) ── */
+.hzc-plaza-info-panel { display:flex;flex-direction:column;gap:0;width:100%;background:rgba(255,157,199,0.04);border:1px solid rgba(255,157,199,0.18);border-radius:14px;overflow:hidden; }
+.hzc-pip-row { display:flex;align-items:center;gap:10px;padding:9px 12px; }
+.hzc-pip-icon { font-size:1.2em;flex-shrink:0;width:24px;text-align:center; }
+.hzc-pip-text { display:flex;flex-direction:column;gap:1px; }
+.hzc-pip-label { font-family:'Cinzel Decorative',serif;font-size:0.55em;color:var(--pink-pale);letter-spacing:0.04em; }
+.hzc-pip-sub { font-size:0.7em;color:var(--text-dim);font-style:italic; }
+.hzc-pip-divider { height:1px;background:rgba(255,157,199,0.1);margin:0 10px; }
+.hzc-pip-live { display:flex;align-items:center;gap:6px;padding:7px 12px;font-size:0.7em;font-family:'JetBrains Mono',monospace;color:var(--pink);border-top:1px solid rgba(255,157,199,0.12); }
 .hzc-bubble {
   background: rgba(155,89,182,0.14);
   border: 1px solid rgba(192,132,184,0.25);
@@ -8355,18 +8364,24 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .chat-text { font-size: 0.92em; color: var(--text); line-height: 1.55; word-break: break-word; white-space: pre-wrap; }
 .chat-me .chat-text { color: #e8d0f0; }
 .chat-flex-card {
-  display: flex; align-items: center; gap: 10px;
-  background: linear-gradient(135deg, rgba(241,196,15,0.08), rgba(241,196,15,0.04));
-  border: 1px solid rgba(241,196,15,0.25);
-  border-left: 3px solid rgba(241,196,15,0.7);
-  border-radius: 0 10px 10px 0; padding: 8px 12px; margin: 5px 0;
-  cursor: pointer; transition: all 0.2s; max-width: 320px;
-  box-shadow: 0 2px 12px rgba(241,196,15,0.06);
+  display: flex; align-items: center; gap: 12px;
+  background: linear-gradient(135deg, rgba(255,157,199,0.1), rgba(192,132,184,0.08), rgba(241,196,15,0.06));
+  border: 1px solid rgba(255,157,199,0.35);
+  border-radius: 14px; padding: 10px 14px; margin: 6px 0;
+  cursor: pointer; transition: all 0.25s; max-width: 340px;
+  box-shadow: 0 4px 20px rgba(255,157,199,0.1), inset 0 1px 0 rgba(255,255,255,0.04);
+  position: relative; overflow: hidden;
 }
-.chat-flex-card:hover { background: rgba(241,196,15,0.1); border-left-color: #f1c40f; }
-.flex-thumb { width: 36px; height: 50px; border-radius: 5px; object-fit: cover; border: 1px solid rgba(241,196,15,0.3); flex-shrink: 0; }
-.flex-name { font-size: 0.85em; font-weight: 700; color: #f1c40f; }
-.flex-rarity { font-size: 0.72em; color: var(--text-dim); margin-top: 1px; }
+.chat-flex-card::before {
+  content: '✨ FLEXING ✨';
+  position: absolute; top: 4px; right: 8px;
+  font-family: 'JetBrains Mono', monospace; font-size: 0.5em;
+  letter-spacing: 0.12em; color: var(--pink); opacity: 0.7;
+}
+.chat-flex-card:hover { background: rgba(255,157,199,0.18); border-color: var(--pink); transform: translateY(-2px); box-shadow: 0 8px 28px rgba(255,157,199,0.2); }
+.flex-thumb { width: 48px; height: 66px; border-radius: 8px; object-fit: cover; border: 2px solid rgba(255,157,199,0.4); flex-shrink: 0; box-shadow: 0 4px 12px rgba(255,157,199,0.2); }
+.flex-name { font-size: 0.92em; font-weight: 700; color: var(--pink-pale); font-family: 'Cinzel Decorative', serif; letter-spacing: 0.02em; }
+.flex-rarity { font-size: 0.75em; color: var(--text-dim); margin-top: 3px; font-family: 'JetBrains Mono', monospace; }
 .chat-action-btns { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
 .chat-action-btn {
   background: rgba(255,157,199,0.08); border: 1px solid rgba(255,157,199,0.2);
@@ -13512,12 +13527,13 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
               <div class="hzc-enter" style="--hzce:#c084b8;">Enter Plaza →</div>
             </div>
             <div class="hzc-right">
-              <div class="hzc-plaza-bubbles">
-                <div class="hzc-bubble">おはよう! 🌸</div>
-                <div class="hzc-bubble right">just pulled a UR!! ✨</div>
-                <div class="hzc-bubble">gg!! flex it 👀</div>
-                <div class="hzc-bubble right">welcome to the hub ✦</div>
-                <div class="hzc-bubble">anyone trading? 🃏</div>
+              <div class="hzc-plaza-info-panel">
+                <div class="hzc-pip-row"><span class="hzc-pip-icon">💬</span><div class="hzc-pip-text"><div class="hzc-pip-label">Global Chat</div><div class="hzc-pip-sub">Talk to everyone in real‑time</div></div></div>
+                <div class="hzc-pip-divider"></div>
+                <div class="hzc-pip-row"><span class="hzc-pip-icon">✨</span><div class="hzc-pip-text"><div class="hzc-pip-label">Card Flex</div><div class="hzc-pip-sub">Show off your rarest pulls</div></div></div>
+                <div class="hzc-pip-divider"></div>
+                <div class="hzc-pip-row"><span class="hzc-pip-icon">🔄</span><div class="hzc-pip-text"><div class="hzc-pip-label">Trade & Duel</div><div class="hzc-pip-sub">Challenge any player you see</div></div></div>
+                <div class="hzc-pip-live"><span class="online-dot"></span><span id="plazaBoothOnline">— players online</span></div>
               </div>
             </div>
           </div>
@@ -13587,9 +13603,9 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
                 <div class="hzc-cs-body">
                   <div class="hzc-cs-now">✦ NOW SHOWING ✦</div>
                   <div class="hzc-cs-rule"></div>
-                  <div class="hzc-cs-entry" id="cinemaBoothEntry1">🩸 SPECIALZ</div>
-                  <div class="hzc-cs-entry" id="cinemaBoothEntry2">😈 Unravel</div>
-                  <div class="hzc-cs-entry" id="cinemaBoothEntry3">🏴‍☠️ We Are</div>
+                  <div class="hzc-cs-entry" id="cinemaBoothEntry1">💙 SPECIALZ</div>
+                  <div class="hzc-cs-entry" id="cinemaBoothEntry2">✨ Bling-Bang-Bang-Born</div>
+                  <div class="hzc-cs-entry" id="cinemaBoothEntry3">⭐ Idol</div>
                   <div class="hzc-cs-rule"></div>
                   <div class="hzc-cs-footer">🎟️ &nbsp; 🍿 &nbsp; 🎟️</div>
                 </div>
@@ -13669,14 +13685,13 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
               <div class="hzc-enter" style="--hzce:#27ae60;">Visit Rooms →</div>
             </div>
             <div class="hzc-right">
-              <div class="hzc-rooms-panel">
-                <div class="hzc-rooms-list">
-                  <div class="hzc-room-row"><div class="hzc-rr-dot green"></div><span class="hzc-rr-name">🧑‍💻 Player Room</span><span class="hzc-rr-status open">Open</span></div>
-                  <div class="hzc-room-row featured"><div class="hzc-rr-dot pink"></div><span class="hzc-rr-name">🌸 Sakura Lounge</span><span class="hzc-rr-status pink-s">2 inside</span></div>
-                  <div class="hzc-room-row"><div class="hzc-rr-dot green"></div><span class="hzc-rr-name">🎮 Game Den</span><span class="hzc-rr-status open">Open</span></div>
-                  <div class="hzc-room-row"><div class="hzc-rr-dot pink"></div><span class="hzc-rr-name">☕ Chill Room</span><span class="hzc-rr-status pink-s">1 inside</span></div>
-                </div>
-                <div class="hzc-rooms-live"><span class="online-dot"></span><span id="boothRoomCountNew">—</span> rooms open now</div>
+              <div class="hzc-plaza-info-panel" style="border-color:rgba(39,174,96,0.25);">
+                <div class="hzc-pip-row"><span class="hzc-pip-icon">🪴</span><div class="hzc-pip-text"><div class="hzc-pip-label">Decorate</div><div class="hzc-pip-sub">Cards, posters, fairy lights &amp; more</div></div></div>
+                <div class="hzc-pip-divider"></div>
+                <div class="hzc-pip-row"><span class="hzc-pip-icon">🌐</span><div class="hzc-pip-text"><div class="hzc-pip-label">Public or Private</div><div class="hzc-pip-sub">Control who can visit your space</div></div></div>
+                <div class="hzc-pip-divider"></div>
+                <div class="hzc-pip-row"><span class="hzc-pip-icon">🎵</span><div class="hzc-pip-text"><div class="hzc-pip-label">BGM</div><div class="hzc-pip-sub">Set your room's soundtrack</div></div></div>
+                <div class="hzc-pip-live" style="border-color:rgba(39,174,96,0.25);color:#27ae60;"><span class="online-dot" style="background:#27ae60;box-shadow:0 0 6px #27ae60;"></span><span id="boothRoomCountNew">—</span> rooms open now</div>
               </div>
             </div>
           </div>
@@ -32462,19 +32477,31 @@ function renderBoothFeaturedCards(){
 
 function renderBoothCinemaPlaylist(){
   // Sync the cinema "Now Showing" board in the booth with the real playlist
+  // Show currently playing (if scheduled) + next 2, or just first 3
   const entries = ['cinemaBoothEntry1','cinemaBoothEntry2','cinemaBoothEntry3'];
-  const playlist = document.querySelectorAll('#cinemaPlaylist .cp-item-title, #cinemaPlaylist .playlist-item');
-  if(!playlist.length) return;
-  const songEmojis = ['🩸','😈','🏴‍☠️','🔥','⚡','🌸','💀','🎌'];
-  playlist.forEach((el,i) => {
-    const target = document.getElementById(entries[i]);
-    if(target && i < entries.length){
-      const name = el.textContent.trim().slice(0,22);
-      target.textContent = (songEmojis[i%songEmojis.length]) + ' ' + name;
+  const playlist = CINEMA_PLAYLIST;
+  if(!playlist || !playlist.length) return;
+
+  // Start from current index if scheduled, else just show first 3
+  const startIdx = _cinemaScheduled ? _cinemaIdx : 0;
+  entries.forEach((id, i) => {
+    const v = playlist[(startIdx + i) % playlist.length];
+    const target = document.getElementById(id);
+    if(target && v){
+      const label = (v.emoji||'🎬') + ' ' + (v.title||'').slice(0,22);
+      target.textContent = label;
+      // Highlight currently playing
+      if(_cinemaScheduled && i === 0){
+        target.style.color = '#f1c40f';
+        target.style.fontWeight = '700';
+      } else {
+        target.style.color = '';
+        target.style.fontWeight = '';
+      }
     }
   });
-  // Also sync the hbs- version
-  ['cinemaBoothEntry1','cinemaBoothEntry2','cinemaBoothEntry3'].forEach((id,i)=>{
+  // Also sync the hbs- version if it exists
+  entries.forEach((id,i)=>{
     const src = document.getElementById(id);
     const dst = document.getElementById('hbs-cinema-entry-'+(i+1));
     if(src && dst) dst.textContent = src.textContent;
@@ -32664,7 +32691,11 @@ async function initChat(){
         .on('presence', { event: 'sync' }, () => {
           const ps = presenceChannel.presenceState();
           const el = document.getElementById('onlineCount');
-          if(el) el.textContent = Object.keys(ps).length + ' online';
+          const count = Object.keys(ps).length;
+          if(el) el.textContent = count + ' online';
+          // Sync plaza booth
+          const boothEl = document.getElementById('plazaBoothOnline');
+          if(boothEl) boothEl.textContent = count + ' player' + (count===1?'':'s') + ' online';
         })
         .subscribe(async (status) => {
           if(status !== 'SUBSCRIBED') return;
@@ -33068,33 +33099,63 @@ function escapeJs(str){
 // ══════════════════════════════════════════════
 // FLEX CARD PICKER
 // ══════════════════════════════════════════════
+let _flexPickerCards = []; // all owned cards for filtering
+
 function openFlexPicker(){
   if(!state.discordId || state.isGuest){
     showToast('❌ Login with Discord to flex cards'); return;
   }
   const grid = document.getElementById('flexPickerGrid');
+  const searchEl = document.getElementById('flexPickerSearch');
+  if(!grid) return;
+  if(searchEl) searchEl.value = '';
+  document.getElementById('flexPickerEmpty').style.display = 'none';
+  const owned = new Set(state.collection || []);
+  _flexPickerCards = (window.DEMO_CARDS||[]).filter(c=>owned.has(c.id));
+  _renderFlexGrid(_flexPickerCards);
+  document.getElementById('flexPickerModal').style.display = 'flex';
+}
+
+function _renderFlexGrid(cards){
+  const grid = document.getElementById('flexPickerGrid');
+  const empty = document.getElementById('flexPickerEmpty');
   if(!grid) return;
   grid.innerHTML = '';
-  const owned = new Set(state.collection || []);
-  const cards = (window.DEMO_CARDS||[]).filter(c=>owned.has(c.id));
   if(!cards.length){
-    grid.innerHTML = '<div style="color:var(--text-dim);font-style:italic;text-align:center;padding:20px;">No cards in collection yet ʚɞ</div>';
-  } else {
-    cards.forEach(card=>{
-      const div = document.createElement('div');
-      div.className = 'card-thumb';
-      div.innerHTML = `
-        <img src="${getCardThumbnail(card)}" loading="lazy"
-          onerror="this.src='https://placehold.co/150x200/1c0f26/ff9dc7?text=?'"/>
-        <div class="card-thumb-info">
-          <div class="card-thumb-name">${escapeHtml(card.name)}</div>
-          <div class="card-thumb-rarity">${escapeHtml(card.rarityName||'')}</div>
-        </div>`;
-      div.onclick = () => { flexCardInChat(card.id); closeFlexPicker(); };
-      grid.appendChild(div);
-    });
+    if(empty) empty.style.display = 'block';
+    return;
   }
-  document.getElementById('flexPickerModal').style.display = 'flex';
+  if(empty) empty.style.display = 'none';
+  cards.forEach(card=>{
+    const rarityColor = card.rarityColor || 'var(--pink)';
+    const isLR = (card.rarityName||'').toUpperCase().includes('LR') || (card.rarity||'').toUpperCase()==='LR';
+    const div = document.createElement('div');
+    div.className = 'card-thumb flex-picker-card';
+    div.style.cssText = `position:relative;border:2px solid ${isLR?'transparent':rarityColor};${isLR?'background:linear-gradient(var(--bg2),var(--bg2)) padding-box,'+window.getComputedStyle(document.documentElement).getPropertyValue('--rainbow').trim()+' border-box;':''}`;
+    div.innerHTML = `
+      <img src="${getCardThumbnail(card)}" loading="lazy"
+        onerror="this.src='https://placehold.co/150x200/1c0f26/ff9dc7?text=?'"/>
+      <div class="card-thumb-info">
+        <div class="card-thumb-name">${escapeHtml(card.name)}</div>
+        <div class="card-thumb-rarity" style="color:${rarityColor};">${escapeHtml(card.rarityName||'')}</div>
+      </div>`;
+    div.onclick = () => { flexCardInChat(card.id); closeFlexPicker(); };
+    grid.appendChild(div);
+  });
+}
+
+function filterFlexPicker(query){
+  const q = (query||'').toLowerCase().trim();
+  if(!q){
+    _renderFlexGrid(_flexPickerCards);
+    return;
+  }
+  const filtered = _flexPickerCards.filter(c=>
+    (c.name||'').toLowerCase().includes(q) ||
+    (c.rarityName||'').toLowerCase().includes(q) ||
+    (c.series||'').toLowerCase().includes(q)
+  );
+  _renderFlexGrid(filtered);
 }
 
 function closeFlexPicker(){
@@ -33107,7 +33168,14 @@ async function flexCardInChat(cardId){
   if(!card) return;
   // Pass the currently equipped skin so other players can see it in the flex
   const equippedSkinId = (window.EQUIPPED_SKINS && window.EQUIPPED_SKINS[cardId]) || null;
-  await sendChatMsg(`Look what I pulled! ✨ ${card.rarityName} card`, 'flex', cardId, null, equippedSkinId);
+  // Hype message based on rarity
+  const r = (card.rarityName||'').toUpperCase();
+  let msg = `Look what I pulled! ✨ ${card.rarityName} card`;
+  if(r.includes('LR')) msg = `🌈 OH MY GOD. I just pulled an [LR] ${card.name}!! AAAAA`;
+  else if(r.includes('UR')) msg = `✨ NO WAY — just pulled a [UR] ${card.name}!! come see this`;
+  else if(r.includes('SSR')) msg = `🌟 Just pulled [SSR] ${card.name}!! Let's gooo`;
+  else if(r.includes('SR')) msg = `💜 Check out my [SR] ${card.name}~`;
+  await sendChatMsg(msg, 'flex', cardId, null, equippedSkinId);
 }
 
 // ══════════════════════════════════════════════
@@ -33561,6 +33629,7 @@ function listenForTrades(){
       event: 'INSERT', schema: 'public', table: 'trade_offers',
       filter: `to_discord_id=eq.${state.discordId}`
     }, payload => {
+      if(state.hideTradeRequests) return;
       showIncomingTradeNotif(payload.new);
     })
     .subscribe();
@@ -33637,7 +33706,11 @@ function showIncomingBattleNotif(battleId, challengerId, challengerName){
         </button>
         <button onclick="document.getElementById('incomingBattleNotif').remove();"
           style="background:none;border:1px solid var(--border);color:var(--text-dim);padding:10px 20px;border-radius:16px;font-family:'Cormorant Garamond',serif;font-size:0.9em;cursor:pointer;">
-          ✕ Ignore
+          ✕ Decline
+        </button>
+        <button onclick="document.getElementById('incomingBattleNotif').remove();openSettingsModal();showToast('💡 Toggle \\'Hide Battle Requests\\' in Settings');"
+          style="background:none;border:none;color:var(--text-dim);opacity:0.5;padding:4px;font-size:0.72em;cursor:pointer;font-family:'Cormorant Garamond',serif;">
+          🔕 Hide future requests
         </button>
       </div>
     </div>`;
@@ -33659,13 +33732,15 @@ function listenForBattleChallenges(){
   _battleChallengeChannel = rt
     .channel('battle-challenges-'+state.discordId)
     .on('postgres_changes', {
-      event: 'INSERT', schema: 'public', table: 'chat_messages',
-      filter: `msg_type=eq.pvp_req`
+      event: 'INSERT', schema: 'public', table: 'pvp_challenges',
+      filter: `opponent_id=eq.${state.discordId}`
     }, payload => {
-      const msg = payload.new;
-      if(!msg || msg.discord_id === state.discordId) return;
-      const match = (msg.content||'').match(/\[battleId:([\w-]+)\]/);
-      if(match) showIncomingBattleNotif(match[1], msg.discord_id, msg.username);
+      const row = payload.new;
+      if(!row || row.challenger_id === state.discordId) return;
+      if(row.status !== 'pending') return;
+      // Check settings — hide if user opted out
+      if(state.hideBattleRequests) return;
+      showIncomingBattleNotif(row.id, row.challenger_id, row.challenger_name || row.challenger_id);
     })
     .subscribe();
 }
@@ -34120,11 +34195,16 @@ async function challengeToPvp(opponentId){
     if(error){ showToast('❌ Could not create battle: '+error.message); return; }
 
     const battleId = data.id;
-    // Post challenge in chat
-    await sendChatMsg(
-      `⚔️ @${opponentId} — I challenge you to a duel! [battleId:${battleId}]`,
-      'pvp_req', null
-    );
+    // Send targeted challenge notification (NOT a public chat message)
+    // Store in pvp_challenges so the opponent's realtime listener picks it up
+    await rt.from('pvp_challenges').insert({
+      id: battleId,
+      challenger_id: state.discordId,
+      challenger_name: state.username || state.discordId,
+      opponent_id: opponentId,
+      status: 'pending',
+      created_at: new Date().toISOString()
+    });
     showToast('⚔️ Challenge sent! Waiting for opponent...');
 
     // Show waiting state
@@ -34132,7 +34212,6 @@ async function challengeToPvp(opponentId){
     listenToBattle(battleId);
   } catch(e){ showToast('❌ PvP error: '+(e.message||'')); }
 }
-
 async function acceptPvpChallenge(battleId, challengerId){
   if(!state.discordId || state.isGuest){
     showToast('❌ Login with Discord to battle'); return;
@@ -37226,14 +37305,28 @@ let _adminEvoCache = [];
 </div>
 
 <!-- FLEX CARD PICKER (small modal) -->
-<div id="flexPickerModal" style="position:fixed;inset:0;z-index:355;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.85);backdrop-filter:blur(6px);padding:20px;" onclick="if(event.target===this)closeFlexPicker()">
-  <div style="background:linear-gradient(135deg,var(--bg2),var(--bg3));border:1px solid var(--border);border-radius:20px;max-width:480px;width:100%;max-height:80vh;overflow-y:auto;padding:24px;animation:modalIn 0.3s cubic-bezier(0.34,1.56,0.64,1);">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-      <h3 style="font-family:'Cinzel Decorative',serif;font-size:0.9em;color:var(--pink-pale);">✨ Flex a Card</h3>
-      <button onclick="closeFlexPicker()" style="background:none;border:none;color:var(--text-dim);font-size:1.1em;cursor:pointer;">✕</button>
+<div id="flexPickerModal" style="position:fixed;inset:0;z-index:355;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.92);backdrop-filter:blur(10px);padding:20px;" onclick="if(event.target===this)closeFlexPicker()">
+  <div style="background:linear-gradient(145deg,#0d0010,#120018,#0a000e);border:1px solid rgba(255,157,199,0.3);border-radius:24px;max-width:500px;width:100%;max-height:85vh;display:flex;flex-direction:column;animation:modalIn 0.35s cubic-bezier(0.34,1.56,0.64,1);overflow:hidden;box-shadow:0 0 60px rgba(255,157,199,0.12),0 0 120px rgba(192,132,184,0.08);">
+    <!-- Header -->
+    <div style="padding:20px 20px 0;flex-shrink:0;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+        <div style="font-family:'Cinzel Decorative',serif;font-size:1em;background:linear-gradient(90deg,var(--pink),var(--purple),var(--pink-pale));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-size:200%;animation:pinkShift 4s linear infinite;">✨ Flex Your Card</div>
+        <button onclick="closeFlexPicker()" style="background:none;border:none;color:var(--text-dim);font-size:1.1em;cursor:pointer;padding:4px;">✕</button>
+      </div>
+      <div style="font-size:0.8em;color:var(--text-dim);font-style:italic;margin-bottom:12px;">Choose a card to show off — make the plaza jealous 👀</div>
+      <!-- Search bar -->
+      <div style="position:relative;margin-bottom:14px;">
+        <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:0.9em;pointer-events:none;">🔍</span>
+        <input id="flexPickerSearch" placeholder="Search by name or rarity…" maxlength="50"
+          style="width:100%;background:rgba(255,157,199,0.06);border:1px solid var(--border);border-radius:12px;padding:9px 12px 9px 34px;color:var(--text);font-family:'Cormorant Garamond',serif;font-size:0.9em;outline:none;"
+          oninput="filterFlexPicker(this.value)"/>
+      </div>
     </div>
-    <p style="color:var(--text-dim);font-size:0.85em;margin-bottom:14px;">Pick a card to show off in chat!</p>
-    <div class="cards-grid" id="flexPickerGrid" style="max-height:340px;overflow-y:auto;"></div>
+    <!-- Card grid -->
+    <div style="overflow-y:auto;padding:0 20px 20px;flex:1;scrollbar-width:thin;scrollbar-color:rgba(255,157,199,0.3) transparent;">
+      <div class="cards-grid cards-grid--wrap" id="flexPickerGrid" style="gap:10px;"></div>
+      <div id="flexPickerEmpty" style="display:none;text-align:center;color:var(--text-dim);font-style:italic;padding:30px 0;font-size:0.88em;">No cards match your search ʚɞ</div>
+    </div>
   </div>
 </div>
 
@@ -39274,6 +39367,21 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
         <div class="settings-toggle" id="toggleMuteSFX" onclick="toggleSetting('muteSFX',this)"></div>
       </div>
+      <div class="settings-section-title">⚔️ Social & Requests</div>
+      <div class="settings-row">
+        <div>
+          <div class="settings-label">Hide Battle Requests</div>
+          <div class="settings-sublabel">Don't show pop-ups when players challenge you</div>
+        </div>
+        <div class="settings-toggle" id="toggleHideBattleReqs" onclick="toggleSetting('hideBattleRequests',this)"></div>
+      </div>
+      <div class="settings-row">
+        <div>
+          <div class="settings-label">Hide Trade Requests</div>
+          <div class="settings-sublabel">Don't show pop-ups when players offer trades</div>
+        </div>
+        <div class="settings-toggle" id="toggleHideTradeReqs" onclick="toggleSetting('hideTradeRequests',this)"></div>
+      </div>
       <div class="settings-section-title">🎴 Gameplay</div>
       <div class="settings-row">
         <div>
@@ -39455,12 +39563,21 @@ function applySettings(s) {
   window.SETTINGS_CUTSCENES = !!s.cutscenes;
   window.SETTINGS_ABILITY_CUTSCENES = !!s.abilityCutscenes;
 
+  // Request popup preferences
+  state.hideBattleRequests = !!s.hideBattleRequests;
+  state.hideTradeRequests  = !!s.hideTradeRequests;
+
   // Update toggles UI
   const toggleIds = ['petals','stars','muteMusic','muteSFX','cutscenes','abilityCutscenes','battleVFX'];
   toggleIds.forEach(key => {
     const el = document.getElementById('toggle' + key.charAt(0).toUpperCase() + key.slice(1));
     if(el) el.classList.toggle('on', !!s[key]);
   });
+  // Custom toggle IDs for request settings
+  const el1 = document.getElementById('toggleHideBattleReqs');
+  if(el1) el1.classList.toggle('on', !!s.hideBattleRequests);
+  const el2 = document.getElementById('toggleHideTradeReqs');
+  if(el2) el2.classList.toggle('on', !!s.hideTradeRequests);
 }
 
 function openSettingsModal() {
@@ -39490,7 +39607,12 @@ function toggleSetting(key, el) {
     cutscenes: ['🎴 Card cutscenes off','🎴 Card cutscenes on'],
     abilityCutscenes: ['✨ Ability cutscenes off','✨ Ability cutscenes on'],
     battleVFX: ['⚔️ Battle VFX off','⚔️ Battle VFX on'],
+    hideBattleRequests: ['⚔️ Battle requests shown','⚔️ Battle requests hidden'],
+    hideTradeRequests: ['🔄 Trade requests shown','🔄 Trade requests hidden'],
   };
+  // Sync to state for in-session use
+  if(key === 'hideBattleRequests') state.hideBattleRequests = !!s[key];
+  if(key === 'hideTradeRequests') state.hideTradeRequests = !!s[key];
   if(labels[key]) showToast(labels[key][s[key]?1:0]);
 }
 
