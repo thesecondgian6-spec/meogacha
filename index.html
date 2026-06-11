@@ -1966,34 +1966,34 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .hzc-plaza-bubbles { display: flex; flex-direction: column; gap: 6px; width: 100%; }
 /* ── Flex Portrait Card in Chat ── */
 .chat-flex-portrait {
-  border-radius: 16px; overflow: hidden; cursor: pointer;
+  border-radius: 14px; overflow: hidden; cursor: pointer;
   transition: transform 0.25s, box-shadow 0.25s;
-  max-width: 220px; margin: 6px 0; display: block;
-  box-shadow: 0 6px 24px rgba(0,0,0,0.5);
+  max-width: 160px; margin: 6px 0; display: block;
+  box-shadow: 0 4px 18px rgba(0,0,0,0.5);
 }
-.chat-flex-portrait:hover { transform: translateY(-4px) scale(1.02); box-shadow: 0 12px 36px rgba(0,0,0,0.6); }
+.chat-flex-portrait:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 10px 28px rgba(0,0,0,0.6); }
 .cfp-img-wrap { position: relative; width: 100%; aspect-ratio: 3/4; overflow: hidden; }
-.cfp-img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.cfp-img { width: 100%; height: 100%; object-fit: cover; object-position: top center; display: block; }
 .cfp-shimmer {
   position: absolute; inset: 0;
   background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 50%, rgba(255,255,255,0.04) 100%);
   pointer-events: none;
 }
 .cfp-rarity-badge {
-  position: absolute; bottom: 8px; left: 0; right: 0; text-align: center;
-  font-family: 'JetBrains Mono', monospace; font-size: 0.62em; letter-spacing: 0.08em;
+  position: absolute; bottom: 6px; left: 0; right: 0; text-align: center;
+  font-family: 'JetBrains Mono', monospace; font-size: 0.56em; letter-spacing: 0.08em;
   text-shadow: 0 1px 6px rgba(0,0,0,0.9);
 }
 .cfp-label {
-  position: absolute; top: 8px; right: 8px;
-  font-family: 'JetBrains Mono', monospace; font-size: 0.5em; letter-spacing: 0.15em;
-  color: rgba(255,255,255,0.7); background: rgba(0,0,0,0.55);
-  border-radius: 6px; padding: 2px 6px; backdrop-filter: blur(4px);
+  position: absolute; top: 6px; right: 6px;
+  font-family: 'JetBrains Mono', monospace; font-size: 0.45em; letter-spacing: 0.15em;
+  color: rgba(255,255,255,0.75); background: rgba(0,0,0,0.6);
+  border-radius: 5px; padding: 2px 5px; backdrop-filter: blur(4px);
 }
 .cfp-info {
-  padding: 10px 12px; background: rgba(0,0,0,0.75); backdrop-filter: blur(8px);
+  padding: 7px 10px; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px);
 }
-.cfp-name { font-family: 'Cinzel Decorative', serif; font-size: 0.72em; color: var(--pink-pale); line-height: 1.3; }
+.cfp-name { font-family: 'Cinzel Decorative', serif; font-size: 0.65em; color: var(--pink-pale); line-height: 1.3; }
 .hzc-plaza-info-panel { display:flex;flex-direction:column;gap:0;width:100%;background:rgba(255,157,199,0.04);border:1px solid rgba(255,157,199,0.18);border-radius:14px;overflow:hidden; }
 .hzc-pip-row { display:flex;align-items:center;gap:10px;padding:9px 12px; }
 .hzc-pip-icon { font-size:1.2em;flex-shrink:0;width:24px;text-align:center; }
@@ -32870,7 +32870,7 @@ async function sendChatMsg(content, type='text', cardId=null, replyTo=null, skin
   if(!state.discordId || state.isGuest){
     showToast('❌ Login with Discord to chat'); return;
   }
-  if(!content.trim()) return;
+  if(!content.trim() && type !== 'flex') return;
   const safe = content.replace(/<[^>]*>/g,'').slice(0,300);
 
   try {
@@ -32953,15 +32953,15 @@ function renderChatMsg(msg){
   if(msg.msg_type === 'flex' && msg.card_id){
     const card = (window.DEMO_CARDS||[]).find(c=>c.id===msg.card_id);
     if(card){
-      let flexImg = card.image || card.thumbnail || '';
+      let flexImg = card.thumbnail || card.image || '';
       if(msg.skin_id){
         const msgSkin = (window.ALL_SKINS||[]).find(s=>s.id===msg.skin_id);
-        if(msgSkin) flexImg = msgSkin.image || msgSkin.thumbnail || flexImg;
+        if(msgSkin) flexImg = msgSkin.thumbnail || msgSkin.image || flexImg;
       }
       const rarityColor = card.rarityColor || 'var(--pink)';
-      const isLR = String(card.rarityName||'').toUpperCase().includes('LR') || String(card.rarity||'').toUpperCase()==='LR';
-      const borderStyle = isLR
-        ? 'border:2px solid transparent;background:linear-gradient(var(--bg2),var(--bg2)) padding-box, linear-gradient(90deg,#ff0000,#ff7700,#ffdd00,#00ff00,#00aaff,#cc00ff,#ff0077) border-box;'
+      const isSecret = card.rarity === 7 || String(card.rarityName||'').toUpperCase() === '???' || String(card.rarityKey||'').toUpperCase() === 'S';
+      const borderStyle = isSecret
+        ? 'border:2px solid transparent;background:linear-gradient(var(--bg2),var(--bg2)) padding-box, linear-gradient(90deg,#ff0000,#ff7700,#ffdd00,#00ff00,#00aaff,#cc00ff,#ff0077) border-box;animation:rainbowBorder 2.5s linear infinite;'
         : `border:2px solid ${rarityColor};`;
       const skinBadge = msg.skin_id ? `<span style="font-size:0.55em;background:rgba(155,89,182,0.9);color:#fff;border-radius:4px;padding:1px 5px;font-family:'JetBrains Mono',monospace;">🎨 Skin</span>` : '';
       const quoteHtml = card.quote ? `<div style="font-size:0.7em;color:rgba(255,255,255,0.6);font-style:italic;line-height:1.4;margin-top:6px;padding-top:6px;border-top:1px solid rgba(255,255,255,0.1);">"${escapeHtml(card.quote)}"</div>` : '';
@@ -33194,16 +33194,16 @@ function _renderFlexGrid(cards){
   if(empty) empty.style.display = 'none';
   cards.forEach(card=>{
     const rarityColor = card.rarityColor || 'var(--pink)';
-    const isLR = String(card.rarityName||'').toUpperCase().includes('LR') || String(card.rarity||'').toUpperCase()==='LR';
+    const isSecret = card.rarity === 7 || String(card.rarityName||'').toUpperCase() === '???' || String(card.rarityKey||'').toUpperCase() === 'S';
     const div = document.createElement('div');
     div.className = 'card-thumb flex-picker-card';
-    div.style.cssText = `position:relative;border:2px solid ${isLR?'transparent':rarityColor};${isLR?'background:linear-gradient(var(--bg2),var(--bg2)) padding-box,'+window.getComputedStyle(document.documentElement).getPropertyValue('--rainbow').trim()+' border-box;':''}`;
+    div.style.cssText = `position:relative;min-width:0;max-width:none;flex:none;width:100%;border:2px solid ${isSecret?'transparent':rarityColor};${isSecret?'background:linear-gradient(var(--bg2),var(--bg2)) padding-box,'+window.getComputedStyle(document.documentElement).getPropertyValue('--rainbow').trim()+' border-box;animation:rainbowBorder 2.5s linear infinite;':''}`;
     div.innerHTML = `
       <img src="${getCardThumbnail(card)}" loading="lazy"
         onerror="this.src='https://placehold.co/150x200/1c0f26/ff9dc7?text=?'"/>
       <div class="card-thumb-info">
         <div class="card-thumb-name">${escapeHtml(card.name)}</div>
-        <div class="card-thumb-rarity" style="color:${rarityColor};">${escapeHtml(card.rarityName||'')}</div>
+        <div class="card-thumb-rarity" style="color:${isSecret?'transparent':rarityColor};${isSecret?'background:var(--rainbow);background-size:200%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:rainbowShift 2.5s linear infinite;':''};">${escapeHtml(card.rarityName||'')}</div>
       </div>`;
     div.onclick = () => { flexCardInChat(card.id); closeFlexPicker(); };
     grid.appendChild(div);
@@ -37384,7 +37384,7 @@ let _adminEvoCache = [];
     </div>
     <!-- Card grid -->
     <div style="overflow-y:auto;padding:0 20px 20px;flex:1;scrollbar-width:thin;scrollbar-color:rgba(255,157,199,0.3) transparent;">
-      <div class="cards-grid cards-grid--wrap" id="flexPickerGrid" style="gap:10px;"></div>
+      <div id="flexPickerGrid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;"></div>
       <div id="flexPickerEmpty" style="display:none;text-align:center;color:var(--text-dim);font-style:italic;padding:30px 0;font-size:0.88em;">No cards match your search ʚɞ</div>
     </div>
   </div>
