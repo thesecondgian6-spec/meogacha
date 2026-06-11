@@ -234,6 +234,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .modal-box{background:var(--bg2);border:1px solid var(--border);border-radius:24px;max-width:480px;width:100%;max-height:92vh;overflow:hidden;display:flex;flex-direction:column;animation:modalIn 0.32s cubic-bezier(0.34,1.56,0.64,1);position:relative;transition:background 0.4s ease,border-color 0.4s ease,box-shadow 0.4s ease;}
 .modal-box-scroll{overflow-y:auto;max-height:90vh;border-radius:24px;}
 @keyframes modalIn{from{transform:scale(0.88) translateY(12px);opacity:0;}to{transform:scale(1) translateY(0);opacity:1;}}
+@keyframes spinRing{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
 
 /* Hero art */
 .cm-hero{position:relative;flex-shrink:0;overflow:hidden;}
@@ -30000,7 +30001,7 @@ function enterHubZone(zone){
 
   if(zone==='trades') loadMyTrades();
   if(zone==='leaderboard') loadLeaderboard('pvp');
-  if(zone==='lobby') loadLobbyLeaderboardPreview();
+  if(zone==='lobby'){ loadLobbyLeaderboardPreview(); initChat(); }
   if(zone==='arcade') syncArcadeWallet();
   if(zone==='cinema') initCinemaChat();
   if(zone==='rooms') refreshRoomsList();
@@ -32974,18 +32975,13 @@ function openPlayerModal(player){
       box-shadow:0 -8px 40px rgba(0,0,0,0.6);
     ">
 
-      <!-- ── BANNER (sits behind avatar) ── -->
-      <div style="position:relative;height:140px;flex-shrink:0;overflow:hidden;border-radius:24px 24px 0 0;">
-        <!-- Banner image/gradient -->
-        <div style="position:absolute;inset:0;background:${bannerBg};background-size:cover;background-position:center top;"></div>
-        <!-- Fade to card background at bottom so it blends seamlessly -->
-        <div style="position:absolute;inset:0;background:linear-gradient(
-          to bottom,
-          rgba(0,0,0,0.05) 0%,
-          rgba(0,0,0,0.15) 40%,
-          ${hexMixM(gs,0.35)} 75%,
-          ${hexMixM(gs,0.35)} 100%
-        );"></div>
+      <!-- ── BANNER — outer has no overflow:hidden so avatar isn't clipped ── -->
+      <div style="position:relative;height:140px;flex-shrink:0;border-radius:24px 24px 0 0;">
+        <!-- Banner image + fade, clipped in their own inner div -->
+        <div style="position:absolute;inset:0;border-radius:24px 24px 0 0;overflow:hidden;">
+          <div style="position:absolute;inset:0;background:${bannerBg};background-size:cover;background-position:center top;"></div>
+          <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0.04) 0%,rgba(0,0,0,0.2) 48%,${hexMixM(gs,0.35)} 82%,${hexMixM(gs,0.35)} 100%);"></div>
+        </div>
         <!-- Drag handle -->
         <div style="display:flex;justify-content:center;padding:10px 0 0;position:relative;z-index:2;">
           <div style="width:36px;height:3px;border-radius:2px;background:rgba(255,255,255,0.4);"></div>
@@ -32996,19 +32992,32 @@ function openPlayerModal(player){
           background:rgba(0,0,0,0.55);border:1px solid rgba(255,255,255,0.2);color:#fff;
           width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:0.9em;
           backdrop-filter:blur(8px);z-index:3;display:flex;align-items:center;justify-content:center;line-height:1;">✕</button>
-        <!-- Avatar centred, overlapping bottom edge of banner -->
-        <div style="position:absolute;bottom:-38px;left:50%;transform:translateX(-50%);z-index:4;">
-          <div style="position:relative;display:inline-block;">
+        <!-- Avatar — centred, hangs below banner, NOT clipped -->
+        <div style="position:absolute;bottom:-48px;left:50%;transform:translateX(-50%);z-index:6;width:92px;height:92px;">
+          <!-- Spinning conic gradient ring -->
+          <div style="position:absolute;inset:-4px;border-radius:50%;background:conic-gradient(var(--pink) 0%,var(--purple) 30%,rgba(255,255,255,0.08) 50%,var(--purple) 70%,var(--pink) 100%);animation:spinRing 3.5s linear infinite;"></div>
+          <!-- Solid gap ring between gradient and avatar -->
+          <div style="position:absolute;inset:-1px;border-radius:50%;background:${hexMixM(gs,0.35)};"></div>
+          <!-- Avatar image, clipped to circle -->
+          <div style="position:relative;width:92px;height:92px;border-radius:50%;overflow:hidden;box-shadow:0 8px 30px rgba(0,0,0,0.9);">
             <img src="${player.profile_thumbnail||player.avatar||'https://cdn.discordapp.com/embed/avatars/0.png'}"
-              style="width:76px;height:76px;border-radius:50%;border:3px solid ${hexMixM(gs,0.35)};object-fit:cover;background:#111;display:block;box-shadow:0 6px 24px rgba(0,0,0,0.95);"
+              style="width:100%;height:100%;object-fit:cover;display:block;"
               onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'"/>
-            <div style="position:absolute;bottom:4px;right:4px;width:14px;height:14px;border-radius:50%;background:#3ba55d;border:2px solid ${hexMixM(gs,0.35)};"></div>
           </div>
+          <!-- Online / offline status badge -->
+          <div style="
+            position:absolute;bottom:3px;right:1px;
+            width:20px;height:20px;border-radius:50%;
+            background:${player.is_online===false?'#747f8d':'#3ba55d'};
+            border:3px solid ${hexMixM(gs,0.35)};
+            box-shadow:0 0 8px ${player.is_online===false?'rgba(116,127,141,0.6)':'rgba(59,165,93,0.9)'};
+            z-index:7;
+          " title="${player.is_online===false?'Offline':'Online'}"></div>
         </div>
       </div>
 
       <!-- ── Scrollable content below banner ── -->
-      <div style="padding:0 14px 24px;flex:1;display:flex;flex-direction:column;overflow-y:auto;min-height:0;gap:10px;margin-top:44px;">
+      <div style="padding:0 14px 24px;flex:1;display:flex;flex-direction:column;overflow-y:auto;min-height:0;gap:10px;margin-top:56px;">
 
         <!-- Name + title + action buttons -->
         <div style="text-align:center;margin-bottom:2px;">
