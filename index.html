@@ -3733,7 +3733,6 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   font-family:'Cinzel Decorative',serif;font-size:1.05em;color:#fff;
   font-weight:700;letter-spacing:0.02em;
   overflow:hidden;text-overflow:ellipsis;text-align:left;
-  display:flex;align-items:center;gap:8px;flex-wrap:wrap;
 }
 .own-name-col .profile-title{
   font-size:0.76em;color:var(--pink);font-style:italic;
@@ -13045,6 +13044,8 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
               <img class="profile-avatar-img" id="profileAvatar" src="https://cdn.discordapp.com/embed/avatars/0.png" alt="avatar"/>
             </div>
           </div>
+          <!-- Floating edit button top-right -->
+          <button onclick="openProfileEdit()" title="Edit Profile" style="position:absolute;top:12px;right:14px;z-index:20;width:34px;height:34px;border-radius:50%;background:rgba(0,0,0,0.55);border:1px solid rgba(255,255,255,0.25);color:#fff;font-size:0.88em;cursor:pointer;backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;transition:background .2s,border-color .2s;" onmouseover="this.style.background='rgba(255,157,199,0.3)';this.style.borderColor='rgba(255,157,199,0.7)'" onmouseout="this.style.background='rgba(0,0,0,0.55)';this.style.borderColor='rgba(255,255,255,0.25)'">✏️</button>
         </div>
 
         <!-- ── Scrollable body ── -->
@@ -13052,13 +13053,11 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 
           <!-- Avatar row: avatar left, name+buttons right -->
           <div class="own-avatar-name-row">
-            <!-- spacer so name row aligns below avatar bottom -->\n            <div style="width:84px;flex-shrink:0;"></div>
+            <div style="width:84px;flex-shrink:0;"></div>
             <div class="own-name-col">
-              <div class="profile-name" id="profileName">Summoner<div id="adminProfileBadge" style="display:none;"><span class="admin-badge">👑 ADMIN</span></div></div>
+              <div class="profile-name" id="profileName">Summoner</div>
+              <div id="adminProfileBadge" style="display:none;margin:3px 0 1px;"><span class="admin-badge">👑 ADMIN</span></div>
               <div class="profile-title" id="profileTitle">✦ Founding Member ✦</div>
-              <div style="display:flex;gap:7px;align-items:center;margin-top:8px;flex-wrap:wrap;">
-                <button class="profile-edit-fab" onclick="openProfileEdit()">✏️ Edit Profile</button>
-              </div>
             </div>
           </div>
 
@@ -33157,16 +33156,34 @@ function openPlayerModal(player){
       <div style="flex:1;overflow:hidden;border-radius:0 0 24px 24px;">
       <div style="padding:0 14px 24px;height:100%;display:flex;flex-direction:column;overflow-y:auto;gap:10px;margin-top:8px;">
 
-        <!-- Avatar row: spacer left + name/buttons right -->
+        <!-- Avatar row: spacer left + name right (no buttons here) -->
         <div style="display:flex;align-items:flex-end;gap:10px;min-height:44px;flex-shrink:0;">
           <div style="width:84px;flex-shrink:0;"></div>
           <div style="flex:1;min-width:0;padding-bottom:2px;">
-            <div style="font-family:'Cinzel Decorative',serif;font-size:1.05em;color:#fff;font-weight:700;letter-spacing:0.02em;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">${escapeHtml(name)}</div>
+            <div style="font-family:'Cinzel Decorative',serif;font-size:1.05em;color:#fff;font-weight:700;letter-spacing:0.02em;">${escapeHtml(name)}</div>
             <div style="font-size:0.76em;color:var(--pink);font-style:italic;opacity:0.9;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(player.active_title||'✦ Summoner ✦')}</div>
-            <div style="display:flex;gap:7px;margin-top:8px;flex-wrap:wrap;">
-              <button onclick="challengeToPvp('${player.discord_id}');closePlayerModal()" style="background:linear-gradient(135deg,var(--pink-deep),var(--purple));border:none;color:#fff;padding:7px 14px;border-radius:10px;font-family:'Cinzel Decorative',serif;font-size:0.58em;cursor:pointer;white-space:nowrap;letter-spacing:0.03em;box-shadow:0 3px 12px rgba(224,96,138,0.4);">⚔️ Challenge</button>
-              <button onclick="openTradeWithPlayer('${player.discord_id}');closePlayerModal()" style="background:rgba(255,255,255,0.09);border:1px solid rgba(255,255,255,0.2);color:var(--text);padding:7px 14px;border-radius:10px;font-family:'Cinzel Decorative',serif;font-size:0.58em;cursor:pointer;white-space:nowrap;letter-spacing:0.03em;">🔄 Trade</button>
-            </div>
+          </div>
+        </div>
+
+        <!-- Action buttons row -->
+        <div style="display:flex;gap:8px;">
+          <button onclick="challengeToPvp('${player.discord_id}');closePlayerModal()" style="flex:1;background:linear-gradient(135deg,var(--pink-deep),var(--purple));border:none;color:#fff;padding:10px 8px;border-radius:12px;font-family:'Cinzel Decorative',serif;font-size:0.65em;cursor:pointer;letter-spacing:0.03em;box-shadow:0 3px 14px rgba(224,96,138,0.35);display:flex;align-items:center;justify-content:center;gap:6px;">⚔️ Challenge</button>
+          <button onclick="openTradeWithPlayer('${player.discord_id}');closePlayerModal()" style="flex:1;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.18);color:var(--text);padding:10px 8px;border-radius:12px;font-family:'Cinzel Decorative',serif;font-size:0.65em;cursor:pointer;letter-spacing:0.03em;display:flex;align-items:center;justify-content:center;gap:6px;">🔄 Trade</button>
+        </div>
+
+        <!-- Player stats: Coins / Pulls / Wins -->
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
+          <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.09);border-radius:12px;padding:11px 6px;text-align:center;">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:1.1em;font-weight:700;color:var(--gold);line-height:1;">${(player.coins||0).toLocaleString()}</div>
+            <div style="font-size:0.6em;color:rgba(255,255,255,0.38);text-transform:uppercase;letter-spacing:0.08em;margin-top:5px;">🪙 Coins</div>
+          </div>
+          <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.09);border-radius:12px;padding:11px 6px;text-align:center;">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:1.1em;font-weight:700;color:var(--pink);line-height:1;">${player.total_pulls||0}</div>
+            <div style="font-size:0.6em;color:rgba(255,255,255,0.38);text-transform:uppercase;letter-spacing:0.08em;margin-top:5px;">🎴 Pulls</div>
+          </div>
+          <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.09);border-radius:12px;padding:11px 6px;text-align:center;">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:1.1em;font-weight:700;color:#a8e6cf;line-height:1;">${wins}</div>
+            <div style="font-size:0.6em;color:rgba(255,255,255,0.38);text-transform:uppercase;letter-spacing:0.08em;margin-top:5px;">⚔️ Wins</div>
           </div>
         </div>
         ${player.bio ? `<div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.09);border-radius:12px;padding:11px 14px;">
@@ -33214,19 +33231,18 @@ function openPlayerModal(player){
           </div>
         </div>` : ''}
 
-        <!-- 5. Player Stats -->
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
-          <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.09);border-radius:12px;padding:12px 6px;text-align:center;">
-            <div style="font-family:'JetBrains Mono',monospace;font-size:1.4em;font-weight:700;color:var(--pink);line-height:1;">${wins}</div>
-            <div style="font-size:0.6em;color:rgba(255,255,255,0.38);text-transform:uppercase;letter-spacing:0.08em;margin-top:5px;">Wins</div>
+        <!-- Win rate bar -->
+        <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.09);border-radius:12px;padding:10px 14px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+            <div style="font-size:0.6em;color:rgba(255,255,255,0.38);text-transform:uppercase;letter-spacing:0.1em;font-family:'JetBrains Mono',monospace;">PVP Record</div>
+            <div style="font-size:0.75em;color:var(--gold);font-family:'JetBrains Mono',monospace;font-weight:700;">${winRate}% Win Rate</div>
           </div>
-          <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.09);border-radius:12px;padding:12px 6px;text-align:center;">
-            <div style="font-family:'JetBrains Mono',monospace;font-size:1.4em;font-weight:700;color:var(--gold);line-height:1;">${winRate}%</div>
-            <div style="font-size:0.6em;color:rgba(255,255,255,0.38);text-transform:uppercase;letter-spacing:0.08em;margin-top:5px;">Win%</div>
+          <div style="height:5px;border-radius:3px;background:rgba(255,255,255,0.08);overflow:hidden;">
+            <div style="height:100%;width:${winRate}%;background:linear-gradient(90deg,var(--pink-deep),var(--purple));border-radius:3px;transition:width 0.6s ease;"></div>
           </div>
-          <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.09);border-radius:12px;padding:12px 6px;text-align:center;">
-            <div style="font-family:'JetBrains Mono',monospace;font-size:1.4em;font-weight:700;color:rgba(255,255,255,0.4);line-height:1;">${losses}</div>
-            <div style="font-size:0.6em;color:rgba(255,255,255,0.38);text-transform:uppercase;letter-spacing:0.08em;margin-top:5px;">Losses</div>
+          <div style="display:flex;justify-content:space-between;margin-top:5px;">
+            <div style="font-size:0.65em;color:rgba(59,165,93,0.9);">✦ ${wins} W</div>
+            <div style="font-size:0.65em;color:rgba(255,255,255,0.35);">${losses} L ✦</div>
           </div>
         </div>
 
