@@ -8381,11 +8381,11 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   transition:background 0.35s ease, backdrop-filter 0.35s ease;
 }
 #playerProfileModal.active{display:flex;}
-#playerProfileModal.faded-in{background:rgba(0,0,0,0.88);backdrop-filter:blur(8px);}
+#playerProfileModal.faded-in{background:rgba(0,0,0,0.6);backdrop-filter:blur(6px);}
 #playerProfileContent{
   max-width:460px; width:100%;
-  height:78dvh;
-  max-height:78dvh;
+  height:calc(100dvh - 48px);
+  max-height:calc(100dvh - 48px);
   overflow-y:auto;
   border-radius:24px 24px 0 0;
   -webkit-overflow-scrolling:touch;
@@ -8396,7 +8396,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 #playerProfileContent::-webkit-scrollbar{ display:none; }
 @media(min-width:600px){
   #playerProfileModal { align-items:center; padding:20px; }
-  #playerProfileContent { border-radius:20px; height:auto; max-height:92dvh; transform:scale(0.9) translateY(0); opacity:0; transition:transform 0.3s cubic-bezier(0.34,1.2,0.64,1), opacity 0.3s ease; }
+  #playerProfileContent { border-radius:20px; height:auto; max-height:92dvh; transform:scale(0.9); opacity:0; transition:transform 0.3s cubic-bezier(0.34,1.2,0.64,1), opacity 0.3s ease; }
   #playerProfileModal.faded-in #playerProfileContent { transform:scale(1); opacity:1; }
 }
 
@@ -18249,8 +18249,7 @@ function renderCollection(){
   empty.style.display='none';
 
   // When a specific rarity/fav filter is active, show flat grid (already sorted)
-  // Also show flat grid for non-rarity sorts (A-Z, Level, Dupes)
-  if(currentFilter!=='all' || (sortVal!=='rarity_desc' && sortVal!=='rarity_asc')){
+  if(currentFilter!=='all'){
     grid.className='cards-grid cards-grid--wrap';
     grid.innerHTML=filtered.map(id=>renderCardThumb(id,counts,favs)).join('');
     return;
@@ -32935,17 +32934,17 @@ function openPlayerModal(player){
     const showcaseIds = player.showcase_cards ? JSON.parse(player.showcase_cards) : [];
     const showcaseCards = showcaseIds.map(id=>(window.DEMO_CARDS||[]).find(c=>String(c.id)===String(id))).filter(Boolean);
     if(showcaseCards.length){
-      showcaseHtml = `<div style="margin-bottom:8px;">
+      showcaseHtml = `<div style="margin-bottom:8px;flex:1;display:flex;flex-direction:column;min-height:0;">
         <div style="font-size:0.55em;color:rgba(255,255,255,0.3);letter-spacing:0.1em;margin-bottom:6px;text-transform:uppercase;font-family:'JetBrains Mono',monospace;">✦ Showcase</div>
-        <div style="display:flex;gap:8px;justify-content:center;">
+        <div style="display:flex;gap:8px;justify-content:center;flex:1;align-items:stretch;">
           ${showcaseCards.map(c=>{
             const rc=RARITY_COLORS[c.rarity]||'#bdc3c7';
-            return `<div style="flex:1;max-width:110px;border-radius:12px;overflow:hidden;border:2px solid ${rc};
-              box-shadow:0 0 16px ${rc}44;cursor:pointer;transition:transform .2s;"
+            return `<div style="flex:1;border-radius:12px;overflow:hidden;border:2px solid ${rc};
+              box-shadow:0 0 16px ${rc}44;cursor:pointer;transition:transform .2s;display:flex;flex-direction:column;"
               onclick="closePlayerModal();setTimeout(()=>openCard('${c.id}'),200)"
-              onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform=''">
-              <img src="${c.thumbnail||c.image}" style="width:100%;aspect-ratio:3/4;object-fit:cover;display:block;" onerror="this.style.display='none'"/>
-              <div style="background:rgba(0,0,0,0.85);padding:5px 4px;text-align:center;">
+              onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform=''">
+              <img src="${c.thumbnail||c.image}" style="width:100%;flex:1;object-fit:cover;display:block;min-height:0;" onerror="this.style.display='none'"/>
+              <div style="background:rgba(0,0,0,0.85);padding:5px 4px;text-align:center;flex-shrink:0;">
                 <div style="font-size:0.58em;color:#fff;font-family:'Cinzel Decorative',serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(c.name)}</div>
                 <div style="font-size:0.54em;color:${rc};margin-top:2px;">${c.rarityStars||''}</div>
               </div>
@@ -32989,12 +32988,13 @@ function openPlayerModal(player){
       background:${modalCardBg};
       border:1px solid rgba(255,255,255,0.08);
       border-radius:24px 24px 0 0;
-      width:100%;
+      width:100%; height:100%;
       overflow:hidden; position:relative;
+      display:flex; flex-direction:column;
       box-shadow:0 -8px 40px rgba(0,0,0,0.6);
     ">
       <!-- Banner with avatar overlapping -->
-      <div style="position:relative;height:130px;background:${bannerBg};flex-shrink:0;">
+      <div style="position:relative;height:160px;background:${bannerBg};flex-shrink:0;">
         <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0.05) 0%,rgba(0,0,0,0.5) 100%);"></div>
         <!-- drag handle inside banner -->
         <div style="display:flex;justify-content:center;padding:8px 0 0;position:relative;z-index:2;">
@@ -33008,7 +33008,7 @@ function openPlayerModal(player){
       </div>
 
       <!-- Main content -->
-      <div style="padding:0 14px 12px;">
+      <div style="padding:0 14px 14px;flex:1;display:flex;flex-direction:column;overflow-y:auto;min-height:0;">
 
         <!-- Avatar + name + buttons row -->
         <div style="display:flex;align-items:flex-end;gap:10px;margin-top:-32px;margin-bottom:8px;position:relative;z-index:2;">
@@ -33050,7 +33050,7 @@ function openPlayerModal(player){
           </div>` : ''}
         </div>` : ''}
 
-        <!-- Showcase cards -->
+        <!-- Showcase cards - grows to fill space -->
         ${showcaseHtml}
 
         <!-- Stats + equipped in one row -->
