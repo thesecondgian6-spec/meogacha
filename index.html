@@ -33276,9 +33276,24 @@ function closeFlexPicker(){
 }
 
 // ── GIF Picker ──────────────────────────────────────────────────────────────
-let _gifPickerTarget = 'lobby'; // 'lobby' | 'room' | 'cinema'
+let _gifPickerTarget = 'lobby';
 let _gifSearchTimer = null;
-const GIPHY_KEY = 'dc6zaTOxFJmzC'; // Giphy public beta key
+
+// Curated anime trending GIFs (media.tenor.com — already works in the app)
+const TRENDING_GIFS = [
+  'https://media.tenor.com/x15S5rhHVscAAAAd/anime-purple.gif',
+  'https://media.tenor.com/vw9hHcFt0gIAAAAC/bbn2007.gif',
+  'https://media.tenor.com/4xOYt5yvVNMAAAAC/demon-slayer-upper-six-fight.gif',
+  'https://media.tenor.com/PKQz3kmo2akAAAAC/welcome.gif',
+  'https://media.tenor.com/Bv37u6GJKkkAAAAC/bar-feelre.gif',
+  'https://media1.tenor.com/m/gXeHHWqjdyQAAAAd/jujutsu-kaisen-gojo.gif',
+  'https://media1.tenor.com/m/KQtBbk_WFHEAAAAC/one-piece-luffy.gif',
+  'https://media1.tenor.com/m/NvMRnFc8re8AAAAC/attack-on-titan-eren.gif',
+  'https://media1.tenor.com/m/5IvRxURBBXIAAAAd/naruto-run.gif',
+  'https://media1.tenor.com/m/9N3jlXgR9JMAAAAC/anime-happy.gif',
+  'https://media1.tenor.com/m/g-HNlBJnI34AAAAC/anime-sad.gif',
+  'https://media1.tenor.com/m/OkBjwZC1DFQAAAAC/anime-fight.gif',
+];
 
 async function openGifPicker(target = 'lobby'){
   _gifPickerTarget = target;
@@ -33308,30 +33323,59 @@ async function loadGifs(query){
   const grid = document.getElementById('gifPickerGrid');
   if(!grid) return;
   grid.innerHTML = '<div class="gif-picker-loading">Loading GIFs…</div>';
+
+  // No query → show curated trending
+  if(!query){
+    grid.innerHTML = '';
+    TRENDING_GIFS.forEach(url=>{
+      const item = document.createElement('div');
+      item.className = 'gif-picker-item';
+      item.innerHTML = `<img src="${url}" loading="lazy" alt="gif"/>`;
+      item.onclick = () => sendGif(url);
+      grid.appendChild(item);
+    });
+    return;
+  }
+
+  // Search via Tenor v1 (anonymous key)
   try{
-    const endpoint = query
-      ? `https://api.giphy.com/v1/gifs/search?api_key=${GIPHY_KEY}&q=${encodeURIComponent(query+' anime')}&limit=20&rating=g`
-      : `https://api.giphy.com/v1/gifs/trending?api_key=${GIPHY_KEY}&limit=20&rating=g&tag=anime`;
-    const res = await fetch(endpoint);
+    const url = `https://g.tenor.com/v1/search?q=${encodeURIComponent(query+' anime')}&key=LIVDSRZULELA&limit=20&media_filter=minimal&contentfilter=medium`;
+    const res = await fetch(url);
+    if(!res.ok) throw new Error('HTTP '+res.status);
     const data = await res.json();
     grid.innerHTML = '';
-    if(!data.data || !data.data.length){
+    const results = data.results || [];
+    if(!results.length){
       grid.innerHTML = '<div class="gif-picker-loading">No GIFs found ʚɞ</div>';
       return;
     }
-    data.data.forEach(r=>{
-      const preview = r.images.fixed_height_small.url || r.images.original.url;
-      const full    = r.images.fixed_height.url || r.images.original.url;
-      if(!preview) return;
+    results.forEach(r=>{
+      const media = (r.media && r.media[0]) || {};
+      const src = (media.tinygif && media.tinygif.url) || (media.gif && media.gif.url);
+      if(!src) return;
       const item = document.createElement('div');
       item.className = 'gif-picker-item';
-      item.innerHTML = `<img src="${preview}" loading="lazy" alt="gif"/>`;
-      item.onclick = () => sendGif(full);
+      item.innerHTML = `<img src="${src}" loading="lazy" alt="gif"/>`;
+      item.onclick = () => sendGif(src);
       grid.appendChild(item);
     });
+    if(!grid.children.length) grid.innerHTML = '<div class="gif-picker-loading">No GIFs found ʚɞ</div>';
   } catch(e){
-    grid.innerHTML = '<div class="gif-picker-loading">Couldn\'t load GIFs 😢</div>';
-    console.error('GIF load error:', e);
+    // Tenor failed — filter curated list by query as fallback
+    const q = query.toLowerCase();
+    const filtered = TRENDING_GIFS.filter(u => u.toLowerCase().includes(q));
+    grid.innerHTML = '';
+    if(filtered.length){
+      filtered.forEach(url=>{
+        const item = document.createElement('div');
+        item.className = 'gif-picker-item';
+        item.innerHTML = `<img src="${url}" loading="lazy" alt="gif"/>`;
+        item.onclick = () => sendGif(url);
+        grid.appendChild(item);
+      });
+    } else {
+      grid.innerHTML = '<div class="gif-picker-loading">No GIFs found ʚɞ</div>';
+    }
   }
 }
 
