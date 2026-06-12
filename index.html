@@ -4795,9 +4795,114 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 }
 @keyframes gradeReveal { from{transform:scale(0) rotate(-20deg);opacity:0;} to{transform:scale(1) rotate(0);opacity:1;} }
 
-/* ══════════════════════════════════════════
-   ACTIVITIES PAGE — improved panel
-══════════════════════════════════════════ */
+/* ── Activity card GIF banner redesign ── */
+.activities-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 20px;
+  margin-bottom: 28px;
+}
+.activity-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 20px;
+  border: 1px solid var(--ac-border, var(--border));
+  background: var(--bg2);
+  display: flex;
+  flex-direction: column;
+  transition: all 0.3s cubic-bezier(0.34,1.2,0.64,1);
+}
+.activity-card:hover {
+  transform: translateY(-4px) scale(1.01);
+  box-shadow: 0 12px 32px var(--ac-glow, rgba(255,157,199,0.15));
+}
+.act-gif-banner {
+  position: relative;
+  height: 160px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.act-gif-banner img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  object-position: center center;
+  display: block;
+}
+.act-gif-banner-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.65) 100%);
+}
+.act-gif-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.58em;
+  padding: 3px 9px;
+  border-radius: 8px;
+  letter-spacing: 0.05em;
+}
+.act-gif-cd {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.58em;
+  color: var(--text-dim);
+  background: rgba(0,0,0,0.55);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 20px;
+  padding: 2px 8px;
+  white-space: nowrap;
+}
+.act-gif-icon {
+  position: absolute;
+  bottom: 10px;
+  left: 14px;
+  font-size: 2em;
+  filter: drop-shadow(0 0 8px rgba(0,0,0,0.8));
+}
+.act-card-body {
+  padding: 14px 16px 16px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 6px;
+}
+.act-card-body .activity-name {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 1em;
+  font-weight: 900;
+  color: var(--text);
+  margin: 0;
+}
+.act-card-body .activity-lore {
+  font-size: 0.7em;
+  font-style: italic;
+  color: var(--text-dim);
+  border-left: 2px solid var(--ac-border, var(--border));
+  padding-left: 8px;
+  line-height: 1.4;
+  margin: 0;
+}
+.act-card-body .activity-desc {
+  font-size: 0.78em;
+  color: rgba(240,216,232,0.7);
+  line-height: 1.5;
+  margin: 0;
+}
+.act-card-body .activity-reward {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 4px;
+}
+.act-card-body .activity-btn {
+  margin-top: auto;
+  padding-top: 10px;
+}
+
 .act-page-header {
   position: relative;
   overflow: hidden;
@@ -13439,100 +13544,96 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
       </div>
     </div>
 
-    <!-- ── Daily Streak Calendar ── -->
-    <div class="daily-streak-wrap">
-      <div class="daily-streak-top">
-        <div class="daily-flame">🔥</div>
-        <div class="daily-streak-info">
-          <h3>Daily Login Reward</h3>
-          <p id="streakSub">Log in every day to keep your streak going!</p>
-        </div>
-        <div class="daily-streak-num">
-          <span id="streakCount">0</span>
-          <span>STREAK</span>
-        </div>
-      </div>
-      <div class="daily-calendar" id="dailyCalendar"></div>
-      <div class="daily-claim-wrap">
-        <button class="daily-claim-btn" id="dailyClaimBtn" onclick="claimDailyReward()">✦ Claim Today's Reward</button>
-      </div>
-      <div class="daily-next-time" id="dailyNextTime"></div>
-    </div>
-
     <div class="activities-grid">
       <!-- WORK -->
       <div class="activity-card" style="--ac-glow:rgba(241,196,15,0.15);--ac-glow2:rgba(241,196,15,0.06);--ac-border:rgba(241,196,15,0.25);">
-        <div class="act-card-header">
-          <span class="activity-badge" style="background:rgba(241,196,15,0.15);color:#f1c40f;border:1px solid rgba(241,196,15,0.3);">💰 COINS</span>
-          <span class="act-cd-pill" id="workCooldown">✅ Ready</span>
+        <div class="act-gif-banner">
+          <img src="https://media1.tenor.com/m/rD_U_SZyQ28AAAAC/frieren-anime.gif" alt=""/>
+          <div class="act-gif-banner-overlay"></div>
+          <span class="act-gif-badge" style="background:rgba(241,196,15,0.2);color:#f1c40f;border:1px solid rgba(241,196,15,0.35);">💰 COINS</span>
+          <span class="act-gif-cd" id="workCooldown">✅ Ready</span>
+          <span class="act-gif-icon">🧵</span>
         </div>
-        <span class="activity-type-icon">🧵</span>
-        <div class="activity-name">Work</div>
-        <div class="activity-lore">"Every shift is a new scene. What will today serve?"</div>
-        <div class="activity-desc">Rush Sanji's kitchen at the Baratie, quiz the Nakano sisters on exam night, or pour the perfect cup at Anteiku Café. A random anime scenario awaits!</div>
-        <div class="activity-reward">
-          <span class="reward-tag">💰 75–200 🪙</span>
-          <span class="reward-tag xp">⭐ 8–20 XP</span>
+        <div class="act-card-body">
+          <div class="activity-name">Work</div>
+          <div class="activity-lore">"Every shift is a new scene. What will today serve?"</div>
+          <div class="activity-desc">Rush Sanji's kitchen at the Baratie, quiz the Nakano sisters on exam night, or pour the perfect cup at Anteiku Café. A random anime scenario awaits!</div>
+          <div class="activity-reward">
+            <span class="reward-tag">💰 75–200 🪙</span>
+            <span class="reward-tag xp">⭐ 8–20 XP</span>
+          </div>
+          <button class="activity-btn btn-ripple" id="workBtn" onclick="openActivity('work')">🧵 Start Working</button>
         </div>
-        <button class="activity-btn btn-ripple" id="workBtn" onclick="openActivity('work')">🧵 Start Working</button>
       </div>
 
       <!-- TRAIN -->
       <div class="activity-card" style="--ac-glow:rgba(52,152,219,0.15);--ac-glow2:rgba(52,152,219,0.05);--ac-border:rgba(52,152,219,0.25);">
-        <div class="act-card-header">
-          <span class="activity-badge" style="background:rgba(52,152,219,0.15);color:#5dade2;border:1px solid rgba(52,152,219,0.3);">⭐ XP</span>
-          <span class="act-cd-pill" id="trainCooldown">✅ Ready</span>
+        <div class="act-gif-banner">
+          <img src="https://media1.tenor.com/m/qf9W6UaY698AAAAC/mashle-mash.gif" alt=""/>
+          <div class="act-gif-banner-overlay"></div>
+          <span class="act-gif-badge" style="background:rgba(52,152,219,0.2);color:#5dade2;border:1px solid rgba(52,152,219,0.35);">⭐ XP</span>
+          <span class="act-gif-cd" id="trainCooldown">✅ Ready</span>
+          <span class="act-gif-icon">⚡</span>
         </div>
-        <span class="activity-type-icon">⚡</span>
-        <div class="activity-name">Train</div>
-        <div class="activity-lore">"A true warrior doesn't train until it hurts — they train until they can't fail."</div>
-        <div class="activity-desc">Spam cursed energy with Gojo, nail Total Concentration breathing under Urokodaki, or survive Saitama's 80-rep regime. Every session is different!</div>
-        <div class="activity-reward">
-          <span class="reward-tag">💰 12–30 🪙</span>
-          <span class="reward-tag xp">⭐ 75–200 XP</span>
+        <div class="act-card-body">
+          <div class="activity-name">Train</div>
+          <div class="activity-lore">"A true warrior doesn't train until it hurts — they train until they can't fail."</div>
+          <div class="activity-desc">Spam cursed energy with Gojo, nail Total Concentration breathing under Urokodaki, or survive Saitama's 80-rep regime. Every session is different!</div>
+          <div class="activity-reward">
+            <span class="reward-tag">💰 12–30 🪙</span>
+            <span class="reward-tag xp">⭐ 75–200 XP</span>
+          </div>
+          <button class="activity-btn btn-ripple" id="trainBtn" onclick="openActivity('train')">⚡ Start Training</button>
         </div>
-        <button class="activity-btn btn-ripple" id="trainBtn" onclick="openActivity('train')">⚡ Start Training</button>
       </div>
 
       <!-- QUEST -->
       <div class="activity-card" style="--ac-glow:rgba(155,89,182,0.15);--ac-glow2:rgba(155,89,182,0.05);--ac-border:rgba(155,89,182,0.25);">
-        <div class="act-card-header">
-          <span class="activity-badge" style="background:rgba(155,89,182,0.15);color:#c39bd3;border:1px solid rgba(155,89,182,0.3);">🗺️ ADVENTURE</span>
-          <span class="act-cd-pill" id="questCooldown">✅ Ready</span>
+        <div class="act-gif-banner">
+          <img src="https://media1.tenor.com/m/of6HwnhbKIAAAAAC/anime-frieren.gif" alt=""/>
+          <div class="act-gif-banner-overlay"></div>
+          <span class="act-gif-badge" style="background:rgba(155,89,182,0.2);color:#c39bd3;border:1px solid rgba(155,89,182,0.35);">🗺️ ADVENTURE</span>
+          <span class="act-gif-cd" id="questCooldown">✅ Ready</span>
+          <span class="act-gif-icon">🗺️</span>
         </div>
-        <span class="activity-type-icon">🗺️</span>
-        <div class="activity-name">Quest</div>
-        <div class="activity-lore">"Adventure doesn't wait. Neither does the dungeon."</div>
-        <div class="activity-desc">Spin KonoSuba's chaos wheel, dodge titan hands with Levi, or memorize Bell Cranel's dungeon path. A random world opens every time!</div>
-        <div class="activity-reward">
-          <span class="reward-tag">💰 50–160 🪙</span>
-          <span class="reward-tag xp">⭐ 38–120 XP</span>
+        <div class="act-card-body">
+          <div class="activity-name">Quest</div>
+          <div class="activity-lore">"Adventure doesn't wait. Neither does the dungeon."</div>
+          <div class="activity-desc">Spin KonoSuba's chaos wheel, dodge titan hands with Levi, or memorize Bell Cranel's dungeon path. A random world opens every time!</div>
+          <div class="activity-reward">
+            <span class="reward-tag">💰 50–160 🪙</span>
+            <span class="reward-tag xp">⭐ 38–120 XP</span>
+          </div>
+          <button class="activity-btn btn-ripple" id="questBtn" onclick="openActivity('quest')">🗺️ Begin Quest</button>
         </div>
-        <button class="activity-btn btn-ripple" id="questBtn" onclick="openActivity('quest')">🗺️ Begin Quest</button>
       </div>
 
       <!-- BATTLE (AI) -->
       <div class="activity-card act-battle-card" style="--ac-glow:rgba(231,76,60,0.18);--ac-glow2:rgba(231,76,60,0.06);--ac-border:rgba(231,76,60,0.3);">
-        <div class="act-card-header">
-          <span class="activity-badge" style="background:rgba(231,76,60,0.15);color:#e74c3c;border:1px solid rgba(231,76,60,0.3);">⚔️ BATTLE</span>
-          <span class="act-cd-pill" id="battleAICooldown">✅ Ready</span>
+        <div class="act-gif-banner">
+          <img src="https://media1.tenor.com/m/o_C868Iw_bgAAAAC/jujutsu-kaisen-jjk.gif" alt=""/>
+          <div class="act-gif-banner-overlay" style="background:linear-gradient(180deg,rgba(0,0,0,0.05) 0%,rgba(80,10,10,0.7) 100%);"></div>
+          <span class="act-gif-badge" style="background:rgba(231,76,60,0.2);color:#e74c3c;border:1px solid rgba(231,76,60,0.35);">⚔️ BATTLE</span>
+          <span class="act-gif-cd" id="battleAICooldown">✅ Ready</span>
+          <span class="act-gif-icon">⚔️</span>
         </div>
-        <span class="activity-type-icon act-battle-icon">⚔️</span>
-        <div class="activity-name">Battle</div>
-        <div class="act-battle-rarity-hint">
-          <span class="act-rarity-pip" style="background:#9b59b6;" title="SR+">SR</span>
-          <span class="act-rarity-pip" style="background:#f1c40f;" title="UR+">UR</span>
-          <span class="act-rarity-pip act-rarity-pip-boss" title="Boss chance!">👑</span>
-          <span class="act-rarity-hint-text">Higher rarity = tougher foes & bosses</span>
+        <div class="act-card-body">
+          <div class="activity-name">Battle</div>
+          <div class="act-battle-rarity-hint">
+            <span class="act-rarity-pip" style="background:#9b59b6;" title="SR+">SR</span>
+            <span class="act-rarity-pip" style="background:#f1c40f;" title="UR+">UR</span>
+            <span class="act-rarity-pip act-rarity-pip-boss" title="Boss chance!">👑</span>
+            <span class="act-rarity-hint-text">Higher rarity = tougher foes & bosses</span>
+          </div>
+          <div class="activity-lore">"The strongest don't just train — they prove it in blood and fire."</div>
+          <div class="activity-desc">Send your card to fight an AI opponent. Higher-rarity cards attract deadlier enemies — even fearsome boss encounters! Win to claim coins and XP.</div>
+          <div class="activity-reward">
+            <span class="reward-tag">💰 40–300 🪙</span>
+            <span class="reward-tag xp">⭐ 50–250 XP</span>
+            <span class="reward-tag" style="background:rgba(231,76,60,0.12);color:#e74c3c;border-color:rgba(231,76,60,0.3);">👑 Boss Chance</span>
+          </div>
+          <button class="activity-btn act-battle-btn btn-ripple" id="battleAIBtn" onclick="openBattleAI()">⚔️ Enter Battle</button>
         </div>
-        <div class="activity-lore">"The strongest don't just train — they prove it in blood and fire."</div>
-        <div class="activity-desc">Send your card to fight an AI opponent. Higher-rarity cards attract deadlier enemies — even fearsome boss encounters! Win to claim coins and XP.</div>
-        <div class="activity-reward">
-          <span class="reward-tag">💰 40–300 🪙</span>
-          <span class="reward-tag xp">⭐ 50–250 XP</span>
-          <span class="reward-tag" style="background:rgba(231,76,60,0.12);color:#e74c3c;border-color:rgba(231,76,60,0.3);">👑 Boss Chance</span>
-        </div>
-        <button class="activity-btn act-battle-btn btn-ripple" id="battleAIBtn" onclick="openBattleAI()">⚔️ Enter Battle</button>
       </div>
     </div>
 
@@ -14958,7 +15059,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
     <!-- ══════════════════════════════════ -->
     <div class="hub-zone" id="hubZone-trades" style="display:none;">
       <div class="zone-banner zone-banner-trades">
-        <img class="zone-banner-gif" src="https://media1.tenor.com/m/CPjuFUkuOc4AAAAC/luffy-vs-lucci-one-piece.gif" alt=""/>
+        <img class="zone-banner-gif" src="https://media1.tenor.com/m/CmfWJULryHQAAAAC/marin-kitagawa.gif" alt=""/>
         <div class="zone-banner-overlay" style="background:linear-gradient(135deg,rgba(20,17,0,0.7),rgba(10,9,0,0.9));"></div>
         <div class="zone-banner-content">
           <div class="zone-banner-title" style="color:#f1c40f;text-shadow:0 0 20px rgba(241,196,15,0.6);">🔄 Trade Post</div>
@@ -14981,6 +15082,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
     <!-- ══════════════════════════════════ -->
     <div class="hub-zone" id="hubZone-leaderboard" style="display:none;">
       <div class="zone-banner zone-banner-lb">
+        <img class="zone-banner-gif" src="https://media1.tenor.com/m/2yOBBzaVF8cAAAAC/frieren-sousou-no-frieren.gif" alt=""/>
         <div class="zone-banner-overlay" style="background:linear-gradient(135deg,rgba(16,2,6,0.6),rgba(10,1,4,0.9));"></div>
         <div class="zone-banner-content">
           <div class="zone-banner-title" style="color:#f1c40f;text-shadow:0 0 20px rgba(241,196,15,0.7);">🏆 Hall of Fame</div>
@@ -15005,7 +15107,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
     <!-- ══════════════════════════════════ -->
     <div class="hub-zone" id="hubZone-arena" style="display:none;">
       <div class="zone-banner" style="background:linear-gradient(135deg,#1a0900,#2c1400,#1a0d00);">
-        <img class="zone-banner-gif" src="https://media1.tenor.com/m/CPjuFUkuOc4AAAAC/luffy-vs-lucci-one-piece.gif" alt=""/>
+        <img class="zone-banner-gif" src="https://media1.tenor.com/m/b0ZXAm867pYAAAAC/jujutsu-kaisen-season-3.gif" alt=""/>
         <div class="zone-banner-overlay" style="background:linear-gradient(135deg,rgba(30,8,0,0.5),rgba(15,5,0,0.85));"></div>
         <div class="zone-banner-content">
           <div class="zone-banner-title" style="color:#f0b27a;text-shadow:0 0 20px rgba(230,126,34,0.7);">⚔️ Trading & Arena Hub</div>
@@ -15026,7 +15128,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
       <!-- TRADE panel -->
       <div id="arenaPanel-trade">
         <div class="arena-inner-banner">
-          <img src="https://media1.tenor.com/m/CPjuFUkuOc4AAAAC/luffy-vs-lucci-one-piece.gif" alt="">
+          <img src="https://media1.tenor.com/m/CmfWJULryHQAAAAC/marin-kitagawa.gif" alt="">
           <div class="arena-inner-banner-overlay"></div>
           <div class="arena-inner-banner-text">🔄 Trade Post</div>
         </div>
@@ -15061,7 +15163,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
       <!-- PVP panel -->
       <div id="arenaPanel-pvp" style="display:none;">
         <div class="arena-inner-banner">
-          <img src="https://media1.tenor.com/m/CPjuFUkuOc4AAAAC/luffy-vs-lucci-one-piece.gif" alt="">
+          <img src="https://media1.tenor.com/m/b0ZXAm867pYAAAAC/jujutsu-kaisen-season-3.gif" alt="">
           <div class="arena-inner-banner-overlay"></div>
           <div class="arena-inner-banner-text">⚔️ PvP Battle Arena</div>
         </div>
