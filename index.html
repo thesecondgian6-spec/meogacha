@@ -30546,16 +30546,33 @@ function _applyRoomTheme(room){
 
   // Wall colour ONLY — no image inside the room
   inner.style.backgroundImage = 'none';
-  inner.style.background = ts.wall || '#1a0d2e';
-  inner.style.setProperty('--td-blanket', ts.blanket || 'linear-gradient(135deg,#2d1060,#5a24a8)');
-  inner.style.setProperty('--td-rug',     ts.rug     || 'linear-gradient(135deg,#2d1060,#5a24a8,#2d1060)');
-
-  const cover = document.getElementById('tdBedCover');
-  if(cover) cover.style.background = ts.blanket;
-  const rug = document.getElementById('tdRug');
-  if(rug) rug.style.background = ts.rug;
-  const pdbB = document.getElementById('pdbBlanket');
-  if(pdbB) pdbB.style.background = ts.blanket;
+  if(matchedTheme){
+    // Preset theme — use named wall colour
+    inner.style.background = ts.wall || '#1a0d2e';
+    inner.style.setProperty('--td-blanket', ts.blanket || 'linear-gradient(135deg,#2d1060,#5a24a8)');
+    inner.style.setProperty('--td-rug',     ts.rug     || 'linear-gradient(135deg,#2d1060,#5a24a8,#2d1060)');
+    const cover = document.getElementById('tdBedCover');
+    if(cover) cover.style.background = ts.blanket;
+    const rug = document.getElementById('tdRug');
+    if(rug) rug.style.background = ts.rug;
+    const pdbB = document.getElementById('pdbBlanket');
+    if(pdbB) pdbB.style.background = ts.blanket;
+  } else if(room.theme_css){
+    // Custom colour — extract the hex and derive wall/blanket/rug from it
+    const m = room.theme_css.match(/#([0-9a-fA-F]{6})/);
+    const base = m ? m[0] : '#1a0d2e';
+    inner.style.background = base;
+    const blanket = `linear-gradient(135deg,${base},${base}cc)`;
+    const rug     = `linear-gradient(90deg,${base}88,${base},${base}88)`;
+    inner.style.setProperty('--td-blanket', blanket);
+    inner.style.setProperty('--td-rug',     rug);
+    const cover = document.getElementById('tdBedCover');
+    if(cover) cover.style.background = blanket;
+    const rugEl = document.getElementById('tdRug');
+    if(rugEl) rugEl.style.background = rug;
+    const pdbB = document.getElementById('pdbBlanket');
+    if(pdbB) pdbB.style.background = blanket;
+  }
 }
 
 async function initRoomSystem(){ await refreshRoomsList(); }
@@ -30616,6 +30633,13 @@ async function refreshRoomsList(){
     if(!_roomsData.length){
       listEl.innerHTML = `<div class="rooms-empty" style="grid-column:1/-1;padding:40px 20px;text-align:center;"><div class="rooms-empty-icon">🏡</div><div>No rooms yet — be the first to create one!</div></div>`;
       return;
+    }
+    // Show/hide create button based on whether player already owns a room
+    const createBtn = document.querySelector('.rooms-create-btn');
+    if(createBtn && state.discordId && !state.isGuest){
+      const alreadyOwns = _roomsData.some(r=>r.owner_id===state.discordId);
+      createBtn.style.display = alreadyOwns ? 'none' : '';
+      createBtn.title = alreadyOwns ? 'You already have a room — edit or delete it first' : '';
     }
     listEl.innerHTML = _roomsData.map(r=>{
       const stickers = (r.stickers||[]).slice(0,5).join('');
@@ -30839,6 +30863,11 @@ async function submitCreateRoom(){
   if(!state.discordId||state.isGuest){ showToast('Please log in first! ʚɞ'); return; }
   const name = document.getElementById('createRoomName').value.trim();
   if(!name){ showToast('Please enter a room name'); return; }
+  // 1-room limit — only block on new creation, not edits
+  if(!_editingRoomId){
+    const owned = _roomsData.filter(r=>r.owner_id===state.discordId);
+    if(owned.length >= 1){ showToast('You can only have 1 room at a time ʚɞ\nEdit or delete your existing room first!'); return; }
+  }
   const isPublic   = document.getElementById('roomVisPublic').classList.contains('active');
   const bio        = document.getElementById('createRoomBio').value.trim();
   const banner_url = document.getElementById('createRoomBanner').value.trim();
