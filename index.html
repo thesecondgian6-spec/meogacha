@@ -3544,9 +3544,47 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   text-align: center; letter-spacing: 0.04em;
 }
 
-/* Hide old tab elements */
-.gp-tabs-wrap { display: none !important; }
-.gp-tab-btn   { display: none !important; }
+/* Action row: View Pool + Pull History side by side */
+.gp-dock-action-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.gp-history-btn {
+  background: linear-gradient(135deg, rgba(192,132,255,0.06), rgba(255,157,199,0.04));
+  border-color: rgba(192,132,255,0.22);
+  color: rgba(220,180,255,0.7);
+}
+.gp-history-btn:hover {
+  border-color: rgba(192,132,255,0.55);
+  color: rgba(220,180,255,1);
+  background: linear-gradient(135deg, rgba(192,132,255,0.12), rgba(255,157,199,0.07));
+  box-shadow: 0 4px 20px rgba(192,132,255,0.2);
+}
+
+/* Desktop: make dock bottom horizontal — rates and buttons side by side */
+@media(min-width:900px){
+  .gp-dock-bottom {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  .gp-dock-action-row {
+    flex-direction: column;
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+    width: 200px;
+  }
+  .gp-pool-btn { width: 100%; }
+  .gp-rates-wrap { flex: 1; }
+  .gp-pity-mini { grid-template-columns: 1fr 1fr 1fr 1fr; gap: 5px 24px; }
+}
+/* Taller stage on desktop for better banner art */
+@media(min-width:900px){
+  .gp-stage { min-height: clamp(560px, 52vw, 720px); }
+}
+
 .gt-thumb,.gt-thumb-fallback,.gt-type-tag,.gt-label-wrap,.gt-label,.gt-icon,.gt-type,.gp-tab-new { display: none; }
 /* No gp-btns class used anymore */
 .gp-btns { display: contents; }
@@ -8961,10 +8999,13 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   border-radius: 16px;
   overflow: hidden;
 }
-.arena-inner-banner{position:relative;width:100%;height:110px;border-radius:14px;overflow:hidden;margin-bottom:16px;}
-.arena-inner-banner img{width:100%;height:100%;object-fit:cover;object-position:center 30%;}
-.arena-inner-banner-overlay{position:absolute;inset:0;background:linear-gradient(135deg,rgba(15,5,0,0.55),rgba(8,3,0,0.75));}
-.arena-inner-banner-text{position:absolute;bottom:10px;left:14px;font-family:'Cinzel Decorative',serif;font-size:0.82em;color:#f0b27a;text-shadow:0 0 14px rgba(230,126,34,0.7);letter-spacing:0.04em;}
+.arena-inner-banner{position:relative;width:100%;height:200px;border-radius:16px;overflow:hidden;margin-bottom:20px;border:1px solid rgba(255,157,199,0.15);box-shadow:0 8px 32px rgba(0,0,0,0.5);}
+.arena-inner-banner img{width:100%;height:100%;object-fit:cover;object-position:center 25%;transition:transform 0.6s ease;}
+.arena-inner-banner:hover img{transform:scale(1.04);}
+.arena-inner-banner-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(5,0,15,0.2) 0%,rgba(5,0,15,0.55) 60%,rgba(5,0,15,0.88) 100%);}
+.arena-inner-banner-text{position:absolute;bottom:14px;left:18px;font-family:'Cinzel Decorative',serif;font-size:1em;color:#f0b27a;text-shadow:0 0 20px rgba(230,126,34,0.9),0 0 40px rgba(230,126,34,0.4);letter-spacing:0.06em;display:flex;align-items:center;gap:8px;}
+.arena-inner-banner-text::after{content:'';position:absolute;bottom:-4px;left:0;width:100%;height:1px;background:linear-gradient(90deg,rgba(240,178,122,0.6),transparent);}
+.arena-inner-banner-badge{position:absolute;top:12px;right:12px;background:rgba(0,0,0,0.55);backdrop-filter:blur(8px);border:1px solid rgba(240,178,122,0.3);border-radius:20px;padding:4px 10px;font-family:'JetBrains Mono',monospace;font-size:0.52em;color:rgba(240,178,122,0.8);letter-spacing:0.08em;}
 .arena-box-header {
   display: flex;
   align-items: center;
@@ -10460,6 +10501,9 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .zone-banner-arcade { border-bottom: 2px solid rgba(41,128,185,0.5); }
 .zone-banner-trades { border-bottom: 2px solid rgba(212,172,13,0.4); min-height:160px; background:linear-gradient(135deg,#1a1400,#0a0900); }
 .zone-banner-lb     { border-bottom: 2px solid rgba(231,76,60,0.4);  min-height:160px; background:linear-gradient(135deg,#1a0204,#0a0102); }
+
+/* Arena zone: taller hero banner */
+#hubZone-arena .zone-banner { min-height: 220px; }
 
 /* Live badge on cinema banner */
 .zone-cinema-live {
@@ -13196,8 +13240,11 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
       <!-- Pool + Rates -->
       <div class="gp-dock-bottom">
 
-        <!-- View Pool -->
-        <button class="gp-pool-btn" id="gpPoolBtn" onclick="openDockPoolView()">🃏 View Card Pool</button>
+        <!-- View Pool + History row -->
+        <div class="gp-dock-action-row">
+          <button class="gp-pool-btn" id="gpPoolBtn" onclick="openDockPoolView()">🃏 View Card Pool</button>
+          <button class="gp-pool-btn gp-history-btn" onclick="openPullHistory()">⟡ Pull History</button>
+        </div>
 
         <!-- Drop rates -->
         <div class="gp-rates-wrap">
@@ -13221,13 +13268,6 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
       </div>
 
     </div><!-- end gp-dock -->
-
-    <!-- ── Pull History Button ── -->
-    <div style="max-width:780px;margin:0 auto;padding:0 0 100px;display:flex;justify-content:center;">
-      <button onclick="openPullHistory()" style="background:rgba(255,157,199,0.06);border:1px solid rgba(255,157,199,0.18);border-radius:14px;color:rgba(255,255,255,0.5);font-family:'JetBrains Mono',monospace;font-size:0.65em;letter-spacing:0.1em;padding:12px 28px;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:8px;" onmouseover="this.style.background='rgba(255,157,199,0.1)';this.style.color='rgba(255,255,255,0.75)'" onmouseout="this.style.background='rgba(255,157,199,0.06)';this.style.color='rgba(255,255,255,0.5)'">
-        ⟡ PULL HISTORY
-      </button>
-    </div>
 
   </div>
 
@@ -15106,9 +15146,9 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
     <!-- ZONE: TRADING & ARENA HUB          -->
     <!-- ══════════════════════════════════ -->
     <div class="hub-zone" id="hubZone-arena" style="display:none;">
-      <div class="zone-banner" style="background:linear-gradient(135deg,#1a0900,#2c1400,#1a0d00);">
-        <img class="zone-banner-gif" src="https://media1.tenor.com/m/b0ZXAm867pYAAAAC/jujutsu-kaisen-season-3.gif" alt=""/>
-        <div class="zone-banner-overlay" style="background:linear-gradient(135deg,rgba(30,8,0,0.5),rgba(15,5,0,0.85));"></div>
+      <div class="zone-banner" style="background:linear-gradient(135deg,#00050a,#001420,#000a14);">
+        <img class="zone-banner-gif" src="https://media1.tenor.com/m/CPjuFUkuOc4AAAAC/luffy-vs-lucci-one-piece.gif" alt=""/>
+        <div class="zone-banner-overlay" style="background:linear-gradient(135deg,rgba(0,10,30,0.45),rgba(0,5,15,0.82));"></div>
         <div class="zone-banner-content">
           <div class="zone-banner-title" style="color:#f0b27a;text-shadow:0 0 20px rgba(230,126,34,0.7);">⚔️ Trading & Arena Hub</div>
           <div class="zone-banner-sub">Challenge players to battle · Swap your cards</div>
@@ -15129,8 +15169,9 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
       <div id="arenaPanel-trade">
         <div class="arena-inner-banner">
           <img src="https://media1.tenor.com/m/CmfWJULryHQAAAAC/marin-kitagawa.gif" alt="">
-          <div class="arena-inner-banner-overlay"></div>
-          <div class="arena-inner-banner-text">🔄 Trade Post</div>
+          <div class="arena-inner-banner-overlay" style="background:linear-gradient(180deg,rgba(5,0,20,0.15) 0%,rgba(5,0,20,0.55) 60%,rgba(5,0,20,0.9) 100%);"></div>
+          <div class="arena-inner-banner-text" style="color:#ff9dc7;text-shadow:0 0 20px rgba(255,157,199,0.9),0 0 40px rgba(255,157,199,0.4);">🔄 Trade Post</div>
+          <div class="arena-inner-banner-badge">LIVE · FIND A PARTNER</div>
         </div>
         <div class="arena-panel-grid">
 
@@ -15164,8 +15205,9 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
       <div id="arenaPanel-pvp" style="display:none;">
         <div class="arena-inner-banner">
           <img src="https://media1.tenor.com/m/b0ZXAm867pYAAAAC/jujutsu-kaisen-season-3.gif" alt="">
-          <div class="arena-inner-banner-overlay"></div>
+          <div class="arena-inner-banner-overlay" style="background:linear-gradient(180deg,rgba(10,3,0,0.15) 0%,rgba(10,3,0,0.55) 60%,rgba(10,3,0,0.9) 100%);"></div>
           <div class="arena-inner-banner-text">⚔️ PvP Battle Arena</div>
+          <div class="arena-inner-banner-badge" style="border-color:rgba(240,178,122,0.4);color:rgba(240,178,122,0.9);">CHALLENGE · BATTLE</div>
         </div>
         <div class="arena-panel-grid">
 
