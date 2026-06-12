@@ -8910,7 +8910,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 /* ══════════════════════════════════════════════════
    MEO HUB — GLOBAL STYLES
 ══════════════════════════════════════════════════ */
-#page-social { padding: 0 !important; max-width: 1400px !important; margin: 0 auto !important; }
+#page-social { padding: 0 !important; max-width: 100% !important; margin: 0 auto !important; }
 
 .hub-zone { padding: 20px 24px 100px; max-width: 1200px; margin: 0 auto; }
 @media(max-width:700px){ .hub-zone { padding: 14px 12px 100px; } }
@@ -8990,6 +8990,9 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   position: sticky;
   top: 53px;
   z-index: 50;
+  max-width: 1300px;
+  margin: 0 auto;
+  width: 100%;
 }
 .hub-back-btn {
   display: flex;
@@ -10394,6 +10397,13 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .lobby-layout  { margin-top: 16px; }
 .rooms-layout  { margin-top: 16px; }
 .cinema-layout { padding-top: 16px; }
+
+/* Hub map view — consistent width with zones */
+#hubMapView { max-width: 1300px; margin: 0 auto; }
+/* Zone banners span full width of their parent hub-zone */
+.zone-banner { width: 100%; }
+/* Hub map hero spans same width */
+.hmap-hero { max-width: 100%; }
 
 /* hmap sky — full opacity GIF, no moon */
 .hmap-sky { position: relative; }
@@ -45312,53 +45322,3 @@ function populateWbCardSelector() {
 </script>
 
 
-<!-- WORLD BOSS SQL MIGRATION (run once in Supabase SQL Editor):
-
--- World Boss main table
-CREATE TABLE IF NOT EXISTS world_bosses (
-  id               uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  card_id          text NOT NULL,
-  boss_name        text DEFAULT 'World Boss',
-  boss_image       text DEFAULT '',
-  boss_bg_gif      text DEFAULT '',
-  boss_thumbnail   text DEFAULT '',       -- static card thumbnail art
-  boss_effect_color text DEFAULT '',      -- hex color for arena effects
-  hp               int  NOT NULL DEFAULT 50000,
-  max_hp           int  NOT NULL DEFAULT 50000,
-  status           text DEFAULT 'waiting',  -- waiting | active | dead
-  current_ability  jsonb DEFAULT NULL,       -- {cardId, rarity, abilityId, name, icon, ts}
-  spawned_at       timestamptz DEFAULT now(),
-  killed_at        timestamptz DEFAULT NULL
-);
-ALTER TABLE world_bosses ENABLE ROW LEVEL SECURITY;
-
--- If you already ran the migration, add new columns with:
--- ALTER TABLE world_bosses ADD COLUMN IF NOT EXISTS boss_thumbnail    text DEFAULT '';
--- ALTER TABLE world_bosses ADD COLUMN IF NOT EXISTS boss_effect_color text DEFAULT '';
-CREATE POLICY "wb_read_all"  ON world_bosses FOR SELECT USING (true);
-CREATE POLICY "wb_write_all" ON world_bosses FOR ALL    USING (true);
-
--- Participants table (one row per player per boss)
-CREATE TABLE IF NOT EXISTS world_boss_participants (
-  id             uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  boss_id        uuid REFERENCES world_bosses(id) ON DELETE CASCADE,
-  discord_id     text NOT NULL,
-  username       text DEFAULT '',
-  card_id        text DEFAULT '',
-  card_name      text DEFAULT '',
-  card_image     text DEFAULT '',
-  damage_dealt   int  DEFAULT 0,
-  player_hp      int  DEFAULT 130,
-  player_max_hp  int  DEFAULT 130,
-  is_eliminated  boolean DEFAULT false,
-  recovery_until timestamptz DEFAULT NULL,
-  joined_at      timestamptz DEFAULT now(),
-  UNIQUE(boss_id, discord_id)
-);
-ALTER TABLE world_boss_participants ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "wbp_read_all"  ON world_boss_participants FOR SELECT USING (true);
-CREATE POLICY "wbp_write_all" ON world_boss_participants FOR ALL    USING (true);
-
--- Enable realtime for both tables in Supabase Dashboard:
--- Database → Replication → supabase_realtime → add world_bosses + world_boss_participants
--->
