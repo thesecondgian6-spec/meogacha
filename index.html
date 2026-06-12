@@ -33314,9 +33314,8 @@ function gifSearchDebounce(val){
 }
 
 function _buildTenorUrl(query, pos){
-  const base = query
-    ? 'https://g.tenor.com/v1/search?q='+encodeURIComponent(query+' anime')+'&key='+TENOR_ANON_KEY+'&limit=30&media_filter=minimal&contentfilter=medium'
-    : 'https://g.tenor.com/v1/trending?key='+TENOR_ANON_KEY+'&limit=30&media_filter=minimal&contentfilter=medium';
+  const q = query ? query+' anime' : 'anime';
+  const base = 'https://g.tenor.com/v1/search?q='+encodeURIComponent(q)+'&key='+TENOR_ANON_KEY+'&limit=30&media_filter=minimal&contentfilter=medium';
   return pos ? base+'&pos='+pos : base;
 }
 
