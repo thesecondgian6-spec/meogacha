@@ -38769,9 +38769,10 @@ async function sendAffinityRequest() {
     if (!ok) throw new Error('Operation returned false');
 
     await loadFriendships();
+    const recipientName = _affinityTarget.name;
     closeAffinityModal();
     const tierName = customLabel || AFFINITY_TIERS[_affinityTierSel]?.label || _affinityTierSel;
-    showToast(`💫 ${tierName} request sent to ${_affinityTarget.name}!`);
+    showToast(`💫 ${tierName} request sent to ${recipientName}!`);
   } catch(e) {
     console.error('[Affinity] send error', e);
     showToast('❌ Affinity failed: ' + (e?.message||e?.code||'unknown'));
@@ -38912,8 +38913,9 @@ async function confirmSendGift() {
         claimed: true
       });
 
+      const recipientName = _giftTarget.name;
       closeGiftModal();
-      showToast(`🪙 Sent ${amt.toLocaleString()} coins to ${_giftTarget.name}!`);
+      showToast(`🪙 Sent ${amt.toLocaleString()} coins to ${recipientName}!`);
     } catch(e) {
       console.error('[Gift] coins error', e);
       showToast('❌ Gift failed: ' + (e?.message||e?.code||'unknown'));
@@ -38950,8 +38952,9 @@ async function confirmSendGift() {
         claimed: true
       });
 
+      const recipientName = _giftTarget.name;
       closeGiftModal();
-      showToast(`🎴 Sent "${card.name}" to ${_giftTarget.name}!`);
+      showToast(`🎴 Sent "${card.name}" to ${recipientName}!`);
     } catch(e) {
       console.error('[Gift] card error', e);
       showToast('❌ Gift failed: ' + (e?.message||e?.code||'unknown'));
