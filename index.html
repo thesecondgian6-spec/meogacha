@@ -33279,32 +33279,22 @@ function closeFlexPicker(){
 // ── GIF Picker ──────────────────────────────────────────────────────────────
 let _gifPickerTarget = 'lobby';
 let _gifSearchTimer = null;
+let _gifNextPos = '';
+let _gifCurrentQuery = '';
+let _gifLoading = false;
+const TENOR_ANON_KEY = 'LIVDSRZULELA';
 
-// Curated anime trending GIFs — direct media URLs
-const TRENDING_GIFS = [
-  { url: 'https://media.tenor.com/x15S5rhHVscAAAAd/anime-purple.gif',                label: 'anime' },
-  { url: 'https://media.tenor.com/4xOYt5yvVNMAAAAC/demon-slayer-upper-six-fight.gif', label: 'demon slayer' },
-  { url: 'https://media.tenor.com/vw9hHcFt0gIAAAAC/bbn2007.gif',                      label: 'anime' },
-  { url: 'https://media.tenor.com/PKQz3kmo2akAAAAC/welcome.gif',                      label: 'welcome' },
-  { url: 'https://media.tenor.com/Bv37u6GJKkkAAAAC/bar-feelre.gif',                   label: 'bar' },
-  { url: 'https://media.tenor.com/j9NniiARmYMAAAAC/kakegurui-playing-cards.gif',      label: 'kakegurui' },
-  { url: 'https://media.tenor.com/MiuE5EVpNMMAAAAC/jjk-jujutsu-kaisen.gif',           label: 'jjk' },
-  { url: 'https://media.tenor.com/5fM3_ZoYB5IAAAAC/one-piece-luffy.gif',              label: 'one piece' },
-  { url: 'https://media.tenor.com/Ij11MERyiM8AAAAC/attack-on-titan.gif',              label: 'aot' },
-  { url: 'https://media.tenor.com/7E4c7mvjJKEAAAAC/naruto-running.gif',               label: 'naruto' },
-  { url: 'https://media.tenor.com/wBv8lFVMnJYAAAAC/anime-happy.gif',                  label: 'happy' },
-  { url: 'https://media.tenor.com/9bBDkzrbJwwAAAAC/konosuba-megumin.gif',             label: 'konosuba' },
-];
-
-async function openGifPicker(target = 'lobby'){
-  _gifPickerTarget = target;
+async function openGifPicker(target){
+  _gifPickerTarget = target || 'lobby';
   const modal = document.getElementById('gifPickerModal');
   if(!modal) return;
   modal.classList.add('open');
   const input = document.getElementById('gifSearchInput');
   if(input){ input.value = ''; input.focus(); }
   document.getElementById('gifPickerLabel').textContent = '✦ TRENDING';
-  await loadGifs('');
+  _gifCurrentQuery = '';
+  _gifNextPos = '';
+  await loadGifs('', true);
 }
 
 function closeGifPicker(){
@@ -33315,69 +33305,81 @@ function closeGifPicker(){
 function gifSearchDebounce(val){
   clearTimeout(_gifSearchTimer);
   _gifSearchTimer = setTimeout(()=>{
-    document.getElementById('gifPickerLabel').textContent = val.trim() ? `✦ RESULTS FOR "${val.toUpperCase()}"` : '✦ TRENDING';
-    loadGifs(val.trim());
+    const q = val.trim();
+    document.getElementById('gifPickerLabel').textContent = q ? '✦ RESULTS FOR "'+q.toUpperCase()+'"' : '✦ TRENDING';
+    _gifCurrentQuery = q;
+    _gifNextPos = '';
+    loadGifs(q, true);
   }, 400);
 }
 
-async function loadGifs(query){
-  const grid = document.getElementById('gifPickerGrid');
+function _buildTenorUrl(query, pos){
+  const base = query
+    ? 'https://g.tenor.com/v1/search?q='+encodeURIComponent(query+' anime')+'&key='+TENOR_ANON_KEY+'&limit=30&media_filter=minimal&contentfilter=medium'
+    : 'https://g.tenor.com/v1/trending?key='+TENOR_ANON_KEY+'&limit=30&media_filter=minimal&contentfilter=medium';
+  return pos ? base+'&pos='+pos : base;
+}
+
+function _appendGifItems(grid, results){
+  results.forEach(function(r){
+    var media = (r.media && r.media[0]) || {};
+    var src = (media.tinygif && media.tinygif.url) || (media.gif && media.gif.url);
+    if(!src) return;
+    var item = document.createElement('div');
+    item.className = 'gif-picker-item';
+    item.innerHTML = '<img src="'+src+'" loading="lazy" alt="gif" onerror="this.parentElement.style.display=\'none\'"/>';
+    item.onclick = (function(u){ return function(){ sendGif(u); }; })(src);
+    grid.appendChild(item);
+  });
+}
+
+async function loadGifs(query, reset){
+  if(_gifLoading) return;
+  var grid = document.getElementById('gifPickerGrid');
   if(!grid) return;
-  grid.innerHTML = '<div class="gif-picker-loading">Loading GIFs…</div>';
-
-  // No query → show curated trending
-  if(!query){
-    grid.innerHTML = '';
-    TRENDING_GIFS.forEach(g=>{
-      const item = document.createElement('div');
-      item.className = 'gif-picker-item';
-      item.innerHTML = `<img src="${g.url}" loading="lazy" alt="${g.label}" onerror="this.parentElement.style.display='none'"/>`;
-      item.onclick = () => sendGif(g.url);
-      grid.appendChild(item);
-    });
-    return;
+  _gifLoading = true;
+  if(reset){
+    grid.innerHTML = '<div class="gif-picker-loading">Loading GIFs\u2026</div>';
+  } else {
+    var old = grid.querySelector('.gif-sentinel');
+    if(old) old.remove();
+    var spin = document.createElement('div');
+    spin.className = 'gif-picker-loading';
+    spin.style.cssText = 'grid-column:1/-1;padding:16px;';
+    spin.textContent = 'Loading more\u2026';
+    grid.appendChild(spin);
   }
-
-  // Search via Tenor v1 (anonymous key)
   try{
-    const url = `https://g.tenor.com/v1/search?q=${encodeURIComponent(query+' anime')}&key=LIVDSRZULELA&limit=20&media_filter=minimal&contentfilter=medium`;
-    const res = await fetch(url);
+    var res = await fetch(_buildTenorUrl(query, reset ? '' : _gifNextPos));
     if(!res.ok) throw new Error('HTTP '+res.status);
-    const data = await res.json();
-    grid.innerHTML = '';
-    const results = data.results || [];
-    if(!results.length){
-      grid.innerHTML = '<div class="gif-picker-loading">No GIFs found ʚɞ</div>';
-      return;
+    var data = await res.json();
+    var results = data.results || [];
+    _gifNextPos = data.next || '';
+    if(reset) grid.innerHTML = '';
+    else { var sp = grid.querySelector('.gif-picker-loading'); if(sp) sp.remove(); }
+    if(!results.length && reset){
+      grid.innerHTML = '<div class="gif-picker-loading">No GIFs found \u028aɞ</div>';
+      _gifLoading = false; return;
     }
-    results.forEach(r=>{
-      const media = (r.media && r.media[0]) || {};
-      const src = (media.tinygif && media.tinygif.url) || (media.gif && media.gif.url);
-      if(!src) return;
-      const item = document.createElement('div');
-      item.className = 'gif-picker-item';
-      item.innerHTML = `<img src="${src}" loading="lazy" alt="gif"/>`;
-      item.onclick = () => sendGif(src);
-      grid.appendChild(item);
-    });
-    if(!grid.children.length) grid.innerHTML = '<div class="gif-picker-loading">No GIFs found ʚɞ</div>';
+    _appendGifItems(grid, results);
+    if(_gifNextPos){
+      var sentinel = document.createElement('div');
+      sentinel.className = 'gif-sentinel';
+      sentinel.style.cssText = 'grid-column:1/-1;height:20px;';
+      grid.appendChild(sentinel);
+      var obs = new IntersectionObserver(function(entries){
+        if(entries[0].isIntersecting && !_gifLoading){
+          obs.disconnect();
+          loadGifs(_gifCurrentQuery, false);
+        }
+      }, { root: grid.parentElement, threshold: 0.1 });
+      obs.observe(sentinel);
+    }
   } catch(e){
-    // Tenor failed — filter curated list by query as fallback
-    const q = query.toLowerCase();
-    const filtered = TRENDING_GIFS.filter(g => g.label.toLowerCase().includes(q));
-    grid.innerHTML = '';
-    if(filtered.length){
-      filtered.forEach(g=>{
-        const item = document.createElement('div');
-        item.className = 'gif-picker-item';
-        item.innerHTML = `<img src="${g.url}" loading="lazy" alt="${g.label}" onerror="this.parentElement.style.display='none'"/>`;
-        item.onclick = () => sendGif(g.url);
-        grid.appendChild(item);
-      });
-    } else {
-      grid.innerHTML = '<div class="gif-picker-loading">No GIFs found ʚɞ</div>';
-    }
+    if(reset) grid.innerHTML = '<div class="gif-picker-loading">Couldn\'t load GIFs \ud83d\ude22</div>';
+    else { var s2 = grid.querySelector('.gif-picker-loading'); if(s2) s2.remove(); }
   }
+  _gifLoading = false;
 }
 
 async function sendGif(url){
