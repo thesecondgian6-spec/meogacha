@@ -1238,7 +1238,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   display: flex;
   flex-direction: column;
   width: 100%;
-  max-width: 1100px;
+  max-width: 1300px;
   margin: 0 auto;
   padding: 0 10px 48px;
   gap: 24px;
@@ -8890,7 +8890,8 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 }
 .arena-box-list {
   overflow-y: auto;
-  max-height: 320px;
+  max-height: calc(100vh - 480px);
+  min-height: 400px;
   padding: 8px;
   scrollbar-width: thin;
   scrollbar-color: rgba(255,157,199,0.2) transparent;
