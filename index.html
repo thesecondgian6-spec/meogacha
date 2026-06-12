@@ -33523,7 +33523,7 @@ async function loadGifs(query, reset){
 
 async function sendGif(url, caption){
   closeGifPicker();
-  const s = window.state || {};
+  const s = state;
   const target = _gifPickerTarget;
   // Encode caption into content: "url|||caption" — parsed on render
   const content = caption ? url + '|||' + caption : url;
