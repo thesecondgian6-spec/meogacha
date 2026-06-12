@@ -38352,8 +38352,13 @@ function renderFriendRequests(cont) {
     return;
   }
   // Need to fetch sender profiles
+  const senderIds = pending.map(r=>r.sender_id);
+  // Use sb.get with filter - for multiple ids we use the rt client
   const rt = getSupaRT();
-  rt.from('players').select('*').in('discord_id', pending.map(r=>r.sender_id)).then(({ data }) => {
+  (rt
+    ? rt.from('players').select('*').in('discord_id', senderIds)
+    : Promise.resolve({ data: [] })
+  ).then(({ data }) => {
     const players = data || [];
     cont.innerHTML = '<div class="friends-list">' +
       pending.map(req => {
@@ -38382,8 +38387,12 @@ function renderFriendSent(cont) {
     cont.innerHTML = `<div style="color:var(--text-dim);font-size:0.8em;font-style:italic;text-align:center;padding:16px 0;">No pending sent requests ✦</div>`;
     return;
   }
+  const recvIds = sent.map(r=>r.receiver_id);
   const rt = getSupaRT();
-  rt.from('players').select('*').in('discord_id', sent.map(r=>r.receiver_id)).then(({ data }) => {
+  (rt
+    ? rt.from('players').select('*').in('discord_id', recvIds)
+    : Promise.resolve({ data: [] })
+  ).then(({ data }) => {
     const players = data || [];
     cont.innerHTML = '<div class="friends-list">' +
       sent.map(req => {
@@ -38420,70 +38429,65 @@ async function sendFriendRequest(targetDiscordId) {
   if (existing && existing.status === 'pending')  { showToast('⏳ Request already sent!'); return; }
 
   try {
-    const rt = getSupaRT();
-    const { error } = await rt.from('friendships').insert({
+    const ok = await sb.insert('friendships', {
       sender_id: state.discordId,
       receiver_id: targetDiscordId,
       status: 'pending'
     });
-    if (error) throw error;
+    if (!ok) throw new Error('Insert returned false');
     await loadFriendships();
     showToast('💌 Friend request sent!');
   } catch(e) {
-    console.warn('[Friends] send error', e);
-    showToast('❌ Could not send request');
+    console.error('[Friends] send error', e);
+    showToast('❌ Could not send request: ' + (e.message||e.code||'unknown'));
   }
 }
 
 async function acceptFriendRequest(reqId, senderName) {
   try {
-    const rt = getSupaRT();
-    await rt.from('friendships').update({ status: 'accepted' }).eq('id', reqId);
+    await sb.update('friendships', { status: 'accepted' }, { id: reqId });
     await loadFriendships();
     switchFriendTab('friends', null);
     document.querySelectorAll('.friends-tab-btn')[0]?.classList.add('active');
     showToast(`💕 You and ${senderName} are now friends!`);
   } catch(e) {
+    console.error('[Friends] accept error', e);
     showToast('❌ Failed to accept');
   }
 }
 
 async function declineFriendRequest(reqId) {
   try {
-    const rt = getSupaRT();
-    await rt.from('friendships').update({ status: 'declined' }).eq('id', reqId);
+    await sb.update('friendships', { status: 'declined' }, { id: reqId });
     await loadFriendships();
     switchFriendTab('requests', null);
     document.querySelectorAll('.friends-tab-btn')[1]?.classList.add('active');
-  } catch(e) {}
+  } catch(e) { console.error('[Friends] decline error', e); }
 }
 
 async function cancelFriendRequest(reqId) {
   try {
-    const rt = getSupaRT();
-    await rt.from('friendships').delete().eq('id', reqId);
+    await sb.delete('friendships', { id: reqId });
     await loadFriendships();
     switchFriendTab('sent', null);
     document.querySelectorAll('.friends-tab-btn')[2]?.classList.add('active');
     showToast('✕ Request cancelled');
-  } catch(e) {}
+  } catch(e) { console.error('[Friends] cancel error', e); }
 }
 
 async function removeFriend(targetDiscordId) {
   try {
+    // Delete both directions
     const rt = getSupaRT();
-    await rt.from('friendships')
-      .delete()
-      .or(`sender_id.eq.${state.discordId},receiver_id.eq.${state.discordId}`)
-      .or(`sender_id.eq.${targetDiscordId},receiver_id.eq.${targetDiscordId}`);
-    // Simpler: delete both directions
-    await rt.from('friendships').delete()
-      .eq('sender_id', state.discordId).eq('receiver_id', targetDiscordId);
-    await rt.from('friendships').delete()
-      .eq('sender_id', targetDiscordId).eq('receiver_id', state.discordId);
+    if (rt) {
+      await rt.from('friendships').delete()
+        .eq('sender_id', state.discordId).eq('receiver_id', targetDiscordId);
+      await rt.from('friendships').delete()
+        .eq('sender_id', targetDiscordId).eq('receiver_id', state.discordId);
+    }
     await loadFriendships();
     showToast('💔 Unfollowed');
-  } catch(e) { showToast('❌ Error'); }
+  } catch(e) { console.error('[Friends] remove error', e); showToast('❌ Error'); }
 }
 
 function isFriendWith(discordId) {
@@ -38607,21 +38611,20 @@ async function sendAffinityRequest() {
   const customLabel = document.getElementById('affinityCustomInput')?.value.trim() || '';
 
   try {
-    const rt = getSupaRT();
     const existing = _affinityRows.find(r =>
       (r.sender_id === state.discordId && r.receiver_id === _affinityTarget.discordId) ||
       (r.sender_id === _affinityTarget.discordId && r.receiver_id === state.discordId)
     );
 
+    let ok;
     if (existing && existing.sender_id === state.discordId) {
-      // Update existing
-      await rt.from('affinities').update({
+      ok = await sb.update('affinities', {
         tier: _affinityTierSel,
         custom_label: customLabel,
         status: 'pending'
-      }).eq('id', existing.id);
+      }, { id: existing.id });
     } else {
-      await rt.from('affinities').insert({
+      ok = await sb.insert('affinities', {
         sender_id: state.discordId,
         receiver_id: _affinityTarget.discordId,
         tier: _affinityTierSel,
@@ -38629,14 +38632,15 @@ async function sendAffinityRequest() {
         status: 'pending'
       });
     }
+    if (!ok) throw new Error('Operation returned false');
 
     await loadFriendships();
     closeAffinityModal();
     const tierName = customLabel || AFFINITY_TIERS[_affinityTierSel]?.label || _affinityTierSel;
     showToast(`💫 ${tierName} request sent to ${_affinityTarget.name}!`);
   } catch(e) {
-    console.warn('[Affinity] send error', e);
-    showToast('❌ Could not send affinity request');
+    console.error('[Affinity] send error', e);
+    showToast('❌ Affinity failed: ' + (e?.message||e?.code||'unknown'));
   }
 }
 
@@ -38751,20 +38755,19 @@ async function confirmSendGift() {
     if (amt > 999999) { showToast('❌ Max gift is 999,999 coins'); return; }
 
     try {
-      const rt = getSupaRT();
       // Deduct from sender
       state.coins = (state.coins || 0) - amt;
       updateCoins();
-      await rt.from('players').update({ coins: state.coins }).eq('discord_id', state.discordId);
+      await sb.update('players', { coins: state.coins }, { discord_id: state.discordId });
 
       // Add to receiver
-      const { data: recv } = await rt.from('players').select('coins').eq('discord_id', _giftTarget.discordId).limit(1);
-      if (recv && recv[0]) {
-        await rt.from('players').update({ coins: (recv[0].coins||0) + amt }).eq('discord_id', _giftTarget.discordId);
+      const recvRows = await sb.get('players', { discord_id: _giftTarget.discordId }, { select: 'coins', limit: 1 });
+      if (recvRows && recvRows[0]) {
+        await sb.update('players', { coins: (recvRows[0].coins||0) + amt }, { discord_id: _giftTarget.discordId });
       }
 
       // Log the gift
-      await rt.from('gifts').insert({
+      await sb.insert('gifts', {
         sender_id: state.discordId,
         sender_name: state.username || 'Summoner',
         receiver_id: _giftTarget.discordId,
@@ -38776,8 +38779,8 @@ async function confirmSendGift() {
       closeGiftModal();
       showToast(`🪙 Sent ${amt.toLocaleString()} coins to ${_giftTarget.name}!`);
     } catch(e) {
-      console.warn('[Gift] coins error', e);
-      showToast('❌ Gift failed');
+      console.error('[Gift] coins error', e);
+      showToast('❌ Gift failed: ' + (e?.message||e?.code||'unknown'));
     }
   } else {
     // Card gift
@@ -38788,26 +38791,20 @@ async function confirmSendGift() {
     if (!confirm(`Send "${card.name}" to ${_giftTarget.name}? You'll lose this card.`)) return;
 
     try {
-      const rt = getSupaRT();
-      // Remove from sender collection
+      // Remove from sender's collection table
+      await sb.delete('collection', { discord_id: state.discordId, card_id: _giftSelectedCard });
       const idx = state.collection.indexOf(_giftSelectedCard);
       if (idx > -1) state.collection.splice(idx, 1);
-      await rt.from('players').update({
-        collection: state.collection
-      }).eq('discord_id', state.discordId);
+      renderCollection();
 
-      // Add to receiver collection
-      const { data: recv } = await rt.from('players').select('collection').eq('discord_id', _giftTarget.discordId).limit(1);
-      if (recv && recv[0]) {
-        const recvColl = recv[0].collection || [];
-        if (!recvColl.includes(_giftSelectedCard)) {
-          recvColl.push(_giftSelectedCard);
-          await rt.from('players').update({ collection: recvColl }).eq('discord_id', _giftTarget.discordId);
-        }
+      // Add to receiver's collection table (ignore if they already have it)
+      const recvHas = await sb.get('collection', { discord_id: _giftTarget.discordId, card_id: _giftSelectedCard }, { limit: 1 });
+      if (!recvHas || !recvHas.length) {
+        await sb.insert('collection', { discord_id: _giftTarget.discordId, card_id: _giftSelectedCard });
       }
 
       // Log gift
-      await rt.from('gifts').insert({
+      await sb.insert('gifts', {
         sender_id: state.discordId,
         sender_name: state.username || 'Summoner',
         receiver_id: _giftTarget.discordId,
@@ -38820,8 +38817,8 @@ async function confirmSendGift() {
       closeGiftModal();
       showToast(`🎴 Sent "${card.name}" to ${_giftTarget.name}!`);
     } catch(e) {
-      console.warn('[Gift] card error', e);
-      showToast('❌ Gift failed');
+      console.error('[Gift] card error', e);
+      showToast('❌ Gift failed: ' + (e?.message||e?.code||'unknown'));
     }
   }
 }
@@ -38867,8 +38864,7 @@ function closeRoomInviteModal() {
 
 async function sendRoomInvite(receiverId, receiverName, roomId, roomName, btn) {
   try {
-    const rt = getSupaRT();
-    await rt.from('room_invites').insert({
+    await sb.insert('room_invites', {
       room_id: roomId,
       room_name: roomName,
       sender_id: state.discordId,
@@ -39047,15 +39043,13 @@ async function showAffinityRequestNotif(req) {
 
   document.getElementById('acceptAffinityBtn').onclick = async () => {
     el.remove();
-    const rt = getSupaRT();
-    await rt.from('affinities').update({ status: 'accepted' }).eq('id', req.id);
+    await sb.update('affinities', { status: 'accepted' }, { id: req.id });
     await loadFriendships();
     showToast(`💫 You're now ${escapeHtml(displayLabel)}s with ${escapeHtml(senderName)}!`);
   };
   document.getElementById('declineAffinityBtn').onclick = async () => {
     el.remove();
-    const rt = getSupaRT();
-    await rt.from('affinities').update({ status: 'declined' }).eq('id', req.id);
+    await sb.update('affinities', { status: 'declined' }, { id: req.id });
   };
   setTimeout(() => { const n = document.getElementById('incomingAffinityNotif'); if(n) n.remove(); }, 30000);
 }
@@ -39102,16 +39096,14 @@ function showRoomInviteNotif(invite) {
 
   document.getElementById('acceptInviteBtn').onclick = async () => {
     el.remove();
-    const rt = getSupaRT();
-    await rt.from('room_invites').update({ status: 'accepted' }).eq('id', invite.id);
+    await sb.update('room_invites', { status: 'accepted' }, { id: invite.id });
     if (typeof joinRoomFromProfile === 'function') {
       joinRoomFromProfile(invite.room_id, invite.room_name || 'Room', false);
     }
   };
   document.getElementById('declineInviteBtn').onclick = async () => {
     el.remove();
-    const rt = getSupaRT();
-    await rt.from('room_invites').update({ status: 'declined' }).eq('id', invite.id);
+    await sb.update('room_invites', { status: 'declined' }, { id: invite.id });
   };
   setTimeout(() => { const n = document.getElementById('incomingRoomInviteNotif'); if(n) n.remove(); }, 30000);
 }
