@@ -12737,6 +12737,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
       <button class="pe-tab" onclick="switchPeTab('cards',this)">🎴 Cards</button>
       <button class="pe-tab" onclick="switchPeTab('room',this)">🏠 Room</button>
       <button class="pe-tab" onclick="switchPeTab('music',this)">🎵 Music</button>
+      <button class="pe-tab" onclick="switchPeTab('friends',this)">💕 Friends</button>
     </div>
 
     <!-- ── ABOUT TAB ── -->
@@ -12867,6 +12868,15 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
         <div class="edit-field" style="margin-top:12px;">
           <label class="edit-label">Or clear music</label>
           <button class="edit-btn-small" onclick="clearProfileMusic()">✕ Remove Music</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="pe-panel" id="petab-friends">
+      <div class="edit-field">
+        <label class="edit-label">Featured Friends <span style="color:var(--text-dim);font-size:.85em">(up to 6 — pick from your affinity bonds)</span></label>
+        <div id="peFriendsPicker" style="margin-top:8px;">
+          <div style="color:var(--text-dim);font-size:0.82em;font-style:italic;">Loading affinity bonds...</div>
         </div>
       </div>
     </div>
@@ -17061,6 +17071,7 @@ let state = {
   activeBoosts:  {},  // { coinboost: expireTimestamp, xpboost: expireTimestamp }
   profileMusic:  '',   // URL for profile background music
   showcaseCards: [],   // up to 3 card IDs pinned on profile
+  featuredFriends: [], // up to 6 discord IDs of featured friends
 };
 let currentFilter = 'all';
 let openCardId = null;
@@ -18124,6 +18135,7 @@ async function loadPlayer(discordId){
     state.gradientEnd=p.profile_color_end??'#c084b8';
     state.accentColor=p.profile_accent??'';
     try{ state.showcaseCards=p.showcase_cards?JSON.parse(p.showcase_cards):[]; }catch(e){ state.showcaseCards=[]; }
+    try{ state.featuredFriends=p.featured_friends?JSON.parse(p.featured_friends):[]; }catch(e){ state.featuredFriends=[]; }
     if(!state.bannerImage && state.gradientStart && state.gradientEnd){
       state.bannerColor=`linear-gradient(135deg,${state.gradientStart},${state.gradientEnd})`;
     }
@@ -18185,6 +18197,7 @@ async function savePlayer(){
     profile_color_end:state.gradientEnd||'#c084b8',
     profile_accent:state.accentColor||'',
     showcase_cards:JSON.stringify(state.showcaseCards||[]),
+    featured_friends:JSON.stringify(state.featuredFriends||[]),
   });
 }
 async function saveCardToCollection(discordId,cardId){
@@ -19968,6 +19981,7 @@ function switchPeTab(tab, btn){
   if(panel) panel.classList.add('active');
   if(tab==='cards') renderShowcaseCardPicker();
   if(tab==='room') renderPeRoomTab();
+  if(tab==='friends') renderPeFriendsPicker();
 }
 
 function updatePePreview(){
@@ -20122,6 +20136,7 @@ function openProfileEdit(){
   editTitle = state.title;
   window._peShowcasePicks = [...(state.showcaseCards||[])];
   window._peActiveSlot = 0;
+  window._peFriendPicks = [...(state.featuredFriends||[])];
 
   const nameEl=document.getElementById('editDisplayName');
   if(nameEl){
@@ -20286,6 +20301,7 @@ async function saveProfileCustom(){
   state.profileMusic=(document.getElementById('editProfileMusic')?.value||'').trim();
   // Showcase cards
   state.showcaseCards=(window._peShowcasePicks||[]).filter(Boolean).map(String);
+  state.featuredFriends=(window._peFriendPicks||[]).filter(Boolean);
   // Stop any test audio
   if(_peMusicTestAudio){ _peMusicTestAudio.pause(); _peMusicTestAudio=null; }
 
@@ -20294,6 +20310,7 @@ async function saveProfileCustom(){
   if(state.isGuest)saveGuestState();
   document.getElementById('profileEditModal').classList.remove('active');
   showToast('✨ Profile updated! ʚɞ');
+  renderProfileAffinities();
 }
 function closeProfileEdit(e){
   if(!e||e.target===document.getElementById('profileEditModal'))
@@ -30725,6 +30742,7 @@ CREATE TABLE IF NOT EXISTS hub_rooms (
   posters         text[] DEFAULT '{}',
   figurines       text[] DEFAULT '{}',
   showcase_cards  text[] DEFAULT '{}',
+  featured_friends text[] DEFAULT '{}',
   created_at      timestamptz DEFAULT now(),
   updated_at      timestamptz DEFAULT now()
 );
@@ -34125,6 +34143,64 @@ function openPlayerModal(player){
   // Fetch real YouTube title for music bar
   if(musicUrl && extractYtId(musicUrl)){
     fetchAndSetYtTitle(musicUrl, modalMusicTitleId);
+  }
+
+  // Async load featured friends
+  if(player.discord_id){
+    const featuredIds = (() => {
+      try { return player.featured_friends ? JSON.parse(player.featured_friends) : []; } catch(e) { return []; }
+    })();
+    if(featuredIds.length){
+      const ffPlaceholderId = 'ppm-ff-'+Date.now();
+      // inject placeholder before room
+      const roomEl = document.getElementById(roomPlaceholderId);
+      if(roomEl){
+        const ffEl = document.createElement('div');
+        ffEl.id = ffPlaceholderId;
+        roomEl.parentNode.insertBefore(ffEl, roomEl);
+      }
+      const rt2 = getSupaRT();
+      (rt2 ? rt2.from('players').select('*').in('discord_id', featuredIds.slice(0,6)) : Promise.resolve({data:[]})).then(({data}) => {
+        const el = document.getElementById(ffPlaceholderId);
+        if(!el) return;
+        const fps = data || [];
+        if(!fps.length) return;
+        // We need affinity rows for this player — fetch them
+        Promise.all([
+          rt2 ? rt2.from('affinities').select('*').eq('sender_id', player.discord_id).eq('status','accepted') : Promise.resolve({data:[]}),
+          rt2 ? rt2.from('affinities').select('*').eq('receiver_id', player.discord_id).eq('status','accepted') : Promise.resolve({data:[]})
+        ]).then(([s, r]) => {
+          const theirAffinities = [...(s.data||[]), ...(r.data||[])];
+          el.innerHTML = `<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:11px 14px;margin-bottom:0;">
+            <div style="font-size:0.6em;color:rgba(255,255,255,0.35);letter-spacing:0.12em;text-transform:uppercase;font-family:'JetBrains Mono',monospace;margin-bottom:10px;text-align:center;">💕 Featured Friends</div>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
+              ${featuredIds.slice(0,6).map(id => {
+                const p = fps.find(x => x.discord_id === id);
+                if(!p) return '';
+                const afRow = theirAffinities.find(row =>
+                  (row.sender_id === player.discord_id && row.receiver_id === id) ||
+                  (row.sender_id === id && row.receiver_id === player.discord_id)
+                );
+                const tierInfo = afRow ? (AFFINITY_TIERS[afRow.tier] || { label: afRow.tier, cls: 'affinity-custom' }) : null;
+                const displayLabel = afRow ? ((afRow.custom_label) || tierInfo.label) : null;
+                const cls = tierInfo ? tierInfo.cls : '';
+                const name = p.display_name || p.username || 'Summoner';
+                const avatar = p.profile_thumbnail || p.avatar || 'https://cdn.discordapp.com/embed/avatars/0.png';
+                return \`<div onclick="closePlayerModal();setTimeout(()=>openPlayerFromFriend('\${p.discord_id}'),200)" style="
+                  text-align:center;cursor:pointer;padding:8px 4px;border-radius:12px;
+                  background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);
+                  transition:all .2s;" onmouseover="this.style.background='rgba(255,255,255,0.09)'" onmouseout="this.style.background='rgba(255,255,255,0.04)'">
+                  <img src="\${escapeHtml(avatar)}" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'"
+                    style="width:38px;height:38px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,0.12);margin-bottom:4px;display:block;margin-inline:auto;"/>
+                  <div style="font-size:0.62em;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:3px;">\${escapeHtml(name)}</div>
+                  \${displayLabel ? \`<span class="friend-row-affinity \${cls}" style="font-size:0.55em;">\${escapeHtml(displayLabel)}</span>\` : ''}
+                </div>\`;
+              }).filter(Boolean).join('')}
+            </div>
+          </div>`;
+        });
+      });
+    }
   }
 
   // Async load room
@@ -39353,38 +39429,99 @@ function showRoomInviteNotif(invite) {
 // AFFINITY DISPLAY ON PROFILE (own profile)
 // ════════════════════════════════════════════════
 
-function renderProfileAffinities() {
-  // Show up to 3 accepted affinity partners on own profile
+function renderPeFriendsPicker() {
+  const container = document.getElementById('peFriendsPicker');
+  if (!container) return;
   const accepted = _affinityRows.filter(r => r.status === 'accepted');
-  const section = document.getElementById('profileAffinityDisplay');
-  if (!section) return;
-  if (!accepted.length) { section.style.display = 'none'; return; }
-
+  if (!accepted.length) {
+    container.innerHTML = `<div style="color:var(--text-dim);font-size:0.82em;font-style:italic;text-align:center;padding:16px 0;">No affinity bonds yet — set one from a friend's profile first! 💫</div>`;
+    return;
+  }
+  const picks = window._peFriendPicks || [];
   const ids = accepted.map(r => r.sender_id === state.discordId ? r.receiver_id : r.sender_id);
   const rt = getSupaRT();
-  rt.from('players').select('*').in('discord_id', ids.slice(0,6)).then(({ data }) => {
+  container.innerHTML = `<div style="color:var(--text-dim);font-size:0.78em;margin-bottom:8px;">Loading...</div>`;
+  (rt ? rt.from('players').select('*').in('discord_id', ids) : Promise.resolve({data:[]})).then(({data}) => {
+    const players = data || [];
+    container.innerHTML = `<div style="font-size:0.72em;color:var(--text-dim);margin-bottom:10px;">Tap to toggle (up to 6 shown on profile)</div>` +
+      `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">` +
+      accepted.map(row => {
+        const otherId = row.sender_id === state.discordId ? row.receiver_id : row.sender_id;
+        const p = players.find(x => x.discord_id === otherId) || {};
+        const name = p.display_name || p.username || 'Summoner';
+        const avatar = p.profile_thumbnail || p.avatar || 'https://cdn.discordapp.com/embed/avatars/0.png';
+        const tierInfo = AFFINITY_TIERS[row.tier] || { label: row.tier, icon: '💫', cls: 'affinity-custom' };
+        const displayLabel = row.custom_label || tierInfo.label;
+        const isSelected = picks.includes(otherId);
+        return `<div id="pefp-${otherId}" onclick="togglePeFriend('${otherId}')" style="
+          border-radius:14px;padding:10px 6px;text-align:center;cursor:pointer;transition:all .2s;
+          background:${isSelected ? 'rgba(255,157,199,0.14)' : 'rgba(255,255,255,0.04)'};
+          border:2px solid ${isSelected ? 'rgba(255,157,199,0.5)' : 'rgba(255,255,255,0.1)'};
+          position:relative;">
+          ${isSelected ? `<div style="position:absolute;top:5px;right:6px;font-size:0.7em;color:var(--pink);">✓</div>` : ''}
+          <img src="${escapeHtml(avatar)}" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'"
+            style="width:40px;height:40px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,0.15);margin-bottom:5px;"/>
+          <div style="font-size:0.7em;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:3px;">${escapeHtml(name)}</div>
+          <span class="friend-row-affinity ${tierInfo.cls}" style="font-size:0.58em;">${escapeHtml(displayLabel)}</span>
+        </div>`;
+      }).join('') + `</div>`;
+  });
+}
+
+function togglePeFriend(discordId) {
+  window._peFriendPicks = window._peFriendPicks || [];
+  const idx = window._peFriendPicks.indexOf(discordId);
+  if (idx > -1) {
+    window._peFriendPicks.splice(idx, 1);
+  } else {
+    if (window._peFriendPicks.length >= 6) { showToast('⚠️ Max 6 featured friends'); return; }
+    window._peFriendPicks.push(discordId);
+  }
+  renderPeFriendsPicker();
+}
+
+function renderProfileAffinities() {
+  const section = document.getElementById('profileAffinityDisplay');
+  if (!section) return;
+
+  // Use featuredFriends list (chosen in profile editor), fall back to all accepted
+  const featured = state.featuredFriends && state.featuredFriends.length
+    ? state.featuredFriends
+    : _affinityRows.filter(r => r.status === 'accepted').map(r => r.sender_id === state.discordId ? r.receiver_id : r.sender_id);
+
+  if (!featured.length) { section.style.display = 'none'; return; }
+
+  const accepted = _affinityRows.filter(r => r.status === 'accepted');
+  const rt = getSupaRT();
+  rt.from('players').select('*').in('discord_id', featured.slice(0,6)).then(({ data }) => {
     const players = data || [];
     if (!players.length) { section.style.display = 'none'; return; }
     section.style.display = 'block';
     const inner = document.getElementById('profileAffinityInner');
     if (!inner) return;
-    inner.innerHTML = players.map(p => {
-      const afRow = accepted.find(r =>
-        (r.sender_id === state.discordId && r.receiver_id === p.discord_id) ||
-        (r.sender_id === p.discord_id && r.receiver_id === state.discordId)
-      );
-      const label = afRow ? getAffinityLabel(afRow) : '✦';
-      const cls   = afRow ? getAffinityCls(afRow)   : 'affinity-custom';
-      const name  = p.display_name || p.username || 'Summoner';
-      const avatar= p.profile_thumbnail || p.avatar || 'https://cdn.discordapp.com/embed/avatars/0.png';
-      return `<div style="display:flex;align-items:center;gap:8px;padding:6px 0;cursor:pointer;" onclick="openPlayerFromFriend('${p.discord_id}')">
-        <img style="width:32px;height:32px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,0.12);" src="${escapeHtml(avatar)}" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'"/>
-        <div style="flex:1;min-width:0;">
-          <div style="font-size:0.82em;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(name)}</div>
-        </div>
-        <span class="friend-row-affinity ${cls}">${escapeHtml(label)}</span>
-      </div>`;
-    }).join('');
+    inner.innerHTML = `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">` +
+      featured.slice(0,6).map(id => {
+        const p = players.find(x => x.discord_id === id);
+        if (!p) return '';
+        const afRow = accepted.find(r =>
+          (r.sender_id === state.discordId && r.receiver_id === p.discord_id) ||
+          (r.sender_id === p.discord_id && r.receiver_id === state.discordId)
+        );
+        const tierInfo = afRow ? (AFFINITY_TIERS[afRow.tier] || { label: afRow.tier, icon: '💫', cls: 'affinity-custom' }) : { label: '✦', icon: '✦', cls: 'affinity-custom' };
+        const displayLabel = (afRow && afRow.custom_label) ? afRow.custom_label : tierInfo.label;
+        const cls = tierInfo.cls;
+        const name = p.display_name || p.username || 'Summoner';
+        const avatar = p.profile_thumbnail || p.avatar || 'https://cdn.discordapp.com/embed/avatars/0.png';
+        return `<div onclick="openPlayerFromFriend('${p.discord_id}')" style="
+          text-align:center;cursor:pointer;padding:10px 6px;border-radius:14px;
+          background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);
+          transition:all .2s;" onmouseover="this.style.background='rgba(255,255,255,0.09)'" onmouseout="this.style.background='rgba(255,255,255,0.04)'">
+          <img src="${escapeHtml(avatar)}" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'"
+            style="width:44px;height:44px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,0.15);margin-bottom:5px;display:block;margin-inline:auto;"/>
+          <div style="font-size:0.68em;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:4px;">${escapeHtml(name)}</div>
+          <span class="friend-row-affinity ${cls}" style="font-size:0.58em;">${escapeHtml(displayLabel)}</span>
+        </div>`;
+      }).filter(Boolean).join('') + `</div>`;
   });
 }
 
