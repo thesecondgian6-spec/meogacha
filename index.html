@@ -34147,12 +34147,11 @@ function openPlayerModal(player){
 
   // Async load featured friends
   if(player.discord_id){
-    const featuredIds = (() => {
+    const featuredIds = (function(){
       try { return player.featured_friends ? JSON.parse(player.featured_friends) : []; } catch(e) { return []; }
     })();
     if(featuredIds.length){
       const ffPlaceholderId = 'ppm-ff-'+Date.now();
-      // inject placeholder before room
       const roomEl = document.getElementById(roomPlaceholderId);
       if(roomEl){
         const ffEl = document.createElement('div');
@@ -34160,45 +34159,39 @@ function openPlayerModal(player){
         roomEl.parentNode.insertBefore(ffEl, roomEl);
       }
       const rt2 = getSupaRT();
-      (rt2 ? rt2.from('players').select('*').in('discord_id', featuredIds.slice(0,6)) : Promise.resolve({data:[]})).then(({data}) => {
+      const p1 = rt2 ? rt2.from('players').select('*').in('discord_id', featuredIds.slice(0,6)) : Promise.resolve({data:[]});
+      const p2 = rt2 ? rt2.from('affinities').select('*').eq('sender_id', player.discord_id).eq('status','accepted') : Promise.resolve({data:[]});
+      const p3 = rt2 ? rt2.from('affinities').select('*').eq('receiver_id', player.discord_id).eq('status','accepted') : Promise.resolve({data:[]});
+      Promise.all([p1, p2, p3]).then(function(results){
+        const fps = results[0].data || [];
+        const theirAffinities = [...(results[1].data||[]), ...(results[2].data||[])];
         const el = document.getElementById(ffPlaceholderId);
-        if(!el) return;
-        const fps = data || [];
-        if(!fps.length) return;
-        // We need affinity rows for this player — fetch them
-        Promise.all([
-          rt2 ? rt2.from('affinities').select('*').eq('sender_id', player.discord_id).eq('status','accepted') : Promise.resolve({data:[]}),
-          rt2 ? rt2.from('affinities').select('*').eq('receiver_id', player.discord_id).eq('status','accepted') : Promise.resolve({data:[]})
-        ]).then(([s, r]) => {
-          const theirAffinities = [...(s.data||[]), ...(r.data||[])];
-          el.innerHTML = `<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:11px 14px;margin-bottom:0;">
-            <div style="font-size:0.6em;color:rgba(255,255,255,0.35);letter-spacing:0.12em;text-transform:uppercase;font-family:'JetBrains Mono',monospace;margin-bottom:10px;text-align:center;">💕 Featured Friends</div>
-            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
-              ${featuredIds.slice(0,6).map(id => {
-                const p = fps.find(x => x.discord_id === id);
-                if(!p) return '';
-                const afRow = theirAffinities.find(row =>
-                  (row.sender_id === player.discord_id && row.receiver_id === id) ||
-                  (row.sender_id === id && row.receiver_id === player.discord_id)
-                );
-                const tierInfo = afRow ? (AFFINITY_TIERS[afRow.tier] || { label: afRow.tier, cls: 'affinity-custom' }) : null;
-                const displayLabel = afRow ? ((afRow.custom_label) || tierInfo.label) : null;
-                const cls = tierInfo ? tierInfo.cls : '';
-                const name = p.display_name || p.username || 'Summoner';
-                const avatar = p.profile_thumbnail || p.avatar || 'https://cdn.discordapp.com/embed/avatars/0.png';
-                return \`<div onclick="closePlayerModal();setTimeout(()=>openPlayerFromFriend('\${p.discord_id}'),200)" style="
-                  text-align:center;cursor:pointer;padding:8px 4px;border-radius:12px;
-                  background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);
-                  transition:all .2s;" onmouseover="this.style.background='rgba(255,255,255,0.09)'" onmouseout="this.style.background='rgba(255,255,255,0.04)'">
-                  <img src="\${escapeHtml(avatar)}" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'"
-                    style="width:38px;height:38px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,0.12);margin-bottom:4px;display:block;margin-inline:auto;"/>
-                  <div style="font-size:0.62em;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:3px;">\${escapeHtml(name)}</div>
-                  \${displayLabel ? \`<span class="friend-row-affinity \${cls}" style="font-size:0.55em;">\${escapeHtml(displayLabel)}</span>\` : ''}
-                </div>\`;
-              }).filter(Boolean).join('')}
-            </div>
-          </div>`;
-        });
+        if(!el || !fps.length) return;
+        const cards = featuredIds.slice(0,6).map(function(id){
+          const p = fps.find(function(x){ return x.discord_id === id; });
+          if(!p) return '';
+          const afRow = theirAffinities.find(function(row){
+            return (row.sender_id === player.discord_id && row.receiver_id === id) ||
+                   (row.sender_id === id && row.receiver_id === player.discord_id);
+          });
+          const tierInfo = afRow ? (AFFINITY_TIERS[afRow.tier] || { label: afRow.tier, cls: 'affinity-custom' }) : null;
+          const displayLabel = afRow ? (afRow.custom_label || tierInfo.label) : null;
+          const cls = tierInfo ? tierInfo.cls : '';
+          const name = p.display_name || p.username || 'Summoner';
+          const avatar = p.profile_thumbnail || p.avatar || 'https://cdn.discordapp.com/embed/avatars/0.png';
+          const badgeHtml = displayLabel ? '<span class="friend-row-affinity '+cls+'" style="font-size:0.55em;">'+escapeHtml(displayLabel)+'</span>' : '';
+          var did = p.discord_id;
+          return '<div onclick="closePlayerModal();setTimeout(function(){openPlayerFromFriend(&quot;'+did+'&quot;);},200)" style="text-align:center;cursor:pointer;padding:8px 4px;border-radius:12px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);transition:all .2s;" onmouseover="this.style.background=&quot;rgba(255,255,255,0.09)&quot;" onmouseout="this.style.background=&quot;rgba(255,255,255,0.04)&quot;">'
+            + '<img src="'+escapeHtml(avatar)+'" onerror="this.src=\'https://cdn.discordapp.com/embed/avatars/0.png\'" style="width:38px;height:38px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,0.12);margin-bottom:4px;display:block;margin-inline:auto;"/>'  
+            + '<div style="font-size:0.62em;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:3px;">'+escapeHtml(name)+'</div>'
+            + badgeHtml
+            + '</div>';
+        }).filter(Boolean).join('');
+        if(!cards) return;
+        el.innerHTML = '<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:11px 14px;">'
+          + '<div style="font-size:0.6em;color:rgba(255,255,255,0.35);letter-spacing:0.12em;text-transform:uppercase;font-family:JetBrains Mono,monospace;margin-bottom:10px;text-align:center;">&#x1F495; Featured Friends</div>'
+          + '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">'+cards+'</div>'
+          + '</div>';
       });
     }
   }
