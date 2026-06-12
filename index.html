@@ -10981,15 +10981,34 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 /* ── Room Browser ── */
 .rb-toolbar {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px 20px;
+  flex-direction: column;
+  padding: 14px 16px 10px;
   gap: 10px;
-  flex-wrap: wrap;
   border-bottom: 1px solid var(--border);
 }
+.rb-toolbar-row1 { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .rb-toolbar-left { display: flex; align-items: center; gap: 8px; }
 .rb-title { font-family: 'Cinzel Decorative', serif; font-size: 0.82em; color: var(--pink-pale); }
+.rb-search-wrap { position: relative; flex: 1; }
+.rb-search-wrap input {
+  width: 100%; box-sizing: border-box;
+  background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+  border-radius: 20px; padding: 7px 14px 7px 34px;
+  color: var(--text); font-size: 0.82em; outline: none;
+  transition: border-color 0.2s;
+}
+.rb-search-wrap input:focus { border-color: rgba(255,157,199,0.45); }
+.rb-search-wrap input::placeholder { color: var(--text-dim); }
+.rb-search-icon { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); font-size: 0.82em; opacity: 0.5; pointer-events: none; }
+.rb-tabs { display: flex; gap: 6px; }
+.rb-tab {
+  background: none; border: 1px solid var(--border);
+  border-radius: 20px; padding: 4px 14px;
+  color: var(--text-dim); font-size: 0.75em; cursor: pointer;
+  font-family: 'JetBrains Mono', monospace; transition: all 0.18s;
+}
+.rb-tab.active { border-color: var(--pink); color: var(--pink); background: rgba(255,157,199,0.07); }
+.rb-tab:hover { border-color: rgba(255,157,199,0.4); color: var(--pink-pale); }
 .rb-refresh-btn {
   background: none; border: 1px solid var(--border);
   color: var(--text-dim); border-radius: 8px;
@@ -11045,13 +11064,27 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .room-card-bio { font-size: 0.72em; color: var(--text-dim); font-style: italic; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 10px; }
 .room-card-stickers { display: flex; gap: 4px; font-size: 1.1em; flex-wrap: wrap; margin-bottom: 8px; min-height: 22px; }
 .room-card-enter {
-  width: 100%; padding: 7px;
+  flex: 1; padding: 7px;
   background: rgba(255,157,199,0.08);
   border: 1px solid rgba(255,157,199,0.2);
   border-radius: 10px; color: var(--pink);
   font-family: 'Cormorant Garamond', serif;
   font-size: 0.82em; cursor: pointer; transition: all 0.2s;
   text-align: center;
+}
+.room-card-actions { display: flex; gap: 6px; align-items: center; }
+.room-card-fav {
+  background: none; border: 1px solid var(--border);
+  border-radius: 10px; padding: 7px 10px;
+  font-size: 0.9em; cursor: pointer; transition: all 0.2s;
+  flex-shrink: 0; line-height: 1;
+}
+.room-card-fav:hover { border-color: #f4a; background: rgba(255,68,170,0.08); }
+.room-card-fav.faved { border-color: #f4a; background: rgba(255,68,170,0.1); }
+.room-card-owner-badge {
+  font-size: 0.6em; font-family: 'JetBrains Mono', monospace;
+  color: var(--pink); border: 1px solid rgba(255,157,199,0.3);
+  border-radius: 6px; padding: 1px 6px; margin-left: 4px; vertical-align: middle;
 }
 .room-card-enter:hover { background: rgba(255,157,199,0.15); }
 
@@ -13945,11 +13978,22 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
       <!-- ══ ROOM BROWSER ══ -->
       <div id="roomBrowserView">
         <div class="rb-toolbar">
-          <div class="rb-toolbar-left">
-            <div class="rb-title">🏘️ Browse Rooms</div>
-            <button class="rb-refresh-btn" onclick="refreshRoomsList()" title="Refresh">↺</button>
+          <div class="rb-toolbar-row1">
+            <div class="rb-toolbar-left">
+              <div class="rb-title">🏘️ Browse Rooms</div>
+              <button class="rb-refresh-btn" onclick="refreshRoomsList()" title="Refresh">↺</button>
+            </div>
+            <button class="rooms-create-btn" onclick="openCreateRoomModal()">＋ Create My Room</button>
           </div>
-          <button class="rooms-create-btn" onclick="openCreateRoomModal()">＋ Create My Room</button>
+          <div class="rb-search-wrap">
+            <span class="rb-search-icon">🔍</span>
+            <input id="roomSearchInput" type="text" placeholder="Search rooms or player names…" oninput="filterRoomsList(this.value)"/>
+          </div>
+          <div class="rb-tabs">
+            <button class="rb-tab active" id="rbTab-all" onclick="switchRoomsTab('all',this)">All Rooms</button>
+            <button class="rb-tab" id="rbTab-mine" onclick="switchRoomsTab('mine',this)">My Room</button>
+            <button class="rb-tab" id="rbTab-fav" onclick="switchRoomsTab('fav',this)">❤️ Favourites</button>
+          </div>
         </div>
         <div id="roomsList" class="rb-grid">
           <div class="rooms-empty"><div class="rooms-empty-icon">🏡</div><div>No rooms yet — be the first!</div></div>
@@ -30430,6 +30474,95 @@ async function loadLobbyLeaderboardPreview(){
 let _currentRoomId   = null;
 let _currentRoomChannel = null;
 let _roomsData       = [];
+let _roomFavs        = new Set(JSON.parse(localStorage.getItem('meo_room_favs')||'[]'));
+let _rbTab           = 'all';
+let _rbSearch        = '';
+
+function _saveRoomFavs(){ try{ localStorage.setItem('meo_room_favs', JSON.stringify([..._roomFavs])); }catch(_){} }
+
+function toggleRoomFav(id, btn, e){
+  e && e.stopPropagation();
+  if(_roomFavs.has(id)){ _roomFavs.delete(id); }
+  else { _roomFavs.add(id); }
+  _saveRoomFavs();
+  if(btn){ btn.textContent = _roomFavs.has(id) ? '❤️' : '🤍'; btn.classList.toggle('faved', _roomFavs.has(id)); }
+  if(_rbTab==='fav') renderRoomsGrid(); // re-filter if on fav tab
+}
+
+function switchRoomsTab(tab, el){
+  _rbTab = tab;
+  document.querySelectorAll('.rb-tab').forEach(b=>b.classList.remove('active'));
+  if(el) el.classList.add('active');
+  renderRoomsGrid();
+}
+
+function filterRoomsList(val){
+  _rbSearch = val.toLowerCase().trim();
+  renderRoomsGrid();
+}
+
+function renderRoomsGrid(){
+  const listEl = document.getElementById('roomsList');
+  if(!listEl) return;
+  let data = [..._roomsData];
+
+  // Own room always first
+  const mine = data.filter(r=>r.owner_id===state.discordId);
+  const rest  = data.filter(r=>r.owner_id!==state.discordId);
+  data = [...mine, ...rest];
+
+  // Tab filter
+  if(_rbTab === 'mine')  data = data.filter(r=>r.owner_id===state.discordId);
+  if(_rbTab === 'fav')   data = data.filter(r=>_roomFavs.has(r.id));
+
+  // Search filter
+  if(_rbSearch){
+    data = data.filter(r=>
+      (r.name||'').toLowerCase().includes(_rbSearch) ||
+      (r.owner_username||'').toLowerCase().includes(_rbSearch) ||
+      (r.bio||'').toLowerCase().includes(_rbSearch)
+    );
+  }
+
+  if(!data.length){
+    const msg = _rbTab==='fav' ? 'No favourite rooms yet — heart a room to save it here ❤️'
+              : _rbTab==='mine' ? 'You don't have a room yet — create one above!'
+              : _rbSearch ? 'No rooms match your search~'
+              : 'No rooms yet — be the first to create one!';
+    listEl.innerHTML = `<div class="rooms-empty" style="grid-column:1/-1;padding:40px 20px;text-align:center;"><div class="rooms-empty-icon">🏡</div><div>${msg}</div></div>`;
+    return;
+  }
+
+  listEl.innerHTML = data.map(r=>{
+    const isOwn = r.owner_id === state.discordId;
+    const isFav = _roomFavs.has(r.id);
+    const theme = r.theme_css || ROOM_THEMES[0].css;
+    const av = r.owner_avatar || `https://api.dicebear.com/7.x/pixel-art/svg?seed=${encodeURIComponent(r.owner_username||'u')}`;
+    const bannerStyle = r.banner_url ? `background-image:url('${escapeHtml(r.banner_url)}')` : `background:${theme}`;
+    const stickers = (r.stickers||[]).slice(0,5).join('');
+    return `<div class="room-card" data-room-id="${escapeHtml(r.id)}" data-room-name="${escapeHtml(r.name)}" data-room-public="${r.is_public?'1':'0'}" onclick="joinRoomFromCard(this)">
+      <div class="room-card-banner" style="${bannerStyle};">
+        <div class="room-card-banner-overlay"></div>
+        <div class="room-card-vis-badge">${r.is_public?'🌐 Public':'🔒 Private'}</div>
+        ${r.music_url?`<div class="room-card-music-badge">🎵 Music</div>`:''}
+      </div>
+      <div class="room-card-body">
+        <div class="room-card-owner">
+          <img class="room-card-avatar" src="${escapeHtml(av)}" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'"/>
+          <div class="room-card-owner-name">${escapeHtml(r.owner_username||'Player')}${isOwn?'<span class="room-card-owner-badge">YOU</span>':''}</div>
+        </div>
+        <div class="room-card-name">${escapeHtml(r.name)}</div>
+        <div class="room-card-bio">${escapeHtml(r.bio||'No description yet~')}</div>
+        <div class="room-card-stickers">${stickers||'&nbsp;'}</div>
+        <div class="room-card-actions">
+          <button class="room-card-enter">Enter Room →</button>
+          <button class="room-card-fav${isFav?' faved':''}" title="${isFav?'Remove from favourites':'Add to favourites'}"
+            onclick="toggleRoomFav('${escapeHtml(r.id)}',this,event)">${isFav?'❤️':'🤍'}</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
 let _crmSelectedStickers   = [];
 let _crmSelectedFurniture  = [];
 let _crmSelectedFigurines  = [];
@@ -30558,12 +30691,14 @@ function _applyRoomTheme(room){
     const pdbB = document.getElementById('pdbBlanket');
     if(pdbB) pdbB.style.background = ts.blanket;
   } else if(room.theme_css){
-    // Custom colour — extract the hex and derive wall/blanket/rug from it
+    // Custom colour — extract the hex, darken it significantly so it's not blinding
     const m = room.theme_css.match(/#([0-9a-fA-F]{6})/);
     const base = m ? m[0] : '#1a0d2e';
-    inner.style.background = base;
-    const blanket = `linear-gradient(135deg,${base},${base}cc)`;
-    const rug     = `linear-gradient(90deg,${base}88,${base},${base}88)`;
+    // Blend the chosen colour with near-black at 35% opacity so bright reds/yellows become livable
+    const wall = `color-mix(in srgb, ${base} 35%, #080310)`;
+    inner.style.background = wall;
+    const blanket = `linear-gradient(135deg, color-mix(in srgb,${base} 45%,#080310), color-mix(in srgb,${base} 25%,#080310))`;
+    const rug     = `linear-gradient(90deg, color-mix(in srgb,${base} 20%,#080310), color-mix(in srgb,${base} 40%,#080310), color-mix(in srgb,${base} 20%,#080310))`;
     inner.style.setProperty('--td-blanket', blanket);
     inner.style.setProperty('--td-rug',     rug);
     const cover = document.getElementById('tdBedCover');
@@ -30630,40 +30765,14 @@ async function refreshRoomsList(){
     }
     const seen = new Set();
     _roomsData = [...(Array.isArray(pubRooms)?pubRooms:[]),...(Array.isArray(privRooms)?privRooms:[])].filter(r=>{ if(seen.has(r.id)) return false; seen.add(r.id); return true; });
-    if(!_roomsData.length){
-      listEl.innerHTML = `<div class="rooms-empty" style="grid-column:1/-1;padding:40px 20px;text-align:center;"><div class="rooms-empty-icon">🏡</div><div>No rooms yet — be the first to create one!</div></div>`;
-      return;
-    }
+    // Don't early-return — let renderRoomsGrid handle empty states per tab
     // Show/hide create button based on whether player already owns a room
     const createBtn = document.querySelector('.rooms-create-btn');
     if(createBtn && state.discordId && !state.isGuest){
       const alreadyOwns = _roomsData.some(r=>r.owner_id===state.discordId);
       createBtn.style.display = alreadyOwns ? 'none' : '';
-      createBtn.title = alreadyOwns ? 'You already have a room — edit or delete it first' : '';
     }
-    listEl.innerHTML = _roomsData.map(r=>{
-      const stickers = (r.stickers||[]).slice(0,5).join('');
-      const theme = r.theme_css || ROOM_THEMES[0].css;
-      const av = r.owner_avatar || `https://api.dicebear.com/7.x/pixel-art/svg?seed=${encodeURIComponent(r.owner_username||'u')}`;
-      const bannerStyle = r.banner_url ? `background-image:url('${escapeHtml(r.banner_url)}')` : `background:${theme}`;
-      return `<div class="room-card" data-room-id="${escapeHtml(r.id)}" data-room-name="${escapeHtml(r.name)}" data-room-public="${r.is_public?'1':'0'}" onclick="joinRoomFromCard(this)">
-        <div class="room-card-banner" style="${bannerStyle};">
-          <div class="room-card-banner-overlay"></div>
-          <div class="room-card-vis-badge">${r.is_public?'🌐 Public':'🔒 Private'}</div>
-          ${r.music_url?`<div class="room-card-music-badge">🎵 Music</div>`:''}
-        </div>
-        <div class="room-card-body">
-          <div class="room-card-owner">
-            <img class="room-card-avatar" src="${escapeHtml(av)}" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'"/>
-            <div class="room-card-owner-name">${escapeHtml(r.owner_username||'Player')}</div>
-          </div>
-          <div class="room-card-name">${escapeHtml(r.name)}</div>
-          <div class="room-card-bio">${escapeHtml(r.bio||'No description yet~')}</div>
-          <div class="room-card-stickers">${stickers||'&nbsp;'}</div>
-          <button class="room-card-enter">Enter Room →</button>
-        </div>
-      </div>`;
-    }).join('');
+    renderRoomsGrid();
   } catch(e){
     listEl.innerHTML = `<div style="grid-column:1/-1;text-align:center;color:var(--text-dim);padding:30px;">Could not load rooms. <button onclick="refreshRoomsList()" style="margin-left:8px;background:none;border:1px solid var(--border);color:var(--text);border-radius:8px;padding:3px 10px;cursor:pointer;font-size:0.8em;">Retry</button></div>`;
   }
