@@ -30466,14 +30466,23 @@ CREATE POLICY "rooms_delete_own"    ON hub_rooms FOR DELETE USING (true);
 
 -- Chat messages table
 CREATE TABLE IF NOT EXISTS hub_room_messages (
-  id          uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  room_id     uuid REFERENCES hub_rooms(id) ON DELETE CASCADE,
-  discord_id  text NOT NULL,
-  username    text DEFAULT '',
-  avatar_url  text DEFAULT '',
-  content     text NOT NULL,
-  created_at  timestamptz DEFAULT now()
+  id                uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  room_id           uuid REFERENCES hub_rooms(id) ON DELETE CASCADE,
+  discord_id        text NOT NULL,
+  username          text DEFAULT '',
+  avatar_url        text DEFAULT '',
+  content           text NOT NULL,
+  msg_type          text DEFAULT 'text',
+  reply_to_id       uuid,
+  reply_to_username text DEFAULT '',
+  reply_to_excerpt  text DEFAULT '',
+  created_at        timestamptz DEFAULT now()
 );
+-- Run if columns missing:
+-- ALTER TABLE hub_room_messages ADD COLUMN IF NOT EXISTS msg_type text DEFAULT 'text';
+-- ALTER TABLE hub_room_messages ADD COLUMN IF NOT EXISTS reply_to_id uuid;
+-- ALTER TABLE hub_room_messages ADD COLUMN IF NOT EXISTS reply_to_username text DEFAULT '';
+-- ALTER TABLE hub_room_messages ADD COLUMN IF NOT EXISTS reply_to_excerpt text DEFAULT '';
 ALTER TABLE hub_room_messages ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "room_chat_select" ON hub_room_messages FOR SELECT USING (true);
 CREATE POLICY "room_chat_insert" ON hub_room_messages FOR INSERT WITH CHECK (true);
@@ -31427,8 +31436,8 @@ function clearRoomReply(){
 function renderRoomChatMsg(msg){
   const feed=document.getElementById('roomChatFeed');
   if(!feed) return;
-  const isMe=state.discordId&&msg.user_id===state.discordId;
-  const isAdmin=ADMIN_IDS.includes(msg.user_id||'');
+  const isMe=state.discordId&&(msg.discord_id||msg.user_id)===state.discordId;
+  const isAdmin=ADMIN_IDS.includes(msg.discord_id||msg.user_id||'');
   const div=document.createElement('div');
   div.className='chat-msg'+(isMe?' chat-me':'');
   if(msg.id) div.id='roommsg-'+msg.id;
@@ -31459,6 +31468,15 @@ function renderRoomChatMsg(msg){
   const ph=feed.querySelector('[data-placeholder]');
   if(ph) ph.remove();
   feed.appendChild(div);
+  // Long press / right-click context menu
+  attachRoomCinemaLongPress(div, {
+    id: msg.id,
+    user_id: msg.user_id || msg.discord_id,
+    username: msg.username || 'Player',
+    content: msg.content || '',
+    target: 'room'
+  });
+  feed.scrollTop = feed.scrollHeight;
   while(feed.children.length>100) feed.removeChild(feed.firstChild);
 }
 
@@ -31482,7 +31500,7 @@ async function submitRoomChat(){
   inp.value='';
   const payload={
     room_id:_currentRoomId,
-    user_id:state.discordId,
+    discord_id:state.discordId,
     username:state.username||'Player',
     avatar_url:state.customAvatar||state.avatar||'',
     content
@@ -31896,6 +31914,15 @@ function renderCinemaMsg(msg){
   const ph=feed.querySelector('[data-placeholder]');
   if(ph) ph.remove();
   feed.appendChild(div);
+  // Long press / right-click context menu
+  attachRoomCinemaLongPress(div, {
+    id: msg.id,
+    user_id: msg.user_id,
+    username: msg.username || 'Viewer',
+    content: msg.content || '',
+    target: 'cinema'
+  });
+  feed.scrollTop = feed.scrollHeight;
   while(feed.children.length>100) feed.removeChild(feed.firstChild);
 }
 
@@ -33215,6 +33242,63 @@ function attachLongPress(el, msgData){
   el.addEventListener('contextmenu', (e)=>{ e.preventDefault(); openChatContext(msgData); });
 }
 
+// ── Long press for ROOM and CINEMA chats ──
+function attachRoomCinemaLongPress(el, msgData){
+  let timer = null, moved = false;
+  const start = ()=>{ moved=false; timer=setTimeout(()=>{ if(moved) return; if(navigator.vibrate) navigator.vibrate(40); openRoomCinemaContext(msgData); },480); };
+  const cancel = ()=>{ clearTimeout(timer); el.classList.remove('pressing'); };
+  const move = ()=>{ moved=true; cancel(); };
+  el.addEventListener('touchstart', start, {passive:true});
+  el.addEventListener('touchend', cancel);
+  el.addEventListener('touchmove', move, {passive:true});
+  el.addEventListener('contextmenu', (e)=>{ e.preventDefault(); openRoomCinemaContext(msgData); });
+}
+
+function openRoomCinemaContext(msgData){
+  const panel    = document.getElementById('chatContextPanel');
+  const backdrop = document.getElementById('chatContextBackdrop');
+  const preview  = document.getElementById('chatCtxPreview');
+  const actions  = document.getElementById('chatCtxActions');
+  if(!panel) return;
+
+  const isMe    = (msgData.user_id === state.discordId);
+  const isAdmin = state.isAdmin;
+  const isRoom  = msgData.target === 'room';
+
+  preview.textContent = (msgData.username ? '@' + msgData.username + ': ' : '') + (msgData.content || '');
+
+  const rows = [];
+  if(isRoom){
+    rows.push({ icon:'↩️', label:'Reply', fn:`setRoomReply('${esc(msgData.id)}','${esc(msgData.username)}','${esc((msgData.content||'').slice(0,80))}');closeChatContext()` });
+  } else {
+    rows.push({ icon:'↩️', label:'Reply', fn:`setCinemaReply('${esc(msgData.id)}','${esc(msgData.username)}','${esc((msgData.content||'').slice(0,80))}');closeChatContext()` });
+  }
+  if(isMe){
+    const delFn = isRoom
+      ? `deleteRoomMsg('${esc(msgData.id)}',document.getElementById('roommsg-${esc(msgData.id)}'));closeChatContext()`
+      : `deleteCinemaMsg('${esc(msgData.id)}',document.getElementById('cinemamsg-${esc(msgData.id)}'));closeChatContext()`;
+    rows.push({ icon:'🗑️', label:'Delete Message', danger:true, fn:delFn });
+  } else if(isAdmin){
+    const delFn = isRoom
+      ? `deleteRoomMsg('${esc(msgData.id)}',document.getElementById('roommsg-${esc(msgData.id)}'));closeChatContext()`
+      : `deleteCinemaMsg('${esc(msgData.id)}',document.getElementById('cinemamsg-${esc(msgData.id)}'));closeChatContext()`;
+    rows.push({ icon:'🛡️', label:'Admin · Delete', danger:true, fn:delFn });
+  }
+  if(isAdmin){
+    rows.push({ icon:'📋', label:'Copy User ID', fn:`navigator.clipboard?.writeText('${esc(msgData.user_id)}').then(()=>showToast('📋 Copied!'));closeChatContext()` });
+  }
+
+  actions.innerHTML = rows.map(r=>`
+    <div class="ctx-action${r.danger?' danger':''}" onclick="${r.fn}">
+      <span class="ctx-action-icon">${r.icon}</span>
+      <span>${r.label}</span>
+    </div>`).join('');
+
+  backdrop.style.display = 'block';
+  panel.style.display = 'block';
+  requestAnimationFrame(()=>{ panel.style.transform = 'translateY(0)'; });
+}
+
 function scrollChatToBottom(){
   const feed = document.getElementById('chatFeed');
   if(feed) feed.scrollTop = feed.scrollHeight;
@@ -33447,7 +33531,7 @@ async function sendGif(url, caption){
     await sendChatMsg(content, 'gif');
   } else if(target === 'room'){
     if(!s.discordId || !_currentRoomId) return;
-    try { await sb.insert(ROOM_CHAT_TABLE, { room_id:_currentRoomId, user_id:s.discordId, username:s.username||'Player', avatar_url:s.customAvatar||s.avatar||'', content:content, msg_type:'gif' }); }
+    try { await sb.insert(ROOM_CHAT_TABLE, { room_id:_currentRoomId, discord_id:s.discordId, username:s.username||'Player', avatar_url:s.customAvatar||s.avatar||'', content:content, msg_type:'gif' }); }
     catch(e){ showToast('Could not send GIF'); }
   } else if(target === 'cinema'){
     if(!s.discordId) return;
