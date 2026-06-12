@@ -1996,10 +1996,11 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   border-radius: 0 0 12px 12px;
 }
 .cfp-name { font-family: 'Cinzel Decorative', serif; font-size: 0.58em; color: var(--pink-pale); line-height: 1.3; }
-/* Hide quote from flex card in chat */
+/* Hide quote from flex portrait card in chat */
 .cfp-info > div[style*="italic"] { display: none; }
 .chat-gif-wrap { margin: 4px 0; border-radius: 10px; overflow: hidden; max-width: 200px; }
 .chat-gif { width: 100%; display: block; border-radius: 10px; }
+.chat-gif-caption { padding: 5px 8px; background: rgba(0,0,0,0.7); font-size: 0.85em; color: var(--text); line-height: 1.4; word-break: break-word; }
 #gifPickerModal {
   position: fixed; inset: 0; z-index: 360; display: none;
   align-items: flex-end; justify-content: center;
@@ -2039,6 +2040,27 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .gif-picker-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .gif-picker-loading { grid-column: 1/-1; text-align: center; padding: 30px; color: var(--text-dim); font-size: 0.82em; font-family: 'JetBrains Mono', monospace; }
 .gif-picker-trending-label { padding: 0 14px 6px; font-size: 0.68em; font-family: 'JetBrains Mono', monospace; color: var(--text-dim); letter-spacing: 0.08em; flex-shrink: 0; }
+.gif-caption-area {
+  display: none; padding: 8px 14px 10px; border-top: 1px solid rgba(255,157,199,0.12);
+  gap: 8px; align-items: center; flex-shrink: 0; background: rgba(255,157,199,0.03);
+}
+.gif-caption-area.active { display: flex; }
+.gif-caption-preview { width: 44px; height: 44px; border-radius: 6px; object-fit: cover; flex-shrink: 0; border: 1px solid rgba(255,157,199,0.3); }
+.gif-caption-input {
+  flex: 1; min-width: 0; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,157,199,0.2);
+  border-radius: 8px; padding: 7px 10px; color: var(--text); font-size: 0.88em;
+  font-family: 'Cormorant Garamond', serif; outline: none; transition: border-color 0.2s;
+}
+.gif-caption-input:focus { border-color: rgba(255,157,199,0.45); }
+.gif-caption-input::placeholder { color: rgba(155,111,136,0.6); }
+.gif-caption-send {
+  background: linear-gradient(135deg,var(--pink-deep),var(--purple));
+  border: none; color: #fff; width: 36px; height: 36px; border-radius: 50%;
+  cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+  transition: all 0.15s; box-shadow: 0 2px 8px rgba(224,96,138,0.3);
+}
+.gif-caption-send:hover { transform: scale(1.08); }
+.gif-caption-send svg { width: 15px; height: 15px; }
 .hzc-plaza-info-panel { display:flex;flex-direction:column;gap:0;width:100%;background:rgba(255,157,199,0.04);border:1px solid rgba(255,157,199,0.18);border-radius:14px;overflow:hidden; }
 .hzc-pip-row { display:flex;align-items:center;gap:10px;padding:9px 12px; }
 .hzc-pip-icon { font-size:1.2em;flex-shrink:0;width:24px;text-align:center; }
@@ -8453,7 +8475,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   letter-spacing: 0.12em; color: var(--pink); opacity: 0.7;
 }
 .chat-flex-card:hover { background: rgba(255,157,199,0.18); border-color: var(--pink); transform: translateY(-2px); box-shadow: 0 8px 28px rgba(255,157,199,0.2); }
-.flex-thumb { width: 38px; height: 52px; border-radius: 7px; object-fit: cover; border: 2px solid rgba(255,157,199,0.4); flex-shrink: 0; box-shadow: 0 4px 12px rgba(255,157,199,0.2); }
+.flex-thumb { width: 48px; height: 66px; border-radius: 8px; object-fit: cover; border: 2px solid rgba(255,157,199,0.4); flex-shrink: 0; box-shadow: 0 4px 12px rgba(255,157,199,0.2); }
 .flex-name { font-size: 0.92em; font-weight: 700; color: var(--pink-pale); font-family: 'Cinzel Decorative', serif; letter-spacing: 0.02em; }
 .flex-rarity { font-size: 0.75em; color: var(--text-dim); margin-top: 3px; font-family: 'JetBrains Mono', monospace; }
 .chat-action-btns { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
@@ -8493,12 +8515,15 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .chat-flex-btn:hover { color: #f1c40f; background: rgba(241,196,15,0.1); }
 .chat-send-btn {
   background: linear-gradient(135deg,var(--pink-deep),var(--purple));
-  border: none; color: #fff; padding: 9px 16px; border-radius: 10px;
-  font-family: 'Cinzel Decorative', serif; font-size: 0.68em; cursor: pointer;
-  white-space: nowrap; transition: all 0.15s; letter-spacing: 0.04em;
-  margin-left: 8px; flex-shrink: 0; align-self: flex-end; height: 40px;
+  border: none; color: #fff; padding: 0; border-radius: 50%;
+  cursor: pointer; transition: all 0.15s;
+  margin-left: 8px; flex-shrink: 0; align-self: flex-end;
+  width: 40px; height: 40px;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 2px 10px rgba(224,96,138,0.3);
 }
-.chat-send-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 16px var(--pink-glow); }
+.chat-send-btn:hover { transform: translateY(-1px) scale(1.05); box-shadow: 0 4px 16px var(--pink-glow); }
+.chat-send-btn svg { width: 18px; height: 18px; display: block; }
 .online-dot { width: 8px; height: 8px; border-radius: 50%; background: #3ba55d; display: inline-block; box-shadow: 0 0 6px #3ba55d; flex-shrink: 0; }
 .online-bar { display: flex; align-items: center; gap: 8px; font-size: 0.78em; color: var(--text-dim); padding: 8px 0 12px; font-family: 'JetBrains Mono', monospace; }
 
@@ -13872,7 +13897,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
                 <button class="chat-flex-btn" title="Send a GIF" onclick="openGifPicker('lobby')" style="font-size:0.85em;letter-spacing:0.03em;font-family:'JetBrains Mono',monospace;color:rgba(100,220,255,0.7);">GIF</button>
                 <button class="chat-flex-btn" title="Flex a card" onclick="openFlexPicker()">✨</button>
               </div>
-              <button class="chat-send-btn" onclick="submitChat()">Send ✦</button>
+              <button class="chat-send-btn" onclick="submitChat()" title="Send"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg></button>
             </div>
           </div>
         </div>
@@ -14069,7 +14094,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
               <input id="roomChatInput" placeholder="Chat in the room..." maxlength="300" onkeydown="if(event.key==='Enter')submitRoomChat()"/>
               <button class="chat-flex-btn" title="Send a GIF" onclick="openGifPicker('room')" style="font-size:0.85em;letter-spacing:0.03em;font-family:'JetBrains Mono',monospace;color:rgba(100,220,255,0.7);">GIF</button>
             </div>
-            <button class="chat-send-btn" onclick="submitRoomChat()">Send ✦</button>
+            <button class="chat-send-btn" onclick="submitRoomChat()" title="Send"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg></button>
           </div>
         </div>
 
@@ -14419,7 +14444,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
                   onkeydown="if(event.key==='Enter')submitCinemaChat()"/>
                 <button class="chat-flex-btn" title="Send a GIF" onclick="openGifPicker('cinema')" style="font-size:0.85em;letter-spacing:0.03em;font-family:'JetBrains Mono',monospace;color:rgba(100,220,255,0.7);">GIF</button>
               </div>
-              <button class="chat-send-btn" style="padding:8px 14px;font-size:0.8em;" onclick="submitCinemaChat()">✦</button>
+              <button class="chat-send-btn" onclick="submitCinemaChat()" title="Send"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg></button>
             </div>
             <div id="cinemaAdminControls" style="display:none;padding:6px 10px;border-top:1px solid var(--border);background:rgba(241,196,15,0.04);">
               <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
@@ -31429,7 +31454,7 @@ function renderRoomChatMsg(msg){
         <span class="chat-time">${time}</span>
       </div>
       ${replyHtml}
-      ${msg.msg_type==='gif'?`<div class="chat-gif-wrap"><img class="chat-gif" src="${escapeHtml(msg.content||'')}" alt="GIF" loading="lazy"/></div>`:`<div class="chat-text">${escapeHtml(msg.content||'')}</div>`}
+      ${msg.msg_type==='gif'?(()=>{const _p=(msg.content||'').split('|||');const _gu=_p[0];const _gc=_p[1]?_p[1].trim():'';return `<div class="chat-gif-wrap"><img class="chat-gif" src="${escapeHtml(_gu)}" alt="GIF" loading="lazy"/>${_gc?`<div class="chat-gif-caption">${escapeHtml(_gc)}</div>`:''}</div>`;})():`<div class="chat-text">${escapeHtml(msg.content||'')}</div>`}
     </div>`;
   const ph=feed.querySelector('[data-placeholder]');
   if(ph) ph.remove();
@@ -31866,7 +31891,7 @@ function renderCinemaMsg(msg){
         <span class="chat-time">${time}</span>
       </div>
       ${replyHtml}
-      ${msg.msg_type==='gif'?`<div class="chat-gif-wrap"><img class="chat-gif" src="${escapeHtml(msg.content||'')}" alt="GIF" loading="lazy"/></div>`:`<div class="chat-text">${escapeHtml(msg.content||'')}</div>`}
+      ${msg.msg_type==='gif'?(()=>{const _p=(msg.content||'').split('|||');const _gu=_p[0];const _gc=_p[1]?_p[1].trim():'';return `<div class="chat-gif-wrap"><img class="chat-gif" src="${escapeHtml(_gu)}" alt="GIF" loading="lazy"/>${_gc?`<div class="chat-gif-caption">${escapeHtml(_gc)}</div>`:''}</div>`;})():`<div class="chat-text">${escapeHtml(msg.content||'')}</div>`}
     </div>`;
   const ph=feed.querySelector('[data-placeholder]');
   if(ph) ph.remove();
@@ -32999,7 +33024,10 @@ function renderChatMsg(msg){
   let contentHtml = replyHtml;
 
   if(msg.msg_type === 'gif' && msg.content){
-    contentHtml += `<div class="chat-gif-wrap"><img class="chat-gif" src="${escapeHtml(msg.content)}" alt="GIF" loading="lazy" onerror="this.parentElement.style.display='none'"/></div>`;
+    const parts = msg.content.split('|||');
+    const gifUrl = parts[0];
+    const caption = parts[1] ? parts[1].trim() : '';
+    contentHtml += `<div class="chat-gif-wrap"><img class="chat-gif" src="${escapeHtml(gifUrl)}" alt="GIF" loading="lazy" onerror="this.parentElement.style.display='none'"/>${caption ? `<div class="chat-gif-caption">${escapeHtml(caption)}</div>` : ''}</div>`;
   } else if(msg.msg_type === 'flex' && msg.card_id){
     const card = (window.DEMO_CARDS||[]).find(c=>c.id===msg.card_id);
     if(card){
@@ -33303,6 +33331,31 @@ async function openGifPicker(target){
 function closeGifPicker(){
   const modal = document.getElementById('gifPickerModal');
   if(modal) modal.classList.remove('open');
+  // Reset caption area
+  const area = document.getElementById('gifCaptionArea');
+  if(area) area.classList.remove('active');
+  const inp = document.getElementById('gifCaptionInput');
+  if(inp) inp.value = '';
+  _pendingGifUrl = null;
+}
+
+let _pendingGifUrl = null;
+
+function selectGifForCaption(url){
+  _pendingGifUrl = url;
+  const preview = document.getElementById('gifCaptionPreview');
+  if(preview){ preview.src = url; }
+  const area = document.getElementById('gifCaptionArea');
+  if(area) area.classList.add('active');
+  const inp = document.getElementById('gifCaptionInput');
+  if(inp){ inp.value = ''; inp.focus(); }
+}
+
+function confirmSendGif(){
+  if(!_pendingGifUrl) return;
+  const inp = document.getElementById('gifCaptionInput');
+  const caption = inp ? inp.value.trim() : '';
+  sendGif(_pendingGifUrl, caption);
 }
 
 function gifSearchDebounce(val){
@@ -33330,7 +33383,7 @@ function _appendGifItems(grid, results){
     var item = document.createElement('div');
     item.className = 'gif-picker-item';
     item.innerHTML = '<img src="'+src+'" loading="lazy" alt="gif" onerror="this.parentElement.style.display=\'none\'"/>';
-    item.onclick = (function(u){ return function(){ sendGif(u); }; })(src);
+    item.onclick = (function(u){ return function(){ selectGifForCaption(u); }; })(src);
     grid.appendChild(item);
   });
 }
@@ -33384,19 +33437,21 @@ async function loadGifs(query, reset){
   _gifLoading = false;
 }
 
-async function sendGif(url){
+async function sendGif(url, caption){
   closeGifPicker();
   const s = window.state || {};
   const target = _gifPickerTarget;
+  // Encode caption into content: "url|||caption" — parsed on render
+  const content = caption ? url + '|||' + caption : url;
   if(target === 'lobby'){
-    await sendChatMsg(url, 'gif');
+    await sendChatMsg(content, 'gif');
   } else if(target === 'room'){
     if(!s.discordId || !_currentRoomId) return;
-    try { await sb.insert(ROOM_CHAT_TABLE, { room_id:_currentRoomId, user_id:s.discordId, username:s.username||'Player', avatar_url:s.customAvatar||s.avatar||'', content:url, msg_type:'gif' }); }
+    try { await sb.insert(ROOM_CHAT_TABLE, { room_id:_currentRoomId, user_id:s.discordId, username:s.username||'Player', avatar_url:s.customAvatar||s.avatar||'', content:content, msg_type:'gif' }); }
     catch(e){ showToast('Could not send GIF'); }
   } else if(target === 'cinema'){
     if(!s.discordId) return;
-    try { await sb.insert('cinema_chat', { user_id:s.discordId, username:s.username||'Player', avatar_url:s.customAvatar||s.avatar||'', content:url, msg_type:'gif' }); }
+    try { await sb.insert('cinema_chat', { user_id:s.discordId, username:s.username||'Player', avatar_url:s.customAvatar||s.avatar||'', content:content, msg_type:'gif' }); }
     catch(e){ showToast('Could not send GIF'); }
   }
 }
@@ -37575,6 +37630,14 @@ let _adminEvoCache = [];
     <div class="gif-picker-trending-label" id="gifPickerLabel">✦ TRENDING</div>
     <div class="gif-picker-grid" id="gifPickerGrid">
       <div class="gif-picker-loading">Loading GIFs…</div>
+    </div>
+    <!-- Caption area — shown after selecting a GIF -->
+    <div class="gif-caption-area" id="gifCaptionArea">
+      <img class="gif-caption-preview" id="gifCaptionPreview" src="" alt=""/>
+      <input class="gif-caption-input" id="gifCaptionInput" placeholder="Add a message… (optional)" maxlength="200" onkeydown="if(event.key==='Enter'){event.preventDefault();confirmSendGif();}"/>
+      <button class="gif-caption-send" onclick="confirmSendGif()" title="Send">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+      </button>
     </div>
   </div>
 </div> 
