@@ -2001,6 +2001,38 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .cfp-name { font-family: 'Cinzel Decorative', serif; font-size: 0.58em; color: var(--pink-pale); line-height: 1.3; }
 /* Hide quote from flex portrait card in chat */
 .cfp-info > div[style*="italic"] { display: none; }
+
+/* ── Pull broadcast messages in plaza ── */
+.chat-pull-broadcast {
+  width: 100%; max-width: 100%;
+  padding: 0 !important; background: none !important;
+  border-radius: 0 !important; border: none !important;
+  box-shadow: none !important; margin: 6px 0;
+}
+.cpb-inner {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 14px;
+  border-radius: 12px;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+.chat-pull-ur .cpb-inner {
+  background: linear-gradient(135deg, rgba(20,14,0,0.92), rgba(40,28,0,0.88));
+  border: 1px solid rgba(241,196,15,0.35);
+  box-shadow: 0 0 14px rgba(241,196,15,0.14);
+}
+.chat-pull-secret .cpb-inner {
+  background: linear-gradient(135deg, rgba(8,2,20,0.95), rgba(20,4,40,0.92));
+  animation: secretNotifBorder 2.5s linear infinite;
+}
+.cpb-thumb-wrap { width: 36px; height: 48px; border-radius: 6px; overflow: hidden; flex-shrink: 0; }
+.cpb-thumb { width: 100%; height: 100%; object-fit: cover; object-position: top; display: block; }
+.cpb-text { flex: 1; min-width: 0; font-family: 'Cormorant Garamond', serif; font-size: 0.88em; line-height: 1.4; }
+.cpb-who { color: rgba(255,255,255,0.75); font-weight: 600; }
+.cpb-verb { color: rgba(255,255,255,0.4); }
+.cpb-name { font-weight: 700; }
+.cpb-rarity { font-family: 'JetBrains Mono', monospace; font-size: 0.72em; margin-left: 4px; }
+.cpb-time { font-family: 'JetBrains Mono', monospace; font-size: 0.56em; color: rgba(255,255,255,0.28); flex-shrink: 0; align-self: flex-end; }
 .chat-gif-wrap { margin: 4px 0; border-radius: 10px; overflow: hidden; max-width: 200px; }
 .chat-gif { width: 100%; display: block; border-radius: 10px; }
 .chat-gif-caption { padding: 5px 8px; background: rgba(0,0,0,0.7); font-size: 0.85em; color: var(--text); line-height: 1.4; word-break: break-word; }
@@ -3022,10 +3054,10 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .gp-char-showcase {
   position: absolute;
   /* right-aligned, bottom-anchored */
-  right: -2%;
+  right: -3%;
   bottom: 0;
   top: 0;
-  width: 68%;
+  width: 76%;
   z-index: 3;
   pointer-events: none;
   overflow: visible;   /* let char extend beyond clip if needed */
@@ -3044,8 +3076,8 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 }
 .gp-char-slide.active { opacity: 1; }
 .gp-char-slide img {
-  height: 105%;
-  max-height: 105%;
+  height: 115%;
+  max-height: 115%;
   width: auto;
   object-fit: contain;
   display: block;
@@ -3090,7 +3122,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .gp-info {
   position: absolute;
   left: 0; top: 0; bottom: 0;
-  width: 52%;                          /* narrower so char art has more room */
+  width: 56%;                          /* slightly wider for bigger title */
   z-index: 5;
   display: flex;
   flex-direction: column;
@@ -3201,7 +3233,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 }
 .gp-banner-name {
   font-family: "Cinzel Decorative", serif;
-  font-size: clamp(1.55em, 7.5vw, 3.2em);
+  font-size: clamp(1.8em, 8.5vw, 4em);
   font-weight: 700;
   line-height: 1.0;
   background: linear-gradient(135deg, #ffffff 0%, #ffd6f0 25%, var(--pink) 50%, #bd93f9 75%, #ffffff 100%);
@@ -3578,11 +3610,13 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   }
   .gp-pool-btn { width: 100%; }
   .gp-rates-wrap { flex: 1; }
-  .gp-pity-mini { grid-template-columns: 1fr 1fr 1fr 1fr; gap: 5px 24px; }
+  .gp-pity-mini { grid-template-columns: 1fr 1fr 1fr 1fr 1fr; gap: 5px 24px; }
 }
 /* Taller stage on desktop for better banner art */
 @media(min-width:900px){
-  .gp-stage { min-height: clamp(560px, 52vw, 720px); }
+  .gp-stage { min-height: clamp(640px, 58vw, 820px); }
+  .gp-char-showcase { width: 78%; right: -3%; }
+  .gp-char-slide img { height: 118%; max-height: 118%; }
 }
 
 .gt-thumb,.gt-thumb-fallback,.gt-type-tag,.gt-label-wrap,.gt-label,.gt-icon,.gt-type,.gp-tab-new { display: none; }
@@ -3621,7 +3655,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   .gp-dock { padding: 0 0 2px; }
   .gp-dock-pity-row { padding: 8px 14px 9px; gap: 8px; }
   .gp-dock-bottom { padding: 10px 14px 12px; gap: 8px; }
-  .gp-pity-mini { grid-template-columns: 1fr 1fr; gap: 5px 12px; }
+  .gp-pity-mini { grid-template-columns: 1fr 1fr 1fr; gap: 5px 12px; }
   .gp-wish-btn { max-width: 155px; padding: 8px 12px 8px 10px; }
   .gp-pool-btn { max-width: 100%; }
   .gpb-text { font-size: 0.64em; }
@@ -3654,6 +3688,71 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 }
 .banner-tabs-wrap { display: none !important; } /* replaced by gp-tabs-wrap */
 #bannerPitySection { display: none !important; } /* pity now in gp-dock */
+
+/* ── Pull Live Announcements ── */
+#pullLiveFeed {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  width: min(520px, 88%);
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 5px;
+  pointer-events: none;
+}
+.pull-live-notif {
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 14px;
+  border-radius: 30px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.62em;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  background: rgba(5,2,16,0.75);
+  border: 1px solid rgba(255,157,199,0.2);
+  color: rgba(255,255,255,0.82);
+  animation: pullNotifSlide 0.4s cubic-bezier(0.34,1.3,0.64,1) both;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  max-width: 100%;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+  transition: opacity 0.4s ease;
+}
+.pull-live-notif.ur-notif {
+  border-color: rgba(241,196,15,0.55);
+  background: linear-gradient(135deg, rgba(12,8,0,0.88), rgba(40,28,0,0.85));
+  box-shadow: 0 0 18px rgba(241,196,15,0.22), 0 4px 20px rgba(0,0,0,0.5);
+  color: #ffe8a0;
+}
+.pull-live-notif.secret-notif {
+  border: none;
+  background: linear-gradient(135deg, rgba(5,2,16,0.95), rgba(18,4,36,0.95));
+  box-shadow: 0 0 0 1.5px transparent, 0 0 28px rgba(155,89,182,0.55), 0 4px 24px rgba(0,0,0,0.7);
+  color: #fff;
+  animation: pullNotifSlide 0.4s cubic-bezier(0.34,1.3,0.64,1) both, secretNotifBorder 2.5s linear infinite;
+}
+@keyframes pullNotifSlide {
+  from { opacity:0; transform: translateY(12px) scale(0.94); }
+  to   { opacity:1; transform: translateY(0) scale(1); }
+}
+@keyframes secretNotifBorder {
+  0%   { box-shadow: 0 0 0 1.5px #ff0055, 0 0 28px rgba(255,0,85,0.55), 0 4px 24px rgba(0,0,0,0.7); }
+  16%  { box-shadow: 0 0 0 1.5px #ff7700, 0 0 28px rgba(255,119,0,0.55), 0 4px 24px rgba(0,0,0,0.7); }
+  33%  { box-shadow: 0 0 0 1.5px #ffdd00, 0 0 28px rgba(255,221,0,0.55), 0 4px 24px rgba(0,0,0,0.7); }
+  50%  { box-shadow: 0 0 0 1.5px #00ff88, 0 0 28px rgba(0,255,136,0.55), 0 4px 24px rgba(0,0,0,0.7); }
+  66%  { box-shadow: 0 0 0 1.5px #00aaff, 0 0 28px rgba(0,170,255,0.55), 0 4px 24px rgba(0,0,0,0.7); }
+  83%  { box-shadow: 0 0 0 1.5px #cc00ff, 0 0 28px rgba(204,0,255,0.55), 0 4px 24px rgba(0,0,0,0.7); }
+  100% { box-shadow: 0 0 0 1.5px #ff0055, 0 0 28px rgba(255,0,85,0.55), 0 4px 24px rgba(0,0,0,0.7); }
+}
+.pull-live-notif .pln-icon { font-size: 1.1em; flex-shrink: 0; }
+.pull-live-notif .pln-text { flex: 1; overflow: hidden; text-overflow: ellipsis; }
+.pull-live-notif .pln-rarity { font-weight: 700; margin-right: 3px; }
+.pull-live-notif .pln-rainbow {
+  background: linear-gradient(90deg,#ff0055,#ff7700,#ffdd00,#00ff88,#00aaff,#cc00ff,#ff0055);
+  background-size: 200%; -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+  animation: rainbowShift 1.8s linear infinite; font-weight: 900;
+}
 
 .banner-tab-btn{
   flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:3px;
@@ -13204,6 +13303,8 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
         <span class="gpb-active-name" id="gpBannerPickerLabel">Banners</span>
         <span class="gpb-chevron">▾</span>
       </button>
+      <!-- Live pull announcements -->
+      <div id="pullLiveFeed"></div>
     </div>
 
     <!-- Banner Picker Modal/Sheet -->
@@ -13230,9 +13331,24 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
             <div class="gp-pity-num" id="gpPitySRNum">0/40</div>
           </div>
           <div class="gp-pity-bar-wrap">
+            <div class="gp-pity-label" style="color:rgba(155,89,182,0.8)">SSR+ Pity</div>
+            <div class="gp-pity-track"><div class="gp-pity-fill sr" id="gpPitySSRBar" style="background:linear-gradient(90deg,#9b59b6,#e84393)"></div></div>
+            <div class="gp-pity-num" id="gpPitySSRNum">0/60</div>
+          </div>
+          <div class="gp-pity-bar-wrap">
             <div class="gp-pity-label" id="gpPityLabel2">UR Pity</div>
             <div class="gp-pity-track"><div class="gp-pity-fill ur" id="gpPityURBar"></div></div>
             <div class="gp-pity-num" id="gpPityURNum">0/80</div>
+          </div>
+          <div class="gp-pity-bar-wrap">
+            <div class="gp-pity-label" style="color:rgba(255,107,157,0.8)">UR+ Pity</div>
+            <div class="gp-pity-track"><div class="gp-pity-fill ur" id="gpPityLRBar" style="background:linear-gradient(90deg,#ff6b9d,#f1c40f)"></div></div>
+            <div class="gp-pity-num" id="gpPityLRNum">0/80</div>
+          </div>
+          <div class="gp-pity-bar-wrap">
+            <div class="gp-pity-label" style="color:rgba(26,188,156,0.8)">??? Pity</div>
+            <div class="gp-pity-track"><div class="gp-pity-fill" id="gpPitySecretBar" style="background:linear-gradient(90deg,#1abc9c,#9b59b6,#ff9dc7);background-size:200%;animation:shimmer 3s linear infinite"></div></div>
+            <div class="gp-pity-num" id="gpPitySecretNum">0/500</div>
           </div>
         </div>
       </div>
@@ -17219,6 +17335,9 @@ let state = {
   xpMap:        {},
   pitySR:       0,
   pityUR:       0,
+  pitySSR:      0,   // SSR+ pity: at threshold, guarantees SSR (not LR)
+  pityLR:       0,   // UR+ pity: at threshold, guarantees UR (not LR)
+  pitySecret:   0,   // Secret-only pity counter
   pityMap:      {},
   equippedId:   null,
   totalPulls:   0,
@@ -18258,6 +18377,33 @@ function weightedPick(pool){
   for(const c of pool){cum+=c.weight;if(cum>=r)return c;}
   return pool[pool.length-1];
 }
+
+// ── Secret roll: 1% flat chance per pull (independent of normal pity) ──
+// Called before normal pool pick. Returns a secret card or null.
+function rollSecretChance(){
+  if(Math.random() > 0.01) return null; // 1% chance
+  const allCards = window.DEMO_CARDS || DEMO_CARDS;
+  const banner = getActiveBanner();
+  const specialPool = parseSpecialPool(banner.special_pool);
+  // Only secret cards whitelisted on this banner, or any secret if none whitelisted
+  let secrets = allCards.filter(c=>c.rarity===7 && specialPool.includes(c.id));
+  if(!secrets.length) secrets = allCards.filter(c=>c.rarity===7);
+  if(!secrets.length) return null;
+  return secrets[Math.floor(Math.random()*secrets.length)];
+}
+
+// ── Modified pull: intercept for secret card chance ──
+function pickFromPool(){
+  // Secret check happens independently — 1% chance regardless of pity
+  const btype = getActiveBanner()?.banner_type||'character';
+  const p = getPity(btype);
+  // But if secret pity is maxed, buildPool() already handles it
+  if(p.secret < 500){
+    const secret = rollSecretChance();
+    if(secret) return secret;
+  }
+  return weightedPick(buildPool());
+}
 // buildPool() is defined in the BANNER SYSTEM section above
 
 // ══════════════════════════════════════════════
@@ -18526,7 +18672,7 @@ async function doPull(count){
 
   try {
     if(count===1){
-      const card = weightedPick(buildPool());
+      const card = pickFromPool();
       await handlePullResult([card]);
       await savePityNow(); // ← immediate server-side pity persist
       await logPullHistory([card]);
@@ -18536,7 +18682,7 @@ async function doPull(count){
       showPullScreen(card);
     } else {
       const results = [];
-      for(let i=0;i<count;i++) results.push(weightedPick(buildPool()));
+      for(let i=0;i<count;i++) results.push(pickFromPool());
       await handlePullResult(results);
       await savePityNow();
       await logPullHistory(results);
@@ -18596,7 +18742,102 @@ async function logPullHistory(cards){
   }
 }
 
-// ── Pull History Full-Screen ──
+// ── Broadcast UR/Secret pulls to Meo Plaza + show live notif ──
+async function broadcastRarePull(card){
+  const isSecret = card.rarity === 7;
+  const isUR     = card.rarity === 5;
+  if(!isSecret && !isUR) return;
+
+  const username = state.username || 'A Summoner';
+  let content;
+  if(isSecret){
+    content = `🌈✨ ${username} pulled a [???] SECRET card — ${card.name}! ✨🌈`;
+  } else {
+    content = `👑 ${username} pulled a [UR] ${card.name}! `;
+  }
+
+  // Post to Meo Plaza (only if logged in)
+  if(state.discordId && !state.isGuest){
+    try {
+      await sb.insert('chat_messages', {
+        discord_id: state.discordId,
+        username:   '✦ MeoGacha',
+        avatar_url: '',
+        content:    content,
+        msg_type:   isSecret ? 'secret_pull' : 'ur_pull',
+        card_id:    card.id,
+      });
+    } catch(e){ console.warn('[MeoGacha] broadcastRarePull chat failed:', e); }
+  }
+
+  // Show live notif on pull page
+  showPullLiveNotif(card, username);
+}
+
+// ── Show live ticker notif on the pull page stage ──
+function showPullLiveNotif(card, username){
+  const feed = document.getElementById('pullLiveFeed');
+  if(!feed) return;
+  const isSecret = card.rarity === 7;
+  const isUR     = card.rarity === 5;
+
+  const el = document.createElement('div');
+  el.className = 'pull-live-notif' + (isSecret ? ' secret-notif' : isUR ? ' ur-notif' : '');
+
+  if(isSecret){
+    el.innerHTML = `
+      <span class="pln-icon">🌈</span>
+      <span class="pln-text">
+        <span style="color:rgba(255,255,255,0.55)">${escapeHtml(username||'Summoner')} </span>
+        <span style="color:rgba(255,255,255,0.4)">summoned </span>
+        <span class="pln-rainbow">✦ ${escapeHtml(card.name)} ✦</span>
+        <span style="color:rgba(255,255,255,0.45)"> — [???] SECRET</span>
+      </span>
+      <span class="pln-icon">✨</span>`;
+  } else {
+    const urColor = '#f1c40f';
+    el.innerHTML = `
+      <span class="pln-icon">👑</span>
+      <span class="pln-text">
+        <span style="color:rgba(255,255,255,0.55)">${escapeHtml(username||'Summoner')} </span>
+        <span style="color:rgba(255,255,255,0.4)">pulled </span>
+        <span style="color:${urColor};font-weight:700">${escapeHtml(card.name)}</span>
+        <span style="color:rgba(241,196,15,0.55)"> [UR]</span>
+      </span>`;
+  }
+
+  feed.appendChild(el);
+  // Keep max 3 notifs
+  while(feed.children.length > 3) feed.removeChild(feed.firstChild);
+
+  // Auto-dismiss after 6s
+  setTimeout(()=>{
+    el.style.opacity = '0';
+    setTimeout(()=>{ if(el.parentNode) el.parentNode.removeChild(el); }, 400);
+  }, 6000);
+}
+
+// ── Subscribe to rare pull broadcasts from other players via Realtime ──
+function subscribePullBroadcasts(){
+  if(!window.sb || !window.SUPABASE_URL) return;
+  try {
+    const allCards = [...(window.DEMO_CARDS||DEMO_CARDS), ...(window._adminCardCache||[])].filter((c,i,a)=>a.findIndex(x=>x.id===c.id)===i);
+    window._pullBroadcastSub = window.supabase
+      .channel('pull_broadcasts')
+      .on('postgres_changes', { event:'INSERT', schema:'public', table:'chat_messages',
+        filter: "msg_type=in.(ur_pull,secret_pull)" },
+        (payload) => {
+          const msg = payload.new;
+          // Don't show your own pull twice
+          if(msg.discord_id === state.discordId) return;
+          const card = allCards.find(c=>c.id===msg.card_id);
+          if(!card) return;
+          showPullLiveNotif(card, msg.username);
+        })
+      .subscribe();
+  } catch(e){ console.warn('[MeoGacha] pull broadcast sub failed:', e); }
+}
+setTimeout(subscribePullBroadcasts, 3000);
 const RARITY_COLORS_PH = {
   1:'#bdc3c7',2:'#2ecc71',3:'#3498db',
   4:'#9b59b6',5:'#f1c40f',6:'#ff6b9d',7:'#1abc9c',
@@ -18782,6 +19023,9 @@ async function handlePullResult(cards){
     if(!isDupe && card.title_drop){
       await grantTitleToPlayer(state.discordId, card.title_drop, card.name);
     }
+
+    // ── Broadcast UR / Secret pulls to plaza + live feed ──
+    if(card.rarity >= 5) broadcastRarePull(card).catch(()=>{});
   }
   if(state.discordId&&!state.isGuest)await savePlayer();
   if(state.isGuest)saveGuestState();
@@ -23249,13 +23493,25 @@ const BANNER_TYPE_META = {
 // ── Per-banner pity — stored as state.pityMap[bannerType] = {sr, ur} ──
 function getPity(type){
   if(!state.pityMap) state.pityMap = {};
-  if(!state.pityMap[type]) state.pityMap[type] = {sr:0, ur:0};
+  if(!state.pityMap[type]) state.pityMap[type] = {sr:0, ur:0, ssr:0, lr:0, secret:0};
+  const p = state.pityMap[type];
+  if(p.ssr === undefined) p.ssr = 0;
+  if(p.lr  === undefined) p.lr  = 0;
+  if(p.secret === undefined) p.secret = 0;
   return state.pityMap[type];
 }
 function addPity(type, card){
   const p = getPity(type);
+  // SSR pity: resets on SSR+, else increments
   if(card.rarity>=4) p.sr=0; else p.sr++;
+  // UR pity: resets on UR+, else increments
   if(card.rarity>=5) p.ur=0; else p.ur++;
+  // SSR+ pity (guarantees SSR not LR at 60): resets on SSR only (not LR or UR)
+  if(card.rarity===4) p.ssr=0; else p.ssr++;
+  // UR+ pity (guarantees UR not LR at 80): resets on UR only (not LR)
+  if(card.rarity===5) p.lr=0; else p.lr++;
+  // Secret pity: resets only on secret (rarity 7)
+  if(card.rarity===7) p.secret=0; else p.secret++;
   // keep legacy fields in sync for savePlayer
   state.pitySR = p.sr; state.pityUR = p.ur;
 }
@@ -23446,9 +23702,48 @@ function buildPool(){
     if(filtered.length >= 2) source = filtered;
   }
   let pool = [...source];
-  if(p.ur >= 80)      pool = pool.filter(c=>c.rarity>=5);
-  else if(p.sr >= 40) pool = pool.filter(c=>c.rarity>=4);
+
+  // ── Hard pity guarantees (unchanged) ──
+  // SSR hard pity at 40: guarantee rarity 4+ (SSR or above)
+  if(p.sr >= 40){
+    pool = source.filter(c=>c.rarity>=4&&c.rarity<=5);
+    if(!pool.length) pool = source.filter(c=>c.rarity>=4);
+  }
+  // UR hard pity at 80: guarantee rarity 5 (UR only, not LR)
+  else if(p.ur >= 80){
+    pool = source.filter(c=>c.rarity===5);
+    if(!pool.length) pool = source.filter(c=>c.rarity>=5);
+  }
+
   if(!pool.length) pool=[...source];
+
+  // ── SSR+ soft pity: progressively boosts SSR weight relative to UR ──
+  // Every pull past 30 adds extra SSR copies into the pool, making SSR
+  // increasingly more likely than UR as pity climbs. At max (60) SSR is ~4× more likely than UR.
+  if(p.ssr > 30 && p.sr < 40){
+    const ssrBoost = Math.floor((p.ssr - 30) / 5); // 0 at 30, up to 6 at 60
+    if(ssrBoost > 0){
+      const ssrCards = pool.filter(c=>c.rarity===4);
+      for(let i=0;i<ssrBoost;i++) pool = [...pool, ...ssrCards];
+    }
+  }
+
+  // ── UR+ soft pity: progressively boosts UR weight relative to LR ──
+  // Every pull past 40 adds extra UR copies, making UR increasingly more
+  // likely than LR as pity climbs. At max (80) UR is ~4× more likely than LR.
+  if(p.lr > 40 && p.ur < 80){
+    const urBoost = Math.floor((p.lr - 40) / 10); // 0 at 40, up to 4 at 80
+    if(urBoost > 0){
+      const urCards = pool.filter(c=>c.rarity===5);
+      for(let i=0;i<urBoost;i++) pool = [...pool, ...urCards];
+    }
+  }
+
+  // ── Secret pity: at 500 pulls → guarantee a secret card ──
+  if(p.secret >= 500){
+    const secretPool = source.filter(c=>c.rarity===7);
+    if(secretPool.length){ pool = secretPool; }
+  }
 
   const featuredIds = parseFeaturedCards(banner.featured_cards);
   if(featuredIds.length){
@@ -23525,16 +23820,16 @@ function renderActiveBanner(){
   const fc = featuredCards.length;
   // Height and width scale inversely with card count so all cards fit in the left panel (~48vw usable)
   // Width: divide ~44vw by count minus gaps (6px each). Height via aspect-ratio 2:3 from width.
-  const featCardHeight = fc === 1 ? 'clamp(200px, 52vw, 280px)'
-                       : fc === 2 ? 'clamp(160px, 42vw, 240px)'
-                       : fc === 3 ? 'clamp(120px, 30vw, 180px)'
-                       : fc === 4 ? 'clamp(90px,  22vw, 140px)'
-                       :            'clamp(76px,  17vw, 120px)';
-  const featCardWidth  = fc === 1 ? 'clamp(130px, 34vw, 185px)'
-                       : fc === 2 ? 'clamp(104px, 27vw, 158px)'
-                       : fc === 3 ? 'clamp(78px,  19vw, 118px)'
-                       : fc === 4 ? 'clamp(58px,  14vw,  92px)'
-                       :            'clamp(50px,  11vw,  78px)';
+  const featCardHeight = fc === 1 ? 'clamp(220px, 60vw, 320px)'
+                       : fc === 2 ? 'clamp(180px, 48vw, 270px)'
+                       : fc === 3 ? 'clamp(140px, 34vw, 210px)'
+                       : fc === 4 ? 'clamp(105px, 25vw, 160px)'
+                       :            'clamp(88px,  20vw, 140px)';
+  const featCardWidth  = fc === 1 ? 'clamp(145px, 40vw, 212px)'
+                       : fc === 2 ? 'clamp(118px, 31vw, 178px)'
+                       : fc === 3 ? 'clamp(90px,  22vw, 138px)'
+                       : fc === 4 ? 'clamp(68px,  16vw, 106px)'
+                       :            'clamp(58px,  13vw,  92px)';
   const featRowJustify = 'flex-start';
 
   el.innerHTML = `
@@ -23604,6 +23899,9 @@ function renderActiveBanner(){
   // Update pity bars in dock
   const srPct = Math.min(p.sr/40*100,100);
   const urPct = Math.min(p.ur/80*100,100);
+  const ssrPct = Math.min((p.ssr||0)/60*100,100);
+  const lrPct  = Math.min((p.lr||0)/80*100,100);
+  const secPct = Math.min((p.secret||0)/500*100,100);
   const srBar = document.getElementById('gpPitySRBar');
   const urBar = document.getElementById('gpPityURBar');
   const srNum = document.getElementById('gpPitySRNum');
@@ -23612,6 +23910,12 @@ function renderActiveBanner(){
   if(urBar) urBar.style.width = urPct+'%';
   if(srNum) srNum.textContent = `${p.sr}/40`;
   if(urNum) urNum.textContent = `${p.ur}/80`;
+  const ssrBar = document.getElementById('gpPitySSRBar'); if(ssrBar) ssrBar.style.width = ssrPct+'%';
+  const ssrNum = document.getElementById('gpPitySSRNum'); if(ssrNum) ssrNum.textContent = `${p.ssr||0}/60`;
+  const lrBar  = document.getElementById('gpPityLRBar');  if(lrBar)  lrBar.style.width  = lrPct+'%';
+  const lrNum  = document.getElementById('gpPityLRNum');  if(lrNum)  lrNum.textContent  = `${p.lr||0}/80`;
+  const secBar = document.getElementById('gpPitySecretBar'); if(secBar) secBar.style.width = secPct+'%';
+  const secNum = document.getElementById('gpPitySecretNum'); if(secNum) secNum.textContent = `${p.secret||0}/500`;
 }
 
 // Refresh booth featured cards when banner updates
@@ -23625,6 +23929,9 @@ function updatePity(){
   const p      = getPity(type);
   const srPct  = Math.min(p.sr/40*100,100);
   const urPct  = Math.min(p.ur/80*100,100);
+  const ssrPct = Math.min((p.ssr||0)/60*100,100);
+  const lrPct  = Math.min((p.lr||0)/80*100,100);
+  const secPct = Math.min((p.secret||0)/500*100,100);
   // New dock bars
   const srBar = document.getElementById('gpPitySRBar');
   const urBar = document.getElementById('gpPityURBar');
@@ -23634,6 +23941,12 @@ function updatePity(){
   if(urBar) urBar.style.width = urPct+'%';
   if(srNum) srNum.textContent = `${p.sr}/40`;
   if(urNum) urNum.textContent = `${p.ur}/80`;
+  const ssrBar = document.getElementById('gpPitySSRBar'); if(ssrBar) ssrBar.style.width = ssrPct+'%';
+  const ssrNum = document.getElementById('gpPitySSRNum'); if(ssrNum) ssrNum.textContent = `${p.ssr||0}/60`;
+  const lrBar  = document.getElementById('gpPityLRBar');  if(lrBar)  lrBar.style.width  = lrPct+'%';
+  const lrNum  = document.getElementById('gpPityLRNum');  if(lrNum)  lrNum.textContent  = `${p.lr||0}/80`;
+  const secBar = document.getElementById('gpPitySecretBar'); if(secBar) secBar.style.width = secPct+'%';
+  const secNum = document.getElementById('gpPitySecretNum'); if(secNum) secNum.textContent = `${p.secret||0}/500`;
   // Legacy IDs kept for safety
   const sv=document.getElementById('pitySRVal'), sb2=document.getElementById('pitySRBar');
   const uv=document.getElementById('pityURVal'), ub=document.getElementById('pityURBar');
@@ -33532,6 +33845,34 @@ function renderChatMsg(msg){
   }
 
   let contentHtml = replyHtml;
+
+  // ── Special: UR / Secret pull broadcast ──
+  if(msg.msg_type === 'ur_pull' || msg.msg_type === 'secret_pull'){
+    const isSecretMsg = msg.msg_type === 'secret_pull';
+    const allCards = [...(window.DEMO_CARDS||DEMO_CARDS), ...(window._adminCardCache||[])].filter((c,i,a)=>a.findIndex(x=>x.id===c.id)===i);
+    const card = allCards.find(c=>c.id===msg.card_id);
+    const cardImg = card ? (card.thumbnail||card.image||'') : '';
+    const cardName = card ? card.name : (msg.content||'???');
+    const who = escapeHtml(msg.username||'A Summoner').replace(/^✦ MeoGacha$/,'MeoGacha');
+
+    el.className = 'chat-msg chat-pull-broadcast' + (isSecretMsg ? ' chat-pull-secret' : ' chat-pull-ur');
+    el.innerHTML = `
+      <div class="cpb-inner">
+        ${cardImg ? `<div class="cpb-thumb-wrap"><img class="cpb-thumb" src="${escapeHtml(cardImg)}" alt="${escapeHtml(cardName)}"/></div>` : ''}
+        <div class="cpb-text">
+          <span class="cpb-who">${who}</span>
+          <span class="cpb-verb"> pulled </span>
+          ${isSecretMsg
+            ? `<span class="cpb-name cpb-name-secret rarity-rainbow-text">✦ ${escapeHtml(cardName)} ✦</span> <span class="cpb-rarity rarity-rainbow-text">[???] SECRET</span>`
+            : `<span class="cpb-name" style="color:#f1c40f;font-weight:700">${escapeHtml(cardName)}</span> <span class="cpb-rarity" style="color:rgba(241,196,15,0.7)">[UR] 👑</span>`
+          }
+        </div>
+        <span class="cpb-time">${time}</span>
+      </div>`;
+    feed.appendChild(el);
+    feed.scrollTop = feed.scrollHeight;
+    return;
+  }
 
   if(msg.msg_type === 'gif' && msg.content){
     const parts = msg.content.split('|||');
