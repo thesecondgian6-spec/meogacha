@@ -31463,7 +31463,7 @@ function renderRoomChatMsg(msg){
         <span class="chat-time">${time}</span>
       </div>
       ${replyHtml}
-      ${msg.msg_type==='gif'?(()=>{const _p=(msg.content||'').split('|||');const _gu=_p[0];const _gc=_p[1]?_p[1].trim():'';return `<div class="chat-gif-wrap"><img class="chat-gif" src="${escapeHtml(_gu)}" alt="GIF" loading="lazy"/>${_gc?`<div class="chat-gif-caption">${escapeHtml(_gc)}</div>`:''}</div>`;})():`<div class="chat-text">${escapeHtml(msg.content||'')}</div>`}
+      ${(msg.msg_type==='gif'||/^https?:\/\//.test(msg.content||'')&&(/(tenor|giphy)\.com/.test(msg.content||'')))?(()=>{const _p=(msg.content||'').split('|||');const _gu=_p[0];const _gc=_p[1]?_p[1].trim():'';return `<div class="chat-gif-wrap"><img class="chat-gif" src="${escapeHtml(_gu)}" alt="GIF" loading="lazy"/>${_gc?`<div class="chat-gif-caption">${escapeHtml(_gc)}</div>`:''}</div>`;})():`<div class="chat-text">${escapeHtml(msg.content||'')}</div>`}
     </div>`;
   const ph=feed.querySelector('[data-placeholder]');
   if(ph) ph.remove();
@@ -31909,7 +31909,7 @@ function renderCinemaMsg(msg){
         <span class="chat-time">${time}</span>
       </div>
       ${replyHtml}
-      ${msg.msg_type==='gif'?(()=>{const _p=(msg.content||'').split('|||');const _gu=_p[0];const _gc=_p[1]?_p[1].trim():'';return `<div class="chat-gif-wrap"><img class="chat-gif" src="${escapeHtml(_gu)}" alt="GIF" loading="lazy"/>${_gc?`<div class="chat-gif-caption">${escapeHtml(_gc)}</div>`:''}</div>`;})():`<div class="chat-text">${escapeHtml(msg.content||'')}</div>`}
+      ${(msg.msg_type==='gif'||/^https?:\/\//.test(msg.content||'')&&(/(tenor|giphy)\.com/.test(msg.content||'')))?(()=>{const _p=(msg.content||'').split('|||');const _gu=_p[0];const _gc=_p[1]?_p[1].trim():'';return `<div class="chat-gif-wrap"><img class="chat-gif" src="${escapeHtml(_gu)}" alt="GIF" loading="lazy"/>${_gc?`<div class="chat-gif-caption">${escapeHtml(_gc)}</div>`:''}</div>`;})():`<div class="chat-text">${escapeHtml(msg.content||'')}</div>`}
     </div>`;
   const ph=feed.querySelector('[data-placeholder]');
   if(ph) ph.remove();
@@ -33531,11 +33531,11 @@ async function sendGif(url, caption){
     await sendChatMsg(content, 'gif');
   } else if(target === 'room'){
     if(!s.discordId || !_currentRoomId) return;
-    try { await sb.insert(ROOM_CHAT_TABLE, { room_id:_currentRoomId, discord_id:s.discordId, username:s.username||'Player', avatar_url:s.customAvatar||s.avatar||'', content:content, msg_type:'gif' }); }
+    try { await sb.insert(ROOM_CHAT_TABLE, { room_id:_currentRoomId, discord_id:s.discordId, username:s.username||'Player', avatar_url:s.customAvatar||s.avatar||'', content:content }); }
     catch(e){ showToast('Could not send GIF'); }
   } else if(target === 'cinema'){
     if(!s.discordId) return;
-    try { await sb.insert('cinema_chat', { user_id:s.discordId, username:s.username||'Player', avatar_url:s.customAvatar||s.avatar||'', content:content, msg_type:'gif' }); }
+    try { await sb.insert('cinema_chat', { user_id:s.discordId, username:s.username||'Player', avatar_url:s.customAvatar||s.avatar||'', content:content }); }
     catch(e){ showToast('Could not send GIF'); }
   }
 }
