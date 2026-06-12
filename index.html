@@ -38770,8 +38770,8 @@ async function sendAffinityRequest() {
 
     await loadFriendships();
     const recipientName = _affinityTarget.name;
-    closeAffinityModal();
     const tierName = customLabel || AFFINITY_TIERS[_affinityTierSel]?.label || _affinityTierSel;
+    closeAffinityModal();
     showToast(`💫 ${tierName} request sent to ${recipientName}!`);
   } catch(e) {
     console.error('[Affinity] send error', e);
