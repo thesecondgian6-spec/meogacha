@@ -30468,7 +30468,7 @@ CREATE POLICY "rooms_delete_own"    ON hub_rooms FOR DELETE USING (true);
 CREATE TABLE IF NOT EXISTS hub_room_messages (
   id                uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   room_id           uuid REFERENCES hub_rooms(id) ON DELETE CASCADE,
-  discord_id        text NOT NULL,
+  user_id           text NOT NULL,
   username          text DEFAULT '',
   avatar_url        text DEFAULT '',
   content           text NOT NULL,
@@ -31436,8 +31436,8 @@ function clearRoomReply(){
 function renderRoomChatMsg(msg){
   const feed=document.getElementById('roomChatFeed');
   if(!feed) return;
-  const isMe=state.discordId&&(msg.discord_id||msg.user_id)===state.discordId;
-  const isAdmin=ADMIN_IDS.includes(msg.discord_id||msg.user_id||'');
+  const isMe=state.discordId&&msg.user_id===state.discordId;
+  const isAdmin=ADMIN_IDS.includes(msg.user_id||'');
   const div=document.createElement('div');
   div.className='chat-msg'+(isMe?' chat-me':'');
   if(msg.id) div.id='roommsg-'+msg.id;
@@ -31471,7 +31471,7 @@ function renderRoomChatMsg(msg){
   // Long press / right-click context menu
   attachRoomCinemaLongPress(div, {
     id: msg.id,
-    user_id: msg.user_id || msg.discord_id,
+    user_id: msg.user_id,
     username: msg.username || 'Player',
     content: msg.content || '',
     target: 'room'
@@ -31500,7 +31500,7 @@ async function submitRoomChat(){
   inp.value='';
   const payload={
     room_id:_currentRoomId,
-    discord_id:state.discordId,
+    user_id:state.discordId,
     username:state.username||'Player',
     avatar_url:state.customAvatar||state.avatar||'',
     content
@@ -33531,7 +33531,7 @@ async function sendGif(url, caption){
     await sendChatMsg(content, 'gif');
   } else if(target === 'room'){
     if(!s.discordId || !_currentRoomId) return;
-    try { await sb.insert(ROOM_CHAT_TABLE, { room_id:_currentRoomId, discord_id:s.discordId, username:s.username||'Player', avatar_url:s.customAvatar||s.avatar||'', content:content }); }
+    try { await sb.insert(ROOM_CHAT_TABLE, { room_id:_currentRoomId, user_id:s.discordId, username:s.username||'Player', avatar_url:s.customAvatar||s.avatar||'', content:content }); }
     catch(e){ showToast('Could not send GIF'); }
   } else if(target === 'cinema'){
     if(!s.discordId) return;
