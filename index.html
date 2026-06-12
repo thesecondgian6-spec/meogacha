@@ -13393,6 +13393,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
         <button class="friends-tab-btn active" onclick="switchFriendPageTab('friends',this)">Friends</button>
         <button class="friends-tab-btn" onclick="switchFriendPageTab('requests',this)">Requests <span id="friendReqBadge2" style="display:none;background:var(--pink);color:#000;border-radius:50%;padding:1px 5px;font-size:0.9em;margin-left:2px;"></span></button>
         <button class="friends-tab-btn" onclick="switchFriendPageTab('sent',this)">Sent</button>
+        <button class="friends-tab-btn" onclick="switchFriendPageTab('affinity',this)">💫 Affinity <span id="affinityReqBadge" style="display:none;background:var(--purple);color:#fff;border-radius:50%;padding:1px 5px;font-size:0.9em;margin-left:2px;"></span></button>
       </div>
       <div id="friendsPageTabContent"><div style="color:var(--text-dim);font-size:0.8em;font-style:italic;text-align:center;padding:16px 0;">Loading...</div></div>
     </div>
@@ -18300,6 +18301,7 @@ async function loadAll(discordId){
   setTimeout(async ()=>{
     if(state.discordId && !state.isGuest){
       await loadFriendships();
+      updateAffinityBadge();
       listenForFriendRequests();
       listenForAffinityRequests();
       listenForGifts();
@@ -38348,10 +38350,12 @@ async function switchFriendPageTab(tab, btn) {
   if (!cont) return;
 
   await loadFriendships();
+  updateAffinityBadge();
 
   if (tab === 'friends')   renderFriendsListTo(cont);
   if (tab === 'requests')  renderFriendRequestsTo(cont);
   if (tab === 'sent')      renderFriendSentTo(cont);
+  if (tab === 'affinity')  renderAffinityRequestsTo(cont);
 }
 
 function renderFriendsListTo(cont) {
@@ -38442,6 +38446,92 @@ function renderFriendSentTo(cont) {
   });
 }
 
+function updateAffinityBadge() {
+  const pending = _affinityRows.filter(r => r.receiver_id === state.discordId && r.status === 'pending');
+  const badge = document.getElementById('affinityReqBadge');
+  if (badge) {
+    if (pending.length) { badge.textContent = pending.length; badge.style.display = ''; }
+    else { badge.style.display = 'none'; }
+  }
+}
+
+async function acceptAffinityRequest(id, senderName, displayLabel) {
+  await sb.update('affinities', { status: 'accepted' }, { id });
+  await loadFriendships();
+  updateAffinityBadge();
+  const cont = document.getElementById('friendsPageTabContent');
+  if (cont) renderAffinityRequestsTo(cont);
+  showToast(`💫 You're now ${escapeHtml(displayLabel)}s with ${escapeHtml(senderName)}!`);
+}
+
+async function declineAffinityRequest(id) {
+  await sb.update('affinities', { status: 'declined' }, { id });
+  await loadFriendships();
+  updateAffinityBadge();
+  const cont = document.getElementById('friendsPageTabContent');
+  if (cont) renderAffinityRequestsTo(cont);
+}
+
+function renderAffinityRequestsTo(cont) {
+  const pending = _affinityRows.filter(r => r.receiver_id === state.discordId && r.status === 'pending');
+  const accepted = _affinityRows.filter(r => r.status === 'accepted');
+
+  if (!pending.length && !accepted.length) {
+    cont.innerHTML = `<div style="color:var(--text-dim);font-size:0.8em;font-style:italic;text-align:center;padding:16px 0;">No affinity bonds yet ✦ Send a request from a friend's profile!</div>`;
+    return;
+  }
+
+  const rt = getSupaRT();
+  const allIds = [...new Set([...pending.map(r=>r.sender_id), ...accepted.map(r=>r.sender_id===state.discordId?r.receiver_id:r.sender_id)])];
+  cont.innerHTML = `<div style="color:var(--text-dim);font-size:0.8em;font-family:'JetBrains Mono',monospace;margin-bottom:8px;">Loading...</div>`;
+
+  (rt && allIds.length ? rt.from('players').select('*').in('discord_id', allIds) : Promise.resolve({data:[]})).then(({data}) => {
+    const players = data || [];
+    let html = '';
+
+    if (pending.length) {
+      html += `<div style="font-size:0.62em;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.1em;font-family:'JetBrains Mono',monospace;margin-bottom:8px;">⏳ Incoming Requests</div>`;
+      html += '<div class="friends-list" style="margin-bottom:16px;">' + pending.map(req => {
+        const p = players.find(x=>x.discord_id===req.sender_id)||{};
+        const name = p.display_name||p.username||req.sender_id;
+        const avatar = p.profile_thumbnail||p.avatar||'https://cdn.discordapp.com/embed/avatars/0.png';
+        const tierInfo = AFFINITY_TIERS[req.tier] || { label: req.tier, icon: '💫' };
+        const displayLabel = req.custom_label || tierInfo.label;
+        return `<div class="friend-row" style="flex-wrap:wrap;gap:8px;">
+          <img class="friend-row-avatar" src="${escapeHtml(avatar)}" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'"/>
+          <div class="friend-row-info" style="flex:1;min-width:100px;">
+            <div class="friend-row-name">${escapeHtml(name)}</div>
+            <div class="friend-row-status">${tierInfo.icon} wants to be your <b style="color:var(--pink-pale);">${escapeHtml(displayLabel)}</b></div>
+          </div>
+          <div style="display:flex;gap:6px;flex-shrink:0;">
+            <button onclick="acceptAffinityRequest('${req.id}','${escapeJs(name)}','${escapeJs(displayLabel)}')" style="background:rgba(192,132,184,0.15);border:1px solid rgba(192,132,184,0.4);color:var(--purple);padding:6px 12px;border-radius:8px;font-size:0.72em;cursor:pointer;">💫 Accept</button>
+            <button onclick="declineAffinityRequest('${req.id}')" style="background:rgba(231,76,60,0.1);border:1px solid rgba(231,76,60,0.25);color:#e74c3c;padding:6px 10px;border-radius:8px;font-size:0.72em;cursor:pointer;">✕</button>
+          </div>
+        </div>`;
+      }).join('') + '</div>';
+    }
+
+    if (accepted.length) {
+      html += `<div style="font-size:0.62em;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.1em;font-family:'JetBrains Mono',monospace;margin-bottom:8px;">💫 Your Bonds</div>`;
+      html += '<div class="friends-list">' + accepted.map(row => {
+        const otherId = row.sender_id === state.discordId ? row.receiver_id : row.sender_id;
+        const p = players.find(x=>x.discord_id===otherId)||{};
+        const name = p.display_name||p.username||otherId;
+        const avatar = p.profile_thumbnail||p.avatar||'https://cdn.discordapp.com/embed/avatars/0.png';
+        const tierInfo = AFFINITY_TIERS[row.tier] || { label: row.tier, icon: '💫' };
+        const displayLabel = row.custom_label || tierInfo.label;
+        const afCls = tierInfo.cls || 'affinity-custom';
+        return `<div class="friend-row" onclick="openPlayerFromFriend('${otherId}')">
+          <img class="friend-row-avatar" src="${escapeHtml(avatar)}" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'"/>
+          <div class="friend-row-info"><div class="friend-row-name">${escapeHtml(name)}</div><div class="friend-row-status">${tierInfo.icon} ${escapeHtml(displayLabel)}</div></div>
+          <span class="friend-row-affinity ${afCls}">${escapeHtml(displayLabel)}</span>
+        </div>`;
+      }).join('') + '</div>';
+    }
+
+    cont.innerHTML = html;
+  });
+}
 
 function renderFriendsList(cont) {
   if (!_friendsCache.length) {
@@ -39195,6 +39285,7 @@ async function showAffinityRequestNotif(req) {
     el.remove();
     await sb.update('affinities', { status: 'accepted' }, { id: req.id });
     await loadFriendships();
+    updateAffinityBadge();
     showToast(`💫 You're now ${escapeHtml(displayLabel)}s with ${escapeHtml(senderName)}!`);
   };
   document.getElementById('declineAffinityBtn').onclick = async () => {
