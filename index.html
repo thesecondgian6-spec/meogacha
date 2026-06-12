@@ -3558,13 +3558,13 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 }
 .gp-rates-heading::before { content: "✦"; color: var(--pink); opacity: 0.6; font-size: 1em; }
 .gp-rates-heading::after { content: ""; flex: 1; height: 1px; background: rgba(255,255,255,0.05); margin-left: 4px; }
-.gp-rates-grid { display: flex; flex-wrap: wrap; gap: 4px; }
+.gp-rates-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
 .gp-rate-item {
-  display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 4px;
-  padding: 5px 7px; border-radius: 7px;
+  display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 3px;
+  padding: 5px 4px; border-radius: 7px;
   border: 1px solid rgba(var(--rc),0.2); background: rgba(var(--rc),0.05);
   cursor: default; transition: all 0.16s;
-  flex: 1 1 calc(25% - 4px); min-width: 0;
+  min-width: 0;
 }
 .gp-rate-item:hover { background: rgba(var(--rc),0.12); border-color: rgba(var(--rc),0.4); }
 .gp-rate-dot { width: 5px; height: 5px; border-radius: 50%; background: rgba(var(--rc),1); box-shadow: 0 0 5px rgba(var(--rc),0.7); flex-shrink: 0; }
@@ -3610,7 +3610,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   }
   .gp-pool-btn { width: 100%; }
   .gp-rates-wrap { flex: 1; }
-  .gp-pity-mini { grid-template-columns: 1fr 1fr 1fr 1fr 1fr; gap: 5px 24px; }
+  .gp-pity-mini { grid-template-columns: 1fr 1fr 1fr; gap: 5px 24px; }
 }
 /* Taller stage on desktop for better banner art */
 @media(min-width:900px){
@@ -13326,27 +13326,17 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
       <div class="gp-dock-pity-row">
         <div class="gp-pity-mini" id="gpPityMini">
           <div class="gp-pity-bar-wrap">
-            <div class="gp-pity-label" id="gpPityLabel1">SSR Pity</div>
-            <div class="gp-pity-track"><div class="gp-pity-fill sr" id="gpPitySRBar"></div></div>
-            <div class="gp-pity-num" id="gpPitySRNum">0/40</div>
-          </div>
-          <div class="gp-pity-bar-wrap">
-            <div class="gp-pity-label" style="color:rgba(155,89,182,0.8)">SSR+ Pity</div>
+            <div class="gp-pity-label" style="color:rgba(155,89,182,0.85)">SSR+ Pity</div>
             <div class="gp-pity-track"><div class="gp-pity-fill sr" id="gpPitySSRBar" style="background:linear-gradient(90deg,#9b59b6,#e84393)"></div></div>
             <div class="gp-pity-num" id="gpPitySSRNum">0/60</div>
           </div>
           <div class="gp-pity-bar-wrap">
-            <div class="gp-pity-label" id="gpPityLabel2">UR Pity</div>
-            <div class="gp-pity-track"><div class="gp-pity-fill ur" id="gpPityURBar"></div></div>
-            <div class="gp-pity-num" id="gpPityURNum">0/80</div>
-          </div>
-          <div class="gp-pity-bar-wrap">
-            <div class="gp-pity-label" style="color:rgba(255,107,157,0.8)">UR+ Pity</div>
+            <div class="gp-pity-label" style="color:rgba(255,107,157,0.85)">UR+ Pity</div>
             <div class="gp-pity-track"><div class="gp-pity-fill ur" id="gpPityLRBar" style="background:linear-gradient(90deg,#ff6b9d,#f1c40f)"></div></div>
             <div class="gp-pity-num" id="gpPityLRNum">0/80</div>
           </div>
           <div class="gp-pity-bar-wrap">
-            <div class="gp-pity-label" style="color:rgba(26,188,156,0.8)">??? Pity</div>
+            <div class="gp-pity-label" style="color:rgba(26,188,156,0.85)">??? Pity</div>
             <div class="gp-pity-track"><div class="gp-pity-fill" id="gpPitySecretBar" style="background:linear-gradient(90deg,#1abc9c,#9b59b6,#ff9dc7);background-size:200%;animation:shimmer 3s linear infinite"></div></div>
             <div class="gp-pity-num" id="gpPitySecretNum">0/500</div>
           </div>
@@ -13366,12 +13356,13 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
         <div class="gp-rates-wrap">
           <div class="gp-rates-heading">Drop Rates</div>
           <div class="gp-rates-grid" id="gpRatesGrid">
-            <div class="gp-rate-item" style="--rc:189,195,199"><span class="gp-rate-dot"></span><span class="gp-rate-tag rN">[N]</span><span class="gp-rate-pct">42.6%</span></div>
-            <div class="gp-rate-item" style="--rc:46,204,113"><span class="gp-rate-dot"></span><span class="gp-rate-tag rR">[R]</span><span class="gp-rate-pct">29.8%</span></div>
-            <div class="gp-rate-item" style="--rc:52,152,219"><span class="gp-rate-dot"></span><span class="gp-rate-tag rSR">[SR]</span><span class="gp-rate-pct">17.0%</span></div>
-            <div class="gp-rate-item" style="--rc:155,89,182"><span class="gp-rate-dot"></span><span class="gp-rate-tag rSSR">[SSR]</span><span class="gp-rate-pct">6.4%</span></div>
-            <div class="gp-rate-item" style="--rc:241,196,15"><span class="gp-rate-dot"></span><span class="gp-rate-tag rUR">[UR]</span><span class="gp-rate-pct">2.1%</span></div>
-            <div class="gp-rate-item" style="--rc:255,107,157"><span class="gp-rate-dot"></span><span class="gp-rate-tag rLR">[LR]</span><span class="gp-rate-pct">0.9%</span></div>
+            <div class="gp-rate-item" style="--rc:189,195,199"><span class="gp-rate-dot"></span><span class="gp-rate-tag rN">[N]</span><span class="gp-rate-pct">40.0%</span></div>
+            <div class="gp-rate-item" style="--rc:46,204,113"><span class="gp-rate-dot"></span><span class="gp-rate-tag rR">[R]</span><span class="gp-rate-pct">28.5%</span></div>
+            <div class="gp-rate-item" style="--rc:52,152,219"><span class="gp-rate-dot"></span><span class="gp-rate-tag rSR">[SR]</span><span class="gp-rate-pct">18.0%</span></div>
+            <div class="gp-rate-item" style="--rc:155,89,182"><span class="gp-rate-dot"></span><span class="gp-rate-tag rSSR">[SSR]</span><span class="gp-rate-pct">8.0%</span></div>
+            <div class="gp-rate-item" style="--rc:241,196,15"><span class="gp-rate-dot"></span><span class="gp-rate-tag rUR">[UR]</span><span class="gp-rate-pct">3.5%</span></div>
+            <div class="gp-rate-item" style="--rc:255,107,157"><span class="gp-rate-dot"></span><span class="gp-rate-tag rLR">[LR]</span><span class="gp-rate-pct">1.0%</span></div>
+            <div class="gp-rate-item" style="--rc:26,188,156;border-color:rgba(26,188,156,0.3)"><span class="gp-rate-dot"></span><span class="gp-rate-tag" style="background:linear-gradient(90deg,#1abc9c,#9b59b6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:shimmer 3s linear infinite;background-size:200%">[???]</span><span class="gp-rate-pct">1%★</span></div>
             <div class="gp-rate-item" style="--rc:255,100,200">
               <span class="gp-rate-dot" style="background:linear-gradient(135deg,#ff79c6,#bd93f9);box-shadow:0 0 6px rgba(255,120,200,0.8)"></span>
               <span class="gp-rate-tag" style="-webkit-text-fill-color:transparent;background:var(--rainbow);background-size:200%;-webkit-background-clip:text;animation:rainbowShift 2.5s linear infinite">[???]</span>
@@ -23897,19 +23888,9 @@ function renderActiveBanner(){
   if(charImgs.length > 1) _gpStartCharSlideshow(charImgs.length);
 
   // Update pity bars in dock
-  const srPct = Math.min(p.sr/40*100,100);
-  const urPct = Math.min(p.ur/80*100,100);
   const ssrPct = Math.min((p.ssr||0)/60*100,100);
   const lrPct  = Math.min((p.lr||0)/80*100,100);
   const secPct = Math.min((p.secret||0)/500*100,100);
-  const srBar = document.getElementById('gpPitySRBar');
-  const urBar = document.getElementById('gpPityURBar');
-  const srNum = document.getElementById('gpPitySRNum');
-  const urNum = document.getElementById('gpPityURNum');
-  if(srBar) srBar.style.width = srPct+'%';
-  if(urBar) urBar.style.width = urPct+'%';
-  if(srNum) srNum.textContent = `${p.sr}/40`;
-  if(urNum) urNum.textContent = `${p.ur}/80`;
   const ssrBar = document.getElementById('gpPitySSRBar'); if(ssrBar) ssrBar.style.width = ssrPct+'%';
   const ssrNum = document.getElementById('gpPitySSRNum'); if(ssrNum) ssrNum.textContent = `${p.ssr||0}/60`;
   const lrBar  = document.getElementById('gpPityLRBar');  if(lrBar)  lrBar.style.width  = lrPct+'%';
@@ -23927,20 +23908,9 @@ function updatePity(){
   const type   = banner ? (banner.banner_type||'standard') : 'character';
   if(type === 'skin'){ updateSkinDock(); return; }
   const p      = getPity(type);
-  const srPct  = Math.min(p.sr/40*100,100);
-  const urPct  = Math.min(p.ur/80*100,100);
   const ssrPct = Math.min((p.ssr||0)/60*100,100);
   const lrPct  = Math.min((p.lr||0)/80*100,100);
   const secPct = Math.min((p.secret||0)/500*100,100);
-  // New dock bars
-  const srBar = document.getElementById('gpPitySRBar');
-  const urBar = document.getElementById('gpPityURBar');
-  const srNum = document.getElementById('gpPitySRNum');
-  const urNum = document.getElementById('gpPityURNum');
-  if(srBar) srBar.style.width = srPct+'%';
-  if(urBar) urBar.style.width = urPct+'%';
-  if(srNum) srNum.textContent = `${p.sr}/40`;
-  if(urNum) urNum.textContent = `${p.ur}/80`;
   const ssrBar = document.getElementById('gpPitySSRBar'); if(ssrBar) ssrBar.style.width = ssrPct+'%';
   const ssrNum = document.getElementById('gpPitySSRNum'); if(ssrNum) ssrNum.textContent = `${p.ssr||0}/60`;
   const lrBar  = document.getElementById('gpPityLRBar');  if(lrBar)  lrBar.style.width  = lrPct+'%';
@@ -23950,10 +23920,8 @@ function updatePity(){
   // Legacy IDs kept for safety
   const sv=document.getElementById('pitySRVal'), sb2=document.getElementById('pitySRBar');
   const uv=document.getElementById('pityURVal'), ub=document.getElementById('pityURBar');
-  if(sv) sv.textContent=p.sr;
-  if(sb2) sb2.style.width=srPct+'%';
-  if(uv) uv.textContent=p.ur;
-  if(ub) ub.style.width=urPct+'%';
+  if(sv) sv.textContent=p.sr||0;
+  if(uv) uv.textContent=p.ur||0;
 }
 
 // ── Character art slideshow ──
