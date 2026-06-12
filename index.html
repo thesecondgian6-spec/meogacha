@@ -42,7 +42,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .nav-btn{background:var(--surface);border:1px solid var(--border);color:var(--text-dim);padding:6px 16px;border-radius:20px;font-family:'Cormorant Garamond',serif;font-size:0.9em;cursor:pointer;transition:all 0.2s;}
 .nav-btn:hover,.nav-btn.active{background:rgba(255,157,199,0.15);border-color:var(--pink);color:var(--pink);}
 .nav-coins{display:flex;align-items:center;gap:6px;background:rgba(241,196,15,0.1);border:1px solid rgba(241,196,15,0.3);border-radius:20px;padding:5px 14px;font-family:'JetBrains Mono',monospace;font-size:0.82em;color:#f1c40f;}
-.page{display:none;padding:32px;max-width:1100px;margin:0 auto;}
+.page{display:none;padding:32px;max-width:1200px;margin:0 auto;}
 @media(max-width:700px){.page{padding:16px 12px;}}
 .page.active{display:block;animation:fadeIn 0.4s ease;}
 @keyframes fadeIn{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
@@ -2946,6 +2946,14 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 #page-pull.active {
   display: flex !important;
   flex-direction: column;
+  align-items: center;
+}
+/* Constrain pull page content to a readable desktop width */
+.gp-stage-wrap,
+.gp-dock {
+  width: 100%;
+  max-width: 1300px;
+  align-self: center;
 }
 
 /* ── Stage: banner art fills the whole area ── */
@@ -8902,7 +8910,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 /* ══════════════════════════════════════════════════
    MEO HUB — GLOBAL STYLES
 ══════════════════════════════════════════════════ */
-#page-social { padding: 0 !important; max-width: 100% !important; }
+#page-social { padding: 0 !important; max-width: 1400px !important; margin: 0 auto !important; }
 
 .hub-zone { padding: 20px 24px 100px; max-width: 1200px; margin: 0 auto; }
 @media(max-width:700px){ .hub-zone { padding: 14px 12px 100px; } }
@@ -9435,7 +9443,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 /* ══ LOBBY ══ */
 .lobby-layout {
   display: grid;
-  grid-template-columns: 1fr 300px;
+  grid-template-columns: 1fr;
   gap: 20px;
   height: calc(100vh - 300px);
   min-height: 500px;
@@ -9521,8 +9529,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .lobby-input-area .chat-input-wrap { flex: 1; }
 
 /* Lobby Sidebar */
-.lobby-sidebar { display: flex; flex-direction: column; gap: 14px; overflow-y: auto; }
-@media(max-width:900px){ .lobby-sidebar { display: none; } }
+.lobby-sidebar { display: none !important; }
 .lobby-sidebar-section {
   background: rgba(255,157,199,0.04);
   border: 1px solid var(--border);
@@ -10373,7 +10380,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 }
 
 /* Hub zone */
-.hub-zone { padding: 0 0 100px; max-width: 100%; }
+.hub-zone { padding: 0 0 100px; max-width: 1300px; margin: 0 auto; }
 .hub-zone > *:not(.zone-banner) { padding-left: 20px; padding-right: 20px; }
 .hub-zone > .lobby-layout,
 .hub-zone > .rooms-layout,
