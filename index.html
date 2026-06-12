@@ -1968,11 +1968,11 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .chat-flex-portrait {
   border-radius: 12px; overflow: hidden; cursor: pointer;
   transition: transform 0.25s, box-shadow 0.25s;
-  width: 110px; flex-shrink: 0; margin: 4px 0; display: block;
+  width: 160px; flex-shrink: 0; margin: 4px 0; display: block;
   box-shadow: 0 4px 18px rgba(0,0,0,0.5);
 }
 .chat-flex-portrait:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 10px 28px rgba(0,0,0,0.6); }
-.cfp-img-wrap { position: relative; width: 100%; aspect-ratio: 2/3; overflow: hidden; border-radius: 12px 12px 0 0; }
+.cfp-img-wrap { position: relative; width: 100%; aspect-ratio: 3/4; overflow: hidden; border-radius: 12px 12px 0 0; }
 .cfp-img { width: 100%; height: 100%; object-fit: cover; object-position: top center; display: block; }
 .cfp-shimmer {
   position: absolute; inset: 0;
@@ -33278,7 +33278,7 @@ function closeFlexPicker(){
 // ── GIF Picker ──────────────────────────────────────────────────────────────
 let _gifPickerTarget = 'lobby'; // 'lobby' | 'room' | 'cinema'
 let _gifSearchTimer = null;
-const TENOR_KEY = 'AIzaSyAyimkuYQYF_FXVql9lUqgxJRt7GXkd19I'; // public demo key
+const GIPHY_KEY = 'dc6zaTOxFJmzC'; // Giphy public beta key
 
 async function openGifPicker(target = 'lobby'){
   _gifPickerTarget = target;
@@ -33310,27 +33310,28 @@ async function loadGifs(query){
   grid.innerHTML = '<div class="gif-picker-loading">Loading GIFs…</div>';
   try{
     const endpoint = query
-      ? `https://tenor.googleapis.com/v2/search?q=${encodeURIComponent(query+' anime')}&key=${TENOR_KEY}&limit=20&media_filter=gif,tinygif`
-      : `https://tenor.googleapis.com/v2/featured?key=${TENOR_KEY}&limit=20&q=anime&media_filter=gif,tinygif`;
+      ? `https://api.giphy.com/v1/gifs/search?api_key=${GIPHY_KEY}&q=${encodeURIComponent(query+' anime')}&limit=20&rating=g`
+      : `https://api.giphy.com/v1/gifs/trending?api_key=${GIPHY_KEY}&limit=20&rating=g&tag=anime`;
     const res = await fetch(endpoint);
     const data = await res.json();
     grid.innerHTML = '';
-    if(!data.results || !data.results.length){
+    if(!data.data || !data.data.length){
       grid.innerHTML = '<div class="gif-picker-loading">No GIFs found ʚɞ</div>';
       return;
     }
-    data.results.forEach(r=>{
-      const media = r.media_formats;
-      const src = (media.tinygif && media.tinygif.url) || (media.gif && media.gif.url);
-      if(!src) return;
+    data.data.forEach(r=>{
+      const preview = r.images.fixed_height_small.url || r.images.original.url;
+      const full    = r.images.fixed_height.url || r.images.original.url;
+      if(!preview) return;
       const item = document.createElement('div');
       item.className = 'gif-picker-item';
-      item.innerHTML = `<img src="${src}" loading="lazy" alt="gif"/>`;
-      item.onclick = () => sendGif(src);
+      item.innerHTML = `<img src="${preview}" loading="lazy" alt="gif"/>`;
+      item.onclick = () => sendGif(full);
       grid.appendChild(item);
     });
   } catch(e){
     grid.innerHTML = '<div class="gif-picker-loading">Couldn\'t load GIFs 😢</div>';
+    console.error('GIF load error:', e);
   }
 }
 
@@ -37520,7 +37521,7 @@ let _adminEvoCache = [];
       <button class="gif-picker-close" onclick="closeGifPicker()">✕</button>
     </div>
     <div class="gif-picker-search-wrap">
-      <input class="gif-picker-search" id="gifSearchInput" placeholder="Search anime GIFs…" oninput="gifSearchDebounce(this.value)" autocomplete="off"/>
+      <input class="gif-picker-search" id="gifSearchInput" placeholder="Search anime GIFs…" oninput="gifSearchDebounce(this.value)" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" inputmode="search"/>
     </div>
     <div class="gif-picker-trending-label" id="gifPickerLabel">✦ TRENDING</div>
     <div class="gif-picker-grid" id="gifPickerGrid">
