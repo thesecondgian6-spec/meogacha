@@ -16926,7 +16926,7 @@ const ADMIN_IDS = ['1475627573437534442'];
 // ══════════════════════════════════════════════
 // STATE
 // ══════════════════════════════════════════════
-let state = {
+var state = {
   loggedIn:     false,
   isGuest:      false,
   isAdmin:      false,
@@ -30526,7 +30526,7 @@ function renderRoomsGrid(){
 
   if(!data.length){
     const msg = _rbTab==='fav' ? 'No favourite rooms yet — heart a room to save it here ❤️'
-              : _rbTab==='mine' ? 'You don't have a room yet — create one above!'
+              : _rbTab==='mine' ? "You don't have a room yet — create one above!"
               : _rbSearch ? 'No rooms match your search~'
               : 'No rooms yet — be the first to create one!';
     listEl.innerHTML = `<div class="rooms-empty" style="grid-column:1/-1;padding:40px 20px;text-align:center;"><div class="rooms-empty-icon">🏡</div><div>${msg}</div></div>`;
