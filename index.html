@@ -2004,7 +2004,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 }
 #gifPickerModal.open { display: flex; }
 .gif-picker-panel {
-  width: 100%; max-width: 420px; max-height: 70vh;
+  width: 100%; max-width: 420px; max-height: 80vh;
   background: var(--bg2); border-radius: 20px 20px 0 0;
   border: 1px solid rgba(255,157,199,0.2); border-bottom: none;
   display: flex; flex-direction: column; overflow: hidden;
@@ -2026,11 +2026,12 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .gif-picker-search:focus { border-color: rgba(255,157,199,0.45); }
 .gif-picker-search::placeholder { color: rgba(155,111,136,0.6); }
 .gif-picker-grid {
-  display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px;
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;
   padding: 6px 14px 20px; overflow-y: auto;
-  scrollbar-width: thin; scrollbar-color: rgba(255,157,199,0.3) transparent; flex: 1;
+  scrollbar-width: thin; scrollbar-color: rgba(255,157,199,0.3) transparent;
+  flex: 1; min-height: 0;
 }
-.gif-picker-item { border-radius: 8px; overflow: hidden; cursor: pointer; aspect-ratio: 16/9; background: rgba(255,255,255,0.04); transition: transform 0.15s, box-shadow 0.15s; }
+.gif-picker-item { border-radius: 8px; overflow: hidden; cursor: pointer; height: 100px; background: rgba(255,255,255,0.06); transition: transform 0.15s, box-shadow 0.15s; }
 .gif-picker-item:hover { transform: scale(1.03); box-shadow: 0 4px 14px rgba(255,157,199,0.25); }
 .gif-picker-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .gif-picker-loading { grid-column: 1/-1; text-align: center; padding: 30px; color: var(--text-dim); font-size: 0.82em; font-family: 'JetBrains Mono', monospace; }
@@ -33279,20 +33280,20 @@ function closeFlexPicker(){
 let _gifPickerTarget = 'lobby';
 let _gifSearchTimer = null;
 
-// Curated anime trending GIFs (media.tenor.com — already works in the app)
+// Curated anime trending GIFs — direct media URLs
 const TRENDING_GIFS = [
-  'https://media.tenor.com/x15S5rhHVscAAAAd/anime-purple.gif',
-  'https://media.tenor.com/vw9hHcFt0gIAAAAC/bbn2007.gif',
-  'https://media.tenor.com/4xOYt5yvVNMAAAAC/demon-slayer-upper-six-fight.gif',
-  'https://media.tenor.com/PKQz3kmo2akAAAAC/welcome.gif',
-  'https://media.tenor.com/Bv37u6GJKkkAAAAC/bar-feelre.gif',
-  'https://media1.tenor.com/m/gXeHHWqjdyQAAAAd/jujutsu-kaisen-gojo.gif',
-  'https://media1.tenor.com/m/KQtBbk_WFHEAAAAC/one-piece-luffy.gif',
-  'https://media1.tenor.com/m/NvMRnFc8re8AAAAC/attack-on-titan-eren.gif',
-  'https://media1.tenor.com/m/5IvRxURBBXIAAAAd/naruto-run.gif',
-  'https://media1.tenor.com/m/9N3jlXgR9JMAAAAC/anime-happy.gif',
-  'https://media1.tenor.com/m/g-HNlBJnI34AAAAC/anime-sad.gif',
-  'https://media1.tenor.com/m/OkBjwZC1DFQAAAAC/anime-fight.gif',
+  { url: 'https://media.tenor.com/x15S5rhHVscAAAAd/anime-purple.gif',                label: 'anime' },
+  { url: 'https://media.tenor.com/4xOYt5yvVNMAAAAC/demon-slayer-upper-six-fight.gif', label: 'demon slayer' },
+  { url: 'https://media.tenor.com/vw9hHcFt0gIAAAAC/bbn2007.gif',                      label: 'anime' },
+  { url: 'https://media.tenor.com/PKQz3kmo2akAAAAC/welcome.gif',                      label: 'welcome' },
+  { url: 'https://media.tenor.com/Bv37u6GJKkkAAAAC/bar-feelre.gif',                   label: 'bar' },
+  { url: 'https://media.tenor.com/j9NniiARmYMAAAAC/kakegurui-playing-cards.gif',      label: 'kakegurui' },
+  { url: 'https://media.tenor.com/MiuE5EVpNMMAAAAC/jjk-jujutsu-kaisen.gif',           label: 'jjk' },
+  { url: 'https://media.tenor.com/5fM3_ZoYB5IAAAAC/one-piece-luffy.gif',              label: 'one piece' },
+  { url: 'https://media.tenor.com/Ij11MERyiM8AAAAC/attack-on-titan.gif',              label: 'aot' },
+  { url: 'https://media.tenor.com/7E4c7mvjJKEAAAAC/naruto-running.gif',               label: 'naruto' },
+  { url: 'https://media.tenor.com/wBv8lFVMnJYAAAAC/anime-happy.gif',                  label: 'happy' },
+  { url: 'https://media.tenor.com/9bBDkzrbJwwAAAAC/konosuba-megumin.gif',             label: 'konosuba' },
 ];
 
 async function openGifPicker(target = 'lobby'){
@@ -33327,11 +33328,11 @@ async function loadGifs(query){
   // No query → show curated trending
   if(!query){
     grid.innerHTML = '';
-    TRENDING_GIFS.forEach(url=>{
+    TRENDING_GIFS.forEach(g=>{
       const item = document.createElement('div');
       item.className = 'gif-picker-item';
-      item.innerHTML = `<img src="${url}" loading="lazy" alt="gif"/>`;
-      item.onclick = () => sendGif(url);
+      item.innerHTML = `<img src="${g.url}" loading="lazy" alt="${g.label}" onerror="this.parentElement.style.display='none'"/>`;
+      item.onclick = () => sendGif(g.url);
       grid.appendChild(item);
     });
     return;
@@ -33363,14 +33364,14 @@ async function loadGifs(query){
   } catch(e){
     // Tenor failed — filter curated list by query as fallback
     const q = query.toLowerCase();
-    const filtered = TRENDING_GIFS.filter(u => u.toLowerCase().includes(q));
+    const filtered = TRENDING_GIFS.filter(g => g.label.toLowerCase().includes(q));
     grid.innerHTML = '';
     if(filtered.length){
-      filtered.forEach(url=>{
+      filtered.forEach(g=>{
         const item = document.createElement('div');
         item.className = 'gif-picker-item';
-        item.innerHTML = `<img src="${url}" loading="lazy" alt="gif"/>`;
-        item.onclick = () => sendGif(url);
+        item.innerHTML = `<img src="${g.url}" loading="lazy" alt="${g.label}" onerror="this.parentElement.style.display='none'"/>`;
+        item.onclick = () => sendGif(g.url);
         grid.appendChild(item);
       });
     } else {
