@@ -13004,6 +13004,54 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .title-picker-none-opt:hover { border-color:rgba(255,255,255,0.3); }
 .title-picker-none-opt.selected { border-color:var(--pink); color:var(--pink); }
 
+
+/* ── Secret / Mystery pool card ── */
+.pool-card-secret {
+  position:relative; border-radius:10px; overflow:hidden;
+  border:2px solid rgba(255,79,198,0.35) !important;
+  background:linear-gradient(160deg,#0d0014 0%,#1a0030 60%,#0a000f 100%);
+  transition:transform .2s, box-shadow .2s;
+  box-shadow:0 0 18px rgba(200,50,255,0.15);
+  cursor:pointer;
+}
+.pool-card-secret:hover {
+  transform:translateY(-3px);
+  box-shadow:0 0 28px rgba(200,50,255,0.35);
+}
+.pool-card-secret-inner {
+  height:140px; display:flex; flex-direction:column;
+  align-items:center; justify-content:center; gap:6px;
+  position:relative; overflow:hidden;
+}
+.pool-card-secret-inner::before {
+  content:'';
+  position:absolute; inset:0;
+  background:
+    radial-gradient(ellipse at 50% 40%, rgba(180,0,255,0.18) 0%, transparent 70%),
+    repeating-linear-gradient(
+      45deg,
+      rgba(255,255,255,0.015) 0px, rgba(255,255,255,0.015) 1px,
+      transparent 1px, transparent 12px
+    );
+}
+.pool-card-secret-qmark {
+  font-size:2.2em; filter:drop-shadow(0 0 8px rgba(200,0,255,0.8));
+  position:relative; z-index:1; animation:secretPulse 2.5s ease-in-out infinite;
+}
+@keyframes secretPulse {
+  0%,100%{ opacity:1; transform:scale(1); }
+  50%    { opacity:0.55; transform:scale(0.92); }
+}
+.pool-card-secret-label {
+  padding:6px 7px; background:rgba(10,0,20,0.85);
+  border-top:1px solid rgba(200,50,255,0.2);
+}
+.pool-card-secret-name {
+  font-size:0.68em; color:rgba(200,100,255,0.7);
+  font-family:'JetBrains Mono',monospace; letter-spacing:0.1em;
+  font-weight:700; display:block; text-align:center;
+}
+
 </style>
 </head>
 <body>
@@ -16686,8 +16734,14 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
       <label class="admin-label">Display Text</label>
       <input class="admin-input" id="titleForm_text" placeholder="✦ Legendary Summoner ✦" style="margin-bottom:8px;"/>
 
-      <label class="admin-label">Badge Icon URL <span class="admin-hint">(optional — small image/icon shown as badge)</span></label>
-      <input class="admin-input" id="titleForm_badge" placeholder="https://... (PNG/GIF, ~24×24px recommended)" style="margin-bottom:8px;"/>
+      <label class="admin-label">Badge Icon <span class="admin-hint">(optional — small image/icon shown as badge, ~24×24px)</span></label>
+      <div style="display:flex;gap:6px;align-items:center;margin-bottom:8px;">
+        <input class="admin-input" id="titleForm_badge" placeholder="https://... (paste URL)" style="flex:1;margin-bottom:0;"/>
+        <label style="display:flex;align-items:center;gap:4px;padding:7px 10px;border:1px solid rgba(255,157,199,0.3);border-radius:10px;background:rgba(255,157,199,0.06);color:var(--pink);font-size:0.78em;cursor:pointer;white-space:nowrap;font-family:'JetBrains Mono',monospace;transition:all .2s;" onmouseenter="this.style.background='rgba(255,157,199,0.12)'" onmouseleave="this.style.background='rgba(255,157,199,0.06)'">
+          📁 Upload
+          <input type="file" accept="image/*,.gif" style="display:none;" onchange="handleTitleBadgeUpload(this)"/>
+        </label>
+      </div>
 
       <label class="admin-label">Badge Emoji <span class="admin-hint">(optional — fallback if no image, or extra emoji)</span></label>
       <input class="admin-input" id="titleForm_emoji" placeholder="e.g. 👑 or ✦" style="margin-bottom:8px;font-size:1.1em;"/>
@@ -17108,18 +17162,7 @@ function renderAbilities(cardId, rarity) {
   </div>`;
 }
 
-const DEMO_CARDS = [
-  {id:'deku',name:'Deku',rarity:6,rarityName:'[LR]',rarityStars:'★★★★★★',series:'My Hero Academia',quote:"I am not just your tool, All Might... I am the next Symbol of Peace.",desc:'The inheritor of One For All, Izuku Midoriya fights with heart above all else.',image:'https://media1.tenor.com/m/_Vf3TmUu4QcAAAAC/deku-deku-blue.gif',color:'#2ecc71',weight:2},
-  {id:'yuta',name:'Yuta Okkotsu',rarity:5,rarityName:'[UR]',rarityStars:'★★★★★',series:'Jujutsu Kaisen',quote:"I want to become strong enough to protect the people I love.",desc:'A special grade sorcerer bearing an immense cursed spirit — Rika.',image:'https://media1.tenor.com/m/kkFa99zQgggAAAAC/yuta-okkotsu-ring.gif',color:'#3498db',weight:5},
-  {id:'asta1',name:'Asta',rarity:4,rarityName:'[SSR]',rarityStars:'★★★★',series:'Black Clover',quote:"I have no magic. But I will never give up!",desc:'The Black Bull who defied destiny with nothing but grit and anti-magic swords.',image:'https://media1.tenor.com/m/Fr32PkwNfLgAAAAC/demon-asta-asta-black-clover.gif',color:'#9b59b6',weight:15},
-  {id:'frieren',name:'Frieren',rarity:5,rarityName:'[UR]',rarityStars:'★★★★★',series:"Frieren: Beyond Journey's End",quote:"I want to understand humans — even if it takes a thousand years.",desc:'An elven mage who outlives her companions and searches for what she missed.',image:'https://media1.tenor.com/m/2yOBBzaVF8cAAAAC/frieren-sousou-no-frieren.gif',color:'#bdc3c7',weight:5},
-  {id:'megumin',name:'Megumin',rarity:3,rarityName:'[SR]',rarityStars:'★★★',series:'KonoSuba',quote:"Explosion!",desc:'Arch Wizard of the Crimson Demons and devotee of the most impractical magic.',image:'https://media1.tenor.com/m/gDAKQvW5AIkAAAAC/anime-megumin.gif',color:'#e74c3c',weight:40},
-  {id:'levi',name:'Levi Ackerman',rarity:4,rarityName:'[SSR]',rarityStars:'★★★★',series:'Attack on Titan',quote:"The only thing we're allowed to do is believe that we won't regret the choice we made.",desc:"Humanity's strongest soldier, precise and relentless as the blade he wields.",image:'https://media1.tenor.com/m/x3tOr0N__jUAAAAC/levi-ackerman.gif',color:'#bdc3c7',weight:15},
-  {id:'zero2',name:'Zero Two',rarity:3,rarityName:'[SR]',rarityStars:'★★★',series:'DARLING in the FRANXX',quote:"I want to be human. I want to be your darling.",desc:'The mysterious partner-killer who only found peace in one pilot.',image:'https://media1.tenor.com/m/Giv4A22u3KUAAAAC/zero-two-smile.gif',color:'#e74c3c',weight:40},
-  {id:'hinata',name:'Hinata Shoyo',rarity:2,rarityName:'[R]',rarityStars:'★★',series:'Haikyuu!!',quote:"I'm not tall. But I can jump.",desc:'The little giant who refused to be limited by his height or his circumstances.',image:'https://media1.tenor.com/m/lazWdimyxj8AAAAC/haikyuu-anime.gif',color:'#f39c12',weight:70},
-  {id:'naruto',name:'Naruto Uzumaki',rarity:1,rarityName:'[N]',rarityStars:'★',series:'Naruto',quote:"I'm not gonna run away, I never go back on my word!",desc:'The knucklehead ninja who dreamed of being Hokage — and made it.',image:'https://media1.tenor.com/m/xrQKVA243MsAAAAC/naruto-believe-it.gif',color:'#f39c12',weight:100},
-  {id:'hakari',name:'Kinji Hakari',rarity:5,rarityName:'[UR]',rarityStars:'★★★★★',series:'Jujutsu Kaisen',quote:"Jackpot. My domain's on a winning streak — and luck? Luck doesn't run out.",desc:"Jujutsu Tech's most dangerous gambler. When his domain hits the jackpot, he becomes effectively immortal — an unstoppable force wrapped in a fever dream of pachinko and pure cursed energy.",image:'https://media1.tenor.com/m/YXN8SXrpWekAAAAC/hakari-kinji-hakari.gif',color:'#f1c40f',weight:5},
-];
+const DEMO_CARDS = []; // Cards loaded from DB via loadCards()
 
 // Shop items are now loaded from DB (shop_items table)
 // Fallback static items shown when DB has no items yet
@@ -19212,7 +19255,6 @@ async function handlePullResult(cards){
 
     // ── Title Drop: grant on first pull of cards with a title_drop set ──
     if(!isDupe && card.title_drop){
-      // title_drop is now a title ID; fall back to legacy text grant if not in registry
       if(getTitleById(card.title_drop)) await grantTitleById(state.discordId, card.title_drop, card.name);
       else if(card.title_drop) await grantTitleToPlayer(state.discordId, card.title_drop, card.name);
     }
@@ -20282,7 +20324,6 @@ async function guestLogin(){
       state.collection=g.collection??[];state.xpMap=g.xpMap??{};
       state.bio=g.bio??state.bio;state.title=g.title??state.title;
       state.activeTitleId=g.activeTitleId??state.activeTitleId??'';
-      editTitle=state.activeTitleId;
       state.bannerColor=g.bannerColor??state.bannerColor;
       state.displayName=g.displayName??'';state.customAvatar=g.customAvatar??'';
       state.bannerImage=g.bannerImage??'';
@@ -23683,13 +23724,27 @@ function openPoolView(){
     const headerLabel=rainbow
       ?`<span class="rarity-rainbow">${label}</span>`
       :`<span style="color:${color}">${label}</span>`;
+    const groupCount=r===7?'???':group.length;
     if(idx>0) html+=`<div class="rarity-divider"></div>`;
     html+=`<div class="rarity-group">
-      <div class="rarity-group-header">${headerLabel}<span class="rarity-group-count">${group.length}</span></div>
+      <div class="rarity-group-header">${headerLabel}<span class="rarity-group-count">${groupCount}</span></div>
       <div class="pool-grid">`;
     group.forEach(c=>{
       const cardColor=RARITY_COLORS[c.rarity]||'#bdc3c7';
       const isRateUp=RATE_UP_IDS.includes(c.id);
+      const isSecret=c.rarity===7;
+      if(isSecret){
+        // Mystery card — don't reveal image or name
+        html+=`<div class="pool-card-secret" onclick="closePoolView();setTimeout(()=>openCard('${c.id}'),220)" title="??? Secret">
+          <div class="pool-card-secret-inner">
+            <span class="pool-card-secret-qmark">???</span>
+          </div>
+          <div class="pool-card-secret-label">
+            <span class="pool-card-secret-name">??? SECRET ???</span>
+          </div>
+        </div>`;
+        return;
+      }
       const rarityLabel=rainbow
         ?`<span class="rarity-rainbow">${c.rarityName}</span>`
         :`<span style="color:${cardColor}">${c.rarityName} ${c.rarityStars}</span>`;
@@ -40747,6 +40802,23 @@ function openCardTitleDropPicker() {
       el.classList.toggle('selected', oc.includes(`'${_cardFormTitleId}'`) || (_cardFormTitleId === '' && oc.includes("''")));
     });
   }, 80);
+}
+</script>
+
+
+<script>
+function handleTitleBadgeUpload(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const dataUrl = e.target.result;
+    const badgeInput = document.getElementById('titleForm_badge');
+    if (badgeInput) badgeInput.value = dataUrl;
+    // Trigger preview update
+    if (typeof adminUpdateTitlePreview === 'function') adminUpdateTitlePreview();
+  };
+  reader.readAsDataURL(file);
 }
 </script>
 
