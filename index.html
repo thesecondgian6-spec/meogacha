@@ -12890,6 +12890,120 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .gift-card-opt img { width:100%; aspect-ratio:3/4; object-fit:cover; display:block; }
 .gift-card-opt-name { background:rgba(0,0,0,0.88); padding:4px 3px; text-align:center; font-size:0.55em; color:#fff; font-family:'Cinzel Decorative',serif; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 
+
+/* ══ Title Badge ══ */
+.title-badge-wrap {
+  display:inline-flex; align-items:center; gap:4px;
+  cursor:pointer; vertical-align:middle;
+}
+.title-badge-img {
+  width:20px; height:20px; border-radius:4px; object-fit:cover;
+  vertical-align:middle; flex-shrink:0;
+}
+.title-badge-emoji { font-size:1em; line-height:1; }
+.title-text-display {
+  font-style:italic; font-size:0.82em;
+  transition:opacity .2s;
+}
+.title-text-display[data-effect="rainbow"] {
+  background:linear-gradient(90deg,#ff0000,#ff7700,#ffdd00,#00ff00,#00aaff,#cc00ff,#ff0077);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+  background-clip:text; animation:rainbowShift 3s linear infinite;
+  background-size:200% auto;
+}
+.title-text-display[data-effect="shimmer"] {
+  background:linear-gradient(90deg,rgba(255,255,255,0.5) 0%,#fff 40%,rgba(255,255,255,0.5) 60%,rgba(255,255,255,0.2) 100%);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+  background-clip:text; background-size:200% auto;
+  animation:shimmerSlide 2.2s linear infinite;
+}
+.title-text-display[data-effect="pulse"] { animation:titlePulse 2s ease-in-out infinite; }
+.title-text-display[data-effect="gold"] {
+  background:linear-gradient(90deg,#f1c40f,#fff,#f1c40f);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+  background-clip:text; background-size:200% auto;
+  animation:shimmerSlide 2.5s linear infinite;
+}
+.title-text-display[data-effect="sakura"] {
+  background:linear-gradient(90deg,#ff9dc7,#ffb7ce,#c084b8,#ff9dc7);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+  background-clip:text; background-size:200% auto;
+  animation:rainbowShift 4s linear infinite;
+}
+@keyframes rainbowShift { to { background-position: 200% center; } }
+@keyframes shimmerSlide  { to { background-position: 200% center; } }
+@keyframes titlePulse    { 0%,100%{opacity:1} 50%{opacity:0.45} }
+
+/* ── Title Flash Overlay ── */
+#titleFlashOverlay {
+  position:fixed; inset:0; z-index:99999;
+  display:flex; align-items:center; justify-content:center;
+  pointer-events:none; opacity:0; transition:opacity .25s;
+  background:rgba(0,0,0,0.72);
+}
+#titleFlashOverlay.visible { opacity:1; pointer-events:auto; }
+#titleFlashInner {
+  text-align:center; animation:titleFlashAnim 0.6s cubic-bezier(.22,1,.36,1);
+}
+@keyframes titleFlashAnim {
+  0%  { transform:scale(0.6) translateY(30px); opacity:0; }
+  60% { transform:scale(1.08) translateY(-4px); opacity:1; }
+  100%{ transform:scale(1)    translateY(0);    opacity:1; }
+}
+#titleFlashBadge { width:64px; height:64px; border-radius:12px; object-fit:cover; margin-bottom:10px; }
+#titleFlashEmoji { font-size:3em; display:block; margin-bottom:8px; }
+#titleFlashText {
+  font-family:'Cinzel Decorative',serif;
+  font-size:1.5em; letter-spacing:0.06em;
+  text-shadow:0 0 30px currentColor;
+}
+
+/* ── Title Picker Modal ── */
+#titlePickerModal {
+  position:fixed; inset:0; z-index:9100;
+  background:rgba(0,0,0,0.75); backdrop-filter:blur(8px);
+  display:none; align-items:flex-end; justify-content:center;
+}
+#titlePickerModal.active { display:flex; }
+#titlePickerSheet {
+  background:var(--bg2,#1a0d2e); border-radius:24px 24px 0 0;
+  border:1px solid rgba(255,157,199,0.18); padding:20px 16px 32px;
+  width:100%; max-width:520px; max-height:80vh;
+  display:flex; flex-direction:column; gap:14px;
+  animation:slideUp .3s ease;
+}
+@keyframes slideUp { from{transform:translateY(80px);opacity:0} to{transform:translateY(0);opacity:1} }
+#titlePickerSheet h3 {
+  font-family:'Cinzel Decorative',serif; font-size:0.88em;
+  color:#fff; margin:0; padding-bottom:10px;
+  border-bottom:1px solid rgba(255,157,199,0.15);
+}
+#titlePickerGrid {
+  display:grid; grid-template-columns:1fr 1fr;
+  gap:8px; overflow-y:auto; flex:1;
+  padding-right:4px;
+}
+@media(max-width:400px){ #titlePickerGrid { grid-template-columns:1fr; } }
+.title-picker-card {
+  display:flex; flex-direction:column; gap:5px;
+  background:rgba(255,255,255,0.04); border:1.5px solid rgba(255,157,199,0.15);
+  border-radius:12px; padding:10px 12px; cursor:pointer;
+  transition:border-color .2s, background .2s;
+}
+.title-picker-card:hover   { border-color:rgba(255,157,199,0.45); background:rgba(255,157,199,0.08); }
+.title-picker-card.selected{ border-color:var(--pink); background:rgba(255,157,199,0.12); }
+.title-picker-card .tpc-badge-row { display:flex; align-items:center; gap:6px; }
+.title-picker-card .tpc-rarity { font-size:0.55em; font-family:'JetBrains Mono',monospace; letter-spacing:.05em; text-transform:uppercase; opacity:0.6; margin-top:2px; }
+.title-picker-none-opt {
+  display:flex; align-items:center; gap:8px;
+  background:rgba(255,255,255,0.04); border:1.5px solid rgba(255,255,255,0.1);
+  border-radius:12px; padding:10px 12px; cursor:pointer;
+  font-size:0.82em; color:var(--text-dim); grid-column:1/-1;
+  transition:border-color .2s;
+}
+.title-picker-none-opt:hover { border-color:rgba(255,255,255,0.3); }
+.title-picker-none-opt.selected { border-color:var(--pink); color:var(--pink); }
+
 </style>
 </head>
 <body>
@@ -13081,7 +13195,10 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 
       <div class="edit-field">
         <label class="edit-label">Title</label>
-        <div class="title-picker" id="titlePicker"></div>
+        <button type="button" class="admin-input" id="peTitlePickerBtn" onclick="openPeTitlePicker()"
+          style="text-align:left;cursor:pointer;display:flex;align-items:center;gap:6px;width:100%;background:rgba(255,255,255,0.04);">
+          🎀 No Title — tap to change
+        </button>
       </div>
 
       <div class="edit-field">
@@ -15434,6 +15551,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
       <button class="filter-btn" id="atab-tools" onclick="switchAdminTab('tools',this)">🔧 Tools</button>
       <button class="filter-btn" id="atab-worldboss" onclick="switchAdminTab('worldboss',this)">⚔️ World Boss</button>
       <button class="filter-btn" id="atab-storylines" onclick="switchAdminTab('storylines',this)">📖 Storylines</button>
+      <button class="filter-btn" id="atab-titles" onclick="switchAdminTab('titles',this)">🎀 Titles</button>
     </div>
 
 <!-- ANIME MANAGER TAB -->
@@ -15742,8 +15860,9 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
                 <span style="font-size:0.9em;">🎀</span>
                 <label class="admin-label" style="margin:0;">Title Drop <span class="admin-hint">(granted to player on pull — recommended for LR+)</span></label>
               </div>
-              <input class="admin-input" id="cardForm_titleDrop" placeholder="e.g. ✦ Legendary Summoner ✦  (leave blank for no title drop)" style="font-size:0.85em;"/>
-              <div style="font-size:0.68em;color:var(--text-dim);margin-top:5px;font-style:italic;">💡 Players will receive this title automatically when they pull this card for the first time.</div>
+              <input type="hidden" id="cardForm_titleDrop" value=""/>
+              <button type="button" class="admin-btn" id="cardTitleDropBtn" onclick="openCardTitleDropPicker()" style="width:100%;text-align:left;margin-bottom:6px;">🎀 Select Title (none)</button>
+              <div style="font-size:0.68em;color:var(--text-dim);margin-top:5px;font-style:italic;">💡 Players will receive this title automatically when they pull this card for the first time. Create titles in the Titles tab first.</div>
             </div>
             <div class="admin-section-label" style="margin-top:18px;">
               Abilities <span class="admin-hint">(up to 5 — auto-saved with card)</span>
@@ -16552,6 +16671,83 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 </div>
 
 <!-- ADMIN: CODES TAB (inside page-admin) -->
+
+<div id="adminTab-titles" style="display:none;">
+  <div class="admin-panel">
+    <h3 style="font-family:'Cinzel Decorative',serif;font-size:0.88em;margin-bottom:16px;">🎀 Title Manager</h3>
+
+    <!-- Create / Edit Form -->
+    <div style="background:rgba(255,157,199,0.04);border:1px solid rgba(255,157,199,0.15);border-radius:12px;padding:14px;margin-bottom:18px;">
+      <div class="admin-section-label" style="margin-bottom:12px;">Create / Edit Title</div>
+
+      <label class="admin-label">Title ID <span class="admin-hint">(slug, no spaces — e.g. legendary_summoner)</span></label>
+      <input class="admin-input" id="titleForm_id" placeholder="legendary_summoner" style="margin-bottom:8px;font-family:'JetBrains Mono',monospace;font-size:0.82em;"/>
+
+      <label class="admin-label">Display Text</label>
+      <input class="admin-input" id="titleForm_text" placeholder="✦ Legendary Summoner ✦" style="margin-bottom:8px;"/>
+
+      <label class="admin-label">Badge Icon URL <span class="admin-hint">(optional — small image/icon shown as badge)</span></label>
+      <input class="admin-input" id="titleForm_badge" placeholder="https://... (PNG/GIF, ~24×24px recommended)" style="margin-bottom:8px;"/>
+
+      <label class="admin-label">Badge Emoji <span class="admin-hint">(optional — fallback if no image, or extra emoji)</span></label>
+      <input class="admin-input" id="titleForm_emoji" placeholder="e.g. 👑 or ✦" style="margin-bottom:8px;font-size:1.1em;"/>
+
+      <label class="admin-label">Text Color <span class="admin-hint">(CSS color for the title text)</span></label>
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
+        <input type="color" id="titleForm_color" value="#ff9dc7" style="width:40px;height:34px;border:1px solid rgba(255,157,199,0.3);border-radius:8px;background:transparent;cursor:pointer;padding:2px;"/>
+        <input class="admin-input" id="titleForm_colorHex" placeholder="#ff9dc7" style="flex:1;" oninput="document.getElementById('titleForm_color').value=this.value"/>
+        <span style="font-size:0.7em;color:var(--text-dim);">Sync →</span>
+      </div>
+
+      <label class="admin-label">Glow Color <span class="admin-hint">(optional — text shadow/glow)</span></label>
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
+        <input type="color" id="titleForm_glow" value="#ff9dc7" style="width:40px;height:34px;border:1px solid rgba(255,157,199,0.3);border-radius:8px;background:transparent;cursor:pointer;padding:2px;"/>
+        <input class="admin-input" id="titleForm_glowHex" placeholder="#ff9dc7 (leave blank = no glow)" style="flex:1;" oninput="document.getElementById('titleForm_glow').value=this.value"/>
+      </div>
+
+      <label class="admin-label">Effect <span class="admin-hint">(optional visual effect on title text)</span></label>
+      <select class="admin-input" id="titleForm_effect" style="margin-bottom:8px;">
+        <option value="">None</option>
+        <option value="rainbow">🌈 Rainbow</option>
+        <option value="shimmer">✨ Shimmer</option>
+        <option value="pulse">💓 Pulse</option>
+        <option value="gold">🌟 Gold Gradient</option>
+        <option value="sakura">🌸 Sakura</option>
+      </select>
+
+      <label class="admin-label">Rarity Tier <span class="admin-hint">(cosmetic label shown in selector)</span></label>
+      <select class="admin-input" id="titleForm_rarity" style="margin-bottom:14px;">
+        <option value="common">Common</option>
+        <option value="rare">Rare</option>
+        <option value="epic">Epic</option>
+        <option value="legendary">Legendary</option>
+        <option value="secret">??? Secret</option>
+      </select>
+
+      <!-- Preview -->
+      <div style="margin-bottom:14px;padding:10px;background:rgba(0,0,0,0.3);border-radius:10px;border:1px solid rgba(255,255,255,0.08);">
+        <div style="font-size:0.6em;color:var(--text-dim);text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px;">Preview</div>
+        <div id="titleForm_preview" style="display:flex;align-items:center;gap:6px;">
+          <span id="titleForm_previewBadge" style="display:none;width:20px;height:20px;border-radius:4px;overflow:hidden;vertical-align:middle;"></span>
+          <span id="titleForm_previewEmoji" style="font-size:1.1em;"></span>
+          <span id="titleForm_previewText" style="font-style:italic;font-size:0.9em;">✦ Title Preview ✦</span>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:8px;">
+        <button class="admin-btn" onclick="adminSaveTitle()" style="flex:1;">💾 Save Title</button>
+        <button class="admin-btn" onclick="adminClearTitleForm()" style="flex:1;background:rgba(255,255,255,0.06);border-color:rgba(255,255,255,0.2);">✕ Clear</button>
+      </div>
+    </div>
+
+    <!-- Title List -->
+    <div class="admin-section-label" style="margin-bottom:10px;">All Titles <span id="titleListCount" class="admin-hint"></span></div>
+    <div id="adminTitleList" style="display:flex;flex-direction:column;gap:8px;">
+      <div style="color:var(--text-dim);font-size:0.82em;font-style:italic;text-align:center;padding:20px;">Loading…</div>
+    </div>
+  </div>
+</div>
+
 <div id="adminTab-codes" style="display:none;">
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start;" class="admin-two-col-grid">
     <div class="admin-panel">
@@ -17339,7 +17535,8 @@ let state = {
   gradientStart: '#e0608a',
   gradientEnd:   '#c084b8',
   accentColor:   '',
-  ownedTitles:   [],
+  ownedTitles:   [],  // array of title IDs
+  activeTitleId: '',  // the equipped title's ID
   activeBoosts:  {},  // { coinboost: expireTimestamp, xpboost: expireTimestamp }
   profileMusic:  '',   // URL for profile background music
   showcaseCards: [],   // up to 3 card IDs pinned on profile
@@ -18420,6 +18617,8 @@ async function loadPlayer(discordId){
     state.username=p.username??state.username;state.avatar=p.avatar??'';
     state.bio=p.bio??state.bio;
     state.title=p.active_title??state.title;
+    state.activeTitleId=p.active_title_id??state.activeTitleId??'';
+    editTitle=state.activeTitleId;
     state.customAvatar=p.profile_thumbnail??'';
     state.bannerImage=p.profile_banner??'';
     const idx=typeof p.profile_color==='number'?p.profile_color:0;
@@ -18486,6 +18685,7 @@ async function savePlayer(){
     equipped_card:state.equippedId,
     bio:state.bio,
     active_title:state.title,
+    active_title_id:state.activeTitleId||'',
     profile_color:colorIdx,
     profile_thumbnail:state.customAvatar,
     profile_banner:state.bannerImage,
@@ -19012,7 +19212,9 @@ async function handlePullResult(cards){
 
     // ── Title Drop: grant on first pull of cards with a title_drop set ──
     if(!isDupe && card.title_drop){
-      await grantTitleToPlayer(state.discordId, card.title_drop, card.name);
+      // title_drop is now a title ID; fall back to legacy text grant if not in registry
+      if(getTitleById(card.title_drop)) await grantTitleById(state.discordId, card.title_drop, card.name);
+      else if(card.title_drop) await grantTitleToPlayer(state.discordId, card.title_drop, card.name);
     }
 
     // ── Broadcast UR / Secret pulls to plaza + live feed ──
@@ -19800,7 +20002,16 @@ function updateProfile(){
   // Display name: use custom if set, else Discord username
   const shownName=(state.displayName||state.username)+(state.isGuest?' (Guest)':'');
   document.getElementById('profileName').textContent=shownName;
-  document.getElementById('profileTitle').textContent=state.title;
+  // Title with badge
+  const _ptEl=document.getElementById('profileTitle');
+  if(_ptEl){
+    const _tid=state.activeTitleId||'';
+    if(_tid && getTitleById(_tid)){
+      _ptEl.innerHTML=buildTitleBadgeHtml(_tid,{clickable:true,showText:true});
+    } else {
+      _ptEl.textContent=state.title||'';
+    }
+  }
   document.getElementById('profileBio').textContent=state.bio;
   // Avatar: custom > Discord avatar > placeholder
   const avatarSrc=state.customAvatar||state.avatar||'https://cdn.discordapp.com/embed/avatars/0.png';
@@ -20070,6 +20281,8 @@ async function guestLogin(){
       state.totalPulls=g.totalPulls??0;state.equippedId=g.equippedId??null;
       state.collection=g.collection??[];state.xpMap=g.xpMap??{};
       state.bio=g.bio??state.bio;state.title=g.title??state.title;
+      state.activeTitleId=g.activeTitleId??state.activeTitleId??'';
+      editTitle=state.activeTitleId;
       state.bannerColor=g.bannerColor??state.bannerColor;
       state.displayName=g.displayName??'';state.customAvatar=g.customAvatar??'';
       state.bannerImage=g.bannerImage??'';
@@ -20101,7 +20314,7 @@ function saveGuestState(){
     collection:state.collection,xpMap:state.xpMap,
     bio:state.bio,title:state.title,bannerColor:state.bannerColor,
     displayName:state.displayName,customAvatar:state.customAvatar,bannerImage:state.bannerImage,
-    ownedTitles:state.ownedTitles||[],activeBoosts:state.activeBoosts||{},
+    ownedTitles:state.ownedTitles||[],activeTitleId:state.activeTitleId||'',activeBoosts:state.activeBoosts||{},
     gradientStart:state.gradientStart||'#e0608a',
     gradientEnd:state.gradientEnd||'#c084b8',
     profileMusic:state.profileMusic||'',
@@ -20530,7 +20743,7 @@ function renderPeRoomTab(){
 
 function openProfileEdit(){
   editBannerColor = state.bannerColor;
-  editTitle = state.title;
+  editTitle = state.activeTitleId||state.title||'';
   window._peShowcasePicks = [...(state.showcaseCards||[])];
   window._peActiveSlot = 0;
   window._peFriendPicks = [...(state.featuredFriends||[])];
@@ -20586,18 +20799,9 @@ function openProfileEdit(){
       onclick="applyBannerPreset('${c.v}',this)"></div>
   `).join('');
 
-  // Titles
-  const tp=document.getElementById('titlePicker');
-  const ownedTitles = [...new Set([...(state.ownedTitles||[]),...(state.title?[state.title]:[])])];
-  if(ownedTitles.length){
-    tp.innerHTML=ownedTitles.map(t=>`
-      <div class="title-opt${t===state.title?' selected':''}" onclick="selectTitle('${t.replace(/'/g,"\\'")}',this)">${t}</div>
-    `).join('');
-  } else {
-    tp.innerHTML='<div style="color:var(--text-dim);font-size:0.85em;font-style:italic;">No titles yet — buy them in the Shop! 🛍️</div>';
-  }
-
-  // Switch to About tab by default
+  // Titles — update button label
+  _updatePeTitleBtn();
+    // Switch to About tab by default
   switchPeTab('about', document.querySelector('.pe-tab'));
 
   updatePePreview();
@@ -20670,11 +20874,35 @@ function selectBannerColor(v,el){
 function selectTitle(t,el){
   editTitle=t;
   document.querySelectorAll('.title-opt').forEach(x=>x.classList.remove('selected'));
-  el.classList.add('selected');
+  if(el) el.classList.add('selected');
+}
+function openPeTitlePicker(){
+  openTitlePicker({
+    currentId: editTitle||state.activeTitleId||'',
+    showNone: true,
+    onSelect:(id)=>{
+      editTitle=id;
+      _updatePeTitleBtn();
+    }
+  });
+}
+function _updatePeTitleBtn(){
+  const btn=document.getElementById('peTitlePickerBtn');
+  if(!btn)return;
+  const id=editTitle||state.activeTitleId||'';
+  const t=id?getTitleById(id):null;
+  if(t){
+    const badgeImg=t.badge?`<img src="${escapeHtml(t.badge)}" style="width:18px;height:18px;border-radius:3px;object-fit:cover;vertical-align:middle;margin-right:4px;" onerror="this.style.display='none'"/>`: '';
+    const emoji=t.emoji?`<span style="margin-right:4px;">${escapeHtml(t.emoji)}</span>`:'';
+    btn.innerHTML=`${badgeImg}${emoji}<span style="color:${t.color||'var(--pink)'};font-style:italic;">${escapeHtml(t.text||t.id)}</span>`;
+  } else {
+    btn.textContent='🎀 No Title — tap to change';
+  }
 }
 async function saveProfileCustom(){
   state.bannerColor=editBannerColor||state.bannerColor;
-  state.title=editTitle||state.title;
+  state.title=editTitle!==undefined ? (editTitle ? (getTitleById(editTitle)?.text || editTitle) : '') : state.title;
+  state.activeTitleId=editTitle!==undefined ? editTitle : (state.activeTitleId||'');
   state.bio=document.getElementById('editBio').value||state.bio;
   // Display name
   const newName=(document.getElementById('editDisplayName')?.value||'').trim();
@@ -21042,7 +21270,25 @@ function openDailyManual(){
 // ══════════════════════════════════════════════
 // ACTIVITY SYSTEM (Work / Train / Quest)
 // ══════════════════════════════════════════════
-const COOLDOWNS = { work: 30*60*1000, train: 20*60*1000, quest: 45*60*1000, battleai: 10*60*1000 };
+const COOLDOWNS = { work: 30*60*1000, train: 20*60*1000, quest: 45*60*1000, battleai: 15*60*1000 };
+const BATTLE_AI_DAILY_WIN_CAP = 8; // max rewarded wins per day
+
+function getBattleAiWinKey(){ return state.discordId ? `mg_bai_wins_${state.discordId}` : 'mg_bai_wins_guest'; }
+function getBattleAiWinsToday(){
+  try {
+    const raw = localStorage.getItem(getBattleAiWinKey());
+    if(!raw) return 0;
+    const {date, wins} = JSON.parse(raw);
+    const today = new Date().toDateString();
+    return date === today ? (wins||0) : 0;
+  } catch(e){ return 0; }
+}
+function incrementBattleAiWins(){
+  const today = new Date().toDateString();
+  const wins = getBattleAiWinsToday() + 1;
+  localStorage.setItem(getBattleAiWinKey(), JSON.stringify({date:today, wins}));
+}
+function battleAiWinCapReached(){ return getBattleAiWinsToday() >= BATTLE_AI_DAILY_WIN_CAP; }
 
 function getActKey(type){ return state.discordId ? `mg_act_${type}_${state.discordId}` : `mg_act_${type}_guest`; }
 function getLastAct(type){ const v=localStorage.getItem(getActKey(type)); return v?parseInt(v):0; }
@@ -21066,8 +21312,10 @@ function updateActivityCooldowns(){
   const baiLeft = getCooldownLeft('battleai');
   const baiCd = document.getElementById('battleAICooldown');
   const baiBtn = document.getElementById('battleAIBtn');
-  if(baiLeft>0){ if(baiCd)baiCd.textContent=`⏳ ${fmtTime(baiLeft)}`; if(baiBtn)baiBtn.disabled=true; }
-  else { if(baiCd)baiCd.textContent='✅ Ready!'; if(baiBtn)baiBtn.disabled=false; }
+  const winsLeft = Math.max(0, BATTLE_AI_DAILY_WIN_CAP - getBattleAiWinsToday());
+  const winsLabel = winsLeft > 0 ? ` · ${winsLeft} rewarded wins left` : ' · Daily cap reached';
+  if(baiLeft>0){ if(baiCd)baiCd.textContent=`⏳ ${fmtTime(baiLeft)}${winsLabel}`; if(baiBtn)baiBtn.disabled=true; }
+  else { if(baiCd)baiCd.textContent=`✅ Ready!${winsLabel}`; if(baiBtn)baiBtn.disabled=false; }
 }
 
 setInterval(updateActivityCooldowns, 1000);
@@ -22109,8 +22357,11 @@ async function _baiEndBattle(playerWon) {
   const bossMult = isBoss ? 2.5 : 1;
 
   if (playerWon) {
-    const coins = Math.round((40 + ps.playerCard.rarity * 12 + ps.enemyCard.rarity * 10) * diff.rewardMult * bossMult);
+    const winsToday = getBattleAiWinsToday();
+    const capReached = winsToday >= BATTLE_AI_DAILY_WIN_CAP;
+    const coins = capReached ? 0 : Math.round((40 + ps.playerCard.rarity * 12 + ps.enemyCard.rarity * 10) * diff.rewardMult * bossMult);
     const xp    = Math.round((50 + ps.playerCard.rarity * 14 + ps.turn * 3) * diff.rewardMult * bossMult);
+    if(!capReached) incrementBattleAiWins();
     state.coins += coins;
     updateCoins();
     if (state.equippedId) {
@@ -22121,10 +22372,12 @@ async function _baiEndBattle(playerWon) {
     if (state.isGuest) saveGuestState();
     spawnParticles(isBoss ? 10 : 5, isBoss ? '#f1c40f' : '#ff9dc7');
     playVictorySound();
-    _baiLog(`🏆 VICTORY! Earned +${coins}🪙 +${xp}XP${isBoss ? ' 👑 BOSS BONUS!' : ''}`, 'system');
+    _baiLog(`🏆 VICTORY! ${capReached ? '(Daily reward cap reached — no coins today)' : `Earned +${coins}🪙 +${xp}XP${isBoss ? ' 👑 BOSS BONUS!' : ''}`}`, 'system');
     document.getElementById('baiBattleOutcomeTitle').innerHTML = `<span class="battle-outcome-victory">⚡ VICTORY!${isBoss ? ' 👑' : ''} ⚡</span>`;
     document.getElementById('baiBattleOutcomeMsg').textContent = `${ps.playerCard.name} triumphs after ${ps.turn} turns!`;
-    document.getElementById('baiBattleOutcomeRewards').innerHTML = `<span class="reward-tag">+${coins} 🪙</span>${state.equippedId ? `<span class="reward-tag xp">+${xp} XP</span>` : ''}${isBoss ? '<span class="reward-tag" style="color:#f1c40f;border-color:rgba(241,196,15,0.4);background:rgba(241,196,15,0.1);">👑 Boss Slayer!</span>' : ''}`;
+    document.getElementById('baiBattleOutcomeRewards').innerHTML = capReached
+      ? `<span class="reward-tag xp">+${xp} XP</span><span style="color:var(--text-dim);font-size:0.82em;padding:4px 8px;">Daily win cap reached (${BATTLE_AI_DAILY_WIN_CAP}/day) — resets tomorrow</span>`
+      : `<span class="reward-tag">+${coins} 🪙</span>${state.equippedId?`<span class="reward-tag xp">+${xp} XP</span>`:''}${isBoss?'<span class="reward-tag" style="color:#f1c40f;border-color:rgba(241,196,15,0.4);background:rgba(241,196,15,0.1);">👑 Boss Slayer!</span>':''}`;
   } else {
     const consolationCoins = Math.round(8 * diff.rewardMult);
     const consolationXp    = Math.round(12 * diff.rewardMult);
@@ -23314,9 +23567,9 @@ async function _finishMinigame(type, ratio, theme) {
   _actClearAll();
   const grade=ratio>=0.9?'S':ratio>=0.7?'A':ratio>=0.5?'B':'C';
   const rewards={
-    work:  {S:{coins:200,xp:20},A:{coins:155,xp:15},B:{coins:110,xp:10},C:{coins:75,xp:8}},
+    work:  {S:{coins:150,xp:20},A:{coins:110,xp:15},B:{coins:75,xp:10},C:{coins:50,xp:8}},
     train: {S:{coins:30,xp:200},A:{coins:23,xp:155},B:{coins:17,xp:110},C:{coins:12,xp:75}},
-    quest: {S:{coins:160,xp:120},A:{coins:120,xp:90},B:{coins:85,xp:60},C:{coins:50,xp:38}},
+    quest: {S:{coins:120,xp:120},A:{coins:90,xp:90},B:{coins:60,xp:60},C:{coins:35,xp:38}},
   };
   const {coins,xp}=rewards[type][grade];
   state.coins+=coins; updateCoins();
@@ -28328,7 +28581,7 @@ function showAdminNav(){
 }
 
 function switchAdminTab(tab, btn){
-  ['cards','banners','skins','shop','tools','items','anime','worldboss','storylines','codes','announce'].forEach(t=>{
+  ['cards','banners','skins','shop','tools','items','anime','worldboss','storylines','codes','announce','titles'].forEach(t=>{
     const el=document.getElementById('adminTab-'+t);
     const b=document.getElementById('atab-'+t);
     if(el)el.style.display=t===tab?'block':'none';
@@ -28349,6 +28602,7 @@ function switchAdminTab(tab, btn){
   if(tab==='worldboss') { loadAdminBossList(); populateWbCardSelector(); }
   if(tab==='storylines') { loadAdminStorylineList(); slInitScenesEditor(); const dl=document.getElementById('slSeriesSuggestions'); if(dl) delete dl.dataset.populated; }
   if(tab==='codes') { adminLoadPlayerSearch(); adminLoadCodeList(); }
+  if(tab==='titles') { adminLoadTitleList(); }
   if(tab==='announce') { adminLoadAnnouncementList(); }
 }
 
@@ -29996,6 +30250,7 @@ async function editCard(cardId){
   // Title drop
   const tdEl = document.getElementById('cardForm_titleDrop');
   if(tdEl) tdEl.value = c.title_drop || '';
+  _cardFormTitleId = c.title_drop||''; const _ctBtn=document.getElementById('cardTitleDropBtn'); if(_ctBtn){const _t=_cardFormTitleId?getTitleById(_cardFormTitleId):null; _ctBtn.textContent=_t?'🎀 '+_t.text:'🎀 Select Title (none)';}
   // Populate music
   const musicUrl = c.music_url || '';
   if(musicUrl.startsWith('data:')) {
@@ -32224,6 +32479,7 @@ function renderRoomChatMsg(msg){
       <div class="chat-meta">
         <span class="chat-username">${escapeHtml(msg.username||'Player')}</span>
         ${isAdmin?'<span class="chat-admin-badge">👑 ADMIN</span>':''}
+        ${(()=>{const tid=msg.active_title_id||'';return tid&&getTitleById(tid)?buildTitleBadgeHtml(tid,{clickable:true,showText:false}):'';})()}
         <span class="chat-time">${time}</span>
       </div>
       ${replyHtml}
@@ -32670,6 +32926,7 @@ function renderCinemaMsg(msg){
       <div class="chat-meta">
         <span class="chat-username">${escapeHtml(msg.username||'Viewer')}</span>
         ${isAdmin?'<span class="chat-admin-badge">👑 ADMIN</span>':''}
+        ${(()=>{const tid=msg.active_title_id||'';return tid&&getTitleById(tid)?buildTitleBadgeHtml(tid,{clickable:true,showText:false}):'';})()}
         <span class="chat-time">${time}</span>
       </div>
       ${replyHtml}
@@ -33927,6 +34184,10 @@ function renderChatMsg(msg){
       <div class="chat-meta" onclick="viewPlayerProfile('${msg.discord_id}')">
         <span class="chat-username">${escapeHtml(msg.username)}</span>
         ${isAdmin ? '<span class="chat-admin-badge">👑 ADMIN</span>' : ''}
+        ${(()=>{
+          const tid=msg.active_title_id||(msg.active_title_obj&&msg.active_title_obj.id)||'';
+          return tid && getTitleById(tid) ? buildTitleBadgeHtml(tid,{clickable:true,showText:false}) : '';
+        })()}
         <span class="chat-time">${time}</span>
       </div>
       ${contentHtml}
@@ -34473,7 +34734,13 @@ function openPlayerModal(player){
               <div style="font-family:'Cinzel Decorative',serif;font-size:1.05em;color:#fff;font-weight:700;letter-spacing:0.02em;">${escapeHtml(name)}</div>
               ${(()=>{ const af=typeof getAffinityWith==='function'&&typeof state!=='undefined'?getAffinityWith(player.discord_id):null; return af?`<span class="friend-row-affinity ${getAffinityCls(af)}" style="font-size:0.58em;">${escapeHtml(getAffinityLabel(af))}</span>`:''; })()}
             </div>
-            <div style="font-size:0.76em;color:var(--pink);font-style:italic;opacity:0.9;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(player.active_title||'✦ Summoner ✦')}</div>
+            <div style="font-size:0.76em;color:var(--pink);font-style:italic;opacity:0.9;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+              ${(()=>{
+                const tid=player.active_title_id||'';
+                if(tid && getTitleById(tid)) return buildTitleBadgeHtml(tid,{clickable:true,showText:true});
+                return escapeHtml(player.active_title||'✦ Summoner ✦');
+              })()}
+            </div>
           </div>
         </div>
 
@@ -39995,6 +40262,494 @@ function renderProfileAffinities() {
 // Friends system is initialized via loadAll() hook above.
 </script>
 
+
+<!-- Title Flash Overlay -->
+<div id="titleFlashOverlay" onclick="closeTitleFlash()">
+  <div id="titleFlashInner">
+    <img id="titleFlashBadge" src="" alt="" style="display:none;"/>
+    <span id="titleFlashEmoji" style="display:none;"></span>
+    <div id="titleFlashText">✦ Title ✦</div>
+  </div>
+</div>
+
+<!-- Title Picker Modal -->
+<div id="titlePickerModal" onclick="if(event.target===this)closeTitlePicker()">
+  <div id="titlePickerSheet">
+    <h3>🎀 Select Title</h3>
+    <div id="titlePickerGrid"></div>
+    <button onclick="closeTitlePicker()" style="margin-top:8px;width:100%;padding:12px;border-radius:12px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);color:var(--text-dim);cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:0.82em;">Cancel</button>
+  </div>
+</div>
+
+
+<script>
+// ══════════════════════════════════════════════════════
+// TITLE REGISTRY — persisted to localStorage + Supabase
+// ══════════════════════════════════════════════════════
+
+// In-memory cache
+window._titleRegistry = [];
+
+function _saveLocalTitles(list) {
+  try { localStorage.setItem('mg_title_registry', JSON.stringify(list)); } catch(e){}
+}
+function _loadLocalTitles() {
+  try {
+    const s = localStorage.getItem('mg_title_registry');
+    return s ? JSON.parse(s) : [];
+  } catch(e){ return []; }
+}
+
+async function loadTitleRegistry() {
+  // Try Supabase first — stored as a config row
+  const rt = getSupaRT ? getSupaRT() : null;
+  if (rt) {
+    try {
+      const { data } = await rt.from('game_config').select('value').eq('key','title_registry').limit(1);
+      if (data && data[0]) {
+        const list = JSON.parse(data[0].value || '[]');
+        window._titleRegistry = list;
+        _saveLocalTitles(list);
+        return list;
+      }
+    } catch(e) {}
+  }
+  // fallback to localStorage
+  const list = _loadLocalTitles();
+  window._titleRegistry = list;
+  return list;
+}
+
+async function saveTitleRegistry(list) {
+  window._titleRegistry = list;
+  _saveLocalTitles(list);
+  // Persist to Supabase
+  const rt = getSupaRT ? getSupaRT() : null;
+  if (rt) {
+    try {
+      await rt.from('game_config').upsert({ key:'title_registry', value:JSON.stringify(list) }, { onConflict:'key' });
+    } catch(e) {
+      console.warn('Title registry Supabase save failed (game_config table may not exist yet):', e);
+    }
+  }
+}
+
+// Lookup a title object by ID
+function getTitleById(id) {
+  return (window._titleRegistry || []).find(t => t.id === id) || null;
+}
+
+// ══════════════════════════════════════════════════════
+// BUILD TITLE BADGE HTML
+// Returns an HTML string for the badge + text
+// If clickable=true, clicking it triggers flash
+// ══════════════════════════════════════════════════════
+function buildTitleBadgeHtml(titleId, { clickable = true, showText = true, size = 'normal' } = {}) {
+  const t = getTitleById(titleId);
+  if (!t) return ''; // title not in registry — nothing shown
+  const color   = t.color  || 'var(--pink)';
+  const glow    = t.glow   ? `text-shadow:0 0 10px ${t.glow},0 0 20px ${t.glow}40;` : '';
+  const effect  = t.effect || '';
+  const text    = escapeHtml(t.text || t.id);
+  const onclick = clickable ? `onclick="flashTitle('${t.id}')" title="Click to reveal title!"` : '';
+  const badgeImg = t.badge
+    ? `<img class="title-badge-img" src="${escapeHtml(t.badge)}" alt="" onerror="this.style.display='none'"/>`
+    : '';
+  const emoji = t.emoji ? `<span class="title-badge-emoji">${escapeHtml(t.emoji)}</span>` : '';
+  const textHtml = showText
+    ? `<span class="title-text-display" data-effect="${effect}" style="color:${color};${glow}">${text}</span>`
+    : '';
+  if (!badgeImg && !emoji && !showText) return '';
+  return `<span class="title-badge-wrap" ${onclick}>${badgeImg}${emoji}${textHtml}</span>`;
+}
+
+// Plain text form of a title (for fields that just want the text)
+function getTitleText(titleId) {
+  const t = getTitleById(titleId);
+  return t ? (t.text || t.id) : (titleId || '');
+}
+
+// ══════════════════════════════════════════════════════
+// FLASH OVERLAY
+// ══════════════════════════════════════════════════════
+let _flashTimeout = null;
+function flashTitle(titleId) {
+  const t = getTitleById(titleId);
+  if (!t) return;
+  const overlay = document.getElementById('titleFlashOverlay');
+  if (!overlay) return;
+
+  // Badge image
+  const badgeEl = document.getElementById('titleFlashBadge');
+  if (badgeEl) {
+    if (t.badge) { badgeEl.src = t.badge; badgeEl.style.display = 'block'; }
+    else badgeEl.style.display = 'none';
+  }
+  // Emoji
+  const emojiEl = document.getElementById('titleFlashEmoji');
+  if (emojiEl) {
+    if (t.emoji && !t.badge) { emojiEl.textContent = t.emoji; emojiEl.style.display = 'block'; }
+    else emojiEl.style.display = 'none';
+  }
+  // Text
+  const textEl = document.getElementById('titleFlashText');
+  if (textEl) {
+    textEl.textContent = t.text || t.id;
+    const color = t.color || 'var(--pink)';
+    const glow  = t.glow  || color;
+    textEl.style.color = color;
+    textEl.style.textShadow = `0 0 30px ${glow}, 0 0 60px ${glow}44`;
+    textEl.setAttribute('data-effect', t.effect || '');
+    // Apply effect classes
+    textEl.className = 'title-text-display';
+    if (t.effect) textEl.setAttribute('data-effect', t.effect);
+  }
+  overlay.classList.add('visible');
+  clearTimeout(_flashTimeout);
+  _flashTimeout = setTimeout(closeTitleFlash, 3000);
+}
+function closeTitleFlash() {
+  const overlay = document.getElementById('titleFlashOverlay');
+  if (overlay) overlay.classList.remove('visible');
+  clearTimeout(_flashTimeout);
+}
+
+// ══════════════════════════════════════════════════════
+// TITLE PICKER MODAL
+// ══════════════════════════════════════════════════════
+let _titlePickerCallback = null; // function(titleId) called on confirm
+let _titlePickerSelected = null;
+let _titlePickerShowNone = false;
+
+function openTitlePicker({ currentId = '', onSelect, showNone = true } = {}) {
+  _titlePickerCallback = onSelect || null;
+  _titlePickerSelected = currentId;
+  _titlePickerShowNone = showNone;
+  const modal = document.getElementById('titlePickerModal');
+  if (!modal) return;
+  renderTitlePickerGrid();
+  modal.classList.add('active');
+}
+function closeTitlePicker() {
+  const modal = document.getElementById('titlePickerModal');
+  if (modal) modal.classList.remove('active');
+  _titlePickerCallback = null;
+}
+function renderTitlePickerGrid(ownedOnly = false, ownedIds = null) {
+  const grid = document.getElementById('titlePickerGrid');
+  if (!grid) return;
+  const registry = window._titleRegistry || [];
+  const owned = ownedIds || state.ownedTitles || [];
+  // Filter to owned if needed
+  const titles = ownedOnly ? registry.filter(t => owned.includes(t.id)) : registry.filter(t => owned.includes(t.id));
+  // Also include any legacy string titles the player owns that aren't in registry
+  
+  const RARITY_COLORS_MAP = {
+    common: '#bdc3c7', rare: '#3498db', epic: '#9b59b6', legendary: '#f1c40f', secret: '#ff79c6'
+  };
+  
+  let html = '';
+  if (_titlePickerShowNone) {
+    html += `<div class="title-picker-none-opt${_titlePickerSelected===''?' selected':''}" onclick="titlePickerSelect('')">✕ No Title</div>`;
+  }
+  if (!titles.length) {
+    html += `<div style="color:var(--text-dim);font-size:0.82em;font-style:italic;padding:20px;text-align:center;grid-column:1/-1;">No titles owned yet! Pull rare cards or buy from the shop.</div>`;
+  }
+  for (const t of titles) {
+    const color  = t.color  || 'var(--pink)';
+    const glow   = t.glow   ? `text-shadow:0 0 8px ${t.glow};` : '';
+    const effect = t.effect || '';
+    const rc     = RARITY_COLORS_MAP[t.rarity] || '#bdc3c7';
+    const badgeImg = t.badge ? `<img class="title-badge-img" src="${escapeHtml(t.badge)}" alt="" onerror="this.style.display='none'"/>` : '';
+    const emoji  = t.emoji  ? `<span class="title-badge-emoji">${escapeHtml(t.emoji)}</span>` : '';
+    html += `
+      <div class="title-picker-card${_titlePickerSelected===t.id?' selected':''}" onclick="titlePickerSelect('${t.id}')">
+        <div class="tpc-badge-row">${badgeImg}${emoji}
+          <span class="title-text-display" data-effect="${effect}" style="color:${color};${glow}">${escapeHtml(t.text||t.id)}</span>
+        </div>
+        <div class="tpc-rarity" style="color:${rc};">${escapeHtml(t.rarity||'common')}</div>
+      </div>`;
+  }
+  grid.innerHTML = html;
+}
+function titlePickerSelect(id) {
+  _titlePickerSelected = id;
+  // Update visual selection
+  document.querySelectorAll('.title-picker-card, .title-picker-none-opt').forEach(el => {
+    el.classList.toggle('selected', false);
+  });
+  const all = document.querySelectorAll('.title-picker-card, .title-picker-none-opt');
+  // find by onclick
+  all.forEach(el => {
+    const oc = el.getAttribute('onclick') || '';
+    if (oc.includes(`'${id}'`) || (id === '' && oc.includes("''"))) el.classList.add('selected');
+  });
+  // Confirm and close
+  if (_titlePickerCallback) _titlePickerCallback(id);
+  closeTitlePicker();
+}
+
+// ══════════════════════════════════════════════════════
+// ADMIN: TITLE MANAGER
+// ══════════════════════════════════════════════════════
+function adminLoadTitleList() {
+  loadTitleRegistry().then(() => renderAdminTitleList());
+}
+function renderAdminTitleList() {
+  const list = window._titleRegistry || [];
+  const el = document.getElementById('adminTitleList');
+  const cnt = document.getElementById('titleListCount');
+  if (cnt) cnt.textContent = `(${list.length})`;
+  if (!el) return;
+  if (!list.length) {
+    el.innerHTML = '<div style="color:var(--text-dim);font-size:0.82em;font-style:italic;text-align:center;padding:20px;">No titles yet. Create one above!</div>';
+    return;
+  }
+  const RARITY_COLORS_MAP = { common:'#bdc3c7', rare:'#3498db', epic:'#9b59b6', legendary:'#f1c40f', secret:'#ff79c6' };
+  el.innerHTML = list.map(t => {
+    const color = t.color || 'var(--pink)';
+    const rc    = RARITY_COLORS_MAP[t.rarity] || '#bdc3c7';
+    const badgeImg = t.badge ? `<img style="width:22px;height:22px;border-radius:4px;object-fit:cover;" src="${escapeHtml(t.badge)}" onerror="this.style.display='none'"/>` : '';
+    const emoji  = t.emoji ? `<span style="font-size:1.1em;">${escapeHtml(t.emoji)}</span>` : '';
+    return `
+      <div style="display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,157,199,0.12);border-radius:10px;padding:10px 12px;">
+        <div style="display:flex;align-items:center;gap:6px;flex:1;min-width:0;">
+          ${badgeImg}${emoji}
+          <div style="flex:1;min-width:0;">
+            <div style="color:${color};font-style:italic;font-size:0.88em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(t.text||t.id)}</div>
+            <div style="font-size:0.6em;font-family:'JetBrains Mono',monospace;color:${rc};text-transform:uppercase;letter-spacing:.05em;">${escapeHtml(t.rarity||'common')} · ${escapeHtml(t.id)}</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:6px;flex-shrink:0;">
+          <button class="admin-action-btn" onclick="adminEditTitle('${t.id}')" title="Edit">✏️</button>
+          <button class="admin-action-btn danger" onclick="adminDeleteTitle('${t.id}')" title="Delete">🗑</button>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function adminSaveTitle() {
+  const id    = (document.getElementById('titleForm_id')?.value||'').trim().replace(/\s+/g,'_').toLowerCase();
+  const text  = (document.getElementById('titleForm_text')?.value||'').trim();
+  const badge = (document.getElementById('titleForm_badge')?.value||'').trim();
+  const emoji = (document.getElementById('titleForm_emoji')?.value||'').trim();
+  const color = document.getElementById('titleForm_colorHex')?.value || document.getElementById('titleForm_color')?.value || '#ff9dc7';
+  const glow  = document.getElementById('titleForm_glowHex')?.value || document.getElementById('titleForm_glow')?.value || '';
+  const effect= document.getElementById('titleForm_effect')?.value || '';
+  const rarity= document.getElementById('titleForm_rarity')?.value || 'common';
+  if (!id || !text) { showToast('ID and display text are required!'); return; }
+  const list = [...(window._titleRegistry||[])];
+  const existing = list.findIndex(t => t.id === id);
+  const obj = { id, text, badge, emoji, color, glow, effect, rarity };
+  if (existing >= 0) list[existing] = obj; else list.push(obj);
+  saveTitleRegistry(list).then(() => {
+    renderAdminTitleList();
+    showToast('✅ Title saved!');
+  });
+}
+function adminEditTitle(id) {
+  const t = getTitleById(id);
+  if (!t) return;
+  const set = (elId, val) => { const el = document.getElementById(elId); if(el) el.value = val||''; };
+  set('titleForm_id', t.id);
+  set('titleForm_text', t.text);
+  set('titleForm_badge', t.badge);
+  set('titleForm_emoji', t.emoji);
+  set('titleForm_colorHex', t.color||'#ff9dc7');
+  set('titleForm_color', t.color||'#ff9dc7');
+  set('titleForm_glowHex', t.glow||'');
+  set('titleForm_glow', t.glow||'#ff9dc7');
+  set('titleForm_effect', t.effect||'');
+  set('titleForm_rarity', t.rarity||'common');
+  adminUpdateTitlePreview();
+  // Scroll to form
+  document.getElementById('titleForm_id')?.scrollIntoView({ behavior:'smooth', block:'start' });
+}
+function adminDeleteTitle(id) {
+  if (!confirm(`Delete title "${id}"? This will not remove it from players who already own it.`)) return;
+  const list = (window._titleRegistry||[]).filter(t => t.id !== id);
+  saveTitleRegistry(list).then(() => { renderAdminTitleList(); showToast('🗑 Title deleted'); });
+}
+function adminClearTitleForm() {
+  ['titleForm_id','titleForm_text','titleForm_badge','titleForm_emoji','titleForm_colorHex','titleForm_glowHex'].forEach(id=>{
+    const el=document.getElementById(id); if(el)el.value='';
+  });
+  const col=document.getElementById('titleForm_color'); if(col)col.value='#ff9dc7';
+  const glo=document.getElementById('titleForm_glow');  if(glo)glo.value='#ff9dc7';
+  const eff=document.getElementById('titleForm_effect');if(eff)eff.value='';
+  const rar=document.getElementById('titleForm_rarity');if(rar)rar.value='common';
+  adminUpdateTitlePreview();
+}
+function adminUpdateTitlePreview() {
+  const text  = document.getElementById('titleForm_text')?.value || '✦ Title Preview ✦';
+  const color = document.getElementById('titleForm_colorHex')?.value || document.getElementById('titleForm_color')?.value || '#ff9dc7';
+  const glow  = document.getElementById('titleForm_glowHex')?.value || '';
+  const badge = document.getElementById('titleForm_badge')?.value || '';
+  const emoji = document.getElementById('titleForm_emoji')?.value || '';
+  const effect= document.getElementById('titleForm_effect')?.value || '';
+  const textEl= document.getElementById('titleForm_previewText');
+  if (textEl) {
+    textEl.textContent = text;
+    textEl.style.color = color;
+    textEl.style.textShadow = glow ? `0 0 10px ${glow}` : '';
+    textEl.setAttribute('data-effect', effect);
+    textEl.className = 'title-text-display';
+    if (effect) textEl.setAttribute('data-effect', effect);
+  }
+  const badgeEl = document.getElementById('titleForm_previewBadge');
+  if (badgeEl) {
+    if (badge) { badgeEl.innerHTML = `<img src="${escapeHtml(badge)}" style="width:20px;height:20px;border-radius:4px;object-fit:cover;" onerror="this.style.display='none'"/>`; badgeEl.style.display=''; }
+    else badgeEl.style.display='none';
+  }
+  const emojiEl = document.getElementById('titleForm_previewEmoji');
+  if (emojiEl) { emojiEl.textContent = emoji; }
+}
+// Wire up live preview inputs
+document.addEventListener('DOMContentLoaded', () => {
+  ['titleForm_text','titleForm_badge','titleForm_emoji','titleForm_colorHex','titleForm_glowHex','titleForm_color','titleForm_glow','titleForm_effect','titleForm_rarity'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('input', adminUpdateTitlePreview);
+    if (el) el.addEventListener('change', adminUpdateTitlePreview);
+  });
+
+  // Load title registry on boot
+  loadTitleRegistry();
+});
+
+// ══════════════════════════════════════════════════════
+// GRANT TITLE — updated to use IDs
+// We keep backward compat: if a player has legacy string titles,
+// they are kept as-is (displayed as plain text without badge)
+// ══════════════════════════════════════════════════════
+async function grantTitleById(discordId, titleId, sourceName) {
+  if (!titleId) return;
+  if (!state.ownedTitles) state.ownedTitles = [];
+  const isMe = !discordId || discordId === state.discordId;
+  if (isMe) {
+    if (state.ownedTitles.includes(titleId)) {
+      showToast('✨ You already own this title!');
+      return;
+    }
+    state.ownedTitles.push(titleId);
+    const t = getTitleById(titleId);
+    showToast(`🎀 New title unlocked: ${t ? t.text : titleId} (from ${sourceName})!`);
+    if (state.discordId && !state.isGuest) {
+      const rt = getSupaRT();
+      if (rt) {
+        try {
+          await rt.from('players').update({ owned_titles: JSON.stringify(state.ownedTitles) }).eq('discord_id', state.discordId);
+        } catch(e) {}
+      }
+    }
+    if (state.isGuest) saveGuestState();
+  } else {
+    // Grant to another player
+    const rt = getSupaRT();
+    if (!rt) return;
+    try {
+      const { data } = await rt.from('players').select('owned_titles').eq('discord_id', discordId).limit(1);
+      let titles = [];
+      try { titles = data?.[0]?.owned_titles ? JSON.parse(data[0].owned_titles) : []; } catch(_){}
+      if (!titles.includes(titleId)) {
+        titles.push(titleId);
+        await rt.from('players').update({ owned_titles: JSON.stringify(titles) }).eq('discord_id', discordId);
+        showToast(`✅ Granted title to player!`);
+      } else {
+        showToast('Player already owns this title.');
+      }
+    } catch(e) { showToast('Failed to grant title'); }
+  }
+}
+
+// ══════════════════════════════════════════════════════
+// ADMIN GRANT PANEL — title selector
+// ══════════════════════════════════════════════════════
+let _adminGrantTitleId = '';
+function openAdminGrantTitlePicker() {
+  openTitlePicker({
+    currentId: _adminGrantTitleId,
+    showNone: false,
+    onSelect: (id) => {
+      _adminGrantTitleId = id;
+      const t = getTitleById(id);
+      const btn = document.getElementById('adminGrantTitleBtn');
+      if (btn) btn.textContent = t ? `🎀 ${t.text}` : '🎀 Select Title';
+    }
+  });
+  // Override: show ALL titles not just owned ones
+  setTimeout(() => {
+    const grid = document.getElementById('titlePickerGrid');
+    if (!grid) return;
+    const registry = window._titleRegistry || [];
+    const RARITY_COLORS_MAP = { common:'#bdc3c7', rare:'#3498db', epic:'#9b59b6', legendary:'#f1c40f', secret:'#ff79c6' };
+    let html = '';
+    for (const t of registry) {
+      const color = t.color || 'var(--pink)';
+      const rc    = RARITY_COLORS_MAP[t.rarity] || '#bdc3c7';
+      const badgeImg = t.badge ? `<img class="title-badge-img" src="${escapeHtml(t.badge)}" onerror="this.style.display='none'"/>` : '';
+      const emoji  = t.emoji ? `<span class="title-badge-emoji">${escapeHtml(t.emoji)}</span>` : '';
+      html += `<div class="title-picker-card${_adminGrantTitleId===t.id?' selected':''}" onclick="titlePickerSelect('${t.id}')">
+        <div class="tpc-badge-row">${badgeImg}${emoji}<span style="color:${color};font-style:italic;font-size:0.88em;">${escapeHtml(t.text||t.id)}</span></div>
+        <div class="tpc-rarity" style="color:${rc};">${escapeHtml(t.rarity||'common')}</div>
+      </div>`;
+    }
+    if (!registry.length) html = '<div style="color:var(--text-dim);font-size:0.82em;font-style:italic;text-align:center;grid-column:1/-1;padding:20px;">No titles created yet. Go to Admin → Titles.</div>';
+    grid.innerHTML = html;
+  }, 80);
+}
+function adminGrantPlayerTitleById() {
+  if (!_adminGrantTitleId) { showToast('Select a title first!'); return; }
+  const targetId = (document.getElementById('grantPlayerId')?.value || document.getElementById('adminGiveTargetId')?.value || '').trim();
+  if (!targetId) { showToast('Search and select a player first!'); return; }
+  grantTitleById(targetId, _adminGrantTitleId, 'Admin');
+}
+
+// ══════════════════════════════════════════════════════
+// CARD FORM — title drop selector
+// ══════════════════════════════════════════════════════
+let _cardFormTitleId = '';
+function openCardTitleDropPicker() {
+  openTitlePicker({
+    currentId: _cardFormTitleId,
+    showNone: true,
+    onSelect: (id) => {
+      _cardFormTitleId = id;
+      const t = id ? getTitleById(id) : null;
+      const btn = document.getElementById('cardTitleDropBtn');
+      if (btn) btn.textContent = t ? `🎀 ${t.text}` : '🎀 Select Title (none)';
+      // Keep hidden input in sync for save logic
+      const hidden = document.getElementById('cardForm_titleDrop');
+      if (hidden) hidden.value = id;
+    }
+  });
+  // Override: show ALL titles
+  setTimeout(() => {
+    const grid = document.getElementById('titlePickerGrid');
+    if (!grid) return;
+    const registry = window._titleRegistry || [];
+    const RARITY_COLORS_MAP = { common:'#bdc3c7', rare:'#3498db', epic:'#9b59b6', legendary:'#f1c40f', secret:'#ff79c6' };
+    let html = '<div class="title-picker-none-opt" onclick="titlePickerSelect(\'\')">✕ No Title Drop</div>';
+    for (const t of registry) {
+      const color = t.color || 'var(--pink)';
+      const rc    = RARITY_COLORS_MAP[t.rarity] || '#bdc3c7';
+      const badgeImg = t.badge ? `<img class="title-badge-img" src="${escapeHtml(t.badge)}" onerror="this.style.display='none'"/>` : '';
+      const emoji  = t.emoji ? `<span class="title-badge-emoji">${escapeHtml(t.emoji)}</span>` : '';
+      html += `<div class="title-picker-card${_cardFormTitleId===t.id?' selected':''}" onclick="titlePickerSelect('${t.id}')">
+        <div class="tpc-badge-row">${badgeImg}${emoji}<span style="color:${color};font-style:italic;font-size:0.88em;">${escapeHtml(t.text||t.id)}</span></div>
+        <div class="tpc-rarity" style="color:${rc};">${escapeHtml(t.rarity||'common')}</div>
+      </div>`;
+    }
+    if (!registry.length) html += '<div style="color:var(--text-dim);font-size:0.82em;font-style:italic;text-align:center;grid-column:1/-1;padding:20px;">No titles created yet. Create titles in Admin → Titles tab first.</div>';
+    grid.innerHTML = html;
+    // Update selection highlight
+    document.querySelectorAll('.title-picker-card, .title-picker-none-opt').forEach(el => {
+      const oc = el.getAttribute('onclick') || '';
+      el.classList.toggle('selected', oc.includes(`'${_cardFormTitleId}'`) || (_cardFormTitleId === '' && oc.includes("''")));
+    });
+  }, 80);
+}
+</script>
+
 </body>
 </html>
 <script>
@@ -42911,10 +43666,9 @@ document.addEventListener('DOMContentLoaded', () => {
     </div>
 
     <div id="grantPane-title" style="display:none;">
-      <label class="admin-label">Title Text</label>
-      <input class="admin-input" id="grantTitleText" placeholder="e.g. ✦ Legendary Summoner ✦" style="margin-bottom:6px;font-size:0.88em;"/>
-      <div style="font-size:0.7em;color:var(--text-dim);margin-bottom:10px;font-style:italic;">Enter the exact title string the player will receive and see on their profile.</div>
-      <button class="admin-btn" onclick="adminGrantPlayerTitle()" style="width:100%;">🎀 Give Title</button>
+      <button type="button" class="admin-btn" id="adminGrantTitleBtn" onclick="openAdminGrantTitlePicker()" style="width:100%;text-align:left;margin-bottom:8px;">🎀 Select Title</button>
+      <div style="font-size:0.7em;color:var(--text-dim);margin-bottom:10px;font-style:italic;">Choose a title from the registry. Create titles in Admin → Titles tab.</div>
+      <button class="admin-btn" onclick="adminGrantPlayerTitleById()" style="width:100%;">🎀 Give Title</button>
     </div>
   `;
 
@@ -44299,8 +45053,8 @@ let _wbLastBossAbilityTs= 0;
 const WB_ATTACK_COOLDOWN_MS  = 2500;
 const WB_RECOVERY_SECS       = 10;
 const WB_BASE_CARD_HP        = 130;
-const WB_SECRET_DROP_BASE    = 0.05;
-const WB_SECRET_DROP_TOP     = [0, 0.45, 0.25, 0.15];
+const WB_SECRET_DROP_BASE    = 0.02;
+const WB_SECRET_DROP_TOP     = [0, 0.20, 0.10, 0.05];
 const WB_BOSS_SKILL_MIN_MS   = 8000;
 const WB_BOSS_SKILL_MAX_MS   = 14000;
 const WB_BOSS_ABILITY_MIN_MS = 25000;
@@ -45302,11 +46056,26 @@ async function showBossDefeatedScreen(boss) {
   const sorted   = [..._wbParticData].sort((a,b)=>(b.damage_dealt||0)-(a.damage_dealt||0));
   const myRank   = sorted.findIndex(p=>p.discord_id===state.discordId)+1;
   const medals   = ['🥇','🥈','🥉'];
-  let dropChance = WB_SECRET_DROP_BASE;
-  if(myRank>=1&&myRank<=3) dropChance = WB_SECRET_DROP_TOP[myRank]||WB_SECRET_DROP_BASE;
+  let dropChance = 0; // default: no contribution = no chance
+  const myDmg = _wbMyPartic?.damage_dealt || 0;
+  const MIN_CONTRIBUTION = 10; // must have dealt at least 10 damage to be eligible
+  if(myRank >= 1 && myRank <= 3){
+    dropChance = WB_SECRET_DROP_TOP[myRank] || WB_SECRET_DROP_BASE;
+  } else if(myRank >= 4 && myRank <= 10 && myDmg >= MIN_CONTRIBUTION){
+    dropChance = WB_SECRET_DROP_BASE; // 2% for ranks 4-10
+  } else if(myRank > 10 && myDmg >= MIN_CONTRIBUTION){
+    dropChance = 0.01; // 1% for everyone else who contributed
+  }
   const gotDrop = Math.random() < dropChance;
-  const coinReward = Math.floor((myRank===1?250:myRank===2?180:myRank===3?120:60)+(_wbMyPartic?.damage_dealt||0)/80);
+  const coinReward = Math.floor((myRank===1?180:myRank===2?120:myRank===3?80:40)+(_wbMyPartic?.damage_dealt||0)/120);
   const top3 = sorted.slice(0,3);
+
+  // ── Resolve actual boss card name/rarity for the drop label ──
+  const allCards = [...(window.DEMO_CARDS||DEMO_CARDS), ...(window._adminCardCache||[])].filter((c,i,a)=>a.findIndex(x=>x.id===c.id)===i);
+  const bossCard = boss.card_id ? allCards.find(c=>c.id===boss.card_id) : null;
+  const dropCardName   = bossCard ? bossCard.name        : (boss.boss_name||'Boss Card');
+  const dropCardRarity = bossCard ? (bossCard.rarityName||'') : '';
+  const dropIcon = bossCard?.rarity===7 ? '🌈' : bossCard?.rarity>=6 ? '✨' : bossCard?.rarity>=5 ? '👑' : '🎴';
 
   const endEl = document.getElementById('wbEndScreen');
   if(!endEl) return;
@@ -45327,8 +46096,10 @@ async function showBossDefeatedScreen(boss) {
         <div class="wb-end-rank-tag">Your Rank: #${myRank} of ${sorted.length} raiders</div>
         <div class="wb-end-drop-result ${gotDrop?'wb-drop-got':'wb-drop-miss'}">
           ${gotDrop
-            ? `✨ SECRET CARD DROPPED! (${Math.round(dropChance*100)}% chance)<br><span style="font-size:0.78em;opacity:0.8;">Added to your collection!</span>`
-            : `🎴 No drop this time (${Math.round(dropChance*100)}% chance)<br><span style="font-size:0.78em;opacity:0.8;">+${coinReward}🪙 reward</span>`}
+            ? `${dropIcon} ${escapeHtml(dropCardRarity)} ${escapeHtml(dropCardName)} dropped! (${Math.round(dropChance*100)}% chance)<br><span style="font-size:0.78em;opacity:0.8;">Added to your collection!</span>`
+            : dropChance === 0
+              ? `🎴 No drop — contribute damage to be eligible next time!`
+              : `🎴 No drop this time (${Math.round(dropChance*100)}% chance)<br><span style="font-size:0.78em;opacity:0.8;">+${coinReward}🪙 consolation reward</span>`}
         </div>
       </div>
       <button class="wb-btn-primary" onclick="closeBossArena()">Return to Hub</button>
@@ -45342,7 +46113,11 @@ async function showBossDefeatedScreen(boss) {
     try { await sb.update('players',{coins:state.coins},{discord_id:state.discordId}); } catch(_) {}
   }
   if(gotDrop&&boss.card_id&&state.discordId&&!state.isGuest) {
-    try { await saveCardToCollection(state.discordId,boss.card_id); showToast(`🌟 Secret card added!`); try{spawnParticles(8,'#9b59b6');}catch(_){} }
+    try {
+      await saveCardToCollection(state.discordId,boss.card_id);
+      showToast(`${dropIcon} ${dropCardRarity} ${dropCardName} added to collection!`);
+      try{ spawnParticles(bossCard?.rarity===7?10:6, bossCard?.color||'#9b59b6'); }catch(_){}
+    }
     catch(e) { showToast('Could not save card: '+e.message); }
   } else { showToast(`+${coinReward}🪙 battle reward!`); }
 }
